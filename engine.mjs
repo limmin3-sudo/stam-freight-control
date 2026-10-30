@@ -31,7 +31,7 @@ function sameGroup(p,item){return p.missionId===item.missionId&&(p.dropoffId||''
 export function boxDepth(ship,p,bounds=shipBounds(ship)){const g=ship.grids[p.bin],a=shipAccess(ship),x0=g.x+p.cell[0],x1=x0+p.dims[0],z0=g.z+p.cell[2],z1=z0+p.dims[2];
  if(a==='rear')return bounds.maxZ-z1;if(a==='front')return z0-bounds.minZ;if(a==='left')return x0-bounds.minX;if(a==='right')return bounds.maxX-x1;
  // external (Hull B): reached from the outward face of each grid.
- const outward=g.x+g.w/2<0?-1:1;return outward<0?p.cell[0]:g.w-(p.cell[0]+p.dims[0]);}
+ if(g._stack==='out')return g.h-(p.cell[1]+p.dims[1]);const outward=g.x+g.w/2<0?-1:1;return outward<0?p.cell[0]:g.w-(p.cell[0]+p.dims[0]);}
 export function shipBounds(ship){let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;for(const g of ship.grids){minX=Math.min(minX,g.x);maxX=Math.max(maxX,g.x+g.w);minZ=Math.min(minZ,g.z);maxZ=Math.max(maxZ,g.z+g.l);}return {minX,maxX,minZ,maxZ};}
 export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const bins=makeBins(ship);const limit=capacity(ship);const placed=[...fixed];
