@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
+import {koName} from './aliases.mjs';
 import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
 
@@ -113,7 +114,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function clearLabels(){for(const s of labels.values()){s.material.map.dispose();s.material.dispose();}clearGroup(labelGroup);labels.clear();}
  const visitNums=id=>route?.visits.map((v,i)=>v.locationId===id?i+1:null).filter(Boolean)||[];
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
-  const sub=(TYPE_KO[l.type]||'')+(parent&&parent.type!=='Star'&&parent.type!=='Manmade'?' · '+parent.name:'');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
+  const ko=koName(l),sub=(ko&&ko!==l.name?ko+' · ':'')+(TYPE_KO[l.type]||'')+(parent&&parent.type!=='Star'&&parent.type!=='Manmade'?' · '+parent.name:'');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
   s=labelSprite((n.length?n.join(',')+' · ':'')+l.name,sub,color,{big:l.type==='Planet'||l.type==='Star',glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(it.icon==='station'||it.icon==='lagrange')return 4;if(it.icon==='outpost')return 2;return 1;}
 
