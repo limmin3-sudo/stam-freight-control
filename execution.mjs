@@ -1,5 +1,6 @@
 // Run progress: the game is not connected, so the captain presses one big button per stop
 // (접수 완료 / 배송 완료) and the whole page moves on to the next leg. State survives reloads.
+import {V} from './voice.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
@@ -22,7 +23,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   if(!plan){root.hidden=true;document.body.classList.remove('run-active');return;}root.hidden=false;document.body.classList.toggle('run-active',run.started&&!run.finished);
   const total=plan.visits.length,i=run.index,v=plan.visits[i],next=plan.visits[i+1],reward=plan.totalReward||0;
   if(run.finished){const sec=elapsed(),rate=reward&&sec>0?reward/(sec/3600):0;
-   root.innerHTML=`<div class="run-summary"><div class="eyebrow">MISSION COMPLETE / 운항 완료</div><h2>수고하셨습니다, 함장님.</h2><div class="run-sum-grid"><div><span>총 운항 시간</span><b>${mmss(sec)}</b></div><div><span>예상 수익</span><b>${reward?fmt(reward)+' aUEC':'—'}</b></div><div><span>시간당</span><b>${rate?fmt(rate)+' aUEC':'—'}</b></div><div><span>거점</span><b>${run.log.length}곳</b></div></div>
+   root.innerHTML=`<div class="run-summary"><div class="eyebrow">MISSION COMPLETE / 운항 완료</div><h2>${V().done}</h2><p class="subtle">${V().doneSub}</p><div class="run-sum-grid"><div><span>총 운항 시간</span><b>${mmss(sec)}</b></div><div><span>예상 수익</span><b>${reward?fmt(reward)+' aUEC':'—'}</b></div><div><span>시간당</span><b>${rate?fmt(rate)+' aUEC':'—'}</b></div><div><span>거점</span><b>${run.log.length}곳</b></div></div>
     <table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${Math.max(1,Math.round(l.est/60))}분</td></tr>`).join('')}</tbody></table>
     <div class="run-buttons"><button id="run-new" class="primary">새 운항 준비</button><button id="run-keep" class="quiet">이 계획 다시 보기</button></div></div>`;
    root.querySelector('#run-new').onclick=()=>{run=blank();save();onReset?.('new');};root.querySelector('#run-keep').onclick=()=>{run=blank();run.planKey=keyOf(plan);save();render();onAdvance?.(0);};return;}
@@ -30,7 +31,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   root.innerHTML=`<div class="run-head"><div><div class="eyebrow">LIVE RUN / 운항 진행 · ${i+1}/${total} 거점</div><h2><span class="run-num">${i+1}</span>${esc(nm(v.locationId))}</h2></div>
    <div class="run-meters"><div><span>운항 시간</span><b id="run-clock">${mmss(elapsed())}</b></div><div><span>남은 예상</span><b id="run-left"></b></div><div><span>시간당 수익</span><b id="run-rate">—</b></div></div></div>
    <div class="run-track">${plan.visits.map((x,k)=>`<i class="${k<i?'done':k===i?'now':''}" title="${k+1}. ${esc(nm(x.locationId))}"></i>`).join('')}<span style="width:${pct}%"></span></div>
-   <div class="aide"><span class="aide-badge">항해사</span><span class="aide-line">${esc(run.lastLine||(run.started?`${nm(v.locationId)}에서 작업을 마치시면 버튼을 눌러 주십시오.`:'출항 준비가 끝났습니다. 첫 거점에 도착하시면 시작하겠습니다.'))}</span></div>
+   <div class="aide"><span class="aide-badge">항해사</span><span class="aide-line">${esc(run.lastLine||(run.started?V().atStop(nm(v.locationId)):V().ready))}</span></div>
    <div class="run-body"><div class="run-now"><ul class="run-cargo">${cargoLine(v)}</ul>${v.blocked?.length?`<p class="blocked-badge">⚠ 하역 전에 다른 상자 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}개를 먼저 옮겨야 할 수 있습니다.</p>`:''}
     <button id="run-done" class="run-big ${kind}">${BTN[kind]} <kbd>Space</kbd></button></div>
     <div class="run-next">${next?`<span>다음</span><b>${esc(nm(next.locationId))}</b><small>약 ${Math.max(1,Math.round(next.seconds/60))}분${next.leg.jumps?' · '+esc((next.leg.gateways||[]).join(' → '))+' 경유':''}</small>`:'<span>다음</span><b>마지막 거점</b>'}</div></div>
@@ -48,13 +49,13 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const kind=kindOf(v);run.index++;
   if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();return;}
   const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
-  run.lastLine=`${nm(v.locationId)} ${kind==='pickup'?'접수':kind==='delivery'?'배송':'작업'} 완료했습니다. 다음은 ${nm(n.locationId)}, 약 ${Math.max(1,Math.round(n.seconds/60))}분 거리입니다.`+(n.leg.jumps?` ${(n.leg.gateways||[])[0]||'게이트웨이'}에서 점프합니다.`:'')+(unload.length?` 내리실 화물은 ${[...new Set(unload.map(e=>e.missionId))].join(', ')}입니다.`:load.length?` 실으실 화물은 ${[...new Set(load.map(e=>e.missionId))].join(', ')}입니다.`:'');
+  run.lastLine=V().next(nm(v.locationId),kind==='pickup'?'접수':kind==='delivery'?'배송':'작업',nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(n.leg.jumps?V().jump((n.leg.gateways||[])[0]||'게이트웨이'):'')+(unload.length?V().cargo(true,[...new Set(unload.map(e=>e.missionId))].join(', ')):load.length?V().cargo(false,[...new Set(load.map(e=>e.missionId))].join(', ')):'');
   save();render();onAdvance?.(run.index);}
  function undo(){if(!run.log.length)return;const last=run.log.pop();run.index=last.visit;for(const e of last.events){if(e.type==='pickup')run.picked=run.picked.filter(x=>x!==e.shipmentId);if(e.type==='delivery')run.delivered=run.delivered.filter(x=>x!==e.shipmentId);}
-  run.aboard=run.index?plan.visits[run.index-1].packing?.boxes||[]:[];run.finished=false;run.lastLine=`${last.name} 완료를 취소했습니다. 다시 진행해 주십시오.`;save();render();onAdvance?.(run.index);}
+  run.aboard=run.index?plan.visits[run.index-1].packing?.boxes||[]:[];run.finished=false;run.lastLine=V().undo(last.name);save();render();onAdvance?.(run.index);}
  function replanFrom(skip){if(!plan)return;const here=run.log.length?run.log.at(-1).locationId:(run.startId||plan.visits[0].locationId);
   const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
-  if(ok){run.lastLine=skip?`${nm(avoid)}는 뒤로 미뤘습니다. 남은 경로를 다시 짰습니다.`:'지금 실린 화물 그대로 남은 경로를 다시 짰습니다.';save();render();}}
+  if(ok){run.lastLine=skip?V().defer(nm(avoid)):V().replan;save();render();}}
  setInterval(tick,1000);
  document.addEventListener('keydown',e=>{if(!plan||run.finished||!document.body.classList.contains('run-mode')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
@@ -62,6 +63,6 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
    if(keepRun){run.planKey=k;run.index=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;}else{run=blank();run.planKey=k;}}
    if(run.index>=p.visits.length)run.index=Math.max(0,p.visits.length-1);save();render();},
-  start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=`출항합니다. 첫 거점은 ${nm(plan.visits[0].locationId)}입니다. 도착해서 작업을 마치시면 버튼을 눌러 주십시오.`;}save();render();onAdvance?.(run.index);},
-  replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
+  start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=V().first(nm(plan.visits[0].locationId));}save();render();onAdvance?.(run.index);},
+  refresh:()=>render(),replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
 }
