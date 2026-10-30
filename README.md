@@ -6,7 +6,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 - 소스: https://github.com/limmin3-sudo/stam-freight-control
 - **공통 개발 규칙:** [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 - **현재 작업 상태:** [PROJECT_STATUS.md](PROJECT_STATUS.md)
-- **저장소 이름 변경 인계(미완료):** [docs/REPOSITORY-RENAME.md](docs/REPOSITORY-RENAME.md)
+- **저장소 이름 변경 기록(완료):** [docs/REPOSITORY-RENAME.md](docs/REPOSITORY-RENAME.md)
 - **AI 시작 지침:** [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md)
 - **개발 인수인계:** [docs/CLOUD-HANDOFF.md](docs/CLOUD-HANDOFF.md)
 - **Codex Cloud 시작 프롬프트:** [docs/CLOUD-START-PROMPT.md](docs/CLOUD-START-PROMPT.md)
@@ -93,6 +93,10 @@ npm start
 ```
 
 프로젝트 폴더에서 `start.cmd`를 실행해도 됩니다. Node.js 22가 PATH에 있어야 합니다. 개인 API 키 없이 기본 앱을 사용할 수 있습니다. 선택적 AI 서버를 쓸 경우 각 PC에서 비밀값을 별도로 설정하고 GitHub에 올리지 않습니다.
+
+### 최신 받기 — `update.cmd` 더블클릭
+
+PC를 바꿔 작업을 시작할 때 프로젝트 폴더의 `update.cmd`를 더블클릭합니다. 예전 저장소 주소(`verse-hauler`)면 새 주소로 바꾸고, 최신 변경을 받습니다. 수정 중인 파일이 있거나 기록이 갈라졌으면 아무것도 덮어쓰지 않고 멈추며 이유를 보여 줍니다.
 
 ### 작업을 시작할 때
 
