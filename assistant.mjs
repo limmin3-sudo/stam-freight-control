@@ -3,6 +3,7 @@
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 import {V,VOICE_LIST,VOICE_PORTRAITS,voiceId,setVoice} from './voice.mjs';
+const SIZES=[1,2,4,8,16,24,32];
 const SEEN='sfc-aide-seen';
 const EMBLEM=`<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ff3ff"/><stop offset="1" stop-color="#2a7fa8"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="none" stroke="url(#ag)" stroke-width="2"/><circle cx="32" cy="32" r="21" fill="none" stroke="#2a5a70" stroke-width="1"/><path d="M32 9 L37 30 L55 32 L37 34 L32 55 L27 34 L9 32 L27 30 Z" fill="url(#ag)" opacity=".9"/><circle cx="32" cy="32" r="3.5" fill="#06121b"/></svg>`;
 
@@ -64,10 +65,12 @@ export function createAssistant(app){
   on('#a-next',()=>{const bad=ms.find(m=>app.issues(m).some(t=>t.includes('위치')));if(bad){root.querySelector('.aide-sub').textContent=V().locationIssue(bad.id);return;}go(app.missingBoxes().length?'boxes':'brief');});on('#a-more',()=>go('shots'));on('#a-back',()=>go('shots'));}
  function boxes(){const groups=app.missingBoxes();
   frame(V().boxes,V().boxesSub,
-   `<ul class="aide-boxes">${groups.map((g,i)=>`<li><div><b>${esc(g.missionId)}</b> · ${esc(app.placeName(g.dropoffId))} · ${g.scu} SCU</div><input data-g="${i}" placeholder="예: 16x4, 2x10" autocomplete="off"><small data-h="${i}"></small></li>`).join('')}</ul>`,
+   `<ul class="aide-boxes">${groups.map((g,i)=>`<li><div><b>${esc(g.missionId)}</b> · ${esc(app.placeName(g.dropoffId))} · ${g.scu} SCU</div><div class="aide-box-counts">${SIZES.map(size=>`<label><span>${size} SCU</span><input data-g="${i}" data-size="${size}" type="number" min="0" max="10000" inputmode="numeric" aria-label="${size} SCU 상자 개수"></label>`).join('')}</div><small data-h="${i}"></small></li>`).join('')}</ul>`,
    `<button class="primary" id="a-next">${V().boxesOk}</button><button class="quiet" id="a-back">이전</button>`);
-  root.querySelectorAll('[data-g]').forEach(inp=>inp.oninput=()=>{const g=groups[inp.dataset.g],parsed=app.parseBoxes(inp.value),h=root.querySelector(`[data-h="${inp.dataset.g}"]`);if(!inp.value.trim()){h.textContent='';return;}if(!parsed){h.textContent='형식 확인 필요';return;}const sum=parsed.reduce((a,b)=>a+b.size*b.count,0);h.textContent=sum===g.scu?'✓ 합계 일치':`합계 ${sum} SCU · ${g.scu} SCU와 다릅니다`;});
-  on('#a-next',()=>{root.querySelectorAll('[data-g]').forEach(inp=>{const g=groups[inp.dataset.g],parsed=app.parseBoxes(inp.value);if(parsed&&parsed.reduce((a,b)=>a+b.size*b.count,0)===g.scu)app.setBoxes(g,parsed);});go('brief');});on('#a-back',()=>go('confirm'));}
+  const counts=i=>[...root.querySelectorAll(`[data-g="${i}"]`)].map(inp=>({size:Number(inp.dataset.size),count:Number(inp.value)||0})).filter(b=>b.count>0);
+  root.querySelectorAll('[data-g]').forEach(inp=>inp.oninput=()=>{const i=inp.dataset.g,g=groups[i],boxes=counts(i),h=root.querySelector(`[data-h="${i}"]`),sum=boxes.reduce((a,b)=>a+b.size*b.count,0);h.classList.toggle('bad',sum>0&&sum!==g.scu);if(sum===g.scu)groups.forEach((o,j)=>{if(String(j)===i||o.mix!==g.mix)return;const inputs=[...root.querySelectorAll(`[data-g="${j}"]`)];if(inputs.some(x=>x.value))return;for(const x of inputs){const b=boxes.find(b=>b.size===Number(x.dataset.size));x.value=b?b.count:'';}const oh=root.querySelector(`[data-h="${j}"]`);oh.classList.remove('bad');oh.textContent='✓ 같은 품목 조합이라 위와 같은 구성으로 채웠습니다';});
+   h.textContent=!sum?'':sum===g.scu?`✓ ${boxes.reduce((a,b)=>a+b.count,0)}상자 · 합계 일치 · 다음부터 같은 품목 조합은 자동으로 채웁니다`:`합계 ${sum} SCU · ${g.scu} SCU와 다릅니다`;});
+  on('#a-next',()=>{groups.forEach((g,i)=>{const boxes=counts(i);if(boxes.length&&boxes.reduce((a,b)=>a+b.size*b.count,0)===g.scu)app.setBoxes(g,boxes);});go('brief');});on('#a-back',()=>go('confirm'));}
  function brief(){const p=app.plan();
   if(!p){frame(V().fail,V().failSub,`<p class="aide-note">${esc(app.notice())}</p>`,'<button class="primary" id="a-back">계약 다시 보기</button>');on('#a-back',()=>go('confirm'));return;}
   const low=Math.max(1,Math.round(p.seconds/60*.8)),high=Math.ceil(p.seconds/60*1.3),reward=p.totalReward||0,rate=reward?`${fmt(reward/(p.seconds*1.3/3600))}–${fmt(reward/(p.seconds*.8/3600))}`:'',blocked=p.visits.filter(v=>v.blocked?.length).length;
