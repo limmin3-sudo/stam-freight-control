@@ -1,5 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
-import {boxList,packBoxes,planRoute,navigator,CAPACITY} from '../engine.mjs';
+import {boxList,packBoxes,planRoute,navigator,CAPACITY,isUpright} from '../engine.mjs';
+import {planRoutesOnly} from '../route-only.mjs';
+import {validateShip} from '../ships.mjs';
 const data=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url)));const find=n=>data.locations.find(l=>l.name===n)?.id;
 const cargo=(scu,pickupId,dropoffId,boxes)=>({commodity:'Same commodity',scu,pickupId,dropoffId,boxes});const mission=(id,c)=>({id,company:'test',reward:0,cargo:c});
 test('24 SCU boxes fragment independent grids despite total volume below capacity',()=>{assert.ok(packBoxes(Array.from({length:16},(_,i)=>({size:24,missionId:'A',boxId:'a'+i}))));assert.equal(packBoxes(Array.from({length:17},(_,i)=>({size:24,missionId:'A',boxId:'a'+i}))),null);});
@@ -18,3 +20,7 @@ test('oversized cargo becomes multiple trips without losing SCU',()=>{const p=pl
 test('cross system routes use sourced jump endpoints, never Euclidean distance across frames',()=>{const n=navigator(data,{}),r=n.path(find('Everus Harbor'),find('Levski'));assert.equal(r.jumps,2);assert.equal(r.nodes.length,6);assert.ok(r.seconds>16*60);});
 test('all data IDs and jump endpoints are unique and finite',()=>{assert.equal(new Set(data.locations.map(l=>l.id)).size,data.locations.length);assert.ok(data.locations.every(l=>l.position.every(Number.isFinite)));for(const j of data.jumps){assert.ok(data.locations.some(l=>l.id===j.from));assert.ok(data.locations.some(l=>l.id===j.to));}});
 
+
+test('a grid that forbids upright 16 SCU boxes never places one on end',()=>{const ship=validateShip({name:'Tall',grids:[{id:'t',name:'T',w:2,h:4,l:2,x:0,y:0,z:0,maxBoxSize:32,noUpright:[16]}]});assert.equal(packBoxes([{size:16,missionId:'A',boxId:'a'}],[],ship),null);const free=validateShip({...ship,grids:[{...ship.grids[0],noUpright:[]}]});const p=packBoxes([{size:16,missionId:'A',boxId:'a'}],[],free);assert.ok(p&&isUpright(p.boxes[0].dims));});
+test('default Hull B keeps its upright-16 rule through validation',()=>{const p=packBoxes(Array.from({length:32},(_,i)=>({size:16,missionId:'A',boxId:'b'+i})));assert.ok(p);assert.ok(p.boxes.every(b=>!isUpright(b.dims)));});
+test('route-only mode ignores ship capacity and still orders pickup before delivery',()=>{const m=[mission('BIG',[cargo(2000,find('Everus Harbor'),find('Seraphim Station'),[])]),mission('X',[cargo(0,find('Baijini Point'),find('Everus Harbor'),[])])];const p=planRoutesOnly(data,m,find('Everus Harbor'));assert.equal(p.simple,true);const seen=new Set();for(const v of p.visits)for(const e of v.events){if(e.type==='pickup')seen.add(e.shipmentId);if(e.type==='delivery')assert.ok(seen.has(e.shipmentId));}assert.equal(p.visits.at(-1).load,0);assert.equal(p.peak,2000);});
