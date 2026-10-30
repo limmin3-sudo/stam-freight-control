@@ -9,7 +9,7 @@ const UNIT=1e9,V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const GALAXY={stanton:V(0,0,0),pyro:V(78,6,-40),nyx:V(-70,-5,-52)};
 const STAR_R={stanton:2.4,pyro:2.1,nyx:2};
 const TYPE_KO={Planet:'행성',Moon:'위성',Star:'항성',Manmade:'정거장',Manmade_VisibleOnInteraction:'시설',LandingZone:'착륙 도시',Outpost:'지상 거점',PointOfInterest:'관심 지점',Asteroid:'소행성 기지',Asteroid_ValidQT:'소행성',NavPoint:'항법 지점',Anomaly:'점프 포인트'};
-const ICON={station:['#7fe3ff',15],lagrange:['#9fd2ff',13],gate:['#a9b8ff',17],city:['#ffd27a',16],outpost:['#f0b46e',11],poi:['#c9a4ff',10],rock:['#9aa6b2',7]};
+const ICON={station:['#eef6ff',18],lagrange:['#eef6ff',18],gate:['#b3c0ff',21],city:['#ffd27a',19],outpost:['#f0b46e',13],poi:['#c9a4ff',12],rock:['#9aa6b2',7]};
 const QUALITY={normal:{ratio:1,detail:0,seg:[48,32],bloom:0},high:{ratio:1.5,detail:1,seg:[96,64],bloom:0},ultra:{ratio:2,detail:2,seg:[160,112],bloom:0}};
 const fmtDist=m=>m>=1e9?(m/1e9).toFixed(m>=1e10?0:1)+' Gm':m>=1e6?(m/1e6).toFixed(0)+' Mm':Math.max(1,Math.round(m/1e3))+' km';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));

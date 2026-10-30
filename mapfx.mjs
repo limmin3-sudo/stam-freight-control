@@ -122,15 +122,21 @@ export function glowTexture(color,ring=false){
 export function glowSprite(color,scale,opacity=1,ring=false){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(color,ring),transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending}));s.scale.setScalar(scale);return s;}
 
 // Icons for non-body locations (screen-sized sprites): station hexagon, city, outpost diamond, lagrange cross, POI ring, asteroid.
-export function iconTexture(kind,color){const key='i:'+kind+color;if(cache.has(key))return cache.get(key);const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.translate(32,32);g.strokeStyle=color;g.fillStyle=color;g.lineWidth=5;g.shadowColor='rgba(0,0,0,.8)';g.shadowBlur=3;
+export function iconTexture(kind,color){const key='i:'+kind+color;if(cache.has(key))return cache.get(key);const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.translate(64,64);g.scale(2,2);g.strokeStyle=color;g.fillStyle=color;g.lineCap='round';g.lineJoin='round';
  const poly=(n,r,rot=0)=>{g.beginPath();for(let i=0;i<n;i++){const a=rot+i/n*Math.PI*2;g[i?'lineTo':'moveTo'](Math.cos(a)*r,Math.sin(a)*r);}g.closePath();};
- if(kind==='station'){poly(6,20,Math.PI/6);g.globalAlpha=.25;g.fill();g.globalAlpha=1;g.stroke();g.beginPath();g.arc(0,0,5,0,Math.PI*2);g.fill();}
- else if(kind==='city'){g.beginPath();g.arc(0,0,18,0,Math.PI*2);g.stroke();g.beginPath();g.arc(0,0,9,0,Math.PI*2);g.fill();}
- else if(kind==='outpost'){poly(4,17);g.globalAlpha=.35;g.fill();g.globalAlpha=1;g.stroke();}
- else if(kind==='lagrange'){g.beginPath();g.moveTo(-18,0);g.lineTo(18,0);g.moveTo(0,-18);g.lineTo(0,18);g.stroke();g.beginPath();g.arc(0,0,8,0,Math.PI*2);g.stroke();}
- else if(kind==='gate'){poly(4,20,Math.PI/4);g.stroke();poly(4,10,Math.PI/4);g.fill();}
- else if(kind==='waypoint'){g.shadowBlur=0;g.lineWidth=4;g.beginPath();g.arc(0,0,24,0,Math.PI*2);g.stroke();g.lineWidth=2;g.beginPath();g.arc(0,0,15,0,Math.PI*2);g.stroke();}
- else if(kind==='poi'){g.beginPath();g.arc(0,0,14,0,Math.PI*2);g.stroke();}
+ const ring=(r,w,a=1)=>{g.globalAlpha=a;g.lineWidth=w;g.beginPath();g.arc(0,0,r,0,Math.PI*2);g.stroke();g.globalAlpha=1;};
+ // Thin starmap-style markers on a faint dark disc so they stay readable over bright nebula and orbits.
+ const backed=kind!=='waypoint'&&kind!=='rock';
+ if(backed){g.shadowColor='rgba(0,0,0,.85)';g.shadowBlur=4;g.fillStyle='rgba(3,8,14,.55)';g.beginPath();g.arc(0,0,kind==='station'||kind==='lagrange'?15:13,0,Math.PI*2);g.fill();g.shadowBlur=0;g.fillStyle=color;}
+ // Stations (incl. Lagrange stations) use the in-game starmap glyph: a ring with two short stubs on the diagonal.
+ if(kind==='station'||kind==='lagrange'){g.lineWidth=2.6;g.beginPath();g.arc(0,0,8.5,0,Math.PI*2);g.stroke();g.lineWidth=2.8;for(const a of [-Math.PI/4,Math.PI*3/4]){g.beginPath();g.moveTo(Math.cos(a)*8.5,Math.sin(a)*8.5);g.lineTo(Math.cos(a)*14,Math.sin(a)*14);g.stroke();}}
+ else if(kind==='city'){ring(21,1.6,.55);ring(14.5,2.4);g.beginPath();g.arc(0,0,7,0,Math.PI*2);g.fill();}
+ else if(kind==='outpost'){poly(4,10.5);g.globalAlpha=.45;g.fill();g.globalAlpha=1;g.lineWidth=2.2;g.stroke();g.beginPath();g.arc(0,0,2.6,0,Math.PI*2);g.fill();}
+// lagrange shares the station glyph above
+ else if(false){ring(13.5,2.2);g.lineWidth=2.2;for(const [x,y] of [[1,0],[-1,0],[0,1],[0,-1]]){g.beginPath();g.moveTo(x*7,y*7);g.lineTo(x*21,y*21);g.stroke();}g.beginPath();g.arc(0,0,3,0,Math.PI*2);g.fill();}
+ else if(kind==='gate'){poly(4,19,Math.PI/4);g.lineWidth=2.4;g.stroke();poly(4,9.5,Math.PI/4);g.globalAlpha=.9;g.fill();g.globalAlpha=1;ring(13.5,1.2,.6);}
+ else if(kind==='waypoint'){g.lineWidth=3.5;g.shadowColor='rgba(0,0,0,.8)';g.shadowBlur=3;g.beginPath();g.arc(0,0,24,0,Math.PI*2);g.stroke();g.lineWidth=2;g.beginPath();g.arc(0,0,15,0,Math.PI*2);g.stroke();}
+ else if(kind==='poi'){ring(11.5,2.2);g.beginPath();g.arc(0,0,3.2,0,Math.PI*2);g.fill();}
  else{g.beginPath();g.arc(0,0,9,0,Math.PI*2);g.globalAlpha=.8;g.fill();}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;cache.set(key,t);return t;}
 
@@ -145,15 +151,28 @@ export function labelSprite(name,sub,color='#cfe6f2',opts={}){const c=document.c
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;
  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false,depthWrite:false,sizeAttenuation:false}));s.renderOrder=20;s.userData.px=[c.width/2,c.height/2];return s;}
 
-// Faint nebula backdrop + layered starfield, tinted by system.
+// Nebula backdrop + layered starfield, tinted by system. The nebula is computed per pixel from the view
+// direction (3D noise), so it has no texture seam, stays sharp at any zoom and is dithered against banding.
 function rng(text){let s=seedOf(text)||1;return()=>{s=Math.imul(s^(s>>>15),2246822507)>>>0;s=Math.imul(s^(s>>>13),3266489909)>>>0;s^=s>>>16;return(s>>>0)/4294967296;};}
+const BACKDROP_THEMES={stanton:{base:'#020a14',hue:['#12566e','#1a4a7c','#1d6a70'],glow:.5},pyro:{base:'#0d0603',hue:['#b4581c','#8a3a12','#d48a3a'],glow:.42},nyx:{base:'#04050f',hue:['#2e2c70','#1f3a7a','#4a2c6e'],glow:.5},galaxy:{base:'#030713',hue:['#1b3a66','#3d2460','#14324a'],glow:.45}};
 export function createBackdrop(scene){
- const c=document.createElement('canvas');c.width=2048;c.height=1024;const g=c.getContext('2d'),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
- const sphere=new THREE.Mesh(new THREE.SphereGeometry(9000,64,32),new THREE.MeshBasicMaterial({map:tex,side:THREE.BackSide,depthWrite:false,fog:false}));sphere.renderOrder=-10;scene.add(sphere);
+ const u={uBase:{value:new THREE.Color()},uA:{value:new THREE.Color()},uB:{value:new THREE.Color()},uC:{value:new THREE.Color()},uSeed:{value:0},uGlow:{value:.5}};
+ const sphere=new THREE.Mesh(new THREE.SphereGeometry(9000,64,32),new THREE.ShaderMaterial({uniforms:u,side:THREE.BackSide,depthTest:false,depthWrite:false,fog:false,
+  vertexShader:'varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`uniform vec3 uBase;uniform vec3 uA;uniform vec3 uB;uniform vec3 uC;uniform float uSeed;uniform float uGlow;varying vec3 vDir;
+  float h(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+  float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);}
+  float fbm(vec3 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n3(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return v;}
+  void main(){vec3 d=normalize(vDir);float lon=atan(d.z,d.x);
+   float y=d.y-.16*sin(lon+uSeed)-.05*sin(2.*lon+uSeed*1.7),band=exp(-y*y/.08);
+   float n=fbm(d*2.2+uSeed),n2=fbm(d*4.6+vec3(uSeed*1.3,0.,7.)),dust=fbm(d*7.5+vec3(3.,uSeed,1.));
+   float cloud=smoothstep(.38,.82,n)*(.3+.7*band)+band*.22;
+   vec3 col=mix(uA,uB,smoothstep(.3,.7,n2));col=mix(col,uC,smoothstep(.55,.8,n)*.55);
+   vec3 c=uBase+col*cloud*uGlow;
+   c*=1.-.6*smoothstep(.5,.7,dust)*band;
+   float r=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453);
+   gl_FragColor=vec4(max(c+(r-.5)*.004,0.),1.);}`}));
+ sphere.renderOrder=-10;scene.add(sphere);
  for(const [count,size,opacity] of [[4200,1,.55],[900,1.7,.75],[160,2.8,.95]]){const r=rng('stars'+count),pos=[],col=[];for(let i=0;i<count;i++){const u=r()*2-1,t=r()*Math.PI*2,rad=8000,s=Math.sqrt(1-u*u);pos.push(rad*s*Math.cos(t),rad*u*.9,rad*s*Math.sin(t));const tint=r(),cc=new THREE.Color(tint<.15?'#ffd9b0':tint<.35?'#c9dcff':'#ffffff');col.push(cc.r,cc.g,cc.b);}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size,sizeAttenuation:false,vertexColors:true,transparent:true,opacity,depthWrite:false})));}
- function paint(system){const r=rng('neb'+system),theme={stanton:{base:'#020b15',hue:['#124964','#174474','#154f58']},pyro:{base:'#120504',hue:['#75281a','#591a20','#7c401f']},nyx:{base:'#050615',hue:['#27265b','#1d3268','#35234f']},galaxy:{base:'#030713',hue:['#1b3a66','#3d2460','#14324a']}}[system]||{base:'#020b15',hue:['#124964','#174474','#154f58']},hue=theme.hue;
-  g.fillStyle=theme.base;g.fillRect(0,0,2048,1024);
-  for(let i=0;i<110;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*320,rad=60+r()*300,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,hue[i%3]+'40');gr.addColorStop(1,hue[i%3]+'00');g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
-  for(let i=0;i<60;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*120,rad=20+r()*80,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,'#00000070');gr.addColorStop(1,'#00000000');g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
-  g.globalAlpha=.55;for(let i=0;i<2600;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*230;g.fillStyle=r()<.2?'#ffe2c4':'#ffffff';g.fillRect(x,y,r()<.92?1:2,1);}g.globalAlpha=1;tex.needsUpdate=true;}
+ function paint(system){const t=BACKDROP_THEMES[system]||BACKDROP_THEMES.stanton;u.uBase.value.set(t.base);u.uA.value.set(t.hue[0]);u.uB.value.set(t.hue[1]);u.uC.value.set(t.hue[2]);u.uGlow.value=t.glow;u.uSeed.value=(seedOf('neb'+system)%1000)/37;}
  return {paint,sphere};}
