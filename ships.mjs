@@ -1,4 +1,5 @@
 export const DEFAULT_SHIP={id:'misc-hull-b',name:'MISC Hull B',layout:'schematic-x',source:'게임 데이터의 16개 구역명·치수 확인, 부착 위치는 개략',grids:Array.from({length:16},(_,i)=>{const side=i<8?'좌측':'우측',s=i%8,front=s<4,top=s%4<2,upper=s%2===1;return {id:'hull-b-'+i,name:`${i<8?'L':'R'}${s+1} · ${front?'전방':'후방'} ${top?'상부':'하부'} ${upper?'위':'아래'}`,w:2,h:2,l:8,x:i<8?-5:3,y:(top?1:-5)+(upper?2:0),z:front?-9:1,maxBoxSize:32,noUpright:[16]};})};
+export function hullKind(ship){const id=String(ship?.id||''),name=String(ship?.name||'');if(id==='misc-hull-b'||/hull[ -]?b\b/i.test(name))return 'hull-b';return 'flat';}
 export const capacity=ship=>ship.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0);
 export function validateShip(raw){
  if(!raw||typeof raw.name!=='string'||!raw.name.trim()||!Array.isArray(raw.grids)||!raw.grids.length||raw.grids.length>64)throw Error('함선 이름과 1–64개의 화물 구역이 필요해.');
