@@ -96,3 +96,31 @@ test('Hull B preserves dedicated-grid policy and can batch the whole load when s
  let previous=new Map();
  for(const v of shared.visits){for(const b of v.packing.boxes){if(previous.has(b.boxId))assert.equal(JSON.stringify([b.bin,b.cell,b.dims]),previous.get(b.boxId));}previous=new Map(v.packing.boxes.map(b=>[b.boxId,JSON.stringify([b.bin,b.cell,b.dims])]));}
 });
+
+test('default Hull B gathers all six contracts before leaving Stanton without a manual sharing setting',()=>{
+ const missions=contracts(),plan=planRoute(game,missions,location('Orison'));
+ assert.equal(plan.peak,363);
+ assert.equal(plan.visits.reduce((n,v)=>n+v.leg.jumps,0),1);
+ const destinations=new Set(missions.flatMap(m=>m.cargo.map(c=>c.dropoffId)));
+ const firstDelivery=plan.visits.findIndex(v=>destinations.has(v.locationId));
+ assert.ok(plan.visits.slice(firstDelivery).every(v=>game.locations.find(l=>l.id===v.locationId).system==='pyro'));
+ for(const id of new Set(missions.flatMap(m=>m.cargo.map(c=>c.pickupId))))assert.equal(plan.visits.filter(v=>v.locationId===id).length,1);
+ verifyOwnership(plan,missions);
+});
+
+// More than 16 distinct stops takes the fallback path rather than the exact stop DP.
+// Each origin contains two independent shipments: leaving after just one is a bug.
+for(const [mode,planner,settings] of [['simple',planRoutesOnly,{}],['detailed',planRoute,{ship:roomy}]]){
+ test(`${mode} fallback completes each pickup stop before departure and crosses only once`,()=>{
+  const data={locations:Array.from({length:20},(_,i)=>({id:String(i),name:'Stop '+i,system:i<9||i===18?'stanton':'pyro',type:'Manmade',position:[(i%9)*1e9,0,0],isGateway:i>=18})),jumps:[{from:'18',to:'19'}]};
+  const missions=Array.from({length:18},(_,i)=>({id:'fallback-'+i,cargo:[{commodity:'same goods',scu:1,boxes:[{size:1,count:1}],pickupId:String(Math.floor(i/2)),dropoffId:String(9+i%9)}]}));
+  const plan=planner(data,missions,'0',settings);
+  assert.equal(plan.visits.reduce((n,v)=>n+v.leg.jumps,0),1);
+  for(let i=0;i<9;i++){
+   const pickups=plan.visits.filter(v=>v.locationId===String(i));
+   assert.equal(pickups.length,1,'pickup stop '+i+' revisited');
+   assert.equal(pickups[0].events.filter(e=>e.type==='pickup').length,2);
+  }
+  verifyOwnership(plan,missions);
+ });
+}
