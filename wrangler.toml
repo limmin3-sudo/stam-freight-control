@@ -1,0 +1,7 @@
+name = "verse-hauler-api"
+main = "server/worker.mjs"
+compatibility_date = "2026-10-01"
+[vars]
+OPENAI_MODEL = "gpt-6.1-sol"
+# Replace with the exact GitHub Pages origin (no path or trailing slash).
+ALLOWED_ORIGINS = "https://limmin3-sudo.github.io"

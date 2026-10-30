@@ -1,0 +1,20 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+import {boxList,packBoxes,planRoute,navigator,CAPACITY} from '../engine.mjs';
+const data=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url)));const find=n=>data.locations.find(l=>l.name===n)?.id;
+const cargo=(scu,pickupId,dropoffId,boxes)=>({commodity:'Same commodity',scu,pickupId,dropoffId,boxes});const mission=(id,c)=>({id,company:'test',reward:0,cargo:c});
+test('24 SCU boxes fragment independent grids despite total volume below capacity',()=>{assert.ok(packBoxes(Array.from({length:16},(_,i)=>({size:24,missionId:'A',boxId:'a'+i}))));assert.equal(packBoxes(Array.from({length:17},(_,i)=>({size:24,missionId:'A',boxId:'a'+i}))),null);});
+test('sixteen 32 SCU containers fit exactly',()=>assert.equal(packBoxes(Array.from({length:16},()=>({size:32,missionId:'A'}))).used,CAPACITY));
+test('box count total is checked',()=>assert.throws(()=>boxList({scu:20,boxes:[{size:16,count:2}]}),/합계/));
+test('unknown boxes remain explicitly estimated',()=>{const r=boxList({scu:51,boxes:[]},24);assert.equal(r.estimated,true);assert.equal(r.boxes.reduce((a,b)=>a+b,0),51);});
+test('a contract maximum is a cap and never a claimed box distribution',()=>{const r=boxList({scu:18,boxes:[],maxBoxSize:4},32);assert.equal(r.estimated,true);assert.ok(r.boxes.every(s=>s<=4));assert.equal(r.boxes.reduce((a,b)=>a+b,0),18);assert.throws(()=>boxList({scu:8,boxes:[{size:8,count:1}],maxBoxSize:4}),/최대/);});
+test('expired or tight deadlines produce explicit risk without inventing feasibility',()=>{const m=mission('TIMED',[cargo(32,find('Everus Harbor'),find('Seraphim Station'),[{size:32,count:1}])]);m.deadlineAt=60000;const p=planRoute(data,[m],find('Everus Harbor'),{nowMs:0});assert.equal(p.timing[0].risk,'late');assert.ok(p.warnings.some(w=>w.includes('제한 시간')));assert.equal(p.visits.at(-1).load,0);});
+test('pickups precede deliveries, mission identity is conserved, fixed cargo never moves',()=>{
+ const missions=[mission('A',[cargo(96,find('Everus Harbor'),find('Seraphim Station'),[{size:24,count:4}])]),mission('B',[cargo(80,find('Everus Harbor'),find('Baijini Point'),[{size:16,count:5}])]),mission('C',[cargo(64,find('Orbituary'),find('Checkmate'),[{size:32,count:2}])])];
+ const p=planRoute(data,missions,find('Everus Harbor'));const status=new Map(),totals=new Map();let previous=new Map();
+ for(const v of p.visits){for(const e of v.events){if(e.type==='pickup'){assert.equal(status.has(e.shipmentId),false);status.set(e.shipmentId,true);}else{assert.equal(status.get(e.shipmentId),true);status.set(e.shipmentId,false);}totals.set(e.missionId,(totals.get(e.missionId)||0)+(e.type==='pickup'?e.scu:-e.scu));}assert.ok(v.load<=512);assert.equal(v.load,v.packing.boxes.reduce((a,b)=>a+b.size,0));for(const b of v.packing.boxes){if(previous.has(b.boxId))assert.equal(`${b.bin}:${b.cell}`,previous.get(b.boxId));}previous=new Map(v.packing.boxes.map(b=>[b.boxId,`${b.bin}:${b.cell}`]));}
+ assert.equal(p.visits.at(-1).load,0);assert.ok([...totals.values()].every(x=>x===0));assert.equal(p.shipments.filter(s=>s.missionId==='A').flatMap(s=>s.boxes).length,4);
+});
+test('oversized cargo becomes multiple trips without losing SCU',()=>{const p=planRoute(data,[mission('L',[cargo(544,find('Everus Harbor'),find('Seraphim Station'),[{size:32,count:17}])])],find('Everus Harbor'));assert.equal(p.shipments.length,2);assert.equal(p.shipments.reduce((a,s)=>a+s.scu,0),544);assert.ok(p.peak<=512);assert.equal(p.visits.at(-1).load,0);});
+test('cross system routes use sourced jump endpoints, never Euclidean distance across frames',()=>{const n=navigator(data,{}),r=n.path(find('Everus Harbor'),find('Levski'));assert.equal(r.jumps,2);assert.equal(r.nodes.length,6);assert.ok(r.seconds>16*60);});
+test('all data IDs and jump endpoints are unique and finite',()=>{assert.equal(new Set(data.locations.map(l=>l.id)).size,data.locations.length);assert.ok(data.locations.every(l=>l.position.every(Number.isFinite)));for(const j of data.jumps){assert.ok(data.locations.some(l=>l.id===j.from));assert.ok(data.locations.some(l=>l.id===j.to));}});
+
