@@ -36,7 +36,7 @@ export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const bins=makeBins(ship);const limit=capacity(ship);const placed=[...fixed];
  if([...items,...fixed].reduce((a,b)=>a+b.size,0)>limit)return null;
  for(const p of fixed){const b=bins[p.bin];if(!b||!p.dims||!p.cell||p.size>b.grid.maxBoxSize||!occupy(b,p.cell,p.dims))return null;b.boxes.push(p);b.used+=p.size;}
- const share=opts.share??false,ranked=items.some(it=>Number.isFinite(it.rank)),bounds=shipBounds(ship),maxDepth=Math.max(1,shipAccess(ship)==='external'?2:shipAccess(ship)==='left'||shipAccess(ship)==='right'?bounds.maxX-bounds.minX:bounds.maxZ-bounds.minZ);
+ const share=opts.share??false,ranked=!opts.dense&&items.some(it=>Number.isFinite(it.rank)),bounds=shipBounds(ship),maxDepth=Math.max(1,shipAccess(ship)==='external'?2:shipAccess(ship)==='left'||shipAccess(ship)==='right'?bounds.maxX-bounds.minX:bounds.maxZ-bounds.minZ);
  // Later deliveries first, so they end up deep inside; biggest boxes first within the same delivery.
  const sorted=[...items].sort((a,b)=>(ranked?(b.rank??0)-(a.rank??0):0)||b.size-a.size||String(a.missionId).localeCompare(String(b.missionId)));
  for(const item of sorted){let best=null;
@@ -47,6 +47,7 @@ export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
      if(!ranked){best={index,cell,d};break search;}
      const depth=boxDepth(ship,{bin:index,cell,dims:d},bounds),target=(item.rank??0)*maxDepth,score=Math.abs(depth-target)*10+y*.5+(own?0:other?6:2)+index*.01+(x%d[0]?4:0)+(z%d[2]?4:0)+(y%d[1]?4:0);
      if(!best||score<best.score)best={score,index,cell,d};}}}
+  if(!best&&ranked)return packBoxes(items,fixed,ship,{...opts,dense:true});
   if(!best)return share||!sharesGrids(ship)||opts.noFallback?null:packBoxes(items,fixed,ship,{...opts,share:true});
   const b=bins[best.index];occupy(b,best.cell,best.d);const p={...item,bin:best.index,cell:best.cell,dims:best.d};b.boxes.push(p);b.used+=item.size;placed.push(p);}
  return {bins,capacity:limit,shipId:ship.id,boxes:placed,used:placed.reduce((a,b)=>a+b.size,0),shared:share};

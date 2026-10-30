@@ -40,3 +40,7 @@ test('resume keeps aboard cargo in place and only plans what is left',()=>{const
  const kept=new Map(v0.packing.boxes.map(b=>[b.boxId,b.cell.join()+'|'+b.bin]));for(const b of p.visits[0].packing.boxes.concat(...[]))if(kept.has(b.boxId))assert.equal(kept.get(b.boxId),b.cell.join()+'|'+b.bin);
  const done=planRoute(data,ms,find('Seraphim Station'),{resume:{picked,delivered:[picked.find(id=>id.startsWith('A'))],aboard:v0.packing.boxes}});assert.equal(done.visits.length,1);assert.equal(done.visits[0].events[0].missionId,'B');
  assert.throws(()=>planRoute(data,ms,find('Everus Harbor'),{resume:{picked,delivered:picked}}),/남은 운송/);});
+import {matchLocation} from '../aliases.mjs';
+test('Korean sounds-like and typo place names resolve',()=>{const L=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url))).locations;
+ for(const [q,want] of [['뉴배버지','New Babbage'],['에버러스','Everus Harbor'],['그린 글레이드 정거장','HUR-L1 Green Glade Station'],['마지막 착륙장','Last Landings'],['포트 트레슬러','Port Tressler'],['new babage','New Babbage'],['파이로 VI의 카나드 뷰','Canard View']])assert.equal(matchLocation(q,L,{fuzzy:true})?.name,want,q);
+ assert.equal(matchLocation('뉴배버지',L),null,'fuzzy is opt-in');});

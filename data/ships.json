@@ -1,1 +1,3230 @@
-[{"id":"aegis-avenger-titan","name":"Aegis Avenger Titan","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"datamine","grids":[{"id":"titan","name":"Titan","w":2,"h":1,"l":4,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"crusader-c1-spirit","name":"Crusader C1 Spirit","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"datamine","grids":[{"id":"hold-1","name":"Hold 1","w":2,"h":2,"l":8,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-2","name":"Hold 2","w":2,"h":2,"l":8,"x":3,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"drake-caterpillar","name":"Drake Caterpillar","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"sccargo","grids":[{"id":"bay-1-1","name":"Bay 1.1","w":5,"h":2,"l":6,"x":1,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-ladder-1","name":"DRAK Caterpillar Cargo Inventory Module Ladder 1","w":5,"h":1,"l":4,"x":1,"y":2,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-walkway-1","name":"DRAK Caterpillar Cargo Inventory Module Walkway 1","w":1,"h":2,"l":4,"x":0,"y":0,"z":9,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-1","name":"DRAK Caterpillar Cargo Inventory Module 1","w":6,"h":4,"l":4,"x":1,"y":0,"z":9,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-ladder-2","name":"DRAK Caterpillar Cargo Inventory Module Ladder 2","w":5,"h":4,"l":1,"x":2,"y":0,"z":13,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-walkway-2","name":"DRAK Caterpillar Cargo Inventory Module Walkway 2","w":1,"h":2,"l":4,"x":0,"y":0,"z":18,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-2","name":"DRAK Caterpillar Cargo Inventory Module 2","w":6,"h":4,"l":4,"x":1,"y":0,"z":18,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-ladder-3","name":"DRAK Caterpillar Cargo Inventory Module Ladder 3","w":5,"h":4,"l":1,"x":2,"y":0,"z":22,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-walkway-3","name":"DRAK Caterpillar Cargo Inventory Module Walkway 3","w":1,"h":2,"l":4,"x":0,"y":0,"z":27,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-3","name":"DRAK Caterpillar Cargo Inventory Module 3","w":6,"h":4,"l":4,"x":1,"y":0,"z":27,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-ladder-4","name":"DRAK Caterpillar Cargo Inventory Module Ladder 4","w":5,"h":4,"l":1,"x":2,"y":0,"z":31,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-walkway-4","name":"DRAK Caterpillar Cargo Inventory Module Walkway 4","w":1,"h":2,"l":4,"x":0,"y":0,"z":36,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"drak-caterpillar-cargo-inventory-module-4","name":"DRAK Caterpillar Cargo Inventory Module 4","w":6,"h":4,"l":4,"x":1,"y":0,"z":36,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"bay-5-3","name":"Bay 5.3","w":5,"h":4,"l":1,"x":2,"y":0,"z":40,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"drake-cutlass-black","name":"Drake Cutlass Black","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"sccargo","grids":[{"id":"rear","name":"Rear","w":1,"h":2,"l":3,"x":1.5,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"main","name":"Main","w":4,"h":2,"l":5,"x":0,"y":0,"z":4,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"misc-freelancer-max","name":"MISC Freelancer MAX","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"datamine","grids":[{"id":"max-rear","name":"MAX Rear","w":4,"h":3,"l":9,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"mid-1","name":"Mid 1","w":2,"h":3,"l":1,"x":5,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"mid-2","name":"Mid 2","w":2,"h":3,"l":1,"x":8,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"misc-hull-a","name":"MISC Hull A","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"datamine","grids":[{"id":"hold-1","name":"Hold 1","w":2,"h":2,"l":4,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-2","name":"Hold 2","w":2,"h":2,"l":4,"x":3,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-3","name":"Hold 3","w":2,"h":2,"l":4,"x":6,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-4","name":"Hold 4","w":2,"h":2,"l":4,"x":9,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"misc-hull-b","name":"MISC Hull B","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"sccargo","grids":[{"id":"hold-1","name":"Hold 1","w":2,"h":2,"l":8,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-2","name":"Hold 2","w":2,"h":2,"l":8,"x":2,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-3","name":"Hold 3","w":2,"h":2,"l":8,"x":6,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-4","name":"Hold 4","w":2,"h":2,"l":8,"x":8,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-5","name":"Hold 5","w":2,"h":2,"l":8,"x":12,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-6","name":"Hold 6","w":2,"h":2,"l":8,"x":14,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-7","name":"Hold 7","w":2,"h":2,"l":8,"x":18,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-8","name":"Hold 8","w":2,"h":2,"l":8,"x":20,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-9","name":"Hold 9","w":2,"h":2,"l":8,"x":0,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-10","name":"Hold 10","w":2,"h":2,"l":8,"x":2,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-11","name":"Hold 11","w":2,"h":2,"l":8,"x":6,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-12","name":"Hold 12","w":2,"h":2,"l":8,"x":8,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-13","name":"Hold 13","w":2,"h":2,"l":8,"x":12,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-14","name":"Hold 14","w":2,"h":2,"l":8,"x":14,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-15","name":"Hold 15","w":2,"h":2,"l":8,"x":18,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"hold-16","name":"Hold 16","w":2,"h":2,"l":8,"x":20,"y":0,"z":11,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"misc-starlancer-max","name":"MISC Starlancer MAX","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"datamine","grids":[{"id":"template-1","name":"Template 1","w":2,"h":3,"l":8,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"template-2","name":"Template 2","w":2,"h":3,"l":8,"x":3,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"max-template-1","name":"Max Template 1","w":2,"h":2,"l":16,"x":6,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"max-template-2","name":"Max Template 2","w":2,"h":2,"l":16,"x":9,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"argo-raft","name":"Argo RAFT","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"sccargo","grids":[{"id":"ic-192","name":"IC 192","w":8,"h":2,"l":12,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"crusader-c2-hercules-starlifter","name":"Crusader C2 Hercules Starlifter","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"sccargo","grids":[{"id":"large-c2","name":"Large C2","w":8,"h":4,"l":15,"x":0,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"small-c2","name":"Small C2","w":6,"h":4,"l":9,"x":1,"y":0,"z":16,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"rsi-hermes","name":"RSI Hermes","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"reference-hull","grids":[{"id":"rsi-hermes-cargo-inventory-main-1","name":"Main 1 · 좌현 화물칸","w":4,"h":2,"l":18,"x":-4.5,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"rsi-hermes-cargo-inventory-main-2","name":"Main 2 · 우현 화물칸","w":4,"h":2,"l":18,"x":0.5,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"rsi-zeus-mk-ii-cl","name":"RSI Zeus Mk II CL","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"reference-hull","grids":[{"id":"cargo-main","name":"Main · 후방 화물칸","w":5,"h":3,"l":8,"x":-2.5,"y":0,"z":0,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"cargo-left","name":"Left · 좌측 소형","w":2,"h":2,"l":1,"x":-4.7,"y":0,"z":-1.6,"maxBoxSize":32,"rotation":[0,0,0]},{"id":"cargo-right","name":"Right · 우측 소형","w":2,"h":2,"l":1,"x":2.7,"y":0,"z":-1.6,"maxBoxSize":32,"rotation":[0,0,0]}]},{"id":"rsi-zeus-mk-ii-es","name":"RSI Zeus Mk II ES","source":"SuperCargo cargoGrids.ts (community reference)","sourceUrl":"https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts","layout":"reference-hull","grids":[{"id":"base-main","name":"Base Main","w":4,"h":2,"l":4,"x":-2,"y":0,"z":2,"maxBoxSize":32,"rotation":[0,0,0]}]}]
+[
+ {
+  "id": "aegis-avenger-titan",
+  "name": "Aegis Avenger Titan",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "titan",
+    "name": "Titan",
+    "w": 2,
+    "h": 1,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "aegis-hammerhead",
+  "name": "Aegis Hammerhead",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 4,
+    "h": 2,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "aegis-reclaimer",
+  "name": "Aegis Reclaimer",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "salvage-front-temp-1",
+    "name": "Salvage Front TEMP 1",
+    "w": 5,
+    "h": 2,
+    "l": 7,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "salvage-front-temp-2",
+    "name": "Salvage Front TEMP 2",
+    "w": 5,
+    "h": 2,
+    "l": 7,
+    "x": 7,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "salvage-rear-temp-1",
+    "name": "Salvage Rear TEMP 1",
+    "w": 5,
+    "h": 2,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "salvage-rear-temp-2",
+    "name": "Salvage Rear TEMP 2",
+    "w": 5,
+    "h": 2,
+    "l": 5,
+    "x": 7,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-1",
+    "name": "Small 1",
+    "w": 3,
+    "h": 3,
+    "l": 2,
+    "x": 15,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-1",
+    "name": "Hold 1",
+    "w": 3,
+    "h": 3,
+    "l": 3,
+    "x": 15,
+    "y": 0,
+    "z": 4,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-2",
+    "name": "Hold 2",
+    "w": 3,
+    "h": 3,
+    "l": 3,
+    "x": 15,
+    "y": 0,
+    "z": 9,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-2",
+    "name": "Small 2",
+    "w": 3,
+    "h": 3,
+    "l": 2,
+    "x": 15,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-3",
+    "name": "Small 3",
+    "w": 3,
+    "h": 3,
+    "l": 2,
+    "x": 20,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-3",
+    "name": "Hold 3",
+    "w": 3,
+    "h": 3,
+    "l": 3,
+    "x": 20,
+    "y": 0,
+    "z": 4,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-4",
+    "name": "Hold 4",
+    "w": 3,
+    "h": 3,
+    "l": 3,
+    "x": 20,
+    "y": 0,
+    "z": 9,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-4",
+    "name": "Small 4",
+    "w": 3,
+    "h": 3,
+    "l": 2,
+    "x": 20,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "aegis-tiburon",
+  "name": "Aegis Tiburon",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "ic",
+    "name": "IC",
+    "w": 4,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "anvil-asgard",
+  "name": "Anvil Asgard",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "ic",
+    "name": "IC",
+    "w": 5,
+    "h": 4,
+    "l": 9,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "anvil-carrack",
+  "name": "Anvil Carrack",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "large-1",
+    "name": "Large 1",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-1",
+    "name": "Medium 1",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-2",
+    "name": "Large 2",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-3",
+    "name": "Large 3",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-2",
+    "name": "Medium 2",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-4",
+    "name": "Large 4",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-5",
+    "name": "Large 5",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-3",
+    "name": "Medium 3",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-6",
+    "name": "Large 6",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "anvil-carrack-expedition",
+  "name": "Anvil Carrack Expedition",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "large-1",
+    "name": "Large 1",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-1",
+    "name": "Medium 1",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-2",
+    "name": "Large 2",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-3",
+    "name": "Large 3",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-2",
+    "name": "Medium 2",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-4",
+    "name": "Large 4",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-5",
+    "name": "Large 5",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medium-3",
+    "name": "Medium 3",
+    "w": 4,
+    "h": 2,
+    "l": 3,
+    "x": 5,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 8,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "large-6",
+    "name": "Large 6",
+    "w": 4,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 14,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "anvil-valkyrie",
+  "name": "Anvil Valkyrie",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 5,
+    "h": 3,
+    "l": 6,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "argo-moth",
+  "name": "Argo MOTH",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "elevator",
+    "name": "Elevator",
+    "w": 4,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side",
+    "name": "Side",
+    "w": 4,
+    "h": 4,
+    "l": 6,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "right",
+    "name": "Right",
+    "w": 6,
+    "h": 4,
+    "l": 4,
+    "x": 10,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "argo-raft",
+  "name": "Argo RAFT",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "ic-192",
+    "name": "IC 192",
+    "w": 8,
+    "h": 2,
+    "l": 12,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "c-o-nomad",
+  "name": "C.O. Nomad",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 3,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "crusader-a2-hercules-starlifter",
+  "name": "Crusader A2 Hercules Starlifter",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "small-a2",
+    "name": "Small A2",
+    "w": 6,
+    "h": 2,
+    "l": 18,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "crusader-c1-spirit",
+  "name": "Crusader C1 Spirit",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "hold-1",
+    "name": "Hold 1",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-2",
+    "name": "Hold 2",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "crusader-c2-hercules-starlifter",
+  "name": "Crusader C2 Hercules Starlifter",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "large-c2",
+    "name": "Large C2",
+    "w": 8,
+    "h": 4,
+    "l": 15,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-c2",
+    "name": "Small C2",
+    "w": 6,
+    "h": 4,
+    "l": 9,
+    "x": 1,
+    "y": 0,
+    "z": 16,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "crusader-m2-hercules-starlifter",
+  "name": "Crusader M2 Hercules Starlifter",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "large-m2",
+    "name": "Large M2",
+    "w": 8,
+    "h": 3,
+    "l": 15,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small-m2",
+    "name": "Small M2",
+    "w": 6,
+    "h": 3,
+    "l": 9,
+    "x": 1,
+    "y": 0,
+    "z": 16,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "crusader-mercury-star-runner",
+  "name": "Crusader Mercury Star Runner",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "large",
+    "name": "Large",
+    "w": 6,
+    "h": 3,
+    "l": 6,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "small",
+    "name": "Small",
+    "w": 1,
+    "h": 2,
+    "l": 3,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "drake-caterpillar",
+  "name": "Drake Caterpillar",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "bay-1-1",
+    "name": "Bay 1.1",
+    "w": 5,
+    "h": 2,
+    "l": 6,
+    "x": 1,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-ladder-1",
+    "name": "DRAK Caterpillar Cargo Inventory Module Ladder 1",
+    "w": 5,
+    "h": 1,
+    "l": 4,
+    "x": 1,
+    "y": 2,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-walkway-1",
+    "name": "DRAK Caterpillar Cargo Inventory Module Walkway 1",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 9,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-1",
+    "name": "DRAK Caterpillar Cargo Inventory Module 1",
+    "w": 6,
+    "h": 4,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 9,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-ladder-2",
+    "name": "DRAK Caterpillar Cargo Inventory Module Ladder 2",
+    "w": 5,
+    "h": 4,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 13,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-walkway-2",
+    "name": "DRAK Caterpillar Cargo Inventory Module Walkway 2",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 18,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-2",
+    "name": "DRAK Caterpillar Cargo Inventory Module 2",
+    "w": 6,
+    "h": 4,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 18,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-ladder-3",
+    "name": "DRAK Caterpillar Cargo Inventory Module Ladder 3",
+    "w": 5,
+    "h": 4,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 22,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-walkway-3",
+    "name": "DRAK Caterpillar Cargo Inventory Module Walkway 3",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 27,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-3",
+    "name": "DRAK Caterpillar Cargo Inventory Module 3",
+    "w": 6,
+    "h": 4,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 27,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-ladder-4",
+    "name": "DRAK Caterpillar Cargo Inventory Module Ladder 4",
+    "w": 5,
+    "h": 4,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 31,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-walkway-4",
+    "name": "DRAK Caterpillar Cargo Inventory Module Walkway 4",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 36,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "drak-caterpillar-cargo-inventory-module-4",
+    "name": "DRAK Caterpillar Cargo Inventory Module 4",
+    "w": 6,
+    "h": 4,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 36,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-5-3",
+    "name": "Bay 5.3",
+    "w": 5,
+    "h": 4,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 40,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "drake-corsair",
+  "name": "Drake Corsair",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 4,
+    "h": 2,
+    "l": 9,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "drake-cutlass-black",
+  "name": "Drake Cutlass Black",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "rear",
+    "name": "Rear",
+    "w": 1,
+    "h": 2,
+    "l": 3,
+    "x": 1.5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 4,
+    "h": 2,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 4,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "drake-ironclad",
+  "name": "Drake Ironclad",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold-center-1",
+    "name": "Hold Center 1",
+    "w": 6,
+    "h": 6,
+    "l": 20,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-center-2",
+    "name": "Hold Center 2",
+    "w": 6,
+    "h": 6,
+    "l": 20,
+    "x": 8,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-1",
+    "name": "Hold 1",
+    "w": 6,
+    "h": 6,
+    "l": 10,
+    "x": 0,
+    "y": 0,
+    "z": 21,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-2",
+    "name": "Hold 2",
+    "w": 6,
+    "h": 6,
+    "l": 10,
+    "x": 8,
+    "y": 0,
+    "z": 21,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "drake-ironclad-assault",
+  "name": "Drake Ironclad Assault",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold-center-1",
+    "name": "Hold Center 1",
+    "w": 6,
+    "h": 6,
+    "l": 20,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-center-2",
+    "name": "Hold Center 2",
+    "w": 6,
+    "h": 6,
+    "l": 20,
+    "x": 8,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "esperia-prowler-utility",
+  "name": "Esperia Prowler Utility",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main-1",
+    "name": "Main 1",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "main-2",
+    "name": "Main 2",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 4,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gatac-railen",
+  "name": "Gatac Railen",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "is-128-1",
+    "name": "IS 128 1",
+    "w": 4,
+    "h": 4,
+    "l": 8,
+    "x": 4,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-128-2",
+    "name": "IS 128 2",
+    "w": 4,
+    "h": 4,
+    "l": 8,
+    "x": 10,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-128-3",
+    "name": "IS 128 3",
+    "w": 4,
+    "h": 4,
+    "l": 8,
+    "x": 4,
+    "y": 0,
+    "z": 10,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-128-4",
+    "name": "IS 128 4",
+    "w": 4,
+    "h": 4,
+    "l": 8,
+    "x": 10,
+    "y": 0,
+    "z": 10,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-64-1",
+    "name": "IS 64 1",
+    "w": 2,
+    "h": 4,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-64-2",
+    "name": "IS 64 2",
+    "w": 2,
+    "h": 4,
+    "l": 8,
+    "x": 16,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gatac-tyilui",
+  "name": "Gatac Tyilui",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "is-48-1",
+    "name": "IS 48 1",
+    "w": 4,
+    "h": 2,
+    "l": 6,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "is-48-2",
+    "name": "IS 48 2",
+    "w": 4,
+    "h": 2,
+    "l": 6,
+    "x": 7,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "grey-s-market-shiv",
+  "name": "Grey's Market Shiv",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "bay-1",
+    "name": "Bay 1",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-freelancer",
+  "name": "MISC Freelancer",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "mid-1",
+    "name": "Mid 1",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "mid-2",
+    "name": "Mid 2",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rear",
+    "name": "Rear",
+    "w": 2,
+    "h": 3,
+    "l": 9,
+    "x": 1,
+    "y": 0,
+    "z": 5,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-freelancer-dur",
+  "name": "MISC Freelancer DUR",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "mid-1",
+    "name": "Mid 1",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "mid-2",
+    "name": "Mid 2",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "dur-rear",
+    "name": "DUR Rear",
+    "w": 2,
+    "h": 3,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 5,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-freelancer-max",
+  "name": "MISC Freelancer MAX",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "max-rear",
+    "name": "MAX Rear",
+    "w": 4,
+    "h": 3,
+    "l": 9,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "mid-1",
+    "name": "Mid 1",
+    "w": 2,
+    "h": 3,
+    "l": 1,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "mid-2",
+    "name": "Mid 2",
+    "w": 2,
+    "h": 3,
+    "l": 1,
+    "x": 8,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-freelancer-mis",
+  "name": "MISC Freelancer MIS",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "mid-1",
+    "name": "Mid 1",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "mid-2",
+    "name": "Mid 2",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "dur-rear",
+    "name": "DUR Rear",
+    "w": 2,
+    "h": 3,
+    "l": 4,
+    "x": 1,
+    "y": 0,
+    "z": 5,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-hull-a",
+  "name": "MISC Hull A",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "hold-1",
+    "name": "Hold 1",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-2",
+    "name": "Hold 2",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-3",
+    "name": "Hold 3",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 6,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-4",
+    "name": "Hold 4",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 9,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-hull-b",
+  "name": "MISC Hull B",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold-1",
+    "name": "Hold 1",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-2",
+    "name": "Hold 2",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-3",
+    "name": "Hold 3",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 6,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-4",
+    "name": "Hold 4",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 8,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-5",
+    "name": "Hold 5",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 12,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-6",
+    "name": "Hold 6",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 14,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-7",
+    "name": "Hold 7",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 18,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-8",
+    "name": "Hold 8",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 20,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-9",
+    "name": "Hold 9",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-10",
+    "name": "Hold 10",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 2,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-11",
+    "name": "Hold 11",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 6,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-12",
+    "name": "Hold 12",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 8,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-13",
+    "name": "Hold 13",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 12,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-14",
+    "name": "Hold 14",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 14,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-15",
+    "name": "Hold 15",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 18,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hold-16",
+    "name": "Hold 16",
+    "w": 2,
+    "h": 2,
+    "l": 8,
+    "x": 20,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-hull-c",
+  "name": "MISC Hull C",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "bay-1-1",
+    "name": "Bay 1.1",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-2",
+    "name": "Bay 1.2",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 14,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-3",
+    "name": "Bay 1.3",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 28,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-4",
+    "name": "Bay 1.4",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 42,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-1",
+    "name": "Bay 2.1",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-2",
+    "name": "Bay 2.2",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 14,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-3",
+    "name": "Bay 2.3",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 28,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-4",
+    "name": "Bay 2.4",
+    "w": 12,
+    "h": 6,
+    "l": 8,
+    "x": 42,
+    "y": 0,
+    "z": 11,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "access": "external"
+ },
+ {
+  "id": "misc-starfarer",
+  "name": "MISC Starfarer",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "center",
+    "name": "Center",
+    "w": 5,
+    "h": 5,
+    "l": 7,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-alcove-1",
+    "name": "Side Alcove 1",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-1",
+    "name": "Side 1",
+    "w": 2,
+    "h": 5,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-alcove-2",
+    "name": "Side Alcove 2",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 13,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-2",
+    "name": "Side 2",
+    "w": 2,
+    "h": 5,
+    "l": 5,
+    "x": 13,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-starfarer-gemini",
+  "name": "MISC Starfarer Gemini",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "center",
+    "name": "Center",
+    "w": 5,
+    "h": 5,
+    "l": 7,
+    "x": 5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-alcove-1",
+    "name": "Side Alcove 1",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-1",
+    "name": "Side 1",
+    "w": 2,
+    "h": 5,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-alcove-2",
+    "name": "Side Alcove 2",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 13,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "side-2",
+    "name": "Side 2",
+    "w": 2,
+    "h": 5,
+    "l": 5,
+    "x": 13,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-starlancer-max",
+  "name": "MISC Starlancer MAX",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "template-1",
+    "name": "Template 1",
+    "w": 2,
+    "h": 3,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "template-2",
+    "name": "Template 2",
+    "w": 2,
+    "h": 3,
+    "l": 8,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "max-template-1",
+    "name": "Max Template 1",
+    "w": 2,
+    "h": 2,
+    "l": 16,
+    "x": 6,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "max-template-2",
+    "name": "Max Template 2",
+    "w": 2,
+    "h": 2,
+    "l": 16,
+    "x": 9,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "misc-starlancer-tac",
+  "name": "MISC Starlancer TAC",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "datamine",
+  "grids": [
+   {
+    "id": "template-1",
+    "name": "Template 1",
+    "w": 2,
+    "h": 3,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "template-2",
+    "name": "Template 2",
+    "w": 2,
+    "h": 3,
+    "l": 8,
+    "x": 3,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "origin-400i",
+  "name": "Origin 400i",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 3,
+    "h": 2,
+    "l": 7,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "origin-600i-explorer",
+  "name": "Origin 600i Explorer",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "bay-1-1",
+    "name": "Bay 1.1",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-2",
+    "name": "Bay 1.2",
+    "w": 1,
+    "h": 2,
+    "l": 4,
+    "x": 7,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-3",
+    "name": "Bay 1.3",
+    "w": 1,
+    "h": 2,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 4,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-1-4",
+    "name": "Bay 1.4",
+    "w": 1,
+    "h": 2,
+    "l": 1,
+    "x": 5,
+    "y": 0,
+    "z": 4,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-1",
+    "name": "Bay 2.1",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 0,
+    "y": 0,
+    "z": 10,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-2",
+    "name": "Bay 2.2",
+    "w": 4,
+    "h": 3,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 8,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-2-3",
+    "name": "Bay 2.3",
+    "w": 1,
+    "h": 3,
+    "l": 2,
+    "x": 7,
+    "y": 0,
+    "z": 10,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "origin-890-jump",
+  "name": "Origin 890 Jump",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "rear",
+    "name": "Rear",
+    "w": 6,
+    "h": 4,
+    "l": 12,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-wide-1",
+    "name": "Hangar Wide 1",
+    "w": 3,
+    "h": 2,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 15,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-wide-2",
+    "name": "Hangar Wide 2",
+    "w": 3,
+    "h": 2,
+    "l": 5,
+    "x": 7,
+    "y": 0,
+    "z": 15,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-1",
+    "name": "Hangar 1",
+    "w": 1,
+    "h": 2,
+    "l": 5,
+    "x": 2,
+    "y": 0,
+    "z": 23,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-2",
+    "name": "Hangar 2",
+    "w": 1,
+    "h": 2,
+    "l": 5,
+    "x": 7,
+    "y": 0,
+    "z": 23,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-3",
+    "name": "Hangar 3",
+    "w": 1,
+    "h": 2,
+    "l": 5,
+    "x": 3,
+    "y": 0,
+    "z": 31,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar-4",
+    "name": "Hangar 4",
+    "w": 1,
+    "h": 2,
+    "l": 5,
+    "x": 6,
+    "y": 0,
+    "z": 31,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-apollo-medivac",
+  "name": "RSI Apollo Medivac",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "rsi-apollo-cargo-inventory-main-1",
+    "name": "RSI Apollo Cargo Inventory Main 1",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rsi-apollo-cargo-inventory-main-2",
+    "name": "RSI Apollo Cargo Inventory Main 2",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 4,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-apollo-triage",
+  "name": "RSI Apollo Triage",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "rsi-apollo-cargo-inventory-main-1",
+    "name": "RSI Apollo Cargo Inventory Main 1",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rsi-apollo-cargo-inventory-main-2",
+    "name": "RSI Apollo Cargo Inventory Main 2",
+    "w": 2,
+    "h": 2,
+    "l": 4,
+    "x": 4,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-constellation-andromeda",
+  "name": "RSI Constellation Andromeda",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 4,
+    "h": 3,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-constellation-aquila",
+  "name": "RSI Constellation Aquila",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 4,
+    "h": 3,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-constellation-phoenix",
+  "name": "RSI Constellation Phoenix",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 5,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-constellation-phoenix-emerald",
+  "name": "RSI Constellation Phoenix Emerald",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 5,
+    "h": 2,
+    "l": 8,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-constellation-taurus",
+  "name": "RSI Constellation Taurus",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main",
+    "name": "Main",
+    "w": 4,
+    "h": 3,
+    "l": 14,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "tail",
+    "name": "Tail",
+    "w": 2,
+    "h": 1,
+    "l": 3,
+    "x": 1,
+    "y": 0,
+    "z": 17,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-hermes",
+  "name": "RSI Hermes",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "reference-hull",
+  "grids": [
+   {
+    "id": "rsi-hermes-cargo-inventory-main-1",
+    "name": "Main 1 · 좌현 화물칸",
+    "w": 4,
+    "h": 2,
+    "l": 18,
+    "x": -4.5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rsi-hermes-cargo-inventory-main-2",
+    "name": "Main 2 · 우현 화물칸",
+    "w": 4,
+    "h": 2,
+    "l": 18,
+    "x": 0.5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-perseus",
+  "name": "RSI Perseus",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "hold",
+    "name": "Hold",
+    "w": 8,
+    "h": 2,
+    "l": 6,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-polaris",
+  "name": "RSI Polaris",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "sccargo",
+  "grids": [
+   {
+    "id": "main-1",
+    "name": "Main 1",
+    "w": 6,
+    "h": 4,
+    "l": 12,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "main-2",
+    "name": "Main 2",
+    "w": 6,
+    "h": 4,
+    "l": 12,
+    "x": 8,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-zeus-mk-ii-cl",
+  "name": "RSI Zeus Mk II CL",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "reference-hull",
+  "grids": [
+   {
+    "id": "cargo-main",
+    "name": "Main · 후방 화물칸",
+    "w": 5,
+    "h": 3,
+    "l": 8,
+    "x": -2.5,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "cargo-left",
+    "name": "Left · 좌측 소형",
+    "w": 2,
+    "h": 2,
+    "l": 1,
+    "x": -4.7,
+    "y": 0,
+    "z": -1.6,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "cargo-right",
+    "name": "Right · 우측 소형",
+    "w": 2,
+    "h": 2,
+    "l": 1,
+    "x": 2.7,
+    "y": 0,
+    "z": -1.6,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "id": "rsi-zeus-mk-ii-es",
+  "name": "RSI Zeus Mk II ES",
+  "source": "SuperCargo cargoGrids.ts (community reference)",
+  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
+  "layout": "reference-hull",
+  "grids": [
+   {
+    "id": "base-main",
+    "name": "Base Main",
+    "w": 4,
+    "h": 2,
+    "l": 4,
+    "x": -2,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ]
+ }
+]
