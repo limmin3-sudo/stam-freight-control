@@ -1,6 +1,7 @@
 // Run progress: the game is not connected, so the captain presses one big button per stop
 // (접수 완료 / 배송 완료) and the whole page moves on to the next leg. State survives reloads.
 import {V,VOICE_PORTRAITS,voiceId} from './voice.mjs';
+import {placeLabel} from './aliases.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
@@ -13,7 +14,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  function save(){try{localStorage.setItem(KEY,JSON.stringify(run));}catch{}}
  const elapsed=()=>run.elapsed+(run.since?(Date.now()-run.since)/1000:0);
  const keyOf=p=>p?JSON.stringify(p.visits.map(v=>[v.locationId,v.events.map(e=>[e.shipmentId,e.type])])):'';
- const nm=id=>names.get(id)?.name||id;
+ const nm=id=>names.get(id)?placeLabel(names.get(id)):id;
  const kindOf=v=>{const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':'return';};
  const BTN={pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료'};
  const say=t=>{const el=root.querySelector('.aide-line');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
@@ -57,7 +58,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
   if(ok){run.lastLine=skip?V().defer(nm(avoid)):V().replan;save();render();}}
  setInterval(tick,1000);
- document.addEventListener('keydown',e=>{if(!plan||run.finished||!document.body.classList.contains('run-mode')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
+ document.addEventListener('keydown',e=>{if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
  return {
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
