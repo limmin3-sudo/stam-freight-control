@@ -1,9 +1,10 @@
 import {destinationGroups} from './recipes.mjs';
+import {quantumSeconds,surfaceSeconds,spaceApproachSeconds} from './travel.mjs';
 import {DEFAULT_SHIP,validateShip,capacity} from './ships.mjs';
 export const CAPACITY=512;
 export const SIZES=[32,24,16,8,4,2,1];
 export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,2,6],32:[2,2,8]};
-export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
+export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
 export const COLORS=['#57d9db','#ecb969','#a697f4','#eb8fb1','#8cd6a1','#8dbbfa','#e3dd84','#cda17e'];
 export function assumedBoxes(scu,maxSize=8){const out=[];for(const size of SIZES.filter(s=>s<=maxSize)){while(scu>=size){out.push(size);scu-=size;}}return out;}
 export function boxList(cargo,unknownBox=8){
@@ -83,7 +84,7 @@ export function navigator(data,settings){gatewayOf.data=data;
   const nodes=[...new Set([from,to,...gateIds])],dist=new Map(nodes.map(id=>[id,Infinity])),previous=new Map(),open=new Set(nodes);dist.set(from,0);
   while(open.size){const u=[...open].reduce((best,id)=>dist.get(id)<dist.get(best)?id:best);if(!Number.isFinite(dist.get(u)))break;open.delete(u);if(u===to)break;const lu=byId.get(u);
    for(const v of open){const lv=byId.get(v);let cost=Infinity;
-    if(lu.system===lv.system)cost=distance(lu,lv)/1000/opt.quantumSpeed*opt.detourFactor+opt.spool;
+    if(lu.system===lv.system)cost=quantumSeconds(distance(lu,lv)*opt.detourFactor,opt)+opt.spool;
     else if(data.jumps.some(j=>(j.from===u&&j.to===v)||(j.to===u&&j.from===v)))cost=opt.jumpMinutes*60;
     if(dist.get(u)+cost<dist.get(v)){dist.set(v,dist.get(u)+cost);previous.set(v,u);}
    }
@@ -93,7 +94,7 @@ export function navigator(data,settings){gatewayOf.data=data;
   // System changes go through the gateway station next to each jump point (e.g. Pyro Gateway → jump → Stanton Gateway).
   const route=[];for(let i=0;i<raw.length;i++){const id=raw[i],l=byId.get(id),gate=l?.isGateway?gatewayOf(l):null,next=byId.get(raw[i+1]),prev=byId.get(raw[i-1]);
    if(gate&&next&&next.system!==l.system&&route.at(-1)!==gate)route.push(gate);route.push(id);if(gate&&prev&&prev.system!==l.system&&raw[i+1]!==gate)route.push(gate);}
-  const gateways=route.filter(id=>byId.get(id)?.type==='Manmade'&&/Gateway/i.test(byId.get(id).name)).map(id=>byId.get(id).name);const result={gateways,seconds:dist.get(to)+(surface(a)?opt.surfaceMinutes*60:0)+(surface(b)?opt.surfaceMinutes*60:0)+opt.dockMinutes*60,meters,nodes:route,jumps};cache.set(key,result);return result;
+  const gateways=route.filter(id=>byId.get(id)?.type==='Manmade'&&/Gateway/i.test(byId.get(id).name)).map(id=>byId.get(id).name);const result={gateways,seconds:dist.get(to)+(surface(a)?surfaceSeconds(opt):spaceApproachSeconds(opt))+(surface(b)?surfaceSeconds(opt):spaceApproachSeconds(opt))+opt.dockMinutes*60,meters,nodes:route,jumps};cache.set(key,result);return result;
  }
  return {path,byId};
 }

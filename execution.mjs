@@ -1,6 +1,6 @@
 // Run progress: the game is not connected, so the captain presses one big button per stop
 // (접수 완료 / 배송 완료) and the whole page moves on to the next leg. State survives reloads.
-import {V} from './voice.mjs';
+import {V,VOICE_PORTRAITS,voiceId} from './voice.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
@@ -31,7 +31,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   root.innerHTML=`<div class="run-head"><div><div class="eyebrow">LIVE RUN / 운항 진행 · ${i+1}/${total} 거점</div><h2><span class="run-num">${i+1}</span>${esc(nm(v.locationId))}</h2></div>
    <div class="run-meters"><div><span>운항 시간</span><b id="run-clock">${mmss(elapsed())}</b></div><div><span>남은 예상</span><b id="run-left"></b></div><div><span>시간당 수익</span><b id="run-rate">—</b></div></div></div>
    <div class="run-track">${plan.visits.map((x,k)=>`<i class="${k<i?'done':k===i?'now':''}" title="${k+1}. ${esc(nm(x.locationId))}"></i>`).join('')}<span style="width:${pct}%"></span></div>
-   <div class="aide"><span class="aide-badge">항해사</span><span class="aide-line">${esc(run.lastLine||(run.started?V().atStop(nm(v.locationId)):V().ready))}</span></div>
+   <div class="aide"><img class="run-partner-photo" src="${VOICE_PORTRAITS[voiceId()]}" alt="${V().role}"><div class="run-partner-speech"><span class="aide-badge">${V().role}</span><span class="aide-line">${esc(run.lastLine||(run.started?V().atStop(nm(v.locationId)):V().ready))}</span></div></div>
    <div class="run-body"><div class="run-now"><ul class="run-cargo">${cargoLine(v)}</ul>${v.blocked?.length?`<p class="blocked-badge">⚠ 하역 전에 다른 상자 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}개를 먼저 옮겨야 할 수 있습니다.</p>`:''}
     <button id="run-done" class="run-big ${kind}">${BTN[kind]} <kbd>Space</kbd></button></div>
     <div class="run-next">${next?`<span>다음</span><b>${esc(nm(next.locationId))}</b><small>약 ${Math.max(1,Math.round(next.seconds/60))}분${next.leg.jumps?' · '+esc((next.leg.gateways||[]).join(' → '))+' 경유':''}</small>`:'<span>다음</span><b>마지막 거점</b>'}</div></div>
@@ -64,5 +64,5 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
    if(keepRun){run.planKey=k;run.index=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;}else{run=blank();run.planKey=k;}}
    if(run.index>=p.visits.length)run.index=Math.max(0,p.visits.length-1);save();render();},
   start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=V().first(nm(plan.visits[0].locationId));}save();render();onAdvance?.(run.index);},
-  refresh:()=>render(),replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
+  refresh:()=>{run.lastLine='';save();render();},replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
 }

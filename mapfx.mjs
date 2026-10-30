@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // Visual effects for the star map: procedural planet surfaces, atmosphere and star shaders, glow sprites,
 // text label sprites and the space backdrop. Surfaces are artistic approximations (not game textures).
-export const STAR_COLORS={stanton:'#fff1d6',pyro:'#ff8a4c',nyx:'#c9d8ff'};
+export const STAR_COLORS={stanton:'#f3b866',pyro:'#e87539',nyx:'#efc88e'};
 const cache=new Map();
 
 // ---- deterministic 3D value noise ---------------------------------------------------------------
@@ -92,10 +92,14 @@ export function cloudMaterial(name,amount=.4){const seed=seedOf(name+'cloud')%99
 export function atmosphereMaterial(color,strength=1){return new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uSun:{value:new THREE.Vector3()},uStrength:{value:strength}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.BackSide,
  vertexShader:SPHERE_V,
  fragmentShader:LOGF+`uniform vec3 uColor;uniform vec3 uSun;uniform float uStrength;varying vec3 vP;varying vec3 vN;varying vec3 vW;void main(){\n#include <logdepthbuf_fragment>\nvec3 V=normalize(cameraPosition-vW),N=-normalize(vN);float f=1.-abs(dot(N,V));float glow=pow(f,1.6)*smoothstep(1.,.55,f);float l=dot(normalize(vW-(modelMatrix*vec4(0.,0.,0.,1.)).xyz),normalize(uSun-vW));float day=smoothstep(-.35,.45,l);float term=smoothstep(-.35,0.,l)*(1.-smoothstep(0.,.35,l));vec3 c=mix(uColor,vec3(1.,.55,.3),term*.6)*(day+term*.4);gl_FragColor=vec4(c*glow*uStrength*1.8,glow*uStrength);}`});}
-// Star surface: limb darkening and slowly moving granulation; HDR output so bloom makes it glow.
+// Warm, bounded radiance preserves granulation after tone mapping instead of clipping to white.
 export function starMaterial(color){return new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uTime:{value:0}},vertexShader:SPHERE_V,
  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;varying vec3 vP;varying vec3 vN;varying vec3 vW;${NOISE}
- void main(){\n#include <logdepthbuf_fragment>\nvec3 V=normalize(cameraPosition-vW);float mu=max(dot(normalize(vN),V),0.);float limb=.3+.7*pow(mu,.5);vec3 p=normalize(vP)*5.;float g=fbm(p+vec3(uTime*.04,0.,uTime*.03),5)*.7+fbm(p*6.-uTime*.05,3)*.3;vec3 hot=mix(uColor,vec3(1.,.97,.92),.55);gl_FragColor=vec4(hot*limb*(.75+.6*g)*4.5,1.);}`});}
+ void main(){\n#include <logdepthbuf_fragment>\nvec3 V=normalize(cameraPosition-vW);float mu=max(dot(normalize(vN),V),0.);vec3 p=normalize(vP);vec3 drift=vec3(uTime*.009,0.,uTime*.006);float broad=fbm(p*4.+drift,4);float cells=fbm(p*40.-drift*2.,3);float filaments=1.-abs(sin((broad*2.+cells)*13.));float spots=smoothstep(.63,.8,fbm(p*9.+drift*.4,3));float heat=clamp(.42+broad*.44+cells*.22-spots*.25,0.,1.);vec3 edge=uColor*vec3(.78,.53,.3);vec3 cream=vec3(1.,.76,.43);vec3 surface=mix(edge,mix(uColor,cream,.48),heat);float limb=.36+.64*pow(mu,.4);float detail=.68+cells*.38+filaments*.12;gl_FragColor=vec4(surface*limb*detail*1.18,1.);}`});}
+// Thin geometry shell, not screen-space bloom: a quiet, local corona at the stellar limb.
+export function starCoronaMaterial(color){return new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uTime:{value:0}},transparent:true,depthWrite:false,side:THREE.BackSide,vertexShader:SPHERE_V,
+ fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;varying vec3 vP;varying vec3 vN;varying vec3 vW;${NOISE}
+ void main(){\n#include <logdepthbuf_fragment>\nfloat edge=1.-abs(dot(normalize(vN),normalize(cameraPosition-vW)));float band=pow(edge,7.);float curl=.7+.3*fbm(normalize(vP)*12.+vec3(uTime*.012),3);gl_FragColor=vec4(uColor*vec3(.9,.7,.45),band*curl*.28);}`});}
 // Route ribbon: screen-space width, glowing core, flowing energy, reveal animation (Star Citizen-style quantum line).
 export function routeRibbon(points,{color='#5fe6ff',width=5,flow=1,dashed=false}={}){
  const n=points.length,pos=[],prev=[],next=[],side=[],along=[],idx=[];let len=0;const acc=[0];for(let i=1;i<n;i++){len+=points[i].distanceTo(points[i-1]);acc.push(len);}
@@ -147,9 +151,9 @@ export function createBackdrop(scene){
  const c=document.createElement('canvas');c.width=2048;c.height=1024;const g=c.getContext('2d'),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
  const sphere=new THREE.Mesh(new THREE.SphereGeometry(9000,64,32),new THREE.MeshBasicMaterial({map:tex,side:THREE.BackSide,depthWrite:false,fog:false}));sphere.renderOrder=-10;scene.add(sphere);
  for(const [count,size,opacity] of [[4200,1,.55],[900,1.7,.75],[160,2.8,.95]]){const r=rng('stars'+count),pos=[],col=[];for(let i=0;i<count;i++){const u=r()*2-1,t=r()*Math.PI*2,rad=8000,s=Math.sqrt(1-u*u);pos.push(rad*s*Math.cos(t),rad*u*.9,rad*s*Math.sin(t));const tint=r(),cc=new THREE.Color(tint<.15?'#ffd9b0':tint<.35?'#c9dcff':'#ffffff');col.push(cc.r,cc.g,cc.b);}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size,sizeAttenuation:false,vertexColors:true,transparent:true,opacity,depthWrite:false})));}
- function paint(system){const r=rng('neb'+system),hue={stanton:['#1a4870','#4a2a66','#0f3050'],pyro:['#6e2a14','#4a1a3a','#5a3a12'],nyx:['#223a78','#30205e','#173048'],galaxy:['#1b3a66','#3d2460','#14324a']}[system]||['#173a5c','#3a2350','#0f3050'];
-  g.fillStyle='#02050a';g.fillRect(0,0,2048,1024);
-  for(let i=0;i<140;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*320,rad=60+r()*300,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,hue[i%3]+'50');gr.addColorStop(1,hue[i%3]+'00');g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
+ function paint(system){const r=rng('neb'+system),theme={stanton:{base:'#020b15',hue:['#124964','#174474','#154f58']},pyro:{base:'#120504',hue:['#75281a','#591a20','#7c401f']},nyx:{base:'#050615',hue:['#27265b','#1d3268','#35234f']},galaxy:{base:'#030713',hue:['#1b3a66','#3d2460','#14324a']}}[system]||{base:'#020b15',hue:['#124964','#174474','#154f58']},hue=theme.hue;
+  g.fillStyle=theme.base;g.fillRect(0,0,2048,1024);
+  for(let i=0;i<110;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*320,rad=60+r()*300,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,hue[i%3]+'40');gr.addColorStop(1,hue[i%3]+'00');g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
   for(let i=0;i<60;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*120,rad=20+r()*80,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,'#00000070');gr.addColorStop(1,'#00000000');g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
   g.globalAlpha=.55;for(let i=0;i<2600;i++){const x=r()*2048,y=360+Math.sin(x/2048*Math.PI*2)*140+(r()-.5)*230;g.fillStyle=r()<.2?'#ffe2c4':'#ffffff';g.fillRect(x,y,r()<.92?1:2,1);}g.globalAlpha=1;tex.needsUpdate=true;}
  return {paint,sphere};}

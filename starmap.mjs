@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
-import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
+import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
 
 // Star map with three levels (STARMAP › system › body). Directions and order are real; bodies are drawn
@@ -75,14 +75,15 @@ export function createStarMap(container,labelContainer,data,onSelect){
 
  // ---- scenes -----------------------------------------------------------------------------------
  let sphereGeo=new THREE.SphereGeometry(1,...quality.seg);
- function buildGalaxy(){clearGroup(galaxyGroup);for(const [sys,p] of Object.entries(GALAXY)){const m=new THREE.Mesh(sphereGeo,starMaterial(STAR_COLORS[sys]));m.scale.setScalar(STAR_R[sys]*1.6);m.position.copy(p);galaxyGroup.add(m);}
+ function addStar(parent,color,pos,r){const m=new THREE.Mesh(sphereGeo,starMaterial(color));m.scale.setScalar(r);m.position.copy(pos);parent.add(m);const corona=new THREE.Mesh(sphereGeo,starCoronaMaterial(color));corona.scale.setScalar(1.045);m.add(corona);return m;}
+ function buildGalaxy(){clearGroup(galaxyGroup);for(const [sys,p] of Object.entries(GALAXY)){addStar(galaxyGroup,STAR_COLORS[sys],p,STAR_R[sys]*1.6);}
   const hot=new Set();route?.visits.forEach(v=>{const s=v.leg.nodes.map(id=>byId.get(id)?.system);for(let i=1;i<s.length;i++)if(s[i]!==s[i-1])hot.add([s[i-1],s[i]].sort().join('|'));});
   for(const j of data.jumps){const a=byId.get(j.from)?.system,b=byId.get(j.to)?.system;if(!a||!b)continue;const isHot=hot.has([a,b].sort().join('|')),pts=new THREE.QuadraticBezierCurve3(GALAXY[a],GALAXY[a].clone().lerp(GALAXY[b],.5).add(V(0,8,0)),GALAXY[b]).getPoints(64);const rb=routeRibbon(pts,{color:isHot?'#ffb35c':'#4f8fc0',width:isHot?4:2.2,flow:isHot?1:.3});rb.material.uniforms.uReveal.value=1;galaxyGroup.add(rb);}}
  function buildSystem(sys){clearGroup(systemGroup);clearLabels();items=[];itemById.clear();layout=buildLayout(sys);backdrop.paint(sys);
   extent=Math.max(25,...[...layout.values()].filter(v=>v.loc.type==='Planet'||v.loc.isGateway).map(v=>v.pos.length()));
   for(const v of layout.values()){if(v.loc.type==='Planet'&&byId.get(v.loc.parentId)?.type==='Star')addRing(V(),Math.hypot(v.pos.x,v.pos.z),v.pos.y,0x4f86a6,.3);if(v.loc.type==='Moon'&&v.parent){const P=layout.get(v.parent);addRing(P.pos,Math.hypot(v.pos.x-P.pos.x,v.pos.z-P.pos.z),v.pos.y,0x3d6a82,.24);}}
   for(const v of layout.values()){const l=v.loc;let it;
-   if(v.kind==='star'){const m=new THREE.Mesh(sphereGeo,starMaterial(STAR_COLORS[sys]));m.scale.setScalar(v.r);m.position.copy(v.pos);systemGroup.add(m);it={...v,mesh:m,minPx:10};}
+   if(v.kind==='star'){const m=addStar(systemGroup,STAR_COLORS[sys],v.pos,v.r);it={...v,mesh:m,minPx:10};}
    else if(v.kind==='body'){const look=bodyLook(l.name,l.type),mat=planetMaterial(l.name,l.type);mat.uniforms.uDetail.value=quality.detail;const m=new THREE.Mesh(sphereGeo,mat);m.scale.setScalar(v.r);m.position.copy(v.pos);m.rotation.z=.18;systemGroup.add(m);
     if(look.clouds||look.kind==='city'&&false){const c=new THREE.Mesh(sphereGeo,cloudMaterial(l.name,look.clouds));c.scale.setScalar(1.012);m.add(c);v.clouds=c;}
     if(look.atmo){const a=new THREE.Mesh(sphereGeo,atmosphereMaterial(look.atmo,look.atmoStrength||1));a.scale.setScalar(1.045);m.add(a);v.atmo=a;}
