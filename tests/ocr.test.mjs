@@ -74,3 +74,14 @@ test('Korean display names: table, own alias, generated client words, never half
   assert.equal(koName({name:'HUR-L1 Green Glade Station'}),'');
   assert.equal(koName({name:'My Base',aliases:['우리 집']}),'우리 집');
 });
+
+test('several pickups for one delivery keep the first and warn instead of inventing a split', ()=>{
+  const r=parseMissionText(`중형 신입 화물 계약자 필요 [200-4,000 평판]
+유기체을(를) 0/12 SCU 파이로 II의 선셋 메사에 배송하십시오.
+브리오 함선 폐기장에서 유기체을(를) 접수하십시오.
+그림 헥스에서 유기체을(를) 접수하십시오.
+네온을(를) 0/1 SCU 파이로 II의 선셋 메사에 배송하십시오.
+그림 헥스에서 네온을(를) 접수하십시오.`,pyro);
+  assert.deepEqual(route(r),[['유기체',12,'brio','sunset'],['네온',1,'grim','sunset']]);
+  assert.equal(r.warnings.filter(w=>/픽업지가 2곳/.test(w)).length,1);
+});
