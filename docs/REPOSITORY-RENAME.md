@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-사용자가 `verse-hauler` → `stam-freight-control` 변경을 승인했다. 아직 GitHub 저장소 이름은 변경되지 않았다. Cloud의 HTTPS Git 읽기·푸시는 가능하지만 `api.github.com` 접근이 프록시 정책으로 403 차단되어 이름 변경 API를 실행할 수 없다. GitHub CLI의 인증 오류만으로 Git 인증이 없다고 판단하지 않는다.
+사용자가 `verse-hauler` → `stam-freight-control` 변경을 승인했고 2026-10-30에 변경을 완료했다. 아래는 당시 기록이다. Cloud의 HTTPS Git 읽기·푸시는 가능하지만 `api.github.com` 접근이 프록시 정책으로 403 차단되어 이름 변경 API를 실행할 수 없다. GitHub CLI의 인증 오류만으로 Git 인증이 없다고 판단하지 않는다.
 
 사용자가 저장소 소유자 계정으로 아래 설정에서 Repository name을 `stam-freight-control`로 바꾸는 단계가 필요하다.
 
@@ -16,7 +16,8 @@ https://github.com/limmin3-sudo/verse-hauler/settings
 ## Claude Code 진행 결과 (2026-10-30)
 
 - 3·4번(링크 변경, 첫 배포 비교 검증 보존)은 준비 완료. 4번은 `.github/pages-baseline/locations.json` 기준 스냅샷과 `refresh-data.mjs --fallback-file`(404일 때만 사용)로 해결했다.
-- 남은 순서: 사용자 승인 → GitHub 이름 변경 → 준비된 변경 커밋·푸시 → Actions·새 사이트 확인 → 각 PC origin 갱신(2번).
+- 사용자가 GitHub Settings에서 이름을 변경했고 `013c63f`를 새 origin의 main에 푸시했다. Actions 성공과 새 사이트를 확인했다. **변경 완료.**
+- 남은 일: 각 PC 체크아웃의 origin 갱신(2번). 이 Cloud 체크아웃은 갱신했다.
 
 ## 다음 AI의 후속 작업
 
