@@ -4,6 +4,9 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 
 - 사이트: https://limmin3-sudo.github.io/verse-hauler/
 - 소스: https://github.com/limmin3-sudo/verse-hauler
+- **공통 개발 규칙:** [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- **현재 작업 상태:** [PROJECT_STATUS.md](PROJECT_STATUS.md)
+- **AI 시작 지침:** [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md)
 - **개발 인수인계:** [docs/CLOUD-HANDOFF.md](docs/CLOUD-HANDOFF.md)
 - **Codex Cloud 시작 프롬프트:** [docs/CLOUD-START-PROMPT.md](docs/CLOUD-START-PROMPT.md)
 
@@ -73,3 +76,40 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 - 파트너 사진: 생성한 가상 성인 인물, `assets/partners/`에 포함.
 
 앱 소스는 MIT이며 게임 데이터·Star Citizen 관련 자산의 권리는 별개로 각 권리자에게 있습니다. Cloud Imperium Games와 무관한 팬 도구입니다.
+
+## Windows 두 PC와 Codex · Claude Code
+
+각 PC에 Git for Windows와 Node.js 22를 설치하고 `git --version`, `node --version`, `npm --version`으로 확인합니다. GitHub 인증은 각 PC에서 설정합니다. 두 PC의 폴더 경로는 달라도 됩니다. 각 AI의 코드 작업 기능에서 실제 저장소 폴더를 열어야 하며, 앱 설치나 같은 계정 로그인만으로 작업 폴더·대화가 공유되지는 않습니다.
+
+처음에는 원하는 부모 폴더의 PowerShell에서 실행합니다. 이미 체크아웃이 있으면 새로 만들지 말고 기존 폴더와 미커밋 작업을 먼저 확인합니다.
+
+```powershell
+git clone https://github.com/limmin3-sudo/verse-hauler.git
+cd verse-hauler
+node scripts/prepare.mjs
+npm test
+npm start
+```
+
+프로젝트 폴더에서 `start.cmd`를 실행해도 됩니다. Node.js 22가 PATH에 있어야 합니다. 개인 API 키 없이 기본 앱을 사용할 수 있습니다. 선택적 AI 서버를 쓸 경우 각 PC에서 비밀값을 별도로 설정하고 GitHub에 올리지 않습니다.
+
+### 작업을 시작할 때
+
+```powershell
+git status --short --branch
+git fetch origin
+git branch -vv
+git log -5 --oneline
+```
+
+현재 브랜치와 원격 차이를 확인합니다. 미커밋 작업이 있으면 그대로 보존하고 먼저 정리 방법을 결정합니다. 깨끗한 작업 폴더이고 현재 브랜치의 upstream이 의도한 대상일 때만 `git pull --ff-only`로 갱신합니다. Cloud의 브랜치는 `work`처럼 다를 수 있으므로 `main`이라고 추측하거나 강제로 전환하지 않습니다. 충돌이나 분기가 생기면 강제 푸시·초기화로 해결하지 않습니다.
+
+Codex에는 `AGENTS.md`, Claude Code에는 `CLAUDE.md`를 읽게 하고, 두 AI 모두 공통 지침과 `PROJECT_STATUS.md`를 확인하게 합니다. 한 체크아웃에서 한 AI씩 작업합니다.
+
+### 작업을 마치고 PC 또는 AI를 바꿀 때
+
+변경 검토 → 가능한 테스트 → `PROJECT_STATUS.md` 갱신 → Git 상태 확인 순서로 마칩니다. 다음 AI가 필요한 결정·수정 파일·실패 원인·다음 명령을 알 수 있게 기록합니다. 커밋과 푸시는 사용자가 승인한 후 진행하며, `main` 푸시는 GitHub Pages 배포를 실행합니다. 승인 대상 파일을 확인해 개별적으로 스테이징하고 비밀값·개인 파일을 포함하지 않습니다.
+
+같은 PC의 같은 폴더에서 AI를 바꾸면 미커밋 파일도 보이지만, 다른 PC와 Cloud로 옮기려면 승인된 변경을 GitHub에 커밋·푸시하고 다음 환경에서 가져와야 합니다. 한도에 도달하기 전에 인계 기록을 남기는 것이 좋습니다. 한도 때문에 기록이 불가능하면 다음 AI가 Git 차이를 먼저 검토하고 사용자가 마지막 요청을 알려줍니다.
+
+GitHub는 코드와 개발 문서를 공유합니다. AI 채팅 전체·설치된 도구·실행 중 서버·`.env`·앱의 브라우저 저장 데이터는 공유하지 않습니다. 기존 미션·함선 설정은 사용했던 브라우저에 남아 있으며 계정 동기화는 미구현입니다. Google Drive는 사용하지 않습니다.
