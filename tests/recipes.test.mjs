@@ -15,6 +15,17 @@ test('box layout entered once fills later missions of the same type, wherever th
  assert.equal(fillDestinationRecipes(recipes,two,'v1').destinationBoxes.length,2);
 });
 
+test('only the commodity mix matters: another company or title with the same cargo is the same type',()=>{
+ const first=mission('a','orison','sunset'),recipes=saveDestinationRecipe({},first,destinationGroups(first)[0],boxes,'v1');
+ const other={...mission('b','grimhex','ashland'),company:'데드 세인츠',title:''};
+ assert.deepEqual(fillDestinationRecipes(recipes,other,'v1').destinationBoxes[0].boxes,boxes);
+});
+
+test('layouts saved under the old version/company/title key are still reused',()=>{
+ const old={[JSON.stringify(['destination','4.10',"레드윈드노선화물",'x',[['수소',32,null],['의약용품',20,null],['함선탄약',32,null]]])]:{boxes,savedAt:1}};
+ assert.deepEqual(fillDestinationRecipes(old,mission('b','orison','sunset'),'4.11').destinationBoxes[0].boxes,boxes);
+});
+
 test('different quantities are a different type and are not filled',()=>{
  const first=mission('a','orison','sunset'),recipes=saveDestinationRecipe({},first,destinationGroups(first)[0],boxes,'v1');
  assert.deepEqual(fillDestinationRecipes(recipes,mission('b','orison','sunset',[24,32,20]),'v1').destinationBoxes,[]);
