@@ -65,3 +65,12 @@ test('"…에 있는" locations, OCR "504" for SCU and Korean spaceport names', 
   assert.equal(t.title,'중형 신입 화물 계약자 필요 [200-4,000 평판]');
   assert.deepEqual(route(t),[['냉동포드',4,'lorville','sunset']]);
 });
+
+test('Korean display names: table, own alias, generated client words, never half-translated', async ()=>{
+  const {placeLabel,koName}=await import('../aliases.mjs');
+  assert.equal(placeLabel({name:'Everus Harbor'}),'Everus Harbor (에버러스 하버)');
+  assert.equal(placeLabel({name:'Shubin Mining Facility SMCa-8'}),'Shubin Mining Facility SMCa-8 (슈빈 채광 시설 SMCa-8)');
+  assert.equal(placeLabel({name:'CRU-L4 Shallow Fields Station'}),'CRU-L4 Shallow Fields Station (CRU-L4 섈로우 필즈 스테이션)');
+  assert.equal(koName({name:'HUR-L1 Green Glade Station'}),'');
+  assert.equal(koName({name:'My Base',aliases:['우리 집']}),'우리 집');
+});
