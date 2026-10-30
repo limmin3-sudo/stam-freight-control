@@ -19,11 +19,11 @@ export function boxList(cargo,unknownBox=8){
 export const isUpright=d=>d[1]>Math.min(d[0],d[2]);
 const orientations=d=>[d,[d[0],d[2],d[1]],[d[1],d[0],d[2]],[d[1],d[2],d[0]],[d[2],d[0],d[1]],[d[2],d[1],d[0]]].filter((v,i,a)=>a.findIndex(w=>w.join()==v.join())===i);
 // Packing works per grid (independent cargo grids). Each placed box keeps {bin, cell, dims}.
-// Ships with many grids (Hull B) give every mission+destination its own grids. Ships with few large
-// grids (Zeus, Hermes, C2…) may share a grid, otherwise one mission would block the whole hold.
+// Prefer separate mission/destination grids, then share free cells in automatic mode.
+// An explicit shareGrids:false keeps dedicated grids; sharing never merges box ownership.
 export const ACCESS_SIDES=['rear','front','left','right','external'];
 export function shipAccess(ship){return ACCESS_SIDES.includes(ship.access)?ship.access:/hull[ -]?b\b/i.test(ship.name||'')||ship.id==='misc-hull-b'?'external':'rear';}
-export function sharesGrids(ship){return typeof ship.shareGrids==='boolean'?ship.shareGrids:ship.grids.length<=6;}
+export function sharesGrids(ship){return typeof ship.shareGrids==='boolean'?ship.shareGrids:true;}
 function makeBins(ship){return ship.grids.map(grid=>({grid,cells:new Uint8Array(grid.w*grid.h*grid.l),boxes:[],used:0}));}
 function occupy(b,cell,d,check){const g=b.grid,[x,y,z]=cell;if(x<0||y<0||z<0||x+d[0]>g.w||y+d[1]>g.h||z+d[2]>g.l)return false;for(let k=0;k<d[2];k++)for(let j=0;j<d[1];j++)for(let i=0;i<d[0];i++){const n=((z+k)*g.h+y+j)*g.w+x+i;if(b.cells[n])return false;}if(!check)for(let k=0;k<d[2];k++)for(let j=0;j<d[1];j++)for(let i=0;i<d[0];i++)b.cells[((z+k)*g.h+y+j)*g.w+x+i]=1;return true;}
 // Supported = resting on the grid floor or fully on top of other boxes (no floating boxes).
@@ -141,7 +141,9 @@ export function planRoute(data,missions,startId,settings={}){
    const next=[];for(const state of beam){const successors=[];for(let i=0;i<n;i++){const nextState=advance(state,i);if(nextState)successors.push(nextState);}
     const system=nav.byId.get(state.at).system,canCollectHere=!deadlines.size&&!opt.avoidFirst&&successors.some(s=>s.actions.at(-1).type==='pickup'&&nav.byId.get(s.at).system===system);
     // Cross only after gathering the remaining local pickups that actually fit.
-    next.push(...successors.filter(s=>!canCollectHere||nav.byId.get(s.at).system===system));}
+    const here=successors.filter(s=>s.at===state.at),deliveriesHere=here.filter(s=>s.actions.at(-1).type==='delivery');
+    // Finish this stop before leaving: unload, then collect every shipment that fits.
+    next.push(...(deliveriesHere.length?deliveriesHere:here.length?here:successors.filter(s=>!canCollectHere||nav.byId.get(s.at).system===system)));}
    const unique=new Map();for(const state of next)state.estimate=score(state)+estimate(state.status,state.at)+remainingWork(state.status);
    next.sort((a,b)=>a.estimate-b.estimate||score(a)-score(b));
    for(const state of next){const k=state.status.join('')+'|'+state.at+'|'+state.late.slice().sort().join(',')+'|'+state.packing.boxes.map(b=>b.boxId+':'+b.bin+':'+b.cell.join()).sort().join(';');if(!unique.has(k))unique.set(k,state);if(unique.size>=40)break;}
