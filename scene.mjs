@@ -35,7 +35,7 @@ function crateFrame(dx,dy,dz){const key=[dx,dy,dz].join();if(frameCache.has(key)
 let shadowTex=null;function contactShadow(){if(shadowTex)return shadowTex;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),r=g.createRadialGradient(64,64,10,64,64,64);r.addColorStop(0,'rgba(0,0,0,.75)');r.addColorStop(.6,'rgba(0,0,0,.35)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128);shadowTex=new THREE.CanvasTexture(c);return shadowTex;}
 function bracketGeo(w,h,l){const k=Math.min(.6,Math.min(w,h,l)*.3),p=[],hx=w/2,hy=h/2,hz=l/2;for(const sx of [-1,1])for(const sy of [-1,1])for(const sz of [-1,1]){const x=sx*hx,y=sy*hy,z=sz*hz;p.push(x,y,z,x-sx*k,y,z,x,y,z,x,y-sy*k,z,x,y,z,x,y,z-sz*k);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));return g;}
 export function createCargoView(container){
- // Grid-only cargo view (no ship exterior). Hull B gets port/starboard views; flat holds use one view.
+ // Grid-only cargo view (no ship exterior). Every hold, Hull B included, uses one rotatable 3D view with side labels.
  let views=[],layout='',profileKey='',ship=DEFAULT_SHIP,lastBoxes=new Set(),dropStart=0,nameOf=null;
  function viewport(side,title){return `<div class="cargo-viewport" data-side="${side}"><div class="cargo-side-title">${title}</div><div class="cargo-canvas"></div><div class="cargo-zone-labels"></div><div class="cargo-tip" hidden></div><button type="button" class="cargo-camera-reset">시점 초기화</button></div>`;}
  function dispose(){for(const v of views){v.dead=true;v.resizeObserver?.disconnect();clearGroup(v.frame);clearGroup(v.boxes);v.renderer.dispose();v.renderer.forceContextLoss?.();}views=[];}
@@ -49,7 +49,7 @@ export function createCargoView(container){
  function addLabel(v,text,point,cls,bin=-1){const el=document.createElement('span');el.className=cls;el.textContent=text;v.el.querySelector('.cargo-zone-labels').append(el);v.labels.push({element:el,point,bin});}
  function shortNames(grids){const strip=new Set(['DRAK','MISC','RSI','CRUS','ANVL','AEGS','ARGO','ORIG','CNOU','Cargo','Inventory','Drake','Caterpillar','Hermes','Hercules','Starlifter']);return grids.map(g=>{const w=g.name.split(' · ')[0].split(/\s+/).filter(x=>!strip.has(x));return w.join(' ')||g.name.split(' · ')[0];});}
  const glowLine=(geo,color,op)=>new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false}));
- function model(next){ship=next;const short=shortNames(next.grids);const kind=hullKind(ship)==='hull-b'?'split':'single';if(kind!==layout)build(kind);
+ function model(next){ship=next;const short=shortNames(next.grids);const kind='single';if(kind!==layout)build(kind);
   const bounds=new THREE.Box3();ship.grids.forEach(g=>{bounds.expandByPoint(new THREE.Vector3(g.x,g.y,g.z));bounds.expandByPoint(new THREE.Vector3(g.x+g.w,g.y+g.h,g.z+g.l));});const c=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),min=bounds.min,max=bounds.max;
   for(const v of views){clearGroup(v.frame);clearGroup(v.boxes);v.el.querySelector('.cargo-zone-labels').replaceChildren();v.labels=[];v.cages=[];v.center.copy(c);v.radius=Math.max(6,size.length()*.55);
    // Deck: dark plate with a fine holographic grid that fades toward the edges.
