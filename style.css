@@ -17,3 +17,12 @@ body.simple-mode .cargo-section,body.simple-mode .destination-configs,body.simpl
 body.simple-mode .results-grid{grid-template-columns:minmax(0,1fr)}
 body.simple-mode .fleet-controls{opacity:.55}
 @media(max-width:760px){.route-inputs{flex-wrap:wrap}}
+
+.map-search{width:190px;font-size:12px;padding:6px 9px;background:#0b1622e6;border:1px solid #2c4659;border-radius:6px;color:var(--text)}
+.map-search:focus{outline:1px solid var(--cyan);border-color:var(--cyan)}
+.map-tooltip{position:absolute;z-index:4;pointer-events:none;padding:6px 9px;background:#0d1d2af2;border:1px solid #3e6979;border-radius:5px;font-size:11px;color:#dbe9f2;white-space:nowrap;max-width:70%;overflow:hidden;text-overflow:ellipsis}
+.celestial-label.major{font-size:12px;font-weight:500}
+.celestial-label.selected{color:#ffd28a;outline:1px solid #ffc67c88}
+.leg-label{position:absolute;transform:translate(-50%,0);white-space:nowrap;font-size:11px;font-weight:600;color:#1a1206;background:#ffc67c;padding:3px 7px;border-radius:10px;pointer-events:none;box-shadow:0 2px 8px #0008}
+.map-wrap:focus{outline:none}
+@media(max-width:760px){.map-search{width:130px}.map-bottom span:first-child{display:none}}
