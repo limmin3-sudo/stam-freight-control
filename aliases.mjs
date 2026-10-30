@@ -16,7 +16,7 @@ export const KO_NAMES={
  // Pyro moons
  '이그니스':'Ignis','바트라':'Vatra','아디르':'Adir','페어로':'Fairo','푸에고':'Fuego','부르':'Vuur','뷔르':'Vuur',
  // Pyro sites
- '카나드뷰':'Canard View','마지막착륙지':'Last Landings','애쉬랜드':'Ashland','애시랜드':'Ashland','에쉬랜드':'Ashland','오비츄어리':'Orbituary','잭슨교환소':"Jackson's Swap",'잭슨스스왑':"Jackson's Swap",'체크메이트':'Checkmate','오비추어리':'Orbituary','오비튜어리':'Orbituary','루인정거장':'Ruin Station','루인스테이션':'Ruin Station','엔드게임':'Endgame','패치시티':'Patch City','가스라이트':'Gaslight','쥐구멍':"Rat's Nest",'랫츠네스트':"Rat's Nest",'스타라이트서비스스테이션':'Starlight Service Station','메구미급유소':'Megumi Refueling','더들리앤도터스':'Dudley & Daughters','촐라의해변':"Chawla's Beach",'촐라스비치':"Chawla's Beach",
+ '카나드뷰':'Canard View','마지막착륙지':'Last Landings','애쉬랜드':'Ashland','애시랜드':'Ashland','에쉬랜드':'Ashland','오비츄어리':'Orbituary','잭슨교환소':"Jackson's Swap",'부에노골짜기':'Bueno Ravine','부에노협곡':'Bueno Ravine','잭슨스스왑':"Jackson's Swap",'체크메이트':'Checkmate','오비추어리':'Orbituary','오비튜어리':'Orbituary','루인정거장':'Ruin Station','루인스테이션':'Ruin Station','엔드게임':'Endgame','패치시티':'Patch City','가스라이트':'Gaslight','쥐구멍':"Rat's Nest",'랫츠네스트':"Rat's Nest",'스타라이트서비스스테이션':'Starlight Service Station','메구미급유소':'Megumi Refueling','더들리앤도터스':'Dudley & Daughters','촐라의해변':"Chawla's Beach",'촐라스비치':"Chawla's Beach",
  // Nyx
  '레브스키':'Levski','레브스키정거장':'Levski','닉스1':'Nyx I','닉스2':'Nyx II','닉스3':'Nyx III'
 };
@@ -31,7 +31,7 @@ export const KO_DISPLAY={'Stanton':'스탠턴','Pyro':'파이로','Nyx':'닉스'
  'Stanton Gateway':'스탠턴 게이트웨이','Pyro Gateway':'파이로 게이트웨이','Nyx Gateway':'닉스 게이트웨이','Terra Gateway':'테라 게이트웨이',
  'Monox':'모녹스','Bloom':'블룸','Terminus':'터미누스','Ignis':'이그니스','Vatra':'바트라','Adir':'아디르','Fairo':'페어로','Fuego':'푸에고','Vuur':'부르',
  'Canard View':'카나드 뷰','Last Landings':'마지막 착륙지','Ashland':'애쉬랜드',"Jackson's Swap":'잭슨 교환소','Checkmate':'체크메이트','Orbituary':'오비츄어리','Ruin Station':'루인 스테이션','Endgame':'엔드게임','Patch City':'패치 시티','Gaslight':'가스라이트',"Rat's Nest":'쥐구멍','Starlight Service Station':'스타라이트 서비스 스테이션','Megumi Refueling':'메구미 급유소','Dudley & Daughters':'더들리 앤 도터스',"Chawla's Beach":'촐라의 해변',
- 'Levski':'레브스키','Sunset Mesa':'선셋 메사',"Seer's Canyon":'시어스 캐니언','HDMS-Norgaard':'HDMS-노가드',"Brio's Breaker Yard":'브리오 함선 폐기장'};
+ 'Levski':'레브스키','Bueno Ravine':'부에노 골짜기','Sunset Mesa':'선셋 메사',"Seer's Canyon":'시어스 캐니언','HDMS-Norgaard':'HDMS-노가드',"Brio's Breaker Yard":'브리오 함선 폐기장'};
 // English words inside data names → Korean client words, for names not in the table ("Shubin Mining Facility SMCa-8").
 const EN_TERMS=[['Shallow Fields','섈로우 필즈'],['Mining Facility','채광 시설'],['Mining Area','채광 구역'],['Breaker Yard','함선 폐기장'],['Spaceport','우주공항'],['Gateway','게이트웨이'],['Station','스테이션'],['Shubin','슈빈'],['ArcCorp','아크코프'],['Hurston','허스턴'],['Crusader','크루세이더'],['microTech','마이크로텍']];
 export function koName(l){if(!l)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
