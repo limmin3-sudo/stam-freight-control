@@ -4,7 +4,10 @@
 
 ## 현재 인계 상태
 
-- 마지막 작업 AI: Claude Code (Cloud). Codex `86e439e` 이후 이어서 작업했다. Codex는 사용 한도로 현재 작업하지 않는다.
+- 마지막 작업 AI: Claude Code (Cloud). Codex `86e439e` 이후 이어서 작업했고, 2026-10-30 **Codex(GPT)로 인계**. 모든 변경은 `main`에 커밋·푸시·배포됨, 미커밋 작업 없음.
+- **Codex가 처음 할 일:** `git pull --ff-only`(또는 사용자 PC에서 `update.cmd`) → `node scripts/prepare.mjs` → `npm test`(현재 47개 통과) → 아래 "다음 작업 우선순위"에서 사용자가 고른 일. 1순위 후보는 Codex만 가능한 **파트너 사진 작업**(아래 "보류된 파트너 사진 작업").
+- 사용자 사용 상태: 기본 기능·운항 기록·한글 지명·품목명 교정·**계정 로그인(Firebase 연결·검증 완료)** 모두 배포됨. Firebase 공개 웹 설정은 `firebase-config.mjs`, 보안 규칙은 `firestore.rules`(바꾸면 사용자가 콘솔에 다시 게시). Firebase 비밀값·서비스 계정 키는 저장소·채팅에 넣지 않는다.
+- 사용자 선호: 한국어 반말 대화, 짧고 쉬운 설명, "그냥 니가 다 해줘" — 기존 승인 범위(검증 후 main 커밋·푸시·배포)에서 작업하되 강제 푸시·삭제·대규모 변경은 먼저 묻는다.
 - **저장소·Pages 경로 변경 완료:** `verse-hauler` → `stam-freight-control`. 이름 변경은 사용자가 GitHub Settings에서 수행했다(이 Cloud 프록시는 저장소 설정 변경을 403으로 차단).
 - 저장소: https://github.com/limmin3-sudo/stam-freight-control
 - 사이트: https://limmin3-sudo.github.io/stam-freight-control/
