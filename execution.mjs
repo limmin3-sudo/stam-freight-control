@@ -1,17 +1,67 @@
-const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function createExecution(root,{onAdvance,onReset}){
- let plan=null,key='',state={done:[],elapsed:0,runningSince:null,marks:[]};
- const elapsed=()=>state.elapsed+(state.runningSince?Date.now()-state.runningSince:0);
- const persist=()=>{try{localStorage.setItem('vh-execution',JSON.stringify({key,state}));}catch{}};
- const tasksFor=v=>v.events.flatMap((e,i)=>e.type==='return'?[{id:e.shipmentId,label:'복귀 확인 · '+e.missionId,scu:0}]:e.type==='pickup'?[{id:`${e.shipmentId}:load`,label:`픽업·적재 ${e.missionId} · ${e.commodity} ${e.scu} SCU`,scu:e.scu}]:[{id:`${e.shipmentId}:unload`,label:`하역 ${e.missionId} · ${e.commodity} ${e.scu} SCU`,scu:-e.scu},{id:`${e.shipmentId}:deliver`,label:`납품 확인 ${e.missionId}`,scu:0}]);
- function current(){return plan?plan.visits.findIndex(v=>tasksFor(v).some(t=>!state.done.includes(t.id))):-1;}
- function render(){if(!plan){root.hidden=true;return;}root.hidden=false;const at=current(),all=plan.visits.flatMap(tasksFor),complete=at<0,done=state.done.length;
-  root.innerHTML=`<div class="execution-head"><div><div class="eyebrow">LIVE RUN / 내 작업 기록</div><h2>${complete?'운송 체크 완료':`${at+1}번 거점 · ${escape(plan.visits[at].name)}`}</h2></div><div class="run-actions"><button id="run-toggle" ${complete?'disabled':''}>${state.runningSince?'타이머 일시정지':state.elapsed?'타이머 재개':'운송 타이머 시작'}</button><button id="run-reset" class="quiet">기록 초기화</button></div></div><div class="run-stats"><span>작업 <b>${done}/${all.length}</b></span><span>체크 기준 적재 <b>${all.filter(t=>state.done.includes(t.id)).reduce((a,t)=>a+t.scu,0)} SCU</b></span><span>실측 시간 <b id="run-elapsed"></b></span><span>예상 남은 시간 <b id="run-remaining"></b></span><span>시간당 수익 <b id="run-rate"></b></span></div><div class="run-progress"><span style="width:${all.length?done/all.length*100:0}%"></span></div><div class="run-checklist">${complete?'<span class="subtle">미션별 픽업·하역·납품을 모두 체크했어. 게임의 미션 완료 상태도 확인해 줘.</span>':tasksFor(plan.visits[at]).map((t,i,arr)=>`<label><input type="checkbox" data-task="${escape(t.id)}" ${state.done.includes(t.id)?'checked':''} ${!state.runningSince||i>0&&!state.done.includes(arr[i-1].id)?'disabled':''}><span>${escape(t.label)}</span></label>`).join('')}</div><div class="small subtle">직접 체크한 작업 기준 · 게임 상태 자동 감지 없음${state.marks.length?' · 최근 거점 실측 '+Math.round(state.marks.at(-1).seconds/60)+'분':''}</div>`;
-  root.querySelector('#run-toggle').onclick=()=>{if(state.runningSince){state.elapsed=elapsed();state.runningSince=null;}else state.runningSince=Date.now();persist();render();};
-  root.querySelector('#run-reset').onclick=()=>{if(!confirm('진행 기록과 타이머를 초기화할까? 이미 실은 화물은 자동으로 제거되거나 재계산되지 않아.'))return;state={done:[],elapsed:0,runningSince:null,marks:[]};persist();render();onReset?.();};
-  root.querySelectorAll('[data-task]').forEach(c=>c.onchange=()=>{if(!c.checked){state.done=state.done.filter(x=>x!==c.dataset.task);}else if(!state.done.includes(c.dataset.task))state.done.push(c.dataset.task);const next=current();if(next!==at){const total=elapsed()/1000,previous=state.marks.reduce((a,m)=>a+m.seconds,0);state.marks.push({stop:at,seconds:Math.max(0,total-previous)});if(next<0){state.elapsed=elapsed();state.runningSince=null;}else onAdvance(next);}persist();render();});updateClock();
- }
- function updateClock(){if(!plan)return;const e=root.querySelector('#run-elapsed');if(!e)return;const ms=elapsed(),s=Math.floor(ms/1000);e.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;const at=current(),remaining=at<0?0:plan.seconds-(at?plan.visits[at-1].elapsed:0);const rateEl=root.querySelector('#run-rate');if(rateEl){const done=s+(remaining?remaining*1.05:0);rateEl.textContent=plan.totalReward&&s>60?new Intl.NumberFormat('ko-KR').format(Math.round(plan.totalReward/(done/3600)/1000)*1000)+' aUEC (실측 기준)':plan.totalReward?'타이머 시작 후 계산':'보상 미입력';}root.querySelector('#run-remaining').textContent=remaining?`${Math.max(1,Math.round(remaining/60*.8))}–${Math.ceil(remaining/60*1.3)}분`:'0분';}
- setInterval(updateClock,1000);window.addEventListener('beforeunload',()=>{if(state.runningSince){state.elapsed=elapsed();state.runningSince=null;persist();}});
- return {setPlan(p,names){plan=p;if(!p){render();return;}p.visits.forEach(v=>v.name=names.get(v.locationId)?.name||v.locationId);const nextKey=JSON.stringify(p.visits.map(v=>[v.locationId,v.events.map(e=>[e.shipmentId,e.type,e.scu])]));if(nextKey!==key){key=nextKey;state={done:[],elapsed:0,runningSince:null,marks:[]};try{const saved=JSON.parse(localStorage.getItem('vh-execution')||'{}');if(saved.key===key){state={...state,...saved.state,runningSince:null};}}catch{}}render();},isActive:()=>!!plan&&current()>=0&&(state.elapsed>0||state.runningSince||state.done.length>0)};
+// Run progress: the game is not connected, so the captain presses one big button per stop
+// (접수 완료 / 배송 완료) and the whole page moves on to the next leg. State survives reloads.
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
+const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
+const KEY='sfc-run';
+
+export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nameOf}){
+ let plan=null,names=new Map(),run=load()||blank();
+ function blank(){return {planKey:'',index:0,log:[],started:false,elapsed:0,since:null,finished:false,picked:[],delivered:[],aboard:[],startId:null};}
+ function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null');}catch{return null;}}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(run));}catch{}}
+ const elapsed=()=>run.elapsed+(run.since?(Date.now()-run.since)/1000:0);
+ const keyOf=p=>p?JSON.stringify(p.visits.map(v=>[v.locationId,v.events.map(e=>[e.shipmentId,e.type])])):'';
+ const nm=id=>names.get(id)?.name||id;
+ const kindOf=v=>{const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':'return';};
+ const BTN={pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료'};
+ const say=t=>{const el=root.querySelector('.aide-line');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
+ function cargoLine(v){return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 픽업</b>':e.type==='delivery'?'<b class="delivery">↓ 배송</b>':'<b>↩ 복귀</b>'} ${esc(e.missionId)} · ${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${boxes}상자`:''}${e.type==='pickup'&&s?` → ${esc(nm(s.dropoffId))}`:''}</li>`;}).join('');}
+ function remainingSeconds(){if(!plan)return 0;const i=Math.min(run.index,plan.visits.length);const done=i?plan.visits[i-1].elapsed:0;return Math.max(0,plan.seconds-done);}
+ function render(){
+  if(!plan){root.hidden=true;document.body.classList.remove('run-active');return;}root.hidden=false;document.body.classList.toggle('run-active',run.started&&!run.finished);
+  const total=plan.visits.length,i=run.index,v=plan.visits[i],next=plan.visits[i+1],reward=plan.totalReward||0;
+  if(run.finished){const sec=elapsed(),rate=reward&&sec>0?reward/(sec/3600):0;
+   root.innerHTML=`<div class="run-summary"><div class="eyebrow">MISSION COMPLETE / 운항 완료</div><h2>수고하셨습니다, 함장님.</h2><div class="run-sum-grid"><div><span>총 운항 시간</span><b>${mmss(sec)}</b></div><div><span>예상 수익</span><b>${reward?fmt(reward)+' aUEC':'—'}</b></div><div><span>시간당</span><b>${rate?fmt(rate)+' aUEC':'—'}</b></div><div><span>거점</span><b>${run.log.length}곳</b></div></div>
+    <table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${Math.max(1,Math.round(l.est/60))}분</td></tr>`).join('')}</tbody></table>
+    <div class="run-buttons"><button id="run-new" class="primary">새 운항 준비</button><button id="run-keep" class="quiet">이 계획 다시 보기</button></div></div>`;
+   root.querySelector('#run-new').onclick=()=>{run=blank();save();onReset?.('new');};root.querySelector('#run-keep').onclick=()=>{run=blank();run.planKey=keyOf(plan);save();render();onAdvance?.(0);};return;}
+  const kind=kindOf(v),pct=Math.round(i/total*100);
+  root.innerHTML=`<div class="run-head"><div><div class="eyebrow">LIVE RUN / 운항 진행 · ${i+1}/${total} 거점</div><h2><span class="run-num">${i+1}</span>${esc(nm(v.locationId))}</h2></div>
+   <div class="run-meters"><div><span>운항 시간</span><b id="run-clock">${mmss(elapsed())}</b></div><div><span>남은 예상</span><b id="run-left"></b></div><div><span>시간당 수익</span><b id="run-rate">—</b></div></div></div>
+   <div class="run-track">${plan.visits.map((x,k)=>`<i class="${k<i?'done':k===i?'now':''}" title="${k+1}. ${esc(nm(x.locationId))}"></i>`).join('')}<span style="width:${pct}%"></span></div>
+   <div class="aide"><span class="aide-badge">항해사</span><span class="aide-line">${esc(run.lastLine||(run.started?`${nm(v.locationId)}에서 작업을 마치시면 버튼을 눌러 주십시오.`:'출항 준비가 끝났습니다. 첫 거점에 도착하시면 시작하겠습니다.'))}</span></div>
+   <div class="run-body"><div class="run-now"><ul class="run-cargo">${cargoLine(v)}</ul>${v.blocked?.length?`<p class="blocked-badge">⚠ 하역 전에 다른 상자 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}개를 먼저 옮겨야 할 수 있습니다.</p>`:''}
+    <button id="run-done" class="run-big ${kind}">${BTN[kind]} <kbd>Space</kbd></button></div>
+    <div class="run-next">${next?`<span>다음</span><b>${esc(nm(next.locationId))}</b><small>약 ${Math.max(1,Math.round(next.seconds/60))}분${next.leg.jumps?' · '+esc((next.leg.gateways||[]).join(' → '))+' 경유':''}</small>`:'<span>다음</span><b>마지막 거점</b>'}</div></div>
+   <div class="run-buttons"><button id="run-undo" class="quiet" ${run.log.length?'':'disabled'}>↶ 되돌리기</button><button id="run-skip" class="quiet">이 거점 나중에</button><button id="run-replan" class="quiet">여기서 경로 다시 짜기</button><button id="run-pause" class="quiet">${run.since?'타이머 일시정지':run.started?'타이머 재개':'타이머 시작'}</button><button id="run-stop" class="quiet danger">운항 종료</button></div>
+   ${run.log.length?`<details class="run-history"><summary>지난 구간 기록 ${run.log.length}개</summary><table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${Math.max(1,Math.round(l.est/60))}분</td></tr>`).join('')}</tbody></table></details>`:''}`;
+  root.querySelector('#run-done').onclick=complete;root.querySelector('#run-undo').onclick=undo;root.querySelector('#run-skip').onclick=()=>replanFrom(true);root.querySelector('#run-replan').onclick=()=>replanFrom(false);
+  root.querySelector('#run-pause').onclick=()=>{if(run.since){run.elapsed=elapsed();run.since=null;}else{run.started=true;run.since=Date.now();}save();render();};
+  root.querySelector('#run-stop').onclick=()=>{if(!confirm('운항 기록을 지우고 종료할까요? 실린 화물은 게임에서 직접 확인하세요.'))return;run=blank();save();render();onReset?.('stop');};
+  tick();}
+ function tick(){if(!plan||run.finished)return;const c=root.querySelector('#run-clock');if(!c)return;const sec=elapsed();c.textContent=mmss(sec);const left=remainingSeconds();root.querySelector('#run-left').textContent=left?`${Math.max(1,Math.round(left/60*.8))}–${Math.ceil(left/60*1.3)}분`:'0분';
+  const reward=plan.totalReward||0,proj=sec+left;root.querySelector('#run-rate').textContent=reward&&run.started&&sec>30?fmt(reward/(proj/3600))+' aUEC':reward?'출항 후 계산':'보상 미입력';}
+ function complete(){if(!plan||run.finished)return;const v=plan.visits[run.index],now=elapsed();if(!run.started){run.started=true;run.since=Date.now();run.startId=v.locationId;}
+  const prevAt=run.log.length?run.log.at(-1).at:0;run.log.push({visit:run.index,locationId:v.locationId,name:nm(v.locationId),at:now,seconds:Math.max(0,now-prevAt),est:v.seconds,events:v.events.map(e=>({type:e.type,shipmentId:e.shipmentId}))});
+  for(const e of v.events){if(e.type==='pickup'&&!run.picked.includes(e.shipmentId))run.picked.push(e.shipmentId);if(e.type==='delivery'&&!run.delivered.includes(e.shipmentId))run.delivered.push(e.shipmentId);}run.aboard=v.packing?.boxes||[];
+  const kind=kindOf(v);run.index++;
+  if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();return;}
+  const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
+  run.lastLine=`${nm(v.locationId)} ${kind==='pickup'?'접수':kind==='delivery'?'배송':'작업'} 완료했습니다. 다음은 ${nm(n.locationId)}, 약 ${Math.max(1,Math.round(n.seconds/60))}분 거리입니다.`+(n.leg.jumps?` ${(n.leg.gateways||[])[0]||'게이트웨이'}에서 점프합니다.`:'')+(unload.length?` 내리실 화물은 ${[...new Set(unload.map(e=>e.missionId))].join(', ')}입니다.`:load.length?` 실으실 화물은 ${[...new Set(load.map(e=>e.missionId))].join(', ')}입니다.`:'');
+  save();render();onAdvance?.(run.index);}
+ function undo(){if(!run.log.length)return;const last=run.log.pop();run.index=last.visit;for(const e of last.events){if(e.type==='pickup')run.picked=run.picked.filter(x=>x!==e.shipmentId);if(e.type==='delivery')run.delivered=run.delivered.filter(x=>x!==e.shipmentId);}
+  run.aboard=run.index?plan.visits[run.index-1].packing?.boxes||[]:[];run.finished=false;run.lastLine=`${last.name} 완료를 취소했습니다. 다시 진행해 주십시오.`;save();render();onAdvance?.(run.index);}
+ function replanFrom(skip){if(!plan)return;const here=run.log.length?run.log.at(-1).locationId:(run.startId||plan.visits[0].locationId);
+  const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
+  if(ok){run.lastLine=skip?`${nm(avoid)}는 뒤로 미뤘습니다. 남은 경로를 다시 짰습니다.`:'지금 실린 화물 그대로 남은 경로를 다시 짰습니다.';save();render();}}
+ setInterval(tick,1000);
+ document.addEventListener('keydown',e=>{if(!plan||run.finished||!document.body.classList.contains('run-mode')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
+ window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
+ return {
+  setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
+   if(keepRun){run.planKey=k;run.index=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;}else{run=blank();run.planKey=k;}}
+   if(run.index>=p.visits.length)run.index=Math.max(0,p.visits.length-1);save();render();},
+  start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=`출항합니다. 첫 거점은 ${nm(plan.visits[0].locationId)}입니다. 도착해서 작업을 마치시면 버튼을 눌러 주십시오.`;}save();render();onAdvance?.(run.index);},
+  replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
 }
