@@ -22,6 +22,12 @@
 - 검증: Node 22.22.0 `npm test` 32개 통과, `git diff --check` 통과, 404/200/기준 파일 없음 세 경우 수동 확인. Actions `41021935133` 성공(추가·변경·삭제 0, 테스트 32 통과). 새 사이트의 index·스크립트·좌표·Three.js·파트너 사진 200, 브라우저에서 사진 3장 표시·페이지 오류 없음.
 - 브라우저 콘솔의 `data/ko-names.json` 404는 기존부터 있던 선택 파일 부재다(한글 패치 추출 백로그, 코드가 없으면 무시).
 
+## 원클릭 업데이트 (`update.cmd`)
+
+- 사용자 요청으로 추가. Git 확인 → origin이 `verse-hauler`면 새 주소로 변경 → `git fetch` → 미커밋 파일이 있으면 목록만 보여 주고 중단 → `git pull --ff-only`(분기 시 중단) → 최근 커밋 3개 표시.
+- 강제 동기화·초기화·삭제를 하지 않는다. 한국어 출력을 위해 `chcp 65001`과 UTF-8·CRLF로 저장했다.
+- **Windows 실제 실행은 미검증**(이 Cloud는 Linux). 글자가 깨지거나 오류가 나면 다음 AI가 출력 문구를 영어로 바꾸는 등 보완한다.
+
 ## 완료된 제품 기능
 
 - 스크린샷 OCR·수정, 미션·배송·상자별 독립 소유권과 구성 재사용.
@@ -57,7 +63,7 @@
 
 ## 다음 작업 우선순위
 
-1. 각 Windows PC의 기존 체크아웃에서 미커밋 작업을 보존한 채 `git remote set-url origin https://github.com/limmin3-sudo/stam-freight-control.git` → `git fetch origin` → 깨끗하면 `git pull --ff-only`.
+1. 각 Windows PC에서 `update.cmd` 더블클릭(origin 갱신 + 미커밋 없을 때만 `git pull --ff-only`). 처음 한 번은 이 파일이 아직 없으므로 그 PC의 AI에게 "최신으로 받아줘"라고 요청하거나 `git pull`을 실행한다. GitHub가 예전 Git 주소를 리디렉션하므로 기존 origin으로도 받아진다.
 2. 두 Windows PC의 Git·Node 22·인증, start.cmd 실행, Codex·Claude Code의 지침 인식을 각 PC에서 확인한다.
 3. `.github/pages-baseline/` 유지·삭제 결정.
 4. 이후 제품 개발은 사용자의 다음 요청에 따른다. 로그인·동기화는 백로그이며 자동 착수하지 않는다. 커밋·푸시는 사용자 승인 범위에서 진행한다.
