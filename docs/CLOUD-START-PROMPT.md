@@ -1,6 +1,6 @@
 # Codex Cloud 새 작업에 붙여넣을 내용
 
-아래 내용을 저장소 `limmin3-sudo/verse-hauler`를 선택한 Cloud 작업에서 사용한다. 이 문서는 새 Cloud 작업을 자동으로 만들거나 기존 로컬 대화를 옮기지는 않는다.
+아래 내용을 저장소 `limmin3-sudo/stam-freight-control`를 선택한 Cloud 작업에서 사용한다. 이 문서는 새 Cloud 작업을 자동으로 만들거나 기존 로컬 대화를 옮기지는 않는다.
 
 ---
 

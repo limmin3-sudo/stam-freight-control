@@ -32,7 +32,12 @@ export async function downloadSnapshot(fetcher=fetch){
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)){
  let previous=null;const previousUrl=process.argv[process.argv.indexOf('--previous-url')+1];
- if(process.argv.includes('--previous-url')){const r=await fetch(previousUrl,{signal:AbortSignal.timeout(60000)});if(!r.ok)throw Error('이전 배포를 확인하지 못했습니다: '+r.status);previous=await r.json();validateSnapshot(previous);}
+ const fallbackFile=process.argv.includes('--fallback-file')?process.argv[process.argv.indexOf('--fallback-file')+1]:null;
+ if(process.argv.includes('--previous-url')){const r=await fetch(previousUrl,{signal:AbortSignal.timeout(60000)});
+  // 새 Pages 경로의 첫 배포처럼 이전 배포가 아직 없을 때(404)만 저장소에 커밋된 기준 스냅샷과 비교한다.
+  if(r.status===404&&fallbackFile){previous=JSON.parse(await fs.readFile(path.resolve(base,fallbackFile),'utf8'));console.log('이전 배포 없음(404) · 기준 스냅샷과 비교: '+fallbackFile);}
+  else{if(!r.ok)throw Error('이전 배포를 확인하지 못했습니다: '+r.status);previous=await r.json();}
+  validateSnapshot(previous);}
  else{try{previous=JSON.parse(await fs.readFile(path.join(base,'data/locations.json'),'utf8'));}catch{}}
  const data=await downloadSnapshot();data.meta.changes=validateSnapshot(data,previous);
  const target=path.join(base,'data/locations.json');await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target+'.tmp',JSON.stringify(data));await fs.rename(target+'.tmp',target);

@@ -2,8 +2,8 @@
 
 Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션별 화물·경로·적재·시간을 정리하는 비공식 팬 도구입니다.
 
-- 사이트: https://limmin3-sudo.github.io/verse-hauler/
-- 소스: https://github.com/limmin3-sudo/verse-hauler
+- 사이트: https://limmin3-sudo.github.io/stam-freight-control/
+- 소스: https://github.com/limmin3-sudo/stam-freight-control
 - **공통 개발 규칙:** [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 - **현재 작업 상태:** [PROJECT_STATUS.md](PROJECT_STATUS.md)
 - **저장소 이름 변경 인계(미완료):** [docs/REPOSITORY-RENAME.md](docs/REPOSITORY-RENAME.md)
@@ -85,8 +85,8 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 처음에는 원하는 부모 폴더의 PowerShell에서 실행합니다. 이미 체크아웃이 있으면 새로 만들지 말고 기존 폴더와 미커밋 작업을 먼저 확인합니다.
 
 ```powershell
-git clone https://github.com/limmin3-sudo/verse-hauler.git
-cd verse-hauler
+git clone https://github.com/limmin3-sudo/stam-freight-control.git
+cd stam-freight-control
 node scripts/prepare.mjs
 npm test
 npm start

@@ -6,8 +6,8 @@
 
 | 항목 | 상태 |
 |---|---|
-| 저장소 | https://github.com/limmin3-sudo/verse-hauler |
-| 배포 사이트 | https://limmin3-sudo.github.io/verse-hauler/ |
+| 저장소 | https://github.com/limmin3-sudo/stam-freight-control |
+| 배포 사이트 | https://limmin3-sudo.github.io/stam-freight-control/ |
 | 기본 브랜치 | `main` |
 | 마지막 기능 변경 기준 | `a445f8ff925457bfe9f3c32c814fcccf1840147f` |
 | 해당 기능 배포 | GitHub Actions 성공 및 실제 사이트 확인 완료 |

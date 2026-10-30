@@ -1,6 +1,6 @@
 # 공통 개발 지침 — Codex · Claude Code
 
-이 문서는 두 AI와 두 Windows PC가 함께 따르는 개발 규칙이다. GitHub `limmin3-sudo/verse-hauler`를 코드와 개발 문서의 기준으로 사용한다. Google Drive를 사용하지 않는다. 같은 계정이어도 AI 대화·로컬 파일·브라우저 저장소는 자동 공유되지 않는다.
+이 문서는 두 AI와 두 Windows PC가 함께 따르는 개발 규칙이다. GitHub `limmin3-sudo/stam-freight-control`를 코드와 개발 문서의 기준으로 사용한다. Google Drive를 사용하지 않는다. 같은 계정이어도 AI 대화·로컬 파일·브라우저 저장소는 자동 공유되지 않는다.
 
 ## 시작과 작업 소유권
 

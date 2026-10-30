@@ -13,6 +13,11 @@ https://github.com/limmin3-sudo/verse-hauler/settings
 - 저장소: https://github.com/limmin3-sudo/stam-freight-control
 - Pages: https://limmin3-sudo.github.io/stam-freight-control/
 
+## Claude Code 진행 결과 (2026-10-30)
+
+- 3·4번(링크 변경, 첫 배포 비교 검증 보존)은 준비 완료. 4번은 `.github/pages-baseline/locations.json` 기준 스냅샷과 `refresh-data.mjs --fallback-file`(404일 때만 사용)로 해결했다.
+- 남은 순서: 사용자 승인 → GitHub 이름 변경 → 준비된 변경 커밋·푸시 → Actions·새 사이트 확인 → 각 PC origin 갱신(2번).
+
 ## 다음 AI의 후속 작업
 
 검토용 링크 변경 패치는 이전 Cloud의 임시 파일에만 준비했으며 GitHub에 포함되지 않는다. 임시 파일에 의존하지 말고 아래 목록과 실제 Git 차이를 기준으로 수정한다.
