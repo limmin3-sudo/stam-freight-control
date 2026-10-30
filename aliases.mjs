@@ -22,27 +22,27 @@ export const KO_NAMES={
 };
 // Translated Korean words inside site names → the English words used in the data, so
 // "슈빈 채광 시설 SMCa-8" can be compared with "Shubin Mining Facility SMCa-8".
-export const KO_TERMS=[['채광시설','Mining Facility'],['채광 시설','Mining Facility'],['채광구역','Mining Area'],['채광 구역','Mining Area'],['함선 폐기장','Breaker Yard'],['함선폐기장','Breaker Yard'],['폐기장','Breaker Yard'],['슈빈','Shubin'],['아크코프','ArcCorp'],['아크코퍼레이션','ArcCorp'],['노가드','Norgaard'],['브리오',"Brio's"],['브레오',"Brio's"],['선셋 메사','Sunset Mesa'],['선셋메사','Sunset Mesa'],['섈로우 필즈','Shallow Fields'],['섈로우필즈','Shallow Fields'],['스테이션','Station'],['시어스 캐니언',"Seer's Canyon"],['시어스캐니언',"Seer's Canyon"]];
+export const KO_TERMS=[['채광시설','Mining Facility'],['채광 시설','Mining Facility'],['채광구역','Mining Area'],['채광 구역','Mining Area'],['함선 폐기장','Breaker Yard'],['함선폐기장','Breaker Yard'],['폐기장','Breaker Yard'],['슈빈','Shubin'],['아크코프','ArcCorp'],['아크콥','ArcCorp'],['셸로우 필즈','Shallow Fields'],['셸로우필즈','Shallow Fields'],['아크코퍼레이션','ArcCorp'],['노가드','Norgaard'],['브리오',"Brio's"],['브레오',"Brio's"],['선셋 메사','Sunset Mesa'],['선셋메사','Sunset Mesa'],['섈로우 필즈','Shallow Fields'],['섈로우필즈','Shallow Fields'],['스테이션','Station'],['시어스 캐니언',"Seer's Canyon"],['시어스캐니언',"Seer's Canyon"]];
 export function translateKoTerms(s){let t=String(s||'');for(const [k,v] of KO_TERMS)t=t.split(k).join(' '+v+' ');return t.replace(/\s+/g,' ').trim();}
 
 // Korean display names shown next to English place names (game Korean client spelling where known).
-export const KO_DISPLAY={'Stanton':'스탠턴','Pyro':'파이로','Nyx':'닉스','Hurston':'허스턴','Crusader':'크루세이더','ArcCorp':'아크코프','microTech':'마이크로텍','Arial':'아리엘','Aberdeen':'애버딘','Magda':'마그다','Ita':'이타','Cellin':'셀린','Daymar':'데이마','Yela':'옐라','Lyria':'리리아','Wala':'왈라','Calliope':'칼리오페','Clio':'클리오','Euterpe':'유터피',
+export const KO_DISPLAY={'Stanton':'스탠턴','Pyro':'파이로','Nyx':'닉스','Hurston':'허스턴','Crusader':'크루세이더','ArcCorp':'아크콥','microTech':'마이크로텍','Arial':'아리엘','Aberdeen':'애버딘','Magda':'마그다','Ita':'이타','Cellin':'셀린','Daymar':'데이마','Yela':'옐라','Lyria':'리리아','Wala':'왈라','Calliope':'칼리오페','Clio':'클리오','Euterpe':'유터피',
  'Lorville':'로빌','Area18':'에어리어18','Orison':'오리슨','New Babbage':'뉴 배비지','Everus Harbor':'에버러스 하버','Seraphim Station':'세라핌 스테이션','Baijini Point':'바이지니 포인트','Port Tressler':'포트 트레슬러','Grim HEX':'그림 헥스',
  'Stanton Gateway':'스탠턴 게이트웨이','Pyro Gateway':'파이로 게이트웨이','Nyx Gateway':'닉스 게이트웨이','Terra Gateway':'테라 게이트웨이',
  'Monox':'모녹스','Bloom':'블룸','Terminus':'터미누스','Ignis':'이그니스','Vatra':'바트라','Adir':'아디르','Fairo':'페어로','Fuego':'푸에고','Vuur':'부르',
- 'Canard View':'카나드 뷰','Last Landings':'마지막 착륙지','Ashland':'애쉬랜드',"Jackson's Swap":'잭슨 교환소','Checkmate':'체크메이트','Orbituary':'오비츄어리','Ruin Station':'루인 스테이션','Endgame':'엔드게임','Patch City':'패치 시티','Gaslight':'가스라이트',"Rat's Nest":'쥐구멍','Starlight Service Station':'스타라이트 서비스 스테이션','Megumi Refueling':'메구미 급유소','Dudley & Daughters':'더들리 앤 도터스',"Chawla's Beach":'촐라의 해변',
+ 'Canard View':'카나드 뷰','Last Landings':'마지막 착륙지','Ashland':'애쉬랜드',"Jackson's Swap":'잭슨 교환소','Checkmate':'체크메이트','Orbituary':'오비추어리','Ruin Station':'루인 스테이션','Endgame':'엔드게임','Patch City':'패치 시티','Gaslight':'가스라이트',"Rat's Nest":'쥐구멍','Starlight Service Station':'스타라이트 서비스 스테이션','Megumi Refueling':'메구미 급유소','Dudley & Daughters':'더들리 앤 도터스',"Chawla's Beach":'촐라의 해변',
  'Levski':'레브스키','Bueno Ravine':'부에노 골짜기','Sunset Mesa':'선셋 메사',"Seer's Canyon":'시어스 캐니언','HDMS-Norgaard':'HDMS-노가드',"Brio's Breaker Yard":'브리오 함선 폐기장'};
 // English words inside data names → Korean client words, for names not in the table ("Shubin Mining Facility SMCa-8").
-const EN_TERMS=[['Shallow Fields','섈로우 필즈'],['Mining Facility','채광 시설'],['Mining Area','채광 구역'],['Breaker Yard','함선 폐기장'],['Spaceport','우주공항'],['Gateway','게이트웨이'],['Station','스테이션'],['Shubin','슈빈'],['ArcCorp','아크코프'],['Hurston','허스턴'],['Crusader','크루세이더'],['microTech','마이크로텍']];
-export function koName(l){if(!l)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
+const EN_TERMS=[['Shallow Fields','셸로우 필즈'],['Mining Facility','채광 시설'],['Mining Area','채광 구역'],['Breaker Yard','함선 폐기장'],['Spaceport','우주공항'],['Gateway','게이트웨이'],['Station','스테이션'],['Shubin','슈빈'],['ArcCorp','아크콥'],['Hurston','허스턴'],['Crusader','크루세이더'],['microTech','마이크로텍']];
+export function koName(l){if(!l)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(extraDisplay[l.name])return extraDisplay[l.name];if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
  let t=' '+l.name+' ';for(const [en,ko] of EN_TERMS)t=t.split(' '+en+' ').join(' '+ko+' ');t=t.trim();
  // Only when every leftover Latin word is a code (SMCa-8, 056, CRU-L4); a half-translated name is worse than none.
  return /[가-힣]/.test(t)&&!t.split(/\s+/).some(w=>/^[A-Za-z'’&]+$/.test(w)&&/[a-z]/.test(w))?t:'';}
 export const placeLabel=l=>{if(!l)return '';const k=koName(l);return k&&k!==l.name?`${l.name} (${k})`:l.name;};
 
 export const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
-let extra={};
-export async function loadKoNames(url='./data/ko-names.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extra=Object.fromEntries(Object.entries(j).map(([k,v])=>[norm(k),v]));}}catch{}return Object.keys(extra).length;}
+let extra={},extraDisplay={};
+export async function loadKoNames(url='./data/ko-names.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extra=Object.fromEntries(Object.entries(j).map(([k,v])=>[norm(k),v]));extraDisplay=Object.fromEntries(Object.entries(j).map(([k,v])=>[v,k]));}}catch{}return Object.keys(extra).length;}
 // Find the most specific location mentioned in free text (English or Korean). Longer matches win,
 // so "파이로 VI의 카나드 뷰" resolves to Canard View rather than Terminus.
 export function matchLocation(text,locations,{system=null,fuzzy=false}={}){const query=norm(text),personal=locations.filter(l=>(!system||l.system===system)&&l.aliases?.some(a=>{const n=norm(a);return n===query||n.length>=4&&query.includes(n);}));if(personal.length===1)return personal[0];if(personal.length>1)return null;const exact=matchExact(text,locations,system);if(exact||!fuzzy)return exact;return fuzzyLocations(text,locations,{system,limit:1})[0]?.loc||null;}
