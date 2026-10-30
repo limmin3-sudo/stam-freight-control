@@ -32,7 +32,7 @@ Local copy on the user's PC: `C:\Users\limmi\Documents\Codex\2026-10-30\so\outpu
 - `engine.mjs` — routing (beam search, gateways, jumps), packing (`packBoxes`), delivery-aware placement
   (later deliveries deeper, earlier near the door/top), `blockersOf` (boxes that must be moved), load order.
 - `route-only.mjs` — "간편 경로" mode (ignores ship/cargo).
-- `ships.mjs`, `data/ships.json` — ship grids (`w,h,l,x,y,z,maxBoxSize,noUpright`), `access` side, `shareGrids`.
+- `ships.mjs`, `data/ships.json` — 51 ships (38 added from SuperCargo `cargoGrids.ts`, MIT, incl. Constellation Taurus, Ironclad, Hull C, Polaris, Carrack, M2/A2, Railen). Ship grids (`w,h,l,x,y,z,maxBoxSize,noUpright`), `access` side, `shareGrids`.
   Hull B: 16 grids of 2×2×8, external access, 16 SCU boxes cannot stand upright.
 - `fleet.mjs` — ship picker + grid editor (access side, grid sharing, no-upright sizes).
 - `starmap.mjs` — 3-level map (STARMAP › system › body), schematic-but-real-direction layout, camera rig
@@ -43,7 +43,7 @@ Local copy on the user's PC: `C:\Users\limmi\Documents\Codex\2026-10-30\so\outpu
 - `ocr.mjs`, `workbench.mjs`, `recipes.mjs` — screenshot reading, editable manifest, saved box recipes per mission type.
 - `execution.mjs` — run mode (운항 화면): one big button per stop (📦 접수 완료 / ✅ 배송 완료, Space/Enter), undo, "이 거점 나중에", replan from here (engine `settings.resume` / `avoidFirst`), leg log, summary. State in localStorage `sfc-run`.
 - `assistant.mjs` — 항해사 비서 overlay (welcome → ship → start → shots → confirm → boxes → brief → 출항). Auto-opens on first visit only (`sfc-aide-seen`).
-- `aliases.mjs` — Korean patch names → English (`KO_NAMES`, plus optional `data/ko-names.json`). **Pending:** user will provide the Korean patch `global.ini`; extract location names into `data/ko-names.json` (`{"한글":"English"}`).
+- `aliases.mjs` — `matchLocation(text, locations, {fuzzy})`. Fuzzy (opt-in; used by assistant, map search, manual inputs, not OCR) = Korean sounds-like skeleton vs English names (뉴배버지 → New Babbage, 그린 글레이드 정거장 → HUR-L1 Green Glade Station) + jamo typo match on Korean keys. Korean patch names → English (`KO_NAMES`, plus optional `data/ko-names.json`). **Pending:** user will provide the Korean patch `global.ini`; extract location names into `data/ko-names.json` (`{"한글":"English"}`).
 - `icon.svg` — STAM crest (also inline in the header). Original design; swap if the fleet provides an official logo.
 - `server/` — optional local server and Cloudflare Worker for AI screenshot reading (API key never in the client).
 - `tests/` — `npm test` (node:test). Needs `data/locations.json` (CI downloads it; locally `node scripts/refresh-data.mjs`).
@@ -52,6 +52,27 @@ Local copy on the user's PC: `C:\Users\limmi\Documents\Codex\2026-10-30\so\outpu
 - `npm start` (or `start.cmd`) → http://127.0.0.1:4173 (downloads three.js + location data on first run).
 - `npm test` must pass before pushing. Push to `main` → GitHub Actions builds and deploys Pages.
 - Visual checks were done with Playwright + SwiftShader; real GPUs are much faster.
+
+## NEXT TASK (requested, not built yet): navigator voice choice
+User wants to pick the assistant/run-mode voice. Add a setting (assistant first screen + 설정) `voice: 'military'|'aide'`,
+store in localStorage, and route every line in `assistant.mjs` and `execution.mjs` through a `LINES[voice][key](vars)` table.
+Approved examples shown to the user (keep this tone; never 반말; no flirting/sexual tone for the aide):
+| key | 군인 항해사 (다나까) | 젊은 비서 (해요체) |
+|---|---|---|
+| welcome | 함장님, 항해사 보고드립니다. 화물 운송 준비를 시작하겠습니다. | 함장님, 오셨어요? 오늘 운송도 제가 옆에서 챙길게요. |
+| ship | 금일 운용할 함선을 지정해 주십시오. | 오늘은 어떤 배로 나가세요? |
+| start | 현 위치를 보고해 주십시오. 지명 일부만 말씀하셔도 확인하겠습니다. | 지금 어디 계세요? 대충 말씀하셔도 제가 찾아 드릴게요. |
+| shots | 접수한 미션 화면을 넘겨 주십시오. 즉시 판독하겠습니다. | 받으신 미션 화면 보여 주세요. 바로 읽어 볼게요. |
+| confirm | 판독 결과입니다. 이상 있는 항목은 정정 바랍니다. | 이렇게 읽었어요. 틀린 데 있으면 고쳐 주세요. |
+| brief | 항로 산출 완료. 경유지 {n}곳, 예상 소요 {min}분, 예상 수익 {reward} aUEC입니다. | 경로 다 짰어요! {n}군데 들르고 {min}분 정도 걸려요. 예상 수익은 {reward} aUEC예요. |
+| launch | 출항 준비 완료. 명령만 내려 주십시오. | 준비 끝났어요. 출발하실 때 말씀해 주세요. |
+| pickup | 적재 확인. 다음 목적지 {next}, 약 {min}분 소요됩니다. | 실었어요! 다음은 {next}예요. {min}분쯤 걸려요. |
+| delivery | 인도 완료 확인. 잔여 화물 {scu} SCU입니다. | 배송 완료! 이제 {scu} SCU 남았어요. |
+| defer | 해당 거점은 후순위로 돌리겠습니다. 항로 재산출합니다. | 여긴 나중에 들를게요. 경로 다시 짜 놨어요. |
+| undo | 직전 보고를 취소했습니다. | 방금 건 되돌려 놨어요. |
+| replan | 현 적재 상태 기준으로 항로 재산출 완료. | 지금 실린 화물 그대로 남은 경로 다시 짰어요. |
+| done | 전 화물 인도 완료. 수고하셨습니다, 함장님. 이상 보고 끝. | 다 끝났어요, 함장님. 오늘도 고생 많으셨어요! |
+Keep the current neutral polite voice as the default until the user picks.
 
 ## Open ideas / next steps
 - Mission types (multi-pickup / multi-dropoff) labels, mission stacking suggestions.

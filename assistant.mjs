@@ -29,7 +29,7 @@ export function createAssistant(app){
   root.querySelector('#a-ship').value=s.id;root.querySelector('#a-ship').onchange=e=>{app.setShip(e.target.value);const n=app.ship();root.querySelector('.aide-sub').textContent=`화물칸 ${fmt(n.capacity)} SCU 기준으로 적재를 계산하겠습니다.`;};
   on('#a-next',()=>go('start'));on('#a-back',()=>go('welcome'));}
  function start(){const cur=app.start();
-  frame('지금 어디에 계십니까?','그곳에서 출발하는 경로로 짜 드리겠습니다. 이름 일부만 입력하셔도 찾아 드립니다.',`<label class="aide-field">현재 위치<input id="a-loc" list="a-locs" placeholder="예: Everus, 에버러스, 파이로 6" value="${esc(cur?app.locationLabel(cur):'')}" autocomplete="off"><datalist id="a-locs">${app.locationList()}</datalist></label><p class="aide-note" id="a-loc-hint"></p>`,
+  frame('지금 어디에 계십니까?','그곳에서 출발하는 경로로 짜 드리겠습니다. 이름 일부만 입력하셔도 찾아 드립니다.',`<label class="aide-field">현재 위치<input id="a-loc" list="a-locs" placeholder="예: 뉴배비지, 에버러스, Everus, 파이로 6" value="${esc(cur?app.locationLabel(cur):'')}" autocomplete="off"><datalist id="a-locs">${app.locationList()}</datalist></label><p class="aide-note" id="a-loc-hint"></p>`,
    '<button class="primary" id="a-next">여기서 출발하겠습니다</button><button class="quiet" id="a-back">이전</button>');
   const input=root.querySelector('#a-loc'),hint=root.querySelector('#a-loc-hint');input.oninput=()=>{const hit=app.findLocation(input.value);hint.textContent=hit?`→ ${app.locationLabel(hit)}`:'';};input.oninput();setTimeout(()=>input.focus(),50);
   on('#a-next',()=>{const hit=app.findLocation(input.value);if(!hit){hint.textContent='위치를 찾지 못했습니다. 목록에서 골라 주십시오.';return;}app.setStart(hit);go('shots');});on('#a-back',()=>go('ship'));}
