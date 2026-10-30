@@ -26,7 +26,7 @@ jobs:
           node-version: '22'
       - run: node scripts/ensure-three.mjs
       - name: Refresh and validate map against current deployment
-        run: node scripts/refresh-data.mjs --previous-url https://limmin3-sudo.github.io/verse-hauler/data/locations.json
+        run: node scripts/refresh-data.mjs --previous-url https://limmin3-sudo.github.io/stam-freight-control/data/locations.json --fallback-file .github/pages-baseline/locations.json
       - run: npm test
       - name: Assemble public files only
         run: |

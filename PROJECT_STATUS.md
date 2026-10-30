@@ -1,18 +1,25 @@
 # 현재 프로젝트 상태
 
-마지막 갱신: 2026-10-30 (KST) · 마지막 작업 AI: Codex
+마지막 갱신: 2026-10-30 (KST) · 마지막 작업 AI: Claude Code (Cloud)
 
 ## 현재 인계 상태
 
-- 마지막 작업 AI: Codex. 이번 인계 정리 후 수정 작업을 종료한다. 다음 작업자는 Claude Code 예정이며 동시에 파일을 수정하지 않는다.
-- 공동 개발 지침·Windows 실행 수정은 `e9e72b2`로 GitHub main에 푸시 완료했다.
-- 최신 요청: 저장소·Pages 경로를 `stam-freight-control`로 변경 승인. 실제 이름 변경은 **미완료**다.
-- 이름 변경에 필요한 `api.github.com` 접근이 프록시 정책으로 403 차단됐다. Git 읽기·푸시는 정상이다. CLI가 표시한 인증 실패만으로 Git 권한이 없다고 판단하지 않는다.
-- 현재 유효한 저장소: https://github.com/limmin3-sudo/verse-hauler
-- 현재 사용 중인 사이트: https://limmin3-sudo.github.io/verse-hauler/
-- 다음 AI는 [이름 변경 인계](docs/REPOSITORY-RENAME.md)를 읽는다. 새 저장소를 만들거나 기존 저장소를 삭제하지 않는다. 이름 변경 전에는 링크·origin을 새 이름으로 바꾸지 않는다.
-- 이번 인계 문서·README 링크 정리는 사용자의 “클로드로 넘어갈 거니까 다 끝내” 지시에 따라 커밋하고 원격 main에 일반 푸시한다. 최종 반영은 원격 HEAD와 Git 이력으로 확인한다. 환경 게시나 설정 변경은 수행하지 않는다.
-- Cloud 로컬 브랜치는 `work`다. 각 PC의 브랜치·미커밋 상태·원격 최신성을 시작 시 다시 확인한다.
+- 마지막 작업 AI: Claude Code. Codex의 `86e439e`(main)를 이어받았다. 작업 중 Codex와 동시 수정 없음.
+- 저장소·Pages 경로 `verse-hauler` → `stam-freight-control` 변경: **링크·배포 수정은 준비 완료, GitHub 이름 변경과 푸시는 사용자 최종 승인 대기**.
+- 이 Claude Cloud 세션에서는 GitHub API·Actions·Pages 사이트 접근이 가능했다. 최근 Pages 배포 4건(`a445f8f`~`86e439e`) 성공을 확인했다.
+- 이름 변경 전까지 유효한 저장소: https://github.com/limmin3-sudo/verse-hauler · 사이트: https://limmin3-sudo.github.io/verse-hauler/
+- 변경 후 주소: https://github.com/limmin3-sudo/stam-freight-control · https://limmin3-sudo.github.io/stam-freight-control/
+- 이름이 바뀌면 기존 Pages 주소는 리디렉션되지 않고 꺼진다. 저장소 Git 주소는 GitHub가 리디렉션하지만 각 PC에서 origin을 갱신한다. 절차는 [이름 변경 인계](docs/REPOSITORY-RENAME.md).
+- 각 PC의 브랜치·미커밋 상태·원격 최신성을 시작 시 다시 확인한다.
+
+## 이번 Claude 작업 (미커밋)
+
+- README, docs/DEVELOPMENT.md, docs/CLOUD-HANDOFF.md, docs/CLOUD-START-PROMPT.md, location-manager.mjs(Actions 링크)의 저장소·사이트 주소를 새 이름으로 변경.
+- `.github/workflows/pages.yml`: 비교 URL을 새 Pages 경로로 변경하고 `--fallback-file .github/pages-baseline/locations.json` 추가.
+- `scripts/refresh-data.mjs`: `--fallback-file` 옵션. 이전 배포가 **404일 때만** 기준 스냅샷과 비교하고, 그 밖의 오류는 기존처럼 실패한다.
+- `.github/pages-baseline/locations.json` 신규: 이름 변경 직전 기존 사이트에서 받은 스냅샷(4.10.2-LIVE.12881860, 좌표 731·점프 2). 공개 파일 묶음에는 포함되지 않는다. 새 경로 첫 배포 성공 후에는 404 경로가 쓰이지 않으므로 삭제해도 된다(삭제는 별도 승인).
+- package.json 이름, wrangler worker 이름, IndexedDB 이름, localStorage 키는 의도적으로 유지했다.
+- 검증: Node 22.22.0, `npm test` 32개 통과, `git diff --check` 통과. 새 주소 404 + 기준 파일 → 성공(추가·변경·삭제 0), 기존 주소 200 → 성공, 기준 파일 없이 404 → 실패 확인.
 
 ## 완료된 제품 기능
 
@@ -49,9 +56,9 @@
 
 ## 다음 작업 우선순위
 
-1. Claude Code에서 실제 프로젝트 폴더를 열고 CLAUDE.md → docs/DEVELOPMENT.md → 이 문서 → docs/REPOSITORY-RENAME.md를 읽는다. 일반 채팅의 계정 로그인만으로 파일이 연결되지는 않는다.
-2. 로컬 변경을 보존하고 GitHub 최신 변경을 가져온다. 깨끗한 폴더와 의도한 upstream이 확인된 경우에만 `git pull --ff-only`를 실행한다.
-3. 저장소 이름 변경은 GitHub 관리 권한이 있는 지원 도구를 사용하거나 사용자가 GitHub Settings에서 수행해야 한다. 최초 새 Pages 배포 전에 기존 좌표 스냅샷을 확보하고 비교 검증을 보존한다. 절차는 이름 변경 문서를 따른다.
+1. 사용자 승인 후 GitHub 저장소 이름 변경 → 위 미커밋 작업 커밋·main 푸시 → Actions와 새 사이트 확인.
+2. 각 PC에서 미커밋 작업을 보존하고 `git remote set-url origin https://github.com/limmin3-sudo/stam-freight-control.git` 후 `git pull --ff-only`.
+3. 새 경로 첫 배포 성공 후 `.github/pages-baseline/` 정리 여부 결정.
 4. 두 Windows PC의 Git·Node 22·인증, start.cmd 실행, Claude Code의 지침 인식은 각 PC에서 확인한다.
 5. 이후 제품 개발은 사용자의 다음 요청에 따른다. 로그인·동기화는 백로그이며 자동 착수하지 않는다. 이후 커밋·푸시는 해당 사용자 승인 범위에서 진행한다.
 
