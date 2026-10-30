@@ -10,7 +10,8 @@ const UNIT=1e9,V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const GALAXY={stanton:V(0,0,0),pyro:V(78,6,-40),nyx:V(-70,-5,-52)};
 const STAR_R={stanton:2.4,pyro:2.1,nyx:2};
 const TYPE_KO={Planet:'행성',Moon:'위성',Star:'항성',Manmade:'정거장',Manmade_VisibleOnInteraction:'시설',LandingZone:'착륙 도시',Outpost:'지상 거점',PointOfInterest:'관심 지점',Asteroid:'소행성 기지',Asteroid_ValidQT:'소행성',NavPoint:'항법 지점',Anomaly:'점프 포인트'};
-const ICON={station:['#eef6ff',18],lagrange:['#eef6ff',18],gate:['#b3c0ff',21],city:['#ffd27a',19],outpost:['#f0b46e',13],poi:['#c9a4ff',12],rock:['#9aa6b2',7]};
+const isStation=it=>it.icon==='station'||it.icon==='lagrange';
+const ICON={station:['#eef6ff',36],lagrange:['#eef6ff',36],gate:['#b3c0ff',21],city:['#ffd27a',19],outpost:['#f0b46e',13],poi:['#c9a4ff',12],rock:['#9aa6b2',7]};
 const QUALITY={normal:{ratio:1,detail:0,seg:[48,32],bloom:0},high:{ratio:1.5,detail:1,seg:[96,64],bloom:0},ultra:{ratio:2,detail:2,seg:[160,112],bloom:0}};
 const fmtDist=m=>m>=1e9?(m/1e9).toFixed(m>=1e10?0:1)+' Gm':m>=1e6?(m/1e6).toFixed(0)+' Mm':Math.max(1,Math.round(m/1e3))+' km';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -115,8 +116,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
  const visitNums=id=>route?.visits.map((v,i)=>v.locationId===id?i+1:null).filter(Boolean)||[];
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
   const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':TYPE_KO[l.type]||'',sub=[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
-  s=labelSprite((n.length?n.join(',')+' · ':'')+l.name,sub,color,{big:l.type==='Planet'||l.type==='Star',glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
- function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(it.icon==='station'||it.icon==='lagrange')return 4;if(it.icon==='outpost')return 2;return 1;}
+  s=labelSprite((n.length?n.join(',')+' · ':'')+l.name,sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
+ function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
  // ---- navigation -------------------------------------------------------------------------------
  function crumbsRender(){const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([system.toUpperCase(),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([c.name.toUpperCase(),()=>focus(c.id)]);}}
@@ -140,7 +141,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function screen(p){const v=p.clone().project(camera);return {x:(v.x*.5+.5)*W(),y:(-v.y*.5+.5)*H(),front:v.z<1&&v.z>-1};}
  function pick(e){const r=renderer.domElement.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
   if(level==='galaxy'){let best=null,bd=46;for(const [sys,p] of Object.entries(GALAXY)){const s=screen(p),d=Math.hypot(s.x-x,s.y-y);if(d<bd){bd=d;best=sys;}}return best?{galaxy:best}:null;}
-  let best=null,bs=Infinity;for(const it of items){if(!it.shown)continue;const s=it.screen;if(!s?.front)continue;const rad=it.mesh?Math.max(9,it.px||0)+4:12,d=Math.hypot(s.x-x,s.y-y);if(d<rad){const score=d/rad-(it.mesh?0:.35);if(score<bs){bs=score;best=it;}}}return best;}
+  let best=null,bs=Infinity;for(const it of items){if(!it.shown)continue;const s=it.screen;if(!s?.front)continue;const rad=it.mesh?Math.max(9,it.px||0)+4:isStation(it)?Math.max(24,(it.displayPx||it.px)/2+7):12,d=Math.hypot(s.x-x,s.y-y);if(d<rad){const score=d/rad-(it.mesh?0:.35);if(score<bs){bs=score;best=it;}}}return best;}
  function describe(l){const p=byId.get(l.parentId),n=visitNums(l.id);return `${n.length?n.map(x=>x+'번').join('·')+' 거점 · ':''}${l.name} · ${TYPE_KO[l.type]||l.type}${p&&p.type!=='Star'?' · '+p.name:''} · ${l.system.toUpperCase()}`;}
  function hover(h,e){hovered=h?.loc||null;renderer.domElement.style.cursor=h?'pointer':'grab';if(!h){tip.hidden=true;return;}tip.textContent=h.galaxy?`${h.galaxy.toUpperCase()} 항성계 · 더블클릭으로 들어가기`:describe(h.loc)+' · 더블클릭으로 이동';tip.hidden=false;const r=wrap.getBoundingClientRect();tip.style.left=(e.clientX-r.left+14)+'px';tip.style.top=(e.clientY-r.top+14)+'px';}
  let down=null,lastMove=0;const el=renderer.domElement;el.style.cursor='grab';
@@ -156,20 +157,27 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function frame(){requestAnimationFrame(frame);if(document.hidden)return;const dt=Math.min(.05,clock.getDelta());time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=time;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
-  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);spriteScale(s,sc[0]*.55,sc[1]*.55);s.center.set(.5,1+26/(sc[1]*.55));s.visible=true;}bloom.render(scene,camera);return;}
+  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return;}
   if(focusId&&rig.cur.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
   const camPos=camera.position;
   for(const it of items)if(it.mesh){const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds)it.clouds.rotation.y+=dt*.004;}
   for(const it of items){const s=screen(it.pos);it.screen=s;let show=s.front;const par=it.parent?itemById.get(it.parent):null;
    if(show&&par){const ps=par.screen||screen(par.pos),sep=Math.hypot(s.x-ps.x,s.y-ps.y);if(it.surface){show=it.normal.dot(tmp.copy(camPos).sub(it.pos))>0&&par.px>26;}else if(it.mesh)show=sep>par.px*1.05+3;else show=par.px>9&&sep>par.px*.6;}
-   if(it.sprite){it.sprite.visible=show;if(show){const k=it.loc.id===selected||it.loc===hovered?1.5:1;spriteScale(it.sprite,it.px*k,it.px*k);}}
+   if(it.sprite){it.sprite.visible=show;if(show){const active=it.loc.id===selected||it.loc===hovered,k=active?(isStation(it)?1.25:1.5):1;it.displayPx=it.px*k;spriteScale(it.sprite,it.displayPx,it.displayPx);}}
    it.shown=show;}
   // Labels pinned under their object; overlaps hide the lower priority label instead of moving it.
-  const cand=items.filter(it=>it.shown).map(it=>({it,p:priority(it)})).filter(({it,p})=>{const l=it.loc;if(p>=7)return true;const par=it.parent?itemById.get(it.parent):null;if(l.type==='Moon')return (par?.px||0)>14;if(it.icon==='station'||it.icon==='lagrange'||l.type==='LandingZone'||it.icon==='gate')return par?par.px>34:camPos.distanceTo(it.pos)<extent*.35;if(it.surface)return (par?.px||0)>110;return camPos.distanceTo(it.pos)<6;}).sort((a,b)=>b.p-a.p);
-  const used=[],want=new Set();
-  for(const {it} of cand){const s=labelFor(it),[pw,ph]=s.userData.px,sc=it.loc.type==='Planet'||it.loc.type==='Star'?.7:.58,lw=pw*sc,lh=ph*sc,gap=(it.mesh?it.px:(it.px||10)/2)+5,x=it.screen.x,y=it.screen.y+gap,rect={x:x-lw/2,y,w:lw,h:lh};
-   if(rect.y<38||rect.y+lh>h-6||x<0||x>w)continue;if(it.loc.id!==selected&&used.some(r=>rect.x<r.x+r.w&&rect.x+rect.w>r.x&&rect.y<r.y+r.h&&rect.y+rect.h>r.y))continue;
-   used.push(rect);want.add(it.loc.id);s.position.copy(it.pos);spriteScale(s,lw,lh);s.center.set(.5,1+gap/lh);}
+  const cand=items.filter(it=>it.shown).map(it=>({it,p:priority(it)})).filter(({it,p})=>{const l=it.loc;if(p>=7)return true;const par=it.parent?itemById.get(it.parent):null;if(l.type==='Moon')return (par?.px||0)>14;if(isStation(it))return par?par.px>18:camPos.distanceTo(it.pos)<extent*2.8;if(l.type==='LandingZone'||it.icon==='gate')return par?par.px>28:camPos.distanceTo(it.pos)<extent*.7;if(it.surface)return (par?.px||0)>110;return camPos.distanceTo(it.pos)<6;}).sort((a,b)=>b.p-a.p);
+  const used=[],want=new Set(),labelZoom=clamp(1+Math.log2(extent*2.35/Math.max(rig.cur.r,.01))*.18,1,1.65);
+  for(const {it} of cand){const s=labelFor(it),[pw,ph]=s.userData.px,station=isStation(it),body=it.loc.type==='Planet'||it.loc.type==='Star',sc=Math.min((station?.95:body?.85:.82)*labelZoom,(w-16)/pw),lw=pw*sc,lh=ph*sc,gap=(it.mesh?it.px:(it.displayPx||it.px||10)/2)+7,x=it.screen.x,y=it.screen.y;
+   // Try nearby anchors for stations so a planet's label does not silently hide its port.
+   const offsets=station?[[0,gap],[0,-gap-lh],[lw/2+gap,-lh/2],[-lw/2-gap,-lh/2]]:[[0,gap]];
+   let placed=null;
+   for(const [dx,dy] of offsets){const rect={x:x+dx-lw/2,y:y+dy,w:lw,h:lh};
+    if(rect.y<38||rect.y+lh>h-6||rect.x<4||rect.x+lw>w-4)continue;
+    if(it.loc.id!==selected&&used.some(r=>rect.x<r.x+r.w+4&&rect.x+rect.w+4>r.x&&rect.y<r.y+r.h+3&&rect.y+rect.h+3>r.y))continue;
+    placed={rect,dx,dy};break;}
+   if(!placed)continue;const {rect,dx,dy}=placed;
+   used.push(rect);want.add(it.loc.id);s.position.copy(it.pos);spriteScale(s,lw,lh);s.center.set(.5-dx/lw,1+dy/lh);s.userData.displayPx=[lw,lh];}
   for(const [id,s] of labels)s.visible=want.has(id);
   // Route reveal: legs draw in one after another, then keep flowing.
   const t=time-revealStart;for(const rb of ribbons){const k=clamp((t-rb.userData.order*.35)/.9,0,1);rb.material.uniforms.uReveal.value=k<1?1-Math.pow(1-k,3):1;}
@@ -180,6 +188,6 @@ export function createStarMap(container,labelContainer,data,onSelect){
  return {setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
-  _debug:()=>({level,system,route:!!route,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible}),
+  _debug:()=>({level,system,route:!!route,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
   search:q=>{const n=String(q).toLowerCase();return data.locations.filter(l=>l.name.toLowerCase().includes(n)).slice(0,12);}};
 }
