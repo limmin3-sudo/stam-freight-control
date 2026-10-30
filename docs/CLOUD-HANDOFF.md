@@ -100,7 +100,7 @@ Star Citizen의 운송 미션을 여러 개 수주했을 때 스크린샷을 올
 | `performance.mjs`, `data/ship-performance.json` | 선택 함선의 성능 자동 적용, 함선별 수동 수정과 저장 |
 | `travel.mjs` | 드라이브 가감속·스풀·쿨다운과 일반 비행 접근 시간 근사 |
 | `assistant.mjs`, `voice.mjs` | 파트너 선택 → 인사 → 함선·드라이브 → 출발지 → 스샷 → 확인 → 상자 → 브리핑 |
-| `execution.mjs` | 거점 완료 버튼, Space/Enter, 되돌리기, 거점 미루기, 현재 위치 재계산, 실측 기록 |
+| `execution.mjs` | 거점 완료 버튼, Space/Enter, 되돌리기, 거점 미루기, 현재 위치 재계산, 실측 기록. 운항 모드(지도 전체 화면)에서는 지도 위 오른쪽 패널로 표시 |
 | `starmap.mjs`, `mapfx.mjs`, `bloom.mjs` | 3단계 지도·카메라·표면 셰이더·경로·배경·톤 매핑 |
 | `scene.mjs` | 화물 그리드·상자·방향 가이드·적재 순서 표시 |
 | `ocr.mjs`, `aliases.mjs` | 브라우저 Tesseract 한국어/영어 인식, 지명 매칭·한글 별칭 |
