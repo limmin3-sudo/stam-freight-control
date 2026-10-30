@@ -1,3 +1,5 @@
+import {destinationGroups} from './recipes.mjs';
+import {DEFAULT_SHIP,validateShip,capacity} from './ships.mjs';
 export const CAPACITY=512;
 export const SIZES=[32,24,16,8,4,2,1];
 export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,2,6],32:[2,2,8]};
@@ -10,31 +12,33 @@ export function boxList(cargo,unknownBox=8){
  let total=0,count=0;const boxes=[];for(const b of cargo.boxes){if(!SIZES.includes(b.size)||!Number.isInteger(b.count)||b.count<1||b.count>10000)throw Error('상자 크기 또는 개수가 잘못됐어.');if(SIZES.includes(cargo.maxBoxSize)&&b.size>cargo.maxBoxSize)throw Error('입력한 상자가 미션의 최대 상자 크기보다 커.');total+=b.size*b.count;count+=b.count;if(count>10000)throw Error('상자 개수가 너무 많아.');for(let i=0;i<b.count;i++)boxes.push(b.size);}
  if(total!==cargo.scu)throw Error(`상자 합계 ${total} SCU와 화물 ${cargo.scu} SCU가 달라.`);return {boxes,estimated:false};
 }
+// A grid may forbid standing a box on end (long axis vertical), e.g. Hull B panels reject upright 16 SCU containers.
+export const isUpright=d=>d[1]>Math.min(d[0],d[2]);
 const orientations=d=>[d,[d[0],d[2],d[1]],[d[1],d[0],d[2]],[d[1],d[2],d[0]],[d[2],d[0],d[1]],[d[2],d[1],d[0]]].filter((v,i,a)=>a.findIndex(w=>w.join()==v.join())===i);
 // Sixteen independent 2×2×8-cell planning grids. Physical attachment transforms are schematic.
-export function packBoxes(items,fixed=[]){
- const bins=Array.from({length:16},()=>({cells:new Uint8Array(32),boxes:[],used:0}));
+export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP){
+ const bins=ship.grids.map(grid=>({grid,cells:new Uint8Array(grid.w*grid.h*grid.l),boxes:[],used:0}));const limit=capacity(ship);
  const placed=[...fixed];const sorted=[...items].sort((a,b)=>b.size-a.size||String(a.missionId).localeCompare(String(b.missionId)));
- if([...sorted,...fixed].reduce((a,b)=>a+b.size,0)>CAPACITY)return null;
- for(const p of fixed){const b=bins[p.bin];for(let z=0;z<p.dims[2];z++)for(let y=0;y<p.dims[1];y++)for(let x=0;x<p.dims[0];x++)b.cells[(p.cell[2]+z)*4+(p.cell[1]+y)*2+p.cell[0]+x]=1;b.boxes.push(p);b.used+=p.size;}
+ if([...sorted,...fixed].reduce((a,b)=>a+b.size,0)>limit)return null;
+ for(const p of fixed){const b=bins[p.bin];if(!b||!p.dims||!p.cell)return null;const g=b.grid;const [x,y,z]=p.cell,[dx,dy,dz]=p.dims;if(x<0||y<0||z<0||x+dx>g.w||y+dy>g.h||z+dz>g.l||p.size>g.maxBoxSize)return null;for(let k=0;k<dz;k++)for(let j=0;j<dy;j++)for(let i=0;i<dx;i++){const n=((z+k)*g.h+y+j)*g.w+x+i;if(b.cells[n])return null;b.cells[n]=1;}b.boxes.push(p);b.used+=p.size;}
  for(const item of sorted){let found=false;
   const order=bins.map((b,index)=>({b,index})).sort((a,b)=>Number(b.b.boxes.some(x=>x.missionId===item.missionId))-Number(a.b.boxes.some(x=>x.missionId===item.missionId))||a.index-b.index);
-  outer:for(const {b,index} of order){for(const d of orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;for(let z=0;z<=8-d[2];z++)for(let y=0;y<=2-d[1];y++)for(let x=0;x<=2-d[0];x++){
-   const cells=[];let free=true;for(let dz=0;dz<d[2];dz++)for(let dy=0;dy<d[1];dy++)for(let dx=0;dx<d[0];dx++){const idx=(z+dz)*4+(y+dy)*2+x+dx;cells.push(idx);if(b.cells[idx])free=false;}
+  outer:for(const {b,index} of order){const grid=b.grid;if(item.size>grid.maxBoxSize)continue;if(b.boxes.some(p=>p.missionId!==item.missionId||(p.dropoffId||'')!==(item.dropoffId||'')))continue;for(const d of orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y++)for(let x=0;x<=grid.w-d[0];x++){
+   const cells=[];let free=true;for(let dz=0;dz<d[2];dz++)for(let dy=0;dy<d[1];dy++)for(let dx=0;dx<d[0];dx++){const idx=((z+dz)*grid.h+y+dy)*grid.w+x+dx;cells.push(idx);if(b.cells[idx])free=false;}
    if(!free)continue;cells.forEach(c=>b.cells[c]=1);const p={...item,bin:index,cell:[x,y,z],dims:d};b.boxes.push(p);b.used+=item.size;placed.push(p);found=true;break outer;
   }}}
   if(!found)return null;
  }
- return {bins,boxes:placed,used:placed.reduce((a,b)=>a+b.size,0)};
+ return {bins,capacity:limit,shipId:ship.id,boxes:placed,used:placed.reduce((a,b)=>a+b.size,0)};
 }
 export function makeShipments(missions,locationMap,options={}){
- const shipments=[],warnings=[];const ids=new Set();
- for(let mi=0;mi<missions.length;mi++){const m=missions[mi];if(!m.id||ids.has(m.id))throw Error('미션 ID는 비어 있거나 중복될 수 없어.');ids.add(m.id);
+ const shipments=[],warnings=[];const ids=new Set(),ship=validateShip(options.ship||DEFAULT_SHIP);
+ for(let mi=0;mi<missions.length;mi++){const original=missions[mi],aggregated=[];for(const group of destinationGroups(original)){const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(original.id+': 배송 수량을 먼저 확정해 줘.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID는 비어 있거나 중복될 수 없어.');ids.add(m.id);
   for(let ci=0;ci<m.cargo.length;ci++){const c=m.cargo[ci],a=locationMap.get(c.pickupId),b=locationMap.get(c.dropoffId);if(!a||!b)throw Error(`${m.id}: 픽업지와 배송지를 좌표 목록에서 확정해 줘.`);if(c.pickupId===c.dropoffId)throw Error(`${m.id}: 픽업지와 배송지가 같아.`);
    const {boxes,estimated}=boxList(c,options.unknownBox||8);if(estimated)warnings.push(`${m.id} · ${c.commodity}: 상자 구성 미확인, 최대 ${SIZES.includes(c.maxBoxSize)?Math.min(options.unknownBox||8,c.maxBoxSize):options.unknownBox||8} SCU 조합으로 가정`);
    let pending=[],batch=0;
    const flush=()=>{if(!pending.length)return;shipments.push({id:`${m.id}:${ci}:${batch++}`,missionId:m.id,commodity:c.commodity,pickupId:c.pickupId,dropoffId:c.dropoffId,boxes:pending,scu:pending.reduce((a,b)=>a+b.size,0),color:COLORS[mi%COLORS.length],estimated});pending=[];};
-   for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],missionId:m.id,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(pending.length&&!packBoxes([...pending,item]))flush();pending.push(item);}flush();
+   for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],missionId:m.id,dropoffId:c.dropoffId,pickupId:c.pickupId,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(!packBoxes([item],[],ship))throw Error(`${m.id}: ${item.size} SCU 상자는 ${ship.name}의 어느 그리드에도 들어가지 않아.`);if(pending.length&&!packBoxes([...pending,item],[],ship))flush();pending.push(item);}flush();
   }
  }
  if(shipments.length>32)throw Error('한 번에 32개 이하의 운송 구간으로 나눠 계획해 줘.');return {shipments,warnings:[...new Set(warnings)]};
@@ -59,16 +63,16 @@ export function navigator(data,settings){
  return {path,byId};
 }
 export function planRoute(data,missions,startId,settings={}){
- const opt={...DEFAULTS,...settings},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('시작 위치를 선택해 줘.');
+ const opt={...DEFAULTS,...settings,ship:validateShip(settings.ship||DEFAULT_SHIP)},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('시작 위치를 선택해 줘.');
  const {shipments,warnings}=makeShipments(missions,nav.byId,opt);if(!shipments.length)throw Error('운송할 화물을 추가해 줘.');
  const n=shipments.length;
  const now=Number.isFinite(settings.nowMs)?settings.nowMs:Date.now(),deadlines=new Map(missions.filter(m=>Number.isFinite(m.deadlineAt)).map(m=>[m.id,(m.deadlineAt-now)/1000]));
  const score=s=>s.cost+s.late.length*1e7;
- let beam=[{status:Array(n).fill(0),at:startId,cost:0,actions:[],packing:packBoxes([]),late:[]}];
+ let beam=[{status:Array(n).fill(0),at:startId,cost:0,actions:[],packing:packBoxes([],[],opt.ship),late:[]}];
  for(let step=0;step<n*2;step++){
   const next=[];
   for(const state of beam){for(let i=0;i<n;i++){const s=shipments[i],st=state.status[i];if(st===2)continue;const status=[...state.status];status[i]=st+1;
-   const packed=st===0?packBoxes(s.boxes,state.packing.boxes):packBoxes([],state.packing.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)));if(!packed)continue;
+   const packed=st===0?packBoxes(s.boxes,state.packing.boxes,opt.ship):packBoxes([],state.packing.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)),opt.ship);if(!packed)continue;
    const to=st===0?s.pickupId:s.dropoffId,leg=nav.path(state.at,to);const seconds=leg.seconds+s.boxes.length*opt.secondsPerBox;
    const cost=state.cost+seconds,late=[...state.late];for(const [id,limit]of deadlines){if(!late.includes(id)&&cost>limit&&shipments.some((s,j)=>s.missionId===id&&state.status[j]!==2))late.push(id);}
    next.push({status,at:to,cost,late,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed}]});
@@ -81,7 +85,8 @@ export function planRoute(data,missions,startId,settings={}){
   if(previous?.locationId===action.locationId){previous.events.push(event);previous.elapsed=elapsed;previous.packing=packed;previous.load=packed.used;previous.seconds+=action.seconds;}
   else visits.push({locationId:action.locationId,events:[event],elapsed,seconds:action.seconds,packing:packed,load:packed.used,leg:action.leg});
  }
- const timing=missions.filter(m=>deadlines.has(m.id)).map(m=>{const finish=visits.filter(v=>v.events.some(e=>e.missionId===m.id&&e.type==='delivery')).at(-1)?.elapsed||0,remaining=deadlines.get(m.id),slack=remaining-finish*1.3;return {missionId:m.id,finish,remaining,slack,risk:finish>remaining?'late':slack<0?'tight':'ok'};});
+ const returnIds=[...new Set(missions.map(m=>m.returnId).filter(Boolean))];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인해 줘.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
+ const timing=missions.filter(m=>deadlines.has(m.id)).map(m=>{const finish=visits.filter(v=>v.events.some(e=>(e.missionId===m.id&&e.type==='delivery')||(e.type==='return'&&v.locationId===m.returnId))).at(-1)?.elapsed||0,remaining=deadlines.get(m.id),slack=remaining-finish*1.3;return {missionId:m.id,finish,remaining,slack,risk:finish>remaining?'late':slack<0?'tight':'ok'};});
  for(const t of timing)if(t.risk!=='ok')warnings.push(`${t.missionId}: ${t.risk==='late'?'예상 납품이 제한 시간을 초과해':'시간 여유가 부족할 수 있어'} (남은 ${Math.max(0,Math.round(t.remaining/60))}분 · 납품 약 ${Math.round(t.finish/60)}분 후)`);
- return {visits,shipments,seconds:best.cost,peak,warnings,timing,algorithm:'제한 시간·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
+ return {capacity:capacity(opt.ship),ship:opt.ship,visits,shipments,seconds:elapsed,peak,warnings,timing,algorithm:'제한 시간·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
 }
