@@ -25,13 +25,18 @@ export function parseMissionText(text,locations=[]){
   // OCR may garble the Korean part; a unique English/number tail ("Mining Area 056") still identifies the site.
   const tail=norm((translateKoTerms(site).match(/[A-Za-z0-9][A-Za-z0-9 '\-]*$/)||[''])[0]);
   if(tail.length>=6){const hits=locations.filter(l=>!body(l)&&norm(l.name).includes(tail));if(hits.length===1)return hits[0].id;}
+  // "셀린의 라야리 주식회사 연구 전초기지": search only the sites on the named moon/planet by their translated kind words.
+  const host=String(s).includes('의')?matchLocation(String(s).split(/의\s+/)[0],locations):null,words=[['연구','research'],['전초기지','outpost'],['채광','mining'],['정거장','station'],['스테이션','station'],['농장','farm'],['보안','security']].filter(([k])=>site.includes(k)).map(([,w])=>w);
+  if(host&&body(host)&&words.length){const hits=locations.filter(l=>l.parentId===host.id&&!body(l)&&words.every(w=>norm(l.name).includes(w)));if(hits.length===1)return hits[0].id;}
   return fallback?.id||'';
  }
  const koreanCargo=[];let returnId='';
  for(let i=0;i<lines.length;i++){const line=lines[i],block=lines.slice(i,i+3).join(' ');if(/복귀|return to/i.test(line)){returnId=locationIn(line)||returnId;continue;}if(!/SCU/i.test(line))continue;const d=block.match(/(.+?)\s*(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\s+(.+?)\s*(?:에|으로)\s*배송/i);if(!d)continue;const commodity=d[1].replace(/^[^\p{L}]+/u,'').replace(/(?:[을를]\s*\([을를]\)|\([을를]\)|[을를])\s*$/u,'').trim();const pj=[i+1,i+2,i+3,i+4].find(j=>/에서/.test(lines[j]||'')&&/접수|수령|수집/.test((lines[j]||'')+' '+(lines[j+1]||''))&&!/SCU/i.test(lines[j]||'')),pickup=pj===undefined?'':lines[pj];const nextDrop=lines.findIndex((l,j)=>j>i&&/SCU/i.test(l)&&/배송/.test(l+' '+(lines[j+1]||''))),extra=lines.slice(i+1,nextDrop<0?lines.length:nextDrop).filter((l,k,a)=>/에서/.test(l)&&/접수|수령|수집/.test(l+' '+(a[k+1]||''))&&!/SCU/i.test(l)).slice(1);
- // The game can list several pickups for one delivered amount without saying how it is split: keep the first, warn about the rest.
- if(extra.length)warnings.push(`${commodity.replace(/^[^\p{L}]+/u,'')}: 픽업지가 ${extra.length+1}곳입니다(${extra.map(l=>l.split('에서')[0].trim()).join(', ')} 추가). 실제 수량 배분을 확인하세요.`);
-koreanCargo.push({commodity,scu:Number(d[2].replaceAll(',','')),pickupId:pickup?locationIn(pickup.split('에서')[0]):'',dropoffId:locationIn(d[3]),maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown'});}
+ // The game can list several pickups for one delivered amount without saying how much comes from each:
+ // visit every pickup, split the amount evenly as a marked assumption and ask the user to correct it.
+ const total=Number(d[2].replaceAll(',','')),pickups=[pickup,...extra].filter(Boolean),n=Math.max(1,pickups.length),dropoffId=locationIn(d[3]);
+ if(n>1)warnings.push(`${commodity}: 픽업지가 ${n}곳(${pickups.map(l=>l.split('에서')[0].trim()).join(', ')})입니다. 곳별 수량이 화면에 없어 ${total} SCU를 나눠 두었습니다. 실제 수량으로 수정해 주세요.`);
+ (pickups.length?pickups:['']).forEach((p,k)=>koreanCargo.push({commodity,scu:Math.floor(total/n)+(k<total%n?1:0),pickupId:p?locationIn(p.split('에서')[0]):'',dropoffId,maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown',...(n>1?{_scuAssumed:true,_pickupText:p.split('에서')[0].trim()}:{})}));}
  if(koreanCargo.length){if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,remainingMinutes,cargo:koreanCargo,returnId,warnings,rawText:text};}
  const action=/^(?:[•*\-\s\d.)]*)(Collect|Pick\s*up|Deliver|수령|수집|배송|배달|납품)\b/i,starts=[];lines.forEach((line,i)=>{const m=line.match(action);if(m)starts.push({index:i,type:/deliver|배송|배달|납품/i.test(m[1])?'delivery':'pickup'});});
  const objectives=starts.map((a,i)=>{const block=lines.slice(a.index,Math.min(starts[i+1]?.index??lines.length,a.index+6)).join(' '),quantity=block.match(/(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\b/i);const scu=quantity?Number(quantity[1].replaceAll(',','')):null;let commodity=(block.match(/SCU\s+(?:of\s+)?(.+?)\s+(?:from|to|at)\s+/i)||[])[1]||'';if(!commodity)commodity=(block.match(/(?:collect|pick\s*up|deliver)\s+(.+?)\s+(?:from|to)\s+/i)||[])[1]||'';commodity=commodity.replace(/^\d+\s*\/\s*\d+\s*/,'').trim();if(commodity.length>100)commodity='';return {type:a.type,scu,commodity,locationId:locationIn(block),block};}).filter(o=>o.scu!==null||o.locationId);
