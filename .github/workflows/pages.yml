@@ -32,7 +32,9 @@ jobs:
         run: |
           mkdir public
           cp index.html style.css *.mjs public/
-          cp -R data vendor assets public/
+          cp -R data vendor public/
+          if [ -d assets ]; then cp -R assets public/; fi
+          if [ -f icon.svg ]; then cp icon.svg public/; fi
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
