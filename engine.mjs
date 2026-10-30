@@ -73,7 +73,10 @@ export function makeShipments(missions,locationMap,options={}){
 }
 export function distance(a,b){return Math.hypot(...a.position.map((v,i)=>v-b.position[i]));}
 function surface(l){return l.type==='LandingZone'||(l.type==='Outpost'&&!/station|clinic|gateway/i.test(l.name));}
-export function navigator(data,settings){
+// Gateway station that serves a jump point: its parent when that is a station, otherwise the nearest '… Gateway' in the system.
+const gatewayCache=new WeakMap();
+function gatewayOf(jp,data=gatewayOf.data){const cache=gatewayCache.get(data)||new Map();gatewayCache.set(data,cache);if(cache.has(jp.id))return cache.get(jp.id);let best=null,bd=1e9;for(const l of data.locations)if(l.system===jp.system&&l.type==='Manmade'&&/Gateway/i.test(l.name)){const d=distance(l,jp);if(d<bd){bd=d;best=l.id;}}cache.set(jp.id,bd<1e9?best:null);return cache.get(jp.id);}
+export function navigator(data,settings){gatewayOf.data=data;
  const opt={...DEFAULTS,...settings},byId=new Map(data.locations.map(l=>[l.id,l])),gateIds=[...new Set(data.jumps.flatMap(j=>[j.from,j.to]))],cache=new Map();
  function path(from,to){if(from===to)return {seconds:0,meters:0,nodes:[from],jumps:0};const key=from+'|'+to;if(cache.has(key))return cache.get(key);const a=byId.get(from),b=byId.get(to);if(!a||!b)throw Error('좌표를 찾지 못했어.');
   const nodes=[...new Set([from,to,...gateIds])],dist=new Map(nodes.map(id=>[id,Infinity])),previous=new Map(),open=new Set(nodes);dist.set(from,0);
@@ -85,8 +88,11 @@ export function navigator(data,settings){
    }
   }
   if(!Number.isFinite(dist.get(to)))throw Error(`${a.system}–${b.system} 사이에 데이터로 확인된 점프 연결이 없어.`);
-  const route=[to];while(route[0]!==from)route.unshift(previous.get(route[0]));let meters=0,jumps=0;for(let i=1;i<route.length;i++){const x=byId.get(route[i-1]),y=byId.get(route[i]);if(x.system===y.system)meters+=distance(x,y);else jumps++;}
-  const result={seconds:dist.get(to)+(surface(a)?opt.surfaceMinutes*60:0)+(surface(b)?opt.surfaceMinutes*60:0)+opt.dockMinutes*60,meters,nodes:route,jumps};cache.set(key,result);return result;
+  const raw=[to];while(raw[0]!==from)raw.unshift(previous.get(raw[0]));let meters=0,jumps=0;for(let i=1;i<raw.length;i++){const x=byId.get(raw[i-1]),y=byId.get(raw[i]);if(x.system===y.system)meters+=distance(x,y);else jumps++;}
+  // System changes go through the gateway station next to each jump point (e.g. Pyro Gateway → jump → Stanton Gateway).
+  const route=[];for(let i=0;i<raw.length;i++){const id=raw[i],l=byId.get(id),gate=l?.isGateway?gatewayOf(l):null,next=byId.get(raw[i+1]),prev=byId.get(raw[i-1]);
+   if(gate&&next&&next.system!==l.system&&route.at(-1)!==gate)route.push(gate);route.push(id);if(gate&&prev&&prev.system!==l.system&&raw[i+1]!==gate)route.push(gate);}
+  const gateways=route.filter(id=>byId.get(id)?.type==='Manmade'&&/Gateway/i.test(byId.get(id).name)).map(id=>byId.get(id).name);const result={gateways,seconds:dist.get(to)+(surface(a)?opt.surfaceMinutes*60:0)+(surface(b)?opt.surfaceMinutes*60:0)+opt.dockMinutes*60,meters,nodes:route,jumps};cache.set(key,result);return result;
  }
  return {path,byId};
 }
@@ -127,7 +133,8 @@ export function planRoute(data,missions,startId,settings={}){
   const arriving=new Set(v.events.filter(e=>e.type==='pickup').flatMap(e=>shipments[e.shipmentIndex].boxes.map(b=>b.boxId)));
   v.loadOrder=v.packing.boxes.filter(b=>arriving.has(b.boxId)).sort((a,b)=>boxDepth(opt.ship,b,bounds)-boxDepth(opt.ship,a,bounds)||a.cell[1]-b.cell[1]).map(b=>b.boxId);
   if(v.blocked.length)warnings.push(`${vi+1}번 거점 하역: 다른 화물 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}상자를 먼저 옮겨야 할 수 있어 (출입구 쪽 또는 위에 적재됨).`);});
- const returnIds=[...new Set(missions.map(m=>m.returnId).filter(Boolean))];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인해 줘.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
+ // In game the contract completes once every delivery is done; returning is optional (settings.includeReturn).
+ const returnIds=opt.includeReturn?[...new Set(missions.map(m=>m.returnId).filter(Boolean))]:[];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인해 줘.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
  const timing=missions.filter(m=>deadlines.has(m.id)).map(m=>{const finish=visits.filter(v=>v.events.some(e=>(e.missionId===m.id&&e.type==='delivery')||(e.type==='return'&&v.locationId===m.returnId))).at(-1)?.elapsed||0,remaining=deadlines.get(m.id),slack=remaining-finish*1.3;return {missionId:m.id,finish,remaining,slack,risk:finish>remaining?'late':slack<0?'tight':'ok'};});
  for(const t of timing)if(t.risk!=='ok')warnings.push(`${t.missionId}: ${t.risk==='late'?'예상 납품이 제한 시간을 초과해':'시간 여유가 부족할 수 있어'} (남은 ${Math.max(0,Math.round(t.remaining/60))}분 · 납품 약 ${Math.round(t.finish/60)}분 후)`);
  return {capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,algorithm:'제한 시간·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
