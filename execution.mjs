@@ -15,10 +15,10 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  const elapsed=()=>run.elapsed+(run.since?(Date.now()-run.since)/1000:0);
  const keyOf=p=>p?JSON.stringify(p.visits.map(v=>[v.locationId,v.events.map(e=>[e.shipmentId,e.type])])):'';
  const nm=id=>names.get(id)?placeLabel(names.get(id)):id;
- const kindOf=v=>{const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':'return';};
- const BTN={pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료'};
+ const kindOf=v=>{const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':t.has('return')?'return':'waypoint';};
+ const BTN={pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료',waypoint:'◇ 경유 완료'};
  const say=t=>{const el=root.querySelector('.aide-line');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
- function cargoLine(v){return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 픽업</b>':e.type==='delivery'?'<b class="delivery">↓ 배송</b>':'<b>↩ 복귀</b>'} ${esc(e.missionId)} · ${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${boxes}상자`:''}${e.type==='pickup'&&s?` → ${esc(nm(s.dropoffId))}`:''}</li>`;}).join('');}
+ function cargoLine(v){return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 픽업</b>':e.type==='delivery'?'<b class="delivery">↓ 배송</b>':e.type==='waypoint'?'<b>◇ 경유</b>':'<b>↩ 복귀</b>'} ${esc(s?nm(s.dropoffId):'경유')} · ${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${boxes}상자`:''}${e.type==='delivery'?` · 미션 ${esc(e.missionId)}`:''}${e.type==='pickup'&&s?` → ${esc(nm(s.dropoffId))}`:''}</li>`;}).join('');}
  function remainingSeconds(){if(!plan)return 0;const i=Math.min(run.index,plan.visits.length);const done=i?plan.visits[i-1].elapsed:0;return Math.max(0,plan.seconds-done);}
  function render(){
   if(!plan){root.hidden=true;document.body.classList.remove('run-active');return;}root.hidden=false;document.body.classList.toggle('run-active',run.started&&!run.finished);
@@ -36,7 +36,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
    <div class="run-body"><div class="run-now"><ul class="run-cargo">${cargoLine(v)}</ul>${v.blocked?.length?`<p class="blocked-badge">⚠ 하역 전에 다른 상자 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}개를 먼저 옮겨야 할 수 있습니다.</p>`:''}
     <button id="run-done" class="run-big ${kind}">${BTN[kind]} <kbd>Space</kbd></button></div>
     <div class="run-next">${next?`<span>다음</span><b>${esc(nm(next.locationId))}</b><small>약 ${Math.max(1,Math.round(next.seconds/60))}분${next.leg.jumps?' · '+esc((next.leg.gateways||[]).join(' → '))+' 경유':''}</small>`:'<span>다음</span><b>마지막 거점</b>'}</div></div>
-   <div class="run-buttons"><button id="run-undo" class="quiet" ${run.log.length?'':'disabled'}>↶ 되돌리기</button><button id="run-skip" class="quiet">이 거점 나중에</button><button id="run-replan" class="quiet">여기서 경로 다시 짜기</button><button id="run-pause" class="quiet">${run.since?'타이머 일시정지':run.started?'타이머 재개':'타이머 시작'}</button><button id="run-stop" class="quiet danger">운항 종료</button></div>
+   <div class="run-buttons"><button id="run-undo" class="quiet" ${run.log.length>(run.undoFloor||0)?'':'disabled'}>↶ 되돌리기</button><button id="run-skip" class="quiet">이 거점 나중에</button><button id="run-replan" class="quiet">여기서 경로 다시 짜기</button><button id="run-pause" class="quiet">${run.since?'타이머 일시정지':run.started?'타이머 재개':'타이머 시작'}</button><button id="run-stop" class="quiet danger">운항 종료</button></div>
    ${run.log.length?`<details class="run-history"><summary>지난 구간 기록 ${run.log.length}개</summary><table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${Math.max(1,Math.round(l.est/60))}분</td></tr>`).join('')}</tbody></table></details>`:''}`;
   root.querySelector('#run-done').onclick=complete;root.querySelector('#run-undo').onclick=undo;root.querySelector('#run-skip').onclick=()=>replanFrom(true);root.querySelector('#run-replan').onclick=()=>replanFrom(false);
   root.querySelector('#run-pause').onclick=()=>{if(run.since){run.elapsed=elapsed();run.since=null;}else{run.started=true;run.since=Date.now();}save();render();};
@@ -52,8 +52,8 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
   run.lastLine=V().next(nm(v.locationId),kind==='pickup'?'접수':kind==='delivery'?'배송':'작업',nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(n.leg.jumps?V().jump((n.leg.gateways||[])[0]||'게이트웨이'):'')+(unload.length?V().cargo(true,[...new Set(unload.map(e=>e.missionId))].join(', ')):load.length?V().cargo(false,[...new Set(load.map(e=>e.missionId))].join(', ')):'');
   save();render();onAdvance?.(run.index);}
- function undo(){if(!run.log.length)return;const last=run.log.pop();run.index=last.visit;for(const e of last.events){if(e.type==='pickup')run.picked=run.picked.filter(x=>x!==e.shipmentId);if(e.type==='delivery')run.delivered=run.delivered.filter(x=>x!==e.shipmentId);}
-  run.aboard=run.index?plan.visits[run.index-1].packing?.boxes||[]:[];run.finished=false;run.lastLine=V().undo(last.name);save();render();onAdvance?.(run.index);}
+ function undo(){if(run.log.length<=(run.undoFloor||0))return;const last=run.log.pop();run.index=last.visit;for(const e of last.events){if(e.type==='pickup')run.picked=run.picked.filter(x=>x!==e.shipmentId);if(e.type==='delivery')run.delivered=run.delivered.filter(x=>x!==e.shipmentId);}
+  run.aboard=run.index?plan.visits[run.index-1].packing?.boxes||[]:plan.initialPacking?.boxes||[];run.finished=false;run.lastLine=V().undo(last.name);save();render();onAdvance?.(run.index);}
  function replanFrom(skip){if(!plan)return;const here=run.log.length?run.log.at(-1).locationId:(run.startId||plan.visits[0].locationId);
   const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
   if(ok){run.lastLine=skip?V().defer(nm(avoid)):V().replan;save();render();}}
@@ -62,8 +62,9 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
  return {
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
-   if(keepRun){run.planKey=k;run.index=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;}else{run=blank();run.planKey=k;}}
+   if(keepRun){run.undoFloor=run.log.length;run.planKey=k;run.index=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;}else{run=blank();run.planKey=k;}}
    if(run.index>=p.visits.length)run.index=Math.max(0,p.visits.length-1);save();render();},
   start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=V().first(nm(plan.visits[0].locationId));}save();render();onAdvance?.(run.index);},
+  resumeContext:()=>run.started&&!run.finished&&run.planKey?{startId:run.log.at(-1)?.locationId||run.startId||plan?.settings?.startId,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard}}:null,
   refresh:()=>{run.lastLine='';save();render();},replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
 }
