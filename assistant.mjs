@@ -1,5 +1,5 @@
 // 항해사: a polite step-by-step guide for planning a run. First visit opens it automatically;
-// afterwards the full page is the default and the guide is one click away ("항해사 호출").
+// afterwards the full page is the default and the guide is one click away (floating "파트너 호출" button).
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 import {V,VOICE_LIST,VOICE_PORTRAITS,voiceId,setVoice} from './voice.mjs';
