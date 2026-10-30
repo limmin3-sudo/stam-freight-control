@@ -15,7 +15,7 @@
 - Use natural Korean in conversation and polite Korean in the UI.
 - Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts.
 - Preserve aboard cargo positions when resuming or recalculating an active run. Never silently erase missions or progress.
-- Keep cargo views grid-only unless exact authorized ship exteriors are available. Every hold, Hull B included, uses one rotatable 3D view with port/starboard labels (user decision 2026-10-30). Preserve orientation and access guides.
+- Keep cargo views grid-only unless exact authorized ship exteriors are available. Every hold, Hull B included, uses one rotatable 3D view with port/starboard labels (user decision 2026-10-30). Preserve orientation and access guides. Cargo attaches per ship (user decision 2026-10-30): flat holds stack up from the floor, Hull B and Hull C attach to the spine and stack outward/sideways, the RAFT hangs from the top (`STACK_BY_SHIP`/`withStacking` in ships.mjs).
 - Keep bloom disabled. Warm stellar surfaces and a thin corona replace white clipping. Pyro is orange/amber (not deep red), Stanton teal-blue, Nyx indigo/violet.
 - Keep straight quantum routes with body avoidance and sourced gateway connections. No automatic return-to-origin in the UI.
 - Show partner selection before the introduction. Keep senior navigator, loyal navigation officer and lively adult female aide voices throughout planning and execution. Reuse the committed portraits unless asked to replace them.

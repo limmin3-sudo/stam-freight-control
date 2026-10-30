@@ -1,4 +1,15 @@
 export const DEFAULT_SHIP={id:'misc-hull-b',name:'MISC Hull B',access:'external',layout:'schematic-x',source:'게임 데이터의 16개 구역명·치수 확인, 부착 위치는 개략',grids:Array.from({length:16},(_,i)=>{const side=i<8?'좌측':'우측',s=i%8,front=s<4,top=s%4<2,upper=s%2===1;return {id:'hull-b-'+i,name:`${i<8?'L':'R'}${s+1} · ${front?'전방':'후방'} ${top?'상부':'하부'} ${upper?'위':'아래'}`,w:2,h:2,l:8,x:i<8?-5:3,y:(top?1:-5)+(upper?2:0),z:front?-9:1,maxBoxSize:32,noUpright:[16]};})};
+// How cargo attaches in each hold (user-confirmed 2026-10-30): flat holds stack up from the floor, Hull B and Hull C
+// grids attach to the spine and stack outward, the RAFT hangs cargo from the ceiling down.
+export const STACK_BY_SHIP={'misc-hull-b':'out','misc-hull-c':'out','argo-raft':'down'};
+// Converts world-space grids into each grid's own stacking frame: local y always runs from the attaching face, so the
+// packer's "floor/support/blocker" rules apply unchanged, and the 3D view turns the grid back with its rotation.
+export function withStacking(ship){if(!ship?.grids)return ship;const mode=STACK_BY_SHIP[ship.id]||STACK_BY_SHIP[ship.performanceId];
+ const xs=ship.grids.flatMap(g=>[g.x,g.x+g.w]),mid=(Math.min(...xs)+Math.max(...xs))/2;
+ return {...ship,grids:ship.grids.map(g=>{const stack=g.stack||mode;if(!stack||stack==='up'||(g.rotation||[]).some(a=>a))return g;
+  const cx=g.x+g.w/2,cy=g.y+g.h/2,world={x:g.x,y:g.y,w:g.w,h:g.h};
+  if(stack==='down')return {...g,_stack:'down',_world:world,rotation:[0,0,180]};
+  const left=cx<mid,w=g.h,h=g.w;return {...g,_stack:'out',_world:world,w,h,x:cx-w/2,y:cy-h/2,rotation:[0,0,left?90:-90]};})};}
 export function hullKind(ship){const id=String(ship?.id||''),name=String(ship?.name||'');if(id==='misc-hull-b'||/hull[ -]?b\b/i.test(name))return 'hull-b';return 'flat';}
 export const capacity=ship=>ship.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0);
 export function validateShip(raw){
