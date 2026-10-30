@@ -33,3 +33,13 @@ test('ID sign-up rules', ()=>{
   assert.equal(usernameProblem('Captain_01'),'');assert.match(usernameProblem('ab'),/3~20/);assert.match(usernameProblem('한글아이디'),/영문/);
   assert.equal(usernameEmail(' Captain_01 '),'captain_01@id.stam-freight-control.app');
 });
+
+test('edit history describes what changed in plain words', async ()=>{
+  const {describeChanges}=await import('../sync.mjs');
+  const m1={id:'M1',company:'레드 윈드',title:'중형 계약',reward:1},m2={id:'M2',company:'링 가문',title:'소량 화물'};
+  const prev={'vh-missions':JSON.stringify([m1]),'vh-ship-id':'misc-hull-b','sfc-run':JSON.stringify({index:1,started:true})};
+  const next={'vh-missions':JSON.stringify([{...m1,reward:2},m2]),'vh-ship-id':'drake-caterpillar','sfc-run':JSON.stringify({index:2,started:true}),'sfc-history':JSON.stringify([{id:'r1',ship:'MISC Hull B',missions:[{}],reward:476500}]),'vh-recipes':'{}'};
+  const out=describeChanges(prev,next,{shipName:id=>({'misc-hull-b':'MISC Hull B','drake-caterpillar':'Drake Caterpillar'})[id]});
+  assert.deepEqual(out,['미션 추가: 링 가문 소량 화물','미션 수정: 레드 윈드 중형 계약','상자 구성 저장·수정','함선 변경: MISC Hull B → Drake Caterpillar','운항 진행: 2번째 거점 완료','운항 기록 추가: MISC Hull B 계약 1건 (+476,500 aUEC)']);
+  assert.deepEqual(describeChanges(next,next),[]);
+});
