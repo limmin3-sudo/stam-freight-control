@@ -25,7 +25,7 @@ let extra={};
 export async function loadKoNames(url='./data/ko-names.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extra=Object.fromEntries(Object.entries(j).map(([k,v])=>[norm(k),v]));}}catch{}return Object.keys(extra).length;}
 // Find the most specific location mentioned in free text (English or Korean). Longer matches win,
 // so "파이로 VI의 카나드 뷰" resolves to Canard View rather than Terminus.
-export function matchLocation(text,locations,{system=null,fuzzy=false}={}){const exact=matchExact(text,locations,system);if(exact||!fuzzy)return exact;return fuzzyLocations(text,locations,{system,limit:1})[0]?.loc||null;}
+export function matchLocation(text,locations,{system=null,fuzzy=false}={}){const query=norm(text),personal=locations.filter(l=>(!system||l.system===system)&&l.aliases?.some(a=>{const n=norm(a);return n===query||n.length>=4&&query.includes(n);}));if(personal.length===1)return personal[0];if(personal.length>1)return null;const exact=matchExact(text,locations,system);if(exact||!fuzzy)return exact;return fuzzyLocations(text,locations,{system,limit:1})[0]?.loc||null;}
 function matchExact(text,locations,system){const n=norm(text);if(!n)return null;const pool=system?locations.filter(l=>l.system===system):locations;let best=null,bestLen=0;
  // A specific site (station, outpost, city) beats the planet named next to it; then the longer match wins.
  const rank=l=>(['Planet','Moon','Star'].includes(l.type)?0:1000);
