@@ -58,7 +58,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
   if(ok){run.lastLine=skip?V().defer(nm(avoid)):V().replan;save();render();}}
  setInterval(tick,1000);
- document.addEventListener('keydown',e=>{if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
+ document.addEventListener('keydown',e=>{if(document.querySelector('.map-ui-hidden'))return;if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
  return {
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
