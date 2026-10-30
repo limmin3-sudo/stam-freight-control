@@ -13,6 +13,6 @@ export function planRoutesOnly(data,missions,startId,settings={}){
  }
  const best=beam[0],empty={boxes:[],bins:[],used:0},visits=[];let elapsed=0,load=0,peak=0;
  for(const e of best.actions){elapsed+=e.seconds;load+=e.type==='pickup'?e.scu:-e.scu;peak=Math.max(peak,load);const prev=visits.at(-1);if(prev?.locationId===e.locationId){prev.events.push(e);prev.seconds+=e.seconds;prev.elapsed=elapsed;prev.load=load;}else visits.push({locationId:e.locationId,events:[e],seconds:e.seconds,elapsed,leg:e.leg,load,packing:empty});}
- let last=best.at;for(const id of new Set(missions.map(m=>m.returnId).filter(Boolean))){if(!nav.byId.has(id))throw Error('복귀 위치를 확인해 줘.');const leg=nav.path(last,id);elapsed+=leg.seconds;visits.push({locationId:id,events:[{type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),shipmentId:'return:'+id,scu:0,commodity:'복귀'}],elapsed,seconds:leg.seconds,leg,load:0,packing:empty});last=id;}
+ let last=best.at;for(const id of new Set(opt.includeReturn?missions.map(m=>m.returnId).filter(Boolean):[])){if(!nav.byId.has(id))throw Error('복귀 위치를 확인해 줘.');const leg=nav.path(last,id);elapsed+=leg.seconds;visits.push({locationId:id,events:[{type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),shipmentId:'return:'+id,scu:0,commodity:'복귀'}],elapsed,seconds:leg.seconds,leg,load:0,packing:empty});last=id;}
  return {simple:true,visits,shipments,seconds:elapsed,peak,capacity:null,timing:[],warnings:['간략 경로: 함선 용량·상자 크기·적재 배치·상하차 시간은 계산하지 않았어.'],algorithm:'픽업 선행 조건을 적용한 경로 탐색',settings:opt};
 }

@@ -17,7 +17,7 @@ test('pickups precede deliveries, mission identity is conserved, fixed cargo nev
  assert.equal(p.visits.at(-1).load,0);assert.ok([...totals.values()].every(x=>x===0));assert.equal(p.shipments.filter(s=>s.missionId==='A').flatMap(s=>s.boxes).length,4);
 });
 test('oversized cargo becomes multiple trips without losing SCU',()=>{const p=planRoute(data,[mission('L',[cargo(544,find('Everus Harbor'),find('Seraphim Station'),[{size:32,count:17}])])],find('Everus Harbor'));assert.equal(p.shipments.length,2);assert.equal(p.shipments.reduce((a,s)=>a+s.scu,0),544);assert.ok(p.peak<=512);assert.equal(p.visits.at(-1).load,0);});
-test('cross system routes use sourced jump endpoints, never Euclidean distance across frames',()=>{const n=navigator(data,{}),r=n.path(find('Everus Harbor'),find('Levski'));assert.equal(r.jumps,2);assert.equal(r.nodes.length,6);assert.ok(r.seconds>16*60);});
+test('cross system routes use sourced jump endpoints, never Euclidean distance across frames',()=>{const n=navigator(data,{}),r=n.path(find('Everus Harbor'),find('Levski'));assert.equal(r.jumps,2);assert.deepEqual(r.gateways,['Pyro Gateway','Stanton Gateway','Nyx Gateway','Pyro Gateway']);assert.ok(r.seconds>16*60);});
 test('all data IDs and jump endpoints are unique and finite',()=>{assert.equal(new Set(data.locations.map(l=>l.id)).size,data.locations.length);assert.ok(data.locations.every(l=>l.position.every(Number.isFinite)));for(const j of data.jumps){assert.ok(data.locations.some(l=>l.id===j.from));assert.ok(data.locations.some(l=>l.id===j.to));}});
 
 
