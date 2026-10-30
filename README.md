@@ -1,2 +1,105 @@
-# verse-hauler
-Star Citizen Hull B mission screenshot planner, 3D starmap, route estimates and cargo organization.
+# VERSE HAULER
+
+Star Citizen에서 **Hull B 한 대**로 여러 운송 미션을 함께 처리하기 위한 개인용 도구.
+
+스크린샷 여러 장 → 미션별 화물 추출 → 위치·수량 확인 → 추천 방문 순서 → 거점별 적재 배치 → 예상 시간.
+
+## 지금 되는 기능
+
+- Stanton·Pyro·Nyx의 실제 게임 데이터 좌표를 쓰는 회전·확대 가능한 3D 지도. 천체와 표시점의 크기는 가독성을 위해 확대했다.
+- 게임 버전 `4.10.2-LIVE.12881860`의 좌표 스냅샷 731개와 확인된 점프 연결 2개. 행성계별 좌표 프레임을 분리한다. 연결이 확인되지 않은 점프는 계산하지 않는다.
+- 여러 스크린샷에서 같은 미션의 중복 화면을 합쳐 해석하는 AI 서버 코드. 읽지 못한 값은 추측하지 않고 수정을 요청한다.
+- 미션 ID별 화물 보존, 픽업 전 배송 방지, 512 SCU 제한, 24 SCU 상자 등으로 인한 공간 단편화 반영.
+- 적재 중인 상자를 다음 픽업에서 임의로 옮기지 않는 고정 배치 계획. 큰 화물은 여러 운송 묶음으로 나눈다.
+- 각 거점을 누르면 해당 작업 후의 화물과 미션별 권장 구역을 3D로 표시.
+- 퀀텀 이동, 스풀, 점프, 정박, 대기권 이동, 상자 작업을 합산한 시간 범위.
+- 직접 입력, 잘못 읽은 미션 수정, JSON 가져오기·내보내기, 브라우저 로컬 저장.
+- 제한 시간 우선 고려 및 초과 위험 표시. 남은 시간은 스크린샷 분석 또는 직접 입력 시점부터의 근사값이므로 게임 내 카운트다운을 확인한다.
+- 실제 운송용 집중 화면, 단계별 픽업·하역·납품 체크, 실측 타이머와 진행 기록.
+- 작업 전/후 적재 전환, 현재 배송지의 개별 상자만 강조, 빈 구역 숨기기, 적재 위치 메모.
+
+GLS Companion 등 7개 도구의 참고 범위와 반영 내용은 [REFERENCE-NOTES.md](REFERENCE-NOTES.md)에 정리했다.
+
+## 로컬 실행
+
+Node.js 22 이상에서 `start.cmd`를 실행한 뒤 `http://127.0.0.1:4173`을 연다. 또는:
+
+```sh
+npm start
+```
+
+전달된 로컬 폴더는 데이터와 라이브러리를 포함한다. GitHub에서 새로 내려받았을 때는 첫 실행에서 고정 버전 Three.js와 공개 좌표 데이터를 받는다. Three.js는 SHA-256으로 확인한다. 먼저 **예시 미션으로 둘러보기**를 눌러 지도와 계산을 확인할 수 있다. 예시 미션은 실제 수주 정보가 아니다.
+
+AI를 연결하려면 `.env.example`을 `.env`로 복사하고, 본인 컴퓨터에서 직접 값을 입력한다.
+
+```dotenv
+OPENAI_API_KEY=본인_OpenAI_API_키
+APP_TOKEN=충분히_긴_개인_접속_토큰
+OPENAI_MODEL=gpt-6.1-sol
+PORT=4173
+```
+
+앱의 **연결 · 시간 설정**에서 서버 주소를 `http://127.0.0.1:4173`으로 설정하고 같은 APP_TOKEN을 입력한다. API 키는 앱 입력란이나 GitHub 코드에 넣지 않는다. APP_TOKEN은 현재 탭의 메모리에서만 보관한다. 서버 주소·시간 설정·미션은 해당 브라우저의 로컬 저장소에 남는다.
+
+## GitHub Pages + 비공개 키 서버
+
+GitHub Pages는 정적 웹사이트를 제공한다. OpenAI API 키를 감추려면 별도 서버가 필요하다. 이 프로젝트는 **GitHub Pages 화면 + Cloudflare Worker API**로 구성했다.
+
+### 화면 배포
+
+1. 이 폴더의 소스를 GitHub 저장소의 `main` 브랜치에 올린다.
+2. 저장소 **Settings → Pages → Build and deployment → Source → GitHub Actions**를 선택한다.
+3. 포함된 `Deploy GitHub Pages` 워크플로를 실행한다.
+
+워크플로는 고정 버전 라이브러리와 API의 현재 기본 게임 버전 좌표를 받은 뒤 테스트하고, 공개 파일만 별도 폴더에 모아 배포한다. 사용한 게임 버전·날짜는 화면에 표시한다. `.env`, 서버 코드, 테스트 파일을 Pages 결과물에 넣지 않는다. API 키를 포함한 파일은 저장소에도 올리면 안 된다.
+
+### AI 서버 배포
+
+Cloudflare 계정으로 Workers를 사용한다. 코드 실행 권한은 본인 계정에만 두고, API는 APP_TOKEN을 가진 본인만 호출하도록 구성했다. 키가 저장되는 서버 설정은 비공개이며, API 주소 자체는 웹에서 호출 가능하다.
+
+1. `wrangler.toml`의 `ALLOWED_ORIGINS`를 본인 Pages 출처로 수정한다. 경로는 제외한다. 예: `https://limmin3-sudo.github.io`
+2. 공식 Wrangler CLI로 로그인하고 서버 비밀값을 입력한다. 비밀값은 명령 인수나 저장소에 쓰지 않는다.
+
+```sh
+npx wrangler login
+npx wrangler secret put OPENAI_API_KEY
+npx wrangler secret put APP_TOKEN
+npx wrangler deploy
+```
+
+3. 앱의 설정에 반환된 Worker 주소와 APP_TOKEN을 입력한다.
+4. 스크린샷을 올리고 분석한다. 이미지는 사용자가 분석을 누를 때 본인 서버를 거쳐 OpenAI로 전송된다. 서버는 요청 이미지나 키를 로그에 남기지 않고, OpenAI 요청에 `store: false`를 사용한다. 이것이 API 제공자의 전체 보존 정책을 바꾸는 것은 아니다.
+
+OpenAI API 사용료와 호스팅 계정 요금은 해당 서비스 기준을 따른다. 실제 AI 호출은 API 키를 연결한 뒤 확인해야 한다.
+
+## 적재·경로·시간의 범위
+
+- 공식 Hull B 자료: 512 SCU, 최대 32 SCU 상자, 완전 적재 상태에서 지상 착륙 가능.
+- 16개 독립 계획 그리드(각 2×2×8 SCU 셀)를 사용하는 보수적 겹침 검사. 상자 회전을 허용한다. 실제 기체의 화물판 위치·방향은 확인된 3D 변환 데이터가 없어 권장 구역 모델로 표시한다. A1–D4는 이 도구가 정한 구역 이름이다.
+- 상자 크기가 스크린샷에 없으면 설정의 최대 크기 조합을 가정한다. 현장에서 실제 상자 구성을 확인해 수정해야 한다. 24+16 SCU처럼 한 화물판에 함께 들어가지 않는 조합이 있으므로 총 SCU만으로 공간을 판단하지 않는다.
+- 탐색은 제한 폭의 빔 탐색과 탐욕적 박스 배치를 사용한다. 전역 최적 경로나 모든 가능한 적재를 보장하지 않는다.
+- 행성계 내부 거리는 데이터 좌표의 직선 거리, 이동 시간에는 15% 거리 여유를 추가한다. 실제 천체 차폐·OM 경유·가감속·실시간 연료·위험 회피는 모델링하지 않았다. 경로선은 방문 의도를 보여 주며 게임 내 QT 경로가 아니다.
+- 퀀텀 속도는 확인되지 않은 기체 기본값 대신 **사용자 조정 가능한 평균 가정값 180,000 km/s**를 사용한다. 범위는 기준 시간의 80–130%를 휴리스틱으로 표시하며 통계적 신뢰구간이 아니다.
+- 연료 보급, 전투, 서버 지연, 화물 엘리베이터 고장, 화물의 질량·밸런스, 이미 적재된 화물은 계산에 포함되지 않는다.
+- Nyx의 방문 불가능한 행성은 지도 참고용이며, 출발·픽업·배송 선택에서는 제외한다. 미확인·중복 좌표는 자동 매칭하지 않는다.
+- 미션 30개, 운송 묶음 32개까지. 장시간 계획은 묶음을 나눠 처리하는 편이 낫다.
+
+## 검증
+
+```sh
+npm test
+```
+
+상자 공간 단편화, 512 SCU 적재, 수량 합계, 미션별 물량 보존, 픽업 선행, 고정 적재 위치 유지, 대형 미션의 분할 운송, 점프 연결, 서버 인증·CORS·이미지 입력, AI 요청 형식을 검사한다. AI 출력 테스트는 가짜 응답을 사용하며 실제 스크린샷 정확도를 검증하지 않는다.
+
+## 데이터·라이선스
+
+- 좌표 출처: https://api.star-citizen.wiki/api/locations/positions
+- API 문서: https://skmtc.dev/starcitizenwiki/apis/star-citizen-wiki-api/docs/api/locations/positions/get
+- 데이터 출처·스냅샷 버전: `data/locations.json`의 meta 참조.
+- 출처의 권리 안내: https://starcitizen.tools/Star_Citizen_Wiki:DISCLAIMER
+- Hull B: https://robertsspaceindustries.com/en/comm-link/engineering/21085-Q-A-MISC-Hull-B
+- Three.js 0.169.0: MIT, `vendor/THREE-LICENSE.txt` 포함.
+- 앱 소스: MIT. 게임 데이터와 Star Citizen 관련 권리는 앱 소스 라이선스와 별개이며 각 권리자에게 있다. Cloud Imperium Games와 무관한 팬 도구다.
+
+좌표를 갱신하려면 `npm run refresh-data`. API 기본 게임 버전과 좌표를 함께 다시 받는다.
