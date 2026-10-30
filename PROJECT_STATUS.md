@@ -4,22 +4,23 @@
 
 ## 현재 인계 상태
 
-- 마지막 작업 AI: Claude Code. Codex의 `86e439e`(main)를 이어받았다. 작업 중 Codex와 동시 수정 없음.
-- 저장소·Pages 경로 `verse-hauler` → `stam-freight-control` 변경: **링크·배포 수정은 준비 완료, GitHub 이름 변경과 푸시는 사용자 최종 승인 대기**.
-- 이 Claude Cloud 세션에서는 GitHub API·Actions·Pages 사이트 접근이 가능했다. 최근 Pages 배포 4건(`a445f8f`~`86e439e`) 성공을 확인했다.
-- 이름 변경 전까지 유효한 저장소: https://github.com/limmin3-sudo/verse-hauler · 사이트: https://limmin3-sudo.github.io/verse-hauler/
-- 변경 후 주소: https://github.com/limmin3-sudo/stam-freight-control · https://limmin3-sudo.github.io/stam-freight-control/
-- 이름이 바뀌면 기존 Pages 주소는 리디렉션되지 않고 꺼진다. 저장소 Git 주소는 GitHub가 리디렉션하지만 각 PC에서 origin을 갱신한다. 절차는 [이름 변경 인계](docs/REPOSITORY-RENAME.md).
+- 마지막 작업 AI: Claude Code (Cloud). Codex `86e439e` 이후 이어서 작업했다. Codex는 사용 한도로 현재 작업하지 않는다.
+- **저장소·Pages 경로 변경 완료:** `verse-hauler` → `stam-freight-control`. 이름 변경은 사용자가 GitHub Settings에서 수행했다(이 Cloud 프록시는 저장소 설정 변경을 403으로 차단).
+- 저장소: https://github.com/limmin3-sudo/stam-freight-control
+- 사이트: https://limmin3-sudo.github.io/stam-freight-control/
+- 기존 Pages 주소 `…/verse-hauler/`는 404다. GitHub는 Pages 경로를 리디렉션하지 않는다. 저장소 Git 주소는 GitHub가 리디렉션하지만 각 PC에서 origin을 갱신한다.
 - 각 PC의 브랜치·미커밋 상태·원격 최신성을 시작 시 다시 확인한다.
 
-## 이번 Claude 작업 (미커밋)
+## 저장소 이름 변경 작업 결과 (`013c63f`)
 
-- README, docs/DEVELOPMENT.md, docs/CLOUD-HANDOFF.md, docs/CLOUD-START-PROMPT.md, location-manager.mjs(Actions 링크)의 저장소·사이트 주소를 새 이름으로 변경.
-- `.github/workflows/pages.yml`: 비교 URL을 새 Pages 경로로 변경하고 `--fallback-file .github/pages-baseline/locations.json` 추가.
-- `scripts/refresh-data.mjs`: `--fallback-file` 옵션. 이전 배포가 **404일 때만** 기준 스냅샷과 비교하고, 그 밖의 오류는 기존처럼 실패한다.
-- `.github/pages-baseline/locations.json` 신규: 이름 변경 직전 기존 사이트에서 받은 스냅샷(4.10.2-LIVE.12881860, 좌표 731·점프 2). 공개 파일 묶음에는 포함되지 않는다. 새 경로 첫 배포 성공 후에는 404 경로가 쓰이지 않으므로 삭제해도 된다(삭제는 별도 승인).
-- package.json 이름, wrangler worker 이름, IndexedDB 이름, localStorage 키는 의도적으로 유지했다.
-- 검증: Node 22.22.0, `npm test` 32개 통과, `git diff --check` 통과. 새 주소 404 + 기준 파일 → 성공(추가·변경·삭제 0), 기존 주소 200 → 성공, 기준 파일 없이 404 → 실패 확인.
+- README, docs/DEVELOPMENT.md, docs/CLOUD-HANDOFF.md, docs/CLOUD-START-PROMPT.md, location-manager.mjs(Actions 링크)의 주소를 새 이름으로 변경.
+- `.github/workflows/pages.yml`: 비교 URL을 새 Pages 경로로 변경, `--fallback-file .github/pages-baseline/locations.json` 추가.
+- `scripts/refresh-data.mjs`: `--fallback-file` 옵션. 이전 배포가 **404일 때만** 기준 스냅샷과 비교하고 그 밖의 오류는 기존처럼 실패한다.
+- `.github/pages-baseline/locations.json`: 이름 변경 직전 기존 사이트 스냅샷(4.10.2-LIVE.12881860, 좌표 731·점프 2). 공개 파일 묶음에는 포함되지 않는다.
+- 실제 첫 배포에서는 GitHub가 기존 Pages 배포를 새 경로로 옮겨 두어 새 URL 비교가 바로 성공했고 기준 스냅샷은 사용되지 않았다. 이제 404 대비용으로만 남아 있으며 삭제 여부는 사용자 판단(별도 승인).
+- package.json 이름, wrangler worker 이름, IndexedDB 이름, localStorage 키는 기존 개인 데이터 보존을 위해 유지했다.
+- 검증: Node 22.22.0 `npm test` 32개 통과, `git diff --check` 통과, 404/200/기준 파일 없음 세 경우 수동 확인. Actions `41021935133` 성공(추가·변경·삭제 0, 테스트 32 통과). 새 사이트의 index·스크립트·좌표·Three.js·파트너 사진 200, 브라우저에서 사진 3장 표시·페이지 오류 없음.
+- 브라우저 콘솔의 `data/ko-names.json` 404는 기존부터 있던 선택 파일 부재다(한글 패치 추출 백로그, 코드가 없으면 무시).
 
 ## 완료된 제품 기능
 
@@ -56,11 +57,10 @@
 
 ## 다음 작업 우선순위
 
-1. 사용자 승인 후 GitHub 저장소 이름 변경 → 위 미커밋 작업 커밋·main 푸시 → Actions와 새 사이트 확인.
-2. 각 PC에서 미커밋 작업을 보존하고 `git remote set-url origin https://github.com/limmin3-sudo/stam-freight-control.git` 후 `git pull --ff-only`.
-3. 새 경로 첫 배포 성공 후 `.github/pages-baseline/` 정리 여부 결정.
-4. 두 Windows PC의 Git·Node 22·인증, start.cmd 실행, Claude Code의 지침 인식은 각 PC에서 확인한다.
-5. 이후 제품 개발은 사용자의 다음 요청에 따른다. 로그인·동기화는 백로그이며 자동 착수하지 않는다. 이후 커밋·푸시는 해당 사용자 승인 범위에서 진행한다.
+1. 각 Windows PC의 기존 체크아웃에서 미커밋 작업을 보존한 채 `git remote set-url origin https://github.com/limmin3-sudo/stam-freight-control.git` → `git fetch origin` → 깨끗하면 `git pull --ff-only`.
+2. 두 Windows PC의 Git·Node 22·인증, start.cmd 실행, Codex·Claude Code의 지침 인식을 각 PC에서 확인한다.
+3. `.github/pages-baseline/` 유지·삭제 결정.
+4. 이후 제품 개발은 사용자의 다음 요청에 따른다. 로그인·동기화는 백로그이며 자동 착수하지 않는다. 커밋·푸시는 사용자 승인 범위에서 진행한다.
 
 ## 다음 AI가 처음 확인할 명령
 
