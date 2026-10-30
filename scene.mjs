@@ -1,4 +1,5 @@
 import {DEFAULT_SHIP,hullKind} from './ships.mjs';
+import {shipAccess} from './engine.mjs';
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 const PALETTE={Hurston:'#b58c55',Crusader:'#d9b5a2',ArcCorp:'#ab8878',microTech:'#a8d4dd',Bloom:'#c1d9cf',Monox:'#ac7761','Pyro I':'#c57945','Pyro IV':'#b18e76','Pyro V':'#acb587',Terminus:'#9ba1b8',Nyx:'#e0e6fa'};
@@ -32,9 +33,9 @@ export function createCargoView(container){
    const span=Math.ceil(Math.max(size.x,size.z)+8),floor=new THREE.GridHelper(span,span,0x2b4a5c,0x16283a);floor.position.set(c.x,min.y-.6,c.z);floor.material.transparent=true;floor.material.opacity=.45;v.frame.add(floor);
    const arrowLen=size.z*.5+3;v.frame.add(new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(c.x,min.y-.55,c.z+arrowLen*.5),arrowLen,0xffc67c,1.4,.9));
    if(ship.grids.length&&hullKind(ship)==='hull-b'){v.frame.add(line([new THREE.Vector3(0,0,min.z-2),new THREE.Vector3(0,0,max.z+2)],0x8fb8c9,.6));addLabel(v,'중심축',new THREE.Vector3(0,0,max.z+2.5),'cargo-guide subtle');}
-   addLabel(v,'▲ 앞 (기수)',new THREE.Vector3(c.x,min.y-.5,min.z-2.2),'cargo-guide front');addLabel(v,'뒤 (후미)',new THREE.Vector3(c.x,min.y-.5,max.z+2.2),'cargo-guide');
+   const acc=shipAccess(ship),door=' · 출입구';addLabel(v,'▲ 앞 (기수)'+(acc==='front'?door:''),new THREE.Vector3(c.x,min.y-.5,min.z-2.2),'cargo-guide front');addLabel(v,'뒤 (후미)'+(acc==='rear'?door:''),new THREE.Vector3(c.x,min.y-.5,max.z+2.2),acc==='rear'?'cargo-guide door':'cargo-guide');
    const upAt=new THREE.Vector3(v.side==='right'?min.x-1.5:max.x+1.5,min.y-.6,max.z+1.5);v.frame.add(new THREE.ArrowHelper(new THREE.Vector3(0,1,0),upAt,size.y+2.4,0x9fd7e6,.9,.6));addLabel(v,'위',upAt.clone().add(new THREE.Vector3(0,size.y+3.2,0)),'cargo-guide');
-   if(v.side!=='right')addLabel(v,'좌현',new THREE.Vector3(min.x-2,c.y,c.z),'cargo-guide');if(v.side!=='left')addLabel(v,'우현',new THREE.Vector3(max.x+2,c.y,c.z),'cargo-guide');
+   if(v.side!=='right')addLabel(v,'좌현'+(acc==='left'?door:''),new THREE.Vector3(min.x-2,c.y,c.z),acc==='left'?'cargo-guide door':'cargo-guide');if(v.side!=='left')addLabel(v,'우현'+(acc==='right'?door:''),new THREE.Vector3(max.x+2,c.y,c.z),acc==='right'?'cargo-guide door':'cargo-guide');
    ship.grids.forEach((g,i)=>{const group=new THREE.Group();group.position.set(g.x+g.w/2,g.y+g.h/2,g.z+g.l/2);group.rotation.set(...(g.rotation||[0,0,0]).map(a=>a*Math.PI/180));
     const box=new THREE.BoxGeometry(g.w,g.h,g.l);group.add(new THREE.LineSegments(new THREE.EdgesGeometry(box),new THREE.LineBasicMaterial({color:0x7fb4c6,transparent:true,opacity:.75})));
     // Cell lines on the floor of each grid so 1-SCU steps are readable.
