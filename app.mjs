@@ -179,8 +179,8 @@ function makeAssistant(){return createAssistant({
  async editMission(i){openEditor(i);await waitDialog($('mission-editor'));},demo(){demo();},
  issues(m){const out=[];if(m.cargo.some(c=>!byId.has(c.pickupId)||!byId.has(c.dropoffId)))out.push('위치 확인 필요');if(m.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<1))out.push('SCU 확인 필요');return out;},
  placeName:(id,raw)=>byId.get(id)?placeLabel(byId.get(id)):raw||'위치 확인 필요',
- missingBoxes(){const out=[];missions.forEach((m,mi)=>{for(const g of destinationGroups(m)){const has=m.destinationBoxes?.some(d=>d.pickupId===g.pickupId&&d.dropoffId===g.dropoffId&&d.boxes?.length)||g.cargo.every(c=>c.boxes?.length);if(!has&&byId.has(g.dropoffId)&&g.scu>0)out.push({mi,missionId:m.id,pickupId:g.pickupId,dropoffId:g.dropoffId,scu:g.scu});}});return out;},
- parseBoxes:parseBoxText,setBoxes(g,boxes){const m=missions[g.mi];if(!m)return;m.destinationBoxes=(m.destinationBoxes||[]).filter(d=>d.pickupId!==g.pickupId||d.dropoffId!==g.dropoffId);m.destinationBoxes.push({pickupId:g.pickupId,dropoffId:g.dropoffId,boxes,origin:'manual'});renderMissions();save();},
+ missingBoxes(){const out=[];missions.forEach((m,mi)=>{for(const g of destinationGroups(m)){const has=m.destinationBoxes?.some(d=>d.pickupId===g.pickupId&&d.dropoffId===g.dropoffId&&d.boxes?.length)||g.cargo.every(c=>c.boxes?.length);if(!has&&byId.has(g.dropoffId)&&g.scu>0)out.push({mi,missionId:m.id,pickupId:g.pickupId,dropoffId:g.dropoffId,scu:g.scu,mix:g.cargo.map(c=>String(c.commodity||'').replace(/\s/g,'')+':'+c.scu).sort().join('|')});}});return out;},
+ parseBoxes:parseBoxText,setBoxes(g,boxes){const m=missions[g.mi];if(!m)return;m.destinationBoxes=(m.destinationBoxes||[]).filter(d=>d.pickupId!==g.pickupId||d.dropoffId!==g.dropoffId);m.destinationBoxes.push({pickupId:g.pickupId,dropoffId:g.dropoffId,boxes,origin:'manual'});const group=destinationGroups(m).find(x=>x.pickupId===g.pickupId&&x.dropoffId===g.dropoffId),filled=group&&workbench.remember(m,group,boxes);if(filled)missions=filled;renderMissions();save();},
  plan(){replan();return plan;},showWholeRoute(){map?.home();},
  startRun(){setMapExpanded(true);execution?.start();}
 });}
