@@ -168,7 +168,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
   // Labels pinned under their object; overlaps hide the lower priority label instead of moving it.
   const cand=items.filter(it=>it.shown).map(it=>({it,p:priority(it)})).filter(({it,p})=>{const l=it.loc;if(p>=7)return true;const par=it.parent?itemById.get(it.parent):null;if(l.type==='Moon')return (par?.px||0)>14;if(isStation(it))return par?par.px>18:camPos.distanceTo(it.pos)<extent*2.8;if(l.type==='LandingZone'||it.icon==='gate')return par?par.px>28:camPos.distanceTo(it.pos)<extent*.7;if(it.surface)return (par?.px||0)>110;return camPos.distanceTo(it.pos)<6;}).sort((a,b)=>b.p-a.p);
   const used=[],want=new Set(),labelZoom=clamp(1+Math.log2(extent*2.35/Math.max(rig.cur.r,.01))*.18,1,1.65);
-  for(const {it} of cand){const s=labelFor(it),[pw,ph]=s.userData.px,station=isStation(it),body=it.loc.type==='Planet'||it.loc.type==='Star',sc=Math.min((station?.95:body?.85:.82)*labelZoom,(w-16)/pw),lw=pw*sc,lh=ph*sc,gap=(it.mesh?it.px:(it.displayPx||it.px||10)/2)+7,x=it.screen.x,y=it.screen.y;
+  for(const {it} of cand){const s=labelFor(it),[pw,ph]=s.userData.px,station=isStation(it),body=it.loc.type==='Planet'||it.loc.type==='Star',sc=Math.min((station?.95:body?.85:.82)*labelZoom,(w-16)/pw)*(station?.5:1),lw=pw*sc,lh=ph*sc,gap=(it.mesh?it.px:(it.displayPx||it.px||10)/2)+7,x=it.screen.x,y=it.screen.y;
    // Try nearby anchors for stations so a planet's label does not silently hide its port.
    const offsets=station?[[0,gap],[0,-gap-lh],[lw/2+gap,-lh/2],[-lw/2-gap,-lh/2]]:[[0,gap]];
    let placed=null;
