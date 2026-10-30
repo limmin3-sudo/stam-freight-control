@@ -53,26 +53,10 @@ Local copy on the user's PC: `C:\Users\limmi\Documents\Codex\2026-10-30\so\outpu
 - `npm test` must pass before pushing. Push to `main` → GitHub Actions builds and deploys Pages.
 - Visual checks were done with Playwright + SwiftShader; real GPUs are much faster.
 
-## NEXT TASK (requested, not built yet): navigator voice choice
-User wants to pick the assistant/run-mode voice. Add a setting (assistant first screen + 설정) `voice: 'military'|'aide'`,
-store in localStorage, and route every line in `assistant.mjs` and `execution.mjs` through a `LINES[voice][key](vars)` table.
-Approved examples shown to the user (keep this tone; never 반말; no flirting/sexual tone for the aide):
-| key | 군인 항해사 (다나까) | 젊은 비서 (해요체) |
-|---|---|---|
-| welcome | 함장님, 항해사 보고드립니다. 화물 운송 준비를 시작하겠습니다. | 함장님, 오셨어요? 오늘 운송도 제가 옆에서 챙길게요. |
-| ship | 금일 운용할 함선을 지정해 주십시오. | 오늘은 어떤 배로 나가세요? |
-| start | 현 위치를 보고해 주십시오. 지명 일부만 말씀하셔도 확인하겠습니다. | 지금 어디 계세요? 대충 말씀하셔도 제가 찾아 드릴게요. |
-| shots | 접수한 미션 화면을 넘겨 주십시오. 즉시 판독하겠습니다. | 받으신 미션 화면 보여 주세요. 바로 읽어 볼게요. |
-| confirm | 판독 결과입니다. 이상 있는 항목은 정정 바랍니다. | 이렇게 읽었어요. 틀린 데 있으면 고쳐 주세요. |
-| brief | 항로 산출 완료. 경유지 {n}곳, 예상 소요 {min}분, 예상 수익 {reward} aUEC입니다. | 경로 다 짰어요! {n}군데 들르고 {min}분 정도 걸려요. 예상 수익은 {reward} aUEC예요. |
-| launch | 출항 준비 완료. 명령만 내려 주십시오. | 준비 끝났어요. 출발하실 때 말씀해 주세요. |
-| pickup | 적재 확인. 다음 목적지 {next}, 약 {min}분 소요됩니다. | 실었어요! 다음은 {next}예요. {min}분쯤 걸려요. |
-| delivery | 인도 완료 확인. 잔여 화물 {scu} SCU입니다. | 배송 완료! 이제 {scu} SCU 남았어요. |
-| defer | 해당 거점은 후순위로 돌리겠습니다. 항로 재산출합니다. | 여긴 나중에 들를게요. 경로 다시 짜 놨어요. |
-| undo | 직전 보고를 취소했습니다. | 방금 건 되돌려 놨어요. |
-| replan | 현 적재 상태 기준으로 항로 재산출 완료. | 지금 실린 화물 그대로 남은 경로 다시 짰어요. |
-| done | 전 화물 인도 완료. 수고하셨습니다, 함장님. 이상 보고 끝. | 다 끝났어요, 함장님. 오늘도 고생 많으셨어요! |
-Keep the current neutral polite voice as the default until the user picks.
+## Navigator voice (done)
+`voice.mjs` holds three line sets: `standard` (default, neutral polite), `military` (군인 항해사, 다나까), `aide` (젊은 비서, 해요체).
+`assistant.mjs` and `execution.mjs` read every spoken line through `V().key(...)`. Picked on the assistant welcome screen or in 설정 (`#voice`), stored in localStorage `sfc-voice`.
+New lines must be added to all three sets. Never 반말; the aide stays professional (no flirting).
 
 ## Open ideas / next steps
 - Mission types (multi-pickup / multi-dropoff) labels, mission stacking suggestions.
