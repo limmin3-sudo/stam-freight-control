@@ -23,6 +23,11 @@ for(const line of fs.readFileSync(ini,'utf8').replace(/^\uFEFF/,'').split(/\r?\n
  if(!hits.length){const code=(val.match(/[A-Za-z0-9-]*\d[A-Za-z0-9-]*$/)||[''])[0];if(code.length>=3){const words=en.split(' ').filter(w=>/^[A-Z]/.test(w)&&w!==code);hits=L.filter(l=>norm(l.name).endsWith(norm(code))&&words.every(w=>norm(l.name).includes(norm(w))));}}
  if(hits.length===1&&!byLoc.has(hits[0].id))byLoc.set(hits[0].id,{name:hits[0].name,ko:val,key});}
 for(const v of byLoc.values())out2[v.ko]=v.name;
+// Official Korean cargo names (items_commodities_* plus hauling cargo shown under other keys) for typo correction.
+const goods=new Set();
+for(const line of fs.readFileSync(ini,'utf8').replace(/^\uFEFF/,'').split(/\r?\n/)){const i=line.indexOf('=');if(i<1)continue;const key=line.slice(0,i).replace(/,P$/,''),val=line.slice(i+1).trim();
+ if((/^items_commodities_/i.test(key)&&!/_desc|_type_/i.test(key)||/^(Hints_Ship_Ammo_Title|Item_Name_Container_CryoPod_01)$/.test(key))&&val&&val.length<=24&&!/[.\n\\]/.test(val))goods.add(val);}
+const goodsOut=out.replace(/ko-names\.json$/,'ko-commodities.json');fs.writeFileSync(goodsOut,JSON.stringify([...goods].sort((a,b)=>a.localeCompare(b,'ko')),null,1)+'\n');console.log('공식 품목명',goods.size,'→',goodsOut);
 fs.writeFileSync(out,JSON.stringify(Object.fromEntries(Object.entries(out2).sort((a,b)=>a[1].localeCompare(b[1]))),null,1)+'\n');
 console.log('지명 후보',pairs.length,'| 지도와 연결',byLoc.size,'/',L.length);
 if(process.env.VERBOSE)console.log('예시:',[...byLoc.values()].slice(0,12).map(v=>v.name+' = '+v.ko).join(' | '));

@@ -94,3 +94,17 @@ test('a Rayari outpost named only by moon and kind words resolves inside that mo
 셀린의 라야리 주식회사 전초기지에서 란타똥을(를) 접수하십시오.`,L);
   assert.deepEqual(route(r),[['란타똥',7,'brio','sunset'],['란타똥',7,'hickes','sunset']]);
 });
+
+test('cargo names are corrected to the official Korean list only when one name is clearly closest', async ()=>{
+  const {setCommodityNames,officialCommodity}=await import('../ocr.mjs');
+  setCommodityNames(['이\'템','의약용품','란타 똥','수소','산소','레버넌트 나무 꽃가루','철']);
+  try{
+    assert.deepEqual(officialCommodity('이\'펨'),{name:'이\'템',status:'fixed'});
+    assert.deepEqual(officialCommodity('의약품'),{name:'의약용품',status:'fixed'});
+    assert.deepEqual(officialCommodity('란타똥'),{name:'란타 똥',status:'fixed'});
+    assert.deepEqual(officialCommodity('수소'),{name:'수소',status:'ok'});
+    assert.deepEqual(officialCommodity('철소홍'),{name:'철소홍',status:'unknown'});
+    const r=parseMissionText(`이'펨을(를) 0/2 SCU 파이로 II의 선셋 메사에 배송하십시오.\n그림 헥스에서 이'펨을(를) 접수하십시오.`,pyro);
+    assert.equal(r.cargo[0].commodity,'이\'템');assert.ok(r.warnings.some(w=>/공식 표기로 고쳤습니다: 이'펨→이'템/.test(w)));
+  }finally{setCommodityNames([]);}
+});
