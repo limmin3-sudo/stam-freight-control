@@ -26,3 +26,11 @@ body.simple-mode .fleet-controls{opacity:.55}
 .leg-label{position:absolute;transform:translate(-50%,0);white-space:nowrap;font-size:11px;font-weight:600;color:#1a1206;background:#ffc67c;padding:3px 7px;border-radius:10px;pointer-events:none;box-shadow:0 2px 8px #0008}
 .map-wrap:focus{outline:none}
 @media(max-width:760px){.map-search{width:130px}.map-bottom span:first-child{display:none}}
+
+#map-labels .celestial-label,#map-labels .leg-label{left:0;top:0;will-change:transform}
+
+.cargo-zone-labels .cargo-zone-label,.cargo-zone-labels .cargo-guide{left:0;top:0;will-change:transform}
+.cargo-guide{position:absolute;font-size:11px;font-weight:600;color:#cfe3ec;background:#0b1a26d9;border:1px solid #2f5163;padding:2px 6px;border-radius:9px;white-space:nowrap}
+.cargo-guide.front{color:#1a1206;background:#ffc67c;border-color:#ffc67c}
+.cargo-guide.subtle{font-weight:400;color:#8fb8c9;background:transparent;border-color:transparent}
+.cargo-single .cargo-viewport{height:340px}

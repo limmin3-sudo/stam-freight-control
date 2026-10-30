@@ -16,7 +16,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  // Controls: zoom toward the cursor, large wheel steps, screen-space panning (right drag / shift+drag).
  Object.assign(controls,{zoomToCursor:true,zoomSpeed:4,rotateSpeed:.55,panSpeed:1.1,screenSpacePanning:true,dampingFactor:.12,minDistance:.00003,minPolarAngle:.03,maxPolarAngle:Math.PI-.03});
  const group=new THREE.Group(),routes=new THREE.Group();scene.add(group,routes);
- let system='stanton',bodies=[],labels=[],dots=null,dotLocs=[],route=null,activeIndex=-1,selected=null,hovered=null,extent=80,fly=null,legLabel=null;
+ const meshById=new Map();let system='stanton',bodies=[],labels=[],dots=null,dotLocs=[],route=null,activeIndex=-1,selected=null,hovered=null,extent=80,fly=null,legLabel=null;
  const byId=new Map(data.locations.map(l=>[l.id,l])),children=new Map();for(const l of data.locations)if(l.parentId){const a=children.get(l.parentId)||[];a.push(l);children.set(l.parentId,a);}
  const xyz=l=>new THREE.Vector3(l.position[0]/UNIT,l.position[2]/UNIT,-l.position[1]/UNIT);
  const backdrop=createBackdrop(scene);let painted='';renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;scene.traverse(o=>{if(o.isAmbientLight)o.intensity=.32;if(o.isDirectionalLight)o.intensity=0;});const starLight=new THREE.PointLight(0xffffff,3.2,0,0);scene.add(starLight);
@@ -25,7 +25,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function routeIds(){return new Set(route?.visits.flatMap(v=>[v.locationId,...v.leg.nodes])||[]);}
  function visitNumbers(id){return route?.visits.map((v,i)=>v.locationId===id?i+1:null).filter(Boolean)||[];}
  function draw(reset=true){
-  clearGroup(group);clearGroup(routes);labelContainer.replaceChildren();bodies=[];labels=[];legLabel=null;const onRoute=routeIds();
+  clearGroup(group);clearGroup(routes);labelContainer.replaceChildren();bodies=[];meshById.clear();labels=[];legLabel=null;const onRoute=routeIds();
   const locations=data.locations.filter(l=>l.system===system);extent=Math.max(30,...locations.filter(l=>l.type==='Planet'||l.isGateway).map(l=>xyz(l).length()));controls.maxDistance=extent*6;
   if(painted!==system){painted=system;backdrop.paint(system);starLight.color.set(STAR_COLORS[system]||'#ffffff');}
   const grid=new THREE.PolarGridHelper(extent*1.08,12,5,100,0x203c50,0x152c40);grid.material.transparent=true;grid.material.opacity=.16;group.add(grid);
@@ -35,7 +35,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
   // Spheres for star, planets, moons and gateways.
   for(const l of locations){const isStar=l.type==='Star',body=['Planet','Moon'].includes(l.type);if(!isStar&&!body&&!l.isGateway)continue;const important=onRoute.has(l.id)||l.isGateway,starColor=STAR_COLORS[system]||'#fff0cf';
    const material=isStar?new THREE.MeshBasicMaterial({color:starColor}):body?new THREE.MeshStandardMaterial({map:surfaceTexture(l.name,l.type),roughness:.92,metalness:0}):new THREE.MeshStandardMaterial({color:'#8fa3e5',roughness:.6,metalness:.3,emissive:'#3b4f9a',emissiveIntensity:.8});
-   const mesh=new THREE.Mesh(l.isGateway?new THREE.OctahedronGeometry(1,0):new THREE.SphereGeometry(1,l.type==='Planet'?64:32,l.type==='Planet'?40:20),material);mesh.position.copy(xyz(l));mesh.rotation.z=l.type==='Planet'?.2:0;mesh.userData.location=l;mesh.userData.trueRadius=(RADIUS_KM[l.name]||(l.type==='Moon'?250:l.type==='Planet'?1000:0))*1000/UNIT;group.add(mesh);bodies.push(mesh);
+   const mesh=new THREE.Mesh(l.isGateway?new THREE.OctahedronGeometry(1,0):new THREE.SphereGeometry(1,l.type==='Planet'?64:32,l.type==='Planet'?40:20),material);mesh.position.copy(xyz(l));mesh.rotation.z=l.type==='Planet'?.2:0;mesh.userData.location=l;meshById.set(l.id,mesh);mesh.userData.trueRadius=(RADIUS_KM[l.name]||(l.type==='Moon'?250:l.type==='Planet'?1000:0))*1000/UNIT;group.add(mesh);bodies.push(mesh);
    if(isStar){mesh.add(glowSprite(starColor,6,1));mesh.add(glowSprite(starColor,24,.3));}
    else if(l.type==='Planet'){const atmo=atmosphereColor(l.name);if(atmo)mesh.add(glowSprite(atmo,4.9,.95,true));}
    else if(l.isGateway)mesh.add(glowSprite('#8fa3ff',5,.6));
@@ -50,7 +50,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
   for(const l of locations){if(l.type==='Star'&&!/^(Stanton|Pyro|Nyx)$/.test(l.name))continue;const n=visitNumbers(l.id),important=onRoute.has(l.id);const b=document.createElement('button');b.type='button';b.className='celestial-label'+(important?' route-point':'')+(['Planet','Star'].includes(l.type)?' major':'');b.textContent=(n.length?n.join(',')+' · ':'')+(l.isGateway&&important?'⇄ ':'')+l.name;b.setAttribute('aria-label',l.name+' 위치로 이동');b.addEventListener('click',()=>{select(l);flyTo(l.id);});b.addEventListener('mouseenter',()=>hover(l));b.addEventListener('mouseleave',()=>hover(null));labelContainer.append(b);
    const priority=important?5:l.type==='Star'?4:l.type==='Planet'?3.5:l.isGateway?3:l.type==='LandingZone'?2.6:l.type==='Moon'?2.5:/Manmade/.test(l.type)?2:l.type==='Outpost'?1:.5;
    const parent=byId.get(l.parentId),surfaceOf=parent&&['Planet','Moon'].includes(parent.type)&&!['Planet','Moon','Star'].includes(l.type)?xyz(parent):null;
-   labels.push({el:b,loc:l,pos:xyz(l),priority,surfaceOf,always:important||['Star','Planet'].includes(l.type)||l.isGateway});}
+   labels.push({el:b,loc:l,pos:xyz(l),priority,surfaceOf,mesh:null,shown:false,always:important||['Star','Planet'].includes(l.type)||l.isGateway});}
+  for(const l of labels)l.mesh=meshById.get(l.loc.id)||null;
   // Route legs.
   if(route){for(let i=0;i<route.visits.length;i++){const v=route.visits[i],ids=v.leg.nodes,active=i===activeIndex;for(let j=1;j<ids.length;j++){const a=byId.get(ids[j-1]),b=byId.get(ids[j]);if(a?.system!==system||b?.system!==system)continue;const from=xyz(a),to=xyz(b),color=active?0xffc67c:0x64dfe2;
     const mid=from.clone().lerp(to,.5),lift=from.distanceTo(to)*.08;mid.y+=lift;const curve=new THREE.QuadraticBezierCurve3(from,mid,to);routes.add(line(curve.getPoints(48),color,active?1:.6));
@@ -99,15 +100,18 @@ export function createStarMap(container,labelContainer,data,onSelect){
   for(const m of bodies){const d=camera.position.distanceTo(m.position),type=m.userData.location.type,pixels=type==='Star'?16:type==='Planet'?11:type==='Moon'?5:4;if(type==='Planet'||type==='Moon')m.rotation.y+=.0008;const zoom=Math.min(4,Math.max(1,Math.pow(extent/Math.max(d,1e-7),.3))),minR=pixels*(type==='Planet'||type==='Star'?zoom:type==='Moon'?Math.min(zoom,2):1)/pxPerUnit(d);const r=Math.max(minR,m.userData.trueRadius||0);m.scale.setScalar(r);m.userData.screenRadius=r*pxPerUnit(d);}
   if(dots)dots.material.size=camDist<.05?6:camDist<2?5:3.5;
   // Labels: always-on ones first, then nearby details as you zoom in.
-  const used=[];for(const l of labels.sort((a,b)=>b.priority-a.priority)){const d=camera.position.distanceTo(l.pos);let reveal=l.always||l.loc.id===selected||l.loc===hovered||(l.priority>=2.5?d<extent*.45:l.priority>=2?d<.05:d<.006);
-   // Hide sites on the far side of their planet or moon (horizon test).
-   if(reveal&&l.surfaceOf&&l.loc.id!==selected){const n=tmp.copy(l.pos).sub(l.surfaceOf),R=n.length();if(R>0&&n.dot(camera.position.clone().sub(l.surfaceOf))/R<R*.97)reveal=false;}if(!reveal){l.el.style.display='none';continue;}
-   const s=screenOf(l.pos);const bw=l.el.offsetWidth||90,hit=rc=>used.some(r=>rc.x<r.x+r.w+3&&rc.x+rc.w+3>r.x&&rc.y<r.y+r.h+2&&rc.y+rc.h+2>r.y);let rect={x:s.x-bw/2,y:s.y+11,w:bw,h:22};
-   // Try below, above, right, left of the point before hiding the label.
-   if(hit(rect))for(const alt of [{x:s.x-bw/2,y:s.y-33},{x:s.x+12,y:s.y-11},{x:s.x-bw-12,y:s.y-11}]){const rc={...alt,w:bw,h:22};if(!hit(rc)){rect=rc;break;}}
-   const ok=s.front&&s.x>0&&s.x<w&&s.y>40&&s.y<h-40&&(l.loc.id===selected||!hit(rect));
-   l.el.style.display=ok?'block':'none';if(ok){l.el.style.left=(rect.x+bw/2)+'px';l.el.style.top=rect.y+'px';l.el.classList.toggle('selected',l.loc.id===selected);used.push(rect);}}
-  if(legLabel){const s=screenOf(legLabel.pos);legLabel.el.style.display=s.front?'block':'none';legLabel.el.style.left=s.x+'px';legLabel.el.style.top=(s.y-26)+'px';}
+  // Labels stay pinned directly under their object (below the drawn disk for planets/moons).
+  // Overlaps hide the lower-priority label instead of moving it, so a name never drifts onto another body.
+  const used=[];for(const l of labels.sort((a,b)=>(b.priority+(b.shown?.3:0))-(a.priority+(a.shown?.3:0)))){const d=camera.position.distanceTo(l.pos);let reveal=l.always||l.loc.id===selected||l.loc===hovered||(l.priority>=2.5?d<extent*.45:l.priority>=2?d<.05:d<.006);
+   if(reveal&&l.surfaceOf&&l.loc.id!==selected){const n=tmp.copy(l.pos).sub(l.surfaceOf),R=n.length();if(R>0&&n.dot(camera.position.clone().sub(l.surfaceOf))/R<R*.97)reveal=false;}
+   if(!reveal){l.el.style.display='none';l.shown=false;continue;}
+   const s=screenOf(l.pos),gap=(l.mesh?.userData.screenRadius||3)+5,bw=l.el.offsetWidth||90,rect={x:s.x-bw/2,y:s.y+gap,w:bw,h:20,sx:s.x,sy:s.y};
+   const hitOf=rc=>used.find(r=>rc.x<r.x+r.w+2&&rc.x+rc.w+2>r.x&&rc.y<r.y+r.h+1&&rc.y+rc.h+1>r.y);
+   // Names of objects sharing the same spot (a station at its planet) stack under that label; others hide.
+   let blocker=hitOf(rect),tries=0;while(blocker&&tries<4&&Math.hypot(blocker.sx-s.x,blocker.sy-s.y)<Math.max(14,blocker.gap||0)){rect.x=blocker.sx-bw/2;rect.y=blocker.y+blocker.h+1;blocker=hitOf(rect);tries++;}
+   const ok=s.front&&s.x>0&&s.x<w&&rect.y>36&&rect.y<h-36&&(l.loc.id===selected||!blocker);
+   l.el.style.display=ok?'block':'none';l.shown=ok;if(ok){l.el.style.transform=`translate(${Math.round(rect.x+bw/2)}px,${Math.round(rect.y)}px) translate(-50%,0)`;l.el.classList.toggle('selected',l.loc.id===selected);rect.gap=gap;used.push(rect);}}
+  if(legLabel){const s=screenOf(legLabel.pos);legLabel.el.style.display=s.front?'block':'none';legLabel.el.style.transform=`translate(${Math.round(s.x)}px,${Math.round(s.y-26)}px) translate(-50%,0)`;}
   renderer.render(scene,camera);}
  renderer.domElement.style.cursor='grab';container.parentElement.tabIndex=-1;
  draw();animate();
