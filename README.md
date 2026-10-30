@@ -6,6 +6,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 - 소스: https://github.com/limmin3-sudo/verse-hauler
 - **공통 개발 규칙:** [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 - **현재 작업 상태:** [PROJECT_STATUS.md](PROJECT_STATUS.md)
+- **저장소 이름 변경 인계(미완료):** [docs/REPOSITORY-RENAME.md](docs/REPOSITORY-RENAME.md)
 - **AI 시작 지침:** [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md)
 - **개발 인수인계:** [docs/CLOUD-HANDOFF.md](docs/CLOUD-HANDOFF.md)
 - **Codex Cloud 시작 프롬프트:** [docs/CLOUD-START-PROMPT.md](docs/CLOUD-START-PROMPT.md)
