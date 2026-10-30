@@ -154,6 +154,8 @@ Star Citizen의 운송 미션을 여러 개 수주했을 때 스크린샷을 올
 | `vh-storage-note` | 적재 메모 |
 | `vh-map-quality` | 그래픽 품질. 기기 성능별 설정으로 둘 수 있음 |
 | `vh-api` | 선택적 AI 서버 주소. 인증 토큰·API 키와 구분 |
+| `sfc-history` | 완료한 운항 기록(함선·계약·보상·시간). 계정 동기화 대상 |
+| `vh-guest-backup`, `vh-account-meta` | 로그인 전 게스트 데이터 보관, 마지막 동기화 상태. 기기 전용 |
 
 API 접속 토큰은 현재 탭 메모리에서 다루며, OpenAI API 키는 서버 환경 변수다. 전체 localStorage를 무차별적으로 클라우드에 복사하지 않는다. 스크린샷 축소본을 하나의 거대한 설정 문서에 넣지 않는다.
 
