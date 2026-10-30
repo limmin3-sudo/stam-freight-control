@@ -26,7 +26,7 @@ test('a near-full Hull B still packs every box',()=>{
 
 // Planned with the full load in mind: cargo picked up at different stops for the same destination
 // still lands in one block of neighbouring grids instead of being scattered around the hull.
-test('route plan reserves neighbouring grids per destination from the fully loaded layout',async()=>{
+test('route plan keeps each destination in one connected block of grids from the fully loaded layout',async()=>{
  const fs=await import('node:fs'),{planRoute}=await import('../engine.mjs');
  const game=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url)));
  const id=name=>game.locations.find(l=>l.name===name).id,c=(scu,p,d)=>({scu,pickupId:id(p),dropoffId:id(d),commodity:'x',boxes:[]});
@@ -39,5 +39,8 @@ test('route plan reserves neighbouring grids per destination from the fully load
  const peak=plan.visits.reduce((a,v)=>v.load>a.load?v:a),bins=new Map();
  for(const b of peak.packing.boxes)(bins.get(b.dropoffId)||bins.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);
  const owners=new Map();for(const [dest,set]of bins)for(const bin of set){assert.ok(!owners.has(bin),`grid ${bin} holds two destinations`);owners.set(bin,dest);}
- for(const [dest,set]of bins){const list=[...set].sort((x,y)=>x-y);assert.equal(list.at(-1)-list[0]+1,list.length,`${dest} grids not adjacent: ${list}`);}
+ // Grids of one destination must form one connected block: each grid within 2 cells of another one of them.
+ const box=ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];}),gap=(a,b)=>Math.hypot(...box[a].map(([a0,a1],k)=>Math.max(0,box[b][k][0]-a1,a0-box[b][k][1])));
+ for(const [dest,set]of bins){const list=[...set],seen=new Set([list[0]]),todo=[list[0]];while(todo.length){const a=todo.pop();for(const b of list)if(!seen.has(b)&&gap(a,b)<=2){seen.add(b);todo.push(b);}}
+  assert.equal(seen.size,list.length,`${dest} grids are split apart: ${list.map(i=>ship.grids[i].name).join(', ')}`);}
 });

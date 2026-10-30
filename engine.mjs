@@ -36,20 +36,46 @@ export function boxDepth(ship,p,bounds=shipBounds(ship)){const g=ship.grids[p.bi
  // external (Hull B): reached from the outward face of each grid.
  if(g._stack==='out')return g.h-(p.cell[1]+p.dims[1]);const outward=g.x+g.w/2<0?-1:1;return outward<0?p.cell[0]:g.w-(p.cell[0]+p.dims[0]);}
 export function shipBounds(ship){let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;for(const g of ship.grids){minX=Math.min(minX,g.x);maxX=Math.max(maxX,g.x+g.w);minZ=Math.min(minZ,g.z);maxZ=Math.max(maxZ,g.z+g.l);}return {minX,maxX,minZ,maxZ};}
+const walkCache=new WeakMap();
+export function gridWalk(ship){if(walkCache.has(ship))return walkCache.get(ship);
+ const box=ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];}),mid=b=>b.map(([a,c])=>(a+c)/2);
+ const gap=(a,b)=>Math.hypot(...a.map(([a0,a1],k)=>Math.max(0,b[k][0]-a1,a0-b[k][1]))),dist=(a,b)=>Math.hypot(...mid(a).map((v,k)=>v-mid(b)[k]));
+ const pos=Array(box.length),left=new Set(box.keys());let at=0;
+ for(let n=0;n<box.length;n++){pos[at]=n;left.delete(at);let next=null;for(const j of left)if(next===null||gap(box[at],box[j])-gap(box[at],box[next])<-1e-9||(Math.abs(gap(box[at],box[j])-gap(box[at],box[next]))<1e-9&&dist(box[at],box[j])<dist(box[at],box[next])))next=j;at=next;}
+ walkCache.set(ship,pos);return pos;}
+// Pack everything that will ever be aboard together, trying a few destination orders, and keep the layout
+// whose destinations are least spread out (largest surface gap between grids of the same destination).
+export function fullLoadLayout(groups,fixed,ship){
+ const box=ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];}),gap=(a,b)=>Math.hypot(...box[a].map(([a0,a1],k)=>Math.max(0,box[b][k][0]-a1,a0-box[b][k][1])));
+ const per=Math.max(1,ship.grids.reduce((n,g)=>n+g.w*g.h*g.l,0)/ship.grids.length),dests=new Map();
+ for(const {items,rank}of groups)for(const b of items){const d=dests.get(b.dropoffId)||dests.set(b.dropoffId,{id:b.dropoffId,rank,scu:0}).get(b.dropoffId);d.scu+=b.size;}
+ const list=[...dests.values()],size=d=>Math.ceil(d.scu/per),bySize=(a,b)=>size(b)-size(a)||b.rank-a.rank;
+ const orders=[[...list].sort((a,b)=>b.rank-a.rank),[...list].sort(bySize),[...list].sort((a,b)=>size(a)%2-size(b)%2||bySize(a,b)),[...list].sort((a,b)=>size(b)%2-size(a)%2||bySize(a,b))];
+ let best=null,seen=new Set();
+ for(const order of orders){const key=order.map(d=>d.id).join();if(seen.has(key))continue;seen.add(key);const at=new Map(order.map((d,i)=>[d.id,order.length>1?1-i/(order.length-1):0]));
+  const packed=packBoxes(groups.flatMap(g=>g.items.map(b=>({...b,rank:at.get(b.dropoffId)}))),fixed,ship);if(!packed)continue;
+  const binsOf=new Map(),owners=new Map();for(const b of packed.boxes){(binsOf.get(b.dropoffId)||binsOf.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);(owners.get(b.bin)||owners.set(b.bin,new Set()).get(b.bin)).add(b.dropoffId);}
+  let score=0;for(const set of binsOf.values()){const l=[...set];let m=0;for(const a of l)for(const c of l)m=Math.max(m,gap(a,c));score+=m;}for(const o of owners.values())if(o.size>1)score+=100;
+  if(!best||score<best.score)best={score,packed};}
+ return best?.packed||null;}
 export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const bins=makeBins(ship);const limit=capacity(ship);const placed=[...fixed];
  if([...items,...fixed].reduce((a,b)=>a+b.size,0)>limit)return null;
  for(const p of fixed){const b=bins[p.bin];if(!b||!p.dims||!p.cell||p.size>b.grid.maxBoxSize||!occupy(b,p.cell,p.dims))return null;b.boxes.push(p);b.used+=p.size;}
  const share=opts.share??sharesGrids(ship),ranked=!opts.dense&&items.some(it=>Number.isFinite(it.rank)),bounds=shipBounds(ship),maxDepth=Math.max(1,shipAccess(ship)==='external'?2:shipAccess(ship)==='left'||shipAccess(ship)==='right'?bounds.maxX-bounds.minX:bounds.maxZ-bounds.minZ);
+ // Walk the grids nearest-first (gap between grid surfaces, then centre distance) so neighbours in this walk
+ // touch in the ship. Each destination fills a run of the walk, keeping its colour in one block.
+ const walk=gridWalk(ship),near=(i,set)=>set.length?Math.min(...set.map(j=>Math.abs(walk[i]-walk[j]))):walk[i];
  // Later deliveries first, so they end up deep inside; biggest boxes first within the same delivery.
  const sorted=[...items].sort((a,b)=>(ranked?(b.rank??0)-(a.rank??0):0)||b.size-a.size||String(a.missionId).localeCompare(String(b.missionId)));
- for(const item of sorted){let best=null;
+ for(const item of sorted){let best=null;const ownBins=[],usedBins=[];bins.forEach((b,i)=>{if(b.used)usedBins.push(i);if(b.boxes.some(p=>sameGroup(p,item,true)))ownBins.push(i);});
+  const emptyCost=i=>25+(ownBins.length?3*near(i,ownBins):.5*walk[i]);
   const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
   search:for(const {b,index,own,other} of order){const grid=b.grid;
    for(const d of orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;
     for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y++)for(let x=0;x<=grid.w-d[0];x++){const cell=[x,y,z];if(!occupy(b,cell,d,true)||!supported(b,cell,d))continue;
      if(!ranked){best={index,cell,d};break search;}
-     const depth=boxDepth(ship,{bin:index,cell,dims:d},bounds),target=(item.rank??0)*maxDepth,score=Math.abs(depth-target)*10+y*.5+(opts.zones?.get(item.dropoffId)?.has(index)===false?100:0)+(share?(own?(other?5:0):other?60:25):(own?0:other?6:2))+index*.01+(x%d[0]?4:0)+(z%d[2]?4:0)+(y%d[1]?4:0);
+     const depth=boxDepth(ship,{bin:index,cell,dims:d},bounds),target=(item.rank??0)*maxDepth,score=Math.abs(depth-target)*10+y*.5+(opts.zones?.get(item.dropoffId)?.has(index)===false?100:0)+(share?(own?(other?5:0):other?60:emptyCost(index)):(own?0:other?6:2))+index*.01+(x%d[0]?4:0)+(z%d[2]?4:0)+(y%d[1]?4:0);
      if(!best||score<best.score)best={score,index,cell,d};}}}
   if(!best&&ranked)return packBoxes(items,fixed,ship,{...opts,dense:true});
   if(!best)return share||!sharesGrids(ship)||opts.noFallback?null:packBoxes(items,fixed,ship,{...opts,share:true});
@@ -160,7 +186,7 @@ export function planRoute(data,missions,startId,settings={}){
  for(const a of deliveries)deliveryStep.set(a.shipmentIndex,stops.indexOf(a.locationId));
  const rankOf=i=>stops.length>1?deliveryStep.get(i)/(stops.length-1):0;let replay=startPacking,replayed=[];
  // Lay out everything as if it were all aboard at once, grouped by destination, and reserve those grids per destination.
- const picked=[...new Set(best.actions.filter(a=>a.type==='pickup').map(a=>a.shipmentIndex))],full=packBoxes(picked.flatMap(i=>shipments[i].boxes.map(b=>({...b,rank:rankOf(i)}))),startPacking.boxes,opt.ship),zones=full&&new Map();
+ const picked=[...new Set(best.actions.filter(a=>a.type==='pickup').map(a=>a.shipmentIndex))],full=fullLoadLayout(picked.map(i=>({items:shipments[i].boxes,rank:rankOf(i)})),startPacking.boxes,opt.ship),zones=full&&new Map();
  if(full)for(const b of full.boxes)(zones.get(b.dropoffId)||zones.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);
  for(const a of best.actions){if(a.type==='waypoint'){replayed.push(replay);continue;}const s=shipments[a.shipmentIndex];replay=a.type==='pickup'?packBoxes(s.boxes.map(b=>({...b,rank:rankOf(a.shipmentIndex)})),replay.boxes,opt.ship,{zones}):packBoxes([],replay.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)),opt.ship);if(!replay){replayed=null;break;}replayed.push(replay);}
  const blockedCount=packs=>{let total=0,prev=startPacking;best.actions.forEach((a,i)=>{if(a.type==='delivery'){const leaving=new Set(shipments[a.shipmentIndex].boxes.map(b=>b.boxId)),stay=prev.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==shipments[a.shipmentIndex].dropoffId);for(const b of prev.boxes)if(leaving.has(b.boxId))total+=blockersOf(opt.ship,b,stay,bounds0).length;}prev=packs[i];});return total;};

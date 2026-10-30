@@ -67,7 +67,9 @@ export function createCargoView(container){
     const wall=new THREE.Mesh(box,new THREE.MeshBasicMaterial({color:0x3fbfe6,transparent:true,opacity:.045,depthWrite:false,side:THREE.DoubleSide}));group.add(wall);
     const pts=[];for(let x=1;x<g.w;x++)pts.push(x-g.w/2,-g.h/2,-g.l/2,x-g.w/2,-g.h/2,g.l/2);for(let z=1;z<g.l;z++)pts.push(-g.w/2,-g.h/2,z-g.l/2,g.w/2,-g.h/2,z-g.l/2);if(pts.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));group.add(glowLine(lg,0x4fa9c6,.5));}
     const plate=new THREE.Mesh(new THREE.PlaneGeometry(g.w,g.l),new THREE.MeshBasicMaterial({color:0x1b4a60,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false}));plate.rotation.x=-Math.PI/2;plate.position.y=-g.h/2+.01;group.add(plate);
-    v.frame.add(group);v.cages.push(group);addLabel(v,short[i],group.position.clone().add(new THREE.Vector3(0,g.h/2+.45,0)),'cargo-zone-label',i);});
+    v.frame.add(group);v.cages.push(group);// Long side-by-side grids (Hull B style) get their name at the outer end so it never sits on top of the boxes.
+    const atEnd=ship.grids.length>1&&g.l>=Math.max(g.w,g.h)*2,labelAt=atEnd?new THREE.Vector3(group.position.x,group.position.y,group.position.z<c.z?g.z-.7:g.z+g.l+.7):group.position.clone().add(new THREE.Vector3(0,g.h/2+.45,0));
+    addLabel(v,short[i],labelAt,'cargo-zone-label',i);});
    home(v);}
  }
  const frameMat=new THREE.MeshStandardMaterial({color:0x1a2228,metalness:.75,roughness:.35});
@@ -75,7 +77,7 @@ export function createCargoView(container){
  function update(packing,options={}){nameOf=options.nameOf||nameOf;const next=options.ship||DEFAULT_SHIP,key=JSON.stringify(next);if(key!==profileKey){profileKey=key;model(next);}
   const now=new Set((packing?.boxes||[]).map(b=>b.boxId)),fresh=new Set([...now].filter(id=>!lastBoxes.has(id)));lastBoxes=now;dropStart=performance.now();
   for(const v of views){clearGroup(v.boxes);v.cages.forEach((c,i)=>c.visible=allowed(v,i)&&(!options.hideEmpty||!!packing?.bins[i]?.boxes.length));
-   v.labels.forEach(l=>{if(l.bin>=0){const b=packing?.bins[l.bin],cap=ship.grids[l.bin].w*ship.grids[l.bin].h*ship.grids[l.bin].l,used=b?.used||0;l.element.innerHTML=`<b>${l.element.dataset.name||(l.element.dataset.name=l.element.textContent)}</b><i style="--fill:${Math.round(used/cap*100)}%"></i><small>${used}/${cap}</small>`;}});
+   v.labels.forEach(l=>{if(l.bin>=0){const b=packing?.bins[l.bin],cap=ship.grids[l.bin].w*ship.grids[l.bin].h*ship.grids[l.bin].l,used=b?.used||0;l.element.innerHTML=`<b>${l.element.dataset.name||(l.element.dataset.name=l.element.textContent)}</b><small>${used}/${cap}</small>`;}});
    v.badges?.forEach(b=>b.element.remove());v.badges=[];
    for(const p of packing?.boxes||[]){if(!allowed(v,p.bin))continue;const g=ship.grids[p.bin],muted=options.boxIds?!options.boxIds.includes(p.boxId):options.missionId&&p.missionId!==options.missionId,focus=options.boxIds?.includes(p.boxId)||options.focusIds?.includes(p.boxId);
     const center=new THREE.Vector3(p.cell[0]+p.dims[0]/2-g.w/2,p.cell[1]+p.dims[1]/2-g.h/2,p.cell[2]+p.dims[2]/2-g.l/2),origin=v.cages[p.bin],boxGroup=new THREE.Group();boxGroup.position.copy(origin.position);boxGroup.rotation.copy(origin.rotation);
