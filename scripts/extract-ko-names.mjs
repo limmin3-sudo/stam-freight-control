@@ -1,4 +1,5 @@
-// Builds data/ko-names.json ({한글 지명: English data name}) from a Korean community patch global.ini.
+// Builds data/ko-names.json ({한글 지명: English data name}) from the Korean patch global.ini of
+// 스타 시티즌 유저 한국어 프로젝트 (https://sc.galaxyhub.kr/).
 // Only place names are extracted; the patch file itself is never committed. Usage:
 //   node scripts/extract-ko-names.mjs <global.ini> [data/locations.json] [data/ko-names.json]
 // Credit the patch in README (출처 표시, 비영리 사용 조건).

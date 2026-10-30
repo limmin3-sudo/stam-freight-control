@@ -75,7 +75,7 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 - Three.js: MIT, `vendor/THREE-LICENSE.txt` 유지.
 - 참고한 도구와 리뷰 영상: [REFERENCE-NOTES.md](REFERENCE-NOTES.md), [인수인계](docs/CLOUD-HANDOFF.md).
 - 파트너 사진: 생성한 가상 성인 인물, `assets/partners/`에 포함.
-- 한글 지명: 스타시티즌 한국어 커뮤니티 패치(`global.ini`)에서 **지명만** 추출한 `data/ko-names.json`. 패치 제작자의 출처 표시·비영리 사용 조건에 따르며, 패치 원본 파일은 저장소에 포함하지 않습니다. 갱신: `node scripts/extract-ko-names.mjs <global.ini>`.
+- 한글 지명: [스타 시티즌 유저 한국어 프로젝트](https://sc.galaxyhub.kr/)의 한국어 패치(`global.ini`)에서 **지명만** 추출한 `data/ko-names.json`. 패치 제작자의 출처 표시·비영리 사용 조건에 따르며, 패치 원본 파일은 저장소에 포함하지 않습니다. 갱신: `node scripts/extract-ko-names.mjs <global.ini>`.
 
 이 사이트는 비영리 팬 도구입니다. 앱 소스는 MIT이며 게임 데이터·Star Citizen 관련 자산의 권리는 별개로 각 권리자에게 있습니다. Cloud Imperium Games와 무관한 팬 도구입니다.
 
