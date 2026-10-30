@@ -7,7 +7,7 @@ const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
 const KEY='sfc-run';
 
-export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nameOf}){
+export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nameOf,onFinish}){
  let plan=null,names=new Map(),run=load()||blank();
  function blank(){return {planKey:'',index:0,log:[],started:false,elapsed:0,since:null,finished:false,picked:[],delivered:[],aboard:[],startId:null};}
  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null');}catch{return null;}}
@@ -44,11 +44,11 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   tick();}
  function tick(){if(!plan||run.finished)return;const c=root.querySelector('#run-clock');if(!c)return;const sec=elapsed();c.textContent=mmss(sec);const left=remainingSeconds();root.querySelector('#run-left').textContent=left?`${Math.max(1,Math.round(left/60*.8))}–${Math.ceil(left/60*1.3)}분`:'0분';
   const reward=plan.totalReward||0,proj=sec+left;root.querySelector('#run-rate').textContent=reward&&run.started&&sec>30?fmt(reward/(proj/3600))+' aUEC':reward?'출항 후 계산':'보상 미입력';}
- function complete(){if(!plan||run.finished)return;const v=plan.visits[run.index],now=elapsed();if(!run.started){run.started=true;run.since=Date.now();run.startId=v.locationId;}
+ function complete(){if(!plan||run.finished)return;const v=plan.visits[run.index],now=elapsed();if(!run.started){run.started=true;run.startedAt=Date.now();run.since=Date.now();run.startId=v.locationId;}
   const prevAt=run.log.length?run.log.at(-1).at:0;run.log.push({visit:run.index,locationId:v.locationId,name:nm(v.locationId),at:now,seconds:Math.max(0,now-prevAt),est:v.seconds,events:v.events.map(e=>({type:e.type,shipmentId:e.shipmentId}))});
   for(const e of v.events){if(e.type==='pickup'&&!run.picked.includes(e.shipmentId))run.picked.push(e.shipmentId);if(e.type==='delivery'&&!run.delivered.includes(e.shipmentId))run.delivered.push(e.shipmentId);}run.aboard=v.packing?.boxes||[];
   const kind=kindOf(v);run.index++;
-  if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();return;}
+  if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();onFinish?.({id:`${run.planKey}|${run.startedAt||run.startId||''}`,seconds:run.elapsed,startId:run.startId,stops:plan.visits.length});return;}
   const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
   run.lastLine=V().next(nm(v.locationId),kind==='pickup'?'접수':kind==='delivery'?'배송':'작업',nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(n.leg.jumps?V().jump((n.leg.gateways||[])[0]||'게이트웨이'):'')+(unload.length?V().cargo(true,[...new Set(unload.map(e=>e.missionId))].join(', ')):load.length?V().cargo(false,[...new Set(load.map(e=>e.missionId))].join(', ')):'');
   save();render();onAdvance?.(run.index);}
