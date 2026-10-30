@@ -13,7 +13,7 @@
 ## 제품에서 보존할 규칙
 
 - Use natural Korean in conversation and polite Korean in the UI.
-- Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts.
+- Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts. Collect every feasible shipment at a pickup before departing; batch source-system pickups before crossing when capacity permits. Prefer destination-adjacent compact packing and shared free cells in automatic mode; preserve explicit shareGrids:false. Primary colour labels show destinations; mission IDs remain available for delivery checks.
 - Preserve aboard cargo positions when resuming or recalculating an active run. Never silently erase missions or progress.
 - Keep cargo views grid-only unless exact authorized ship exteriors are available. Every hold, Hull B included, uses one rotatable 3D view with port/starboard labels (user decision 2026-10-30). Preserve orientation and access guides. Cargo attaches per ship (user decision 2026-10-30): flat holds stack up from the floor, Hull B and Hull C attach to the spine and stack outward/sideways, the RAFT hangs from the top (`STACK_BY_SHIP`/`withStacking` in ships.mjs).
 - Keep bloom disabled. Warm stellar surfaces and a thin corona replace white clipping. Pyro is orange/amber (not deep red), Stanton teal-blue, Nyx indigo/violet.
@@ -22,7 +22,7 @@
 - Select drive defaults by actual slot: Atlas S1, Hemera S2, Erebos S3, sourced factory equipment for larger slots. Support factory/recommended/manual presets and per-ship overrides. Custom grid profiles retain performanceId.
 - Quantum transit depends on the drive; SCM/NAV speeds affect approach estimates. Do not invent a generic large-ship speed multiplier. Approach distances and average-speed factors are planning assumptions.
 - Preserve personal location management, aliases and the validated daily coordinate refresh workflow.
-- Existing storage is browser-local. Google login and account synchronization are not implemented. Firebase was proposed, but no connection or project is confirmed. Do not claim login works before integrating and testing it.
+- Guest data is browser-local; optional Firebase account login/synchronization is implemented and connected (see PROJECT_STATUS.md for verification scope). Preserve guest/account separation, conflict selection and per-user rules. Do not claim Google popup login or cross-device behavior is tested without actual evidence.
 - Do not assume this Cloud environment has earlier local chats, browser sessions, credentials, personal settings or screenshots.
 - Never publish secrets, local account paths, private conversation dumps or user screenshots. Keep necessary operational handoff documentation free of personal-machine details.
 
