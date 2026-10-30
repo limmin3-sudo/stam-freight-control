@@ -27,7 +27,7 @@ jobs:
       - name: Assemble public files only
         run: |
           mkdir public
-          cp index.html style.css *.mjs public/
+          cp index.html style.css icon.svg *.mjs public/
           cp -R data vendor public/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5

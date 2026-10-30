@@ -32,3 +32,11 @@ test('later deliveries are stowed deeper than earlier ones (rear ramp)',()=>{ass
  const avg=id=>{const b=loaded.filter(x=>x.missionId===id);return b.reduce((a,x)=>a+boxDepth(zeus,x),0)/b.length;};assert.ok(avg(first)<avg(last),`${first} ${avg(first)} vs ${last} ${avg(last)}`);
  assert.ok(p.visits.every(v=>!v.blocked?.length),'no box should be blocked: '+JSON.stringify(p.visits.map(v=>v.blocked)));assert.equal(p.visits[0].loadOrder.length,8);});
 test('a box stacked on top or nearer the door is reported as a blocker',()=>{const deep={boxId:'d',missionId:'A',bin:0,cell:[0,0,0],dims:[2,2,2],size:8},front={boxId:'f',missionId:'B',bin:0,cell:[0,0,6],dims:[2,2,2],size:8},side={boxId:'s',missionId:'B',bin:0,cell:[3,0,6],dims:[2,2,2],size:8};const b=blockersOf(zeus,deep,[front,side]).map(x=>x.boxId);assert.deepEqual(b,['f']);});
+
+test('resume keeps aboard cargo in place and only plans what is left',()=>{const ms=[mission('A',[cargo(32,find('Everus Harbor'),find('Seraphim Station'),[{size:16,count:2}])]),mission('B',[cargo(32,find('Everus Harbor'),find('Baijini Point'),[{size:16,count:2}])])];
+ const first=planRoute(data,ms,find('Everus Harbor'));const v0=first.visits[0];assert.equal(v0.events.filter(e=>e.type==='pickup').length,2);
+ const picked=v0.events.map(e=>e.shipmentId);const p=planRoute(data,ms,find('Everus Harbor'),{resume:{picked,delivered:[],aboard:v0.packing.boxes}});
+ assert.ok(p.visits.every(v=>v.events.every(e=>e.type==='delivery')));assert.equal(p.visits.length,2);
+ const kept=new Map(v0.packing.boxes.map(b=>[b.boxId,b.cell.join()+'|'+b.bin]));for(const b of p.visits[0].packing.boxes.concat(...[]))if(kept.has(b.boxId))assert.equal(kept.get(b.boxId),b.cell.join()+'|'+b.bin);
+ const done=planRoute(data,ms,find('Seraphim Station'),{resume:{picked,delivered:[picked.find(id=>id.startsWith('A'))],aboard:v0.packing.boxes}});assert.equal(done.visits.length,1);assert.equal(done.visits[0].events[0].missionId,'B');
+ assert.throws(()=>planRoute(data,ms,find('Everus Harbor'),{resume:{picked,delivered:picked}}),/남은 운송/);});

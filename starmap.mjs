@@ -19,19 +19,21 @@ function damp(cur,target,vel,key,time,dt){const o=2/Math.max(1e-4,time),x=o*dt,e
 
 // Camera rig: orbit around a centre with smoothed angles, log-distance zoom and screen-space panning.
 class Rig{
- constructor(camera,el){this.camera=camera;this.el=el;this.goal={x:0,y:0,z:0,theta:.7,phi:1.05,r:100};this.cur={...this.goal};this.vel={};this.minR=.02;this.maxR=900;this.ptrs=new Map();
+ constructor(camera,el){this.camera=camera;this.el=el;this.goal={x:0,y:0,z:0,theta:.7,phi:1.05,r:100};this.cur={...this.goal};this.vel={};this.minR=.02;this.maxR=900;this.bound=Infinity;this.ptrs=new Map();
   el.addEventListener('pointerdown',e=>this.down(e));el.addEventListener('pointermove',e=>this.move(e));el.addEventListener('pointerup',e=>this.up(e));el.addEventListener('pointercancel',e=>this.up(e));
-  el.addEventListener('wheel',e=>{e.preventDefault();const k=Math.exp(clamp(e.deltaY,-300,300)*.0017);this.goal.r=clamp(this.goal.r*k,this.minR,this.maxR);},{passive:false});
+  el.addEventListener('wheel',e=>{e.preventDefault();const k=Math.exp(clamp(e.deltaY,-300,300)*.0017);this.goal.r=clamp(this.goal.r*k,this.lo(),this.maxR);},{passive:false});
   el.addEventListener('contextmenu',e=>e.preventDefault());}
- set(g,instant=false){Object.assign(this.goal,g);this.goal.r=clamp(this.goal.r,this.minR,this.maxR);this.goal.phi=clamp(this.goal.phi,.03,Math.PI-.03);if(instant){Object.assign(this.cur,this.goal);this.vel={};}}
+ set(g,instant=false){Object.assign(this.goal,g);this.goal.r=clamp(this.goal.r,this.lo(),this.maxR);this.goal.phi=clamp(this.goal.phi,.03,Math.PI-.03);this.keepIn();if(instant){Object.assign(this.cur,this.goal);this.vel={};}}
  aim(center,r,dir){const g={x:center.x,y:center.y,z:center.z,r};if(dir){const d=dir.clone().normalize();g.phi=Math.acos(clamp(d.y,-1,1));g.theta=Math.atan2(d.x,d.z);let dt=g.theta-this.goal.theta;while(dt>Math.PI){g.theta-=Math.PI*2;dt-=Math.PI*2;}while(dt<-Math.PI){g.theta+=Math.PI*2;dt+=Math.PI*2;}}return g;}
  down(e){this.el.setPointerCapture?.(e.pointerId);this.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,mode:e.button===2||e.button===1||e.shiftKey||e.ctrlKey?'pan':'rotate'});this.pinch=null;}
  move(e){const p=this.ptrs.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;if(!dx&&!dy)return;
-  if(this.ptrs.size===2){const [a,b]=[...this.ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(this.pinch)this.goal.r=clamp(this.goal.r*this.pinch/Math.max(d,1),this.minR,this.maxR);this.pinch=d;this.pan(dx/2,dy/2);return;}
+  if(this.ptrs.size===2){const [a,b]=[...this.ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(this.pinch)this.goal.r=clamp(this.goal.r*this.pinch/Math.max(d,1),this.lo(),this.maxR);this.pinch=d;this.pan(dx/2,dy/2);return;}
   if(p.mode==='pan')this.pan(dx,dy);else{this.goal.theta-=dx*.0055;this.goal.phi=clamp(this.goal.phi-dy*.0055,.03,Math.PI-.03);}}
  up(e){this.ptrs.delete(e.pointerId);this.pinch=null;}
- pan(dx,dy){const h=this.el.clientHeight||400,s=2*this.cur.r*Math.tan(this.camera.fov*Math.PI/360)/h;const right=V().setFromMatrixColumn(this.camera.matrixWorld,0),up=V().setFromMatrixColumn(this.camera.matrixWorld,1);const m=right.multiplyScalar(-dx*s).add(up.multiplyScalar(dy*s));this.goal.x+=m.x;this.goal.y+=m.y;this.goal.z+=m.z;}
- update(dt){const c=this.cur,g=this.goal,v=this.vel;for(const k of ['x','y','z'])c[k]=damp(c[k],g[k],v,k,.34,dt);c.theta=damp(c.theta,g.theta,v,'t',.22,dt);c.phi=damp(c.phi,g.phi,v,'p',.22,dt);c.r=Math.exp(damp(Math.log(c.r),Math.log(g.r),v,'r',.32,dt));
+ pan(dx,dy){const h=this.el.clientHeight||400,s=2*this.cur.r*Math.tan(this.camera.fov*Math.PI/360)/h;const right=V().setFromMatrixColumn(this.camera.matrixWorld,0),up=V().setFromMatrixColumn(this.camera.matrixWorld,1);const m=right.multiplyScalar(-dx*s).add(up.multiplyScalar(dy*s));this.goal.x+=m.x;this.goal.y+=m.y;this.goal.z+=m.z;this.keepIn();}
+ lo(){return Math.max(this.minR,this.minFor?.(this.goal)||0);}
+ keepIn(){const g=this.goal,d=Math.hypot(g.x,g.y,g.z);if(d>this.bound){const k=this.bound/d;g.x*=k;g.y*=k;g.z*=k;}}
+ update(dt){const c=this.cur,g=this.goal,v=this.vel;if(this.minFor)g.r=Math.max(g.r,this.lo());for(const k of ['x','y','z'])c[k]=damp(c[k],g[k],v,k,.34,dt);c.theta=damp(c.theta,g.theta,v,'t',.22,dt);c.phi=damp(c.phi,g.phi,v,'p',.22,dt);c.r=Math.exp(damp(Math.log(c.r),Math.log(g.r),v,'r',.32,dt));
   const sp=Math.sin(c.phi);this.camera.position.set(c.x+c.r*sp*Math.sin(c.theta),c.y+c.r*Math.cos(c.phi),c.z+c.r*sp*Math.cos(c.theta));this.camera.lookAt(c.x,c.y,c.z);this.camera.near=Math.max(1e-5,c.r*.001);this.camera.far=30000;this.camera.updateProjectionMatrix();}
 }
 
@@ -90,11 +92,18 @@ export function createStarMap(container,labelContainer,data,onSelect){
   buildRoute();}
  function addRing(c,r,y,color,op){const pts=[];for(let a=0;a<=256;a++)pts.push(V(c.x+Math.cos(a/256*Math.PI*2)*r,y,c.z+Math.sin(a/256*Math.PI*2)*r));systemGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false})));}
  const rootBody=id=>{let l=byId.get(id);while(l&&l.type!=='Planet'){const p=byId.get(l.parentId);if(!p||p.type==='Star'||p.type==='Manmade')return null;l=p;}return l?.id||null;};
+ // Quantum travel is a straight line; it bends once beside a star/planet/moon only if the line would pass through it.
+ function avoidBodies(from,to,depth=0){if(depth>3)return [from,to];const ab=to.clone().sub(from),L2=Math.max(ab.lengthSq(),1e-12);let worst=null,worstDepth=0;
+  for(const it of items){if(!it.mesh)continue;const R=it.r*(it.kind==='star'?1.7:1.15);
+   const t=clamp(it.pos.clone().sub(from).dot(ab)/L2,0,1),closest=from.clone().addScaledVector(ab,t),d=closest.distanceTo(it.pos);if(t<=1e-4||t>=1-1e-4||d>=R)continue;const pen=R-d;if(pen>worstDepth){worstDepth=pen;worst={it,closest,R};}}
+  if(!worst)return [from,to];let out=worst.closest.clone().sub(worst.it.pos);if(out.lengthSq()<1e-10)out=V(-ab.z,0,ab.x);out.normalize();const via=worst.it.pos.clone().add(out.multiplyScalar(worst.R*1.25));
+  return [...avoidBodies(from,via,depth+1),...avoidBodies(via,to,depth+1).slice(1)];}
  // Quantum route: glowing ribbons revealed leg by leg, numbered waypoint rings, active leg in amber.
  function buildRoute(){clearGroup(routeGroup);legLabel=null;ribbons=[];markers=[];if(!route||level!=='system')return;let order=0;
   route.visits.forEach((v,i)=>{const ids=v.leg.nodes,active=i===activeIndex;for(let j=1;j<ids.length;j++){const a=byId.get(ids[j-1]),b=byId.get(ids[j]);if(a?.system!==system||b?.system!==system)continue;const from=posOf(a.id),to=posOf(b.id);if(!from||!to||from.distanceTo(to)<1e-6)continue;
-   const hop=rootBody(a.id)&&rootBody(a.id)===rootBody(b.id),len=from.distanceTo(to),mid=from.clone().lerp(to,.5);if(!hop){const ab=to.clone().sub(from),t=clamp(-from.dot(ab)/Math.max(ab.lengthSq(),1e-9),0,1),closest=from.clone().addScaledVector(ab,t),safe=(STAR_R[system]||2)*5;if(closest.length()<safe){const away=closest.lengthSq()>1e-6?closest.clone().setY(0).normalize():V(-ab.z,0,ab.x).normalize();mid.copy(closest).add(away.multiplyScalar(safe*1.9-closest.length()));}}if(hop){const c=posOf(rootBody(a.id));mid.sub(c).setLength(Math.max(mid.distanceTo(c),layout.get(rootBody(a.id)).r*1.15)).add(c);}else mid.y+=len*.16;
-   const curve=new THREE.QuadraticBezierCurve3(from,mid,to),rb=routeRibbon(curve.getPoints(hop?48:160),{color:active?'#ffb35c':hop?'#ffd75e':'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
+   const hop=rootBody(a.id)&&rootBody(a.id)===rootBody(b.id),len=from.distanceTo(to),path=avoidBodies(from,to),curve=new THREE.CurvePath();for(let k=1;k<path.length;k++)curve.add(new THREE.LineCurve3(path[k-1],path[k]));
+   const pts=[];for(let k=1;k<path.length;k++){const n=Math.max(8,Math.ceil(path[k-1].distanceTo(path[k])/Math.max(len,1e-6)*120));for(let q=k===1?0:1;q<=n;q++)pts.push(path[k-1].clone().lerp(path[k],q/n));}
+   const rb=routeRibbon(pts,{color:active?'#ffb35c':hop?'#ffd75e':'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
    if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분${v.leg.jumps?' · '+(v.leg.gateways||[]).join(' → ')+' 경유':''}`,'',undefined,{pill:'#ffc67c',upper:false});lab.visible=false;labelGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
    const p=posOf(v.locationId);if(p&&byId.get(v.locationId)?.system===system){const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('waypoint',i===activeIndex?'#ffb35c':'#64dfe2'),transparent:true,depthWrite:false,sizeAttenuation:false}));ring.position.copy(p);ring.renderOrder=7;routeGroup.add(ring);markers.push({sprite:ring,i,active:i===activeIndex});}});
   revealStart=time;}
@@ -112,8 +121,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
   crumbs.replaceChildren(...parts.flatMap(([t,fn],i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.className=i===parts.length-1?'current':'';b.onclick=fn;return i?[Object.assign(document.createElement('span'),{textContent:'›'}),b]:[b];}));}
  function goGalaxy(instant=false){level='galaxy';focusId=null;selected=null;galaxyGroup.visible=true;systemGroup.visible=false;routeGroup.visible=false;clearLabels();backdrop.paint('galaxy');buildGalaxy();
   for(const [sys,p] of Object.entries(GALAXY)){const s=labelSprite(sys.toUpperCase(),'항성계 · 더블클릭',STAR_COLORS[sys],{big:true,glow:true});s.userData.anchor=p;labelGroup.add(s);}
-  rig.minR=20;rig.maxR=700;rig.set({x:4,y:0,z:-30,theta:.2,phi:1.05,r:210},instant);crumbsRender();}
- function enterSystem(sys,instant=false){const changed=sys!==system||level!=='system';system=sys;level='system';galaxyGroup.visible=false;systemGroup.visible=true;routeGroup.visible=true;if(changed||!items.length)buildSystem(sys);rig.minR=.004;rig.maxR=extent*7;if(changed)home(instant);else crumbsRender();}
+  rig.minR=90;rig.maxR=380;rig.bound=110;rig.minFor=null;rig.set({x:4,y:0,z:-30,theta:.2,phi:1.05,r:210},instant);crumbsRender();}
+ function enterSystem(sys,instant=false){const changed=sys!==system||level!=='system';system=sys;level='system';galaxyGroup.visible=false;systemGroup.visible=true;routeGroup.visible=true;if(changed||!items.length)buildSystem(sys);rig.minR=.5;rig.maxR=extent*3.2;rig.bound=extent*1.35;rig.minFor=g=>{let m=0;for(const it of layout.values()){if(it.kind!=='body'&&it.kind!=='star')continue;const d=Math.hypot(g.x-it.pos.x,g.y-it.pos.y,g.z-it.pos.z),need=it.r*(it.kind==='star'?2.2:1.7)-d;if(need>m)m=need;}return m;};if(changed)home(instant);else crumbsRender();}
  function home(instant=false,top=false){focusId=null;rig.set(top?{x:0,y:0,z:0,phi:.04,r:extent*2.7}:{x:0,y:0,z:0,theta:.65,phi:.98,r:extent*2.35},instant);crumbsRender();}
  function focus(id,instant=false){const l=byId.get(id);if(!l)return;if(l.system!==system||level!=='system')enterSystem(l.system,true);const v=layout.get(id);if(!v)return;selected=id;
   if(l.type==='Star'){home(instant);return;}
