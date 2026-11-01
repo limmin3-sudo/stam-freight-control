@@ -1,5 +1,16 @@
 [
   {
+    "id": "2026-11-01-ships-93",
+    "date": "2026-11-01",
+    "title": "함선 42종 추가 (총 93종)",
+    "changes": [
+      "소형 함선부터 대형 함선까지 42종을 추가했습니다. 예: Aurora 계열, Origin 100i·300 계열, Cutter·Cutlass Red/Blue, Golem Ox, Vulture, MOLE, Retaliator, Idris-M/P.",
+      "그리드와 비행 성능은 공개 자료(SuperCargo·Star Citizen Wiki API)에서 가져왔고, 기존 함선 51종의 값은 바꾸지 않았습니다.",
+      "Retaliator는 화물 모듈을 장착했을 때 기준입니다. Aurora Mk II는 기본 2 SCU만 넣었습니다(모듈 미포함).",
+      "퀀텀 드라이브가 없는 MPUV Cargo·Tractor는 경로 계산을 할 수 없어 넣지 않았습니다."
+    ]
+  },
+  {
     "id": "2026-11-01-run-desk-split",
     "date": "2026-11-01",
     "title": "운항 모드 3분할·지도만 크게 보기",

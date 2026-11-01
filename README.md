@@ -17,7 +17,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 - 스크린샷 여러 장·드래그·붙여넣기, 기본 브라우저 OCR, 읽은 값 즉시 수정.
 - 미션별 화물 소유권 보존, 배송지별 상자 크기·개수 입력, 같은 미션 유형에 구성 재사용.
 - Stanton·Pyro·Nyx의 3D 지도, 천체·정거장·지상 거점 검색, 확인된 게이트웨이 경유.
-- 간편 경로 / 상세 적재, 51종 함선 선택과 그리드 수정·등록·백업.
+- 간편 경로 / 상세 적재, 93종 함선 선택과 그리드 수정·등록·백업.
 - 모든 함선(Hull B 포함) 회전 가능한 3D 화물칸 한 화면, 방향 가이드, 거점 작업 전·후 배치와 하역 순서.
 - 운항 파트너 선택 후 인사. 수석 항해사·항해 장교·브리지 오퍼레이터의 사진과 말투를 전체 흐름에 적용.
 - 함선별 SCM·NAV·드라이브 슬롯 데이터 자동 적용. Atlas S1 / Hemera S2 / Erebos S3, 그 외는 확인된 기본 장착품.
@@ -99,7 +99,7 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 ## 출처·라이선스
 
 - 게임 좌표·성능: [Star Citizen Wiki API](https://api.star-citizen.wiki/api/locations/positions)
-- 그리드 자료 일부: [SuperCargo](https://github.com/AquatikJustice/SuperCargo), `vendor/SUPERCARGO-LICENSE.txt` 유지.
+- 함선 그리드: [SuperCargo](https://github.com/AquatikJustice/SuperCargo)의 `cargoGrids.ts`(MIT, `vendor/SUPERCARGO-LICENSE.txt` 유지. SuperCargo는 sc-cargo.space(Ratjack) 자료를 1차 출처로 밝힘). 새 함선 추가: `node scripts/import-ships.mjs <cargoGrids.ts>`(기존 함선은 바꾸지 않음) → `node scripts/refresh-performance.mjs` → `npm test`.
 - Three.js: MIT, `vendor/THREE-LICENSE.txt` 유지.
 - 참고한 도구와 리뷰 영상: [REFERENCE-NOTES.md](REFERENCE-NOTES.md), [인수인계](docs/CLOUD-HANDOFF.md).
 - 파트너 사진: 생성한 가상 성인 인물, `assets/partners/`에 포함.

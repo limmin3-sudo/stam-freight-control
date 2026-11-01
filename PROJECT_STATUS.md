@@ -1,5 +1,14 @@
 # 현재 프로젝트 상태 — Codex·Claude 공통
 
+## 2026-11-01 Claude Code — 함선 42종 추가 (51 → 93종)
+
+- 사용자 요청: 소형~대형 함선을 최대한 추가, 그리드 포함. 모르면 지어내지 말 것.
+- 출처: SuperCargo 최신 `src/shared/cargoGrids.ts`(MIT, 95종; SuperCargo는 sc-cargo.space/Ratjack을 1차 출처로 표기). 새 스크립트 `scripts/import-ships.mjs <cargoGrids.ts>`: **없는 함선만 추가, 기존 51종은 변경하지 않음**(검사: 기존 51종 JSON 동일). 규칙: 참조 전용(autoLoad false) 그리드 제외, 기본 그리드 우선(선택 모듈 그리드는 제외하고 보고), 모듈만 있는 함선은 「(화물 모듈 장착 시)」로 추가(Retaliator 74 SCU), maxSize → 허용 상자 크기 중 이하 최대값(없으면 32), w/h/l 정수·바닥 방향 이외 형식은 추가하지 않고 보고.
+- 제외: Argo MPUV Cargo·Tractor(퀀텀 드라이브 없음, 경로 불가). Aurora Mk II는 기본 2 SCU만(모듈 2개 미포함).
+- 성능: `NODE_USE_ENV_PROXY=1 node scripts/refresh-performance.mjs` → 93종 모두 매칭, unavailable 0, 기존 51종 값 변화 0(같은 4.10.2-LIVE.12881860).
+- 새 함선의 적재 방향(바닥 기준 외)은 확인하지 않았다. Hull B/C·RAFT 외에는 기존처럼 바닥부터 쌓는다. datamine 표시 함선의 그리드 위치는 출처에서도 근사(일렬 배치)다.
+- 검증: `npm test` 89개 통과(전 함선 성능 프로필 테스트 포함). 93종 각각 소량 계약 경로 계산 성공. 브라우저: 함선 목록 93종, Idris-M(1326 SCU)·Golem Ox 선택·3D 표시, 오류 없음.
+
 ## 2026-11-01 Claude Code — 운항 모드 3분할·지도만 크게 보기
 
 - 사용자 요청: 「지도만 크게 보기」는 운항 모드가 아니라 지도 단독 전체 화면. 운항 모드는 지도 위 UI 덮개 방식 대신 화면 3분할(왼쪽 지도·오른쪽 적재 3D·아래 운항 진행 바).
