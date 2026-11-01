@@ -90,8 +90,7 @@ export function createCargoView(container){
     const mesh=new THREE.Mesh(geometry,mat);mesh.position.copy(center);mesh.userData={box:p,base:center.clone(),drop:fresh.has(p.boxId)&&!muted,focus,order:options.order?.get(p.boxId)};boxGroup.add(mesh);
     if(!muted){mesh.add(new THREE.Mesh(crateFrame(...d.map(x=>x+.02)),frameMat));const sh=new THREE.Mesh(new THREE.PlaneGeometry(d[0]+.5,d[2]+.5),new THREE.MeshBasicMaterial({map:contactShadow(),transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.set(center.x,center.y-p.dims[1]/2+.012,center.z);boxGroup.add(sh);}
     if(focus){const glow=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color:loading?LOAD_GLOW:UNLOAD_GLOW}));glow.scale.setScalar(1.02);mesh.add(glow);}
-    v.boxes.add(boxGroup);
-    if(mesh.userData.order){const el=document.createElement('span');el.className='cargo-badge';el.textContent=mesh.userData.order;el.style.setProperty('--c',p.color);v.el.querySelector('.cargo-zone-labels').append(el);v.badges.push({element:el,mesh});}}
+    v.boxes.add(boxGroup);}
    // Boxes unloaded at this stop: drawn where they were, lifting out and fading on a loop (orange), so a stop
    // that both unloads and loads shows both motions.
    for(const p of options.leaving||[]){if(!allowed(v,p.bin))continue;const g=ship.grids[p.bin],origin=v.cages[p.bin],boxGroup=new THREE.Group();boxGroup.position.copy(origin.position);boxGroup.rotation.copy(origin.rotation);
