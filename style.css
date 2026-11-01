@@ -297,3 +297,24 @@ footer{padding:14px 24px;gap:12px}
 @media(max-width:900px){.run-cols,.run-desk .run-cols{grid-template-columns:minmax(0,1fr)}}
 /* STAM fleet emblem (round logo image). */
 .brand-mark{width:58px!important;height:58px!important;border-radius:50%;filter:drop-shadow(0 0 6px #64dfe24d)}.brand-mark img{width:100%;height:100%;display:block;object-fit:contain}@media(max-width:720px){.brand-mark{width:40px!important;height:40px!important}}
+/* 운항 모드: keep the progress bar compact so the map and cargo view get the height. */
+.run-desk .run-col-main,.run-desk .run-col-talk{padding:10px 14px}
+.run-desk .run-col-main{gap:6px}
+.run-desk .run-head{align-items:center;flex-wrap:nowrap}
+.run-desk .run-head .eyebrow{font-size:9px}
+.run-desk .run-head h2{font-size:18px;margin:2px 0 0}
+.run-desk .run-num{width:24px;height:24px;font-size:13px}
+.run-desk .run-meters{gap:16px}
+.run-desk .run-meters b{font-size:16px}
+.run-desk .run-track{margin:6px 4px}
+.run-desk .run-body{grid-template-columns:minmax(0,1fr) minmax(0,240px);gap:10px;align-items:center}
+.run-desk .run-big{padding:10px;font-size:16px}
+.run-desk .run-next{padding:6px 10px}
+.run-desk .run-next b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.run-desk .run-next small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.run-desk .run-next{gap:2px}
+.run-desk .run-buttons{margin-top:0;gap:6px}
+.run-desk .run-buttons button{font-size:11px;padding:5px 10px}
+.run-desk .run-history{display:none}
+.run-desk .run-col-talk .aide{padding:8px 10px}
+.run-desk .run-partner-photo{width:42px;height:54px}
+.run-desk .aide-line{font-size:13px;line-height:1.5}
+.run-desk .run-col-talk .run-cargo{font-size:13px;line-height:1.6}
