@@ -26,7 +26,7 @@ export function createHistory(button,{notify=()=>{}}={}){
   <p class="small subtle">기록은 이 브라우저에 저장되고, 로그인하면 계정에도 저장되어 다른 PC에서 함께 볼 수 있습니다. 수익은 계약에 입력된 보상 기준입니다.</p>`;
   dialog.querySelector('[data-close]').onclick=()=>dialog.close();
   dialog.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!confirm('이 운항 기록을 삭제할까요?'))return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(readHistory().filter(r=>r.id!==b.dataset.delete)));}catch{}render();});}
- button.onclick=()=>{render();dialog.showModal();};
+ if(button)button.onclick=()=>{render();dialog.showModal();};
  return {
   // Called when the last stop of a run is completed.
   record(entry){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(addRecord(readHistory(),entry)));notify(`운항 기록에 저장했습니다 · 이번 운항 ${fmt(entry.reward)} aUEC`);}catch{notify('운항 기록을 저장하지 못했습니다.',true);}},
