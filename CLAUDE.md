@@ -4,6 +4,7 @@
 
 - @docs/DEVELOPMENT.md
 - @PROJECT_STATUS.md
+- @docs/CLAUDE-HANDOFF.md (2026-11-01 최신 인계)
 - @docs/CLOUD-HANDOFF.md
 - @README.md
 
@@ -12,3 +13,5 @@
 Git 상태·브랜치·최근 이력을 먼저 확인하고 기존 미커밋 작업을 보존한다. 같은 체크아웃에서 Codex와 동시에 같은 파일을 수정하지 않는다. 작업 종료·전환 전에 PROJECT_STATUS.md에 변경·검증·남은 문제·다음 단계를 기록한다. 커밋·푸시는 사용자 승인 후 진행한다. 기존 인수인계의 우선순위보다 사용자의 현재 요청을 우선한다.
 
 Claude Code가 이 폴더를 실제로 작업 디렉터리로 열고 파일과 Git에 접근할 수 있는지 확인한다. Claude 일반 채팅에 같은 계정으로 로그인한 것만으로 코드·과거 대화가 공유된다고 가정하지 않는다.
+
+CLOUD-HANDOFF.md의 옛 로그인 미구현·화면 배치 설명을 현재 상태로 적용하지 않는다. 최신 기능/배포는 PROJECT_STATUS.md와 CLAUDE-HANDOFF.md를 기준으로 확인한다.
