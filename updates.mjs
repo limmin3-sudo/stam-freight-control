@@ -10,7 +10,7 @@ export function updateURL(href,version){
 export function createUpdates({beforeReload=()=>true,intervalMs=60000}={}){
  let running=document.querySelector('meta[name="app-version"]')?.content||null,latest=null,checking=false;
  const historyButton=document.createElement('button');historyButton.type='button';historyButton.className='quiet';historyButton.id='updates-open';historyButton.textContent='업데이트 기록';
- document.querySelector('.topbar').append(historyButton);
+ document.querySelector('.topnav').append(historyButton);
  const banner=document.createElement('aside');banner.className='update-banner';banner.hidden=true;banner.setAttribute('aria-live','polite');banner.innerHTML='<div><strong>새 업데이트가 있습니다.</strong><span>미션·설정·운항 진행을 유지하고 새 버전을 불러옵니다.</span></div><button type="button" class="primary" data-update>업데이트</button><button type="button" class="quiet" data-notes>변경 내용</button>';
  document.body.append(banner);
  const dialog=document.createElement('dialog');dialog.className='updates-dialog';dialog.id='updates-dialog';dialog.innerHTML='<div class="dialog-title"><h2>업데이트 기록</h2><button type="button" aria-label="닫기">×</button></div><div data-release-list></div>';
