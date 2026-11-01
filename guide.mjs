@@ -1,4 +1,4 @@
-// Step-by-step "사용법" guide. Opens once after the first partner introduction and from the top-bar button.
+// Step-by-step "이용 안내" guide. Opens once after the first partner introduction and from the top-bar button.
 const SEEN='sfc-guide-seen';
 const STEPS=[
  ['🚀','STAM FREIGHT CONTROL 안내','여러 운송 계약을 한 번에 받아도 어디를 어떤 순서로 들르고, 화물을 어디에 실을지 정리해 주는 STAM 함대 관제 도구입니다.',['왼쪽 버튼 세 개(운항 설정·운송 계약 추가·미션별 화물 확인)와 <b>관제 모드</b>만 알면 됩니다.','로그인 없이 바로 쓸 수 있고, 입력한 내용은 이 브라우저에 자동 저장됩니다.','막히면 왼쪽 <b>운항 설정</b>으로 파트너 안내를 받고, 오른쪽 위 <b>파트너 변경</b>으로 다른 파트너를 고를 수 있습니다.']],
