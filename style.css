@@ -273,7 +273,7 @@ footer{padding:14px 24px;gap:12px}
 .run-desk{position:fixed;inset:0;z-index:900;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:10px;padding:12px;background:#050b12}
 .run-desk[hidden]{display:none}
 .run-desk-map,.run-desk-cargo{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.run-desk-close{position:absolute;top:10px;right:10px;z-index:6;padding:9px 20px;font-size:15px;font-weight:700;border-radius:999px;border:2px solid var(--cyan);color:var(--cyan);background:#0b2333e6;box-shadow:0 6px 20px #000b}
+.run-desk-close{position:absolute;top:10px;right:10px;z-index:6;padding:9px 22px;white-space:nowrap;max-width:calc(100% - 20px);font-size:15px;font-weight:700;border-radius:999px;border:2px solid var(--cyan);color:var(--cyan);background:#0b2333e6;box-shadow:0 6px 20px #000b}
 .run-desk-bar{grid-column:1/-1;min-width:0}
 .run-desk .map-wrap{flex:1 1 auto;width:100%!important;height:auto!important;min-height:0}
 .run-desk #map-expand,.run-desk #map-ui-toggle{display:none}

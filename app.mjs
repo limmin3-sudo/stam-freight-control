@@ -79,7 +79,7 @@ function setMapSolo(on){const wrap=$('map-wrap');wrap.classList.toggle('map-expa
 const runHomes=new Map();
 function setMapExpanded(on){if(on===!$('run-desk').hidden)return;if(on)setMapSolo(false);
  document.body.classList.toggle('map-fullscreen',on);$('run-desk').hidden=!on;
- for(const b of [$('map-expand'),$('run-view')]){b.textContent=on?'■ 계획 화면으로':'▶ 운항 모드';b.setAttribute('aria-pressed',String(on));}
+ for(const b of [$('map-expand'),$('run-view')]){b.textContent=on?'■ 메인 화면으로 돌아가기':'▶ 운항 모드';b.setAttribute('aria-pressed',String(on));}
  const parts=[[$('map-wrap'),'run-desk-map'],[$('cargo-view'),'run-desk-cargo'],[$('execution'),'run-desk-bar']];
  if(on){for(const [el,slot] of parts){runHomes.set(el,{parent:el.parentNode,next:el.nextSibling});$(slot).append(el);}}
  else for(const [el] of parts){const home=runHomes.get(el);if(home)home.parent.insertBefore(el,home.next);}
