@@ -215,5 +215,7 @@ async function init(){
  guide=createGuide($('guide-open'));history=createHistory($('history-open'),{notify});createAccount($('account-btn'),{notify,shipName:id=>[...($('ship-select')?.options||[])].find(o=>o.value===id)?.textContent||id,openHistory:()=>history.open()});assistant=makeAssistant();$('aide-open').onclick=()=>assistant.open();$('aide-open-top').onclick=()=>assistant.open();refreshAideButton();
  try{validateMissions(missions);}catch{missions=[];}renderMissions();setSystem('stanton');syncShip();assistant.open();
 }
+// Use the real header height so the map fills its column on wrapped/mobile menus too.
+new ResizeObserver(([entry])=>document.documentElement.style.setProperty('--header-height',entry.target.getBoundingClientRect().height+'px')).observe(document.querySelector('.topbar'));
 createUpdates({beforeReload(){if(busy){notify('화면 읽기가 끝난 뒤 업데이트해 주세요.',true);return false;}if(document.querySelector('dialog[open]')){notify('열린 창의 입력을 저장하거나 닫은 뒤 업데이트해 주세요.',true);return false;}return save();}});
 init().catch(e=>notify(e.message+' · start.cmd로 실행하거나 GitHub Pages에서 열어 주세요.',true));

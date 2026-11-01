@@ -135,35 +135,35 @@ body.simple-mode .fleet-controls{opacity:.55}
 .route-transit{display:flex;flex-direction:column;gap:5px;padding:11px 14px;border:1px solid #8a6438;border-left:3px solid #efba72;border-radius:7px;background:#2a2115;color:#ffd29a;overflow-wrap:anywhere}.route-transit>span{font-size:11px;font-weight:700}.route-transit>b{font-size:12px;line-height:1.6}.route-transit>small{font-size:10px;color:#c4b39a;line-height:1.5}.route-transit.compact{margin:6px 2px;padding:8px}.route-transit.compact>b{font-size:11px}
 .update-banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:1100;display:flex;align-items:center;gap:10px;width:min(690px,calc(100% - 24px));padding:14px;border:1px solid #d6aa64;border-radius:10px;background:#112330f5;box-shadow:0 8px 30px #0009}.update-banner[hidden]{display:none}.update-banner>div{flex:1;min-width:0}.update-banner strong{display:block;color:#ffd29a;font-size:14px}.update-banner span{display:block;font-size:11px;color:#bad0dd;margin-top:5px;line-height:1.6}.update-banner button{white-space:nowrap;font-size:12px}.updates-dialog section{border-top:1px solid var(--line);padding-top:14px;margin-top:18px}.updates-dialog h3{font-size:16px;margin:6px 0}.updates-dialog small{color:var(--muted)}.updates-dialog ul{padding-left:20px;line-height:1.8;font-size:13px}.updates-dialog li{margin:7px 0}@media(max-width:600px){.update-banner{flex-wrap:wrap;bottom:10px}.update-banner>div{flex-basis:100%}.update-banner button{flex:1}}
 
-/* Flight desk — RSI-inspired palette, preserved STAM crest and wordmark. */
-:root{--bg:#071119;--surface:#0c1d28;--surface2:#102b3a;--line:#254657;--text:#edf5fa;--muted:#a3bece;--cyan:#55b5f5;--desk-height:calc(100dvh - 118px)}
-body{background:radial-gradient(ellipse at 45% 0,#102c3a 0,transparent 65%),var(--bg);word-break:keep-all;overflow-wrap:break-word}
-button{white-space:nowrap;word-break:keep-all;flex-shrink:0;border-radius:3px;line-height:1.45}
-input,select,textarea{border-radius:3px;background:#081923}
-button:hover{background:#173c50;border-color:#6a9bb5}
-.primary,.run-mode-btn{background:#55b5f5;border:1px solid #55b5f5;color:#061b29;box-shadow:none;border-radius:2px;font-weight:700}
-.primary:hover,.run-mode-btn:hover{background:#83ccff;border-color:#83ccff;filter:none}
-.topbar{min-height:96px;padding:12px 24px;gap:32px;flex-wrap:wrap;background:#102d3c;border-bottom:1px solid #396077}
+/* Flight desk layout with the original STAM theme. */
+:root{--bg:#080e17;--surface:#0d1622;--surface2:#111e2c;--line:#203144;--text:#e6eef4;--muted:#8e9fb1;--cyan:#64dfe2;--header-height:96px;--desk-height:calc(100dvh - var(--header-height) - 32px)}
+body{background:var(--bg);word-break:keep-all;overflow-wrap:break-word}
+button{white-space:nowrap;word-break:keep-all;flex-shrink:0;border-radius:7px;line-height:1.45}
+input,select,textarea{border-radius:6px;background:#080f19}
+button:hover{background:#1a2c3c;border-color:#6b8ca3}
+.primary,.run-mode-btn{background:#64dfe2;border:1px solid #64dfe2;color:#052027;box-shadow:none;border-radius:7px;font-weight:700}
+.primary:hover,.run-mode-btn:hover{background:#9debed;border-color:#9debed;filter:none}
+.topbar{min-height:96px;padding:12px 24px;gap:32px;flex-wrap:wrap;background:#080e17;border-bottom:1px solid #203144}
 .brand{flex:none;gap:12px;font-size:25px;white-space:nowrap}
 .brand-mark{width:46px;height:58px}
-.brand-name{line-height:1;gap:0;color:#85dce9}
+.brand-name{line-height:1;gap:0;color:#64dfe2}
 .brand-name b{font-size:29px;letter-spacing:5px}
 .brand-name i{height:36px;margin:0 12px 0 8px}
 .brand-title{font-size:25px;line-height:1.02;letter-spacing:3px}
 .brand small{font-size:9px;letter-spacing:2.3px;color:#9bbbd0;margin-top:7px}
 .topnav{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
-.topnav button{padding:11px 16px;min-height:44px;background:transparent;border-color:transparent;border-radius:0;color:#bbd8e8;font-weight:500}
-.topnav button+button{border-left-color:#335165}
-.topnav button:hover{color:#fff;background:#1a3c50}
-main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;padding:16px;margin:auto;align-items:start}
+.topnav button{padding:11px 16px;min-height:44px;background:transparent;border-color:var(--line);border-radius:7px;color:var(--text);font-weight:500}
+.topnav button+button{border-left-color:var(--line)}
+.topnav button:hover{color:var(--cyan);background:#1a2c3c}
+main{max-width:none;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;padding:16px;margin:auto;align-items:start}
 .mission-pane,.route-pane{padding:0;border:0;min-width:0;max-height:var(--desk-height);overflow:auto;scrollbar-width:thin;scrollbar-color:#365b70 transparent;overscroll-behavior:contain;scroll-padding:16px}
-.workspace{padding:0;min-width:0;display:flex;flex-direction:column;align-items:stretch}
-.account-panel,.flight-setup,.partner-panel,.intake-heading,.itinerary-section,.cargo-drawer{border:1px solid var(--line);background:#0c202bd9;padding:16px;margin:0 0 14px;border-radius:3px;min-width:0}
-.account-panel{border-top:2px solid #4d99bd}
+.workspace{padding:0;min-width:0;min-height:0;height:var(--desk-height);display:flex;flex-direction:column;align-items:stretch}
+.account-panel,.flight-setup,.partner-panel,.intake-heading,.itinerary-section,.cargo-drawer{border:1px solid var(--line);background:#0d1622;padding:16px;margin:0 0 14px;border-radius:7px;min-width:0}
+.account-panel{border-top:2px solid #315565}
 .account-panel p{font-size:11px;line-height:1.8;color:var(--muted);margin-bottom:12px}
-.account-panel .account-btn{width:100%;border-radius:2px;justify-content:center;padding:10px 12px;background:#55b5f5;color:#061b29;min-height:44px;overflow-wrap:anywhere;white-space:normal}
+.account-panel .account-btn{width:100%;border-radius:7px;justify-content:center;padding:10px 12px;background:#0b1a26;color:var(--text);min-height:44px;overflow-wrap:anywhere;white-space:normal}
 .account-panel .account-btn span{align-items:center;line-height:1.5;min-width:0}
-.account-panel .account-btn small{color:#173d53}
+.account-panel .account-btn small{color:#8e9fb1}
 .account-panel .account-btn b{font-size:14px}
 .ship-badge{margin:0 0 14px;font-size:17px;gap:8px;flex-wrap:wrap;line-height:1.6}
 .ship-badge #ship-badge-name{flex:1;min-width:0;word-break:keep-all}
@@ -175,7 +175,7 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .fleet-controls #edit-grid{font-size:10px;padding:5px 7px}
 .fleet-controls>p{display:none}
 .fleet-controls select{max-width:100%;font-size:12px}
-.performance-panel{padding:10px;margin:12px 0;background:#091a24;border-radius:2px}
+.performance-panel{padding:10px;margin:12px 0;background:#091925;border-radius:7px}
 .performance-panel .eyebrow{font-size:10px;letter-spacing:1px;margin-bottom:4px}
 .performance-panel>strong{font-size:12px;margin:0}
 .performance-panel>p:last-child{display:none}
@@ -191,24 +191,24 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .intake-heading h1{font-size:20px;letter-spacing:0;margin:0 0 5px}
 .intake-heading p{font-size:11px}
 .mission-pane .eyebrow{font-size:11px;letter-spacing:1.5px;margin-bottom:8px}
-.upload-zone{min-height:110px;border-radius:3px;background:#0d2633;padding:12px 8px;margin-bottom:10px}
+.upload-zone{min-height:110px;border-radius:7px;background:linear-gradient(150deg,#10283080,transparent);padding:12px 8px;margin-bottom:10px}
 .upload-zone span:last-child{font-size:10px;line-height:1.7;word-break:keep-all}
 .upload-symbol{font-size:23px}
-.ocr-options{border:1px solid var(--line);padding:0 10px;margin-bottom:12px;background:#0a1b26}
+.ocr-options{border:1px solid var(--line);padding:0 10px;margin-bottom:12px;background:#0d1622}
 .ocr-options summary{font-size:11px;line-height:1.7}
 .ocr-options .ocr-controls{padding:4px 0 8px}
 .ocr-options #analyze{font-size:12px}
 .ocr-options .secondary-actions{margin-bottom:12px}
-.text-intake{border-radius:3px}
+.text-intake{border-radius:7px}
 .text-intake summary{padding:10px}
 .text-intake summary b{font-size:12px}
 .text-intake summary span{font-size:10px;line-height:1.7}
 .mission-pane>.section-line{margin-top:22px;flex-wrap:wrap;gap:6px}
 .mission-pane h2{font-size:15px}
-.mission-card{border-radius:2px;background:#0c202c}
+.mission-card{border-radius:7px;background:#0d1622}
 .mission-card .mission-top{flex-wrap:wrap}
 .mission-id{word-break:keep-all;overflow-wrap:anywhere}
-.metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:12px 0;margin:0 0 12px;background:#102a38;border:1px solid var(--line);border-radius:2px}
+.metrics{flex-shrink:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:12px 0;margin:0 0 12px;background:#0d1622;border:1px solid var(--line);border-radius:7px}
 .metrics>div,.metrics>div:first-child{padding:0 12px;min-width:0;border-right:1px solid var(--line)}
 .metrics>div:last-child{border:0}
 .metrics span{margin-bottom:4px;font-size:10px}
@@ -216,13 +216,13 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .metrics small{font-size:9px;line-height:1.5;margin-top:5px}
 .metrics .reward-metric{display:none}
 .metrics em{font-size:11px}
-.map-toolbar{margin:0 0 12px;gap:8px;align-items:center;flex-direction:row;flex-wrap:wrap}
+.map-toolbar{flex-shrink:0;margin:0 0 12px;gap:8px;align-items:center;flex-direction:row;flex-wrap:wrap}
 .map-toolbar h2{font-size:14px;font-weight:500;color:#b3cfdf}
 .map-toolbar .eyebrow{display:none}
-.system-tabs{border-radius:2px;background:#0b202c}
-.system-tabs button{border-radius:1px;padding:6px 12px}
-.system-tabs [aria-pressed=true]{background:#55b5f5;color:#071b29}
-.map-wrap:not(.map-expanded){width:min(100%,calc(100dvh - 300px));height:auto;min-height:0;aspect-ratio:1 / 1;flex:none;align-self:center;border-radius:3px;border-color:#3b657d}
+.system-tabs{border-radius:7px;background:#0d1622}
+.system-tabs button{border-radius:6px;padding:6px 12px}
+.system-tabs [aria-pressed=true]{background:#21404a;color:var(--cyan)}
+.map-wrap:not(.map-expanded){width:100%;max-width:none;height:auto;min-height:180px;aspect-ratio:auto;flex:1 1 0;align-self:stretch;border-radius:7px;border-color:#203144}
 .map-wrap:not(.map-expanded) .map-actions{top:48px;left:12px;right:12px;flex-wrap:wrap;gap:5px;justify-content:flex-end;align-items:center}
 .map-wrap:not(.map-expanded) .map-search{flex:1 1 140px;width:140px;min-width:0;font-size:11px}
 .map-wrap:not(.map-expanded) .map-actions button{font-size:10px;padding:6px 7px}
@@ -235,8 +235,8 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .map-actions{max-width:calc(100% - 24px);flex-wrap:wrap}
 .map-actions .map-search{min-width:0;max-width:100%}
 #map-expand{color:#acdfff;border-color:#508fb5}
-.route-pane>.run-mode-btn{width:100%;margin:0 0 14px;min-height:48px;font-size:15px;border-radius:2px}
-.route-pane .execution{padding:12px;margin:0 0 14px;border-radius:3px}
+.route-pane>.run-mode-btn{width:100%;margin:0 0 14px;min-height:48px;font-size:15px;border-radius:7px}
+.route-pane .execution{padding:12px;margin:0 0 14px;border-radius:7px}
 .route-pane .run-actions{flex-wrap:wrap}
 .itinerary-section{padding:14px 10px}
 .itinerary-section>.eyebrow{font-size:10px;letter-spacing:1.5px}
@@ -244,15 +244,15 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .itinerary-section h2{font-size:16px}
 #route-edit{font-size:11px;padding:6px 10px}
 .itinerary{gap:8px}
-.stop{border-radius:2px;padding:10px 8px;gap:8px;white-space:normal;word-break:keep-all}
-.stop-number{border-radius:2px;flex-shrink:0;background:#13344a}
+.stop{border-radius:7px;padding:10px 8px;gap:8px;white-space:normal;word-break:keep-all}
+.stop-number{border-radius:7px;flex-shrink:0;background:#14304a}
 .stop-head{flex-direction:column;gap:5px}
 .stop-head>span:first-child{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 .stop-time{white-space:normal;line-height:1.6;font-size:10px}
 .stop-event,.stop-foot{word-break:keep-all;overflow-wrap:anywhere;line-height:1.7}
-.stop.active{border-color:#55b5f5;background:#133147}
-.route-transit{margin:3px 0;border-color:#3d7492;background:#102b3a;border-radius:2px;padding:10px;word-break:keep-all}
-.route-transit b{color:#9edaff;line-height:1.7;overflow-wrap:anywhere}
+.stop.active{border-color:#64dfe2;background:#122631}
+.route-transit{margin:3px 0;border-color:#8a6438;background:#2a2115;border-radius:7px;padding:10px;word-break:keep-all}
+.route-transit b{color:#ffd29a;line-height:1.7;overflow-wrap:anywhere}
 .cargo-drawer{padding:0 12px}
 .cargo-drawer>summary{font-size:14px;font-weight:600;color:#cae7f8;padding:15px 0;line-height:1.6}
 .cargo-section .section-line{gap:8px;flex-wrap:wrap}
@@ -260,26 +260,26 @@ main{max-width:1920px;grid-template-columns:270px minmax(0,1fr) 310px;gap:16px;p
 .cargo-section .cargo-controls{display:flex;flex-direction:column}
 .cargo-section .cargo-viewport{height:320px}
 .cargo-section details{word-break:keep-all}
-.partner-panel .aide-call{margin:0;width:100%;padding:8px;gap:10px;box-shadow:none;border-radius:3px;background:#112c3c;white-space:normal}
+.partner-panel .aide-call{margin:0;width:100%;padding:8px;gap:10px;box-shadow:none;border-radius:7px;background:linear-gradient(135deg,#17465f,#0c2131);white-space:normal}
 .partner-panel .aide-call img{flex:none}
 .partner-panel .aide-call span{min-width:0;line-height:1.6}
 .partner-panel .aide-call b{word-break:keep-all;font-size:14px}
 .partner-panel .aide-call small{color:#91c8e8}
 .route-pane>#history-open{width:100%;min-height:42px;margin-bottom:14px;color:#afd5ec}
 .aide-fab{display:none}
-.planning-details{max-width:1920px;margin:0 auto;padding:0 16px 20px}
+.planning-details{max-width:none;margin:0 auto;padding:0 16px 20px}
 .planning-details .assumptions{margin-top:4px}
-.manifest-workbench{border-radius:3px}
+.manifest-workbench{border-radius:7px}
 footer{font-size:10px;padding:14px 24px;gap:12px}
-@media(min-width:1600px){main{grid-template-columns:300px minmax(0,1fr) 340px;gap:20px;padding:16px 24px}.map-wrap:not(.map-expanded){width:min(100%,calc(100dvh - 300px))}}
-@media(max-width:1199px) and (min-width:901px){main{grid-template-columns:235px minmax(0,1fr);gap:14px}.route-pane{grid-column:2;max-height:none;overflow:visible;display:grid;grid-template-columns:1fr;gap:0}.mission-pane{grid-row:1 / 3;position:sticky;top:12px}.workspace{grid-column:2}.metrics strong{font-size:22px}.route-pane .itinerary{max-height:480px;overflow:auto}.map-wrap:not(.map-expanded){width:min(100%,calc(100dvh - 300px))}}
-@media(max-width:900px){.topbar{padding:12px 16px;gap:12px}.topnav{gap:0;flex:1;justify-content:flex-start}.topnav button{font-size:12px;padding:9px 12px;margin:0}.brand{font-size:22px}.brand-name b{font-size:27px}.brand-title{font-size:23px}.brand small{letter-spacing:2px}main{display:flex;flex-direction:column;gap:18px;padding:14px}.workspace{order:0;width:100%}.mission-pane{order:1;width:100%;max-height:none;overflow:visible;padding:0}.route-pane{order:2;width:100%;max-height:none;overflow:visible}.map-wrap:not(.map-expanded){width:100%;max-width:calc(100dvh - 280px);height:auto;aspect-ratio:1}.map-toolbar{flex-direction:row;gap:8px}.map-toolbar h2{font-size:13px}.metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:12px}.metrics>div,.metrics>div:first-child,.metrics>div:nth-child(3){padding:0 8px}.metrics>div:nth-child(2){border-right:1px solid var(--line)}.metrics strong{font-size:21px}.metrics em{font-size:10px}.metrics small{font-size:9px}.account-panel,.flight-setup{padding:16px}.flight-setup .performance-fields{grid-template-columns:1fr 1fr}.route-pane .cargo-viewport{height:380px}input,select,textarea{font-size:16px}}
-@media(max-width:480px){.topbar{gap:10px;padding:12px}.brand-mark{width:39px;height:50px}.brand{gap:10px}.brand-name b{font-size:25px}.brand-title{font-size:22px;letter-spacing:2.3px}.brand-name i{margin:0 10px 0 5px;height:30px}.brand small{font-size:8px;letter-spacing:1.4px}.topnav{flex-basis:100%;display:grid;grid-template-columns:auto auto auto auto}.topnav button{padding:8px 10px;font-size:12px;min-height:40px}main{padding:12px;gap:16px}.metrics strong{font-size:19px}.metrics>div{padding:0 7px}.metrics small{font-size:8px}.map-wrap:not(.map-expanded){max-width:100%}.map-wrap:not(.map-expanded) .map-bottom{bottom:8px}.map-toolbar{gap:6px}.system-tabs button{padding:6px 10px}.map-wrap:not(.map-expanded) .map-corner{font-size:11px}.map-wrap:not(.map-expanded) .map-crumbs{top:128px}.map-wrap:not(.map-expanded) .map-actions{left:8px;right:8px;top:40px}.map-wrap:not(.map-expanded) .map-search{flex-basis:100%;width:100%}.map-wrap:not(.map-expanded) .map-bottom span:first-child{display:none}.map-selection{left:10px;bottom:25px;font-size:10px}.planning-details{padding:0 12px 16px}.update-banner{border-color:#55b5f5}.update-banner strong{color:#addfff}}
+@media(min-width:1600px){main{grid-template-columns:300px minmax(0,1fr) 340px;gap:20px;padding:16px 24px}}
+@media(max-width:1199px) and (min-width:901px){main{grid-template-columns:235px minmax(0,1fr);gap:14px}.route-pane{grid-column:2;max-height:none;overflow:visible;display:grid;grid-template-columns:1fr;gap:0}.mission-pane{grid-row:1 / 3;position:sticky;top:12px}.workspace{grid-column:2}.metrics strong{font-size:22px}.route-pane .itinerary{max-height:480px;overflow:auto}}
+@media(max-width:900px){.topbar{padding:12px 16px;gap:12px}.topnav{gap:0;flex:1;justify-content:flex-start}.topnav button{font-size:12px;padding:9px 12px;margin:0}.brand{font-size:22px}.brand-name b{font-size:27px}.brand-title{font-size:23px}.brand small{letter-spacing:2px}main{display:flex;flex-direction:column;gap:18px;padding:14px}.workspace{order:0;width:100%}.mission-pane{order:1;width:100%;max-height:none;overflow:visible;padding:0}.route-pane{order:2;width:100%;max-height:none;overflow:visible}.map-wrap:not(.map-expanded){width:100%;max-width:none;height:auto;aspect-ratio:auto;min-height:180px}.map-toolbar{flex-direction:row;gap:8px}.map-toolbar h2{font-size:13px}.metrics{flex-shrink:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:12px}.metrics>div,.metrics>div:first-child,.metrics>div:nth-child(3){padding:0 8px}.metrics>div:nth-child(2){border-right:1px solid var(--line)}.metrics strong{font-size:21px}.metrics em{font-size:10px}.metrics small{font-size:9px}.account-panel,.flight-setup{padding:16px}.flight-setup .performance-fields{grid-template-columns:1fr 1fr}.route-pane .cargo-viewport{height:380px}input,select,textarea{font-size:16px}}
+@media(max-width:480px){.topbar{gap:10px;padding:12px}.brand-mark{width:39px;height:50px}.brand{gap:10px}.brand-name b{font-size:25px}.brand-title{font-size:22px;letter-spacing:2.3px}.brand-name i{margin:0 10px 0 5px;height:30px}.brand small{font-size:8px;letter-spacing:1.4px}.topnav{flex-basis:100%;display:grid;grid-template-columns:auto auto auto auto}.topnav button{padding:8px 10px;font-size:12px;min-height:40px}main{padding:12px;gap:16px}.metrics strong{font-size:19px}.metrics>div{padding:0 7px}.metrics small{font-size:8px}.map-wrap:not(.map-expanded){max-width:100%}.map-wrap:not(.map-expanded) .map-bottom{bottom:8px}.map-toolbar{gap:6px}.system-tabs button{padding:6px 10px}.map-wrap:not(.map-expanded) .map-corner{font-size:11px}.map-wrap:not(.map-expanded) .map-crumbs{top:128px}.map-wrap:not(.map-expanded) .map-actions{left:8px;right:8px;top:40px}.map-wrap:not(.map-expanded) .map-search{flex-basis:100%;width:100%}.map-wrap:not(.map-expanded) .map-bottom span:first-child{display:none}.map-selection{left:10px;bottom:25px;font-size:10px}.planning-details{padding:0 12px 16px}.update-banner{border-color:#64dfe2}.update-banner strong{color:#addfff}}
 
 .performance-drawer{margin-top:10px;border-bottom:1px solid var(--line)}.performance-drawer>summary{font-size:11px;line-height:1.7;padding:9px 0}.performance-drawer .performance-panel{margin-top:0}.account-panel{padding:12px 16px}.account-panel p{margin-bottom:9px}.account-panel .eyebrow{margin-bottom:5px}
 
 .route-pane .itinerary{max-height:clamp(200px,calc(100dvh - 510px),620px);overflow:auto;scrollbar-width:thin;scrollbar-color:#365b70 transparent;padding-right:3px}
-.execution-drawer{border:1px solid var(--line);margin:0 0 14px;padding:0 12px;background:#0c202b}
+.execution-drawer{border:1px solid var(--line);margin:0 0 14px;padding:0 12px;background:#0d1622}
 .execution-drawer>summary{padding:12px 0;font-size:12px;color:#b7dbef}
 .route-pane .run-body{grid-template-columns:minmax(0,1fr)}
 .route-pane .run-cargo{min-width:0;word-break:keep-all;overflow-wrap:break-word}
@@ -287,9 +287,15 @@ footer{font-size:10px;padding:14px 24px;gap:12px}
 .route-pane .run-big{white-space:normal;line-height:1.6}
 .route-pane .run-buttons{display:flex;gap:7px;flex-wrap:wrap}
 .route-pane .run-meters{gap:10px;flex-wrap:wrap}
-.reward-summary{padding:10px 12px;margin:0 0 14px;border:1px solid var(--line);background:#0c202b}
+.reward-summary{padding:10px 12px;margin:0 0 14px;border:1px solid var(--line);background:#0d1622}
 .reward-summary .reward-metric{display:grid;gap:5px}
 .reward-summary span,.reward-summary small{font-size:10px;color:var(--muted);line-height:1.6}
 .reward-summary strong{font:22px 'Barlow Condensed',sans-serif;color:#b8ddf3}
 @media(max-width:900px){.route-pane .itinerary{max-height:540px}}
-@media(max-width:480px) and (max-height:650px){.metrics small{display:none}.metrics{padding:10px 0}.map-wrap:not(.map-expanded){width:min(100%,calc(100dvh - 330px))}.map-toolbar{margin-bottom:8px}}
+@media(max-width:480px) and (max-height:650px){.metrics small{display:none}.metrics{padding:10px 0}.map-toolbar{margin-bottom:8px}}
+
+/* Keep the former cyan controls, warm flight action and softer panel corners. */
+.run-mode-btn{background:linear-gradient(135deg,#f0b46e,#e08a3c);color:#1a1006;border-color:#efba72;box-shadow:0 0 0 2px #efba7222}
+.run-mode-btn:hover{background:linear-gradient(135deg,#f6c58a,#eca252);border-color:#f0c486}
+.route-transit{border-left:3px solid #efba72;color:#ffd29a}
+.update-banner{border-color:#d6aa64}.update-banner strong{color:#ffd29a}
