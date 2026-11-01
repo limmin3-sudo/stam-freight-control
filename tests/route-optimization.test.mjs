@@ -43,25 +43,24 @@ for(const [mode,planner,settings]of [['simple',planRoutesOnly,{}],['capacity-awa
  });
 }
 
-// Exhaustive event-order oracle, deliberately independent of stop grouping, beam widths,
-// and heuristics. Small instances are cheap enough to compare with the actual optimum.
+// Independent exhaustive stop-permutation oracle: every pickup/delivery location
+// is visited once, after every source needed at that delivery has been collected.
 function exactSeconds(data,cargo,start,settings){
- const nav=navigator(data,settings),memo=new Map();
- const visit=(status,at)=>{
-  if(status.every(s=>s===2))return 0;
-  const key=status.join('')+'|'+at;if(memo.has(key))return memo.get(key);
+ const nav=navigator(data,settings),ids=[...new Set(cargo.flatMap(c=>[c.pickupId,c.dropoffId]))];
+ const visit=(status,at,left)=>{
+  if(!left.length)return status.every(s=>s===2)?0:Infinity;
   let best=Infinity;
-  for(let i=0;i<cargo.length;i++){
-   if(status[i]===2)continue;
-   const dest=status[i]===0?cargo[i].pickupId:cargo[i].dropoffId,next=[...status];next[i]++;
-   best=Math.min(best,nav.path(at,dest).seconds+visit(next,dest));
+  for(const dest of left){
+   if(cargo.some((c,i)=>c.dropoffId===dest&&status[i]===0&&c.pickupId!==dest))continue;
+   const next=status.map((st,i)=>st===0&&cargo[i].pickupId===dest?1:st).map((st,i)=>st===1&&cargo[i].dropoffId===dest?2:st);
+   best=Math.min(best,nav.path(at,dest).seconds+visit(next,dest,left.filter(id=>id!==dest)));
   }
-  memo.set(key,best);return best;
+  return best;
  };
- return visit(cargo.map(()=>0),start);
+ return visit(cargo.map(()=>0),start,ids);
 }
 const smallData={locations:[[0,0],[8,2],[10,9],[2,7],[5,3],[9,5],[1,6],[7,1]].map(([x,y],i)=>({id:String(i),name:String(i),type:'Manmade',system:'stanton',position:[x*1e9,y*1e9,0]})),jumps:[]};
-test('simple small-instance route matches exhaustive optimum regardless of cargo row order',()=>{
+test('simple route matches exhaustive single-visit optimum regardless of cargo row order',()=>{
  const shipments=[['5','4'],['6','2'],['1','2'],['7','5'],['7','4']].map(([pickupId,dropoffId])=>({pickupId,dropoffId,scu:1,commodity:'Same commodity'}));
  const settings={spool:0,dockMinutes:0,surfaceMinutes:0},optimal=exactSeconds(smallData,shipments,'0',settings);
  for(const rows of [shipments,[...shipments].reverse()]){

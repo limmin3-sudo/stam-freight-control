@@ -7,3 +7,4 @@ node_modules/
 *.log
 vendor/three.module.js
 data/locations.json
+public/

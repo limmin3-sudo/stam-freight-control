@@ -49,3 +49,32 @@ test('large cyclic or over-limit problems return null for the caller feasible fa
  assert.equal(planActionRoute(Array.from({length:8},(_,i)=>cargo(i%2?'1':'0',i%2?'0':'1')),'0',nav),null);
  assert.equal(planActionRoute(Array.from({length:9},(_,i)=>cargo(String(2*i),String(2*i+1))),'0',nav),null);
 });
+
+test('one delivery visit wins over a slightly faster route that splits the same destination',()=>{
+ const ids=['A','B','C','D'],times={AB:1,BC:1,CB:1,BD:1,AC:5};
+ const nav={byId:new Map(ids.map(id=>[id,{id,system:'stanton'}])),path(a,b){return {seconds:a===b?0:times[a+b]??20};}};
+ const shipments=[cargo('A','B'),cargo('C','B'),cargo('C','D')],result=planActionRoute(shipments,'A',nav);
+ verify(result,shipments);
+ const stops=result.actions.map(a=>a.locationId).filter((id,i,a)=>!i||id!==a[i-1]);
+ assert.deepEqual(stops,['A','C','B','D']);
+ assert.equal(result.seconds,7);
+ assert.equal(result.actions.filter(a=>a.locationId==='B'&&a.type==='delivery').length,2);
+});
+
+test('starting pickup is collected immediately even when a later delivery requires returning there',()=>{
+ const nav=navFor([loc('A',0),loc('B',10),loc('C',20)]),shipments=[cargo('B','C'),cargo('A','B')];
+ const result=planActionRoute(shipments,'B',nav);
+ verify(result,shipments);
+ assert.equal(result.actions[0].type,'pickup');
+ assert.equal(result.actions[0].locationId,'B');
+ assert.equal(result.actions[0].shipmentIndex,0);
+});
+
+test('distance beats a faster route after avoiding revisits and extra gate crossings',()=>{
+ const ids=['A','B','C'],legs={AB:[10,1],BC:[10,1],AC:[2,20],CB:[2,20]};
+ const nav={byId:new Map(ids.map(id=>[id,{id,system:'stanton'}])),path(a,b){const [meters,seconds]=a===b?[0,0]:legs[a+b]||[100,100];return {meters,seconds,jumps:0};}};
+ const result=planActionRoute([cargo('A','B'),cargo('A','C')],'A',nav);
+ verify(result,[cargo('A','B'),cargo('A','C')]);
+ const stops=result.actions.map(a=>a.locationId).filter((id,i,a)=>!i||id!==a[i-1]);
+ assert.deepEqual(stops,['A','C','B']);assert.equal(result.seconds,40);
+});

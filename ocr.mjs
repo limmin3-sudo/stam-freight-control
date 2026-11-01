@@ -20,7 +20,6 @@ export function parseMissionText(text,locations=[]){
  const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery)\b/i.test(l))||koTitle(lines)||'';
  const missionId=(text.match(/(?:Mission|Contract)\s*(?:ID|#)\s*[:：]?\s*([\w-]{3,80})/i)||[])[1]||null;
  const rewardMatch=text.match(/(?:Reward|Payout|Payment|보상)\s*[:：]?\s*[¤$€]?\s*([\d,]+)/i)||text.match(/([\d,]+)\s*aUEC/i),reward=rewardMatch?Number(rewardMatch[1].replaceAll(',','')):0;
- const timer=text.match(/(?:Time Remaining|Time Left|남은\s*시간)\s*[:：]?\s*(?:(\d+)\s*(?:h|시간)\s*)?(?:(\d+)\s*(?:m|min|분)\s*)?(?:(\d+)\s*(?:s|초))?/i);const remainingMinutes=timer&&(timer[1]||timer[2]||timer[3])?Number(timer[1]||0)*60+Number(timer[2]||0)+Number(timer[3]||0)/60:null;
  const maxBox=Number((text.match(/(?:max(?:imum)?\s*(?:container|box)(?:\s*size)?|containers?\s*(?:up to|of)|최대\s*(?:상자|컨테이너))\s*[:：]?\s*(1|2|4|8|16|24|32)\s*SCU/i)||[])[1])||null;
  function locationIn(s){
   // "파이로 II의 선셋 메사": the site after "의" beats the planet in front of it.
@@ -46,7 +45,7 @@ export function parseMissionText(text,locations=[]){
  const total=Number(d[2].replaceAll(',','')),pickups=[pickup,...extra].filter(Boolean),n=Math.max(1,pickups.length),dropoffId=locationIn(d[3]);
  if(n>1)warnings.push(`${commodity}: 픽업지가 ${n}곳(${pickups.map(l=>l.split('에서')[0].trim()).join(', ')})입니다. 곳별 수량이 화면에 없어 ${total} SCU를 나눠 두었습니다. 실제 수량으로 수정해 주세요.`);
  (pickups.length?pickups:['']).forEach((p,k)=>koreanCargo.push({commodity,scu:Math.floor(total/n)+(k<total%n?1:0),pickupId:p?locationIn(p.split('에서')[0]):'',dropoffId,maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown',...(n>1?{_scuAssumed:true,_pickupText:p.split('에서')[0].trim()}:{})}));}
- if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 공식 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,remainingMinutes,cargo:koreanCargo,returnId,warnings,rawText:text};}
+ if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 공식 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,cargo:koreanCargo,returnId,warnings,rawText:text};}
  const action=/^(?:[•*\-\s\d.)]*)(Collect|Pick\s*up|Deliver|수령|수집|배송|배달|납품)\b/i,starts=[];lines.forEach((line,i)=>{const m=line.match(action);if(m)starts.push({index:i,type:/deliver|배송|배달|납품/i.test(m[1])?'delivery':'pickup'});});
  const objectives=starts.map((a,i)=>{const block=lines.slice(a.index,Math.min(starts[i+1]?.index??lines.length,a.index+6)).join(' '),quantity=block.match(/(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\b/i);const scu=quantity?Number(quantity[1].replaceAll(',','')):null;let commodity=(block.match(/SCU\s+(?:of\s+)?(.+?)\s+(?:from|to|at)\s+/i)||[])[1]||'';if(!commodity)commodity=(block.match(/(?:collect|pick\s*up|deliver)\s+(.+?)\s+(?:from|to)\s+/i)||[])[1]||'';commodity=commodity.replace(/^\d+\s*\/\s*\d+\s*/,'').trim();if(commodity.length>100)commodity='';return {type:a.type,scu,commodity,locationId:locationIn(block),block};}).filter(o=>o.scu!==null||o.locationId);
  const pickups=objectives.filter(o=>o.type==='pickup'),deliveries=objectives.filter(o=>o.type==='delivery');let cargo=[];
@@ -57,7 +56,7 @@ export function parseMissionText(text,locations=[]){
  else cargo=(deliveries.length?deliveries:pickups).map(o=>o.type==='pickup'?record(o,null):record(null,o));
  if(!cargo.length){cargo=[{commodity:'',scu:null,pickupId:'',dropoffId:'',maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown'}];warnings.push('운송 목표를 확실히 읽지 못했습니다. 원문을 보며 빈 항목을 채우세요.');}
  if(!title)warnings.push('미션 이름을 확인하세요.');if(cargo.some(c=>!c.pickupId||!c.dropoffId))warnings.push('픽업지·배송지를 확인하세요.');if(cargo.some(c=>!c.scu))warnings.push('읽히지 않은 SCU를 입력하세요.');warnings.push('스샷에 없는 상자 크기·개수는 따로 확인하세요.');
- return {missionId,title,company,reward,remainingMinutes,cargo,returnId,warnings:[...new Set(warnings)],rawText:text};
+ return {missionId,title,company,reward,cargo,returnId,warnings:[...new Set(warnings)],rawText:text};
 }
 let libraryPromise,workerPromise,activeLanguage,activeWorker;
 function loadLibrary(){if(globalThis.Tesseract)return Promise.resolve(globalThis.Tesseract);if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=()=>resolve(globalThis.Tesseract);s.onerror=()=>{libraryPromise=null;reject(Error('글자 인식 기능을 불러오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력하세요.'));};document.head.append(s);});return libraryPromise;}

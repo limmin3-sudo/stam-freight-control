@@ -108,3 +108,8 @@ test('cargo names are corrected to the official Korean list only when one name i
     assert.equal(r.cargo[0].commodity,'이\'템');assert.ok(r.warnings.some(w=>/공식 표기로 고쳤습니다: 이'펨→이'템/.test(w)));
   }finally{setCommodityNames([]);}
 });
+
+test('countdown-looking screenshot text never creates a hauling time limit',()=>{
+ const parsed=parseMissionText('Time Remaining: 1h 20m 30s',[]);
+ assert.equal(Object.hasOwn(parsed,'remainingMinutes'),false);
+});
