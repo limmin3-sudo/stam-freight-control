@@ -274,11 +274,24 @@ footer{padding:14px 24px;gap:12px}
 .run-desk[hidden]{display:none}
 .run-desk-map,.run-desk-cargo{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .run-desk-close{position:absolute;top:10px;right:10px;z-index:6;padding:9px 20px;font-size:15px;font-weight:700;border-radius:999px;border:2px solid var(--cyan);color:var(--cyan);background:#0b2333e6;box-shadow:0 6px 20px #000b}
-.run-desk-bar{grid-column:1/-1;min-width:0;max-height:36vh;overflow:auto}
+.run-desk-bar{grid-column:1/-1;min-width:0}
 .run-desk .map-wrap{flex:1 1 auto;width:100%!important;height:auto!important;min-height:0}
 .run-desk #map-expand,.run-desk #map-ui-toggle{display:none}
 .run-desk #cargo-view{flex:1 1 auto;height:auto!important;min-height:0;display:flex;flex-direction:column;border:0;background:none}
 .run-desk .cargo-split{flex:1 1 auto;min-height:0;display:grid;grid-template-rows:minmax(0,1fr)}
 .run-desk .cargo-viewport{height:100%!important;min-height:0}
-.run-desk .execution{position:static;margin:0;max-height:none}
+.run-desk .execution{position:static;margin:0;max-height:none;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none}
+.run-desk .run-cols{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px}
+.run-desk .run-col-main,.run-desk .run-col-talk{padding:14px 16px;background:linear-gradient(115deg,#122b35,#0c1927);border:1px solid #315565;border-radius:9px}
+.run-desk .run-col-talk .run-cargo{max-height:8.5em}
 @media(max-width:900px){.run-desk{grid-template-columns:1fr;grid-template-rows:minmax(240px,1fr) minmax(240px,1fr) auto;overflow:auto}.run-desk-bar{max-height:none}}
+/* Flight progress: actions on the left, partner talk with this stop's cargo on the right. */
+.run-cols{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.run-col-main{min-width:0;display:flex;flex-direction:column;gap:10px}
+.run-col-main .run-buttons{margin-top:auto}
+.run-col-talk{min-width:0;display:flex;flex-direction:column}
+.run-col-talk .aide{flex:1 1 auto;margin:0;align-items:flex-start}
+.run-col-talk .run-partner-speech{flex:1 1 auto;width:100%}
+.run-col-talk .run-cargo{width:100%;margin-top:6px;padding-top:8px;border-top:1px solid #23506a;max-height:12em;overflow:auto}
+.run-col-talk .blocked-badge{margin:6px 0 0}
+@media(max-width:900px){.run-cols,.run-desk .run-cols{grid-template-columns:minmax(0,1fr)}}
