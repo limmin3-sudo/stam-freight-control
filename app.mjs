@@ -73,13 +73,13 @@ function renderPlan(){
 
 // 「지도만 크게 보기」: the map alone, full screen, with no flight panels on top.
 function setMapSolo(on){const wrap=$('map-wrap');wrap.classList.toggle('map-expanded',on);wrap.classList.toggle('map-solo',on);$('map-overlay').hidden=true;
- const button=$('map-ui-toggle');button.textContent=on?'■ 지도 닫기':'지도만 크게 보기';button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-expanded','false');}
+ const button=$('map-ui-toggle');button.textContent=on?'지도 닫기':'지도만 크게 보기';button.setAttribute('aria-pressed',String(on));button.setAttribute('aria-expanded','false');}
 // 운항 모드: full screen split into map (left), cargo 3D (right) and the flight progress bar (bottom).
 // The real map, cargo view and execution panel are moved in and returned to their places on exit.
 const runHomes=new Map();
 function setMapExpanded(on){if(on===!$('run-desk').hidden)return;if(on)setMapSolo(false);
  document.body.classList.toggle('map-fullscreen',on);$('run-desk').hidden=!on;
- for(const b of [$('map-expand'),$('run-view')]){b.textContent=on?'■ 메인 화면으로 돌아가기':'▶ 운항 모드';b.setAttribute('aria-pressed',String(on));}
+ for(const b of [$('map-expand'),$('run-view')]){b.textContent=on?'메인 화면으로 돌아가기':'관제 모드';b.setAttribute('aria-pressed',String(on));}
  const parts=[[$('map-wrap'),'run-desk-map'],[$('cargo-view'),'run-desk-cargo'],[$('execution'),'run-desk-bar']];
  if(on){for(const [el,slot] of parts){runHomes.set(el,{parent:el.parentNode,next:el.nextSibling});$(slot).append(el);}}
  else for(const [el] of parts){const home=runHomes.get(el);if(home)home.parent.insertBefore(el,home.next);}

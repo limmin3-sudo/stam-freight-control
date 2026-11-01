@@ -22,7 +22,7 @@ export function createHistory(button,{notify=()=>{}}={}){
   <h3>함선별</h3><table class="history-ships"><thead><tr><th>함선</th><th>운항</th><th>수익</th><th>SCU</th><th>시간당</th></tr></thead><tbody>${[...s.byShip].sort((a,b)=>b[1].reward-a[1].reward).map(([n,b])=>`<tr><td>${esc(n)}</td><td>${b.runs}</td><td>${fmt(b.reward)}</td><td>${fmt(b.scu)}</td><td>${fmt(b.seconds?b.reward/(b.seconds/3600):0)}</td></tr>`).join('')}</tbody></table>
   <h3>지난 운항</h3><ol class="history-list">${list.map(r=>`<li><details><summary><span>${new Date(r.at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span><b>${esc(r.ship)}</b><span>계약 ${r.missions?.length||0}건 · ${fmt(r.scu)} SCU · ${hm(r.seconds)}</span><strong>${fmt(r.reward)} aUEC</strong></summary>
    <ul>${(r.missions||[]).map(m=>`<li>${esc(m.company||'')} ${esc(m.title||m.id)} · ${fmt(m.scu)} SCU · ${fmt(m.reward)} aUEC</li>`).join('')}</ul><p class="small subtle">${esc(r.route||'')} · 거점 ${r.stops||0}곳</p><button type="button" class="text-button" data-delete="${esc(r.id)}">이 기록 삭제</button></details></li>`).join('')}</ol>`
-  :'<p>아직 완료한 운항이 없습니다. 운항 모드에서 마지막 거점까지 완료하면 함선·계약·수익·걸린 시간이 여기에 쌓입니다.</p>'}
+  :'<p>아직 완료한 운항이 없습니다. 관제 모드에서 마지막 거점까지 완료하면 함선·계약·수익·걸린 시간이 여기에 쌓입니다.</p>'}
   <p class="small subtle">기록은 이 브라우저에 저장되고, 로그인하면 계정에도 저장되어 다른 PC에서 함께 볼 수 있습니다. 수익은 계약에 입력된 보상 기준입니다.</p>`;
   dialog.querySelector('[data-close]').onclick=()=>dialog.close();
   dialog.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!confirm('이 운항 기록을 삭제할까요?'))return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(readHistory().filter(r=>r.id!==b.dataset.delete)));}catch{}render();});}
