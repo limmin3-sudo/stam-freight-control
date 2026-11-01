@@ -16,7 +16,7 @@ export function createAssistant(app){
   root.innerHTML=`<div class="aide-card"><button class="aide-close" type="button" aria-label="닫기">×</button>
    <div class="aide-top"><div class="aide-emblem">${EMBLEM}</div><div><div class="aide-role">STAM FREIGHT CONTROL · ${V().role}</div><div class="aide-steps">${stepsOrder.slice(1).map((s,i)=>`<i class="${i+1<idx?'done':i+1===idx?'now':''}"></i>`).join('')}</div></div></div>
    ${step==='welcome'?`<div class="aide-intro-portrait"><img src="${VOICE_PORTRAITS[voiceId()]}" alt="${V().role} 인물 사진"><span>${V().role}</span></div>`:''}<h2 class="aide-title"></h2>${sub?`<p class="aide-sub">${sub}</p>`:''}<div class="aide-body">${body||''}</div><div class="aide-actions">${buttons}</div></div>`;
-  root.querySelector('.aide-close').onclick=close;type(root.querySelector('.aide-title'),title);}
+  root.querySelector('.aide-close').onclick=()=>close();type(root.querySelector('.aide-title'),title);}
  function type(el,text){clearInterval(typing);if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;return;}let i=0;el.textContent='';typing=setInterval(()=>{el.textContent=text.slice(0,++i);if(i>=text.length)clearInterval(typing);},22);}
  const on=(sel,fn)=>{const el=root.querySelector(sel);if(el)el.onclick=fn;};
  function go(s){step=s;clearInterval(poll);({choose,welcome,ship,start,shots,confirm,boxes,brief})[s]();}
@@ -37,10 +37,10 @@ export function createAssistant(app){
   on('#a-guide',()=>app.showGuide?.());on('#a-partner',()=>go('choose'));on('#a-go',()=>go('ship'));on('#a-resume',()=>go('confirm'));on('#a-fresh',()=>{app.clearMissions();go('ship');});on('#a-skip',close);}
  function ship(){const s=app.ship(),d=app.driveSetup();
   frame(V().ship(s.name),V().shipSub(fmt(s.capacity)),`<label class="aide-field">운용 함선<select id="a-ship">${app.shipOptions()}</select></label><div class="aide-drive-presets" role="group" aria-label="드라이브 초기 설정">${[['factory','기본 장착',d.factory||'미확인'],['auto','민수 A등급',d.auto],['custom','사용자 설정','평균 속도 직접 지정']].map(([v,t,desc])=>`<button type="button" data-drive-mode="${v}" aria-pressed="${d.mode===v}" ${v==='factory'&&!d.factory?'disabled':''}><b>${t}</b><small>${esc(desc)}</small></button>`).join('')}</div>${d.mode==='custom'?`<label class="aide-field">평균 퀀텀 속도 (km/s)<input id="a-drive-speed" type="number" min="1000" max="2000000" value="${d.quantumSpeed}" required></label>`:''}`,
-   `<button class="primary" id="a-next">${V().shipOk}</button><button class="quiet" id="a-back">이전</button>`);
+   `<button class="primary" id="a-next">${V().shipOk}</button><button class="quiet" id="a-more-settings">상세 설정 (그리드·계획 방식)</button><button class="quiet" id="a-back">이전</button>`);
   root.querySelector('#a-ship').value=s.id;root.querySelector('#a-ship').onchange=e=>{app.setShip(e.target.value);ship();};
   root.querySelectorAll('[data-drive-mode]').forEach(b=>b.onclick=()=>{app.setDriveSetup(b.dataset.driveMode);ship();});const speed=root.querySelector('#a-drive-speed');if(speed)speed.onchange=()=>{if(speed.reportValidity())app.setDriveSetup('custom',Number(speed.value));};
-  on('#a-next',()=>go('start'));on('#a-back',()=>go('welcome'));}
+  on('#a-next',()=>go('start'));on('#a-back',()=>go('welcome'));on('#a-more-settings',()=>{close(true);app.openFlightSettings?.();});}
  function start(){const cur=app.start();
   frame(V().start,V().startSub,`<label class="aide-field">현재 위치<input id="a-loc" list="a-locs" placeholder="예: 뉴배비지, 에버러스, Everus, 파이로 6" value="${esc(cur?app.locationLabel(cur):'')}" autocomplete="off"><datalist id="a-locs">${app.locationList()}</datalist></label><p class="aide-note" id="a-loc-hint"></p>`,
    `<button class="primary" id="a-next">${V().startOk}</button><button class="quiet" id="a-back">이전</button>`);
@@ -77,8 +77,8 @@ export function createAssistant(app){
   const legs=p.visits.slice(0,6).map((v,i)=>`<li><span class="aide-n">${i+1}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='pickup'?'픽업':e.type==='delivery'?'배송':'복귀').filter((x,k,a)=>a.indexOf(x)===k).join('·')} · 약 ${Math.max(1,Math.round(v.seconds/60))}분</small></li>`).join('')+(p.visits.length>6?`<li class="aide-more">외 ${p.visits.length-6}곳</li>`:'');
   frame(V().brief,V().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked),`<ol class="aide-legs">${legs}</ol>`,
    `<button class="primary" id="a-launch">${V().launch}</button><button id="a-full">전체 계획 보기</button><button class="quiet" id="a-back">이전</button>`,{compact:true});
-  app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',close);on('#a-back',()=>go('confirm'));}
- function close(){clearInterval(typing);clearInterval(poll);root.hidden=true;document.body.classList.remove('aide-open');try{localStorage.setItem(SEEN,'1');}catch{}app.closed?.();}
+  app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',()=>close());on('#a-back',()=>go('confirm'));}
+ function close(quiet=false){clearInterval(typing);clearInterval(poll);root.hidden=true;document.body.classList.remove('aide-open');try{localStorage.setItem(SEEN,'1');}catch{}if(!quiet)app.closed?.();}
  function open(s='choose'){root.hidden=false;document.body.classList.add('aide-open');go(s);}
  root.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();close();}});
  return {open,close,firstVisit:()=>{try{return !localStorage.getItem(SEEN);}catch{return true;}}};
