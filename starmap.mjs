@@ -1,3 +1,4 @@
+import {mapLocationName,activeSystemLinks} from './route-display.mjs';
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
 import {koName} from './aliases.mjs';
@@ -79,9 +80,10 @@ export function createStarMap(container,labelContainer,data,onSelect){
  let sphereGeo=new THREE.SphereGeometry(1,...quality.seg);
  function addStar(parent,color,pos,r){const m=new THREE.Mesh(sphereGeo,starMaterial(color));m.scale.setScalar(r);m.position.copy(pos);parent.add(m);const corona=new THREE.Mesh(sphereGeo,starCoronaMaterial(color));corona.scale.setScalar(1.045);m.add(corona);return m;}
  function buildGalaxy(){clearGroup(galaxyGroup);for(const [sys,p] of Object.entries(GALAXY)){addStar(galaxyGroup,STAR_COLORS[sys],p,STAR_R[sys]*1.6);}
-  const hot=new Set();route?.visits.forEach(v=>{const s=v.leg.nodes.map(id=>byId.get(id)?.system);for(let i=1;i<s.length;i++)if(s[i]!==s[i-1])hot.add([s[i-1],s[i]].sort().join('|'));});
-  for(const j of data.jumps){const a=byId.get(j.from)?.system,b=byId.get(j.to)?.system;if(!a||!b)continue;const isHot=hot.has([a,b].sort().join('|')),pts=new THREE.QuadraticBezierCurve3(GALAXY[a],GALAXY[a].clone().lerp(GALAXY[b],.5).add(V(0,8,0)),GALAXY[b]).getPoints(64);// Idle jump-gate links stay faint and still; only a link used by the current route lights up and flows.
-   const rb=routeRibbon(pts,{color:isHot?'#ffb35c':'#2e5470',width:isHot?4:1.1,flow:isHot?1:0});rb.material.uniforms.uReveal.value=1;galaxyGroup.add(rb);}}
+  const hot=activeSystemLinks(route,byId),drawn=new Set();
+  for(const j of data.jumps){const a=byId.get(j.from)?.system,b=byId.get(j.to)?.system,key=[a,b].sort().join('|');if(!a||!b||!hot.has(key)||drawn.has(key))continue;drawn.add(key);
+   const pts=new THREE.QuadraticBezierCurve3(GALAXY[a],GALAXY[a].clone().lerp(GALAXY[b],.5).add(V(0,8,0)),GALAXY[b]).getPoints(64);
+   const rb=routeRibbon(pts,{color:'#ffb35c',width:4,flow:1});rb.material.uniforms.uReveal.value=1;rb.userData.systemLink=true;galaxyGroup.add(rb);}}
  function buildSystem(sys){clearGroup(systemGroup);clearLabels();items=[];itemById.clear();layout=buildLayout(sys);backdrop.paint(sys);
   extent=Math.max(25,...[...layout.values()].filter(v=>v.loc.type==='Planet'||v.loc.isGateway).map(v=>v.pos.length()));
   for(const v of layout.values()){if(v.loc.type==='Planet'&&byId.get(v.loc.parentId)?.type==='Star')addRing(V(),Math.hypot(v.pos.x,v.pos.z),v.pos.y,0x4f86a6,.3);if(v.loc.type==='Moon'&&v.parent){const P=layout.get(v.parent);addRing(P.pos,Math.hypot(v.pos.x-P.pos.x,v.pos.z-P.pos.z),v.pos.y,0x3d6a82,.24);}}
@@ -116,8 +118,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function clearLabels(){for(const s of labels.values()){s.material.map.dispose();s.material.dispose();}clearGroup(labelGroup);labels.clear();}
  const visitNums=id=>route?.visits.map((v,i)=>v.locationId===id?i+1:null).filter(Boolean)||[];
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
-  const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':TYPE_KO[l.type]||'',sub=[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
-  s=labelSprite((n.length?n.join(',')+' · ':'')+l.name,sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
+  const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':TYPE_KO[l.type]||'',sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
+  s=labelSprite((n.length?n.join(',')+' · ':'')+mapLocationName(l),sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
  // ---- navigation -------------------------------------------------------------------------------
@@ -189,6 +191,6 @@ export function createStarMap(container,labelContainer,data,onSelect){
  return {setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
-  _debug:()=>({level,system,route:!!route,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
+  _debug:()=>({level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
   search:q=>{const n=String(q).toLowerCase();return data.locations.filter(l=>l.name.toLowerCase().includes(n)).slice(0,12);}};
 }

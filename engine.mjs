@@ -1,3 +1,4 @@
+import {betterTravel,compareRoute} from './route-cost.mjs';
 import {replayManualStops} from './manual-route.mjs';
 import {planActionRoute} from './route-search.mjs';
 import {remainingTravelEstimate} from './route-estimate.mjs';
@@ -112,12 +113,13 @@ function gatewayOf(jp,data=gatewayOf.data){const cache=gatewayCache.get(data)||n
 export function navigator(data,settings){gatewayOf.data=data;
  const opt={...DEFAULTS,...settings},byId=new Map(data.locations.map(l=>[l.id,l])),gateIds=[...new Set(data.jumps.flatMap(j=>[j.from,j.to]))],cache=new Map();
  function path(from,to){if(from===to)return {seconds:0,meters:0,nodes:[from],jumps:0};const key=from+'|'+to;if(cache.has(key))return cache.get(key);const a=byId.get(from),b=byId.get(to);if(!a||!b)throw Error('좌표를 찾지 못했습니다.');
-  const nodes=[...new Set([from,to,...gateIds])],dist=new Map(nodes.map(id=>[id,Infinity])),previous=new Map(),open=new Set(nodes);dist.set(from,0);
-  while(open.size){const u=[...open].reduce((best,id)=>dist.get(id)<dist.get(best)?id:best);if(!Number.isFinite(dist.get(u)))break;open.delete(u);if(u===to)break;const lu=byId.get(u);
+  const nodes=[...new Set([from,to,...gateIds])],dist=new Map(nodes.map(id=>[id,Infinity])),metres=new Map(nodes.map(id=>[id,Infinity])),crossings=new Map(nodes.map(id=>[id,65535])),previous=new Map(),open=new Set(nodes);dist.set(from,0);metres.set(from,0);crossings.set(from,0);
+  while(open.size){const u=[...open].reduce((best,id)=>betterTravel(crossings.get(id),metres.get(id),dist.get(id),crossings.get(best),metres.get(best),dist.get(best))?id:best);if(!Number.isFinite(dist.get(u)))break;open.delete(u);if(u===to)break;const lu=byId.get(u);
    for(const v of open){const lv=byId.get(v);let cost=Infinity;
     if(lu.system===lv.system)cost=quantumSeconds(distance(lu,lv)*opt.detourFactor,opt)+opt.spool;
     else if(data.jumps.some(j=>(j.from===u&&j.to===v)||(j.to===u&&j.from===v)))cost=opt.jumpMinutes*60;
-    if(dist.get(u)+cost<dist.get(v)){dist.set(v,dist.get(u)+cost);previous.set(v,u);}
+    const m=metres.get(u)+(lu.system===lv.system?distance(lu,lv):0),j=crossings.get(u)+Number(lu.system!==lv.system);
+    if(Number.isFinite(cost)&&betterTravel(j,m,dist.get(u)+cost,crossings.get(v),metres.get(v),dist.get(v))){dist.set(v,dist.get(u)+cost);metres.set(v,m);crossings.set(v,j);previous.set(v,u);}
    }
   }
   if(!Number.isFinite(dist.get(to)))throw Error(`${a.system}–${b.system} 사이 점프 연결을 데이터에서 찾지 못했습니다.`);
@@ -133,8 +135,9 @@ export function planRoute(data,missions,startId,settings={}){
  const opt={...DEFAULTS,...settings,startId,ship:validateShip(settings.ship||DEFAULT_SHIP)},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('출발 위치를 선택하세요.');
  const {shipments,warnings}=makeShipments(missions,nav.byId,opt);if(!shipments.length)throw Error('운송할 화물을 추가하세요.');
  const n=shipments.length;
- const now=Number.isFinite(settings.nowMs)?settings.nowMs:Date.now(),deadlines=new Map(missions.filter(m=>Number.isFinite(m.deadlineAt)).map(m=>[m.id,(m.deadlineAt-now)/1000]));
- const score=s=>s.cost+s.late.length*1e7;
+ // Route selection follows revisits, travel and handling; contracts have no deadlines.
+ const score=s=>s.cost;
+ const compare=compareRoute;
  const bounds0=shipBounds(opt.ship);
  // Resume support: shipments already picked up / delivered, and where the aboard boxes currently sit.
  const resume=settings.resume||null,startStatus=Array(n).fill(0);let startPacking=packBoxes([],[],opt.ship);
@@ -145,13 +148,14 @@ export function planRoute(data,missions,startId,settings={}){
   if(startStatus.every(x=>x===2))throw Error('남은 운송이 없습니다. 모든 배송을 마쳤습니다.');}
  // The shared stop search looks ahead to the complete route. Validate every proposed
  // pickup against the real grids before using it; aboard boxes remain fixed.
- const initial={status:startStatus,at:startId,cost:0,actions:[],packing:startPacking,late:[]};
- function advance(state,i,ship=opt.ship,waypointId=null){if(i===null){const leg=nav.path(state.at,waypointId);return {...state,at:waypointId,cost:state.cost+leg.seconds,actions:[...state.actions,{type:'waypoint',locationId:waypointId,leg,seconds:leg.seconds,packing:state.packing}]};}const s=shipments[i],st=state.status[i];if(st===2)return null;const status=[...state.status];status[i]=st+1;
+ const initial={status:startStatus,at:startId,cost:0,actions:[],packing:startPacking,meters:0,jumps:0,deferred:0,visited:new Set([startId]),revisits:0};
+ function advance(state,i,ship=opt.ship,waypointId=null){if(i===null){const leg=nav.path(state.at,waypointId);return {...state,at:waypointId,cost:state.cost+leg.seconds,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,visited:new Set([...state.visited,waypointId]),revisits:state.revisits+Number(waypointId!==state.at&&state.visited.has(waypointId)),actions:[...state.actions,{type:'waypoint',locationId:waypointId,leg,seconds:leg.seconds,packing:state.packing}]};}const s=shipments[i],st=state.status[i];if(st===2)return null;const status=[...state.status];status[i]=st+1;
   const packed=st===0?packBoxes(s.boxes.map(b=>({...b,rank:0})),state.packing.boxes,ship):packBoxes([],state.packing.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)),ship);if(!packed)return null;
   const to=st===0?s.pickupId:s.dropoffId,leg=nav.path(state.at,to);let moves=0;if(st===1){const leaving=new Set(s.boxes.map(b=>b.boxId)),stay=state.packing.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==s.dropoffId);for(const b of state.packing.boxes)if(leaving.has(b.boxId))moves+=blockersOf(opt.ship,b,stay,bounds0).length;}
   const seconds=leg.seconds+s.boxes.length*opt.secondsPerBox+moves*opt.secondsPerBox*2;
-  const cost=state.cost+seconds+(opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst?1e6:0),late=[...state.late];for(const [id,limit]of deadlines){if(!late.includes(id)&&cost>limit&&shipments.some((s,j)=>s.missionId===id&&state.status[j]!==2))late.push(id);}
-  return {status,at:to,cost,late,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed}]};
+  const cost=state.cost+seconds+(opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst?1e6:0);
+  const visited=new Set(state.visited);visited.add(to);const revisits=state.revisits+Number(to!==state.at&&state.visited.has(to));
+  return {status,at:to,cost,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,deferred:state.deferred+Number(!!opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst),visited,revisits,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed}]};
  }
  const manual=Array.isArray(opt.manualStops),manualBest=manual?replayManualStops(opt.manualStops,shipments,nav,initial,(state,i,id)=>advance(state,i,opt.ship,id)):null;
  const proposed=manual?null:planActionRoute(shipments,startId,nav,{initialStatus:startStatus});
@@ -162,25 +166,25 @@ export function planRoute(data,missions,startId,settings={}){
   if(!sharesGrids(opt.ship)){let shared=initial;for(const action of proposed.actions){shared=advance(shared,action.shipmentIndex,{...opt.ship,shareGrids:true});if(!shared)break;}sharingWouldFit=!!shared;}
   warnings.push(sharingWouldFit?'미션별 전용 그리드 때문에 화물을 나눠 운송합니다. 함선 설정의 「여러 미션이 한 그리드 공유 → 공유 허용」을 선택하면 화물 소유권을 유지하면서 함께 실을 수 있습니다.':'현재 함선 용량·상자 크기·그리드 조건에 맞춰 화물을 나눠 운송하도록 계산했습니다.');
  }
- // Deadlines and an explicitly deferred first stop still use the constrained search.
+ // An explicitly deferred first stop still uses the constrained search.
  let best=manualBest||candidate,usedStopSearch=!!candidate;
- if(!manual&&(!candidate||deadlines.size||opt.avoidFirst)){
-  const estimate=remainingTravelEstimate(shipments,nav),remainingWork=status=>shipments.reduce((sum,s,i)=>sum+(2-status[i])*s.boxes.length*opt.secondsPerBox,0);
+ if(!manual&&(!candidate||opt.avoidFirst)){
+  const estimate=remainingTravelEstimate(shipments,nav),estimateMeters=remainingTravelEstimate(shipments,nav,'meters'),remainingWork=status=>shipments.reduce((sum,s,i)=>sum+(2-status[i])*s.boxes.length*opt.secondsPerBox,0);
   let beam=[initial];const steps=startStatus.reduce((a,x)=>a+2-x,0);
   for(let step=0;step<steps;step++){
    const next=[];for(const state of beam){const successors=[];for(let i=0;i<n;i++){const nextState=advance(state,i);if(nextState)successors.push(nextState);}
-    const system=nav.byId.get(state.at).system,canCollectHere=!deadlines.size&&!opt.avoidFirst&&successors.some(s=>s.actions.at(-1).type==='pickup'&&nav.byId.get(s.at).system===system);
+    const system=nav.byId.get(state.at).system,canCollectHere=!opt.avoidFirst&&successors.some(s=>s.actions.at(-1).type==='pickup'&&nav.byId.get(s.at).system===system);
     // Cross only after gathering the remaining local pickups that actually fit.
     const here=successors.filter(s=>s.at===state.at),deliveriesHere=here.filter(s=>s.actions.at(-1).type==='delivery');
     // Finish this stop before leaving: unload, then collect every shipment that fits.
     next.push(...(deliveriesHere.length?deliveriesHere:here.length?here:successors.filter(s=>!canCollectHere||nav.byId.get(s.at).system===system)));}
-   const unique=new Map();for(const state of next)state.estimate=score(state)+estimate(state.status,state.at)+remainingWork(state.status);
-   next.sort((a,b)=>a.estimate-b.estimate||score(a)-score(b));
-   for(const state of next){const k=state.status.join('')+'|'+state.at+'|'+state.late.slice().sort().join(',')+'|'+state.packing.boxes.map(b=>b.boxId+':'+b.bin+':'+b.cell.join()).sort().join(';');if(!unique.has(k))unique.set(k,state);if(unique.size>=40)break;}
+   const unique=new Map();for(const state of next){state.estimate=score(state)+estimate(state.status,state.at)+remainingWork(state.status);state.estimateMeters=state.meters+estimateMeters(state.status,state.at);}
+   next.sort((a,b)=>a.revisits-b.revisits||a.deferred-b.deferred||a.jumps-b.jumps||a.estimateMeters-b.estimateMeters||a.estimate-b.estimate||compare(a,b));
+   for(const state of next){const k=state.status.join('')+'|'+state.at+'|'+[...state.visited].sort().join(',')+'|'+state.packing.boxes.map(b=>b.boxId+':'+b.bin+':'+b.cell.join()).sort().join(';');if(!unique.has(k))unique.set(k,state);if(unique.size>=40)break;}
    beam=[...unique.values()];if(!beam.length){if(candidate)break;throw Error('이 상자 구성으로 실을 수 있는 경로를 찾지 못했습니다. 상자 크기를 확인하세요.');}
   }
-  const searched=beam.filter(s=>s.status.every(x=>x===2)).sort((a,b)=>score(a)-score(b))[0];
-  if(searched&&(!best||score(searched)<score(best))){best=searched;usedStopSearch=false;}
+  const searched=beam.filter(s=>s.status.every(x=>x===2)).sort(compare)[0];
+  if(searched&&(!best||compare(searched,best)<0)){best=searched;usedStopSearch=false;}
  }
  const status=Array(n).fill(0),visits=[];let elapsed=0,peak=startPacking.used;
  // Replay the chosen route with delivery-aware placement: boxes delivered later go deeper, early ones near the door/top.
@@ -207,7 +211,6 @@ export function planRoute(data,missions,startId,settings={}){
   if(v.blocked.length)warnings.push(`${vi+1}번 거점 하역: 다른 화물 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}상자를 먼저 옮겨야 할 수 있습니다 (출입구 쪽 또는 위에 적재됨).`);});
  // In game the contract completes once every delivery is done; returning is optional (settings.includeReturn).
  const returnIds=opt.includeReturn?[...new Set(missions.map(m=>m.returnId).filter(Boolean))]:[];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인하세요.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
- const timing=missions.filter(m=>deadlines.has(m.id)).map(m=>{const finish=visits.filter(v=>v.events.some(e=>(e.missionId===m.id&&e.type==='delivery')||(e.type==='return'&&v.locationId===m.returnId))).at(-1)?.elapsed||0,remaining=deadlines.get(m.id),slack=remaining-finish*1.3;return {missionId:m.id,finish,remaining,slack,risk:finish>remaining?'late':slack<0?'tight':'ok'};});
- for(const t of timing)if(t.risk!=='ok')warnings.push(`${missionName(missions.find(m=>m.id===t.missionId))}: ${t.risk==='late'?'예상 납품이 제한 시간 초과':'시간 여유 부족 가능'} (남은 ${Math.max(0,Math.round(t.remaining/60))}분 · 납품 약 ${Math.round(t.finish/60)}분 후)`);
- return {initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':usedStopSearch?'행성계 픽업 묶음 · 거점 방문 시간 최적화 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'남은 이동 시간·제한 시간·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
+ const timing=[];
+ return {initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':usedStopSearch?'행성계 픽업 묶음 · 거점 1회 방문·이동거리 우선 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'재방문 최소화·이동거리 우선·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
 }
