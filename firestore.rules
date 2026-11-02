@@ -20,6 +20,18 @@ service cloud.firestore {
           && request.resource.data.updatedAt is number;
       }
     }
+    // Feedback and bug reports: anyone may add one (size-checked); nobody can read, change or delete them from
+    // the site. The owner reads them in the Firebase console (Firestore Database → Data → feedback).
+    match /feedback/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(['kind','text','contact','lang','at','uid','page'])
+        && request.resource.data.kind in ['feedback','bug']
+        && request.resource.data.text is string && request.resource.data.text.size() > 1 && request.resource.data.text.size() <= 2000
+        && request.resource.data.contact is string && request.resource.data.contact.size() <= 100
+        && request.resource.data.lang in ['ko','en'] && request.resource.data.at == request.time
+        && (request.resource.data.uid == null || (request.auth != null && request.resource.data.uid == request.auth.uid))
+        && (request.resource.data.page == null || (request.resource.data.page is map && request.resource.data.page.size() <= 10));
+    }
     match /usernames/{name} {
       allow get: if true;
       allow list, update: if false;
