@@ -1,5 +1,22 @@
 [
   {
+    "id": "2026-11-02-feedback",
+    "version": "3.1.0",
+    "date": "2026-11-02 14:18",
+    "title": "피드백 · 오류 신고",
+    "changes": [
+      "왼쪽 「관제 모드」 아래 「피드백 · 오류 신고」 버튼에서 의견이나 오류를 적어 보낼 수 있습니다.",
+      "오류 신고에는 버전·언어·함선·계약 수·최근 오류를 함께 보낼 수 있습니다(미션 내용은 보내지 않음). 보낸 내용은 사이트 운영자만 볼 수 있습니다."
+    ],
+    "en": {
+      "title": "Feedback · bug report",
+      "changes": [
+        "Send ideas or bug reports from the “Feedback · bug report” button under Control mode on the left.",
+        "Bug reports can include the version, language, ship, contract count and recent errors (contract contents are not sent). Only the site operator can read them."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-english-and-mission-types",
     "version": "3.0.0",
     "date": "2026-11-02 14:14",

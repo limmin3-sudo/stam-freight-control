@@ -325,3 +325,5 @@ footer{padding:14px 24px;gap:12px}
 .run-desk .aide-line{font-size:13px;line-height:1.5}
 .run-desk .run-col-talk .run-cargo{font-size:13px;line-height:1.6}
 .updates-current{margin:0 0 10px;font-weight:700;color:var(--cyan)}
+.feedback-btn{width:100%;margin-top:8px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer}.feedback-btn:hover{color:var(--text);border-color:var(--cyan)}
+.feedback-dialog form{display:flex;flex-direction:column;gap:10px;min-width:min(520px,calc(100vw - 48px))}.feedback-kind{display:flex;gap:16px}.feedback-kind label,.feedback-dialog label.check{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;font-size:13px;text-align:left}.feedback-kind input,.feedback-dialog label.check input{width:auto;margin:0;flex:none}.feedback-text{display:flex;flex-direction:column;gap:4px}.feedback-dialog textarea{width:100%;resize:vertical;min-height:140px}.feedback-count{text-align:right;margin-top:-6px}.feedback-dialog .dialog-actions{display:flex;justify-content:flex-end;gap:8px}

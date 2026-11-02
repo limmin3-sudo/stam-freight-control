@@ -20,7 +20,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory}
  const setButton=()=>{button.innerHTML=user?`<span class="account-dot ${paused?'warn':''}"></span><span><small>${paused?'동기화 멈춤':'동기화됨'}</small><b>${esc(user.label)}</b></span>`:`<span><small>계정</small><b>${FIREBASE_CONFIG?'로그인':'로그인 준비 중'}</b></span>`;button.title=status;};
  async function load(){if(fb)return fb;
   const [app,auth,store]=await Promise.all(['firebase-app.js','firebase-auth.js','firebase-firestore.js'].map(f=>import(SDK+f)));
-  const a=app.initializeApp(FIREBASE_CONFIG);fb={...auth,...store,auth:auth.getAuth(a),db:store.getFirestore(a)};return fb;}
+  const a=app.getApps()[0]||app.initializeApp(FIREBASE_CONFIG);fb={...auth,...store,auth:auth.getAuth(a),db:store.getFirestore(a)};return fb;}
  const label=u=>u.email?.endsWith('@id.stam-freight-control.app')?u.email.split('@')[0]:(u.displayName||u.email||'계정');
 
  async function readCloud(uid){const snap={};let updatedAt=0;const docs=await fb.getDocs(fb.collection(fb.db,'users',uid,'state'));docs.forEach(d=>{const x=d.data();if(typeof x.value==='string')snap[d.id]=x.value;updatedAt=Math.max(updatedAt,Number(x.updatedAt)||0);});return {snap,updatedAt};}
