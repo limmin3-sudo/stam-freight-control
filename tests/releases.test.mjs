@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-// Update history: every entry carries a semantic version (design = patch, feature = minor, overhaul = major)
+// Update history: every entry carries a semantic version picked by how much users notice it (see docs/DEVELOPMENT.md)
 // and a KST date; the newest entry is first, so versions and dates never go up further down the list.
 test('release history has descending versions and dates',()=>{
  const releases=JSON.parse(fs.readFileSync(new URL('../data/releases.json',import.meta.url),'utf8'));
