@@ -1,4 +1,5 @@
 import {jumpSegments,stepNumbers} from './route-display.mjs';
+import {L} from './i18n.mjs';
 // Run progress: the game is not connected, so the captain presses one big button per stop
 // (접수 완료 / 배송 완료 / 점프 완료) and the whole page moves on to the next step. State survives reloads.
 // Each system jump is its own step before the stop it leads to: run.index stays the visit index and run.jump counts
@@ -67,7 +68,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const kind=kindOf(v);run.index++;run.jump=0;
   if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();onFinish?.({id:`${run.planKey}|${run.startedAt||run.startId||''}`,seconds:run.elapsed,startId:run.startId,stops:plan.visits.length});return;}
   const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
-  run.lastLine=V().next(nm(v.locationId),kind==='pickup'?'접수':kind==='delivery'?'배송':'작업',nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(segsOf(run.index).length?V().jump(segsOf(run.index)[0].entryName):'')+(!segsOf(run.index).length&&unload.length?V().cargo(true,cargoNames(unload)):!segsOf(run.index).length&&load.length?V().cargo(false,cargoNames(load)):'');
+  run.lastLine=V().next(nm(v.locationId),kind==='pickup'?L('접수','pickup'):kind==='delivery'?L('배송','delivery'):L('작업','work'),nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(segsOf(run.index).length?V().jump(segsOf(run.index)[0].entryName):'')+(!segsOf(run.index).length&&unload.length?V().cargo(true,cargoNames(unload)):!segsOf(run.index).length&&load.length?V().cargo(false,cargoNames(load)):'');
   save();render();onAdvance?.(run.index);}
  function undo(){if(run.log.length<=(run.undoFloor||0))return;const last=run.log.pop();run.index=last.visit;
   if(last.jump!=null){run.jump=last.jump;run.finished=false;run.lastLine=V().undo('항성계 점프');save();render();onAdvance?.(run.index);return;}

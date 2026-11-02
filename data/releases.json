@@ -1,15 +1,23 @@
 [
   {
-    "id": "2026-11-02-wiki-mission-types",
-    "version": "2.9.0",
-    "date": "2026-11-02 13:40",
-    "title": "계약의 게임 미션 유형 자동 확인",
+    "id": "2026-11-02-english-and-mission-types",
+    "version": "3.0.0",
+    "date": "2026-11-02 14:14",
+    "title": "영어 버전 추가 · 게임 미션 유형 자동 확인(영어)",
     "changes": [
-      "계약을 넣으면 게임 미션 데이터(Star Citizen Wiki, 현재 4.10.2)와 대조해 어떤 미션 유형인지 찾고, 「미션별 화물 확인」에 유형과 품목별 최대 상자 크기를 보여 줍니다.",
-      "상자 구성을 아직 모르면 그 미션의 최대 상자로 임시 적재를 계산합니다. 큰 상자가 들어가면 작은 상자도 들어가므로 화물 엘리베이터 전에 경로를 정할 수 있습니다.",
-      "기억한 상자 구성은 미션 유형(품목별 최대 상자 크기)까지 같을 때만 자동으로 채웁니다. 냉동포드는 일반 상자가 아닌 포드로 구분합니다.",
-      "미션 데이터는 매일 지도 좌표와 함께 자동으로 갱신됩니다."
-    ]
+      "사이트 전체를 영어로도 볼 수 있습니다. 상단 「English / 한국어」 버튼으로 바꾸며, 기능은 같습니다. 파트너 대사·이용 안내·업데이트 기록도 영어판이 있습니다.",
+      "영어 버전: 영어 게임 화면의 계약을 넣으면 게임 미션 데이터(Star Citizen Wiki, 4.10.2)와 대조해 미션 유형과 품목별 최대 상자 크기를 찾고, 상자 구성을 모르면 그 최대 상자로 임시 적재를 계산합니다. 미션 데이터는 매일 자동 갱신됩니다.",
+      "한국어 버전의 미션 유형 자동 확인은 한글 게임 화면 이름 대응을 준비 중이며 빠른 시일 내 지원 예정입니다. 나머지 기능은 그대로 쓸 수 있습니다.",
+      "엘리베이터에서 실제로 받은 상자가 미션 데이터의 최대 크기보다 커도 입력한 값을 그대로 사용합니다."
+    ],
+    "en": {
+      "title": "English version · automatic game mission types",
+      "changes": [
+        "The whole site is now available in English. Switch with the “English / 한국어” button at the top; features are the same. Partner lines, the guide and the update history have English versions.",
+        "Paste contracts from an English game client and they are matched to the game mission data (Star Citizen Wiki, 4.10.2) to find the mission type and the largest container per commodity; until you enter the real containers, loading is planned with those largest containers. Mission data refreshes daily.",
+        "Mission type matching for the Korean client is coming soon; every other feature works in both languages."
+      ]
+    }
   },
   {
     "id": "2026-11-02-jump-row",
@@ -19,7 +27,14 @@
     "changes": [
       "방문 순서와 관제 모드 지도 목록에서 항성계 점프가 거점과 같은 줄 하나로, 자기 번호를 달고 나옵니다(예: 9번 거점 → 10번 항성계 점프 → 11번 거점).",
       "점프 줄을 누르면 점프 뒤 도착하는 거점이 선택됩니다."
-    ]
+    ],
+    "en": {
+      "title": "System jumps numbered in the visit order",
+      "changes": [
+        "In the visit order and the Control mode map list, a system jump is its own row with its own number (e.g. stop 9 → 10 system jump → stop 11).",
+        "Clicking the jump row selects the stop reached after the jump."
+      ]
+    }
   },
   {
     "id": "2026-11-02-jump-step",
@@ -30,7 +45,15 @@
       "게이트웨이 이동·항성계 점프가 번호가 붙은 별도 단계가 됐습니다. 점프를 마치면 「점프 완료」(Space/Enter)를 눌러 다음 거점으로 넘어갑니다.",
       "방문 순서·지도 이름표·운항 진행의 번호가 점프를 포함해 같은 번호로 맞춰집니다(예: 9번 거점 → 10번 점프 → 11번 거점).",
       "점프 단계는 보라색으로 표시하고, 되돌리기와 새로고침 후에도 점프 단계가 유지됩니다."
-    ]
+    ],
+    "en": {
+      "title": "System jumps as a run step",
+      "changes": [
+        "Gateway transit and system jumps are now their own numbered step. After jumping, press “Jump complete” (Space/Enter) to move on.",
+        "Visit order, map labels and run progress share the same numbers, jumps included.",
+        "Jump steps are purple and survive undo and page reloads."
+      ]
+    }
   },
   {
     "id": "2026-11-02-version-renumber",
@@ -40,7 +63,14 @@
     "changes": [
       "버전 번호를 업데이트의 체감 크기에 맞춰 다시 매겼습니다. 화면 구조를 크게 바꾸면 맨 앞, 새 기능이나 눈에 띄는 변화는 가운데, 작은 다듬기는 맨 뒤 숫자가 올라갑니다.",
       "첫 공개가 v1.0.0, 관제 화면 개편이 v2.0.0입니다."
-    ]
+    ],
+    "en": {
+      "title": "Versions renumbered",
+      "changes": [
+        "Version numbers now follow how noticeable an update is: big screen overhauls raise the first number, new features or visible changes the middle, small polish the last.",
+        "First release is v1.0.0, the control screen overhaul v2.0.0."
+      ]
+    }
   },
   {
     "id": "2026-11-02-run-transit",
@@ -50,7 +80,14 @@
     "changes": [
       "다음 구간에 항성계 점프가 있으면 운항 진행(관제 모드 포함)에 「게이트웨이 → 점프 → 게이트웨이」와 항성계 방향을 눈에 띄게 표시합니다.",
       "진행 점에서 점프 직후 거점 앞에 주황 표시를 붙였습니다."
-    ]
+    ],
+    "en": {
+      "title": "Gateway transit and jumps in run progress",
+      "changes": [
+        "When the next leg has a system jump, run progress (including Control mode) shows “gateway → jump → gateway” and the systems.",
+        "The progress dots mark the stop right after a jump."
+      ]
+    }
   },
   {
     "id": "2026-11-02-history-backfill",
@@ -59,7 +96,13 @@
     "title": "지난 업데이트 기록 추가",
     "changes": [
       "업데이트 기록을 만들기 전에 반영했던 변경도 시간순으로 정리해 넣었습니다(첫 공개부터)."
-    ]
+    ],
+    "en": {
+      "title": "Earlier updates added",
+      "changes": [
+        "Changes made before the update history existed were added in time order, from the first release."
+      ]
+    }
   },
   {
     "id": "2026-11-02-release-versions",
@@ -69,7 +112,14 @@
     "changes": [
       "업데이트마다 버전 번호를 붙였습니다.",
       "업데이트 기록의 날짜를 실제로 반영한 날짜와 시각(한국 시간)으로 바로잡았습니다."
-    ]
+    ],
+    "en": {
+      "title": "Versions in the update history",
+      "changes": [
+        "Every update has a version number.",
+        "Update dates now show the actual release date and time (Korea time)."
+      ]
+    }
   },
   {
     "id": "2026-11-01-guide-name",
@@ -78,7 +128,13 @@
     "title": "이용 안내",
     "changes": [
       "상단 「사용법」 메뉴 이름을 「이용 안내」로 바꿨습니다."
-    ]
+    ],
+    "en": {
+      "title": "Guide",
+      "changes": [
+        "The top “How to use” menu is now called “Guide”."
+      ]
+    }
   },
   {
     "id": "2026-11-01-control-mode-guide",
@@ -88,7 +144,14 @@
     "changes": [
       "왼쪽 「운항 모드」 버튼 이름을 「관제 모드」로 바꾸고 앞의 기호를 뺐습니다. 「메인 화면으로 돌아가기」·「지도 닫기」 버튼의 기호도 뺐습니다.",
       "처음 안내(7단계)를 지금 화면 구성에 맞게 새로 썼습니다. 운항 설정·운송 계약 추가·미션별 화물 확인·경로와 적재·관제 모드·기록과 업데이트 순서입니다."
-    ]
+    ],
+    "en": {
+      "title": "Control mode name and new guide",
+      "changes": [
+        "The “Flight mode” button is now “Control mode”, without the symbol; symbols were removed from “Back to main screen” and “Close map” too.",
+        "The 7-step guide was rewritten for the current screen."
+      ]
+    }
   },
   {
     "id": "2026-11-01-return-main",
@@ -97,7 +160,13 @@
     "title": "운항 모드 복귀 버튼 이름",
     "changes": [
       "운항 모드의 「계획 화면으로」 버튼을 「메인 화면으로 돌아가기」로 바꿨습니다."
-    ]
+    ],
+    "en": {
+      "title": "Return button name",
+      "changes": [
+        "The flight mode “To plan screen” button is now “Back to main screen”."
+      ]
+    }
   },
   {
     "id": "2026-11-01-run-bar-compact",
@@ -107,7 +176,14 @@
     "changes": [
       "운항 모드 아래 진행 영역을 압축해 지도와 적재 3D를 더 크게 보여 줍니다.",
       "파트너가 「계약 건·미션 ID를 확인해 주세요」처럼 계약 코드를 말하지 않습니다. 업데이트 전에 저장된 옛 안내 문장도 표시하지 않습니다."
-    ]
+    ],
+    "en": {
+      "title": "Bigger map in flight mode, cleaner partner lines",
+      "changes": [
+        "The progress area in flight mode is more compact, so the map and cargo 3D are larger.",
+        "Partners no longer mention contract codes, including lines saved before the update."
+      ]
+    }
   },
   {
     "id": "2026-11-01-stam-logo",
@@ -117,7 +193,14 @@
     "changes": [
       "왼쪽 위 예시 방패 로고를 STAM 함대의 원형 로고로 바꿨습니다.",
       "브라우저 탭 아이콘도 같은 로고로 바꿨습니다."
-    ]
+    ],
+    "en": {
+      "title": "STAM fleet logo",
+      "changes": [
+        "The placeholder shield logo was replaced with the round STAM fleet logo.",
+        "The browser tab icon uses the same logo."
+      ]
+    }
   },
   {
     "id": "2026-11-01-run-bar-split",
@@ -129,7 +212,16 @@
       "운항 모드에서 아래쪽 진행 영역에 스크롤이 생기지 않습니다. 화물이 아주 많은 거점만 오른쪽 목록 안에서 스크롤됩니다.",
       "화물 줄은 「↑ 적재 → 행선지 · 품목 수량 · 상자」, 「↓ 하역 품목 수량 · 상자」로 정리했습니다.",
       "파트너 안내에 계약 코드가 나오지 않고 품목 이름으로 말합니다."
-    ]
+    ],
+    "en": {
+      "title": "Run progress in two columns",
+      "changes": [
+        "Run progress is split along the map/cargo 3D border: stop, time, complete button and next stop on the left; partner and this stop’s cargo on the right.",
+        "No scrolling in the flight mode progress area; only very long cargo lists scroll.",
+        "Cargo lines read “↑ Load → destination · goods amount · containers” and “↓ Unload goods amount · containers”.",
+        "Partners name goods instead of contract codes."
+      ]
+    }
   },
   {
     "id": "2026-11-01-run-desk-fit",
@@ -139,7 +231,14 @@
     "changes": [
       "「계획 화면으로」 버튼을 적재 3D 오른쪽 위에 겹쳐 두고, 위쪽 빈 공간만큼 지도와 적재 3D를 키웠습니다.",
       "지도와 적재 3D의 세로 길이가 화면 크기와 상관없이 같도록 맞췄습니다."
-    ]
+    ],
+    "en": {
+      "title": "Flight mode layout",
+      "changes": [
+        "The return button sits over the top right of the cargo 3D, and the map and cargo 3D use the freed space.",
+        "Map and cargo 3D always have the same height."
+      ]
+    }
   },
   {
     "id": "2026-11-01-ships-93",
@@ -151,7 +250,14 @@
       "그리드와 비행 성능은 공개 자료(SuperCargo·Star Citizen Wiki API)에서 가져왔고, 기존 함선 51종의 값은 바꾸지 않았습니다.",
       "Retaliator는 화물 모듈을 장착했을 때 기준입니다. Aurora Mk II는 기본 2 SCU만 넣었습니다(모듈 미포함).",
       "퀀텀 드라이브가 없는 MPUV Cargo·Tractor는 경로 계산을 할 수 없어 넣지 않았습니다."
-    ]
+    ],
+    "en": {
+      "title": "42 ships added (93 total)",
+      "changes": [
+        "42 small to large ships were added, e.g. Aurora series, Origin 100i/300 series, Cutter, Cutlass Red/Blue, Golem Ox, Vulture, MOLE, Retaliator, Idris-M/P.",
+        "Grids and flight performance come from public sources (SuperCargo, Star Citizen Wiki API); the existing 51 ships are unchanged."
+      ]
+    }
   },
   {
     "id": "2026-11-01-run-desk-split",
@@ -162,7 +268,15 @@
       "운항 모드는 화면을 나눠 왼쪽에 지도, 오른쪽에 적재 3D, 아래에 운항 진행을 보여 줍니다. 지도 위에 패널을 덮지 않습니다.",
       "「지도만 크게 보기」는 운항 모드와 별개로 지도 하나만 화면 전체로 크게 봅니다. 「지도 닫기」로 돌아옵니다.",
       "운항 모드에 들어간 직후 Space를 눌러도 화면이 닫히지 않고 거점 완료로 동작합니다."
-    ]
+    ],
+    "en": {
+      "title": "Flight mode split screen and Map only",
+      "changes": [
+        "Flight mode shows the map on the left, cargo 3D on the right and run progress below, with no panels covering the map.",
+        "“Map only” shows just the map full screen, separate from flight mode; “Close map” returns.",
+        "Pressing Space right after entering flight mode completes the stop instead of closing it."
+      ]
+    }
   },
   {
     "id": "2026-11-01-hull-side-level-priority",
@@ -173,7 +287,15 @@
       "적재 3D에서 상자 위 적재 순서 숫자를 없앴습니다. 순서는 적재 상세에서 볼 수 있습니다.",
       "Hull B는 한쪽(좌현/우현)을 먼저 쓰고, 그 안에서도 위·아래 중 한쪽 블록부터 채웁니다.",
       "한 목적지 화물이 좌현·우현으로 갈라지지 않도록 그리드를 덩어리로 나눠 줍니다."
-    ]
+    ],
+    "en": {
+      "title": "Cargo 3D numbers and Hull B fill order",
+      "changes": [
+        "Loading order numbers above containers were removed from the cargo 3D; the order is in Cargo details.",
+        "Hull B fills one side (port/starboard) first, and within it one upper/lower block first.",
+        "One destination’s cargo is no longer split across port and starboard."
+      ]
+    }
   },
   {
     "id": "2026-11-01-flight-setup-partner-change",
@@ -184,7 +306,15 @@
       "왼쪽 「운항 설정」을 누르면 파트너 안내(함선 → 출발지 → 계약 → 상자 → 브리핑)가 열립니다.",
       "오른쪽 위 파트너 버튼은 「파트너 변경」으로 바뀌었고, 누르면 파트너 선택 화면이 열립니다.",
       "그리드·계획 방식 같은 상세 설정은 안내의 함선 단계에서 「상세 설정」으로 열 수 있습니다."
-    ]
+    ],
+    "en": {
+      "title": "Flight setup and Change partner buttons",
+      "changes": [
+        "“Flight setup” on the left opens the partner guide (ship → start → contracts → containers → briefing).",
+        "The partner button at the top right is now “Change partner” and opens partner selection.",
+        "Detailed settings such as grids and planning mode open from the ship step."
+      ]
+    }
   },
   {
     "id": "2026-11-01-flight-mode-account-history",
@@ -196,7 +326,16 @@
       "운항 모드 버튼으로 전체 화면을 전환하며 기존 진행과 타이머를 유지합니다.",
       "운항 기록은 로그인·계정 창 안에서 볼 수 있도록 옮겼습니다.",
       "예상 수익을 상단 요약에 합치고 다섯 항목의 간격과 글자 크기를 넓혀 읽기 쉽게 조정했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Flight mode, run log and reward summary",
+      "changes": [
+        "The gold button became flight mode and moved to the bottom of the left side.",
+        "Switching to flight mode keeps progress and the timer.",
+        "The run log moved into the login/account window.",
+        "Expected reward joined the summary above the map with wider spacing."
+      ]
+    }
   },
   {
     "id": "2026-11-01-inline-operations",
@@ -209,7 +348,17 @@
       "가운데를 지도 → 큰 운항 진행 → 지도와 같은 크기의 화물 적재 순서로 배치했습니다.",
       "양쪽 패널과 방문 목록의 개별 스크롤을 없애고 페이지 전체를 아래로 스크롤하도록 바꿨습니다.",
       "파트너 호출을 상단 오른쪽으로 옮겼습니다. 기존 계약과 운항 진행·상자 위치를 유지합니다."
-    ]
+    ],
+    "en": {
+      "title": "Input windows and vertical map/run/cargo layout",
+      "changes": [
+        "Flight setup, Add contracts and Cargo by contract open as detail windows from buttons.",
+        "Distance, time, load and stops sit compactly in the map toolbar.",
+        "The centre shows map → run progress → cargo 3D the same size as the map.",
+        "Panels no longer scroll separately; the page scrolls instead.",
+        "Partner call moved to the top right."
+      ]
+    }
   },
   {
     "id": "2026-11-01-theme-map-fill",
@@ -220,7 +369,15 @@
       "현재 메뉴와 좌우 패널 배치를 유지하고, 기존 STAM의 어두운 배경·청록 버튼·둥근 패널 테마로 복원했습니다.",
       "지도의 정사각형 크기 제한을 해제해 가운데 영역의 전체 폭과 남은 화면 높이를 채웁니다.",
       "화면 크기나 상단 메뉴 높이가 바뀌어도 지도 크기가 함께 조정됩니다."
-    ]
+    ],
+    "en": {
+      "title": "Original theme restored, bigger map",
+      "changes": [
+        "The original STAM dark background, teal buttons and rounded panels are back, keeping the new layout.",
+        "The map fills the full centre width and remaining height.",
+        "The map resizes with the window and top menu."
+      ]
+    }
   },
   {
     "id": "2026-11-01-flight-desk",
@@ -233,7 +390,17 @@
       "기본 지도를 정사각형으로 확대하고 방문 순서·적재·파트너 안내를 오른쪽에 모았습니다.",
       "좁은 화면에서는 영역을 재배치하고 버튼 글자가 중간에서 끊기지 않도록 조정했습니다.",
       "화면 배치를 바꿔도 기존 계약·함선 설정·적재 위치·운항 진행을 이어서 사용합니다."
-    ]
+    ],
+    "en": {
+      "title": "Control screen layout and design overhaul",
+      "changes": [
+        "A new layout around a dark navy and sky-blue look, keeping the STAM name.",
+        "The top menu was trimmed; account and flight conditions moved to the left.",
+        "A larger map with visit order, loading and partner guidance on the right.",
+        "Narrow screens rearrange areas without breaking button text.",
+        "Existing contracts, ship settings, cargo positions and progress carry over."
+      ]
+    }
   },
   {
     "id": "2026-11-01-route-update",
@@ -246,7 +413,17 @@
       "게이트웨이 이동과 항성계 점프를 한 묶음으로 안내합니다.",
       "지도에서 라그랑주 정거장 이름을 줄이고, 경로가 없으면 항성계 연결선을 숨깁니다.",
       "새 버전 알림, 업데이트 버튼과 업데이트 기록을 추가했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Better routing, loading and map guidance",
+      "changes": [
+        "Avoiding revisits comes first, then distance before time.",
+        "Time limits on hauling missions were removed.",
+        "Gateway transit and system jumps are shown as one group.",
+        "Lagrange station names are shortened on the map; system links are hidden when the route has none.",
+        "New version notice, update button and update history."
+      ]
+    }
   },
   {
     "id": "h-load-fx",
@@ -256,7 +433,14 @@
     "changes": [
       "적재 3D가 거점마다 그 거점의 작업을 보여 주고, 싣는 상자는 청록·내리는 상자는 주황으로 강조합니다.",
       "적재 3D 확대·이동 범위를 제한했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Loading and unloading per stop",
+      "changes": [
+        "The cargo 3D shows each stop’s work: containers loaded glow teal, containers unloaded glow orange.",
+        "Cargo 3D zoom and pan are limited."
+      ]
+    }
   },
   {
     "id": "h-no-codes",
@@ -265,7 +449,13 @@
     "title": "계약 코드 대신 품목·행선지",
     "changes": [
       "화면에서 계약 코드를 빼고 색·행선지·품목·수량으로 안내합니다."
-    ]
+    ],
+    "en": {
+      "title": "Goods and destinations instead of contract codes",
+      "changes": [
+        "Contract codes were removed from the screen; colours, destinations, goods and amounts are shown instead."
+      ]
+    }
   },
   {
     "id": "h-box-memory",
@@ -274,7 +464,13 @@
     "title": "상자 구성 자동 기억",
     "changes": [
       "상자 크기별 칸에 개수만 넣으면 되고, 품목·수량 조합이 같은 미션에는 자동으로 다시 채웁니다."
-    ]
+    ],
+    "en": {
+      "title": "Container layouts remembered",
+      "changes": [
+        "Enter just the count per container size; missions with the same goods and amounts are filled in automatically."
+      ]
+    }
   },
   {
     "id": "h-grid-group",
@@ -284,7 +480,14 @@
     "changes": [
       "같은 목적지 화물을 서로 붙은 그리드에 모아 싣습니다.",
       "그리드 이름표를 상자를 가리지 않는 곳으로 옮기고 이름표 숨기기 버튼을 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Grids grouped by destination",
+      "changes": [
+        "Cargo for one destination is loaded into neighbouring grids.",
+        "Grid labels moved off the containers, with a button to hide them."
+      ]
+    }
   },
   {
     "id": "h-map-only",
@@ -293,7 +496,13 @@
     "title": "지도만 보기",
     "changes": [
       "운항 화면에서 패널을 숨기고 지도만 크게 볼 수 있게 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Map only",
+      "changes": [
+        "Hide the panels in the run screen and view only the map."
+      ]
+    }
   },
   {
     "id": "h-cargo-detail",
@@ -302,7 +511,13 @@
     "title": "적재 상세",
     "changes": [
       "목적지별 화물·적재 순서·칸 위치를 보여 주는 적재 상세를 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Cargo details",
+      "changes": [
+        "Cargo details show cargo per destination, loading order and cell positions."
+      ]
+    }
   },
   {
     "id": "h-route-edit",
@@ -311,7 +526,13 @@
     "title": "경로 직접 수정",
     "changes": [
       "방문 순서를 드래그·추가·삭제로 직접 바꿀 수 있게 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Edit the route yourself",
+      "changes": [
+        "Change the visit order by dragging, adding and removing stops."
+      ]
+    }
   },
   {
     "id": "h-pickup-first",
@@ -320,7 +541,13 @@
     "title": "거점에서 다 싣고 출발",
     "changes": [
       "한 거점에서 실을 수 있는 화물을 모두 싣고 떠나며, 그리드 빈칸을 함께 씁니다."
-    ]
+    ],
+    "en": {
+      "title": "Load everything before leaving",
+      "changes": [
+        "Everything loadable at a stop is picked up before leaving, sharing free grid space."
+      ]
+    }
   },
   {
     "id": "h-station-label",
@@ -329,7 +556,13 @@
     "title": "정거장 이름 크기",
     "changes": [
       "정거장 이름을 작게 줄였습니다."
-    ]
+    ],
+    "en": {
+      "title": "Station label size",
+      "changes": [
+        "Station names on the map are smaller."
+      ]
+    }
   },
   {
     "id": "h-batch",
@@ -339,7 +572,14 @@
     "changes": [
       "다른 성계로 넘어가기 전에 그 성계의 픽업을 먼저 모으도록 경로를 개선했습니다.",
       "지도 이름을 읽기 쉽게 정리했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Collect pickups before changing systems",
+      "changes": [
+        "Routes collect a system’s pickups before crossing to another system.",
+        "Map names are easier to read."
+      ]
+    }
   },
   {
     "id": "h-firebase",
@@ -348,7 +588,13 @@
     "title": "로그인 연결",
     "changes": [
       "로그인을 실제 계정 저장소에 연결했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Login connected",
+      "changes": [
+        "Login is connected to real account storage."
+      ]
+    }
   },
   {
     "id": "h-guide-size",
@@ -357,7 +603,13 @@
     "title": "안내 창 크기 통일",
     "changes": [
       "안내 창 크기를 단계마다 같게 맞추고 Ctrl+Alt+PrtSc 캡처 안내를 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Guide window size",
+      "changes": [
+        "Guide steps share one window size, with Ctrl+Alt+PrtSc capture tips."
+      ]
+    }
   },
   {
     "id": "h-edit-log",
@@ -366,7 +618,13 @@
     "title": "계정별 수정 기록",
     "changes": [
       "로그인은 선택이라는 안내와 계정별 수정 기록을 추가했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Change log per account",
+      "changes": [
+        "A note that login is optional, and a change log per account."
+      ]
+    }
   },
   {
     "id": "h-guide",
@@ -375,7 +633,13 @@
     "title": "처음 사용 안내",
     "changes": [
       "처음 접속하면 사용 방법을 단계별로 안내합니다."
-    ]
+    ],
+    "en": {
+      "title": "First-time guide",
+      "changes": [
+        "First-time visitors get a step-by-step guide."
+      ]
+    }
   },
   {
     "id": "h-login",
@@ -385,7 +649,14 @@
     "changes": [
       "아이디·비밀번호 또는 Google 로그인으로 다른 PC에서 이어 쓸 수 있게 했습니다(준비 단계).",
       "완료한 운항의 수익·시간을 쌓는 운항 기록을 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Optional login and run log",
+      "changes": [
+        "Log in with a username/password or Google to continue on another PC (preparation stage).",
+        "A run log records reward and time of finished runs."
+      ]
+    }
   },
   {
     "id": "h-commodity",
@@ -394,7 +665,13 @@
     "title": "품목명 공식 표기 교정",
     "changes": [
       "품목명 오타를 게임 공식 한글 표기로 자동으로 고칩니다."
-    ]
+    ],
+    "en": {
+      "title": "Official goods names",
+      "changes": [
+        "Typos in goods names are corrected to the official Korean names."
+      ]
+    }
   },
   {
     "id": "h-assumed",
@@ -403,7 +680,13 @@
     "title": "가정 수량 표시",
     "changes": [
       "안내창 확인 단계에서 가정한 픽업지별 수량을 표시합니다."
-    ]
+    ],
+    "en": {
+      "title": "Assumed amounts shown",
+      "changes": [
+        "The guide’s check step shows assumed amounts per pickup."
+      ]
+    }
   },
   {
     "id": "h-stacking",
@@ -412,7 +695,13 @@
     "title": "함선별 화물 쌓는 방향",
     "changes": [
       "Hull B·Hull C는 중심축에서 바깥으로, RAFT는 위에서 아래로 쌓이도록 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Stacking direction per ship",
+      "changes": [
+        "Hull B and Hull C stack outward from the spine; the RAFT hangs from the top."
+      ]
+    }
   },
   {
     "id": "h-multi-pickup",
@@ -421,7 +710,13 @@
     "title": "픽업지 여러 곳 모두 방문",
     "changes": [
       "한 화물을 여러 곳에서 받는 계약은 모든 픽업지를 들르고, 곳별 수량은 가정값으로 표시합니다."
-    ]
+    ],
+    "en": {
+      "title": "Visit every pickup",
+      "changes": [
+        "Contracts that pick up one cargo at several places visit all of them; per-place amounts are marked as assumed."
+      ]
+    }
   },
   {
     "id": "h-run-map",
@@ -430,7 +725,13 @@
     "title": "운항 모드",
     "changes": [
       "따로 있던 운항 화면을 지도 전체 화면의 운항 모드로 바꿨습니다."
-    ]
+    ],
+    "en": {
+      "title": "Flight mode",
+      "changes": [
+        "The separate run screen became flight mode on the full-screen map."
+      ]
+    }
   },
   {
     "id": "h-ko-labels",
@@ -439,7 +740,13 @@
     "title": "영어 지명 옆 한글 표시",
     "changes": [
       "영어 지명 옆에 한글 이름을 함께 보여 주고, 지도 이름에서 항성·행성 같은 종류 말을 뺐습니다."
-    ]
+    ],
+    "en": {
+      "title": "Korean names next to English",
+      "changes": [
+        "Korean names are shown next to English place names; body types were removed from map names."
+      ]
+    }
   },
   {
     "id": "h-partner-ui",
@@ -449,7 +756,14 @@
     "changes": [
       "지도 크게 보기에 방문 순서와 거점 카드를 넣었습니다.",
       "파트너 소개를 추가하고, 비서를 「브리지 오퍼레이터」로 바꿨습니다. 「파트너 호출」 버튼을 크게 달았습니다."
-    ]
+    ],
+    "en": {
+      "title": "Map panel and partner introduction",
+      "changes": [
+        "Enlarged map shows the visit order and stop cards.",
+        "Partner introductions were added; the aide became the “Bridge Operator”; a large partner button was added."
+      ]
+    }
   },
   {
     "id": "h-map-look",
@@ -459,7 +773,14 @@
     "changes": [
       "지도 배경을 새로 그리고, 정거장을 게임처럼 원과 꼭지 기호로 바꿨습니다.",
       "지도와 적재 화면을 키웠습니다."
-    ]
+    ],
+    "en": {
+      "title": "Map background and station icons",
+      "changes": [
+        "New map background; stations use ring-and-tip icons like the game.",
+        "Map and cargo views are larger."
+      ]
+    }
   },
   {
     "id": "h-ai-paste",
@@ -469,7 +790,14 @@
     "changes": [
       "ChatGPT·Claude 앱이 옮겨 적은 계약 글을 붙여 넣어 미션을 만들 수 있게 했습니다.",
       "한국어 미션 화면 해석을 보완했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Paste text read by an AI app",
+      "changes": [
+        "Paste contract text transcribed by the ChatGPT or Claude app to create missions.",
+        "Better reading of Korean mission screens."
+      ]
+    }
   },
   {
     "id": "h-rename",
@@ -478,7 +806,13 @@
     "title": "사이트 주소 변경",
     "changes": [
       "사이트 주소를 stam-freight-control로 옮겼습니다."
-    ]
+    ],
+    "en": {
+      "title": "New site address",
+      "changes": [
+        "The site moved to stam-freight-control."
+      ]
+    }
   },
   {
     "id": "h-partners",
@@ -488,7 +822,14 @@
     "changes": [
       "운항 파트너 세 명의 사진을 넣었습니다.",
       "성계별 지도 배경을 구분하고, 함선 속도·드라이브 성능을 자동으로 적용합니다."
-    ]
+    ],
+    "en": {
+      "title": "Partner photos and automatic ship performance",
+      "changes": [
+        "Photos for the three partners.",
+        "Map backgrounds per system; ship speed and drive performance applied automatically."
+      ]
+    }
   },
   {
     "id": "h-locations",
@@ -497,7 +838,13 @@
     "title": "개인 장소 관리·지도 매일 갱신",
     "changes": [
       "내 장소·좌표·별칭을 관리하고, 지도 좌표를 매일 검증해 갱신하도록 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Personal places and daily map refresh",
+      "changes": [
+        "Manage your own places, coordinates and aliases; map coordinates are validated and refreshed daily."
+      ]
+    }
   },
   {
     "id": "h-voices",
@@ -506,7 +853,13 @@
     "title": "항해사 말투 선택",
     "changes": [
       "수석 항해사·항해 장교·비서 세 가지 말투 중에서 고를 수 있게 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Partner voices",
+      "changes": [
+        "Choose between the senior navigator, navigation officer and aide voices."
+      ]
+    }
   },
   {
     "id": "h-ships-38",
@@ -515,7 +868,13 @@
     "title": "한글 검색·함선 38종 추가",
     "changes": [
       "한글로 장소를 찾을 수 있게 하고 함선 38종을 추가했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Korean search and 38 ships",
+      "changes": [
+        "Search places in Korean; 38 ships added."
+      ]
+    }
   },
   {
     "id": "h-run-mode",
@@ -525,7 +884,14 @@
     "changes": [
       "거점마다 완료를 기록하는 운항 진행과 항해사 안내를 넣었습니다.",
       "한글 지명 표기와 화면 문구를 정리했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Run progress and navigator guidance",
+      "changes": [
+        "Run progress records each stop, with navigator guidance.",
+        "Korean place names and screen text tidied."
+      ]
+    }
   },
   {
     "id": "h-stam",
@@ -534,7 +900,13 @@
     "title": "STAM FREIGHT CONTROL",
     "changes": [
       "이름을 STAM FREIGHT CONTROL로 정하고 3단계 성계 지도와 퀀텀 경로 표시를 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "STAM FREIGHT CONTROL",
+      "changes": [
+        "Named STAM FREIGHT CONTROL, with a three-level system map and quantum routes."
+      ]
+    }
   },
   {
     "id": "h-dest-colour",
@@ -543,7 +915,13 @@
     "title": "목적지 색·하역 순서 배치",
     "changes": [
       "화물을 목적지별 색으로 구분하고, 먼저 내릴 화물을 꺼내기 쉬운 곳에 싣도록 했습니다."
-    ]
+    ],
+    "en": {
+      "title": "Destination colours and unloading order",
+      "changes": [
+        "Cargo is coloured by destination, and cargo unloaded first is loaded where it is easy to reach."
+      ]
+    }
   },
   {
     "id": "h-grid-view",
@@ -552,7 +930,13 @@
     "title": "적재 화면을 그리드 중심으로",
     "changes": [
       "정확하지 않은 함선 외형 대신 화물 그리드만 보여 주도록 바꿨습니다."
-    ]
+    ],
+    "en": {
+      "title": "Grid-based cargo view",
+      "changes": [
+        "The cargo view shows only cargo grids instead of inexact ship models."
+      ]
+    }
   },
   {
     "id": "h-map-controls",
@@ -561,7 +945,13 @@
     "title": "지도 조작 개선",
     "changes": [
       "커서 위치로 확대, 장소로 이동, 검색, 확대 정도에 따른 이름 표시를 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Map controls",
+      "changes": [
+        "Zoom to cursor, fly to places, search, and names by zoom level."
+      ]
+    }
   },
   {
     "id": "h-route-only",
@@ -571,7 +961,14 @@
     "changes": [
       "함선 용량을 따지지 않는 간편 경로 계산을 추가했습니다.",
       "16 SCU 상자 세워 싣기 제한과 성계 지도를 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "Simple route and system map",
+      "changes": [
+        "A simple route that ignores ship capacity.",
+        "16 SCU no-upright rule and a system map."
+      ]
+    }
   },
   {
     "id": "h-first",
@@ -581,6 +978,13 @@
     "changes": [
       "Hull B 미션 스크린샷으로 경로와 화물 배치를 계획하는 첫 버전을 공개했습니다.",
       "3D 적재 안내와 운항 진행 기록을 넣었습니다."
-    ]
+    ],
+    "en": {
+      "title": "First release",
+      "changes": [
+        "First version: plan routes and cargo layout from Hull B mission screenshots.",
+        "3D loading guide and run progress log."
+      ]
+    }
   }
 ]
