@@ -1,4 +1,4 @@
-import {isEn} from './i18n.mjs';
+import {gameEn} from './i18n.mjs';
 // Korean names (user Korean patch) and common nicknames → English location names in the data.
 // A fuller table can be generated from the Korean patch's global.ini into data/ko-names.json
 // ({"한글 이름":"English Name", …}); it is merged in at start-up when present.
@@ -35,7 +35,7 @@ export const KO_DISPLAY={'Stanton':'스탠턴','Pyro':'파이로','Nyx':'닉스'
  'Levski':'레브스키','Bueno Ravine':'부에노 골짜기','Sunset Mesa':'선셋 메사',"Seer's Canyon":'시어스 캐니언','HDMS-Norgaard':'HDMS-노가드',"Brio's Breaker Yard":'브리오 함선 폐기장'};
 // English words inside data names → Korean client words, for names not in the table ("Shubin Mining Facility SMCa-8").
 const EN_TERMS=[['Shallow Fields','셸로우 필즈'],['Mining Facility','채광 시설'],['Mining Area','채광 구역'],['Breaker Yard','함선 폐기장'],['Spaceport','우주공항'],['Gateway','게이트웨이'],['Station','스테이션'],['Shubin','슈빈'],['ArcCorp','아크콥'],['Hurston','허스턴'],['Crusader','크루세이더'],['microTech','마이크로텍']];
-export function koName(l){if(!l||isEn)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(extraDisplay[l.name])return extraDisplay[l.name];if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
+export function koName(l){if(!l||gameEn)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(extraDisplay[l.name])return extraDisplay[l.name];if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
  let t=' '+l.name+' ';for(const [en,ko] of EN_TERMS)t=t.split(' '+en+' ').join(' '+ko+' ');t=t.trim();
  // Only when every leftover Latin word is a code (SMCa-8, 056, CRU-L4); a half-translated name is worse than none.
  return /[가-힣]/.test(t)&&!t.split(/\s+/).some(w=>/^[A-Za-z'’&]+$/.test(w)&&/[a-z]/.test(w))?t:'';}

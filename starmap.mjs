@@ -124,6 +124,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
   const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
   s=labelSprite((n.length?n.join(',')+' · ':'')+mapLocationName(l),sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
+ // Rarely visited stops (Wikelo trading posts) only get a name when zoomed right in, unless on the route or selected.
+ const MINOR=/^Wikelo\b/i;
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
  // ---- navigation -------------------------------------------------------------------------------
@@ -173,7 +175,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
    if(it.sprite){it.sprite.visible=show;if(show){const active=it.loc.id===selected||it.loc===hovered,k=active?(isStation(it)?1.25:1.5):1;it.displayPx=it.px*k;spriteScale(it.sprite,it.displayPx,it.displayPx);}}
    it.shown=show;}
   // Labels pinned under their object; overlaps hide the lower priority label instead of moving it.
-  const cand=items.filter(it=>it.shown).map(it=>({it,p:priority(it)})).filter(({it,p})=>{const l=it.loc;if(p>=7)return true;const par=it.parent?itemById.get(it.parent):null;if(l.type==='Moon')return (par?.px||0)>14;if(isStation(it))return par?par.px>18:camPos.distanceTo(it.pos)<extent*2.8;if(l.type==='LandingZone'||it.icon==='gate')return par?par.px>28:camPos.distanceTo(it.pos)<extent*.7;if(it.surface)return (par?.px||0)>110;return camPos.distanceTo(it.pos)<6;}).sort((a,b)=>b.p-a.p);
+  const cand=items.filter(it=>it.shown).map(it=>({it,p:priority(it)})).filter(({it,p})=>{const l=it.loc;if(p>=7)return true;if(MINOR.test(l.name))return camPos.distanceTo(it.pos)<extent*.12;const par=it.parent?itemById.get(it.parent):null;if(l.type==='Moon')return (par?.px||0)>14;if(isStation(it))return par?par.px>18:camPos.distanceTo(it.pos)<extent*2.8;if(l.type==='LandingZone'||it.icon==='gate')return par?par.px>28:camPos.distanceTo(it.pos)<extent*.7;if(it.surface)return (par?.px||0)>110;return camPos.distanceTo(it.pos)<6;}).sort((a,b)=>b.p-a.p);
   const used=[],want=new Set(),labelZoom=clamp(1+Math.log2(extent*2.35/Math.max(rig.cur.r,.01))*.18,1,1.65);
   for(const {it} of cand){const s=labelFor(it),[pw,ph]=s.userData.px,station=isStation(it),body=it.loc.type==='Planet'||it.loc.type==='Star',sc=Math.min((station?.95:body?.85:.82)*labelZoom,(w-16)/pw)*(station?.5:1),lw=pw*sc,lh=ph*sc,gap=(it.mesh?it.px:(it.displayPx||it.px||10)/2)+7,x=it.screen.x,y=it.screen.y;
    // Try nearby anchors for stations so a planet's label does not silently hide its port.
