@@ -53,23 +53,34 @@ export function matchMission(m,prepared){
  for(const e of best){const sig={};for(const o of e.orders){if(!wanted.has(o.key))continue;sig[o.key]=Math.max(sig[o.key]??-Infinity,o.maxBox??-Infinity);}
   signatures.add(JSON.stringify(Object.entries(sig).sort()));for(const [k,v] of Object.entries(sig))maxBox[k]=Math.max(maxBox[k]??-Infinity,v);}
  const top=best[0];
- return {id:top.id,title:top.title,giver:top.giver,rank:top.rank,version:prepared.version,candidates:best.length,ambiguous:signatures.size>1,maxBox,fixes,commodityKey:c=>fixes[norm(c)]?.key||english(prepared.commodities,c)};
+ const entityOrders=(top.entityOrders||[]).filter(o=>best.every(e=>(e.entityOrders||[]).some(x=>norm(x.name)===norm(o.name)&&x.maxAmount===o.maxAmount&&x.minAmount===o.minAmount&&x.reportedVolumeScu===o.reportedVolumeScu)));
+ return {id:top.id,title:top.title,giver:top.giver,rank:top.rank,version:prepared.version,candidates:best.length,ambiguous:signatures.size>1,maxBox,entityOrders,fixes,commodityKey:c=>fixes[norm(c)]?.key||english(prepared.commodities,c)};
 }
 
 // Adds the matched mission and each commodity's container limit to a mission (values from an earlier match are
-// replaced; a limit read from the contract itself is kept). Cryo pods (limit -1) are flagged, not given a box size.
+// replaced; a limit read from the contract itself is kept). Cryopods use the confirmed half-height profile;
+// other special items (limit -1) remain explicitly unknown.
 // `namesOnly` (Korean mode, where mission types are not shown yet) applies only the misread-name corrections.
 // `korean` writes corrected names in Korean when the Korean name is known, otherwise in English.
 export function enrichMission(m,prepared,{namesOnly=false,korean=false}={}){
+ if(!prepared?.missions?.length)return structuredClone(m);
  const next=structuredClone(m);delete next._wiki;delete next._nameFixes;
- for(const c of next.cargo||[]){if(c._maxBoxSource==='wiki'){c.maxBoxSize=null;delete c._maxBoxSource;}if(c._special==='cryopod')delete c._special;}
+ for(const c of next.cargo||[]){if(['wiki','pod-profile'].includes(c._maxBoxSource)){c.maxBoxSize=null;delete c._maxBoxSource;}if(['cryopod','unknown'].includes(c._special))delete c._special;if(c._boxesOrigin==='pod-profile'){c.boxes=[];c._boxesOrigin='unknown';delete c._cargoShape;delete c._entityCount;delete c._entity;}}
  const match=matchMission(next,prepared);if(!match)return next;
  const fixed=[];for(const c of next.cargo){const f=match.fixes[norm(c.commodity)];if(f&&(!korean||f.korean)){const name=korean?f.korean:f.name;fixed.push([c.commodity,name]);c._fixedFrom=c.commodity;c.commodity=name;}}
  if(fixed.length)next._nameFixes=[...new Map(fixed.map(p=>[p.join('>'),p])).values()];
  if(namesOnly)return next;
  next._wiki={id:match.id,title:match.title,giver:match.giver,rank:match.rank,version:match.version,candidates:match.candidates,ambiguous:match.ambiguous};
  for(const c of next.cargo){const limit=match.maxBox[match.commodityKey(c.commodity)];
-  if(limit===-1){c._special='cryopod';continue;}
+  const entity=match.entityOrders.find(o=>norm(o.name)===match.commodityKey(c.commodity));
+  if(match.commodityKey(c.commodity)==='cryopod'){
+   // Confirmed cargo rule: one pod is 1 SCU, with a 2-cell footprint and half
+   // height. Two stacked pods occupy a standard 2 SCU container envelope.
+   // The API item volume is envelope metadata, not the mission's SCU per pod.
+   c._cargoShape='cryopod';c._entityCount=c.scu;c._entity={...entity,unitScu:1};
+   c.boxes=[{size:1,count:c.scu}];c._boxesOrigin='pod-profile';c.maxBoxSize=1;c._maxBoxSource='pod-profile';delete c._special;continue;
+  }
+  if(limit===-1){c._special='unknown';continue;}
   if(!c.maxBoxSize&&Number.isFinite(limit)){const size=[...SIZES].reverse().find(s=>s<=limit);if(size){c.maxBoxSize=size;c._maxBoxSource='wiki';}}}
  return next;
 }

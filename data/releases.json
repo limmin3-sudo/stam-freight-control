@@ -1,5 +1,26 @@
 [
   {
+    "id": "2026-11-02-departure-cargo-fixes",
+    "version": "3.5.0",
+    "date": "2026-11-02 20:58",
+    "title": "출발지 1번 표시 · 위키 구성 근거 · 냉동포드 적재 수정",
+    "changes": [
+      "선택한 출발지를 1번으로 표시하고 첫 픽업지까지의 이동선·시간을 유지합니다. 운항 시작·재계산 시 첫 픽업지를 현재 위치로 잘못 사용하던 문제를 수정했습니다.",
+      "상자 안내에 위키 미션 유형·픽업지·품목별 계산 내역을 표시합니다. 저장된 구성과 위키 기준 자동 구성을 구분하고, 이번 계약만 위키 기준으로 다시 채울 수 있습니다.",
+      "냉동포드는 개당 1 SCU의 낮고 긴 형태로 적재합니다. 2개 적층은 일반 2 SCU 상자와 같은 크기이며, 홀수 포드 위나 높이가 다른 받침에 걸쳐 일반 상자를 올리지 않습니다.",
+      "수석 항해사의 기존 묶음 경로 탐색을 유지하며, 기존 운항의 진행 단계와 실린 화물을 보존합니다."
+    ],
+    "en": {
+      "title": "Departure step · wiki layout sources · cryopod packing fix",
+      "changes": [
+        "The selected departure is step 1, with the first pickup travel leg and time retained. Starting and replanning no longer treat the first pickup as the current position.",
+        "Container guidance shows the matched wiki mission, pickup and per-commodity calculation. Saved layouts and wiki calculations are distinct, with a per-contract refill option.",
+        "Each cryopod is 1 SCU with a long, half-height shape. Two stacked pods fit a standard 2 SCU envelope. Regular crates cannot rest on odd pod stacks or bridge uneven supports.",
+        "The Senior Navigator retains its batch route search. Existing run progress and aboard cargo are preserved."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-partner-routing",
     "version": "3.4.0",
     "date": "2026-11-02 20:19",

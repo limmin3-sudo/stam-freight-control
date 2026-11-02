@@ -21,10 +21,10 @@ test('SCU above a mission limit rules it out, and an unknown Korean commodity gi
  assert.equal(matchMission(contract('레드 윈드','',[['질소',40],['유기체',6],['란타 똥',7]]),prepared).id,'rw-big');
  assert.equal(matchMission(contract('레드 윈드','',[['모르는 품목',4]]),prepared),null);
 });
-test('the rank in the title picks between variants with the same cargo; cryo pods are flagged, not boxed',()=>{
+test('the rank in the title picks between variants with the same cargo; cryo pods keep individual 1 SCU ownership',()=>{
  assert.equal(matchMission(contract('링 가문','링 가문 신입 화물 운송 - 소량 화물',[['기념품',2],['가공 식품',4]]),prepared).id,'ling-1');
  const cryo=enrichMission(contract('DEAD SAINTS','신입 Rank, 소형 Scale Cargo Run',[['냉동포드',4]]),prepared);
- assert.equal(cryo.cargo[0]._special,'cryopod');assert.equal(cryo.cargo[0].maxBoxSize??null,null);
+ assert.equal(cryo.cargo[0]._cargoShape,'cryopod');assert.equal(cryo.cargo[0].scu,4);assert.deepEqual(cryo.cargo[0].boxes,[{size:1,count:4}]);
 });
 test('a limit read from the contract is kept; a wiki limit plans with its largest boxes but never rejects real boxes',()=>{
  const own=contract('레드 윈드','신입',[['질소',12],['질소',12],['유기체',6],['유기체',6],['란타 똥',7],['란타 똥',7]]);own.cargo[0].maxBoxSize=4;
@@ -56,4 +56,20 @@ test('a misread commodity is renamed from the mission data when the other goods 
  assert.equal(matchMission(contract('레드 윈드','',[['칠소',12],['모름',6]]),prepared),null);
  const unknownKorean=enrichMission(contract('링 가문','신입',[['기념품',2],['가공식품X',4]]),prepared,{namesOnly:true,korean:true});
  assert.equal(unknownKorean.cargo[1].commodity,'가공 식품');
+});
+
+test('bundled Ling, Dead Saints and Red Wind types expose wiki-based layouts without claiming actual boxes',async()=>{
+ const {groupConfiguration,configurationLabel,missionTypeText}=await import('../cargo-summary.mjs');
+ const bundled=prepareMissionDb(JSON.parse(fs.readFileSync(new URL('../data/hauling-missions.json',import.meta.url))),JSON.parse(fs.readFileSync(new URL('../data/ko-hauling.json',import.meta.url))));
+ const cases=[
+  ['링 가문','신입 소량',[['기념품',2],['증류주',1],['가공 식품',4],['스팀',2]],[2,2,1,1]],
+  ['DEAD SAINTS','신입 중형',[['레버넌트 나무 꽃가루',16],['네온',8],['레버넌트 나무 꽃가루',16],['SLAM',4],["이'템",4]],[8,2,8,1,2]],
+  ['DEAD SAINTS','신입 소형',[["이'템",2],['SLAM',1],['네온',1],['SLAM',1],['네온',1]],[2,1,1,1,1]],
+  ['DEAD SAINTS','신입 중형',[['유기체',64],['유기체',64]],[8,8]],
+  ['레드 윈드','대형 신입',[['함선 탄약',32],['수소',32],['의약용품',20],['함선 탄약',32],['수소',32],['의약용품',20]],[16,16,2,16,16,2]],
+  ['레드 윈드','중형 신입',[['질소',12],['질소',12],['유기체',6],['유기체',6],['란타 똥',7],['란타 똥',7]],[8,8,4,4,2,2]]
+ ];
+ for(const [company,title,cargo,limits] of cases){const m=enrichMission(contract(company,title,cargo),bundled,{korean:true});assert.equal(m._wiki.candidates,1);assert.deepEqual(m.cargo.map(c=>c.maxBoxSize),limits);assert.match(missionTypeText(m._wiki),/위키 유형 확인/);for(const g of destinationGroups(m)){const c=groupConfiguration(m,g);assert.equal(c.estimated,true);assert.equal(configurationLabel(c),'위키 기준 자동 구성');}}
+ const special=enrichMission(contract('DEAD SAINTS','신입 소형',[['냉동포드',4]]),bundled);assert.ok(special._wiki);assert.equal(configurationLabel(groupConfiguration(special,destinationGroups(special)[0])),'냉동포드 적재 구성');assert.equal(special.cargo[0].scu,4);assert.deepEqual(enrichMission(special,bundled),special);
+ assert.match(missionTypeText(null),/미션 유형 미확인/);assert.equal(configurationLabel({estimated:true,basis:'default'},true),'Size unknown · provisional layout');
 });
