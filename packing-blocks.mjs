@@ -3,7 +3,7 @@
 const bounds=ship=>ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];});
 const gap=(a,b)=>Math.hypot(...a.map(([a0,a1],k)=>Math.max(0,b[k][0]-a1,a0-b[k][1])));
 export function cargoBlocks(ship){
- const boxes=bounds(ship),left=new Set(boxes.keys()),blocks=[];
+ const boxes=bounds(ship),left=new Set([...boxes.keys()].filter(i=>!ship.grids[i].disabled)),blocks=[];
  while(left.size){const first=left.values().next().value,block=[first];left.delete(first);for(let i=0;i<block.length;i++)for(const j of left)if(gap(boxes[block[i]],boxes[j])<1e-8){left.delete(j);block.push(j);}blocks.push(block);}
  return blocks;
 }
@@ -12,7 +12,7 @@ export function destinationBlockZones(ship,groups,fixed=[]){
  const mid=(Math.min(...boxes.map(b=>b[0][0]))+Math.max(...boxes.map(b=>b[0][1])))/2;
  const side=centers.map(c=>Math.sign(c[0]-mid)),capacity=blocks.map(ids=>ids.reduce((n,i)=>n+ship.grids[i].w*ship.grids[i].h*ship.grids[i].l,0));
  const owner=new Map(),used=new Map(),byDest=new Map();
- for(const b of fixed){const block=blocks.findIndex(ids=>ids.includes(b.bin));if(owner.has(block)&&owner.get(block)!==b.dropoffId)return null;owner.set(block,b.dropoffId);used.set(block,(used.get(block)||0)+b.size);}
+ for(const b of fixed){const block=blocks.findIndex(ids=>ids.includes(b.bin));if(block<0)return null;if(owner.has(block)&&owner.get(block)!==b.dropoffId)return null;owner.set(block,b.dropoffId);used.set(block,(used.get(block)||0)+b.size);}
  for(const {items} of groups)for(const b of items)byDest.set(b.dropoffId,(byDest.get(b.dropoffId)||0)+b.size);
  const cost=ids=>{let diameter=0;for(const a of ids)for(const b of ids)diameter=Math.max(diameter,Math.hypot(...centers[a].map((v,k)=>v-centers[b][k])));return (new Set(ids.map(i=>side[i])).size-1)*1000+diameter;};
  for(const [dest,scu] of [...byDest].sort((a,b)=>b[1]-a[1])){
