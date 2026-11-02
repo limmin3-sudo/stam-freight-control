@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {mapLocationName,jumpSegments,activeSystemLinks} from '../route-display.mjs';
+import {mapLocationName,jumpSegments,activeSystemLinks,stepNumbers} from '../route-display.mjs';
 const locations=[
  {id:'a',name:'Orison',system:'stanton',type:'LandingZone'},
  {id:'g1',name:'Pyro Gateway',system:'stanton',type:'Manmade'},
@@ -19,4 +19,9 @@ test('gateway approach and actual system jump form one ordered transit group',()
 test('galaxy has no links without a cross-system route and shows only used pairs',()=>{
  assert.equal(activeSystemLinks(null,byId).size,0);assert.equal(activeSystemLinks({visits:[{leg:{nodes:['a','g1']}}]},byId).size,0);
  const route={visits:[{leg},{leg:{nodes:[...leg.nodes].reverse()}}]};assert.deepEqual([...activeSystemLinks(route,byId)],['pyro|stanton']);
+});
+test('each system jump is its own numbered step before the stop it leads to',()=>{
+ const visits=[{leg:{nodes:['a']}},{leg:{nodes:['a','g1']}},{leg},{leg:{nodes:['b']}}];
+ assert.deepEqual(stepNumbers(visits,byId),{stop:[1,2,4,5],jumps:[[],[],[3],[]],total:5});
+ assert.deepEqual(stepNumbers([],byId),{stop:[],jumps:[],total:0});
 });

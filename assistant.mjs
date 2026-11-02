@@ -74,7 +74,7 @@ export function createAssistant(app){
  function brief(){const p=app.plan();
   if(!p){frame(V().fail,V().failSub,`<p class="aide-note">${esc(app.notice())}</p>`,'<button class="primary" id="a-back">계약 다시 보기</button>');on('#a-back',()=>go('confirm'));return;}
   const low=Math.max(1,Math.round(p.seconds/60*.8)),high=Math.ceil(p.seconds/60*1.3),reward=p.totalReward||0,rate=reward?`${fmt(reward/(p.seconds*1.3/3600))}–${fmt(reward/(p.seconds*.8/3600))}`:'',blocked=p.visits.filter(v=>v.blocked?.length).length;
-  const legs=p.visits.slice(0,6).map((v,i)=>`<li><span class="aide-n">${i+1}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='pickup'?'픽업':e.type==='delivery'?'배송':'복귀').filter((x,k,a)=>a.indexOf(x)===k).join('·')} · 약 ${Math.max(1,Math.round(v.seconds/60))}분</small></li>`).join('')+(p.visits.length>6?`<li class="aide-more">외 ${p.visits.length-6}곳</li>`:'');
+  const nums=app.stepNumbers(p.visits).stop,legs=p.visits.slice(0,6).map((v,i)=>`<li><span class="aide-n">${nums[i]}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='pickup'?'픽업':e.type==='delivery'?'배송':'복귀').filter((x,k,a)=>a.indexOf(x)===k).join('·')} · 약 ${Math.max(1,Math.round(v.seconds/60))}분</small></li>`).join('')+(p.visits.length>6?`<li class="aide-more">외 ${p.visits.length-6}곳</li>`:'');
   frame(V().brief,V().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked),`<ol class="aide-legs">${legs}</ol>`,
    `<button class="primary" id="a-launch">${V().launch}</button><button id="a-full">전체 계획 보기</button><button class="quiet" id="a-back">이전</button>`,{compact:true});
   app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',()=>close());on('#a-back',()=>go('confirm'));}

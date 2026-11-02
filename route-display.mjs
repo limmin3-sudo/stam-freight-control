@@ -21,3 +21,11 @@ export function activeSystemLinks(route,byId){
  for(const visit of route?.visits||[])for(const jump of jumpSegments(visit.leg,byId))links.add([jump.fromSystem,jump.toSystem].sort().join('|'));
  return links;
 }
+
+// Shared step numbering for the run panel, itinerary and map: every system jump is its own numbered step placed
+// before the stop it leads to (stops 1-9, jump 10, Bueno Ravine 11 …). Visit indices themselves never change.
+export function stepNumbers(visits,byId){
+ let n=0;const stop=[],jumps=[];
+ for(const visit of visits||[]){jumps.push(jumpSegments(visit.leg,byId).map(()=>++n));stop.push(++n);}
+ return {stop,jumps,total:n};
+}
