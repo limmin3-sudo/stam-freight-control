@@ -1,5 +1,15 @@
 # 현재 프로젝트 상태 — Codex·Claude 공통
 
+## 2026-11-02 18:38 KST Claude Code → Codex 인계 (사용자: 「싹다 올리고 마무리, 이제 GPT로 넘어감」)
+
+- **상태:** v3.3.0까지 모두 `main`에 커밋·푸시(이 인계 커밋 포함). `npm test` 98개 통과. 미커밋 작업 없음. 아래 v3.0.0~v3.3.0 절이 이번 세션 변경 상세다.
+- **사용자가 할 일(미완):** Firebase 콘솔 → Firestore Database → 규칙에 저장소 최신 `firestore.rules` 통째로 붙여 넣고 게시. 게시 전에는 피드백 보내기가 권한 오류로 실패한다(앱이 「보안 규칙 게시 필요」 안내). 들어온 피드백은 콘솔 → 데이터 → `feedback`.
+- **사용자가 Codex에서 할 예정(아직 시작 안 함):**
+  1. 이미지 생성(파트너 사진 등, 아래 남은 일 3번).
+  2. **경로 짜는 로직을 3개로 늘려 유형별로 파트너에게 배분.** 참고: 파트너 ID는 `standard`(수석 항해사)·`military`(항해 장교)·`aide`(브리지 오퍼레이터), `voice.mjs` `voiceId()`. 경로 탐색은 `route-search.mjs`·`route-cost.mjs`·`route-estimate.mjs`·`engine.mjs` `planRoute(data,missions,startId,options)`·`route-only.mjs`(간편). 현재 단일 규칙은 「재방문 최소화 → 이동거리 → 시간」. 계약별 소유권·진행 중 상자 위치·`gridWalk`/`fullLoadLayout`/`zones`는 유지해야 한다.
+- **주의:** 언어 3모드(`sfc-lang` ko/mix/en)에서 새 화면 문구를 넣으면 `i18n-en.mjs`에 영어(게임 표현)도 추가하고, 영어 모드 크롤로 남은 한글 0을 확인한다.
+
+
 ## 2026-11-01 Claude Code 마무리 인계 (다음 작업자: Codex 또는 Claude Code)
 
 - **상태:** 모든 변경은 `main`에 커밋·푸시·Pages 배포됨. 미커밋 작업 없음. 마지막 기능 커밋 `74e0a55`(이용 안내 이름). `npm test` **89개 통과**, 실패·건너뜀 0. 각 기능은 로컬 Chromium으로 화면·동작을 확인했다(아래 절별 기록). 실제 사용자 브라우저·실게임은 확인하지 않았다.
