@@ -103,7 +103,8 @@ test('cargo names are corrected to the official Korean list only when one name i
     assert.deepEqual(officialCommodity('의약품'),{name:'의약용품',status:'fixed'});
     assert.deepEqual(officialCommodity('란타똥'),{name:'란타 똥',status:'fixed'});
     assert.deepEqual(officialCommodity('수소'),{name:'수소',status:'ok'});
-    assert.deepEqual(officialCommodity('철소홍'),{name:'철소홍',status:'unknown'});
+    // 철소홍 was later confirmed as 질소 (Nitrogen) from the game mission data, so it is a known misread now.
+    assert.deepEqual(officialCommodity('철소홍'),{name:'질소',status:'fixed'});
     const r=parseMissionText(`이'펨을(를) 0/2 SCU 파이로 II의 선셋 메사에 배송하십시오.\n그림 헥스에서 이'펨을(를) 접수하십시오.`,pyro);
     assert.equal(r.cargo[0].commodity,'이\'템');assert.ok(r.warnings.some(w=>/공식 표기로 고쳤습니다: 이'펨→이'템/.test(w)));
   }finally{setCommodityNames([]);}
