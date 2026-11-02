@@ -116,7 +116,8 @@ body.simple-mode .fleet-controls{opacity:.55}
 .run-num.jump{background:#a99bff;color:#140f2e}.run-big.jump{background:linear-gradient(135deg,#d3c9ff,#9583ff)}
 .run-jump-title{display:inline-flex;flex-direction:column;gap:2px;min-width:0;line-height:1.25}.run-jump-title small{font-size:11px;font-weight:600;color:#b9adff;letter-spacing:.5px}.run-jump-title b{font-size:.78em;color:#eef0ff}
 .run-next.jump{border-color:#5b4fa8;background:#151230}.run-next.jump b{color:#d6ceff}.run-cargo b.jump{color:#b9adff}
-.transit-step{display:flex;gap:8px;align-items:flex-start}.transit-step>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}.transit-step b{font-size:12px;line-height:1.5}.transit-step small{font-size:10px;color:#c4b39a}.transit-n{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 5px;border-radius:6px;background:#a99bff;color:#140f2e;font:700 13px 'Barlow Condensed'}
+.stop.stop-jump{border-color:#5b4fa8;background:#151230}.stop-jump .stop-number{border-radius:6px;border-color:#a99bff;background:#a99bff;color:#140f2e;font-weight:700}.stop-jump .stop-head>span:first-child{color:#d6ceff}.stop-event .jump{color:#b9adff}
+.map-route-jump .map-route-n{border-radius:6px;background:#a99bff;color:#140f2e}.map-route-jump .map-route-text b{color:#d6ceff}
 .run-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.run-buttons button{font-size:12px;padding:7px 12px}.run-buttons .danger{color:#ff9d8a;border-color:#6b2f26}
 .run-history{margin-top:10px;font-size:12px}.run-log{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}.run-log th,.run-log td{text-align:left;padding:5px 8px;border-bottom:1px solid #1d3747}.run-log th{color:var(--muted);font-weight:500}
 .run-summary h2{margin:6px 0 14px;font-size:24px}.run-sum-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}.run-sum-grid div{padding:12px;background:#0a1b26;border-radius:8px;display:flex;flex-direction:column;gap:4px}.run-sum-grid span{font-size:11px;color:var(--muted)}.run-sum-grid b{font:600 20px 'Barlow Condensed';color:#eef8fc}
@@ -138,7 +139,6 @@ body.simple-mode .fleet-controls{opacity:.55}
 .cargo-section>.section-line{flex-wrap:wrap}
 
 #map-ui-toggle{border-color:#6ca7bb;color:#d1f2fa}.map-ui-hidden .map-overlay,.map-ui-hidden .map-corner,.map-ui-hidden .map-bottom,.map-ui-hidden .map-selection,.map-ui-hidden .map-crumbs,.map-ui-hidden .map-tooltip{visibility:hidden;pointer-events:none}.map-ui-hidden .map-actions>:not(#map-ui-toggle):not(#map-expand){display:none}.map-ui-hidden .map-actions{flex-wrap:wrap;max-width:calc(100% - 24px)}
-.route-transit{display:flex;flex-direction:column;gap:5px;padding:11px 14px;border:1px solid #8a6438;border-left:3px solid #efba72;border-radius:7px;background:#2a2115;color:#ffd29a;overflow-wrap:anywhere}.route-transit>span{font-size:11px;font-weight:700}.route-transit>b{font-size:12px;line-height:1.6}.route-transit>small{font-size:10px;color:#c4b39a;line-height:1.5}.route-transit.compact{margin:6px 2px;padding:8px}.route-transit.compact>b{font-size:11px}
 .update-banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:1100;display:flex;align-items:center;gap:10px;width:min(690px,calc(100% - 24px));padding:14px;border:1px solid #d6aa64;border-radius:10px;background:#112330f5;box-shadow:0 8px 30px #0009}.update-banner[hidden]{display:none}.update-banner>div{flex:1;min-width:0}.update-banner strong{display:block;color:#ffd29a;font-size:14px}.update-banner span{display:block;font-size:11px;color:#bad0dd;margin-top:5px;line-height:1.6}.update-banner button{white-space:nowrap;font-size:12px}.updates-dialog section{border-top:1px solid var(--line);padding-top:14px;margin-top:18px}.updates-dialog h3{font-size:16px;margin:6px 0}.updates-dialog small{color:var(--muted)}.updates-dialog ul{padding-left:20px;line-height:1.8;font-size:13px}.updates-dialog li{margin:7px 0}@media(max-width:600px){.update-banner{flex-wrap:wrap;bottom:10px}.update-banner>div{flex-basis:100%}.update-banner button{flex:1}}
 
 /* Page-scrolling flight desk; all cargo and route state keep their original IDs. */
@@ -263,8 +263,6 @@ main{max-width:none;display:grid;grid-template-columns:220px minmax(0,1fr) 300px
 .stop-head>span:first-child{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 .stop-time{white-space:normal;line-height:1.6;font-size:10px}
 .stop-event,.stop-foot{word-break:keep-all;overflow-wrap:anywhere;line-height:1.7}
-.route-transit{margin:3px 0;padding:10px;word-break:keep-all}
-.route-transit b{overflow-wrap:anywhere}
 .aide-fab{display:none}
 .planning-details{max-width:none;margin:0 auto;padding:0 16px 20px}
 .planning-details .assumptions{margin-top:4px}
