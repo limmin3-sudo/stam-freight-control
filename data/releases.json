@@ -1,5 +1,26 @@
 [
   {
+    "id": "2026-11-02-grid-selection",
+    "version": "3.8.0",
+    "date": "2026-11-02 22:43",
+    "title": "함선별 그리드 켜기·끄기 · 인접 블록 채우기",
+    "changes": [
+      "모든 함선의 3D 화물칸에 그리드 켜기/끄기 선택 모드를 추가했습니다. 구역이나 구역 이름을 눌러 하나씩 변경하며 꺼진 곳은 회색·OFF로 표시합니다.",
+      "꺼둔 그리드는 적재와 사용 가능 SCU 계산에서 제외합니다. 선택은 함선별로 저장되고 파트너 변경·재접속 후에도 유지됩니다. 수석 항해사와 브리지 오퍼레이터에 공통 적용합니다.",
+      "선택 모드에서는 숨겨 둔 빈 구역도 표시해 다시 켤 수 있습니다. 이미 화물을 실은 구역은 끌 수 없으며 드래그 회전과 구역 클릭을 구분합니다.",
+      "Hull B의 새 계획에서도 물리적으로 붙은 블록 묶음을 먼저 채워 대각선으로 건너뛰는 배치를 줄였습니다. 기존에 실린 화물 좌표는 유지합니다."
+    ],
+    "en": {
+      "title": "Per-ship grid selection · adjacent block filling",
+      "changes": [
+        "Every ship has an Enable / disable grids mode in the cargo view. Click a grid or its label to toggle it; disabled grids appear grey and marked OFF.",
+        "Disabled grids are excluded from packing and available SCU. Choices are stored per ship and persist across partner changes and reloads, for both hauling partners.",
+        "Selection mode shows empty and disabled grids for re-enabling. Occupied grids cannot be disabled, and dragging to rotate does not toggle grids.",
+        "Fresh Hull B plans traverse physically adjacent block groups before jumping diagonally. Aboard cargo positions are retained."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-hull-b-destination-blocks",
     "version": "3.7.0",
     "date": "2026-11-02 22:03",

@@ -1,6 +1,7 @@
 // English phrases for the Korean interface (i18n.mjs). PATTERNS run first (numbers and names captured), then
 // PHRASES longest first, then POST patterns for bare counters. Keep Korean keys exactly as the app renders them.
 export const PATTERNS=[
+ [/사용 (\d+)\/(\d+)/,'Enabled $1/$2'],
  [/그리드 (\d+)개/,'$1 grids'],[/(\d+)건 · ([\d,]+) SCU/,'$1 · $2 SCU'],
  [/(\d+)번 거점 작업 후 예상/,'expected after stop $1'],[/(\d+)번 거점 작업 전 예상/,'expected before stop $1'],
  // counters inside longer messages
@@ -36,6 +37,13 @@ POST=[[/(\d[\d,]*)\s*개\b/g,'$1'],[/(\d[\d,]*)개/g,'$1'],[/(\d+)\s*분/g,'$1 m
 PATTERNS.push(...POST.map(([re,to])=>[re,to,'post']));
 
 export const PHRASES={
+ '그리드 켜기/끄기':'Enable / disable grids','선택 완료':'Done selecting','사용 안 함':'Disabled','사용 중':'Enabled','적재 중':'Cargo aboard',
+ '구역을 눌러 사용 여부를 바꾸세요 · 회색은 사용 안 함':'Click a grid to toggle it · grey grids are disabled',
+ '이미 화물이 실린 그리드는 끌 수 없습니다. 하역 후 변경해 주세요.':'This grid has cargo aboard. Unload it before disabling the grid.',
+ '그리드를 켰습니다. 적재 계산에 포함합니다.':'Grid enabled for loading.',
+ '그리드를 껐습니다. 적재 계산에서 제외합니다.':'Grid disabled and excluded from loading.',
+ '사용할 화물 그리드를 하나 이상 켜 주세요.':'Enable at least one cargo grid.',
+
  '위키 기준 자동 구성':'Wiki-based layout','미션 유형 미확인':'Mission type not found',
  '출발 완료':'Departed','출발지':'Departure','다음 거점까지 이동한 뒤 화물을 접수합니다.':'Travel to the next stop to collect cargo.',
  '출발하면 출발 완료를 눌러 주세요.':'Press Departed when you leave.',

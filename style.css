@@ -374,3 +374,9 @@ footer{padding:14px 24px;gap:12px}
 .account-dialog{max-width:min(820px,calc(100vw - 24px))}
 
 .aide-box-basis{margin:8px 0;padding:9px 12px;border-left:2px solid #427787;color:#aac6cf;font-size:12px;line-height:1.7}.aide-box-basis>b{display:block;color:#d5edf1}.aide-box-basis button{margin-top:7px}
+
+.cargo-grid-toggle{position:absolute;right:12px;top:12px;z-index:5;font-size:12px;background:#102a39e8}.cargo-grid-toggle[aria-pressed=true]{border-color:#62dce2;color:#70e8eb}.cargo-grid-selecting .cargo-zone-labels .cargo-zone-label{pointer-events:auto;cursor:pointer;max-width:none;font-size:12px;min-height:28px}.cargo-grid-selecting .cargo-viewport.labels-off .cargo-zone-label{display:flex}.cargo-grid-selecting .cargo-zone-label.grid-disabled{border-style:dashed;color:#88949e;background:#141b22}.cargo-grid-selecting .cargo-zone-label.grid-disabled b{color:#88949e}.cargo-zone-label{font-family:inherit}.cargo-grid-selecting .cargo-canvas{cursor:pointer}
+
+.cargo-grid-help{display:none;position:absolute;left:12px;top:46px;max-width:calc(100% - 24px);font-size:12px;background:#06131fd9;padding:6px 9px;border-radius:5px;color:#c1d4df;pointer-events:none;z-index:4}.cargo-grid-selecting .cargo-grid-help{display:block}.cargo-grid-selecting .labels-off .cargo-zone-labels{display:block}
+
+.cargo-grid-selecting .cargo-zone-label.grid-locked{border-color:#b2884f;color:#f2cd97}.cargo-grid-selecting .cargo-zone-label.grid-locked b{color:#f2cd97}

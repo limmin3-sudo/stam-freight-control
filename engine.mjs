@@ -51,6 +51,15 @@ export function gridRegions(ship){if(regionCache.has(ship))return regionCache.ge
 const regionCost=(r,i,ref)=>ref.length?Math.min(...ref.map(j=>r[i].side!==r[j].side?40:r[i].level!==r[j].level?15:0)):0;
 const walkCache=new WeakMap();
 export function gridWalk(ship){if(walkCache.has(ship))return walkCache.get(ship);
+ if(hullKind(ship)==='hull-b'){
+  const blocks=cargoBlocks(ship),extent=blocks.map(ids=>[0,1,2].map(k=>{const spans=ids.map(i=>{const g=ship.grids[i],w=g._world||g;return k===0?[w.x,w.x+w.w]:k===1?[w.y,w.y+w.h]:[g.z,g.z+g.l];});return [Math.min(...spans.map(v=>v[0])),Math.max(...spans.map(v=>v[1]))];}));
+  const center=b=>b.map(([a,c])=>(a+c)/2),middle=ship.grids.reduce((n,g)=>n+(g._world?.x??g.x)+(g._world?.w??g.w)/2,0)/ship.grids.length;
+  const side=i=>Math.sign(center(extent[i])[0]-middle),gap=(a,b)=>Math.hypot(...extent[a].map(([a0,a1],k)=>Math.max(0,extent[b][k][0]-a1,a0-extent[b][k][1]))),distance=(a,b)=>Math.hypot(...center(extent[a]).map((v,k)=>v-center(extent[b])[k]));
+  const pos=Array(ship.grids.length),left=new Set(blocks.keys());let at=0,n=0;
+  while(left.size){for(const bin of blocks[at])pos[bin]=n++;left.delete(at);let next=null;for(const j of left)if(next===null||Number(side(j)!==side(at))-Number(side(next)!==side(at))<0||side(j)===side(next)&&(gap(at,j)<gap(at,next)-1e-9||Math.abs(gap(at,j)-gap(at,next))<1e-9&&distance(at,j)<distance(at,next)))next=j;at=next;}
+  for(let i=0;i<pos.length;i++)if(pos[i]===undefined)pos[i]=n++;walkCache.set(ship,pos);return pos;
+ }
+
  const box=ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];}),mid=b=>b.map(([a,c])=>(a+c)/2);
  const gap=(a,b)=>Math.hypot(...a.map(([a0,a1],k)=>Math.max(0,b[k][0]-a1,a0-b[k][1]))),dist=(a,b)=>Math.hypot(...mid(a).map((v,k)=>v-mid(b)[k]));
  const pos=Array(box.length),left=new Set(box.keys());let at=0;
@@ -60,7 +69,7 @@ export function gridWalk(ship){if(walkCache.has(ship))return walkCache.get(ship)
 // whose destinations are least spread out (largest surface gap between grids of the same destination).
 export function fullLoadLayout(groups,fixed,ship){
  const box=ship.grids.map(g=>{const w=g._world||g;return [[w.x,w.x+w.w],[w.y,w.y+w.h],[g.z,g.z+g.l]];}),gap=(a,b)=>Math.hypot(...box[a].map(([a0,a1],k)=>Math.max(0,box[b][k][0]-a1,a0-box[b][k][1])));
- const per=Math.max(1,ship.grids.reduce((n,g)=>n+g.w*g.h*g.l,0)/ship.grids.length),dests=new Map();
+ const per=Math.max(1,ship.grids.reduce((n,g)=>n+(g.disabled?0:g.w*g.h*g.l),0)/Math.max(1,ship.grids.filter(g=>!g.disabled).length)),dests=new Map();
  for(const {items,rank}of groups)for(const b of items){const d=dests.get(b.dropoffId)||dests.set(b.dropoffId,{id:b.dropoffId,rank,scu:0}).get(b.dropoffId);d.scu+=b.size;}
  const list=[...dests.values()],size=d=>Math.ceil(d.scu/per),bySize=(a,b)=>size(b)-size(a)||b.rank-a.rank;
  const orders=[[...list].sort((a,b)=>b.rank-a.rank),[...list].sort(bySize),[...list].sort((a,b)=>size(a)%2-size(b)%2||bySize(a,b)),[...list].sort((a,b)=>size(b)%2-size(a)%2||bySize(a,b))];
@@ -68,7 +77,7 @@ export function fullLoadLayout(groups,fixed,ship){
  // then one level, wherever it fits: a light load fills one block of the hold before spilling over.
  const regions=gridRegions(ship),walk=gridWalk(ship),byWalk=ship.grids.map((_,i)=>i).sort((a,b)=>walk[a]-walk[b]),zones=new Map(),taken=new Set();
  for(const b of fixed){taken.add(b.bin);(zones.get(b.dropoffId)||zones.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);}
- for(const d of [...list].sort(bySize)){const free=byWalk.filter(i=>!taken.has(i)),k=Math.max(0,size(d)-(zones.get(d.id)?.size||0));if(!k||free.length<k)continue;let pick=null;
+ for(const d of [...list].sort(bySize)){const free=byWalk.filter(i=>!ship.grids[i].disabled&&!taken.has(i)),k=Math.max(0,size(d)-(zones.get(d.id)?.size||0));if(!k||free.length<k)continue;let pick=null;
   for(let i=0;i+k<=free.length;i++){const run=free.slice(i,i+k),all=[...run,...(zones.get(d.id)||[])];let m=0;for(const a of all)for(const c of all)m=Math.max(m,gap(a,c));
    const cost=(new Set(all.map(j=>regions[j].side)).size-1)*100+(new Set(all.map(j=>regions[j].side+':'+regions[j].level)).size-1)*30+m;if(!pick||cost<pick.cost)pick={cost,run};}
   for(const j of pick.run){taken.add(j);(zones.get(d.id)||zones.set(d.id,new Set()).get(d.id)).add(j);}}
@@ -88,7 +97,7 @@ export function fullLoadLayout(groups,fixed,ship){
 export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const half=[...items,...fixed].some(b=>b._cargoShape==='cryopod'),bins=makeBins(ship,half);const limit=capacity(ship);const placed=[...fixed];
  if([...items,...fixed].reduce((a,b)=>a+b.size,0)>limit)return null;
- for(const p of fixed){const b=bins[p.bin];if(!b||!p.dims||!p.cell||p.size>b.grid.maxBoxSize||!occupy(b,p.cell,p.dims))return null;b.boxes.push(p);b.used+=p.size;}
+ for(const p of fixed){const b=bins[p.bin];if(!b||b.grid.disabled||!p.dims||!p.cell||p.size>b.grid.maxBoxSize||!occupy(b,p.cell,p.dims))return null;b.boxes.push(p);b.used+=p.size;}
  const share=opts.share??sharesGrids(ship),ranked=!opts.dense&&items.some(it=>Number.isFinite(it.rank)),bounds=shipBounds(ship),maxDepth=Math.max(1,shipAccess(ship)==='external'?2:shipAccess(ship)==='left'||shipAccess(ship)==='right'?bounds.maxX-bounds.minX:bounds.maxZ-bounds.minZ);
  // Walk the grids nearest-first (gap between grid surfaces, then centre distance) so neighbours in this walk
  // touch in the ship. Each destination fills a run of the walk, keeping its colour in one block.
@@ -97,7 +106,7 @@ export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const sorted=[...items].sort((a,b)=>(ranked?(b.rank??0)-(a.rank??0):0)||b.size-a.size||String(a.missionId).localeCompare(String(b.missionId)));
  for(const item of sorted){let best=null;const ownBins=[],usedBins=[];bins.forEach((b,i)=>{if(b.used)usedBins.push(i);if(b.boxes.some(p=>sameGroup(p,item,true)))ownBins.push(i);});
   const emptyCost=i=>25+regionCost(regions,i,ownBins.length?ownBins:usedBins)+(ownBins.length?3*near(i,ownBins):.5*walk[i]);
-  const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>(!opts.strictZones||!opts.zones?.has(item.dropoffId)||opts.zones.get(item.dropoffId).has(o.index))&&item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
+  const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>!o.b.grid.disabled&&(!opts.strictZones||!opts.zones?.has(item.dropoffId)||opts.zones.get(item.dropoffId).has(o.index))&&item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
   search:for(const {b,index,own,other} of order){const grid=b.grid;
    for(const d of item._cargoShape==='cryopod'?[[1,.5,2],[2,.5,1]]:orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;
     for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y+=(half?0.5:1))for(let x=0;x<=grid.w-d[0];x++){const cell=[x,y,z];if(!occupy(b,cell,d,true)||!supported(b,cell,d,item))continue;
@@ -158,7 +167,7 @@ export function navigator(data,settings){gatewayOf.data=data;
  return {path,byId};
 }
 export function planRoute(data,missions,startId,settings={}){
- const opt={...DEFAULTS,...settings,startId,ship:validateShip(settings.ship||DEFAULT_SHIP)},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('출발 위치를 선택하세요.');
+ const opt={...DEFAULTS,...settings,startId,ship:validateShip(settings.ship||DEFAULT_SHIP)},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('출발 위치를 선택하세요.');if(!capacity(opt.ship))throw Error('사용할 화물 그리드를 하나 이상 켜 주세요.');
  const {shipments,warnings}=makeShipments(missions,nav.byId,opt);if(!shipments.length)throw Error('운송할 화물을 추가하세요.');
  const n=shipments.length;
  // Route selection follows revisits, travel and handling; contracts have no deadlines.
