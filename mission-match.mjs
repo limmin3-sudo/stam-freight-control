@@ -17,6 +17,9 @@ const sameGiver=(a,b)=>a===b||a.startsWith(b)||b.startsWith(a);
 // variants with identical cargo, e.g. a rank-0 and a rank-1 Ling haul.
 const RANKS=[[/trainee/i,0],[/rookie|신입/i,1],[/junior/i,2],[/member/i,3],[/experienced/i,4],[/senior/i,5],[/master/i,6]];
 const rankHint=title=>RANKS.find(([re])=>re.test(String(title||'')))?.[1]??null;
+// Haul size words (English client or Korean 소형/중형/대형) also separate e.g. a Small and a Medium Dead Saints haul.
+const SIZE_WORDS=[[/small|소형|소량/i,'s'],[/medium|중형/i,'m'],[/large|bulk|대형/i,'l']];
+const sizeHint=title=>SIZE_WORDS.find(([re])=>re.test(String(title||'')))?.[1]??null;
 
 // Returns null when nothing fits, otherwise the best mission and, per commodity key, the largest container size
 // any equally good candidate allows (so ties never under-estimate box size).
@@ -25,7 +28,7 @@ export function matchMission(m,prepared){
  const lines=m.cargo.map(c=>({key:english(prepared.commodities,c.commodity),scu:c.scu}));
  if(lines.some(l=>!l.key||!/[a-z0-9]/.test(l.key)))return null;// a Korean name without a known English match
  const giver=english(prepared.companies,m.company),giverKnown=/[a-z]/.test(giver);
- const wanted=new Set(lines.map(l=>l.key)),rank=rankHint(m.title);let best=[],bestScore=-Infinity;
+ const wanted=new Set(lines.map(l=>l.key)),rank=rankHint(m.title),size=sizeHint(m.title),title=norm(m.title).replace(/\d+평판$/,'');let best=[],bestScore=-Infinity;
  for(const e of prepared.missions){
   if(giverKnown&&!sameGiver(e.giverKey,giver))continue;
   const have=new Set(e.orders.map(o=>o.key));if([...wanted].some(k=>!have.has(k)))continue;
@@ -33,7 +36,7 @@ export function matchMission(m,prepared){
   for(const l of lines){const limits=e.orders.filter(o=>o.key===l.key).map(o=>o.maxScu).filter(Number.isFinite);const max=limits.length?Math.max(...limits):null;
    if(Number.isInteger(l.scu)&&max!==null&&l.scu>max){fits=false;break;}if(l.scu===max)exact++;}
   if(!fits)continue;
-  const score=(giverKnown?100:0)+(have.size===wanted.size?40:0)-Math.abs(e.orders.length-lines.length)*3+exact*2+(rank!==null&&e.rank===rank?5:0);
+  const score=(giverKnown?100:0)+(have.size===wanted.size?40:0)-Math.abs(e.orders.length-lines.length)*3+exact*2+(rank!==null&&e.rank===rank?5:0)+(size&&sizeHint(e.title)===size?4:0)+(title&&norm(e.title)===title?30:0);
   if(score>bestScore){bestScore=score;best=[e];}else if(score===bestScore)best.push(e);
  }
  if(!best.length)return null;

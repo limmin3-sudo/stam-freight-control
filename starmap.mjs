@@ -2,6 +2,7 @@ import {mapLocationName,activeSystemLinks,stepNumbers,jumpSegments} from './rout
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
 import {koName} from './aliases.mjs';
+import {tr} from './i18n.mjs';
 import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
 
@@ -110,7 +111,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
    const hop=rootBody(a.id)&&rootBody(a.id)===rootBody(b.id),len=from.distanceTo(to),path=avoidBodies(from,to),curve=new THREE.CurvePath();for(let k=1;k<path.length;k++)curve.add(new THREE.LineCurve3(path[k-1],path[k]));
    const pts=[];for(let k=1;k<path.length;k++){const n=Math.max(8,Math.ceil(path[k-1].distanceTo(path[k])/Math.max(len,1e-6)*120));for(let q=k===1?0:1;q<=n;q++)pts.push(path[k-1].clone().lerp(path[k],q/n));}
    const rb=routeRibbon(pts,{color:active?'#ffb35c':hop?'#ffd75e':'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
-   if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분${v.leg.jumps?' · '+(v.leg.gateways||[]).join(' → ')+' 경유':''}`,'',undefined,{pill:'#ffc67c',upper:false});lab.visible=false;labelGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
+   if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(tr(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분${v.leg.jumps?' · '+(v.leg.gateways||[]).join(' → ')+' 경유':''}`),'',undefined,{pill:'#ffc67c',upper:false});lab.visible=false;labelGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
    const p=posOf(v.locationId);if(p&&byId.get(v.locationId)?.system===system){const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('waypoint',i===activeIndex?'#ffb35c':'#64dfe2'),transparent:true,depthWrite:false,sizeAttenuation:false}));ring.position.copy(p);ring.renderOrder=7;routeGroup.add(ring);markers.push({sprite:ring,i,active:i===activeIndex});}});
   revealStart=time;}
 
@@ -121,7 +122,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  const visitNums=id=>{if(!route)return [];if(stepCache?.route!==route)stepCache={route,steps:stepNumbers(route.visits,byId)};const st=stepCache.steps,out=[];
   route.visits.forEach((v,i)=>{jumpSegments(v.leg,byId).forEach((j,q)=>{if(j.entryId===id)out.push(st.jumps[i][q]);});if(v.locationId===id)out.push(st.stop[i]);});return out;};
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
-  const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':TYPE_KO[l.type]||'',sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
+  const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
   s=labelSprite((n.length?n.join(',')+' · ':'')+mapLocationName(l),sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
@@ -129,7 +130,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function crumbsRender(){const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([system.toUpperCase(),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([c.name.toUpperCase(),()=>focus(c.id)]);}}
   crumbs.replaceChildren(...parts.flatMap(([t,fn],i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.className=i===parts.length-1?'current':'';b.onclick=fn;return i?[Object.assign(document.createElement('span'),{textContent:'›'}),b]:[b];}));}
  function goGalaxy(instant=false){level='galaxy';focusId=null;selected=null;galaxyGroup.visible=true;systemGroup.visible=false;routeGroup.visible=false;clearLabels();backdrop.paint('galaxy');buildGalaxy();
-  for(const [sys,p] of Object.entries(GALAXY)){const s=labelSprite(sys.toUpperCase(),'항성계 · 더블클릭',STAR_COLORS[sys],{big:true,glow:true});s.userData.anchor=p;labelGroup.add(s);}
+  for(const [sys,p] of Object.entries(GALAXY)){const s=labelSprite(sys.toUpperCase(),tr('항성계 · 더블클릭'),STAR_COLORS[sys],{big:true,glow:true});s.userData.anchor=p;labelGroup.add(s);}
   rig.minR=90;rig.maxR=380;rig.bound=110;rig.minFor=null;rig.set({x:4,y:0,z:-30,theta:.2,phi:1.05,r:210},instant);crumbsRender();}
  function enterSystem(sys,instant=false){const changed=sys!==system||level!=='system';system=sys;level='system';galaxyGroup.visible=false;systemGroup.visible=true;routeGroup.visible=true;if(changed||!items.length)buildSystem(sys);rig.minR=.5;rig.maxR=extent*3.2;rig.bound=extent*1.35;rig.minFor=g=>{let m=0;for(const it of layout.values()){if(it.kind!=='body'&&it.kind!=='star')continue;const d=Math.hypot(g.x-it.pos.x,g.y-it.pos.y,g.z-it.pos.z),need=it.r*(it.kind==='star'?2.2:1.7)-d;if(need>m)m=need;}return m;};if(changed)home(instant);else crumbsRender();}
  function home(instant=false,top=false){focusId=null;rig.set(top?{x:0,y:0,z:0,phi:.04,r:extent*2.7}:{x:0,y:0,z:0,theta:.65,phi:.98,r:extent*2.35},instant);crumbsRender();}

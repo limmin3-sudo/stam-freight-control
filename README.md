@@ -14,6 +14,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 
 ## 현재 되는 기능
 
+- 한국어 / 영어 화면 전환(상단 English · 한국어, `i18n.mjs`·`i18n-en.mjs`). 영어판은 스타 시티즌 게임 표현을 씁니다.
 - 스크린샷 여러 장·드래그·붙여넣기, 기본 브라우저 OCR, 읽은 값 즉시 수정.
 - 미션별 화물 소유권 보존, 배송지별 상자 크기·개수 입력, 같은 미션 유형에 구성 재사용.
 - 계약을 게임 미션 데이터(Star Citizen Wiki API)와 대조해 미션 유형·품목별 최대 상자 크기를 찾고, 상자 구성을 모르면 최대 상자로 임시 적재 계산(`mission-match.mjs`, `data/hauling-missions.json`은 `scripts/refresh-missions.mjs`로 매일 갱신, 한글 이름 대응은 `data/ko-hauling.json`).

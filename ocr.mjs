@@ -17,7 +17,7 @@ export function officialCommodity(name){if(!COMMODITIES.length||!name)return {na
 export function parseMissionText(text,locations=[]){
  text=clean(text);const lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),warnings=[];
  const company=(text.match(/Red Wind(?: Linehaul)?|Covalex(?: Shipping)?|Ling Family(?: Hauling)?|Dead Saints|Citizens for Prosperity|Quasi Vex|QV Logistics|레드\s*윈드|코발렉스|링\s*가문|데드\s*세인츠/i)||[])[0]||'';
- const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery)\b/i.test(l))||koTitle(lines)||'';
+ const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(l))||koTitle(lines)||'';
  const missionId=(text.match(/(?:Mission|Contract)\s*(?:ID|#)\s*[:：]?\s*([\w-]{3,80})/i)||[])[1]||null;
  const rewardMatch=text.match(/(?:Reward|Payout|Payment|보상)\s*[:：]?\s*[¤$€]?\s*([\d,]+)/i)||text.match(/([\d,]+)\s*aUEC/i),reward=rewardMatch?Number(rewardMatch[1].replaceAll(',','')):0;
  const maxBox=Number((text.match(/(?:max(?:imum)?\s*(?:container|box)(?:\s*size)?|containers?\s*(?:up to|of)|최대\s*(?:상자|컨테이너))\s*[:：]?\s*(1|2|4|8|16|24|32)\s*SCU/i)||[])[1])||null;
@@ -52,7 +52,7 @@ export function parseMissionText(text,locations=[]){
  const record=(p,d)=>({commodity:d?.commodity||p?.commodity||'',scu:d?.scu??p?.scu??null,pickupId:p?.locationId||'',dropoffId:d?.locationId||'',maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown'});
  if(pickups.length===1&&deliveries.length) cargo=deliveries.map(d=>record(pickups[0],d));
  else if(deliveries.length===1&&pickups.length)cargo=pickups.map(p=>({...record(p,deliveries[0]),scu:p.scu}));
- else if(pickups.length&&deliveries.length)cargo=deliveries.map(d=>{const matches=pickups.filter(p=>normalize(p.commodity)===normalize(d.commodity)&&p.scu===d.scu);if(matches.length!==1)warnings.push('픽업지와 배송지가 여러 개입니다. 연결을 확인하세요.');return record(matches.length===1?matches[0]:null,d);});
+ else if(pickups.length&&deliveries.length)cargo=deliveries.map(d=>{const same=pickups.filter(p=>normalize(p.commodity)===normalize(d.commodity)),exact=same.filter(p=>p.scu===d.scu),matches=exact.length?exact:same.filter(p=>p.scu==null);if(matches.length!==1)warnings.push('픽업지와 배송지가 여러 개입니다. 연결을 확인하세요.');return record(matches.length===1?matches[0]:null,d);});
  else cargo=(deliveries.length?deliveries:pickups).map(o=>o.type==='pickup'?record(o,null):record(null,o));
  if(!cargo.length){cargo=[{commodity:'',scu:null,pickupId:'',dropoffId:'',maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown'}];warnings.push('운송 목표를 확실히 읽지 못했습니다. 원문을 보며 빈 항목을 채우세요.');}
  if(!title)warnings.push('미션 이름을 확인하세요.');if(cargo.some(c=>!c.pickupId||!c.dropoffId))warnings.push('픽업지·배송지를 확인하세요.');if(cargo.some(c=>!c.scu))warnings.push('읽히지 않은 SCU를 입력하세요.');warnings.push('스샷에 없는 상자 크기·개수는 따로 확인하세요.');
