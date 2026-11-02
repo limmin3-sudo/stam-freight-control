@@ -2,20 +2,24 @@
   {
     "id": "2026-11-02-korean-mission-types",
     "version": "3.3.0",
-    "date": "2026-11-02 18:26",
-    "title": "한국어 미션 유형 확인 · 관제 모드 하단바 · 피드백 스크린샷",
+    "date": "2026-11-02 18:36",
+    "title": "한국어 미션 유형 · 함선 정보 칸 · 관제 모드 하단바 · 피드백 스크린샷",
     "changes": [
       "한국어 모드에서도 게임 미션 유형과 품목별 최대 상자 크기를 자동으로 찾습니다. 한글 패치의 품목 117개·발주처 25곳 이름을 연결했습니다. 이제 한국어·한/영·English 세 모드 모두 같은 기능입니다.",
       "관제 모드 하단 진행 바를 큰 화면(1440p 등)에서 약 50% 키우고 글자와 버튼도 크게 했습니다.",
-      "피드백 · 오류 신고에서 스크린샷을 첨부할 수 있습니다(파일 선택 또는 Ctrl+V). 화면 크기 정보도 함께 보내 모니터 비율 문제를 맞춰 고칠 수 있습니다.",
+      "왼쪽 계정 칸 아래에 지금 쓰는 함선 정보(화물칸·퀀텀 드라이브·출발지·계획 방식·계약 수)를 보여 주는 칸을 넣었습니다. 누르면 운항 설정 창이 열립니다.",
+      "왼쪽 사이드바가 노트북 등 작은 화면에서도 화면 아래로 넘치지 않게, 화면 높이에 맞춰 간격과 보조 문구를 줄입니다. 페이지를 내려도 사이드바는 그 자리에 있습니다.",
+      "피드백 · 오류 신고에서 스크린샷을 첨부할 수 있습니다(파일 선택 또는 Ctrl+V). 화면 크기 정보도 함께 보내 모니터 해상도에 따른 문제를 맞춰 고칠 수 있습니다.",
       "지도에서 통신 위성(Comm Array) 이름도 위켈로처럼 가까이 확대했을 때만 보입니다."
     ],
     "en": {
-      "title": "Korean mission types · bigger control bar · feedback screenshots",
+      "title": "Korean mission types · ship card · bigger control bar · feedback screenshots",
       "changes": [
         "Korean mode now finds game mission types and the largest container per commodity too, using 117 goods and 25 contractor names from the Korean patch. All three modes work the same.",
         "The Control mode progress bar is about 50% taller on large screens (e.g. 1440p), with larger text and buttons.",
-        "Feedback · bug report can attach a screenshot (choose a file or paste with Ctrl+V); your screen size is sent too, so layout issues can be fixed for your aspect ratio.",
+        "A card under the account box shows your ship (hold, quantum drive, start, planning mode, contracts); click it to open flight setup.",
+        "The left sidebar now always fits the window height, even on laptops, tightening spacing on short screens and staying in place while the page scrolls.",
+        "Feedback · bug report can attach a screenshot (choose a file or paste with Ctrl+V); your screen size is sent too, so layout issues can be fixed for your resolution.",
         "Comm Array names on the map, like Wikelo, only appear when zoomed right in."
       ]
     }

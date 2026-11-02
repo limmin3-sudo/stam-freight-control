@@ -1,6 +1,7 @@
 // English phrases for the Korean interface (i18n.mjs). PATTERNS run first (numbers and names captured), then
 // PHRASES longest first, then POST patterns for bare counters. Keep Korean keys exactly as the app renders them.
 export const PATTERNS=[
+ [/그리드 (\d+)개/,'$1 grids'],[/(\d+)건 · ([\d,]+) SCU/,'$1 · $2 SCU'],
  [/(\d+)번 거점 작업 후 예상/,'expected after stop $1'],[/(\d+)번 거점 작업 전 예상/,'expected before stop $1'],
  // counters inside longer messages
  [/(\d[\d,]*)\s*개 미션을 읽었어/,'Read $1 missions'],[/중복 ID (\d+)개 갱신/,'updated $1 duplicate IDs'],
@@ -194,7 +195,7 @@ export const PHRASES={
  '게임 화면이 넓고 글씨가 작아 기본 인식이 실패할 때 훨씬 정확합니다.':'Much more accurate when wide game screens with small text defeat the built-in reader.','AI가 옮겨 적은 글을 여기에 붙여 넣으세요. 미션이 여러 개면 사이에 --- 가 들어갑니다.':'Paste the AI’s transcription here. Several missions are separated by ---.','읽은 계약 확인하기':'Check contracts read','직접 입력하겠습니다':'I will enter them myself','예시로 둘러보기':'Explore with examples',
  '스샷 더 올리기':'Upload more','위치':'Location','경로만 보실 거면 상자를 입력하지 않고 그냥 넘어가셔도 됩니다. 방문 순서·시간은 SCU로 계산되고, 적재 배치만 가정한 상자로 대략 표시됩니다.':'If you only need the route, you can skip containers. Visit order and time use SCU; only the loading layout uses assumed containers.',
  '✓ 같은 품목 조합이라 위와 같은 구성으로 채웠습니다':'✓ Same goods mix, filled with the layout above','상자 · 합계 일치 · 다음부터 같은 품목 조합은 자동으로 채웁니다':'containers · total matches · the same goods mix is filled in automatically next time','계약 다시 보기':'Review contracts','픽업':'Pickup','배송':'Delivery','전체 계획 보기':'View whole plan',
- '다음부터':'next time','사소한 것이라도 좋으니 무엇이든 적어 주시면 감사하겠습니다. 예를 들어 「내 모니터 비율에서는 화면이 이상하게 보인다」 같은 경우 스크린샷을 첨부해 주시면 그 화면에 맞춰 고쳐 드립니다.':'Anything at all helps, however small — thank you! For example, if the layout looks wrong on your monitor’s aspect ratio, attach a screenshot and we will fix it for that screen.',
+ '다음부터':'next time','운항 설정 열기':'Open flight setup','SHIP / 운용 함선':'SHIP','화물칸':'Hold','퀀텀':'Quantum','출발':'Start','계획':'Plan','평균 속도 직접 입력':'Custom average speed','없음':'None','사소한 것이라도 좋으니 무엇이든 적어 주시면 감사하겠습니다. 예를 들어 「내 모니터 해상도에서는 화면이 이상하게 보인다」 같은 경우 스크린샷을 첨부해 주시면 그 화면에 맞춰 고쳐 드립니다.':'Anything at all helps, however small — thank you! For example, if the layout looks wrong at your monitor’s resolution, attach a screenshot and we will fix it for that screen.',
  '스크린샷 첨부 (선택)':'Attach a screenshot (optional)','이 창에서 Ctrl+V로 붙여 넣어도 됩니다.':'You can also paste it here with Ctrl+V.','첨부한 스크린샷 미리보기':'Attached screenshot preview','첨부 빼기':'Remove','스크린샷을 첨부하지 못했습니다. 다른 이미지로 시도해 주세요.':'Could not attach the screenshot. Try another image.','품목명을 미션 데이터로 고쳤습니다':'Goods names corrected from mission data','피드백 · 오류 신고':'Feedback · bug report','종류':'Type','피드백 · 제안':'Feedback · ideas','오류 신고':'Bug report','내용':'Message',
  '불편한 점, 바라는 기능, 오류가 난 상황(어느 화면에서 무엇을 눌렀는지)을 적어 주세요.':'Tell us what bothers you, what you would like, or what went wrong (which screen, what you clicked).','연락처 (선택)':'Contact (optional)','디스코드·게임 닉네임 등 · 답장이 필요할 때만':'Discord or in-game handle · only if you want a reply',
  '앱 정보 함께 보내기 (버전·언어·함선·계약 수·최근 오류. 미션 내용은 보내지 않습니다)':'Include app info (version, language, ship, contract count, recent errors; contract contents are not sent)','보낸 내용은 사이트 운영자만 볼 수 있습니다. 개인 정보나 비밀번호는 적지 마세요.':'Only the site operator can read what you send. Do not include personal data or passwords.',

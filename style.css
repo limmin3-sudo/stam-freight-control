@@ -335,3 +335,25 @@ footer{padding:14px 24px;gap:12px}
 .run-desk .run-col-talk{display:flex;flex-direction:column}.run-desk .run-col-talk .aide{flex:1 1 auto}
 @media(min-height:1200px){.run-desk .run-head .eyebrow{font-size:11px}.run-desk .run-head h2{font-size:22px}.run-desk .run-num{width:30px;height:30px;font-size:15px}.run-desk .run-meters b{font-size:20px}.run-desk .run-big{padding:16px;font-size:19px}.run-desk .run-next{padding:10px 14px}.run-desk .run-next b{font-size:16px}.run-desk .run-buttons button{font-size:12px;padding:7px 12px}.run-desk .run-partner-photo{width:54px;height:70px}.run-desk .aide-line{font-size:15px}.run-desk .run-col-talk .run-cargo{font-size:14px;max-height:13em}}
 .feedback-intro{margin:0;padding:9px 12px;border-left:3px solid var(--cyan);border-radius:6px;background:#0c1e2a;font-size:13px;line-height:1.6;color:var(--text)}.feedback-shot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.feedback-file{display:flex;flex-direction:column;gap:4px}.feedback-preview{flex-basis:100%;display:flex;align-items:flex-start;gap:10px}.feedback-preview[hidden]{display:none}.feedback-preview img{max-width:240px;max-height:140px;border:1px solid var(--line);border-radius:6px}
+/* Ship card under the account box. */
+.ship-panel{display:flex;flex-direction:column;align-items:stretch;gap:6px;width:100%;margin:0 0 14px;padding:12px 14px;text-align:left;white-space:normal;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);cursor:pointer}
+.ship-panel:hover{border-color:var(--cyan)}.ship-panel .eyebrow{margin:0}.ship-panel>b{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.ship-facts{display:grid;gap:3px;font-size:11px;line-height:1.45;color:var(--text)}.ship-facts span{display:flex;gap:8px;min-width:0}.ship-facts i{flex:none;width:34px;font-style:normal;color:var(--muted)}
+/* Desktop: the left sidebar always fits the window height (sticky, never runs below the screen); on short screens
+   it tightens spacing and drops secondary lines, and only the notice area scrolls inside it. */
+@media(min-width:1200px){
+ main>.mission-pane{position:sticky;top:calc(var(--header-height) + 16px);max-height:calc(100dvh - var(--header-height) - 32px);display:flex;flex-direction:column;overflow:hidden}
+ main>.mission-pane>*{flex:none}main>.mission-pane>#notice{flex:1 1 auto;min-height:0;overflow:auto}
+}
+@media(min-width:1200px) and (max-height:900px){
+ main>.mission-pane .account-panel{padding:10px 12px;margin-bottom:10px}main>.mission-pane .account-panel p{display:none}
+ main>.mission-pane .ship-panel{padding:9px 12px;margin-bottom:10px;gap:4px}
+ main>.mission-pane .desk-launchers{gap:8px}main>.mission-pane .desk-launchers button{padding:10px 12px;gap:3px}
+ main>.mission-pane>.run-mode-btn{margin:12px 0 10px;min-height:42px}
+}
+@media(min-width:1200px) and (max-height:760px){
+ main>.mission-pane .account-panel .eyebrow,main>.mission-pane .desk-launchers small{display:none}
+ main>.mission-pane .account-panel .account-btn{min-height:36px;padding:6px 10px}
+ main>.mission-pane .ship-facts span:nth-child(n+4){display:none}
+ main>.mission-pane .desk-launchers button{padding:8px 12px}main>.mission-pane>.run-mode-btn{margin:8px 0;min-height:38px}main>.mission-pane .feedback-btn{margin-top:4px;padding:6px 10px}
+}

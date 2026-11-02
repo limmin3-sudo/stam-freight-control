@@ -14,7 +14,7 @@ export async function firebaseApp(){const [app,auth,store]=await Promise.all(['f
 export function createFeedback(button,{notify=()=>{},context=()=>({})}={}){
  const dialog=document.createElement('dialog');dialog.className='feedback-dialog desk-dialog';document.body.append(dialog);
  dialog.innerHTML=`<form method="dialog"><div class="dialog-title"><h2>피드백 · 오류 신고</h2><button type="button" data-close aria-label="닫기">×</button></div>
-  <p class="feedback-intro">사소한 것이라도 좋으니 무엇이든 적어 주시면 감사하겠습니다. 예를 들어 「내 모니터 비율에서는 화면이 이상하게 보인다」 같은 경우 스크린샷을 첨부해 주시면 그 화면에 맞춰 고쳐 드립니다.</p>
+  <p class="feedback-intro">사소한 것이라도 좋으니 무엇이든 적어 주시면 감사하겠습니다. 예를 들어 「내 모니터 해상도에서는 화면이 이상하게 보인다」 같은 경우 스크린샷을 첨부해 주시면 그 화면에 맞춰 고쳐 드립니다.</p>
   <div class="feedback-kind" role="radiogroup" aria-label="종류"><label><input type="radio" name="kind" value="feedback" checked> 피드백 · 제안</label><label><input type="radio" name="kind" value="bug"> 오류 신고</label></div>
   <label class="feedback-text">내용<textarea name="text" maxlength="${MAX}" rows="7" required placeholder="불편한 점, 바라는 기능, 오류가 난 상황(어느 화면에서 무엇을 눌렀는지)을 적어 주세요."></textarea></label>
   <div class="feedback-count small subtle" aria-live="polite">0 / ${MAX}</div>
