@@ -1,20 +1,5 @@
 [
   {
-    "id": "2026-11-02-history-date-only",
-    "version": "3.3.1",
-    "date": "2026-11-02 18:39",
-    "title": "업데이트 기록 날짜 표시",
-    "changes": [
-      "업데이트 기록에 시각은 빼고 날짜만 표시합니다."
-    ],
-    "en": {
-      "title": "Update history dates",
-      "changes": [
-        "The update history now shows only the date, without the time."
-      ]
-    }
-  },
-  {
     "id": "2026-11-02-korean-mission-types",
     "version": "3.3.0",
     "date": "2026-11-02 18:38",
