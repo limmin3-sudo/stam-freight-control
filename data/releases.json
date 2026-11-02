@@ -1,5 +1,26 @@
 [
   {
+    "id": "2026-11-02-hull-b-destination-blocks",
+    "version": "3.7.0",
+    "date": "2026-11-02 22:03",
+    "title": "Hull B 목적지별 블록 적재 개선",
+    "changes": [
+      "같은 목적지의 큰 상자와 작은 상자가 여러 블록에 흩어지는 배치를 개선했습니다. 한 블록을 초과하는 화물은 인접한 전방/후방 구역에 모으고 다른 목적지와 블록을 나눠 쓰는 상황을 줄입니다.",
+      "여유 공간이 있으면 반대편도 활용해 목적지별 화물을 모읍니다. 기존의 소량 화물·한쪽 우선 배치는 유지하며, 블록 전용 배정으로 모두 실을 수 없으면 기존 적재 후보도 검토합니다.",
+      "Hull B의 중심축 부착 방향·원래 구역 좌표가 검증 과정에서 누락되지 않도록 수정했습니다. 경로 탐색은 유지하고 재계산 시 이미 실린 화물을 옮기지 않습니다.",
+      "일부 화물을 실은 운항을 다시 열 때 저장된 적재 좌표와 완료 상태를 먼저 복원합니다. 기존 화물을 새 권장 배치로 덮어쓰지 않습니다."
+    ],
+    "en": {
+      "title": "Hull B cargo grouped by destination blocks",
+      "changes": [
+        "Large and small containers for one destination are grouped in nearby fore/aft blocks rather than sharing fragmented blocks with other destinations.",
+        "Spare space on the other side may be used to keep destination groups together. Light-load packing is retained, with existing packing candidates available when exclusive blocks cannot fit all cargo.",
+        "Hull B attachment direction and physical grid frames survive validation. Route search is retained and aboard cargo stays fixed during replanning.",
+        "Reopening an active trip restores saved aboard positions and progress before generating a new packing layout. Existing cargo is not overwritten by a new recommendation."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-copy-request-format",
     "version": "3.6.1",
     "date": "2026-11-02 21:33",

@@ -15,6 +15,7 @@
 - Use natural Korean in conversation and polite Korean in the UI.
 - Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts. For the senior navigator, collect every feasible shipment at a pickup before departing and batch source-system pickups before crossing when capacity permits. For the bridge operator, prioritise completing simple contracts and allow nearby pickups within the separate detour budget. Prefer destination-adjacent compact packing and shared free cells in automatic mode; preserve explicit shareGrids:false. Primary colour labels show destinations; mission IDs remain available for delivery checks.
 - Cryopods: one pod is **1 SCU**, occupying a 2-cell footprint at half cell height. Two vertically stacked pods equal the envelope of a standard 2 SCU crate. Odd pod stacks cannot support ordinary crates; no bridging uneven supports. Keep individual pod ownership and count. Do not turn the Wiki API item volume of 2 SCU into 2 SCU of cargo per pod. This is the user-confirmed packing rule (2026-11-02).
+- Hull B multi-block cargo: when spare space permits, keep each destination’s large and small containers in nearby physical blocks rather than fragmenting blocks between destinations. Using the other side is preferable to scattering a destination among other cargo. Keep the existing light-load one-side/one-level behavior and aboard positions. Preserve `_stack` and `_world` attachment frames through ship validation.
 - Preserve aboard cargo positions when resuming or recalculating an active run. Never silently erase missions or progress.
 - Keep cargo views grid-only unless exact authorized ship exteriors are available. Every hold, Hull B included, uses one rotatable 3D view with port/starboard labels (user decision 2026-10-30). Preserve orientation and access guides. Cargo attaches per ship (user decision 2026-10-30): flat holds stack up from the floor, Hull B and Hull C attach to the spine and stack outward/sideways, the RAFT hangs from the top (`STACK_BY_SHIP`/`withStacking` in ships.mjs).
 - Keep bloom disabled. Warm stellar surfaces and a thin corona replace white clipping. Pyro is orange/amber (not deep red), Stanton teal-blue, Nyx indigo/violet.
@@ -42,6 +43,7 @@ Node.js 22를 사용한다. 저장소 루트에서 `node scripts/prepare.mjs`, `
 
 ## 수정과 검증
 
+- 적재·경로 버그를 분석할 때 실제 파트너, 함선/기본 또는 수정 그리드, 운항·적재 진행 상태, 표시 시점을 먼저 확인한다. 대화·이미지에서 이미 확인된 것은 다시 묻지 않으며 확인된 사실과 재현용 가정을 구분한다. 기본 함선 재현만으로 사용자 조건도 검증했다고 단정하지 않는다.
 - 현재 구조와 기존 변경을 보존하며 요청에 필요한 범위만 수정한다. 불필요한 프레임워크 도입·전면 재작성·데이터 삭제를 하지 않는다.
 - 기능 변경은 관련 테스트와 전체 `npm test`를 실행하고, UI 변경은 가능한 브라우저 검증을 한다. 문서만 바꾼 경우 링크·명령·차이 검토를 중심으로 확인한다.
 - 성공·실패·미실행을 구별하고 실행 명령과 결과를 기록한다. 과거 32개 통과 기록을 현재 실행 결과로 보고하지 않는다. 모의 AI 테스트는 실제 API 검증과 구분한다.
