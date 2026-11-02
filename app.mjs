@@ -13,7 +13,7 @@ import {createFleet} from './fleet.mjs';
 import {createWorkbench} from './workbench.mjs';
 import {createFeedback} from './feedback.mjs';
 import {prepareMissionDb} from './mission-match.mjs';
-import {parseMissionText,recognizeImage,stopOCR,setCommodityNames,MISREADS} from './ocr.mjs';
+import {splitMissionText,parseMissionText,recognizeImage,stopOCR,setCommodityNames,MISREADS} from './ocr.mjs';
 import {DEFAULTS,COLORS,packBoxes} from './engine.mjs';
 import {createStarMap,createCargoView} from './scene.mjs';
 import {createExecution} from './execution.mjs';
@@ -167,7 +167,7 @@ async function analyzeAI(){
   let replaced=0;for(const m of incoming){const i=missions.findIndex(x=>x.id===m.id);if(i>=0){missions[i]=m;replaced++;}else missions.push(m);}renderMissions();save();notify(`${incoming.length}개 미션을 읽었어${replaced?` · 중복 ID ${replaced}개 갱신`:''}. ${result.warnings?.join(' ')||'수량과 배송지를 확인하세요.'}`);replan();
  }catch(e){notify(e.name==='TimeoutError'?'AI 응답이 너무 오래 걸립니다. 이미지 수를 줄여 다시 시도하세요.':e.message,true);}finally{busy=false;$('analyze').innerHTML='스크린샷 읽고 계획하기 <span>↗</span>';renderUploads();}
 }
-// Missions transcribed by a subscription AI app (ChatGPT, Claude) and pasted as text. Missions are separated by "---".
+// Transcribed contracts are separated by explicit --- lines or new mission headings.
 const AI_PROMPT=`첨부한 스타시티즌 미션 화면의 글자를 화면에 보이는 그대로 옮겨 적어 주세요.
 - 번역하거나 고치지 말고 화면 표기 그대로 적어 주세요. 대괄호 [ ] 안의 영어 이름도 그대로 적어 주세요.
 - 적을 것: 미션 제목, 보상 금액, 계약 발주자, '주 목표'의 모든 문장(배송하십시오 / 접수하십시오).
@@ -185,7 +185,7 @@ const AI_PROMPT_EN=`Transcribe the text of the attached Star Citizen mission scr
 - Reply with the transcribed text only, nothing else.`;
 const aiPrompt=()=>isEn?AI_PROMPT_EN:AI_PROMPT;
 function importMissionText(text){
- const chunks=String(text||'').split(/^\s*-{3,}\s*$/m).map(s=>s.trim()).filter(Boolean);let added=0,skipped=0;
+ const chunks=splitMissionText(text);let added=0,skipped=0;
  for(const chunk of chunks){const parsed=parseMissionText(chunk,data.locations);if(!parsed.cargo.length){skipped++;continue;}const id='M-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,5).toUpperCase();let m={id,title:parsed.title,company:parsed.company,reward:parsed.reward,returnId:parsed.returnId,cargo:parsed.cargo,_rawText:chunk,_sourceName:'텍스트 붙여넣기',_gameMissionId:parsed.missionId,_ocrWarnings:parsed.warnings};m=workbench.apply(m);missions.push(m);added++;}
  if(added){renderMissions();replan();save();}return {added,skipped,warnings:[...new Set(missions.slice(-added).flatMap(m=>(m._ocrWarnings||[]).filter(w=>!/실제 상자 구성/.test(w))))]};
 }
