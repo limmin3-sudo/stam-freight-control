@@ -46,3 +46,14 @@ test('the bundled hauling mission data is well formed',()=>{
  assert.match(d.meta.version,/^\d+\.\d+/);assert.ok(d.missions.length>100);
  for(const m of d.missions){assert.ok(m.id&&m.title!==undefined&&Array.isArray(m.orders)&&m.orders.length);for(const o of m.orders)assert.equal(o.length,3);}
 });
+test('a misread commodity is renamed from the mission data when the other goods settle the mission',()=>{
+ const misread=contract('레드 윈드','중형 신입 화물 계약자 필요',[['칠소',12],['칠소',12],['유기체',6],['유기체',6],['란타 똥',7],['란타 똥',7]]);
+ const ko=enrichMission(misread,prepared,{namesOnly:true,korean:true});
+ assert.deepEqual(ko.cargo.map(c=>c.commodity).slice(0,2),['질소','질소']);assert.deepEqual(ko._nameFixes,[['칠소','질소']]);assert.equal(ko._wiki,undefined);
+ const en=enrichMission(contract('Red Wind Linehaul','Rookie Hauler Needed for Medium Shipment',[['Nitrogn',12],['Organics',6],['Ranta Dung',7]]),prepared);
+ assert.equal(en.cargo[0].commodity,'Nitrogen');assert.equal(en.cargo[0].maxBoxSize,8);
+ // Two unknown names, or a leftover that is not unique, are never guessed.
+ assert.equal(matchMission(contract('레드 윈드','',[['칠소',12],['모름',6]]),prepared),null);
+ const unknownKorean=enrichMission(contract('링 가문','신입',[['기념품',2],['가공식품X',4]]),prepared,{namesOnly:true,korean:true});
+ assert.equal(unknownKorean.cargo[1].commodity,'가공 식품');
+});
