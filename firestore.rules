@@ -28,7 +28,7 @@ service cloud.firestore {
         && request.resource.data.kind in ['feedback','bug']
         && request.resource.data.text is string && request.resource.data.text.size() > 1 && request.resource.data.text.size() <= 2000
         && request.resource.data.contact is string && request.resource.data.contact.size() <= 100
-        && request.resource.data.lang in ['ko','en'] && request.resource.data.at == request.time
+        && request.resource.data.lang in ['ko','mix','en'] && request.resource.data.at == request.time
         && (request.resource.data.uid == null || (request.auth != null && request.resource.data.uid == request.auth.uid))
         && (request.resource.data.page == null || (request.resource.data.page is map && request.resource.data.page.size() <= 10))
         && (!('image' in request.resource.data) || request.resource.data.image == null
