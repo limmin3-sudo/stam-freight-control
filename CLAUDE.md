@@ -4,7 +4,7 @@
 
 - @docs/DEVELOPMENT.md
 - @PROJECT_STATUS.md
-- @docs/CLAUDE-HANDOFF.md (2026-11-01 최신 인계)
+- @docs/CLAUDE-HANDOFF.md (2026-11-02 Codex 마무리 인계)
 - @docs/CLOUD-HANDOFF.md
 - @README.md
 
@@ -14,4 +14,4 @@ Git 상태·브랜치·최근 이력을 먼저 확인하고 기존 미커밋 작
 
 Claude Code가 이 폴더를 실제로 작업 디렉터리로 열고 파일과 Git에 접근할 수 있는지 확인한다. Claude 일반 채팅에 같은 계정으로 로그인한 것만으로 코드·과거 대화가 공유된다고 가정하지 않는다.
 
-CLOUD-HANDOFF.md의 옛 로그인 미구현·화면 배치 설명을 현재 상태로 적용하지 않는다. 최신 기능/배포는 PROJECT_STATUS.md와 CLAUDE-HANDOFF.md를 기준으로 확인한다.
+과거 작업 기록의 로그인 미구현·옛 화면 배치 설명을 현재 상태로 적용하지 않는다. 최신 기능/배포는 PROJECT_STATUS.md와 CLAUDE-HANDOFF.md를 기준으로 확인한다.
