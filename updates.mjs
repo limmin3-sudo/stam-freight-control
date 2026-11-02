@@ -18,7 +18,7 @@ export function createUpdates({beforeReload=()=>true,intervalMs=60000}={}){
  function render(releases){const list=dialog.querySelector('[data-release-list]');list.replaceChildren();
   if(!releases.length){list.textContent='아직 등록된 업데이트 기록이 없습니다.';return;}
   if(typeof releases[0]?.version==='string'){const now=document.createElement('p');now.className='updates-current';now.textContent=`현재 버전 v${releases[0].version}`;list.append(now);}
-  for(const release of releases.slice(0,50)){if(!release||typeof release.title!=='string')continue;const section=document.createElement('section'),title=document.createElement('h3'),date=document.createElement('small'),ul=document.createElement('ul');title.textContent=release.title;date.textContent=[typeof release.version==='string'?`v${release.version}`:'',typeof release.date==='string'?release.date:''].filter(Boolean).join(' · ');
+  for(const release of releases.slice(0,300)){if(!release||typeof release.title!=='string')continue;const section=document.createElement('section'),title=document.createElement('h3'),date=document.createElement('small'),ul=document.createElement('ul');title.textContent=release.title;date.textContent=[typeof release.version==='string'?`v${release.version}`:'',typeof release.date==='string'?release.date:''].filter(Boolean).join(' · ');
    for(const change of (Array.isArray(release.changes)?release.changes:[]).slice(0,30)){if(typeof change!=='string')continue;const li=document.createElement('li');li.textContent=change;ul.append(li);}section.append(date,title,ul);list.append(section);}
  }
  async function notes(){if(!dialog.open)dialog.showModal();const list=dialog.querySelector('[data-release-list]');list.textContent='업데이트 기록을 불러오고 있습니다.';
