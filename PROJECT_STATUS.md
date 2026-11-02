@@ -4,7 +4,7 @@
 
 - **상태:** v3.3.0까지 모두 `main`에 커밋·푸시(이 인계 커밋 포함). `npm test` 98개 통과. 미커밋 작업 없음. 아래 v3.0.0~v3.3.0 절이 이번 세션 변경 상세다.
 - **업데이트 기록 날짜만 표시(사용자 요청, 업데이트 기록 항목은 남기지 말라고 해서 버전 기록 없음 — 현재 버전은 v3.3.0):** 업데이트 기록 창은 날짜만 표시(`updates.mjs`에서 `date.slice(0,10)`). `releases.json`의 `date`는 계속 실제 배포 시각 `YYYY-MM-DD HH:MM`으로 적는다(정렬 검사용).
-- **사용자가 할 일(미완):** Firebase 콘솔 → Firestore Database → 규칙에 저장소 최신 `firestore.rules` 통째로 붙여 넣고 게시. 게시 전에는 피드백 보내기가 권한 오류로 실패한다(앱이 「보안 규칙 게시 필요」 안내). 들어온 피드백은 콘솔 → 데이터 → `feedback`.
+- **Firebase 규칙(완료):** 사용자가 최신 `firestore.rules`(피드백 `lang`에 `mix` 허용 포함)를 콘솔에 게시했고, 실제 피드백이 `feedback` 컬렉션에 들어오는 것을 확인함(2026-11-02). 디스코드 알림은 사용자가 필요 없다고 함.
 - **사용자가 Codex에서 할 예정(아직 시작 안 함):**
   1. 이미지 생성(파트너 사진 등, 아래 남은 일 3번).
   2. **경로 짜는 로직을 3개로 늘려 유형별로 파트너에게 배분.** 참고: 파트너 ID는 `standard`(수석 항해사)·`military`(항해 장교)·`aide`(브리지 오퍼레이터), `voice.mjs` `voiceId()`. 경로 탐색은 `route-search.mjs`·`route-cost.mjs`·`route-estimate.mjs`·`engine.mjs` `planRoute(data,missions,startId,options)`·`route-only.mjs`(간편). 현재 단일 규칙은 「재방문 최소화 → 이동거리 → 시간」. 계약별 소유권·진행 중 상자 위치·`gridWalk`/`fullLoadLayout`/`zones`는 유지해야 한다.
