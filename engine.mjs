@@ -1,3 +1,4 @@
+import {deliveryFirstRoute} from './delivery-first.mjs';
 import {betterTravel,compareRoute} from './route-cost.mjs';
 import {replayManualStops} from './manual-route.mjs';
 import {planActionRoute} from './route-search.mjs';
@@ -178,7 +179,9 @@ export function planRoute(data,missions,startId,settings={}){
   return {status,at:to,cost,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,deferred:state.deferred+Number(!!opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst),visited,revisits,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed}]};
  }
  const manual=Array.isArray(opt.manualStops),manualBest=manual?replayManualStops(opt.manualStops,shipments,nav,initial,(state,i,id)=>advance(state,i,opt.ship,id)):null;
- const proposed=manual?null:planActionRoute(shipments,startId,nav,{initialStatus:startStatus});
+ const operator=!manual&&opt.routePolicy==='delivery-first';
+ const operatorBest=operator?deliveryFirstRoute(shipments,nav,initial,(state,i)=>advance(state,i),{avoidFirst:opt.avoidFirst}):null;
+ const proposed=manual||operator?null:planActionRoute(shipments,startId,nav,{initialStatus:startStatus});
  let candidate=proposed?initial:null;
  for(const action of proposed?.actions||[]){candidate=advance(candidate,action.shipmentIndex);if(!candidate)break;}
  if(proposed&&!candidate){
@@ -187,8 +190,8 @@ export function planRoute(data,missions,startId,settings={}){
   warnings.push(sharingWouldFit?'미션별 전용 그리드 때문에 화물을 나눠 운송합니다. 함선 설정의 「여러 미션이 한 그리드 공유 → 공유 허용」을 선택하면 화물 소유권을 유지하면서 함께 실을 수 있습니다.':'현재 함선 용량·상자 크기·그리드 조건에 맞춰 화물을 나눠 운송하도록 계산했습니다.');
  }
  // An explicitly deferred first stop still uses the constrained search.
- let best=manualBest||candidate,usedStopSearch=!!candidate;
- if(!manual&&(!candidate||opt.avoidFirst)){
+ let best=manualBest||operatorBest||candidate,usedStopSearch=!!candidate;
+ if(!manual&&!operator&&(!candidate||opt.avoidFirst)){
   const estimate=remainingTravelEstimate(shipments,nav),estimateMeters=remainingTravelEstimate(shipments,nav,'meters'),remainingWork=status=>shipments.reduce((sum,s,i)=>sum+(2-status[i])*s.boxes.length*opt.secondsPerBox,0);
   let beam=[initial];const steps=startStatus.reduce((a,x)=>a+2-x,0);
   for(let step=0;step<steps;step++){
@@ -232,5 +235,5 @@ export function planRoute(data,missions,startId,settings={}){
  // In game the contract completes once every delivery is done; returning is optional (settings.includeReturn).
  const returnIds=opt.includeReturn?[...new Set(missions.map(m=>m.returnId).filter(Boolean))]:[];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인하세요.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
  const timing=[];
- return {initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':usedStopSearch?'행성계 픽업 묶음 · 거점 1회 방문·이동거리 우선 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'재방문 최소화·이동거리 우선·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
+ return {initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':operator?'오퍼레이터 · 간단한 계약 완료 우선 · 짧은 경유만 추가':usedStopSearch?'행성계 픽업 묶음 · 거점 1회 방문·이동거리 우선 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'재방문 최소화·이동거리 우선·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
 }

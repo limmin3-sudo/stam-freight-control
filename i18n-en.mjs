@@ -36,6 +36,16 @@ POST=[[/(\d[\d,]*)\s*개\b/g,'$1'],[/(\d[\d,]*)개/g,'$1'],[/(\d+)\s*분/g,'$1 m
 PATTERNS.push(...POST.map(([re,to])=>[re,to,'post']));
 
 export const PHRASES={
+ '운항기록 초기화':'Reset run history',
+ '계약 완료 우선 · 가까운 픽업 함께 처리':'Contracts first · nearby pickups along the way',
+ '운송 시작':'Start hauling','함선과 출발지를 고르고 계약을 준비하세요':'Choose your ship and departure point to prepare contracts',
+ '운항 파트너 변경':'Change hauling partner','운항 파트너':'Hauling partner','운송 파트너':'Hauling partner',
+ '수석 항해사 · 여러 계약을 모아 대량 운송':'Senior Navigator · batch multiple contracts',
+ '브리지 오퍼레이터 · 가까운 계약부터 하나씩':'Bridge Operator · nearby contracts, one by one',
+ '예상 구성 · 다른 부분만 수정하세요':'Estimated layout · edit any differences','저장된 상자 구성':'Saved container layout','예상 구성':'Estimated layout',
+ '오퍼레이터 · 간단한 계약 완료 우선 · 짧은 경유만 추가':'Operator · simple contracts first · short detours only',
+ '오퍼레이터 · 가까운 계약 배송 우선':'Operator · nearby contracts first',
+
  // index.html
  'STAM FREIGHT CONTROL · 화물 관제':'STAM FREIGHT CONTROL · Freight control','STAM 함대 로고':'STAM fleet logo','STAM 함대 화물 관제 · STAR CITIZEN':'STAM fleet freight control · STAR CITIZEN',
  '주 메뉴':'Main menu','이용 안내':'Guide','설정':'Settings','파트너 변경':'Change partner','수석 항해사':'Senior Navigator','항해 장교':'Navigation Officer','브리지 오퍼레이터':'Bridge Operator',

@@ -97,3 +97,16 @@ export function fuzzyLocations(text,locations,{system=null,limit=5}={}){const ra
   if(qs.length>=4){const sub=1-subLev(qs,s.sk)/qs.length;sc=Math.max(sc,sub*.9);}
   if(sc<(qs.length<=3?.92:.74))continue;let wb=0;for(let i=0;i<s.words.length&&!wb;i++){let acc='';for(let j=i;j<s.words.length;j++){acc=skel(acc+s.words[j]);if(acc===qs){wb=i===0?.05:.03;break;}if(acc.length>qs.length)break;}}sc+=wb;const vw=s.vw.length>qv.length+1&&full<1?s.vw.slice(0,qv.length):s.vw,vb=qv&&vw?(1-lev(qv,vw)/Math.max(qv.length,vw.length))*.08:0;add(l,sc+vb);}
  return [...out.values()].sort((a,b)=>b.score-a.score).slice(0,limit);}
+
+// Ranked, explicit suggestions: native datalists cannot search Korean aliases of English values.
+export function suggestLocations(text,locations,{limit=8}={}){
+ const q=norm(text);if(!q)return [];const aliases=new Map();
+ for(const [alias,name] of Object.entries({...KO_NAMES,...extra,...Object.fromEntries(Object.entries(KO_DISPLAY).map(([en,ko])=>[ko,en]))})){
+  if(!aliases.has(name))aliases.set(name,[]);aliases.get(name).push(norm(alias));}
+ const hits=[];
+ for(const loc of locations){if(loc.type==='Star')continue;const names=[loc.name,...(loc.aliases||[]),...(aliases.get(loc.name)||[])].map(norm);let score=0;
+  for(const name of names){if(name===q)score=Math.max(score,100);else if(name.startsWith(q))score=Math.max(score,80+q.length/name.length);else if(name.includes(q))score=Math.max(score,60+q.length/name.length);}
+  if(score)hits.push({loc,score});}
+ const seen=new Set(hits.map(h=>h.loc.id));if(q.length>=2)for(const h of fuzzyLocations(text,locations,{limit})){if(!seen.has(h.loc.id)){hits.push({loc:h.loc,score:h.score*40});seen.add(h.loc.id);}}
+ return hits.sort((a,b)=>b.score-a.score||a.loc.name.localeCompare(b.loc.name)).slice(0,limit).map(h=>h.loc);
+}

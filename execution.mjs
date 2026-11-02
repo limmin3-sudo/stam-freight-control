@@ -1,3 +1,4 @@
+import {containerText} from './cargo-summary.mjs';
 import {jumpSegments,stepNumbers} from './route-display.mjs';
 import {L} from './i18n.mjs';
 // Run progress: the game is not connected, so the captain presses one big button per stop
@@ -22,7 +23,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  const kindOf=v=>{const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':t.has('return')?'return':'waypoint';};
  const BTN={jump:'🌀 점프 완료',pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료',waypoint:'◇ 경유 완료'};
  const say=t=>{const el=root.querySelector('.aide-line');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
- function cargoLine(v){return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 적재</b>':e.type==='delivery'?'<b class="delivery">↓ 하역</b>':e.type==='waypoint'?'<b>◇ 경유</b>':'<b>↩ 복귀</b>'} ${e.type==='pickup'&&s?`→ ${esc(nm(s.dropoffId))} · `:''}${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${boxes}상자`:''}</li>`;}).join('');}
+ function cargoLine(v){return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 적재</b>':e.type==='delivery'?'<b class="delivery">↓ 하역</b>':e.type==='waypoint'?'<b>◇ 경유</b>':'<b>↩ 복귀</b>'} ${e.type==='pickup'&&s?`→ ${esc(nm(s.dropoffId))} · `:''}${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${containerText(s.boxes)}${s.estimated?' · 예상 구성':''}`:''}</li>`;}).join('');}
  const cargoNames=events=>{const names=[...new Set(events.map(e=>e.commodity).filter(Boolean))];return names.slice(0,3).join(', ')+(names.length>3?` 외 ${names.length-3}종`:'');};
  function remainingSeconds(){if(!plan)return 0;const i=Math.min(run.index,plan.visits.length);const done=i?plan.visits[i-1].elapsed:0;return Math.max(0,plan.seconds-done);}
  const segsOf=i=>plan.visits[i]?jumpSegments(plan.visits[i].leg,names):[];
@@ -52,7 +53,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
    <div class="run-buttons"><button id="run-undo" class="quiet" ${run.log.length>(run.undoFloor||0)?'':'disabled'}>↶ 되돌리기</button><button id="run-skip" class="quiet">이 거점 나중에</button><button id="run-replan" class="quiet">여기서 경로 다시 짜기</button><button id="run-pause" class="quiet">${run.since?'타이머 일시정지':run.started?'타이머 재개':'타이머 시작'}</button><button id="run-stop" class="quiet danger">운항 종료</button></div>
    ${run.log.length?`<details class="run-history"><summary>지난 구간 기록 ${run.log.length}개</summary><table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${l.est==null?'—':Math.max(1,Math.round(l.est/60))+'분'}</td></tr>`).join('')}</tbody></table></details>`:''}</div><div class="run-col-talk"><div class="aide"><img class="run-partner-photo" src="${VOICE_PORTRAITS[voiceId()]}" alt="${V().role}"><div class="run-partner-speech"><span class="aide-badge">${V().role}</span><span class="aide-line">${esc((/미션 ID|계약 건/.test(run.lastLine||"")?"":run.lastLine)||(run.started?V().atStop(nm(v.locationId)):V().ready))}</span><ul class="run-cargo">${jp?`<li><b class="jump">◆ 점프</b> ${esc(jp.seg.entryName)}에서 점프해 ${esc(jp.seg.exitName)}로 나갑니다. 화물 작업은 없습니다.</li>`:cargoLine(v)}</ul>${!jp&&v.blocked?.length?`<p class="blocked-badge">⚠ 하역 전에 다른 상자 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}개를 먼저 옮겨야 할 수 있습니다.</p>`:''}</div></div></div></div>`;
   root.querySelector('#run-done').onclick=complete;root.querySelector('#run-undo').onclick=undo;root.querySelector('#run-skip').onclick=()=>replanFrom(true);root.querySelector('#run-replan').onclick=()=>replanFrom(false);
-  root.querySelector('#run-pause').onclick=()=>{if(run.since){run.elapsed=elapsed();run.since=null;}else{run.started=true;run.since=Date.now();}save();render();};
+  root.querySelector('#run-pause').onclick=()=>{if(run.since){run.elapsed=elapsed();run.since=null;}else{run.started=true;run.startedAt=run.startedAt||Date.now();run.since=Date.now();}save();render();};
   root.querySelector('#run-stop').onclick=()=>{if(!confirm('운항 기록을 지우고 종료할까요? 실린 화물은 게임에서 직접 확인하세요.'))return;run=blank();save();render();onReset?.('stop');};
   tick();}
  function tick(){if(!plan||run.finished)return;const c=root.querySelector('#run-clock');if(!c)return;const sec=elapsed();c.textContent=mmss(sec);const left=remainingSeconds();root.querySelector('#run-left').textContent=left?`${Math.max(1,Math.round(left/60*.8))}–${Math.ceil(left/60*1.3)}분`:'0분';
@@ -63,10 +64,10 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
    run.jump=jp.k+1;const more=jumpPending();
    run.lastLine=more?V().jumpDone(jp.seg.exitName,`${more.seg.entryName} → 점프 → ${more.seg.exitName}`):V().jumpDone(jp.seg.exitName,nm(v.locationId));
    save();render();onAdvance?.(run.index);return;}
-  const prevAt=run.log.length?run.log.at(-1).at:0;run.log.push({visit:run.index,locationId:v.locationId,name:nm(v.locationId),at:now,seconds:Math.max(0,now-prevAt),est:v.seconds,events:v.events.map(e=>({type:e.type,shipmentId:e.shipmentId}))});
+  const prevAt=run.log.length?run.log.at(-1).at:0;run.log.push({visit:run.index,locationId:v.locationId,name:nm(v.locationId),at:now,seconds:Math.max(0,now-prevAt),est:v.seconds,meters:v.leg?.meters??null,events:v.events.map(e=>({type:e.type,shipmentId:e.shipmentId}))});
   for(const e of v.events){if(e.type==='pickup'&&!run.picked.includes(e.shipmentId))run.picked.push(e.shipmentId);if(e.type==='delivery'&&!run.delivered.includes(e.shipmentId))run.delivered.push(e.shipmentId);}run.aboard=v.packing?.boxes||[];
   const kind=kindOf(v);run.index++;run.jump=0;
-  if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();onFinish?.({id:`${run.planKey}|${run.startedAt||run.startId||''}`,seconds:run.elapsed,startId:run.startId,stops:plan.visits.length});return;}
+  if(run.index>=plan.visits.length){run.finished=true;run.elapsed=elapsed();run.since=null;run.lastLine='';save();render();onFinish?.({id:`${run.planKey}|${run.startedAt||run.startId||''}`,seconds:run.elapsed,startId:run.startId,stops:run.log.filter(l=>l.jump==null).length,distanceMeters:run.log.filter(l=>l.jump==null).every(l=>Number.isFinite(l.meters))?run.log.filter(l=>l.jump==null).reduce((n,l)=>n+l.meters,0):null});return;}
   const n=plan.visits[run.index],unload=n.events.filter(e=>e.type==='delivery'),load=n.events.filter(e=>e.type==='pickup');
   run.lastLine=V().next(nm(v.locationId),kind==='pickup'?L('접수','pickup'):kind==='delivery'?L('배송','delivery'):L('작업','work'),nm(n.locationId),Math.max(1,Math.round(n.seconds/60)))+(segsOf(run.index).length?V().jump(segsOf(run.index)[0].entryName):'')+(!segsOf(run.index).length&&unload.length?V().cargo(true,cargoNames(unload)):!segsOf(run.index).length&&load.length?V().cargo(false,cargoNames(load)):'');
   save();render();onAdvance?.(run.index);}
@@ -78,13 +79,13 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   const avoid=skip?plan.visits[run.index]?.locationId:null;const ok=onReplanFrom?.({startId:here,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard},avoidFirst:avoid});
   if(ok){run.lastLine=skip?V().defer(nm(avoid)):V().replan;save();render();}}
  setInterval(tick,1000);
- document.addEventListener('keydown',e=>{if(document.querySelector('.map-ui-hidden'))return;if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
+ document.addEventListener('keydown',e=>{if(document.body.classList.contains('aide-open')||document.querySelector('.map-ui-hidden'))return;if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
  return {
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
    if(keepRun){run.undoFloor=run.log.length;run.planKey=k;run.index=0;run.jump=0;run.finished=false;}else if(run.planKey!==k){if(run.started&&!run.finished&&run.planKey){/* plan changed outside of replan: keep timer, restart stops */run.planKey=k;run.index=0;run.jump=0;}else{run=blank();run.planKey=k;}}
    if(run.index>=p.visits.length)run.index=Math.max(0,p.visits.length-1);save();render();},
-  start(){if(!plan)return;if(!run.started){run.started=true;run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=V().first(nm(plan.visits[0].locationId))+(segsOf(0).length?V().jump(segsOf(0)[0].entryName):'');}save();render();onAdvance?.(run.index);},
+  start(){if(!plan)return;if(!run.started){run.started=true;run.startedAt=Date.now();run.since=Date.now();run.startId=plan.visits[0]?.locationId;run.lastLine=V().first(nm(plan.visits[0].locationId))+(segsOf(0).length?V().jump(segsOf(0)[0].entryName):'');}save();render();onAdvance?.(run.index);},
   resumeContext:()=>run.started&&!run.finished&&run.planKey?{startId:run.log.at(-1)?.locationId||run.startId||plan?.settings?.startId,resume:{picked:[...run.picked],delivered:[...run.delivered],aboard:run.aboard}}:null,
   refresh:()=>{run.lastLine='';save();render();},replanHere:()=>replanFrom(false),isActive:()=>!!plan&&run.started&&!run.finished,current:()=>run.index,complete,undo};
 }
