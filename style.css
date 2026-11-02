@@ -372,3 +372,5 @@ footer{padding:14px 24px;gap:12px}
 .account-dialog{width:min(820px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto}.account-dialog .history-totals{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:18px}.account-dialog .history-totals b{font-size:23px}.account-dialog .change-log{max-height:32vh}.account-dialog .account-actions{flex-wrap:wrap}.account-dialog .danger,.history-dialog .danger{color:#e5a48e;border-color:#785046}.history-dialog{max-height:calc(100dvh - 32px);overflow:auto}
 @media(max-width:560px){.account-dialog{padding:18px 15px}.account-dialog .history-totals{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.account-dialog .history-totals div{padding:10px}.account-dialog .history-totals b{font-size:19px}}
 .account-dialog{max-width:min(820px,calc(100vw - 24px))}
+
+.aide-box-basis{margin:8px 0;padding:9px 12px;border-left:2px solid #427787;color:#aac6cf;font-size:12px;line-height:1.7}.aide-box-basis>b{display:block;color:#d5edf1}.aide-box-basis button{margin-top:7px}

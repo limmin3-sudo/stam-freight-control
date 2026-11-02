@@ -16,4 +16,11 @@ function findRecipe(recipes,key,limit=Infinity){if(!key)return null;const ok=r=>
  const legacy=k=>{try{const a=JSON.parse(k);return a[0]==='destination'&&JSON.stringify(a[4])===mix;}catch{return false;}};
  return Object.entries(recipes).filter(([k])=>legacy(k)).map(([,r])=>r).filter(ok).reduce((best,r)=>!best||(r.savedAt||0)>=(best.savedAt||0)?r:best,null);}
 export function hasDestinationKey(m,g,version){return Boolean(groupKey(m,g,version));}
-export function fillDestinationRecipes(recipes,m,version){const result=structuredClone(m);result.destinationBoxes=(result.destinationBoxes||[]).filter(b=>b.origin!=='template');for(const g of destinationGroups(result)){if(result.destinationBoxes.some(b=>b.pickupId===g.pickupId&&b.dropoffId===g.dropoffId))continue;const limits=g.cargo.map(c=>c.maxBoxSize).filter(Number.isFinite),r=findRecipe(recipes,groupKey(result,g,version),limits.length===g.cargo.length?Math.max(...limits):Infinity);if(r&&r.boxes.reduce((a,b)=>a+b.size*b.count,0)===g.scu)result.destinationBoxes.push({pickupId:g.pickupId,dropoffId:g.dropoffId,boxes:structuredClone(r.boxes),origin:'template'});}return result;}
+// An explicit choice to use wiki data applies only to this contract/group. Keep
+// the shared saved recipe available for other contracts and future manual use.
+export function useWikiConfiguration(m,g){
+ const next=structuredClone(m);next.destinationBoxes=(next.destinationBoxes||[]).filter(d=>d.pickupId!==g.pickupId||d.dropoffId!==g.dropoffId);
+ for(const c of next.cargo)if(c.pickupId===g.pickupId&&c.dropoffId===g.dropoffId){c.boxPreference='wiki';if(c._cargoShape!=='cryopod'){c.boxes=[];c._boxesOrigin='unknown';}}
+ return next;
+}
+export function fillDestinationRecipes(recipes,m,version){const result=structuredClone(m);result.destinationBoxes=(result.destinationBoxes||[]).filter(b=>b.origin!=='template');for(const g of destinationGroups(result)){if(g.cargo.some(c=>c._cargoShape==='cryopod')||g.cargo.every(c=>c.boxPreference==='wiki'))continue;if(result.destinationBoxes.some(b=>b.pickupId===g.pickupId&&b.dropoffId===g.dropoffId))continue;const limits=g.cargo.map(c=>c.maxBoxSize).filter(Number.isFinite),r=findRecipe(recipes,groupKey(result,g,version),limits.length===g.cargo.length?Math.max(...limits):Infinity);if(r&&r.boxes.reduce((a,b)=>a+b.size*b.count,0)===g.scu)result.destinationBoxes.push({pickupId:g.pickupId,dropoffId:g.dropoffId,boxes:structuredClone(r.boxes),origin:'template'});}return result;}

@@ -36,6 +36,9 @@ POST=[[/(\d[\d,]*)\s*개\b/g,'$1'],[/(\d[\d,]*)개/g,'$1'],[/(\d+)\s*분/g,'$1 m
 PATTERNS.push(...POST.map(([re,to])=>[re,to,'post']));
 
 export const PHRASES={
+ '위키 기준 자동 구성':'Wiki-based layout','미션 유형 미확인':'Mission type not found',
+ '출발 완료':'Departed','출발지':'Departure','다음 거점까지 이동한 뒤 화물을 접수합니다.':'Travel to the next stop to collect cargo.',
+ '출발하면 출발 완료를 눌러 주세요.':'Press Departed when you leave.',
  '운항기록 초기화':'Reset run history',
  '계약 완료 우선 · 가까운 픽업 함께 처리':'Contracts first · nearby pickups along the way',
  '운송 시작':'Start hauling','함선과 출발지를 고르고 계약을 준비하세요':'Choose your ship and departure point to prepare contracts',

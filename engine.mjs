@@ -30,10 +30,10 @@ const orientations=d=>[d,[d[0],d[2],d[1]],[d[1],d[0],d[2]],[d[1],d[2],d[0]],[d[2
 export const ACCESS_SIDES=['rear','front','left','right','external'];
 export function shipAccess(ship){return ACCESS_SIDES.includes(ship.access)?ship.access:/hull[ -]?b\b/i.test(ship.name||'')||ship.id==='misc-hull-b'?'external':'rear';}
 export function sharesGrids(ship){return typeof ship.shareGrids==='boolean'?ship.shareGrids:true;}
-function makeBins(ship){return ship.grids.map(grid=>({grid,cells:new Uint8Array(grid.w*grid.h*grid.l),boxes:[],used:0}));}
-function occupy(b,cell,d,check){const g=b.grid,[x,y,z]=cell;if(x<0||y<0||z<0||x+d[0]>g.w||y+d[1]>g.h||z+d[2]>g.l)return false;for(let k=0;k<d[2];k++)for(let j=0;j<d[1];j++)for(let i=0;i<d[0];i++){const n=((z+k)*g.h+y+j)*g.w+x+i;if(b.cells[n])return false;}if(!check)for(let k=0;k<d[2];k++)for(let j=0;j<d[1];j++)for(let i=0;i<d[0];i++)b.cells[((z+k)*g.h+y+j)*g.w+x+i]=1;return true;}
+function makeBins(ship,half=false){return ship.grids.map(grid=>({grid,cells:new Uint8Array(grid.w*grid.h*grid.l*(half?2:1)),...(half?{verticalScale:2}:{}),boxes:[],used:0}));}
+function occupy(b,cell,d,check){const g=b.grid,[x,y,z]=cell,scale=b.verticalScale||1,h=g.h*scale,yy=y*scale,dh=d[1]*scale;if(!Number.isInteger(yy)||!Number.isInteger(dh)||x<0||y<0||z<0||x+d[0]>g.w||y+d[1]>g.h||z+d[2]>g.l)return false;for(let k=0;k<d[2];k++)for(let j=0;j<dh;j++)for(let i=0;i<d[0];i++){const n=((z+k)*h+yy+j)*g.w+x+i;if(b.cells[n])return false;}if(!check)for(let k=0;k<d[2];k++)for(let j=0;j<dh;j++)for(let i=0;i<d[0];i++)b.cells[((z+k)*h+yy+j)*g.w+x+i]=1;return true;}
 // Supported = resting on the grid floor or fully on top of other boxes (no floating boxes).
-function supported(b,cell,d){if(cell[1]===0)return true;const g=b.grid,y=cell[1]-1;for(let k=0;k<d[2];k++)for(let i=0;i<d[0];i++)if(!b.cells[((cell[2]+k)*g.h+y)*g.w+cell[0]+i])return false;return true;}
+function supported(b,cell,d,item){if(cell[1]===0)return true;if(item._cargoShape!=='cryopod'&&!Number.isInteger(cell[1]))return false;const g=b.grid,scale=b.verticalScale||1,y=cell[1]*scale-1;for(let k=0;k<d[2];k++)for(let i=0;i<d[0];i++)if(!b.cells[((cell[2]+k)*g.h*scale+y)*g.w+cell[0]+i])return false;return true;}
 function sameGroup(p,item,share=false){return (share||p.missionId===item.missionId)&&(p.dropoffId||'')===(item.dropoffId||'');}
 // Depth of a placed box from the loading side, in SCU cells (0 = right at the door / outer face).
 export function boxDepth(ship,p,bounds=shipBounds(ship)){const g=ship.grids[p.bin],a=shipAccess(ship),x0=g.x+p.cell[0],x1=x0+p.dims[0],z0=g.z+p.cell[2],z1=z0+p.dims[2];
@@ -81,7 +81,7 @@ export function fullLoadLayout(groups,fixed,ship){
   if(!best||score<best.score)best={score,packed};}
  return best?.packed||null;}
 export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
- const bins=makeBins(ship);const limit=capacity(ship);const placed=[...fixed];
+ const half=[...items,...fixed].some(b=>b._cargoShape==='cryopod'),bins=makeBins(ship,half);const limit=capacity(ship);const placed=[...fixed];
  if([...items,...fixed].reduce((a,b)=>a+b.size,0)>limit)return null;
  for(const p of fixed){const b=bins[p.bin];if(!b||!p.dims||!p.cell||p.size>b.grid.maxBoxSize||!occupy(b,p.cell,p.dims))return null;b.boxes.push(p);b.used+=p.size;}
  const share=opts.share??sharesGrids(ship),ranked=!opts.dense&&items.some(it=>Number.isFinite(it.rank)),bounds=shipBounds(ship),maxDepth=Math.max(1,shipAccess(ship)==='external'?2:shipAccess(ship)==='left'||shipAccess(ship)==='right'?bounds.maxX-bounds.minX:bounds.maxZ-bounds.minZ);
@@ -94,8 +94,8 @@ export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
   const emptyCost=i=>25+regionCost(regions,i,ownBins.length?ownBins:usedBins)+(ownBins.length?3*near(i,ownBins):.5*walk[i]);
   const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
   search:for(const {b,index,own,other} of order){const grid=b.grid;
-   for(const d of orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;
-    for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y++)for(let x=0;x<=grid.w-d[0];x++){const cell=[x,y,z];if(!occupy(b,cell,d,true)||!supported(b,cell,d))continue;
+   for(const d of item._cargoShape==='cryopod'?[[1,.5,2],[2,.5,1]]:orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;
+    for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y+=(half?0.5:1))for(let x=0;x<=grid.w-d[0];x++){const cell=[x,y,z];if(!occupy(b,cell,d,true)||!supported(b,cell,d,item))continue;
      if(!ranked){best={index,cell,d};break search;}
      const depth=boxDepth(ship,{bin:index,cell,dims:d},bounds),target=(item.rank??0)*maxDepth,score=Math.abs(depth-target)*10+y*.5+(opts.zones?.get(item.dropoffId)?.has(index)===false?100:0)+(share?(own?(other?5:0):other?60:emptyCost(index)):(own?0:other?6:2))+index*.01+(x%d[0]?4:0)+(z%d[2]?4:0)+(y%d[1]?4:0);
      if(!best||score<best.score)best={score,index,cell,d};}}}
@@ -116,12 +116,12 @@ export function blockersOf(ship,box,aboard,bounds=shipBounds(ship)){const a=ship
 export function missionName(m){return m?.company||m?.title||'계약';}
 export function makeShipments(missions,locationMap,options={}){
  const shipments=[],warnings=[];const ids=new Set(),ship=validateShip(options.ship||DEFAULT_SHIP);
- for(let mi=0;mi<missions.length;mi++){const original=missions[mi],aggregated=[];for(const group of destinationGroups(original)){const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(missionName(original)+': 배송 수량을 먼저 입력하세요.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID가 비어 있거나 중복됐습니다.');ids.add(m.id);
+ for(let mi=0;mi<missions.length;mi++){const original=missions[mi],aggregated=[];for(const group of destinationGroups(original)){const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length&&!group.cargo.some(c=>c._cargoShape==='cryopod')){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(missionName(original)+': 배송 수량을 먼저 입력하세요.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID가 비어 있거나 중복됐습니다.');ids.add(m.id);
   for(let ci=0;ci<m.cargo.length;ci++){const c=m.cargo[ci],a=locationMap.get(c.pickupId),b=locationMap.get(c.dropoffId);if(!a||!b)throw Error(`${missionName(m)}: 픽업지와 배송지를 목록에서 선택하세요.`);if(c.pickupId===c.dropoffId)throw Error(`${missionName(m)} · ${c.commodity}: 픽업지와 배송지가 같습니다.`);
    const {boxes,estimated}=boxList(c,options.unknownBox||8);if(estimated)warnings.push(`${missionName(m)} · ${c.commodity}: 상자 구성 미확인, 최대 ${assumedLimit(c,options.unknownBox||8)} SCU 조합으로 가정${c._maxBoxSource==='wiki'?'(미션 데이터의 최대 상자)':''}`);
    let pending=[],batch=0;
    const flush=()=>{if(!pending.length)return;shipments.push({id:`${m.id}:${ci}:${batch++}`,missionId:m.id,commodity:c.commodity,pickupId:c.pickupId,dropoffId:c.dropoffId,boxes:pending,scu:pending.reduce((a,b)=>a+b.size,0),color:COLORS[mi%COLORS.length],estimated});pending=[];};
-   for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],missionId:m.id,dropoffId:c.dropoffId,pickupId:c.pickupId,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(!packBoxes([item],[],ship))throw Error(`${missionName(m)}: ${item.size} SCU 상자는 ${ship.name}의 어느 그리드에도 들어가지 않습니다.`);if(pending.length&&!packBoxes([...pending,item],[],ship))flush();pending.push(item);}flush();
+   for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],...(c._cargoShape==='cryopod'?{_cargoShape:'cryopod'}:{}),missionId:m.id,dropoffId:c.dropoffId,pickupId:c.pickupId,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(!packBoxes([item],[],ship))throw Error(`${missionName(m)}: ${item.size} SCU 상자는 ${ship.name}의 어느 그리드에도 들어가지 않습니다.`);if(pending.length&&!packBoxes([...pending,item],[],ship))flush();pending.push(item);}flush();
   }
  }
  if(shipments.length>64)throw Error('운송 구간은 한 번에 64개까지 계산할 수 있습니다.');return {shipments,warnings:[...new Set(warnings)]};
