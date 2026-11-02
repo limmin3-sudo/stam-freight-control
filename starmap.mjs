@@ -1,4 +1,4 @@
-import {mapLocationName,activeSystemLinks} from './route-display.mjs';
+import {mapLocationName,activeSystemLinks,stepNumbers,jumpSegments} from './route-display.mjs';
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
 import {koName} from './aliases.mjs';
@@ -116,7 +116,10 @@ export function createStarMap(container,labelContainer,data,onSelect){
 
  // ---- labels -----------------------------------------------------------------------------------
  function clearLabels(){for(const s of labels.values()){s.material.map.dispose();s.material.dispose();}clearGroup(labelGroup);labels.clear();}
- const visitNums=id=>route?.visits.map((v,i)=>v.locationId===id?i+1:null).filter(Boolean)||[];
+ // Same step numbers as the run panel: stops plus the gateway each jump starts from.
+ let stepCache=null;
+ const visitNums=id=>{if(!route)return [];if(stepCache?.route!==route)stepCache={route,steps:stepNumbers(route.visits,byId)};const st=stepCache.steps,out=[];
+  route.visits.forEach((v,i)=>{jumpSegments(v.leg,byId).forEach((j,q)=>{if(j.entryId===id)out.push(st.jumps[i][q]);});if(v.locationId===id)out.push(st.stop[i]);});return out;};
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
   const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':TYPE_KO[l.type]||'',sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
   s=labelSprite((n.length?n.join(',')+' · ':'')+mapLocationName(l),sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
