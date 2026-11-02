@@ -111,6 +111,8 @@ body.simple-mode .fleet-controls{opacity:.55}
 .run-big.delivery{background:linear-gradient(135deg,#ffd08a,#ffa64a)}.run-big.both{background:linear-gradient(135deg,#b9f59a,#6fd38f)}.run-big:active{transform:scale(.985)}
 .run-big kbd{font:600 11px 'Barlow Condensed';padding:2px 6px;border-radius:4px;background:#0003}
 .run-next{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:12px 14px;background:#0a1b26;border:1px solid #21404f;border-radius:10px}.run-next span{font-size:10px;color:var(--muted);letter-spacing:1px}.run-next b{font-size:16px;color:#eef8fc}.run-next small{color:#8fb0c0;font-size:11px}
+.run-transit{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:8px;padding:8px 12px;border:1px solid #8a6438;border-left:3px solid #efba72;border-radius:8px;background:#2a2115;color:#ffd29a}.run-transit span{flex-basis:100%;font-size:10px;font-weight:700;letter-spacing:.5px}.run-transit b{font-size:13px;word-break:keep-all}.run-transit small{font-size:10px;color:#c4b39a}
+.run-track i.jump:before{content:'';position:absolute;left:-9px;top:-1px;width:3px;height:8px;border-radius:2px;background:#efba72}
 .run-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.run-buttons button{font-size:12px;padding:7px 12px}.run-buttons .danger{color:#ff9d8a;border-color:#6b2f26}
 .run-history{margin-top:10px;font-size:12px}.run-log{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}.run-log th,.run-log td{text-align:left;padding:5px 8px;border-bottom:1px solid #1d3747}.run-log th{color:var(--muted);font-weight:500}
 .run-summary h2{margin:6px 0 14px;font-size:24px}.run-sum-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}.run-sum-grid div{padding:12px;background:#0a1b26;border-radius:8px;display:flex;flex-direction:column;gap:4px}.run-sum-grid span{font-size:11px;color:var(--muted)}.run-sum-grid b{font:600 20px 'Barlow Condensed';color:#eef8fc}
@@ -310,6 +312,7 @@ footer{padding:14px 24px;gap:12px}
 .run-desk .run-body{grid-template-columns:minmax(0,1fr) minmax(0,240px);gap:10px;align-items:center}
 .run-desk .run-big{padding:10px;font-size:16px}
 .run-desk .run-next{padding:6px 10px}
+.run-desk .run-transit{margin-top:6px;padding:4px 10px;flex-wrap:nowrap;overflow:hidden;white-space:nowrap}.run-desk .run-transit span{flex-basis:auto}.run-desk .run-transit b{font-size:12px;overflow:hidden;text-overflow:ellipsis}
 .run-desk .run-next b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.run-desk .run-next small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.run-desk .run-next{gap:2px}
 .run-desk .run-buttons{margin-top:0;gap:6px}
 .run-desk .run-buttons button{font-size:11px;padding:5px 10px}
