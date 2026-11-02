@@ -1,5 +1,24 @@
 [
   {
+    "id": "2026-11-02-text-contract-boundaries",
+    "version": "3.6.0",
+    "date": "2026-11-02 21:25",
+    "title": "여러 계약 텍스트 자동 분리 · 보상 인식 수정",
+    "changes": [
+      "구분선 없이 여러 미션을 붙여넣어도 새 미션 제목을 기준으로 계약을 나눕니다. 중형·대형 화물이 한 계약으로 섞여 위키 유형을 찾지 못하던 문제를 수정했습니다.",
+      "HTML 줄바꿈·마크다운 제목·줄 끝 역슬래시를 정리하고, 보상이라는 말 없이 ¤ 금액만 있는 형식도 읽습니다.",
+      "기존에 합쳐져 저장된 계약은 자동 변경하지 않습니다. 해당 계약을 삭제하고 원문을 다시 붙여넣으면 각각 생성됩니다."
+    ],
+    "en": {
+      "title": "Separate pasted contracts · reward recognition",
+      "changes": [
+        "Pasted missions are separated at new mission headings even without --- separators, keeping their wiki types and cargo independent.",
+        "HTML line breaks, Markdown headings and trailing backslashes are normalized. Standalone currency rewards are recognized.",
+        "Previously merged saved contracts remain intact. Remove the merged entry and paste the original text again to recreate separate contracts."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-departure-cargo-fixes",
     "version": "3.5.0",
     "date": "2026-11-02 20:58",

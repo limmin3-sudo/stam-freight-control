@@ -1,6 +1,20 @@
 import {matchLocation,translateKoTerms,norm,jamo} from './aliases.mjs';
 const normalize=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
 const clean=s=>s.replace(/\b5CU\b/gi,'SCU').replace(/(\d+\s*\/\s*\d+)\s*504\b/g,'$1 SCU').replace(/[“”]/g,'"').replace(/[’]/g,"'");
+export const normalizeMissionText=text=>String(text||'').replace(/&#(?:x0*a|0*10);/gi,'\n').replace(/&#(?:x0*d|0*13);/gi,'\r').replace(/&nbsp;/gi,' ').replace(/\\[ \t]*(?=\r?\n|$)/g,'').replace(/^\s*#{1,6}[ \t]+/gm,'');
+const missionHeading=line=>!/^\s*\[/.test(line)&&!/SCU|하십시오/i.test(line)&&/(?:미션명|Title|Contract Name)\s*[:：]|(?:운송|배송|수송)\s*[-–]|계약자\s*필요|Cargo\s+(?:Haul|Run)|\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(line);
+// A copied batch can have headings and blank lines instead of the suggested ---.
+// Start a new contract only after an existing cargo body, never at a wrapped rank line.
+export function splitMissionText(text){
+ const chunks=[];let lines=[];
+ const flush=()=>{const chunk=lines.join('\n').trim();if(chunk)chunks.push(chunk);lines=[];};
+ for(const line of normalizeMissionText(text).split(/\r?\n/)){
+  if(/^\s*-{3,}\s*$/.test(line)){flush();continue;}
+  if(missionHeading(line)&&lines.some(l=>/SCU/i.test(l)))flush();
+  lines.push(line);
+ }
+ flush();return chunks;
+}
 // Korean client titles: "링 가문 신입 화물 운송 - 소량 화물 [BP] [100 평판]", "DEAD SAINTS - 신입 Rank - 중형 Cargo Haul" + "[100 평판]" on the next line.
 function koTitle(lines){const i=lines.findIndex(l=>/(?:운송|배송|수송)\s*[-–]|\[[\d,\s~-]+평판\s*\]|Cargo\s+(?:Haul|Run)|계약자\s*필요/i.test(l)&&!/SCU|하십시오|^\s*(?:보상|계약)/.test(l));if(i<0)return '';
  if(/^\s*\[/.test(lines[i])&&i>0)return lines[i-1]+' '+lines[i];return /\]\s*$/.test(lines[i])||!/^\s*\[[\d,\s~-]+평판\s*\]/.test(lines[i+1]||'')?lines[i]:lines[i]+' '+lines[i+1];}
@@ -17,11 +31,11 @@ export function officialCommodity(name){if(MISREADS[String(name||'').trim()])ret
  const [best,second]=scored;if(best&&best.d<=Math.floor(best.len*.3)&&(!second||second.d>best.d))return {name:best.c,status:'fixed'};return {name,status:'unknown'};}
 
 export function parseMissionText(text,locations=[]){
- text=clean(text);const lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),warnings=[];
+ text=clean(normalizeMissionText(text));const lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),warnings=[];
  const company=(text.match(/Red Wind(?: Linehaul)?|Covalex(?: Shipping)?|Ling Family(?: Hauling)?|Dead Saints|Citizens for Prosperity|Quasi Vex|QV Logistics|레드\s*윈드|코발렉스|링\s*가문|데드\s*세인츠/i)||[])[0]||'';
  const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(l))||koTitle(lines)||'';
  const missionId=(text.match(/(?:Mission|Contract)\s*(?:ID|#)\s*[:：]?\s*([\w-]{3,80})/i)||[])[1]||null;
- const rewardMatch=text.match(/(?:Reward|Payout|Payment|보상)\s*[:：]?\s*[¤$€]?\s*([\d,]+)/i)||text.match(/([\d,]+)\s*aUEC/i),reward=rewardMatch?Number(rewardMatch[1].replaceAll(',','')):0;
+ const rewardMatch=text.match(/(?:Reward|Payout|Payment|보상)\s*[:：]?\s*[¤$€]?\s*([\d,]+)/i)||text.match(/([\d,]+)\s*aUEC/i)||text.match(/^\s*[¤$€]\s*([\d,]+)\s*$/m),reward=rewardMatch?Number(rewardMatch[1].replaceAll(',','')):0;
  const maxBox=Number((text.match(/(?:max(?:imum)?\s*(?:container|box)(?:\s*size)?|containers?\s*(?:up to|of)|최대\s*(?:상자|컨테이너))\s*[:：]?\s*(1|2|4|8|16|24|32)\s*SCU/i)||[])[1])||null;
  function locationIn(s){
   // "파이로 II의 선셋 메사": the site after "의" beats the planet in front of it.
