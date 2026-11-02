@@ -16,6 +16,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 
 - 스크린샷 여러 장·드래그·붙여넣기, 기본 브라우저 OCR, 읽은 값 즉시 수정.
 - 미션별 화물 소유권 보존, 배송지별 상자 크기·개수 입력, 같은 미션 유형에 구성 재사용.
+- 계약을 게임 미션 데이터(Star Citizen Wiki API)와 대조해 미션 유형·품목별 최대 상자 크기를 찾고, 상자 구성을 모르면 최대 상자로 임시 적재 계산(`mission-match.mjs`, `data/hauling-missions.json`은 `scripts/refresh-missions.mjs`로 매일 갱신, 한글 이름 대응은 `data/ko-hauling.json`).
 - Stanton·Pyro·Nyx의 3D 지도, 천체·정거장·지상 거점 검색, 확인된 게이트웨이 경유.
 - 간편 경로 / 상세 적재, 93종 함선 선택과 그리드 수정·등록·백업.
 - 모든 함선(Hull B 포함) 회전 가능한 3D 화물칸 한 화면, 방향 가이드, 거점 작업 전·후 배치와 하역 순서.
@@ -98,7 +99,7 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 
 ## 출처·라이선스
 
-- 게임 좌표·성능: [Star Citizen Wiki API](https://api.star-citizen.wiki/api/locations/positions)
+- 게임 좌표·성능·운송 미션: [Star Citizen Wiki API](https://api.star-citizen.wiki/api/locations/positions) (미션: `/api/missions`)
 - 함선 그리드: [SuperCargo](https://github.com/AquatikJustice/SuperCargo)의 `cargoGrids.ts`(MIT, `vendor/SUPERCARGO-LICENSE.txt` 유지. SuperCargo는 sc-cargo.space(Ratjack) 자료를 1차 출처로 밝힘). 새 함선 추가: `node scripts/import-ships.mjs <cargoGrids.ts>`(기존 함선은 바꾸지 않음) → `node scripts/refresh-performance.mjs` → `npm test`.
 - Three.js: MIT, `vendor/THREE-LICENSE.txt` 유지.
 - 참고한 도구와 리뷰 영상: [REFERENCE-NOTES.md](REFERENCE-NOTES.md), [인수인계](docs/CLOUD-HANDOFF.md).

@@ -116,6 +116,7 @@ body.simple-mode .fleet-controls{opacity:.55}
 .run-num.jump{background:#a99bff;color:#140f2e}.run-big.jump{background:linear-gradient(135deg,#d3c9ff,#9583ff)}
 .run-jump-title{display:inline-flex;flex-direction:column;gap:2px;min-width:0;line-height:1.25}.run-jump-title small{font-size:11px;font-weight:600;color:#b9adff;letter-spacing:.5px}.run-jump-title b{font-size:.78em;color:#eef0ff}
 .run-next.jump{border-color:#5b4fa8;background:#151230}.run-next.jump b{color:#d6ceff}.run-cargo b.jump{color:#b9adff}
+.manifest-wiki{margin:6px 0 10px;padding:7px 10px;border-left:3px solid var(--cyan);border-radius:6px;background:#0c1e2a;font-size:12px;line-height:1.6;color:var(--text)}.manifest-wiki>span{color:var(--muted);font-size:11px}.manifest-wiki small{color:var(--muted)}.manifest-wiki.missing{border-left-color:#5a6b7a;color:var(--muted)}
 .stop.stop-jump{border-color:#5b4fa8;background:#151230}.stop-jump .stop-number{border-radius:6px;border-color:#a99bff;background:#a99bff;color:#140f2e;font-weight:700}.stop-jump .stop-head>span:first-child{color:#d6ceff}.stop-event .jump{color:#b9adff}
 .map-route-jump .map-route-n{border-radius:6px;background:#a99bff;color:#140f2e}.map-route-jump .map-route-text b{color:#d6ceff}
 .run-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.run-buttons button{font-size:12px;padding:7px 12px}.run-buttons .danger{color:#ff9d8a;border-color:#6b2f26}

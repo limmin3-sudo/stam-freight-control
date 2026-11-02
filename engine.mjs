@@ -11,11 +11,14 @@ export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,
 export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
 export const COLORS=['#57d9db','#ecb969','#a697f4','#eb8fb1','#8cd6a1','#8dbbfa','#e3dd84','#cda17e'];
 export function assumedBoxes(scu,maxSize=8){const out=[];for(const size of SIZES.filter(s=>s<=maxSize)){while(scu>=size){out.push(size);scu-=size;}}return out;}
+// Unknown layout: the wiki mission's container limit is used as is (largest boxes are the hardest to fit, so the
+// plan still holds when smaller boxes arrive); otherwise the usual cap of `unknownBox` SCU.
+export function assumedLimit(cargo,unknownBox=8){return SIZES.includes(cargo.maxBoxSize)?(cargo._maxBoxSource==='wiki'?cargo.maxBoxSize:Math.min(unknownBox,cargo.maxBoxSize)):unknownBox;}
 export function boxList(cargo,unknownBox=8){
  if(!Number.isInteger(cargo.scu)||cargo.scu<1||cargo.scu>10000)throw Error('화물 SCU는 1–10,000 사이 정수만 가능합니다.');
- if(!cargo.boxes?.length)return {boxes:assumedBoxes(cargo.scu,SIZES.includes(cargo.maxBoxSize)?Math.min(unknownBox,cargo.maxBoxSize):unknownBox),estimated:true};
- let total=0,count=0;const boxes=[];for(const b of cargo.boxes){if(!SIZES.includes(b.size)||!Number.isInteger(b.count)||b.count<1||b.count>10000)throw Error('상자 크기 또는 개수가 잘못됐습니다.');if(SIZES.includes(cargo.maxBoxSize)&&b.size>cargo.maxBoxSize)throw Error('입력한 상자가 미션의 최대 상자 크기보다 커.');total+=b.size*b.count;count+=b.count;if(count>10000)throw Error('상자 개수가 너무 많아.');for(let i=0;i<b.count;i++)boxes.push(b.size);}
- if(total!==cargo.scu)throw Error(`상자 합계 ${total} SCU와 화물 ${cargo.scu} SCU가 달라.`);return {boxes,estimated:false};
+ if(!cargo.boxes?.length)return {boxes:assumedBoxes(cargo.scu,assumedLimit(cargo,unknownBox)),estimated:true};
+ let total=0,count=0;const boxes=[];for(const b of cargo.boxes){if(!SIZES.includes(b.size)||!Number.isInteger(b.count)||b.count<1||b.count>10000)throw Error('상자 크기 또는 개수가 잘못됐습니다.');if(SIZES.includes(cargo.maxBoxSize)&&cargo._maxBoxSource!=='wiki'&&b.size>cargo.maxBoxSize)throw Error('입력한 상자가 미션의 최대 상자 크기보다 큽니다.');total+=b.size*b.count;count+=b.count;if(count>10000)throw Error('상자 개수가 너무 많아.');for(let i=0;i<b.count;i++)boxes.push(b.size);}
+ if(total!==cargo.scu)throw Error(`상자 합계 ${total} SCU와 화물 ${cargo.scu} SCU가 다릅니다.`);return {boxes,estimated:false};
 }
 // A grid may forbid standing a box on end (long axis vertical), e.g. Hull B panels reject upright 16 SCU containers.
 export const isUpright=d=>d[1]>Math.min(d[0],d[2]);
@@ -114,7 +117,7 @@ export function makeShipments(missions,locationMap,options={}){
  const shipments=[],warnings=[];const ids=new Set(),ship=validateShip(options.ship||DEFAULT_SHIP);
  for(let mi=0;mi<missions.length;mi++){const original=missions[mi],aggregated=[];for(const group of destinationGroups(original)){const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(missionName(original)+': 배송 수량을 먼저 입력하세요.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID가 비어 있거나 중복됐습니다.');ids.add(m.id);
   for(let ci=0;ci<m.cargo.length;ci++){const c=m.cargo[ci],a=locationMap.get(c.pickupId),b=locationMap.get(c.dropoffId);if(!a||!b)throw Error(`${missionName(m)}: 픽업지와 배송지를 목록에서 선택하세요.`);if(c.pickupId===c.dropoffId)throw Error(`${missionName(m)} · ${c.commodity}: 픽업지와 배송지가 같습니다.`);
-   const {boxes,estimated}=boxList(c,options.unknownBox||8);if(estimated)warnings.push(`${missionName(m)} · ${c.commodity}: 상자 구성 미확인, 최대 ${SIZES.includes(c.maxBoxSize)?Math.min(options.unknownBox||8,c.maxBoxSize):options.unknownBox||8} SCU 조합으로 가정`);
+   const {boxes,estimated}=boxList(c,options.unknownBox||8);if(estimated)warnings.push(`${missionName(m)} · ${c.commodity}: 상자 구성 미확인, 최대 ${assumedLimit(c,options.unknownBox||8)} SCU 조합으로 가정${c._maxBoxSource==='wiki'?'(미션 데이터의 최대 상자)':''}`);
    let pending=[],batch=0;
    const flush=()=>{if(!pending.length)return;shipments.push({id:`${m.id}:${ci}:${batch++}`,missionId:m.id,commodity:c.commodity,pickupId:c.pickupId,dropoffId:c.dropoffId,boxes:pending,scu:pending.reduce((a,b)=>a+b.size,0),color:COLORS[mi%COLORS.length],estimated});pending=[];};
    for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],missionId:m.id,dropoffId:c.dropoffId,pickupId:c.pickupId,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(!packBoxes([item],[],ship))throw Error(`${missionName(m)}: ${item.size} SCU 상자는 ${ship.name}의 어느 그리드에도 들어가지 않습니다.`);if(pending.length&&!packBoxes([...pending,item],[],ship))flush();pending.push(item);}flush();

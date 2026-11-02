@@ -1,0 +1,28 @@
+{
+ "_note": "한글 게임 화면 이름 → Star Citizen Wiki 미션 데이터 영어 이름. 사용자 계약 7건을 위키 미션 정의(품목 구성·SCU)와 대조해 확인한 것만 넣었습니다(2026-11-02). 한글 패치 global.ini를 받으면 전체 대응으로 교체합니다.",
+ "commodities": {
+  "기념품": "Souvenirs",
+  "증류주": "Distilled Spirits",
+  "가공 식품": "Processed Food",
+  "스팀": "Stims",
+  "레버넌트 나무 꽃가루": "Revenant Tree Pollen",
+  "네온": "Neon",
+  "SLAM": "SLAM",
+  "이'템": "E'tam",
+  "유기체": "Organics",
+  "냉동포드": "CryoPod",
+  "함선 탄약": "Ship Ammunition",
+  "수소": "Hydrogen",
+  "의약용품": "Medical Supplies",
+  "질소": "Nitrogen",
+  "철소홍": "Nitrogen",
+  "란타 똥": "Ranta Dung"
+ },
+ "companies": {
+  "링 가문 화물": "Ling Family Hauling",
+  "데드 세인츠": "Dead Saints",
+  "레드 윈드 노선화물": "Red Wind Linehaul",
+  "링 가문": "Ling Family Hauling",
+  "레드 윈드": "Red Wind Linehaul"
+ }
+}
