@@ -1,5 +1,30 @@
 [
   {
+    "id": "2026-11-02-partner-routing",
+    "version": "3.4.0",
+    "date": "2026-11-02 20:19",
+    "title": "파트너별 운송 방식 · 출발지 검색 · 상자 구성 자동 안내",
+    "changes": [
+      "브리지 오퍼레이터는 소량의 간단한 계약 완료를 우선하고, 배송길의 가까운 픽업은 여유 공간과 우회 시간을 확인해 함께 챙깁니다. 수석 항해사의 기존 대량 묶음 운송은 그대로 유지합니다.",
+      "파트너를 오퍼레이터·항해사·브로커 순서로 배치했습니다. 각자 말투로 주업무를 설명하며, 새 파이로 초상화의 밀수 브로커는 준비 중 소개까지 볼 수 있습니다.",
+      "운송 시작 버튼을 강조하고 운송 계약 추가는 일반 버튼으로 바꿨습니다. 운항 파트너 초상화 카드는 지도 왼쪽 위 STARMAP 아래로 옮겼고 관제 모드에서도 사용할 수 있습니다.",
+      "출발지는 한글·영어 일부만 입력해 추천 목록에서 고릅니다. 파트너가 출발지를 다시 확인한 뒤 다음 단계로 넘어갑니다.",
+      "상자 구성을 미리 채워 보여주고 다른 부분만 수정하게 했습니다. 추정값은 예상 구성으로 표시하며, 운항 화물 목록과 방문 순서에 상자 크기별 개수를 표시합니다.",
+      "계정 창을 넓히고 총 누적수입·운항거리·완료 운항·완료 계약·운항 시간·운송량을 추가했습니다. 확인 후 완료된 운항기록과 통계를 초기화할 수 있으며, 미션과 설정은 유지됩니다. 거리 정보가 없는 예전 기록은 거리 합계에서 제외합니다."
+    ],
+    "en": {
+      "title": "Partner routing · departure search · prefilled containers",
+      "changes": [
+        "The Bridge Operator prioritises small, simple contracts and can collect nearby cargo en route when space and detour time permit. The Senior Navigator keeps the existing batch-hauling algorithm.",
+        "Partners are ordered Operator, Navigator, Broker, with functional introductions in their own voices. The new Pyro broker portrait opens a coming-soon introduction; trading is not yet available.",
+        "Start hauling is now the main highlighted button. Add contracts uses the regular style. The hauling partner portrait sits below the STARMAP label in both the main map and Control mode.",
+        "Search departure locations with partial Korean or English names, choose a suggestion, then confirm the location with your partner.",
+        "Container layouts are prefilled for review and correction. Assumptions are labelled as estimates; run guidance and visit lists show container sizes and counts.",
+        "The wider account panel shows total earnings, flight distance, completed runs/contracts, time and cargo. Reset completed history and totals after confirmation while keeping missions and settings. Older records without distance are excluded from the distance total."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-korean-mission-types",
     "version": "3.3.0",
     "date": "2026-11-02 18:38",
