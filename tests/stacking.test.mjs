@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_SHIP,withStacking} from '../ships.mjs';
+import {DEFAULT_SHIP,withStacking,validateShip} from '../ships.mjs';
 import {packBoxes,boxDepth} from '../engine.mjs';
 
 test('Hull B grids attach to the spine and stack outward; flat holds are untouched', ()=>{
@@ -18,4 +18,15 @@ test('Hull C keeps its world size while stacking sideways, RAFT hangs cargo from
   assert.equal(c.grids[0].x+c.grids[0].w/2,6);assert.deepEqual(c.grids.map(g=>g.rotation[2]),[90,-90]);
   const r=withStacking({id:'argo-raft',name:'Argo RAFT',grids:[{id:'r',name:'R',w:8,h:2,l:12,x:0,y:0,z:0}]});
   assert.deepEqual(r.grids[0].rotation,[0,0,180]);assert.equal(r.grids[0].w,8);
+});
+
+
+test('ship validation retains attachment frames used by route packing and depth checks',()=>{
+ const original=withStacking(DEFAULT_SHIP),checked=validateShip(original);
+ for(let i=0;i<checked.grids.length;i++){assert.equal(checked.grids[i]._stack,'out');assert.deepEqual(checked.grids[i]._world,original.grids[i]._world);}
+ const inner={bin:0,cell:[0,0,0],dims:[1,1,2],size:2},outer={...inner,cell:[0,1,0]};
+ assert.equal(boxDepth(checked,inner),boxDepth(original,inner));assert.ok(boxDepth(checked,inner)>boxDepth(checked,outer));
+ const raw={id:'misc-hull-c',name:'Hull C',grids:[{id:'a',name:'A',w:12,h:6,l:8,x:0,y:0,z:0},{id:'b',name:'B',w:12,h:6,l:8,x:14,y:0,z:0}]};
+ const hullC=withStacking(raw);assert.deepEqual(validateShip(hullC).grids.map(g=>g._world),hullC.grids.map(g=>g._world));
+ assert.throws(()=>validateShip({...original,grids:[{...original.grids[0],_world:{x:0,y:0,w:Infinity,h:2}}]}),/부착 좌표/);
 });

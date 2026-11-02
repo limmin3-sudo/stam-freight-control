@@ -11,9 +11,9 @@
 | 저장소 | https://github.com/limmin3-sudo/stam-freight-control |
 | 배포 사이트 | https://limmin3-sudo.github.io/stam-freight-control/ |
 | 기본 브랜치 | `main` |
-| 마지막 기능 변경 기준 | v3.6.1 (최신 기능 커밋은 Git 이력 참조) |
+| 마지막 기능 변경 기준 | v3.7.0 (최신 기능 커밋은 Git 이력 참조) |
 | 해당 기능 배포 | GitHub Actions 성공 및 실제 사이트 확인 완료 |
-| 검증 | Node 22 테스트 119개 통과; 구체적 검증 범위는 최신 인계 참조 |
+| 검증 | Node 22 테스트 121개 통과; 구체적 검증 범위는 최신 인계 참조 |
 | 웹앱 로그인·계정 저장 | Firebase 선택 로그인·동기화 구현 |
 | Firebase 연결 | `stam-freight-control`; 사용자 규칙 게시·피드백 수신 확인 |
 | 현재 개인 데이터 저장 | 게스트 localStorage / 로그인 계정 동기화 |

@@ -61,7 +61,13 @@ function replan(){
  if(!editable())return;
  if(!missions.length){emptyPlan();return;}
  // During a run, changes re-plan from where the captain is now, keeping the cargo that is aboard.
- if(execution?.isActive()&&mode!=='simple'){execution.replanHere();return;}
+ const activeContext=execution?.resumeContext();
+ if(activeContext&&mode!=='simple'){
+  if(execution.isActive()){execution.replanHere();return;}
+  // Restoring an active trip must start from saved aboard coordinates, before
+  // a changed packing policy can build a fresh layout for the same visit key.
+  try{plan=planRoute(data,missions,activeContext.startId,{...settings,ship,resume:activeContext.resume});$('start-location').value=activeContext.startId;selectedStop=0;renderPlan();execution.setPlan(plan,byId,{keepRun:true});save();}catch(e){emptyPlan();notify(e.message,true);}return;
+ }
  const simple=mode==='simple';
  if(missions.some(m=>m.cargo.some(c=>!byId.has(c.pickupId)||!byId.has(c.dropoffId)||(!simple&&(!Number.isInteger(c.scu)||c.scu<1))))){emptyPlan();notify(simple?'간편 경로는 픽업지·배송지만 있으면 됩니다. 위치가 확인되지 않은 미션을 수정하세요.':'스샷의 위치 이름과 수량을 확인하세요. 미션의 ‘수정’에서 바로잡을 수 있습니다.',true);return;}
  try{const manualContext=Array.isArray(settings.manualStops)?execution?.resumeContext():null;const planSettings=manualContext?{...settings,resume:manualContext.resume}:settings;plan=simple?planRoutesOnly(data,missions.map(m=>({...m,cargo:m.cargo.map(c=>({...c,scu:Number.isInteger(c.scu)?c.scu:0}))})),manualContext?.startId||$('start-location').value,planSettings):planRoute(data,missions,manualContext?.startId||$('start-location').value,{...planSettings,ship});selectedStop=0;renderPlan();execution?.setPlan(plan,byId);save();}catch(e){emptyPlan();notify(e.message,true);}

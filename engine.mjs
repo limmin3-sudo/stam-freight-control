@@ -1,3 +1,4 @@
+import {cargoBlocks,destinationBlockZones} from './packing-blocks.mjs';
 import {deliveryFirstRoute} from './delivery-first.mjs';
 import {betterTravel,compareRoute} from './route-cost.mjs';
 import {replayManualStops} from './manual-route.mjs';
@@ -5,7 +6,7 @@ import {planActionRoute} from './route-search.mjs';
 import {remainingTravelEstimate} from './route-estimate.mjs';
 import {destinationGroups} from './recipes.mjs';
 import {quantumSeconds,surfaceSeconds,spaceApproachSeconds} from './travel.mjs';
-import {DEFAULT_SHIP,validateShip,capacity} from './ships.mjs';
+import {DEFAULT_SHIP,validateShip,capacity,hullKind} from './ships.mjs';
 export const CAPACITY=512;
 export const SIZES=[32,24,16,8,4,2,1];
 export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,2,6],32:[2,2,8]};
@@ -73,12 +74,16 @@ export function fullLoadLayout(groups,fixed,ship){
   for(const j of pick.run){taken.add(j);(zones.get(d.id)||zones.set(d.id,new Set()).get(d.id)).add(j);}}
  let best=null,seen=new Set();
  const rankAt=new Map(list.map(d=>[d.id,d.rank]));
- const candidates=[{zones,at:rankAt},...orders.map(order=>({at:new Map(order.map((d,i)=>[d.id,order.length>1?1-i/(order.length-1):0]))}))];
+ const physicalBlocks=hullKind(ship)==='hull-b'?cargoBlocks(ship):[],largestBlock=Math.max(0,...physicalBlocks.map(ids=>ids.reduce((n,i)=>n+ship.grids[i].w*ship.grids[i].h*ship.grids[i].l,0)));
+ const blockZones=physicalBlocks.length&&list.some(d=>d.scu>largestBlock)?destinationBlockZones(ship,groups,fixed):null,blocks=blockZones?physicalBlocks:[];
+ const centers=box.map(b=>b.map(([a,c])=>(a+c)/2)),span=ids=>{let max=0;for(const a of ids)for(const b of ids)max=Math.max(max,Math.hypot(...centers[a].map((v,k)=>v-centers[b][k])));return max;};
+ const candidates=[...(blockZones?[{zones:blockZones,strictZones:true,at:rankAt}]:[]),{zones,at:rankAt},...orders.map(order=>({at:new Map(order.map((d,i)=>[d.id,order.length>1?1-i/(order.length-1):0]))}))];
  for(const cand of candidates){const order=cand.zones?null:[...cand.at.keys()];if(order){const key=order.join();if(seen.has(key))continue;seen.add(key);}const at=cand.at;
-  const packed=packBoxes(groups.flatMap(g=>g.items.map(b=>({...b,rank:at.get(b.dropoffId)}))),fixed,ship,cand.zones?{zones:cand.zones}:{});if(!packed)continue;
+  const packed=packBoxes(groups.flatMap(g=>g.items.map(b=>({...b,rank:at.get(b.dropoffId)}))),fixed,ship,cand.zones?{zones:cand.zones,strictZones:cand.strictZones}:{});if(!packed)continue;
   const binsOf=new Map(),owners=new Map();for(const b of packed.boxes){(binsOf.get(b.dropoffId)||binsOf.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);(owners.get(b.bin)||owners.set(b.bin,new Set()).get(b.bin)).add(b.dropoffId);}
-  const used=[...owners.keys()];let score=new Set(used.map(i=>regions[i].side)).size*40+new Set(used.map(i=>regions[i].side+':'+regions[i].level)).size*15;for(const set of binsOf.values()){const l=[...set];score+=(new Set(l.map(i=>regions[i].side)).size-1)*30+(new Set(l.map(i=>regions[i].side+':'+regions[i].level)).size-1)*10;let m=0;for(const a of l)for(const c of l)m=Math.max(m,gap(a,c));score+=m;}for(const o of owners.values())if(o.size>1)score+=100;
-  if(!best||score<best.score)best={score,packed};}
+  const used=[...owners.keys()];let score=new Set(used.map(i=>regions[i].side)).size*40+new Set(used.map(i=>regions[i].side+':'+regions[i].level)).size*15;for(const set of binsOf.values()){const l=[...set];score+=(new Set(l.map(i=>regions[i].side)).size-1)*30+(new Set(l.map(i=>regions[i].side+':'+regions[i].level)).size-1)*10;let m=0;for(const a of l)for(const c of l)m=Math.max(m,gap(a,c));score+=m+(blocks.length?span(l)*10:0);}for(const o of owners.values())if(o.size>1)score+=100;
+  let fragmented=0;for(const block of blocks){const destinations=new Set(block.flatMap(i=>[...(owners.get(i)||[])]));fragmented+=Math.max(0,destinations.size-1);}
+  if(!best||fragmented<best.fragmented||fragmented===best.fragmented&&score<best.score)best={score,fragmented,packed};}
  return best?.packed||null;}
 export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const half=[...items,...fixed].some(b=>b._cargoShape==='cryopod'),bins=makeBins(ship,half);const limit=capacity(ship);const placed=[...fixed];
@@ -92,7 +97,7 @@ export function packBoxes(items,fixed=[],ship=DEFAULT_SHIP,opts={}){
  const sorted=[...items].sort((a,b)=>(ranked?(b.rank??0)-(a.rank??0):0)||b.size-a.size||String(a.missionId).localeCompare(String(b.missionId)));
  for(const item of sorted){let best=null;const ownBins=[],usedBins=[];bins.forEach((b,i)=>{if(b.used)usedBins.push(i);if(b.boxes.some(p=>sameGroup(p,item,true)))ownBins.push(i);});
   const emptyCost=i=>25+regionCost(regions,i,ownBins.length?ownBins:usedBins)+(ownBins.length?3*near(i,ownBins):.5*walk[i]);
-  const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
+  const order=bins.map((b,index)=>({b,index,own:b.boxes.some(p=>sameGroup(p,item,share)),other:b.boxes.some(p=>!sameGroup(p,item,share))})).filter(o=>(!opts.strictZones||!opts.zones?.has(item.dropoffId)||opts.zones.get(item.dropoffId).has(o.index))&&item.size<=o.b.grid.maxBoxSize&&(share||!o.other)).sort((a,b)=>Number(b.own)-Number(a.own)||(share?Number(b.b.used>0)-Number(a.b.used>0):Number(a.other)-Number(b.other))||a.index-b.index);
   search:for(const {b,index,own,other} of order){const grid=b.grid;
    for(const d of item._cargoShape==='cryopod'?[[1,.5,2],[2,.5,1]]:orientations(BOX_DIMS[item.size]||[])){if(d.length!==3)continue;if(grid.noUpright?.includes(item.size)&&isUpright(d))continue;
     for(let z=0;z<=grid.l-d[2];z++)for(let y=0;y<=grid.h-d[1];y+=(half?0.5:1))for(let x=0;x<=grid.w-d[0];x++){const cell=[x,y,z];if(!occupy(b,cell,d,true)||!supported(b,cell,d,item))continue;
