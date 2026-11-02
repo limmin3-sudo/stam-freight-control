@@ -168,21 +168,39 @@ async function analyzeAI(){
  }catch(e){notify(e.name==='TimeoutError'?'AI 응답이 너무 오래 걸립니다. 이미지 수를 줄여 다시 시도하세요.':e.message,true);}finally{busy=false;$('analyze').innerHTML='스크린샷 읽고 계획하기 <span>↗</span>';renderUploads();}
 }
 // Transcribed contracts are separated by explicit --- lines or new mission headings.
-const AI_PROMPT=`첨부한 스타시티즌 미션 화면의 글자를 화면에 보이는 그대로 옮겨 적어 주세요.
-- 번역하거나 고치지 말고 화면 표기 그대로 적어 주세요. 대괄호 [ ] 안의 영어 이름도 그대로 적어 주세요.
-- 적을 것: 미션 제목, 보상 금액, 계약 발주자, '주 목표'의 모든 문장(배송하십시오 / 접수하십시오).
-- '주 목표' 문장은 화면 순서대로 한 줄에 하나씩 적고, 줄 중간에서 끊지 마세요.
-- '세부 내역' 설명 문단과 화면의 다른 메뉴는 빼 주세요.
-- 미션이 여러 개면 미션 사이에 --- 한 줄을 넣어 주세요.
-- 다른 설명 없이 옮겨 적은 글만 보내 주세요.`;
-// English game client: transcribe the mission text as shown (commodity and place names stay in English).
-const AI_PROMPT_EN=`Transcribe the text of the attached Star Citizen mission screens exactly as shown.
-- Do not translate or correct anything; copy names exactly as displayed.
-- Include: the mission title, reward, "Contracted By", and every line of the Primary Objectives (Deliver … / Collect …).
-- Write the Primary Objectives in screen order, one per line, without breaking a line in the middle.
-- Leave out the details paragraph and other menus on the screen.
-- If there are several missions, put a line with --- between missions.
-- Reply with the transcribed text only, nothing else.`;
+const AI_PROMPT=`첨부한 스타시티즌 운송 미션 화면을 앱에 붙여넣을 수 있는 일반 텍스트로 옮겨 주세요.
+
+출력 형식 — 계약마다 아래 순서를 지켜 주세요.
+화면에 표시된 미션 제목 전체
+보상 ¤ 화면에 표시된 금액
+계약 발주자 화면에 표시된 발주처
+주 목표의 배송·접수 문장 전부 (화면 순서대로 한 줄에 한 문장)
+
+반드시 지킬 규칙:
+- 계약이 여러 개면 각 계약 사이에 --- 만 적힌 줄을 반드시 넣어 주세요. 제목·발주처·품목이 같아도 서로 다른 계약은 합치지 마세요.
+- 같은 계약이 여러 화면에 이어지면 중복된 부분만 한 번 적고, 이어지는 주 목표를 빠짐없이 적어 주세요. 확실하지 않으면 임의로 합치지 마세요.
+- 제목의 크기·랭크·평판, 보상 금액, 발주처를 생략하지 마세요. 보상 줄은 반드시 '보상 ¤ 금액', 발주처 줄은 '계약 발주자 이름' 형식으로 적어 주세요.
+- 품목명·지명·대괄호 [ ] 안의 영어 이름·0/수량 SCU를 원문 그대로 적어 주세요. 번역·이름 교정·수량 계산·상자 크기 추정은 하지 마세요.
+- 하나의 배송 목표 아래 픽업지가 여러 곳이면 접수 문장을 모두 적어 주세요. 총 SCU를 픽업지별로 임의 분배하거나 같은 문장처럼 보여도 지우지 마세요.
+- 읽히지 않는 부분은 [확인 필요]로 표시하고 지어내지 마세요. 세부 내역 설명과 다른 메뉴는 빼 주세요.
+- 출력에는 계약 텍스트와 구분선만 넣어 주세요. 설명·표·목록 기호·마크다운 제목·코드 블록을 넣지 마세요. 실제 줄바꿈을 쓰고 HTML 줄바꿈 코드나 줄 끝 역슬래시는 쓰지 마세요.`;
+// The two copy buttons share this request and differ only by interface language.
+const AI_PROMPT_EN=`Transcribe the attached Star Citizen hauling mission screens as plain text for import into an app.
+
+For each contract, use this order:
+The complete mission title as displayed
+Reward: the displayed amount and currency
+Contracted By: the displayed contractor
+Every Deliver / Collect / Pick up line from the Primary Objectives, in screen order, one sentence per line
+
+Required rules:
+- Put a line containing only --- between separate contracts. Never merge different contracts just because their title, contractor or commodities are the same.
+- If one contract continues across screenshots, transcribe overlapping content once and retain all continuing objectives. Do not merge contracts when uncertain.
+- Keep the full title, including size, rank and reputation, the reward and contractor. Always prefix the reward with 'Reward:' and the contractor with 'Contracted By:'.
+- Preserve commodity and location names, bracketed aliases, quantities and 0/quantity SCU exactly as shown. Do not translate, correct names, calculate quantities or infer container sizes.
+- If one delivery lists several pickup locations, retain every pickup line. Do not divide its total SCU between pickups or remove lines merely because they look similar.
+- Mark unreadable text as [needs checking]; never invent it. Omit the details description and other menus.
+- Output only contract text and separators. No commentary, tables, bullets, Markdown headings or code fences. Use real line breaks, without HTML line-break entities or trailing backslashes.`;
 const aiPrompt=()=>isEn?AI_PROMPT_EN:AI_PROMPT;
 function importMissionText(text){
  const chunks=splitMissionText(text);let added=0,skipped=0;

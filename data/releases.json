@@ -1,5 +1,22 @@
 [
   {
+    "id": "2026-11-02-copy-request-format",
+    "version": "3.6.1",
+    "date": "2026-11-02 21:33",
+    "title": "AI 요청 문장 복사 형식 보강",
+    "changes": [
+      "복사 요청문에서 계약별 제목·보상·발주처·모든 배송/접수 문장과 계약 사이 --- 구분선을 명확히 지정했습니다.",
+      "마크다운·HTML 줄바꿈·줄 끝 역슬래시 없이 일반 텍스트로 출력하고, 총량 임의 분배·상자 크기 추정·서로 다른 계약 합치기를 하지 않도록 안내합니다. 한글·영문과 두 복사 버튼에 함께 적용했습니다."
+    ],
+    "en": {
+      "title": "Clearer AI transcription request",
+      "changes": [
+        "The copied request now specifies a full title, labelled reward and contractor, all objectives and --- separators for every contract.",
+        "It requests plain text without Markdown, HTML line breaks or trailing backslashes, and preserves quantities, pickup lines and separate contracts without inferring container sizes. Both copy buttons and languages are updated."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-text-contract-boundaries",
     "version": "3.6.0",
     "date": "2026-11-02 21:25",
