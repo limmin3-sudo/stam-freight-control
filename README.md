@@ -98,7 +98,7 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 
 ## 출처·라이선스
 
-- 게임 좌표·성능: [Star Citizen Wiki API](https://api.star-citizen.wiki/api/locations/positions)
+- 게임 좌표·성능·운송 미션: [Star Citizen Wiki API](https://api.star-citizen.wiki/api/locations/positions) (미션: `/api/missions`)
 - 함선 그리드: [SuperCargo](https://github.com/AquatikJustice/SuperCargo)의 `cargoGrids.ts`(MIT, `vendor/SUPERCARGO-LICENSE.txt` 유지. SuperCargo는 sc-cargo.space(Ratjack) 자료를 1차 출처로 밝힘). 새 함선 추가: `node scripts/import-ships.mjs <cargoGrids.ts>`(기존 함선은 바꾸지 않음) → `node scripts/refresh-performance.mjs` → `npm test`.
 - Three.js: MIT, `vendor/THREE-LICENSE.txt` 유지.
 - 참고한 도구와 리뷰 영상: [REFERENCE-NOTES.md](REFERENCE-NOTES.md), [인수인계](docs/CLOUD-HANDOFF.md).
