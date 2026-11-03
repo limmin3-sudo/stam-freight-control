@@ -61,8 +61,8 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
   search.oninput=()=>{
     results.replaceChildren();const q=search.value.trim().toLowerCase();results.hidden=!q;
     if(!q)return;
-    const found=locations.filter(l=>l.name.toLowerCase().includes(q)).slice(0,8);
-    if(!found.length)results.append(el('p','일치하는 영문 지명이 없습니다.'));
+    const found=locations.filter(l=>[l.name,...(l.aliases||[])].some(n=>n.toLowerCase().includes(q))).slice(0,8);
+    if(!found.length)results.append(el('p','일치하는 지명·개인 별칭이 없습니다.'));
     for(const l of found) {
       const b=el('button',`${l.name} · ${l.system.toUpperCase()}`);b.type='button';
       b.onclick=()=>{choose(l);map.focus(l.id);results.hidden=true;search.value=l.name;};results.append(b);
