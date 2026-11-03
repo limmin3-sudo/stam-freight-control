@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "source": "https://api.star-citizen.wiki",
+  "version": "4.10.2-LIVE.12881860",
+  "inputSha256": "438f99341e90ee7ac47c2c724fa86510b1dc1d813942fa14e9b6cac8686ec2f3",
+  "definitionCount": 1840,
+  "scope": "Public has_hauling representatives and variants, including mission items and unreleased variants. Definition identities, order bounds and location candidates; NOT runtime manifests or actual box distributions.",
+  "mutuallyExclusiveCategories": {
+    "unsupported-box-limit": 635,
+    "special-or-mixed-orders": 476,
+    "variable-scu-with-box-limits": 618,
+    "single-value-scu-with-box-limits": 54,
+    "no-orders": 50,
+    "choice-orders": 7
+  },
+  "resourceOnlyMatrix": {
+    "single-value / unsupported-limit": 622,
+    "variable / supported-limit": 618,
+    "single-value / supported-limit": 54,
+    "variable / unsupported-limit": 13
+  },
+  "exactBoxRecipesVerifiedByThisAudit": 0,
+  "caveats": [
+    "The public hauling representative/variant catalog is not guaranteed to contain every active in-game hauling definition.",
+    "Single-value means API presentation, not proof of fixed quantity across instances. Null bounds must not be converted to zero.",
+    "Unsupported box limit includes -1; no default, inheritance or maximum-32 rule is assumed.",
+    "No recipe counts or shipment allocation are derived. Public order occurrences are not individual boxes.",
+    "A valid exact recipe needs compatible build, verified generation rules and resolved runtime variable inputs."
+  ]
+}
