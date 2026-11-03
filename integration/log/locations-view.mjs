@@ -42,6 +42,6 @@ export function renderContractLocations(contract, index) {
     }
     section.append(row);
   }
-  section.append(node('p', '가까운 장소를 대신 선택하거나 목표 번호만으로 다른 품목에 이 지점을 복사하지 않습니다. 실제 상자 구성은 아직 미확인입니다.', 'detail'));
+  section.append(node('p', '가까운 장소를 대신 선택하거나 목표 번호만으로 다른 품목에 이 지점을 복사하지 않습니다. 거점 좌표 대조만으로 상자 구성을 확정하지 않습니다.', 'detail'));
   return section;
 }

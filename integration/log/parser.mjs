@@ -9,6 +9,13 @@ const field = (line, name) => line.match(new RegExp(`${name}\\s*:?\\s*\\[([^\\]]
 const clean = text => text.replace(/<[^>]*>/g, '').trim();
 
 export function parseLogLine(line, provenance) {
+  const build = line.match(/^<([^>]+)> \[CIG\] build_version\[([1-9]\d{0,11})\]\s*$/);
+  if (build) {
+    const at = build[1];
+    if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(at) ||
+        !Number.isFinite(Date.parse(at)) || new Date(at).toISOString() !== at) return {diagnostic:'unrecognized-build-format'};
+    return {event:{type:'game-build-observed', at, build:build[2], source:{...provenance}}};
+  }
   const tag = TAGS.find(name => line.includes(`<${name}>`));
   if (!tag) return {};
   const fail = () => ({ diagnostic: 'unrecognized-mission-format' });

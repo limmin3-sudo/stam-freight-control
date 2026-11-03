@@ -1,5 +1,7 @@
 import { parseLogLine } from './parser.mjs';
 import { identityScope, identityResolver, participation } from './participation.mjs';
+import { buildResolver } from './builds.mjs';
+import { resolveBoxProfile } from './box-profiles.mjs';
 
 const stable = value => JSON.stringify(value);
 const compare = (a, b) => a.at.localeCompare(b.at) || stable(a).localeCompare(stable(b));
@@ -13,6 +15,7 @@ export class LogEvidence {
     this.events = new Map();
     this.contracts = new Map();
     this.identities = [];
+    this.builds = [];
     this.diagnostics = new Map();
     this.lines = 0;
     this.duplicates = 0;
@@ -28,7 +31,8 @@ export class LogEvidence {
   add(event) {
     const { source, ...observation } = event;
     const identity = event.type === 'local-character-observed';
-    const key = stable(identity ? { ...observation, scope: identityScope(source) } : observation);
+    const build = event.type === 'game-build-observed';
+    const key = stable(identity || build ? { ...observation, scope: identityScope(source) } : observation);
     if (this.events.has(key)) {
       this.duplicates++;
       // Deterministic provenance when backup files repeat the same log line.
@@ -38,8 +42,8 @@ export class LogEvidence {
     }
     if (this.events.size >= this.maxEvents) throw new Error('event-limit');
     if (this.evidenceBytes + key.length * 2 > this.maxEvidenceBytes) throw new Error('evidence-size-limit');
-    let contract = identity ? this.identities : this.contracts.get(event.missionId);
-    if (!identity && !contract) {
+    let contract = identity ? this.identities : build ? this.builds : this.contracts.get(event.missionId);
+    if (!identity && !build && !contract) {
       if (this.contracts.size >= this.maxContracts) throw new Error('contract-limit');
       contract = [];
       this.contracts.set(event.missionId, contract);
@@ -51,6 +55,7 @@ export class LogEvidence {
   }
   snapshot() {
     const identity = identityResolver(this.identities);
+    const resolveBuild = buildResolver(this.builds);
     const publicEvent = event => {
       const { playerId, ...safe } = event;
       return { ...safe, ...((playerId !== undefined || event.type === 'accepted') ? { actor: identity.actor(event) } : {}) };
@@ -77,6 +82,7 @@ export class LogEvidence {
       const status = conflicts.length ? 'conflict' : ended.length ? 'end-observed' : accepted.length ? 'acceptance-observed' : membership.selfJoinObserved ? 'participation-observed' : 'acceptance-unconfirmed';
       const entry = {
         missionId, status, acceptedAt: accepted[0]?.at ?? null,
+        gameBuild:resolveBuild(events),
         acceptanceObservations: accepted.map(publicEvent), endingObservations: allEndings.map(publicEvent),
         participation: membership,
         partyObservations: events.filter(e => ['share-observed', 'participant-joined', 'participant-left'].includes(e.type)).map(publicEvent),
@@ -91,12 +97,16 @@ export class LogEvidence {
         manifest: null,
         planning: { allowed: false, reasons: [...conflicts, 'complete-manifest-unverified', 'cargo-allocation-unverified', 'box-composition-unverified'] },
       };
+      entry.boxComposition = resolveBoxProfile(entry);
+      if (entry.boxComposition.status === 'matched-fixed-profile') {
+        entry.planning.reasons = entry.planning.reasons.filter(reason => reason !== 'box-composition-unverified');
+      }
       (accepted.length || membership.selfJoinObserved ? hauling : candidates).push(entry);
     }
     hauling.sort((a, b) => a.missionId.localeCompare(b.missionId));
     candidates.sort((a, b) => a.missionId.localeCompare(b.missionId));
     return structuredClone({
-      schemaVersion: 1, verification: 'log-observations-only',
+      schemaVersion: 1, verification: 'log-observations-with-fixed-box-profiles',
       identity: { observed: identity.observed, mixedPlayers: identity.mixedPlayers, scopes: identity.scopes },
       statistics: { lines: this.lines, uniqueEvents: this.events.size, duplicateEvents: this.duplicates,
         acceptedHauling: hauling.filter(c => c.acceptanceObservations.length).length,
@@ -104,6 +114,7 @@ export class LogEvidence {
         withSharedObservation: hauling.filter(c => c.participation.shared).length,
         withSelfLeaveObservation: hauling.filter(c => c.partyObservations.some(e => e.type === 'participant-left' && e.actor === 'self')).length,
         withQuantityObservation: hauling.filter(c => c.quantityObservations.length).length,
+        withKnownBoxComposition: hauling.filter(c => c.boxComposition.status === 'matched-fixed-profile').length,
         planningReady: 0 },
       diagnostics: Object.fromEntries([...this.diagnostics].sort()), contracts: hauling, candidates,
     });

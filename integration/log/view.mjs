@@ -5,6 +5,7 @@ import { definitionIndex, definitionReference } from './catalog.mjs';
 import { renderDefinitionRules } from './catalog-view.mjs';
 import { locationIndex } from './locations.mjs';
 import { renderContractLocations } from './locations-view.mjs';
+import { renderBoxProfile } from './box-profiles-view.mjs';
 
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -40,7 +41,10 @@ function showMore() {
     card.addEventListener('toggle', () => {
       if (!card.open || card.querySelector('.body')) return;
       const body = el('div', undefined, 'body');
-      body.append(el('p', '적재 계산 차단 · 실제 품목별 할당과 상자 구성 미확인', 'blocked'));
+      const boxesKnown = contract.boxComposition?.status === 'matched-fixed-profile';
+      body.append(el('p', boxesKnown
+        ? '고정 상자 조합 확인 · 픽업·배송지별 할당 미확인으로 적재 계산 대기'
+        : '적재 계산 차단 · 실제 품목별 할당과 상자 구성 미확인', 'blocked'));
       for (const conflict of contract.conflicts) body.append(el('p', ({
         'definition-conflict': '서로 다른 계약 정의 ID가 관측되었습니다. 유형을 확정하지 않습니다.',
         'terminal-state-conflict': '서로 다른 종료 상태가 관측되었습니다. 완료 여부를 확정하지 않습니다.',
@@ -56,6 +60,7 @@ function showMore() {
         ? `공개 유형 참고: ${reference.title} · ${reference.version}${reference.notForRelease || !reference.released ? ' · 미출시 표시' : ''}`
         : '공개 유형 대조: 미확인', 'detail'));
       if (reference?.status === 'matched') body.append(renderDefinitionRules(reference));
+      body.append(renderBoxProfile(contract.boxComposition));
       body.append(renderContractLocations(contract, locations));
       if (contract.objectiveNotices?.length) {
         const notices = el('details', undefined, 'definition-location');
@@ -100,7 +105,7 @@ function renderSnapshot(next) {
   $('summary').replaceChildren();
   $('diagnostics').hidden = true;
 
-  for (const [label, value] of [['수락·본인 참여 기록이 있는 계약', snapshot.statistics.registeredHauling], ['수량 알림이 있는 계약', snapshot.statistics.withQuantityObservation], ['적재 계산 가능한 계약', 0]]) {
+  for (const [label, value] of [['수락·본인 참여 기록이 있는 계약', snapshot.statistics.registeredHauling], ['수량 알림이 있는 계약', snapshot.statistics.withQuantityObservation], ['고정 상자 조합이 확인된 계약', snapshot.statistics.withKnownBoxComposition || 0], ['적재 계산 가능한 계약', 0]]) {
     const metric = el('div', undefined, 'metric');
     metric.append(el('strong', String(value)), el('span', label));
     $('summary').append(metric);

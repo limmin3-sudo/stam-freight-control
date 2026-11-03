@@ -8,7 +8,7 @@ const STATIC = new Map([
   ['/log-link.html', ['../../log-link.html', 'text/html; charset=utf-8']],
   ['/data/log-mission-index.json', ['../../data/log-mission-index.json', 'application/json']],
   ['/data/log-location-index.json', ['../../data/log-location-index.json', 'application/json']],
-  ...['view.mjs', 'view.css', 'live-client.mjs', 'state.mjs', 'lines.mjs', 'parser.mjs', 'participation.mjs', 'catalog.mjs', 'catalog-view.mjs', 'locations.mjs', 'locations-view.mjs']
+  ...['view.mjs', 'view.css', 'live-client.mjs', 'state.mjs', 'lines.mjs', 'parser.mjs', 'participation.mjs', 'catalog.mjs', 'catalog-view.mjs', 'locations.mjs', 'locations-view.mjs', 'builds.mjs', 'box-profiles.mjs', 'box-profiles-view.mjs']
     .map(name => ['/integration/log/' + name, [name, name.endsWith('.css') ? 'text/css' : 'text/javascript']]),
 ]);
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
