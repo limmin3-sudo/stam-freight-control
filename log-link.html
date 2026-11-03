@@ -3,16 +3,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>STAM · 운송 관제</title>
 <link rel="stylesheet" href="integration/log/view.css">
 <link rel="stylesheet" href="integration/log/preview.css">
 <link rel="stylesheet" href="integration/log/account.css">
+<link rel="stylesheet" href="integration/log/workspace-tools.css">
 <main>
   <header><span class="eyebrow">STAM FREIGHT CONTROL · DEVELOPMENT</span><h1>운송 관제</h1>
     <p>계약 기록에서 방문 순서와 화물 배치까지. 이 기기에서 Game.log를 읽어 계획합니다.</p>
     <p class="workspace-note">개발판 · 원래 계약 요구량을 계획합니다. 현재 함선 위치·실제 적재 상태와 계정 운항 기록은 별도로 유지됩니다.</p>
+    <nav class="workspace-tools" aria-label="앱 도구"><span id="workspace-places"></span><button id="workspace-updates" type="button">업데이트 기록</button><button id="workspace-feedback" type="button">피드백 · 오류 신고</button></nav>
+    <p id="workspace-message" role="status" aria-live="polite"></p>
   </header>
   <section id="live" class="controls" aria-label="실시간 연결" hidden>
     <h2>실시간 로그 연결</h2>

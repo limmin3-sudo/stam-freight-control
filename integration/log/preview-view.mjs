@@ -1,4 +1,5 @@
-import {createPreview, previewLocations, previewReadiness, previewContractSignature} from './preview-packing.mjs';
+import {personalNavigation} from './personal-locations.mjs';
+import {createPreview, previewReadiness, previewContractSignature} from './preview-packing.mjs';
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
@@ -14,7 +15,7 @@ const boxText = boxes => {
   return [...counts].sort((a,b) => b[0]-a[0]).map(([size,count]) => `${size} SCU × ${count}개`).join(' + ');
 };
 
-export function previewPanel(initialContracts, {catalog, locations, locationData, prepareAssets, session = createPreviewSession()}) {
+export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
   const events = new AbortController();
@@ -108,11 +109,11 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   };
   pause.onclick=()=>{const paused=mapView?.pauseFlight();pause.textContent=paused?'계속 이동':'일시정지';};
   end.onclick=()=>{const saved=flightRoute;resetFlight();flightRoute=saved;launch.disabled=!saved||saved.visits.length<2;};
-  const available = previewLocations(locationData).sort((a,b) => a.name.localeCompare(b.name));
+  const available = personalNavigation(locationData,locationEdits).locations.sort((a,b) => a.name.localeCompare(b.name));
   function fillStarts() {
     const query = search.value.trim().toLowerCase();
     options(start, [{id:'',name:'출발지를 선택해 주세요'}, ...available.filter(p =>
-      p.id === prefs.startId || !query || p.name.toLowerCase().includes(query)).map(p => ({...p, name:`${p.name} · ${p.system}`}))]);
+      p.id === prefs.startId || !query || [p.name,...(p.aliases||[])].some(n=>n.toLowerCase().includes(query))).map(p => ({...p, name:`${p.name} · ${p.system}`}))]);
     start.value = available.some(p => p.id === prefs.startId) ? prefs.startId : '';
   }
   fillStarts(); configuration.open=!start.value; search.oninput = fillStarts;
@@ -242,7 +243,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if (data.error) { status.textContent = data.error; return; }
       renderResult(data.result);
     };
-    worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,confirmations,ship,startId:start.value,partner:partner.value}});
+    worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,ship,startId:start.value,partner:partner.value}});
   }
   function renderResult(r) {
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));
@@ -348,5 +349,5 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   };
   updateContracts(initialContracts);
-  return {root,dispose(){dispose();events.abort();},updateContracts};
+  return {root,isOpen:()=>!closed,dispose(){dispose();events.abort();},updateContracts};
 }

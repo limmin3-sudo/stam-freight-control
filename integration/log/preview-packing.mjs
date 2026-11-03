@@ -1,3 +1,4 @@
+import {personalNavigation} from './personal-locations.mjs';
 import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 import {originalPackingPreview,resolveOriginalManifest} from './manifest.mjs';
 import {resolveBoxProfile} from './box-profiles.mjs';
@@ -77,7 +78,7 @@ export function previewLocations(locationData) {
 }
 
 export function calculatePreview({contract, contracts = contract ? [contract] : [], catalogData, locationData,
-  confirmation, confirmations = {}, ship: rawShip, startId, partner = 'navigator'}) {
+  confirmation, confirmations = {}, locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
   if (!contracts.length || contracts.length > MAX_PREVIEW_CONTRACTS ||
       new Set(contracts.map(c => c.missionId)).size !== contracts.length)
     throw Error(`서로 다른 계약을 1~${MAX_PREVIEW_CONTRACTS}개 선택해 주세요.`);
@@ -103,8 +104,7 @@ export function calculatePreview({contract, contracts = contract ? [contract] : 
   if (count > 2048) throw Error('미리보기 상자가 2,048개를 넘습니다. 계약을 나누어 계산해 주세요.');
   const ship = withStacking(validateShip(rawShip));
   // Use the public world positions, never parent-relative log coordinates.
-  const gateIds = new Set(jumpLinks.flatMap(j => [j.from, j.to]));
-  const routeLocations = previewLocations(locationData).map(p => ({...p, isGateway: gateIds.has(p.id)}));
+  const routeLocations = personalNavigation(locationData,locationEdits).locations;
   const map = new Map(routeLocations.map(p => [p.id, p]));
   if (!map.has(startId)) throw Error('계획 출발지를 선택해 주세요.');
   if (missions.some(m => m.cargo.some(c => !map.has(c.pickupId) || !map.has(c.dropoffId))))
@@ -124,7 +124,7 @@ export function calculatePreview({contract, contracts = contract ? [contract] : 
     ({items:s.boxes,rank:destinations.indexOf(s.dropoffId)/Math.max(1,destinations.length-1)})), [], ship));
   for (const v of route.visits) colorPacking(v.packing);
   return {scope: 'original-contracts-preview', ship, packing, route, stops: routeLocations, routeEvidence,
-    warnings: [...new Set(warnings)], partner, contractCount: contracts.length,
+    warnings: [...new Set([...warnings,...(locationEdits.length?['개인 장소의 좌표·이름을 예상 경로에 적용했습니다. 로그 목적지 판별에는 공개 좌표만 사용합니다.']:[])])], partner, contractCount: contracts.length,
     contracts: contracts.map(c => ({id: c.missionId, title: c.title})),
     estimated: shipments.some(s => s.estimated),
     boxCount, totalScu: shipments.reduce((n,s) => n+s.scu, 0),

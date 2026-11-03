@@ -121,3 +121,11 @@ node scripts/log-link-server.mjs --file "C:\Program Files\Roberts Space Industri
 [최종 실게임 검증 목록](FINAL-GAME-VALIDATION.md)은 기능별 마지막 검증을 위한 목록입니다. 지금 계약 수락 시험을 다시 요청하는 것은 아닙니다.
 
 개발자 브라우저 검사: Playwright/Chromium이 있는 환경에서 `node scripts/check-account-browser.mjs`를 실행합니다. 모듈/실행 파일이 별도 경로면 `STAM_PLAYWRIGHT_MODULE`과 `STAM_CHROMIUM_PATH`를 지정합니다. 합성 로컬 로그와 Firebase 모의 객체만 사용하며 실제 계정에는 쓰지 않습니다. 실제 계정·Google 승인 도메인 통과를 대체하지 않습니다.
+
+## 개인 장소·업데이트·피드백
+
+- 상단 **장소 관리**는 기존 `sfc-locations-v1` 백업과 계정의 개인 장소를 사용합니다. 이름/별칭과 좌표를 저장하고 **저장된 장소를 지도에 적용**을 누르면 선택한 계약·함선·파트너를 유지해 다시 계획합니다. 예상 이동 표시는 종료됩니다. 좌표가 없는 장소는 지도·경로에서 제외합니다. 이름/좌표 수정은 예상 경로용이며 게임 로그 목적지 판별에는 공개 좌표를 그대로 사용합니다.
+- 상단 **업데이트 기록**에서 기존 운영판 이력과 재구축 이력을 함께 봅니다. **새 시험판 확인**을 눌렀을 때만 공개 저장소 버전 파일을 조회합니다. 최신 시험판은 별도 폴더에 풀어 실행합니다. 자동 다운로드·설치·화면 새로고침은 하지 않습니다.
+- **피드백 · 오류 신고**는 사용자가 보낼 때만 기존 Firebase에 전송합니다. 선택 이미지는 미리보기를 확인하고, 개인 정보는 가려 주세요. 앱 정보 첨부는 기본 해제이며 버전·창 크기·계약 개수만 허용합니다. 로그 원문·주소/토큰·최근 오류 문장은 자동으로 보내지 않습니다. 실패하면 작성 내용이 남습니다. 실제 수신 확인은 최종 검증 대상입니다.
+
+개발자 재현: Playwright가 설치된 환경에서 `node scripts/check-workspace-tools-browser.mjs`. 필요하면 `STAM_PLAYWRIGHT_MODULE`/`STAM_CHROMIUM_PATH`를 지정합니다. 공개 업데이트 응답과 피드백 저장은 모의 처리하며 운영 서버에 신고하지 않습니다. 새 시험판을 배포할 때는 `data/rebuild-version.json`의 날짜/차수를 올리고 `data/rebuild-releases.json`에 이력을 추가합니다. 운영판 버전 기록과 혼동하지 않습니다.

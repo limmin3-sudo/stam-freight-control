@@ -1,3 +1,4 @@
+import {mountWorkspaceTools} from './workspace-tools.mjs';
 import {mountAccount} from './account-view.mjs';
 import {previewPanel} from './preview-view.mjs';
 import {createPreviewSession,createPlanSelection} from './preview-session.mjs';
@@ -30,7 +31,7 @@ function closePreviews() {
 function renderPlanning() {
   if (!catalog || !locations || !snapshot) return;
   if (!planner) {
-    planner = previewPanel([], {catalog, locations, locationData, session: previewSession,
+    planner = previewPanel([], {catalog, locations, locationData, locationEdits:personalEdits, session: previewSession,
       prepareAssets: () => live?.preparePreview()});
     $('planning-preview').append(planner.root);
   }
@@ -78,11 +79,20 @@ function updatePlanSelection() {
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
 }
-let locationData;
+let locationData,personalEdits=[];
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
+const workspaceTools=mountWorkspaceTools({
+  context:()=>({contracts:snapshot?.contracts?.length||0,pendingContracts:snapshot?.pendingContracts?.length||0}),
+  onLocations:async edits=>{
+    personalEdits=structuredClone(edits);const reopen=planner?.isOpen();
+    planner?.dispose();planner=null;$('planning-preview').replaceChildren();
+    renderPlanning();if(reopen)planner?.root.querySelector('.preview-launch')?.click();
+  },
+});
+window.addEventListener('pagehide',event=>{if(!event.persisted)workspaceTools.destroy();});
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
-  .then(data => { locationData=data; locations = locationIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
+  .then(data => { locationData=data; locations = locationIndex(data);personalEdits=workspaceTools.setLocations(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
 const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
   .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
