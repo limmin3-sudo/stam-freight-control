@@ -7,9 +7,11 @@ on:
       - 'integration/log/**'
       - 'scripts/log-link*.mjs'
       - 'scripts/build-log-index.mjs'
+      - 'scripts/build-log-locations.mjs'
       - 'tests/log-*.test.mjs'
       - 'tests/launcher.test.mjs'
       - 'data/log-mission-index.json'
+      - 'data/log-location-index.json'
       - 'log-link.html'
       - 'start-log-link.cmd'
       - 'render-loop.mjs'
@@ -35,4 +37,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - run: node --test tests/log-link.test.mjs tests/log-party.test.mjs tests/log-live.test.mjs tests/log-catalog.test.mjs tests/render-loop.test.mjs tests/launcher.test.mjs
+      - run: node --test tests/log-link.test.mjs tests/log-party.test.mjs tests/log-live.test.mjs tests/log-catalog.test.mjs tests/log-locations.test.mjs tests/render-loop.test.mjs tests/launcher.test.mjs

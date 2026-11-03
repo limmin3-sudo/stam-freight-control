@@ -50,7 +50,14 @@ export function parseLogLine(line, provenance) {
       return title ? emit('accepted', missionId, { title }) : fail();
     }
     const amounts = [...text.matchAll(/(?<![\w.,+−-])([\d]+(?:\.\d+)?)\s*\/\s*([\d]+(?:\.\d+)?)\s*SCU\b/gi)];
-    if (!/SCU/i.test(text)) return {};
+    if (!/SCU/i.test(text)) {
+      // Return/visit instructions can coexist with a later successful delivery.
+      // Preserve the notice; its wording does not prove a mandatory route leg.
+      if (!/^(?:새로운 목표|New Objective):\s*\S/i.test(clean(text))) return {};
+      const objectiveId = field(line, 'ObjectiveId');
+      if (!OBJECTIVE.test(objectiveId || '')) return fail();
+      return emit('objective-notice-observed', missionId, {objectiveId, notification: clean(text)});
+    }
     const objectiveId = field(line, 'ObjectiveId');
     if (amounts.length !== 1 || !OBJECTIVE.test(objectiveId || '')) return fail();
     const current = Number(amounts[0][1]), total = Number(amounts[0][2]);

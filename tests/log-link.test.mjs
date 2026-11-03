@@ -54,6 +54,25 @@ test('definition conflict is retained without choosing an ID or changing actual 
   assert.deepEqual(c.definitionObservations, [def, second]);
 });
 
+test('return and visit notices survive without adding cargo or overriding a successful ending', () => {
+  const notice = hud('새로운 목표: 시험 정거장으로 복귀: ', def);
+  const later = notice.replace('00:00:00.000Z', '00:00:02.000Z');
+  const finished = ended.replace('00:00:00.000Z', '00:00:01.000Z');
+  const a = ingest([accepted, marker(), notice, finished, later]).snapshot().contracts[0];
+  const b = ingest([later, finished, notice, marker(), accepted]).snapshot().contracts[0];
+  assert.deepEqual(a, b);
+  assert.equal(a.status, 'end-observed');
+  assert.equal(a.objectiveNotices.length, 2);
+  assert.equal(a.objectiveNotices[0].objectiveId, def);
+  assert.equal(a.quantityObservations.length, 0);
+  assert.equal(a.markerObservations.length, 1);
+  assert.equal(a.manifest, null);
+  assert.equal(a.planning.allowed, false);
+  assert.equal(parseLogLine(hud('New Objective: Return to Test Port:', def), source).event.type, 'objective-notice-observed');
+  assert.equal(parseLogLine(hud('New Objective: Visit Test Port:'), source).diagnostic, 'unrecognized-mission-format');
+  assert.equal(ingest([notice]).snapshot().contracts.length, 0);
+});
+
 test('duplicates and arbitrary replay order do not reactivate terminal contracts', () => {
   const rows = [accepted, marker(), quantity(), ended];
   const a = ingest(rows).snapshot(), state = ingest([...rows].reverse().concat(rows));

@@ -84,6 +84,7 @@ export class LogEvidence {
         definitionId: definitions.length === 1 ? definitions[0] : null,
         definitionObservations: definitions, completionObservations: completions,
         quantityObservations: quantities, markerObservations: markers,
+        objectiveNotices: events.filter(e => e.type === 'objective-notice-observed'),
         objectiveStateObservations: events.filter(e => e.type === 'objective-state-observed'),
         conflicts,
         // Deliberately no totalSCU, canonical commodities, routes or guessed boxes.
