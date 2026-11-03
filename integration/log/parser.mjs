@@ -1,3 +1,4 @@
+import {parseNavigationLine} from './navigation.mjs';
 // Observed Game.log formats, build 12913470. No localization tables or game writes.
 // These are observations, not a complete cargo manifest or a position tracker.
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
@@ -16,6 +17,8 @@ export function parseLogLine(line, provenance) {
         !Number.isFinite(Date.parse(at)) || new Date(at).toISOString() !== at) return {diagnostic:'unrecognized-build-format'};
     return {event:{type:'game-build-observed', at, build:build[2], source:{...provenance}}};
   }
+  const navigation=parseNavigationLine(line,provenance);
+  if(navigation)return navigation;
   const tag = TAGS.find(name => line.includes(`<${name}>`));
   if (!tag) return {};
   const fail = () => ({ diagnostic: 'unrecognized-mission-format' });

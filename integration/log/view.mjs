@@ -28,6 +28,7 @@ let planner;
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
+  flightReady.observations(null,null);
   planner?.dispose(); planner = null;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
 }
@@ -186,6 +187,7 @@ function renderSnapshot(next) {
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
+  flightReady.observations(snapshot.identity?.mixedPlayers?null:snapshot.navigation,liveStatus);
   displayed = 0;
   $('contracts').replaceChildren();
   $('summary').replaceChildren();
@@ -199,7 +201,7 @@ function renderSnapshot(next) {
   const diagnostics = Object.entries(snapshot.diagnostics);
   if (diagnostics.length || !catalog || snapshot.identity.mixedPlayers) {
     $('diagnostics').hidden = false;
-    $('diagnostics').textContent = '확인이 필요합니다. ' + diagnostics.map(([code, count]) => `${({ 'invalid-utf8-line': '읽을 수 없는 문자 줄 제외', 'unrecognized-mission-format': '해석하지 못한 미션 형식', 'unterminated-line-withheld': '마지막 미완성 줄 보류', 'log-generation-changed': '로그 파일 교체 감지(이전 기록 포함)' })[code] || code}: ${count}건`).join(' · ') + (!catalog ? ' · 공개 유형 목록을 불러오지 못했습니다.' : '') + (snapshot.identity.mixedPlayers ? ' · 서로 다른 로그인 캐릭터 기록이 섞여 있어 본인 여부를 확정하지 않습니다.' : '');
+    $('diagnostics').textContent = '확인이 필요합니다. ' + diagnostics.map(([code, count]) => `${({ 'invalid-utf8-line': '읽을 수 없는 문자 줄 제외', 'unrecognized-mission-format': '해석하지 못한 미션 형식', 'unrecognized-navigation-format': '해석하지 못한 항법 기록', 'unterminated-line-withheld': '마지막 미완성 줄 보류', 'log-generation-changed': '로그 파일 교체 감지(이전 기록 포함)' })[code] || code}: ${count}건`).join(' · ') + (!catalog ? ' · 공개 유형 목록을 불러오지 못했습니다.' : '') + (snapshot.identity.mixedPlayers ? ' · 서로 다른 로그인 캐릭터 기록이 섞여 있어 본인 여부를 확정하지 않습니다.' : '');
   }
 
   if (!snapshot.contracts.length && !snapshot.candidates.length) $('contracts').append(el('p', '운송 마커가 확인되는 계약이 없습니다.', 'empty'));
@@ -275,6 +277,7 @@ const phaseLabels = {
 };
 function showLiveStatus(status) {
   liveStatus = status;
+  flightReady.observations(snapshot?.identity?.mixedPlayers?null:snapshot?.navigation,status);
   $('live-status').textContent = phaseLabels[status.phase] || '연결 상태 미확인';
   $('live-detail').textContent = `마지막 읽기: ${status.lastReadAt ? new Date(status.lastReadAt).toLocaleTimeString() : '미확인'} · 읽은 로그 ${(status.bytesRead / 1024 / 1024).toFixed(1)} MB · 파일 교체 ${status.generation}회${status.lastError ? ' · 오류: ' + status.lastError : ''}`;
   $('live-pause').disabled = status.phase === 'error';
@@ -284,12 +287,14 @@ live = connectLive({
   onSnapshot: renderSnapshot,
   onStatus: showLiveStatus,
   onError: code => {
+    flightReady.observations(null,null);
     $('live-status').textContent = code === 'pairing-expired' ? '연결 키가 만료되었습니다. 실행 도우미에 표시된 주소로 다시 접속해 주세요.' : '로컬 연결을 확인하고 있습니다. 표시된 기록은 최신이 아닐 수 있습니다.';
     $('live-pause').disabled = true;
   },
   onDisconnect: () => {
     live = null;
     liveStatus = null;
+    flightReady.observations(null,null);
     $('live-pause').disabled = true;
     $('live-disconnect').disabled = true;
     $('replay-controls').hidden = false;
