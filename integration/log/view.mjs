@@ -1,0 +1,204 @@
+import { LogEvidence } from './state.mjs';
+import { LogLines } from './lines.mjs';
+import { connectLive } from './live-client.mjs';
+import { definitionIndex, definitionReference } from './catalog.mjs';
+
+const $ = id => document.getElementById(id);
+const el = (tag, text, className) => {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+};
+let cancelled = false, displayed = 0, snapshot, catalog, live, liveStatus;
+const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
+  .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
+  .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
+const statuses = { 'acceptance-observed': '수락 기록 관측', 'end-observed': '종료 기록 관측',
+  'participation-observed': '본인 참여 기록 관측', 'acceptance-unconfirmed': '내 참여 미확인 · 후보', conflict: '기록 충돌 · 확인 필요' };
+const memberships = { 'acceptance-observed': '수락 기록 관측', 'joined-observed': '본인 참여 기록 관측',
+  'left-observed': '본인 참여 이탈 기록 관측', conflict: '참여·이탈 기록 충돌', unconfirmed: '내 참여 상태 미확인' };
+
+function showMore() {
+  const entries = [...snapshot.contracts, ...snapshot.candidates].sort((a, b) => (b.acceptedAt || b.participation.observedAt || '').localeCompare(a.acceptedAt || a.participation.observedAt || '') || a.missionId.localeCompare(b.missionId));
+  const contracts = entries.slice(displayed, displayed + 50);
+  for (const contract of contracts) {
+    const card = el('details', undefined, 'contract');
+    card.dataset.mission = contract.missionId;
+    const title = el('summary', contract.title || '제목 미확인');
+    title.append(el('span', statuses[contract.status] || '미확인', 'badge'));
+    if (contract.participation.shared) title.append(el('span', '공유 기록 있음', 'badge'));
+    if (contract.participation.state === 'left-observed') title.append(el('span', memberships['left-observed'], 'badge'));
+    card.append(title);
+    // Build detailed evidence only when opened, keeping large replays inexpensive.
+    card.addEventListener('toggle', () => {
+      if (!card.open || card.querySelector('.body')) return;
+      const body = el('div', undefined, 'body');
+      body.append(el('p', '적재 계산 차단 · 실제 품목별 할당과 상자 구성 미확인', 'blocked'));
+      for (const conflict of contract.conflicts) body.append(el('p', ({
+        'definition-conflict': '서로 다른 계약 정의 ID가 관측되었습니다. 유형을 확정하지 않습니다.',
+        'terminal-state-conflict': '서로 다른 종료 상태가 관측되었습니다. 완료 여부를 확정하지 않습니다.',
+        'acceptance-after-end': '종료 기록 이후 수락 기록이 관측되었습니다. 현재 참여 상태를 확인해야 합니다.',
+        'participation-conflict': '동일 시각에 참여와 이탈이 관측되었습니다. 순서를 추정하지 않습니다.',
+        'mixed-local-players': '서로 다른 로그인 캐릭터 기록이 섞여 있습니다. 캐릭터별로 로그를 나누어 확인해 주세요.',
+      })[conflict] || '기록 충돌을 확인해 주세요.', 'notice'));
+      body.append(el('p', `${memberships[contract.participation.state]}${contract.participation.reentryObserved ? ' · 이탈 이후 재수락/참여 기록 있음' : ''}. 현재 참여 여부가 확정된 것은 아닙니다.`, 'detail'));
+      if (contract.partyObservations.some(e => e.type === 'participant-left')) body.append(el('p', 'PlayerLeft만으로 직접 포기했는지, 완료 후 참여가 정리됐는지는 확정하지 않습니다.', 'detail'));
+      if (contract.acceptedAt) body.append(el('p', `최초 수락 기록: ${contract.acceptedAt}`, 'detail'));
+      const reference = catalog ? definitionReference(contract, catalog) : null;
+      body.append(el('p', reference?.status === 'matched'
+        ? `공개 유형 참고: ${reference.title} · ${reference.version}${reference.notForRelease || !reference.released ? ' · 미출시 표시' : ''}`
+        : '공개 유형 대조: 미확인', 'detail'));
+      body.append(el('p', `목표 마커 ${contract.markerObservations.length}건 · 수량 알림 ${contract.quantityObservations.length}건. 마커 좌표를 거점명이나 내 함선 위치로 추정하지 않습니다.`, 'detail'));
+      for (const event of contract.partyObservations) {
+        const action = ({ 'share-observed': '공유 알림(공유자)', 'participant-joined': '참여 기록', 'participant-left': '참여 이탈 기록' })[event.type];
+        const actor = ({ self: '본인', other: '다른 캐릭터', unknown: '대상 미확인' })[event.actor];
+        body.append(el('p', `${action} · ${actor} · ${event.at} · ${event.source.input} ${event.source.line}번째 줄`, 'detail'));
+      }
+      if (!contract.quantityObservations.length) body.append(el('p', '수량 알림이 관측되지 않았습니다.'));
+      for (const q of contract.quantityObservations) {
+        body.append(el('p', q.notification, 'evidence'));
+        body.append(el('p', `${q.at} · ${q.source.input} · ${q.source.line}번째 줄`, 'detail'));
+      }
+      body.append(el('p', '수량 알림을 품목별 화물 명세로 확정하거나 합산하지 않습니다.', 'detail'));
+      card.append(body);
+    });
+    $('contracts').append(card);
+  }
+  displayed += contracts.length;
+  $('more').hidden = displayed >= entries.length;
+}
+
+
+function renderSnapshot(next) {
+  const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
+  const visible = Math.max(50, displayed);
+  snapshot = next;
+  displayed = 0;
+  $('contracts').replaceChildren();
+  $('summary').replaceChildren();
+  $('diagnostics').hidden = true;
+
+  for (const [label, value] of [['수락·본인 참여 기록이 있는 계약', snapshot.statistics.registeredHauling], ['수량 알림이 있는 계약', snapshot.statistics.withQuantityObservation], ['적재 계산 가능한 계약', 0]]) {
+    const metric = el('div', undefined, 'metric');
+    metric.append(el('strong', String(value)), el('span', label));
+    $('summary').append(metric);
+  }
+  const diagnostics = Object.entries(snapshot.diagnostics);
+  if (diagnostics.length || !catalog || snapshot.identity.mixedPlayers) {
+    $('diagnostics').hidden = false;
+    $('diagnostics').textContent = '확인이 필요합니다. ' + diagnostics.map(([code, count]) => `${({ 'invalid-utf8-line': '읽을 수 없는 문자 줄 제외', 'unrecognized-mission-format': '해석하지 못한 미션 형식', 'unterminated-line-withheld': '마지막 미완성 줄 보류', 'log-generation-changed': '로그 파일 교체 감지(이전 기록 포함)' })[code] || code}: ${count}건`).join(' · ') + (!catalog ? ' · 공개 유형 목록을 불러오지 못했습니다.' : '') + (snapshot.identity.mixedPlayers ? ' · 서로 다른 로그인 캐릭터 기록이 섞여 있어 본인 여부를 확정하지 않습니다.' : '');
+  }
+
+  if (!snapshot.contracts.length && !snapshot.candidates.length) $('contracts').append(el('p', '운송 마커가 확인되는 계약이 없습니다.', 'empty'));
+
+  while (displayed < Math.min(visible, snapshot.contracts.length + snapshot.candidates.length)) showMore();
+  $('more').hidden = displayed >= snapshot.contracts.length + snapshot.candidates.length;
+  for (const node of document.querySelectorAll('.contract')) if (open.has(node.dataset.mission)) node.open = true;
+  $('save-report').disabled = false;
+}
+
+$('cancel').addEventListener('click', () => { cancelled = true; });
+$('more').addEventListener('click', showMore);
+$('files').addEventListener('change', async () => {
+  const files = [...$('files').files];
+  if (!files.length) return;
+  const total = files.reduce((n, f) => n + f.size, 0);
+  if (files.length > 64 || total > 512 * 1024 * 1024) {
+    $('progress').textContent = '한 번에 64개·512MB 이하의 로그를 선택해 주세요.';
+    return;
+  }
+  cancelled = false;
+  snapshot = null;
+  displayed = 0;
+  $('files').disabled = true;
+  $('cancel').disabled = false;
+  $('contracts').replaceChildren();
+  $('summary').replaceChildren();
+  $('more').hidden = true;
+  $('diagnostics').hidden = true;
+  $('save-report').disabled = true;
+  $('progress').textContent = '로그 읽는 중 · 0%';
+  const state = new LogEvidence();
+  let done = 0;
+  try {
+    for (const [index, file] of files.entries()) {
+      const lines = new LogLines({ onLine: (line, n) => state.ingest(line, { input: `log-${index + 1}`, line: n }), onInvalid: code => state.note(code) });
+      // Fixed-size slices bound memory and yield to cancel/touch/progress events.
+      for (let offset = 0; offset < file.size; offset += 256 * 1024) {
+        if (cancelled) throw new Error('cancelled');
+        const bytes = new Uint8Array(await file.slice(offset, offset + 256 * 1024).arrayBuffer());
+        lines.write(bytes);
+        done += bytes.length;
+        $('progress').textContent = `로그 읽는 중 · ${total ? Math.floor(done / total * 100) : 100}%`;
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      if (lines.finish().unterminatedLine) state.note('unterminated-line-withheld');
+    }
+    if (cancelled) throw new Error('cancelled');
+    await catalogReady;
+    renderSnapshot(state.snapshot());
+    $('progress').textContent = '로그 재생을 완료했습니다. 실제 운항 데이터는 변경하지 않았습니다.';
+  } catch (error) {
+    snapshot = null;
+    $('progress').textContent = error.message === 'cancelled' ? '읽기를 중단했습니다. 결과를 적용하지 않았습니다.' : '로그 처리를 완료하지 못했습니다. 부분 결과는 적용하지 않습니다.';
+  } finally {
+    $('files').disabled = false;
+    $('files').value = '';
+    $('cancel').disabled = true;
+  }
+});
+
+
+const phaseLabels = {
+  starting: '연결됨 · 로그를 확인하고 있습니다.',
+  'catching-up': '기존 로그를 읽고 있습니다. 완료 후 새 기록을 감시합니다.',
+  watching: '실시간 감시 중 · 새 계약 기록을 기다리고 있습니다.',
+  paused: '감시가 일시정지되었습니다.',
+  'waiting-file': '선택한 로그를 읽을 수 없어 다시 시도하고 있습니다. 표시된 기록은 최신이 아닐 수 있습니다.',
+  error: '감시가 중단되었습니다. 마지막 정상 기록만 표시합니다. 실행 도우미를 다시 시작해 주세요.',
+};
+function showLiveStatus(status) {
+  liveStatus = status;
+  $('live-status').textContent = phaseLabels[status.phase] || '연결 상태 미확인';
+  $('live-detail').textContent = `마지막 읽기: ${status.lastReadAt ? new Date(status.lastReadAt).toLocaleTimeString() : '미확인'} · 읽은 로그 ${(status.bytesRead / 1024 / 1024).toFixed(1)} MB · 파일 교체 ${status.generation}회${status.lastError ? ' · 오류: ' + status.lastError : ''}`;
+  $('live-pause').disabled = status.phase === 'error';
+  $('live-pause').textContent = status.phase === 'paused' ? '감시 다시 시작' : '감시 일시정지';
+}
+live = connectLive({
+  onSnapshot: renderSnapshot,
+  onStatus: showLiveStatus,
+  onError: code => {
+    $('live-status').textContent = code === 'pairing-expired' ? '연결 키가 만료되었습니다. 실행 도우미에 표시된 주소로 다시 접속해 주세요.' : '로컬 연결을 확인하고 있습니다. 표시된 기록은 최신이 아닐 수 있습니다.';
+    $('live-pause').disabled = true;
+  },
+  onDisconnect: () => {
+    live = null;
+    liveStatus = null;
+    $('live-pause').disabled = true;
+    $('live-disconnect').disabled = true;
+    $('replay-controls').hidden = false;
+  },
+});
+if (live) { $('live').hidden = false; $('replay-controls').hidden = true; }
+$('live-pause').addEventListener('click', async () => {
+  $('live-pause').disabled = true;
+  if (liveStatus?.phase === 'paused') await live?.resume(); else await live?.pause();
+});
+$('live-disconnect').addEventListener('click', () => {
+  live?.disconnect();
+  $('live-status').textContent = '화면 연결을 해제했습니다. 감시 프로그램도 종료하려면 실행 창에서 Ctrl+C를 눌러 주세요.';
+});
+$('save-report').addEventListener('click', () => {
+  if (!snapshot) return;
+  const report = {
+    format: 'stam-log-check-v1', createdAt: new Date().toISOString(),
+    statistics: snapshot.statistics, identity: snapshot.identity, diagnostics: snapshot.diagnostics,
+    conflicts: snapshot.contracts.reduce((counts, c) => { for (const key of c.conflicts) counts[key] = (counts[key] || 0) + 1; return counts; }, {}),
+    live: liveStatus ? { phase: liveStatus.phase, lastError: liveStatus.lastError, generation: liveStatus.generation } : null,
+    planningAllowed: false, gameIntegrationVerified: false,
+  };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }));
+  const link = el('a'); link.href = url; link.download = 'STAM-log-check.json'; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
