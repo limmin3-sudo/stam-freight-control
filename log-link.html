@@ -31,12 +31,13 @@
   <p><button id="save-report" disabled>계약 원문 없이 검증 요약 저장</button></p>
   <section id="planning" aria-label="계약 묶음 계획">
     <h2>함께 운송할 계약</h2>
-    <p>계약을 선택하고 출발지·함선·파트너를 정해 주세요. 과거 계약도 포함된 목록입니다. 원래 요구량의 계획이며 현재 실린 화물·남은 배송량과는 다릅니다.</p>
+    <p>근거가 충분하고 종료·이탈 기록이 없는 계약은 자동 선택됩니다. 3D를 열고 처음 한 번 함선·출발지·파트너를 정하면 변경 사항을 자동 계산합니다. 목록에는 과거 기록도 포함됩니다. 현재 적재·남은 배송량이 아닌 원래 요구량의 계획입니다.</p>
+    <p id="planning-readiness" role="status">자동 연결할 수 있는 계약을 확인하고 있습니다.</p>
     <p id="planning-count">로그에서 계약을 기다리고 있습니다.</p>
     <div id="planning-contracts"></div>
     <div id="planning-preview"></div>
   </section>
-  <section><h2>관측된 운송 계약과 후보</h2><p>같은 유형도 실행 계약별로 분리합니다. 공유 알림만 있는 후보는 등록된 계약 수에 포함하지 않습니다. 과거 기록을 포함하며 현재 진행 중인 계약 목록으로 간주하지 않습니다.</p><div id="contracts"></div><button id="more" hidden>더 보기</button></section>
+  <details class="evidence-details"><summary>로그 원문·유형 대조 근거 보기 (선택)</summary><section><h2>관측된 운송 계약과 후보</h2><p>같은 유형도 실행 계약별로 분리합니다. 공유 알림만 있는 후보는 등록된 계약 수에 포함하지 않습니다. 과거 기록을 포함하며 현재 진행 중인 계약 목록으로 간주하지 않습니다.</p><div id="contracts"></div><button id="more" hidden>더 보기</button></section></details>
   <footer>유형 참고: <a href="https://api.star-citizen.wiki" target="_blank" rel="noopener noreferrer">Star Citizen Wiki API</a> · 정의 ID 일치만으로 실제 화물이 확인되는 것은 아닙니다.<br>게임 빌드 12913470의 검증된 대형 유형은 목적지별 원래 계약 명세를 연결합니다. 현재 적재·배송 진행 상태와 전체 유형 자동화는 개발 중입니다.</footer>
 </main>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>

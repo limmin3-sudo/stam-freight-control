@@ -1,6 +1,27 @@
 // Only planning preferences persist. Contract evidence and order drafts stay in
 // this page's memory; they never enter the existing guest/account run store.
 const KEY = 'stam-log-preview-settings-v1';
+// Automatically add only resolvable, locally accepted/joined records. This is
+// an original-demand plan, not proof that every historical record is still active.
+export function createPlanSelection(limit=12) {
+  const selected=new Set(), manual=new Set(), automatic=new Set();
+  const eligible=c=>['acceptance-observed','participation-observed'].includes(c.status)&&
+    c.participation?.state!=='left-observed'&&!c.conflicts?.length;
+  return {
+    selected,
+    set(id,value) { manual.add(id); automatic.delete(id); value?selected.add(id):selected.delete(id); },
+    reconcile(contracts,readyIds) {
+      const byId=new Map(contracts.map(c=>[c.missionId,c]));
+      for(const id of selected)if(!byId.has(id)||(automatic.has(id)&&
+        (byId.get(id).status==='end-observed'||byId.get(id).participation?.state==='left-observed'))) {
+        selected.delete(id);automatic.delete(id);
+      }
+      for(const c of contracts)if(selected.size<limit&&!manual.has(c.missionId)&&
+        eligible(c)&&readyIds.has(c.missionId)) { selected.add(c.missionId);automatic.add(c.missionId); }
+    },
+    clear() { selected.clear();manual.clear();automatic.clear(); },
+  };
+}
 export function createPreviewSession(storage) {
   let saved;
   try { saved = JSON.parse(storage?.getItem(KEY)); } catch {}

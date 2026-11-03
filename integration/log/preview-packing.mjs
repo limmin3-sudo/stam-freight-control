@@ -1,5 +1,6 @@
 import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 import {originalPackingPreview,resolveOriginalManifest} from './manifest.mjs';
+import {resolveBoxProfile} from './box-profiles.mjs';
 import {definitionReference} from './catalog.mjs';
 import {contractLocations,locationIndex} from './locations.mjs';
 import {fullLoadLayout,planRoute,COLORS,SIZES} from '../../engine.mjs';
@@ -35,6 +36,26 @@ export function createPreview(contract,catalog,locations,confirmation) {
   return {scope:'estimated-original-contract-preview',mission:{id:contract.missionId,title:contract.title,cargo},
     evidence:{allocation:'user-confirmed-per-order',boxComposition:'estimated-max-per-order',source:input.reference.source,version:input.reference.version},
     currentInventoryVerified:false,remainingCargoVerified:false};
+}
+
+// Readiness is recomputed from evidence, not from a caller's saved planning flag.
+// A missing allocation must not silently turn into six mandatory input forms.
+export function previewReadiness(contract,catalog,locations) {
+  try {
+    const preview=createPreview(contract,catalog,locations);
+    return {ready:true,preview,label:'경로·수량·상자 자동 연결'};
+  } catch {
+    try {
+      const input=previewOrders(contract,catalog,locations);
+      if(resolveBoxProfile(contract).status==='quantity-conflict')return {ready:false,input,
+        label:'자동 연결 보류 · 로그 수량이 검증된 유형과 일치하지 않습니다'};
+      const missing=[];
+      if(input.pickups.length>1)missing.push('픽업지별 품목·수량 배분');
+      if(input.deliveries.length>1)missing.push('배송지별 품목·수량 배분');
+      if(!missing.length)missing.push('주문별 실제 수량과 목표 연결');
+      return {ready:false,input,label:`자동 연결 보류 · ${missing.join(' / ')} 미확인`};
+    } catch(e) { return {ready:false,label:e.message}; }
+  }
 }
 export const MAX_PREVIEW_CONTRACTS = 12;
 export function previewLocations(locationData) {
