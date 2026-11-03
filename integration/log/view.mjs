@@ -3,6 +3,8 @@ import { LogLines } from './lines.mjs';
 import { connectLive } from './live-client.mjs';
 import { definitionIndex, definitionReference } from './catalog.mjs';
 import { renderDefinitionRules } from './catalog-view.mjs';
+import { locationIndex } from './locations.mjs';
+import { renderContractLocations } from './locations-view.mjs';
 
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -11,7 +13,10 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
-let cancelled = false, displayed = 0, snapshot, catalog, live, liveStatus;
+let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
+const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
+  .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
+  .then(data => { locations = locationIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
 const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
   .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
@@ -51,7 +56,21 @@ function showMore() {
         ? `공개 유형 참고: ${reference.title} · ${reference.version}${reference.notForRelease || !reference.released ? ' · 미출시 표시' : ''}`
         : '공개 유형 대조: 미확인', 'detail'));
       if (reference?.status === 'matched') body.append(renderDefinitionRules(reference));
-      body.append(el('p', `목표 마커 ${contract.markerObservations.length}건 · 수량 알림 ${contract.quantityObservations.length}건. 마커 좌표를 거점명이나 내 함선 위치로 추정하지 않습니다.`, 'detail'));
+      body.append(renderContractLocations(contract, locations));
+      if (contract.objectiveNotices?.length) {
+        const notices = el('details', undefined, 'definition-location');
+        notices.append(el('summary', `수량 없는 목표 알림 ${contract.objectiveNotices.length}건`),
+          el('p', '복귀·방문 등의 안내를 원문으로 보존합니다. 알림만으로 필수 운송 구간을 추가하거나 완료된 계약을 다시 진행 중으로 바꾸지 않습니다.', 'detail'));
+        for (const event of contract.objectiveNotices) {
+          notices.append(el('p', event.notification, 'evidence'),
+            el('p', `${event.at} · ${event.source.input} ${event.source.line}번째 줄`, 'detail'));
+        }
+        const selfCompletion = contract.status === 'end-observed' && !contract.conflicts.length &&
+          contract.endingObservations.some(e => e.completion === 'Complete' && e.actor === 'self');
+        if (selfCompletion) notices.append(el('p', '이 계약은 본인 대상 완료 종료 기록도 관측되었습니다. 위 알림을 남은 복귀 의무로 취급하지 않습니다.', 'detail'));
+        body.append(notices);
+      }
+      body.append(el('p', `목표 마커 ${contract.markerObservations.length}건 · 수량 알림 ${contract.quantityObservations.length}건. 계약 목표의 위치이며 내 함선 위치를 나타내지 않습니다.`, 'detail'));
       for (const event of contract.partyObservations) {
         const action = ({ 'share-observed': '공유 알림(공유자)', 'participant-joined': '참여 기록', 'participant-left': '참여 이탈 기록' })[event.type];
         const actor = ({ self: '본인', other: '다른 캐릭터', unknown: '대상 미확인' })[event.actor];
@@ -138,7 +157,7 @@ $('files').addEventListener('change', async () => {
       if (lines.finish().unterminatedLine) state.note('unterminated-line-withheld');
     }
     if (cancelled) throw new Error('cancelled');
-    await catalogReady;
+    await Promise.all([catalogReady, locationsReady]);
     renderSnapshot(state.snapshot());
     $('progress').textContent = '로그 재생을 완료했습니다. 실제 운항 데이터는 변경하지 않았습니다.';
   } catch (error) {
