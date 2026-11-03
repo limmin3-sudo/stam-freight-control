@@ -1,3 +1,4 @@
+import {previewPanel} from './preview-view.mjs';
 import { LogEvidence } from './state.mjs';
 import { LogLines } from './lines.mjs';
 import { connectLive } from './live-client.mjs';
@@ -15,10 +16,13 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
+const previews = new Set();
+function closePreviews(){for(const p of previews)p.dispose();previews.clear();}
+let locationData;
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
-  .then(data => { locations = locationIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
+  .then(data => { locationData=data; locations = locationIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
 const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
   .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
@@ -45,8 +49,8 @@ function showMore() {
       const boxesKnown = contract.boxComposition?.status === 'matched-fixed-profile';
       body.append(el('p', contract.originalManifest?.status === 'resolved-original-manifest'
         ? '목적지별 원래 상자 명세 연결 완료 · 현재 적재·배송 진행 상태는 별도 확인이 필요합니다.' : boxesKnown
-        ? '고정 상자 조합 확인 · 픽업·배송지별 할당 미확인으로 적재 계산 대기'
-        : '적재 계산 차단 · 실제 품목별 할당과 상자 구성 미확인', 'blocked'));
+        ? '고정 상자 조합 확인 · 픽업·배송지별 할당을 추가 확인해 주세요.'
+        : '실제 상자 구성 미확인 · 주문별 경로·수량 확인 후 예상 배치로 계획할 수 있습니다.', 'blocked'));
       for (const conflict of contract.conflicts) body.append(el('p', ({
         'definition-conflict': '서로 다른 계약 정의 ID가 관측되었습니다. 유형을 확정하지 않습니다.',
         'terminal-state-conflict': '서로 다른 종료 상태가 관측되었습니다. 완료 여부를 확정하지 않습니다.',
@@ -65,6 +69,7 @@ function showMore() {
       body.append(renderBoxProfile(contract.boxComposition));
       if (boxesKnown) body.append(renderOriginalManifest(contract.originalManifest));
       body.append(renderContractLocations(contract, locations));
+      if(catalog && locations){const p=previewPanel(contract,{catalog,locations,locationData,prepareAssets:()=>live?.preparePreview()});previews.add(p);body.append(p.root);}
       if (contract.objectiveNotices?.length) {
         const notices = el('details', undefined, 'definition-location');
         notices.append(el('summary', `수량 없는 목표 알림 ${contract.objectiveNotices.length}건`),
@@ -100,6 +105,7 @@ function showMore() {
 
 
 function renderSnapshot(next) {
+  closePreviews();
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
@@ -137,6 +143,7 @@ $('files').addEventListener('change', async () => {
     $('progress').textContent = '한 번에 64개·512MB 이하의 로그를 선택해 주세요.';
     return;
   }
+  closePreviews();
   cancelled = false;
   snapshot = null;
   displayed = 0;

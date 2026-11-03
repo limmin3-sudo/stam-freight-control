@@ -3,9 +3,32 @@ import { readFile } from 'node:fs/promises';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { LogEvidence } from './state.mjs';
 import { ReadOnlyLog } from './reader-node.mjs';
+import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/icon.svg', ['../../icon.svg', 'image/svg+xml']],
+  ['/integration/log/preview-routes.mjs', ['./preview-routes.mjs', 'text/javascript']],
+  ['/bloom.mjs', ['../../bloom.mjs', 'text/javascript']],
+  ['/cargo-scene.mjs', ['../../cargo-scene.mjs', 'text/javascript']],
+  ['/data/ships.json', ['../../data/ships.json', 'application/json']],
+  ['/delivery-first.mjs', ['../../delivery-first.mjs', 'text/javascript']],
+  ['/engine.mjs', ['../../engine.mjs', 'text/javascript']],
+  ['/integration/log/preview-packing.mjs', ['../../integration/log/preview-packing.mjs', 'text/javascript']],
+  ['/integration/log/preview-view.mjs', ['../../integration/log/preview-view.mjs', 'text/javascript']],
+  ['/integration/log/preview-worker.mjs', ['../../integration/log/preview-worker.mjs', 'text/javascript']],
+  ['/integration/log/preview.css', ['../../integration/log/preview.css', 'text/css']],
+  ['/manual-route.mjs', ['../../manual-route.mjs', 'text/javascript']],
+  ['/packing-blocks.mjs', ['../../packing-blocks.mjs', 'text/javascript']],
+  ['/recipes.mjs', ['../../recipes.mjs', 'text/javascript']],
+  ['/render-loop.mjs', ['../../render-loop.mjs', 'text/javascript']],
+  ['/route-cost.mjs', ['../../route-cost.mjs', 'text/javascript']],
+  ['/route-estimate.mjs', ['../../route-estimate.mjs', 'text/javascript']],
+  ['/route-search.mjs', ['../../route-search.mjs', 'text/javascript']],
+  ['/ships.mjs', ['../../ships.mjs', 'text/javascript']],
+  ['/travel.mjs', ['../../travel.mjs', 'text/javascript']],
+  ['/vendor/OrbitControls.js', ['../../vendor/OrbitControls.js', 'text/javascript']],
+  ['/vendor/three.module.js', ['../../vendor/three.module.js', 'text/javascript']],
   ['/log-link.html', ['../../log-link.html', 'text/html; charset=utf-8']],
   ['/data/log-mission-index.json', ['../../data/log-mission-index.json', 'application/json']],
   ['/data/log-location-index.json', ['../../data/log-location-index.json', 'application/json']],
@@ -82,7 +105,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
     const send = (code, body, type = 'application/json') => {
       res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA='; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
       res.end(body);
     };
     try {
@@ -99,6 +122,10 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
         if (req.headers['transfer-encoding'] || Number(req.headers['content-length'] || 0) !== 0) { req.resume(); send(413, '{"error":"body-not-allowed"}'); return; }
         if (req.method === 'GET' && url.pathname === '/api/status') { send(200, JSON.stringify(status())); return; }
         if (req.method === 'GET' && url.pathname === '/api/snapshot') { send(200, published); return; }
+        if (req.method === 'POST' && url.pathname === '/api/preview-assets') {
+          if (req.headers.origin !== origin) { send(403, '{}'); return; }
+          await preparePreviewAssets(); send(200, '{"ready":true}'); return;
+        }
         if (req.method === 'POST' && ['/api/pause', '/api/resume'].includes(url.pathname)) {
           if (req.headers.origin !== origin) { send(403, '{"error":"origin-required"}'); return; }
           if (fatal) { send(409, '{"error":"restart-required"}'); return; }
