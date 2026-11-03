@@ -23,9 +23,12 @@ try{
  assert.equal(await page.locator('canvas').count(),0); // no renderer until the user starts planning
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();
  assert.equal(await page.locator('#flight-ready-action').innerText(),'항로 계산·안내 시작');
- await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated');
+ await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000}).catch(async e=>{console.error(JSON.stringify({stage:'start-guidance',errors,bad,status:await page.locator('.preview-panel p[role=status]').allTextContents(),ready:await page.locator('#flight-ready').innerText()}));throw e;});
  await page.waitForFunction(()=>document.querySelector('#flight-ready-action').textContent==='운송 중 · 다음 구간');
  assert.equal(await page.locator('canvas').count(),2);assert.match(await page.locator('.preview-panel p[role=status]').innerText(),/28개 \/ 168 SCU/);
+ await appendFile(file,`<${new Date().toISOString()}> [Notice] <Player Selected Quantum Target - Local> [ItemNavigation][CL][1] | NOT AUTH | RSI_Salvation_12345[12345]|CSCItemNavigation::OnPlayerSelectedQuantumTarget|Player has selected point LOC_RR_ARC_LEO as their destination, routing locally [Team_CGP4][QuantumTravel]\n`);
+ await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).isDisabled(),true);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-log-account-settings-v1')).shipId),'misc-hull-b');
  await page.locator('#flight-ready-action').click();assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);
  await page.locator('#flight-ready summary').click();await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('');
@@ -34,5 +37,5 @@ try{
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log(JSON.stringify({passed:true,partnerBeforeContract:true,waitingWithoutRenderer:true,previousSettingsRequireConfirmation:true,oneActionPlansAndStarts:true,nextLegSameButton:true,missingShipBlocks:true,noFakeHistory:true,mobileOverflow:false,errors,bad}));
+ console.log(JSON.stringify({passed:true,partnerBeforeContract:true,waitingWithoutRenderer:true,previousSettingsRequireConfirmation:true,oneActionPlansAndStarts:true,nextLegSameButton:true,liveCandidateCannotReplaceActiveShip:true,missingShipBlocks:true,noFakeHistory:true,mobileOverflow:false,errors,bad}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

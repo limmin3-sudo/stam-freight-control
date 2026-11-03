@@ -1,3 +1,4 @@
+import {isNavigationEvent,navigationSnapshot} from './navigation.mjs';
 import { parseLogLine } from './parser.mjs';
 import { identityScope, identityResolver, participation } from './participation.mjs';
 import { buildResolver } from './builds.mjs';
@@ -18,6 +19,7 @@ export class LogEvidence {
     this.contracts = new Map();
     this.identities = [];
     this.builds = [];
+    this.navigation = [];
     this.diagnostics = new Map();
     this.lines = 0;
     this.duplicates = 0;
@@ -34,7 +36,8 @@ export class LogEvidence {
     const { source, ...observation } = event;
     const identity = event.type === 'local-character-observed';
     const build = event.type === 'game-build-observed';
-    const key = stable(identity || build ? { ...observation, scope: identityScope(source) } : observation);
+    const navigation=isNavigationEvent(event);
+    const key = stable(identity || build || navigation ? { ...observation, scope: identityScope(source) } : observation);
     if (this.events.has(key)) {
       this.duplicates++;
       // Deterministic provenance when backup files repeat the same log line.
@@ -44,8 +47,8 @@ export class LogEvidence {
     }
     if (this.events.size >= this.maxEvents) throw new Error('event-limit');
     if (this.evidenceBytes + key.length * 2 > this.maxEvidenceBytes) throw new Error('evidence-size-limit');
-    let contract = identity ? this.identities : build ? this.builds : this.contracts.get(event.missionId);
-    if (!identity && !build && !contract) {
+    let contract = identity ? this.identities : build ? this.builds : navigation ? this.navigation : this.contracts.get(event.missionId);
+    if (!identity && !build && !navigation && !contract) {
       if (this.contracts.size >= this.maxContracts) throw new Error('contract-limit');
       contract = [];
       this.contracts.set(event.missionId, contract);
@@ -125,6 +128,7 @@ export class LogEvidence {
     candidates.sort((a, b) => a.missionId.localeCompare(b.missionId));
     pendingContracts.sort((a,b)=>a.missionId.localeCompare(b.missionId));
     return structuredClone({
+      navigation:navigationSnapshot([...this.navigation,...this.identities,...this.builds]),
       schemaVersion: 1, verification: 'log-observations-with-fixed-box-profiles',
       identity: { observed: identity.observed, mixedPlayers: identity.mixedPlayers, scopes: identity.scopes },
       statistics: { lines: this.lines, uniqueEvents: this.events.size, duplicateEvents: this.duplicates,
