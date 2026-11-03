@@ -2,6 +2,7 @@
 
 ## 2026-11-03 16:29 KST Codex — 집에서 시험할 로컬 실시간 연결판
 
+- **원격 업로드 확인:** 기능 커밋 `35f961b90754f077feb823098cf4793231213f25`를 `origin/rebuild/log-evidence-foundation`에 푸시하고 원격 SHA 일치를 확인했다. [Draft PR #1](https://github.com/limmin3-sudo/stam-freight-control/pull/1)을 생성했다. [Log link checks #41597058933](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41597058933)의 **Windows·Ubuntu Node 22 검사 모두 성공**. main은 `e4c744d` 그대로이며 운영 배포 없음. 이후 문서 인계 커밋은 Git 이력 참조.
 - **승인/브랜치:** 사용자가 ‘오늘 집에서 테스트, 쭉 진행하고 저장소에 올려’라고 요청했다. `rebuild/log-evidence-foundation`의 로그 기반·파티 처리·로컬 연결·실행 도우미·문서를 함께 커밋하고 원격 작업 브랜치로 올리는 범위다. main/운영 Pages에는 반영하지 않는다. 실제 원격 SHA와 CI 결과는 Git/PR에서 확인한다.
 - **실행:** ZIP 해제 → Node.js 22 → `start-log-link.cmd` → 실행 중인 게임의 `Game.log` 선택 → 자동 브라우저. 추가 npm 설치·Three.js 준비·게임 파일 수정 없음. 수동 명령은 `node scripts/log-link-server.mjs --file <Game.log> --open`. [집에서 테스트 안내](docs/LOG-LINK-TESTING.md).
 - **실시간 연결:** `live-server.mjs`/`live-client.mjs`, loopback 임의 포트·실행별 256비트 키·Host/Origin/Sec-Fetch-Site 검사·정적 파일 허용 목록·본문 없는 제어 API. 키는 주소 fragment에서 해당 탭 sessionStorage로 옮기고 주소에서 제거한다. 외부 전송·LAN 공개·게임 프로세스 접근 없음. 경로는 시작 때만 지정하며 HTTP에서 임의 파일을 읽게 할 수 없다.
