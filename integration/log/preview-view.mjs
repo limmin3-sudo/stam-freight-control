@@ -1,4 +1,4 @@
-import {createPreview, previewLocations, previewReadiness} from './preview-packing.mjs';
+import {createPreview, previewLocations, previewReadiness, previewContractSignature} from './preview-packing.mjs';
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
@@ -200,8 +200,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   }
   function updateContracts(next) {
     next = Array.isArray(next) ? next : next ? [next] : [];
-    const key = JSON.stringify(next);
-    if (key === signature) return;
+    const key = JSON.stringify(next.map(c=>previewContractSignature(c,catalog,locations)));
+    if (key === signature) { contracts=next;return; }
     forms.forEach(captureDraft);
     for (const contract of next) session.observe(contract);
     contracts = next; signature = key;

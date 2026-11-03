@@ -57,6 +57,17 @@ export function previewReadiness(contract,catalog,locations) {
     } catch(e) { return {ready:false,label:e.message}; }
   }
 }
+// Original-demand planning depends on resolved inputs, not repeated log timestamps,
+// progress notices or marker provenance. Revalidate before comparing every update.
+export function previewContractSignature(contract,catalog,locations) {
+  const readiness=previewReadiness(contract,catalog,locations);
+  return JSON.stringify(readiness.ready ? {
+    missionId:contract.missionId,title:contract.title,status:contract.status,
+    participation:contract.participation?.state,conflicts:contract.conflicts,
+    gameBuild:contract.gameBuild,scope:readiness.preview.scope,mission:readiness.preview.mission,
+  } : contract);
+}
+
 export const MAX_PREVIEW_CONTRACTS = 12;
 export function previewLocations(locationData) {
   const counts = new Map();

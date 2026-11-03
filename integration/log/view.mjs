@@ -23,7 +23,7 @@ const previewSession = createPreviewSession(storage), planSelection=createPlanSe
 let planner;
 function closePreviews() {
   planner?.dispose(); planner = null; planSelection.clear(); previewSession.clearDrafts();
-  $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();
+  $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
 }
 function renderPlanning() {
   if (!catalog || !locations || !snapshot) return;
@@ -38,11 +38,31 @@ function renderPlanning() {
   const readyCount=entries.filter(c=>readiness.get(c.missionId).ready).length;
   $('planning-readiness').textContent=`자동 연결 가능 ${readyCount}개 · 추가 근거 필요 ${entries.length-readyCount}개. 미확인 계약은 아래에 보류 이유를 표시합니다.`;
   $('planning-contracts').replaceChildren();
+  const waiting=(snapshot.pendingContracts||[]).filter(c=>c.status!=='end-observed'&&c.participation.state!=='left-observed').sort((a,b)=>(b.acceptedAt||b.lastEvidenceAt||'').localeCompare(a.acceptedAt||a.lastEvidenceAt||''));
+  const pending=$('pending-contracts'),pendingOpen=!!pending.querySelector('details')?.open;pending.replaceChildren();pending.hidden=!waiting.length;
+  if(waiting.length){
+    pending.append(el('h3',`계약 정보 확인 중 · ${waiting.length}개`),el('p','수락·참여 기록을 보관했습니다. 운송 유형과 목표가 확인되면 자동으로 연결합니다.'));
+    const list=el('details');list.open=pendingOpen;list.append(el('summary','정보를 기다리는 계약 보기'));
+    for(const c of waiting.slice(0,50)){
+      const row=el('div',undefined,'pending-contract');row.dataset.mission=c.missionId;
+      row.append(el('strong',c.title||'제목 확인 중'),el('small','유형·픽업·배송 목표 확인 중 · 아직 계산에 포함되지 않습니다.'));
+      list.append(row);
+    }
+    if(waiting.length>50)list.append(el('p',`최근 목록은 50개까지 표시합니다. 총 ${waiting.length}개의 기록을 보관하고 있습니다.`));
+    pending.append(list);
+  }
+  $('recovery-help').hidden=!waiting.length&&!entries.some(c=>!readiness.get(c.missionId).ready);
   for (const c of entries) {
     const label = el('label'), check = el('input'); check.type = 'checkbox'; check.checked = selectedContracts.has(c.missionId);
     check.dataset.mission = c.missionId;
     label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
     label.append(el('small',readiness.get(c.missionId).label,'planning-readiness'));
+    if(!readiness.get(c.missionId).ready){
+      const missing=[];
+      if(!c.quantityObservations.length)missing.push('품목·수량 알림');
+      for(const [role,name] of [['pickup','픽업 목표'],['dropoff','배송 목표']])if(!c.markerObservations.some(m=>m.role===role))missing.push(name);
+      if(missing.length)label.append(el('small',`${missing.join(' · ')} 확인 중. 새 기록이 들어오면 자동으로 보완합니다.`,'planning-waiting'));
+    }
     check.onchange = () => {
       planSelection.set(c.missionId,check.checked);
       updatePlanSelection();
