@@ -1,3 +1,4 @@
+import {mountAccount} from './account-view.mjs';
 import {previewPanel} from './preview-view.mjs';
 import {createPreviewSession,createPlanSelection} from './preview-session.mjs';
 import {previewReadiness} from './preview-packing.mjs';
@@ -18,6 +19,7 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
+mountAccount();
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
 let planner;
