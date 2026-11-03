@@ -1,5 +1,13 @@
 # 현재 프로젝트 상태 — Codex·Claude 공통
 
+## 2026-11-03 18:00 KST Codex — Node 26 실행 차단 수정
+
+- **문제:** Windows 실행기의 `major !== 22` 조건이 설치된 Node 26.13.0을 파일 선택창 이전에 차단했다. Node 26의 기능 오류로 확인된 것이 아니었으며, Node 제거/다운그레이드 안내는 잘못된 대응이었다.
+- **수정:** `start-log-link.cmd`는 22 미만만 거부한다. 사용 중인 Node 버전·경로를 표시하며 `--check`로 동일한 검사 경로를 실행하고 대화상자 없이 종료한다. Node 24/26을 제거할 필요가 없다. CLI 도움말·README·로그 테스트 안내도 일치시켰다. 로그 읽기/보안/계산 차단 로직은 변경하지 않았다.
+- **검증:** Cloud에 실제 **Node 26.13.0**을 설치하여 전체 테스트 168개 통과, Node 22.23.4 `npm test`도 168개 통과. 각 실행의 총 169개 중 Windows 전용 실행기 검사는 Linux라 1개 건너뛰었다. 로그 증분 읽기·로컬 HTTP·권한·복구 검사를 포함한다. 버전 문자열만 바꿔 모의한 결과가 아니다.
+- **Windows 회귀 검사:** 새 `tests/launcher.test.mjs`는 실제 `cmd.exe /d /c start-log-link.cmd --check`의 정상 종료와 현재 Node 버전 출력을 확인한다. CI를 Windows/Ubuntu × Node 22/24/26.13.0으로 확장했다. 원격 결과는 해당 커밋의 Rebuild checks에서 확인한다. 파일 선택창 실제 클릭과 실게임은 여전히 미확인이다.
+- **브랜치/업로드:** 사용자 요청에 따라 실행 차단 수정·검사·문서를 `rebuild/log-evidence-foundation`에 커밋/푸시한다. main/운영 배포 없음. 최신 시험 ZIP을 새 폴더에 풀어 실행하면 된다. 이전 ZIP의 실행기는 자동 갱신되지 않는다.
+
 ## 2026-11-03 17:07 KST Codex — 실게임 자료와 독립적인 3D 개선 (시험 브랜치)
 
 - **범위/승인:** 사용자 ‘전체 기능도 할 수 있는 데까지, 먼저 해둘 수 있는 것’ 요청과 이전 시험 저장소 업로드 승인에 따라 `rebuild/log-evidence-foundation`에서 진행했다. main/운영 배포 없음. 현재 작업 완료 범위와 미완료 기능은 [REBUILD-PROGRESS.md](docs/REBUILD-PROGRESS.md)에 분리했다. 완성판이 아니다.
