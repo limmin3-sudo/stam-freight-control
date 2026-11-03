@@ -2,12 +2,14 @@ import { parseLogLine } from './parser.mjs';
 import { identityScope, identityResolver, participation } from './participation.mjs';
 import { buildResolver } from './builds.mjs';
 import { resolveBoxProfile } from './box-profiles.mjs';
+import { resolveOriginalManifest } from './manifest.mjs';
 
 const stable = value => JSON.stringify(value);
 const compare = (a, b) => a.at.localeCompare(b.at) || stable(a).localeCompare(stable(b));
 
 export class LogEvidence {
-  constructor({ maxEvents = 100_000, maxContracts = 10_000, maxEvidenceBytes = 32 * 1024 * 1024 } = {}) {
+  constructor({ maxEvents = 100_000, maxContracts = 10_000, maxEvidenceBytes = 32 * 1024 * 1024, locations = null } = {}) {
+    this.locations = locations;
     this.maxEvents = maxEvents;
     this.maxContracts = maxContracts;
     this.maxEvidenceBytes = maxEvidenceBytes;
@@ -93,13 +95,17 @@ export class LogEvidence {
         objectiveNotices: events.filter(e => e.type === 'objective-notice-observed'),
         objectiveStateObservations: events.filter(e => e.type === 'objective-state-observed'),
         conflicts,
-        // Deliberately no totalSCU, canonical commodities, routes or guessed boxes.
+        // Current/remaining cargo is not inferred from original contract demand.
         manifest: null,
         planning: { allowed: false, reasons: [...conflicts, 'complete-manifest-unverified', 'cargo-allocation-unverified', 'box-composition-unverified'] },
       };
       entry.boxComposition = resolveBoxProfile(entry);
+      entry.originalManifest = resolveOriginalManifest(entry, this.locations);
       if (entry.boxComposition.status === 'matched-fixed-profile') {
         entry.planning.reasons = entry.planning.reasons.filter(reason => reason !== 'box-composition-unverified');
+      }
+      if (entry.originalManifest.status === 'resolved-original-manifest') {
+        entry.planning.reasons = [...conflicts, 'current-cargo-state-unverified'];
       }
       (accepted.length || membership.selfJoinObserved ? hauling : candidates).push(entry);
     }
@@ -115,6 +121,7 @@ export class LogEvidence {
         withSelfLeaveObservation: hauling.filter(c => c.partyObservations.some(e => e.type === 'participant-left' && e.actor === 'self')).length,
         withQuantityObservation: hauling.filter(c => c.quantityObservations.length).length,
         withKnownBoxComposition: hauling.filter(c => c.boxComposition.status === 'matched-fixed-profile').length,
+        withOriginalManifest: hauling.filter(c => c.originalManifest.status === 'resolved-original-manifest').length,
         planningReady: 0 },
       diagnostics: Object.fromEntries([...this.diagnostics].sort()), contracts: hauling, candidates,
     });
@@ -122,7 +129,7 @@ export class LogEvidence {
 }
 
 export function requireVerifiedManifest(contract) {
-  // No supported source currently proves complete per-contract cargo/box allocation.
-  // A caller-provided `allowed:true` must not bypass this foundation's hard gate.
+  // An original demand preview is not the current/remaining cargo inventory.
+  // A caller-provided `allowed:true` must not bypass the live planning gate.
   throw new Error('manifest-not-verified');
 }

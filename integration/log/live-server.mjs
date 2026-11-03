@@ -3,12 +3,13 @@ import { readFile } from 'node:fs/promises';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { LogEvidence } from './state.mjs';
 import { ReadOnlyLog } from './reader-node.mjs';
+import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
   ['/log-link.html', ['../../log-link.html', 'text/html; charset=utf-8']],
   ['/data/log-mission-index.json', ['../../data/log-mission-index.json', 'application/json']],
   ['/data/log-location-index.json', ['../../data/log-location-index.json', 'application/json']],
-  ...['view.mjs', 'view.css', 'live-client.mjs', 'state.mjs', 'lines.mjs', 'parser.mjs', 'participation.mjs', 'catalog.mjs', 'catalog-view.mjs', 'locations.mjs', 'locations-view.mjs', 'builds.mjs', 'box-profiles.mjs', 'box-profiles-view.mjs']
+  ...['view.mjs', 'view.css', 'live-client.mjs', 'state.mjs', 'lines.mjs', 'parser.mjs', 'participation.mjs', 'catalog.mjs', 'catalog-view.mjs', 'locations.mjs', 'locations-view.mjs', 'builds.mjs', 'box-profiles.mjs', 'box-profiles-view.mjs', 'manifest.mjs', 'manifest-view.mjs']
     .map(name => ['/integration/log/' + name, [name, name.endsWith('.css') ? 'text/css' : 'text/javascript']]),
 ]);
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
@@ -19,7 +20,10 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
   const token = randomBytes(32).toString('hex');
-  const evidence = new LogEvidence();
+  // Load once locally; failure leaves allocation unresolved without stopping logs.
+  let locations = null;
+  try { locations = locationIndex(JSON.parse(await readFile(new URL('../../data/log-location-index.json', import.meta.url), 'utf8'))); } catch {}
+  const evidence = new LogEvidence({locations});
   let timer, busy = false, stopped = false, paused = false, fatal = false;
   let phase = 'starting', revision = 0, dirty = false, lastReadAt = null, lastChangeAt = null, lastError = null;
   let published = JSON.stringify({ revision, snapshot: evidence.snapshot() });

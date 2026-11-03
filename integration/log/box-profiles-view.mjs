@@ -28,6 +28,6 @@ export function renderBoxProfile(profile) {
     section.append(item);
   }
   section.append(el('p', `확인 근거: 사용자 실게임 확인(${profile.evidence.confirmedOn}) 및 반복 수락 경험 · 게임 빌드 ${profile.evidence.gameBuild} 일치`, 'detail'));
-  section.append(el('p', '유형별 고정 조합을 불러왔습니다. 현재 상자 인벤토리를 직접 읽은 결과는 아닙니다. 픽업·배송지별 할당은 별도 확인이 필요하여 적재 계산은 아직 열리지 않습니다.', 'detail'));
+  section.append(el('p', '유형별 고정 조합을 불러왔습니다. 현재 상자 인벤토리를 직접 읽은 결과는 아닙니다. 픽업·배송지 연결 결과는 아래 원래 계약 명세에서 확인하실 수 있습니다.', 'detail'));
   return section;
 }
