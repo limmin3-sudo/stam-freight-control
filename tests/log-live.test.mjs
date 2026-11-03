@@ -128,8 +128,11 @@ test('preview asset preparation requires pairing and same origin; static closure
   const s=await setup(t);
   assert.equal((await fetch(s.service.origin+'/api/preview-assets',{method:'POST'})).status,401);
   assert.equal((await s.api('/api/preview-assets',{method:'POST'})).status,403);
-  for(const file of ['/cargo-scene.mjs','/integration/log/preview-worker.mjs','/integration/log/preview-packing.mjs','/integration/log/preview-routes.mjs','/data/ships.json'])
+  for(const file of ['/cargo-scene.mjs','/starmap-core.mjs','/mapfx.mjs','/route-display.mjs',
+    '/integration/log/preview-map.mjs','/assets/partners/navigator.jpg','/assets/partners/aide.jpg',
+    '/integration/log/preview-worker.mjs','/integration/log/preview-packing.mjs','/integration/log/preview-routes.mjs','/data/ships.json'])
     assert.equal((await fetch(s.service.origin+file)).status,200,file);
-  for(const file of ['/integration/log/preview-assets-node.mjs','/account.mjs','/.env'])
+  for(const file of ['/integration/log/preview-assets-node.mjs','/account.mjs','/.env',
+    '/aliases.mjs','/starmap.mjs','/data/ko-names.json','/data/ko-commodities.json','/data/ko-hauling.json'])
     assert.equal((await fetch(s.service.origin+file)).status,404,file);
 });

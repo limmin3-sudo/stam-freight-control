@@ -5,13 +5,13 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA='; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>STAM · 로그 연동 검증</title>
+<title>STAM · 운송 관제</title>
 <link rel="stylesheet" href="integration/log/view.css">
 <link rel="stylesheet" href="integration/log/preview.css">
 <main>
-  <header><span class="eyebrow">STAM FREIGHT CONTROL · DEVELOPMENT</span><h1>로그 연동 검증</h1>
-    <p>선택한 로그를 이 기기에서 읽습니다. 로그를 서버로 보내지 않으며 기존 운항 데이터에 반영하지 않습니다.</p>
-    <p class="notice">개발 중인 검증 화면입니다. 계약 수락 기록과 실제 화물 명세는 구분합니다. 예상 상자 배치는 실제 구성과 구분하며, 미확인 경로·수량은 확인 후 계획합니다.</p>
+  <header><span class="eyebrow">STAM FREIGHT CONTROL · DEVELOPMENT</span><h1>운송 관제</h1>
+    <p>계약 기록에서 방문 순서와 화물 배치까지. 이 기기에서 Game.log를 읽어 계획합니다.</p>
+    <p class="workspace-note">개발판 · 원래 계약 요구량을 계획합니다. 현재 함선 위치·실제 적재 상태와 계정 운항 기록은 별도로 유지됩니다.</p>
   </header>
   <section id="live" class="controls" aria-label="실시간 연결" hidden>
     <h2>실시간 로그 연결</h2>
@@ -26,18 +26,17 @@
     <button id="cancel" type="button" disabled>읽기 중단</button>
     <p id="progress" role="status" aria-live="polite">로그 파일을 선택해 주세요.</p>
   </section>
-  <div id="summary" class="metrics"></div>
-  <p id="diagnostics" class="notice" hidden></p>
-  <p><button id="save-report" disabled>계약 원문 없이 검증 요약 저장</button></p>
-  <section id="planning" aria-label="계약 묶음 계획">
-    <h2>함께 운송할 계약</h2>
-    <p>근거가 충분하고 종료·이탈 기록이 없는 계약은 자동 선택됩니다. 3D를 열고 처음 한 번 함선·출발지·파트너를 정하면 변경 사항을 자동 계산합니다. 목록에는 과거 기록도 포함됩니다. 현재 적재·남은 배송량이 아닌 원래 요구량의 계획입니다.</p>
+  <div class="log-workbench"><aside class="log-contract-rail"><section id="planning" aria-label="계약 묶음 계획">
+    <h2>운송 계약</h2>
+    <p>연결 가능한 계약은 자동 선택됩니다. 미확인 배분은 보류하며, 같은 유형도 계약별로 구분합니다.</p>
     <p id="planning-readiness" role="status">자동 연결할 수 있는 계약을 확인하고 있습니다.</p>
     <p id="planning-count">로그에서 계약을 기다리고 있습니다.</p>
     <div id="planning-contracts"></div>
-    <div id="planning-preview"></div>
-  </section>
-  <details class="evidence-details"><summary>로그 원문·유형 대조 근거 보기 (선택)</summary><section><h2>관측된 운송 계약과 후보</h2><p>같은 유형도 실행 계약별로 분리합니다. 공유 알림만 있는 후보는 등록된 계약 수에 포함하지 않습니다. 과거 기록을 포함하며 현재 진행 중인 계약 목록으로 간주하지 않습니다.</p><div id="contracts"></div><button id="more" hidden>더 보기</button></section></details>
+  </section></aside><div id="planning-preview" class="log-planner-host"></div></div>
+  <details class="evidence-details"><summary>연결 진단 · 로그 원문 · 유형 근거</summary>  <div id="summary" class="metrics"></div>
+  <p id="diagnostics" class="notice" hidden></p>
+  <p><button id="save-report" disabled>계약 원문 없이 검증 요약 저장</button></p>
+<section><h2>관측된 운송 계약과 후보</h2><p>같은 유형도 실행 계약별로 분리합니다. 공유 알림만 있는 후보는 등록된 계약 수에 포함하지 않습니다. 과거 기록을 포함하며 현재 진행 중인 계약 목록으로 간주하지 않습니다.</p><div id="contracts"></div><button id="more" hidden>더 보기</button></section></details>
   <footer>유형 참고: <a href="https://api.star-citizen.wiki" target="_blank" rel="noopener noreferrer">Star Citizen Wiki API</a> · 정의 ID 일치만으로 실제 화물이 확인되는 것은 아닙니다.<br>게임 빌드 12913470의 검증된 대형 유형은 목적지별 원래 계약 명세를 연결합니다. 현재 적재·배송 진행 상태와 전체 유형 자동화는 개발 중입니다.</footer>
 </main>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
