@@ -1,5 +1,7 @@
 # STAM FREIGHT CONTROL
 
+재구축 재개 지점: [최신 인수인계](docs/REBUILD-HANDOFF.md). 2026-11-04 사용자 요청으로 일시 중단했으며, 다음 재개 요청 때 이어갑니다.
+
 재구축 전체 범위와 미완료 항목: [기능 작업 목록](docs/REBUILD-FEATURE-TRACKER.md). 원래 화면 구도와 다른 도구에서 합칠 기능을 함께 추적합니다.
 
 
