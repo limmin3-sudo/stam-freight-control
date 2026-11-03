@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="integration/log/workspace-tools.css">
 <main>
   <header><span class="eyebrow">STAM FREIGHT CONTROL · DEVELOPMENT</span><h1>운송 관제</h1>
-    <p>계약 기록에서 방문 순서와 화물 배치까지. 이 기기에서 Game.log를 읽어 계획합니다.</p>
+    <p>계약을 받으면 항로와 적재 순서를 준비합니다. 파트너를 고르고 출항을 준비하세요.</p>
     <p class="workspace-note">개발판 · 원래 계약 요구량을 계획합니다. 현재 함선 위치·실제 적재 상태와 계정 운항 기록은 별도로 유지됩니다.</p>
     <nav class="workspace-tools" aria-label="앱 도구"><span id="workspace-places"></span><button id="workspace-updates" type="button">업데이트 기록</button><button id="workspace-feedback" type="button">피드백 · 오류 신고</button></nav>
     <p id="workspace-message" role="status" aria-live="polite"></p>
@@ -35,7 +35,7 @@
     <button id="workspace-login" type="button">로그인</button>
     <button id="workspace-history" type="button">운항 기록 · 누적 통계</button>
     <p id="account-status" role="status" aria-live="polite"></p>
-  </section><section id="planning" aria-label="계약 묶음 계획">
+  </section><div id="flight-ready-host"></div><section id="planning" aria-label="계약 묶음 계획">
     <h2>운송 계약</h2>
     <p>연결 가능한 계약은 자동 선택됩니다. 미확인 배분은 보류하며, 같은 유형도 계약별로 구분합니다.</p>
     <p id="planning-readiness" role="status">자동 연결할 수 있는 계약을 확인하고 있습니다.</p>

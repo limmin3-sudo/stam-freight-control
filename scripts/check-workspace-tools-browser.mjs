@@ -16,7 +16,7 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],bad=[],remote=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)bad.push(new URL(r.url()).pathname);});
  page.on('request',r=>{if(new URL(r.url()).origin!==service.origin)remote.push(r);});
- await page.addInitScript(custom=>{localStorage.setItem('sfc-location-overrides-v1',JSON.stringify({format:'sfc-locations-v1',locations:[custom]}));localStorage.setItem('vh-start',custom.id);localStorage.setItem('sfc-voice','aide');},custom);
+ await page.addInitScript(custom=>{localStorage.setItem('sfc-location-overrides-v1',JSON.stringify({format:'sfc-locations-v1',locations:[custom]}));localStorage.setItem('vh-start',custom.id);localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('sfc-voice','aide');},custom);
  await page.goto(service.url);await page.waitForSelector('#locations-open');
  assert.equal(remote.length,0);
  await page.getByRole('button',{name:'업데이트 기록',exact:true}).click();await page.getByText('기존 운영판 기록',{exact:true}).waitFor();
@@ -32,7 +32,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('.preview-panel [role=status]').textContent.includes('28개 / 168 SCU'));
  assert.equal(await page.getByLabel('미리보기 출발지',{exact:true}).inputValue(),custom.id);assert.equal(await page.getByLabel('운항 파트너',{exact:true}).inputValue(),'operator');
  await page.getByLabel('지도 지명 검색',{exact:true}).fill('내 기지');assert.match(await page.locator('.preview-map-results').innerText(),/Browser Depot/);
- await page.getByRole('button',{name:'운송 시작 · 예상 이동',exact:true}).click();
+ await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking').dataset.state==='estimated');
  await page.getByRole('button',{name:'장소 관리',exact:true}).click();
  await page.locator('#location-pick').fill('Browser Depot · STANTON');await page.locator('#location-pick').dispatchEvent('change');
  await page.locator('#location-form [name=name]').fill('Edited Depot');await page.locator('#location-form [name=coord0]').fill(String(custom.position[0]+1234));

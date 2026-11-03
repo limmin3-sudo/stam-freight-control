@@ -15,8 +15,9 @@ const boxText = boxes => {
   return [...counts].sort((a,b) => b[0]-a[0]).map(([size,count]) => `${size} SCU × ${count}개`).join(' + ');
 };
 
-export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, session = createPreviewSession()}) {
+export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
+  let settleCalculation;
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
   const events = new AbortController();
   const prefs = session.preferences;
@@ -88,6 +89,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   desk.onclick=()=>setControlMode(!controlMode);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&controlMode){setControlMode(false);e.preventDefault();e.stopPropagation();}},{signal:events.signal,capture:true});
   function resetFlight() {
+    onGuidance(false);
     flightRoute=null;flightIndex=0;launch.disabled=true;launch.textContent='운송 시작 · 예상 이동';
     pause.hidden=end.hidden=true;pause.textContent='일시정지';
     mapView?.stopFlight();flightNote.textContent='운송을 시작하면 계획 경로를 따라 예상 위치를 표시합니다. 실제 위치·도착·배송 완료와는 별개입니다.';
@@ -105,7 +107,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if(state.arrived){pause.hidden=true;launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
     }});
     if(started){launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
-    if(!started){flightIndex--;launch.disabled=false;pause.hidden=end.hidden=true;flightNote.textContent='구간 이동 시간을 확인하지 못했습니다. 경로를 다시 계산해 주세요.';}
+    if(!started){flightIndex--;launch.disabled=false;pause.hidden=end.hidden=true;flightNote.textContent='구간 이동 시간을 확인하지 못했습니다. 항로를 다시 계산해 주세요.';}
+    onGuidance(!!started);return !!started;
   };
   pause.onclick=()=>{const paused=mapView?.pauseFlight();pause.textContent=paused?'계속 이동':'일시정지';};
   end.onclick=()=>{const saved=flightRoute;resetFlight();flightRoute=saved;launch.disabled=!saved||saved.visits.length<2;};
@@ -133,7 +136,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   launch.className='preview-flight-launch';desk.className='preview-desk-launch';renderShipSummary();
   // Same floorplan as the original: contracts/settings left, map/cargo center, route right.
   panel.append(toolbar,status,left,center,operations);
-  function stop() { serial++; clearTimeout(timer); clearTimeout(scheduled); worker?.terminate(); worker = null; }
+  function stop() { settleCalculation?.(false);settleCalculation=null;serial++; clearTimeout(timer); clearTimeout(scheduled); worker?.terminate(); worker = null; }
   function scheduleCalculation() {
     clearTimeout(scheduled);
     if(!closed&&view)scheduled=setTimeout(calculate,350);
@@ -217,7 +220,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     const base = ships.find(s => s.id === prefs.shipId) || DEFAULT_SHIP;
     return selectShipGrids(base,prefs.disabled[base.id] || []);
   }
-  function calculate() {
+  function calculate({startGuidance=false}={}) {
     if (closed || !view) return;
     invalidate(); forms.forEach(captureDraft);
     const confirmations = Object.fromEntries(contracts.map(c => [c.missionId,session.draft(c.missionId)]));
@@ -231,7 +234,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       }
       if (!start.value) throw Error('계획 출발지를 선택해 주세요.');
     } catch (e) { status.textContent = e.message; return; }
-    const id = serial; status.textContent = '경로와 배치를 계산하고 있습니다…';
+    const id = serial; status.textContent = '항로와 적재 순서를 계산하고 있습니다…';
+    return new Promise(resolve=>{settleCalculation=resolve;
     const fail = message => { if (id !== serial || closed) return; stop(); status.textContent = message; };
     try { worker = new Worker(new URL('./preview-worker.mjs',import.meta.url),{type:'module'}); }
     catch { fail('계산 작업을 시작하지 못했습니다. 다시 계산해 주세요. 로그 감시는 계속됩니다.'); return; }
@@ -240,10 +244,12 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     worker.onmessage = ({data}) => {
       if (closed || id !== serial || data.id !== id) return;
       clearTimeout(timer); worker.terminate(); worker = null;
-      if (data.error) { status.textContent = data.error; return; }
-      renderResult(data.result);
+      if (data.error) { fail(data.error); return; }
+      try {renderResult(data.result);const started=!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
+      catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,ship,startId:start.value,partner:partner.value}});
+    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    });
   }
   function renderResult(r) {
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));
@@ -303,9 +309,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   start.onchange = () => { session.setPreferences({startId:start.value}); invalidate();scheduleCalculation(); };
   partner.onchange = () => { session.setPreferences({partner:partner.value}); describePartner(); invalidate();scheduleCalculation(); };
   select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate();scheduleCalculation(); };
-  open.onclick = async () => {
+  open.onclick = async ({planOnOpen=true}={}) => {
     if (!contracts.length) return;
-    const accountCard=document.getElementById('workspace-account');
+    const accountCard=document.getElementById('flight-ready-host')||document.getElementById('workspace-account');
     if(accountCard)accountCard.after(left);else document.querySelector('.log-contract-rail')?.prepend(left);
     closed = false; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
     const generation = ++opening; invalidate('3D 라이브러리를 준비하고 있습니다. 처음에는 다운로드가 필요할 수 있습니다…'); buildForms();
@@ -339,7 +345,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
         if(closed||generation!==opening)return;
         mapHost.replaceChildren(el('p','지도를 시작하지 못했습니다. 화물 3D와 방문 목록은 계속 사용할 수 있습니다.'));
       }
-      if (start.value) calculate();
+      if (start.value) {if(planOnOpen)calculate();}
       else status.textContent = '처음 한 번 출발지를 선택해 주세요. 선택한 계약의 근거가 충분하면 자동으로 계산합니다.';
     } catch {
       if (!closed && generation === opening) {
@@ -349,5 +355,14 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   };
   updateContracts(initialContracts);
-  return {root,isOpen:()=>!closed,dispose(){dispose();events.abort();},updateContracts};
+  return {root,isOpen:()=>!closed,dispose(){dispose();events.abort();},updateContracts,
+    canAdvance:()=>!!flightRoute&&!launch.disabled,advanceGuidance:()=>!launch.disabled&&launch.onclick()===true,
+    setPartner(value){partner.value=value;partner.onchange();},
+    invalidateConfiguration(){ship=currentShip();select.value=ship.id;fillStarts();invalidate('함선·출발지를 변경했습니다. 준비를 마치면 항로 안내를 시작해 주세요.');},
+    async prepareAndStart(){
+      if(closed)await open.onclick({planOnOpen:false});if(closed||!view)return false;
+      ship=currentShip();options(select,ships);select.value=ship.id;partner.value=prefs.partner;describePartner();fillStarts();
+      if(!start.value){configuration.open=true;start.focus();return false;}
+      const started=await calculate({startGuidance:true});onGuidance(started===true);return started;
+    }};
 }

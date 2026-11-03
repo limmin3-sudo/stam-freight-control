@@ -8,7 +8,7 @@ import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
