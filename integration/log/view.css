@@ -35,3 +35,10 @@ main{max-width:1920px}
 #planning-contracts{max-height:42vh}
 @media(max-width:1250px) and (min-width:1001px){.log-workbench{grid-template-columns:195px minmax(0,1fr);gap:12px}main{padding:20px 14px}.log-contract-rail{padding:12px}}
 @media(max-width:1000px){.log-workbench{grid-template-columns:1fr}#planning-contracts{max-height:200px}}
+#pending-contracts{border-top:1px solid #355261;padding-top:12px;margin-top:16px}
+#pending-contracts h3{font-size:13px;color:#e8c28d}
+#pending-contracts summary,#recovery-help summary{font-size:12px;cursor:pointer;color:#d4c09b}
+.pending-contract{padding:10px 0;border-bottom:1px solid #294554;overflow-wrap:anywhere}
+.pending-contract strong{display:block;font-size:12px}.pending-contract small,.planning-waiting{display:block;font-size:11px;color:#c5b797;margin-top:7px}
+#recovery-help{margin-top:14px;padding:12px;border:1px solid #655738;border-radius:8px;background:#29251b44}
+#recovery-help p{font-size:11px;line-height:1.7}

@@ -62,15 +62,27 @@ export class LogEvidence {
       const { playerId, ...safe } = event;
       return { ...safe, ...((playerId !== undefined || event.type === 'accepted') ? { actor: identity.actor(event) } : {}) };
     };
-    const hauling = [], candidates = [];
+    const hauling = [], candidates = [], pendingContracts = [];
     for (const [missionId, unordered] of this.contracts) {
       const events = [...unordered].sort(compare);
       const accepted = events.filter(e => e.type === 'accepted');
       const markers = events.filter(e => e.type === 'marker-observed');
-      if (!markers.some(e => e.hauling)) continue; // No title-based cargo guessing.
       const allEndings = events.filter(e => e.type === 'ended');
       const ended = allEndings.filter(e => identity.actor(e) !== 'other');
       const membership = participation(events, identity.actor);
+      if (!markers.some(e => e.hauling)) {
+        // Keep accepted/joined instances visible while the game has not emitted a marker.
+        // Titles and SCU notifications alone must not classify a mission as hauling.
+        if (!markers.length && (accepted.length || membership.selfJoinObserved)) pendingContracts.push({
+          missionId, status:ended.length?'end-observed':'classification-pending',
+          acceptedAt:accepted[0]?.at??null, lastEvidenceAt:events.at(-1)?.at??null,
+          title:[...new Set(accepted.map(e=>e.title))].length===1?accepted[0]?.title:null,
+          participation:membership, classification:'unverified',
+          acceptanceObservations:accepted.map(publicEvent),
+          objectiveNoticeCount:events.filter(e=>['quantity-observed','objective-notice-observed'].includes(e.type)).length,
+        });
+        continue;
+      }
       const quantities = events.filter(e => e.type === 'quantity-observed');
       const definitions = [...new Set(markers.map(e => e.definitionId))].sort();
       const completions = [...new Set(ended.map(e => e.completion))].sort();
@@ -111,6 +123,7 @@ export class LogEvidence {
     }
     hauling.sort((a, b) => a.missionId.localeCompare(b.missionId));
     candidates.sort((a, b) => a.missionId.localeCompare(b.missionId));
+    pendingContracts.sort((a,b)=>a.missionId.localeCompare(b.missionId));
     return structuredClone({
       schemaVersion: 1, verification: 'log-observations-with-fixed-box-profiles',
       identity: { observed: identity.observed, mixedPlayers: identity.mixedPlayers, scopes: identity.scopes },
@@ -122,8 +135,9 @@ export class LogEvidence {
         withQuantityObservation: hauling.filter(c => c.quantityObservations.length).length,
         withKnownBoxComposition: hauling.filter(c => c.boxComposition.status === 'matched-fixed-profile').length,
         withOriginalManifest: hauling.filter(c => c.originalManifest.status === 'resolved-original-manifest').length,
+        classificationPending:pendingContracts.filter(c=>c.status!=='end-observed'&&c.participation.state!=='left-observed').length,
         planningReady: 0 },
-      diagnostics: Object.fromEntries([...this.diagnostics].sort()), contracts: hauling, candidates,
+      diagnostics: Object.fromEntries([...this.diagnostics].sort()), contracts: hauling, candidates, pendingContracts,
     });
   }
 }
