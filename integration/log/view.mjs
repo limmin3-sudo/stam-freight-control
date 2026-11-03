@@ -1,4 +1,5 @@
 import {previewPanel} from './preview-view.mjs';
+import {createPreviewSession} from './preview-session.mjs';
 import { LogEvidence } from './state.mjs';
 import { LogLines } from './lines.mjs';
 import { connectLive } from './live-client.mjs';
@@ -16,8 +17,40 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
-const previews = new Set();
-function closePreviews(){for(const p of previews)p.dispose();previews.clear();}
+let storage; try { storage = localStorage; } catch {}
+const previewSession = createPreviewSession(storage), selectedContracts = new Set();
+let planner;
+function closePreviews() {
+  planner?.dispose(); planner = null; selectedContracts.clear(); previewSession.clearDrafts();
+  $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();
+}
+function renderPlanning() {
+  if (!catalog || !locations || !snapshot) return;
+  if (!planner) {
+    planner = previewPanel([], {catalog, locations, locationData, session: previewSession,
+      prepareAssets: () => live?.preparePreview()});
+    $('planning-preview').append(planner.root);
+  }
+  const entries = snapshot.contracts;
+  for (const id of selectedContracts) if (!entries.some(c => c.missionId === id)) selectedContracts.delete(id);
+  $('planning-contracts').replaceChildren();
+  for (const c of entries) {
+    const label = el('label'), check = el('input'); check.type = 'checkbox'; check.checked = selectedContracts.has(c.missionId);
+    check.dataset.mission = c.missionId;
+    label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
+    check.onchange = () => {
+      if (check.checked) selectedContracts.add(c.missionId); else selectedContracts.delete(c.missionId);
+      updatePlanSelection();
+    };
+    $('planning-contracts').append(label);
+  }
+  updatePlanSelection();
+}
+function updatePlanSelection() {
+  const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
+  $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
+  planner?.updateContracts(chosen);
+}
 let locationData;
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
@@ -69,7 +102,11 @@ function showMore() {
       body.append(renderBoxProfile(contract.boxComposition));
       if (boxesKnown) body.append(renderOriginalManifest(contract.originalManifest));
       body.append(renderContractLocations(contract, locations));
-      if(catalog && locations){const p=previewPanel(contract,{catalog,locations,locationData,prepareAssets:()=>live?.preparePreview()});previews.add(p);body.append(p.root);}
+      if (snapshot.contracts.some(c => c.missionId === contract.missionId)) {
+        const add = el('button', '함께 계획할 계약에 추가');
+        add.onclick = () => { selectedContracts.add(contract.missionId); renderPlanning(); $('planning').scrollIntoView({block:'start'}); };
+        body.append(add);
+      }
       if (contract.objectiveNotices?.length) {
         const notices = el('details', undefined, 'definition-location');
         notices.append(el('summary', `수량 없는 목표 알림 ${contract.objectiveNotices.length}건`),
@@ -105,7 +142,6 @@ function showMore() {
 
 
 function renderSnapshot(next) {
-  closePreviews();
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
@@ -131,6 +167,7 @@ function renderSnapshot(next) {
   $('more').hidden = displayed >= snapshot.contracts.length + snapshot.candidates.length;
   for (const node of document.querySelectorAll('.contract')) if (open.has(node.dataset.mission)) node.open = true;
   $('save-report').disabled = false;
+  renderPlanning();
 }
 
 $('cancel').addEventListener('click', () => { cancelled = true; });

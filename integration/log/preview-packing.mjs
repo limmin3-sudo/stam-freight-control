@@ -2,7 +2,8 @@ import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 import {originalPackingPreview,resolveOriginalManifest} from './manifest.mjs';
 import {definitionReference} from './catalog.mjs';
 import {contractLocations,locationIndex} from './locations.mjs';
-import {makeShipments,packBoxes,planRoute,COLORS,SIZES} from '../../engine.mjs';
+import {fullLoadLayout,planRoute,COLORS,SIZES} from '../../engine.mjs';
+import {withDeparture} from '../../route-departure.mjs';
 import {validateShip,withStacking} from '../../ships.mjs';
 
 // Preview inputs never become a verified manifest or an active run. User
@@ -35,29 +36,65 @@ export function createPreview(contract,catalog,locations,confirmation) {
     evidence:{allocation:'user-confirmed-per-order',boxComposition:'estimated-max-per-order',source:input.reference.source,version:input.reference.version},
     currentInventoryVerified:false,remainingCargoVerified:false};
 }
-export function calculatePreview({contract,catalogData,locationData,confirmation,ship:rawShip,startId}) {
-  const catalog=new Map(catalogData),locations=locationIndex(locationData);
-  const preview=createPreview(contract,catalog,locations,confirmation);
-  const ship=withStacking(validateShip(rawShip));
-  // The log matching index uses parent-relative coordinates; routing must use
-  // original world coordinates from the public snapshot, never those offsets.
-  const wanted=new Set(preview.mission.cargo.flatMap(c=>[c.pickupId,c.dropoffId]));
-  const stops=locationData.locations.filter(p=>wanted.has(p.id));
-  if(stops.length!==wanted.size)throw Error('유일한 좌표가 있는 경로만 미리 볼 수 있습니다.');
-  if(!wanted.has(startId))throw Error('미리보기 출발지를 선택해 주세요.');
-  const map=new Map(stops.map(p=>[p.id,p]));
-  const {shipments,warnings}=makeShipments([preview.mission],map,{ship});
-  const colors=new Map([...new Set(shipments.map(s=>s.dropoffId))].sort().map((id,i)=>[id,COLORS[i%COLORS.length]]));
-  const colorPacking=p=>{for(const b of p?.boxes||[])b.color=colors.get(b.dropoffId);return p;};
-  const packing=colorPacking(packBoxes(shipments.flatMap(s=>s.boxes),[],ship));
-  const counts=new Map();for(const p of locationData.locations)counts.set(p.id,(counts.get(p.id)||0)+1);
-  const gateIds=new Set(jumpLinks.flatMap(j=>[j.from,j.to]));
-  const routeLocations=locationData.locations.filter(p=>p.id&&counts.get(p.id)===1).map(p=>({...p,isGateway:gateIds.has(p.id)}));
-  const ids=new Set(routeLocations.map(p=>p.id));
-  const jumps=jumpLinks.filter(j=>ids.has(j.from)&&ids.has(j.to));
-  const route=planRoute({locations:routeLocations,jumps},[preview.mission],startId,{ship,includeReturn:false});
-  for(const v of route.visits)colorPacking(v.packing);
-  return {scope:preview.scope,ship,packing,route,stops:routeLocations,routeEvidence,warnings,estimated:shipments.some(s=>s.estimated),
-    boxCount:shipments.reduce((n,s)=>n+s.boxes.length,0),totalScu:shipments.reduce((n,s)=>n+s.scu,0),
-    currentInventoryVerified:false,remainingCargoVerified:false};
+export const MAX_PREVIEW_CONTRACTS = 12;
+export function previewLocations(locationData) {
+  const counts = new Map();
+  for (const p of locationData.locations) counts.set(p.id, (counts.get(p.id) || 0) + 1);
+  return locationData.locations.filter(p => p.id && counts.get(p.id) === 1 &&
+    Array.isArray(p.position) && p.position.length === 3 && p.position.every(Number.isFinite));
+}
+
+export function calculatePreview({contract, contracts = contract ? [contract] : [], catalogData, locationData,
+  confirmation, confirmations = {}, ship: rawShip, startId, partner = 'navigator'}) {
+  if (!contracts.length || contracts.length > MAX_PREVIEW_CONTRACTS ||
+      new Set(contracts.map(c => c.missionId)).size !== contracts.length)
+    throw Error(`서로 다른 계약을 1~${MAX_PREVIEW_CONTRACTS}개 선택해 주세요.`);
+  if (!['navigator', 'operator'].includes(partner)) throw Error('운항 파트너를 선택해 주세요.');
+  const catalog = new Map(catalogData), locations = locationIndex(locationData);
+  const previews = contracts.map(c => createPreview(c, catalog, locations,
+    confirmations[c.missionId] || (contracts.length === 1 ? confirmation : undefined)));
+  const missions = previews.map(p => p.mission);
+  // Bound work before allocating boxes. Larger jobs can be split explicitly;
+  // never silently truncate a selected contract or its cargo.
+  if (missions.reduce((n, m) => n + m.cargo.length, 0) > 64)
+    throw Error('주문이 64개를 넘습니다. 계획할 계약을 나누어 선택해 주세요.');
+  let count = 0;
+  for (const cargo of missions.flatMap(m => m.cargo)) {
+    if (cargo.boxes.length) count += cargo.boxes.reduce((n, b) => n + b.count, 0);
+    else {
+      let left = cargo.scu;
+      for (const size of [...SIZES].sort((a,b) => b-a).filter(s => s <= cargo.maxBoxSize)) {
+        count += Math.floor(left / size); left %= size;
+      }
+    }
+  }
+  if (count > 2048) throw Error('미리보기 상자가 2,048개를 넘습니다. 계약을 나누어 계산해 주세요.');
+  const ship = withStacking(validateShip(rawShip));
+  // Use the public world positions, never parent-relative log coordinates.
+  const gateIds = new Set(jumpLinks.flatMap(j => [j.from, j.to]));
+  const routeLocations = previewLocations(locationData).map(p => ({...p, isGateway: gateIds.has(p.id)}));
+  const map = new Map(routeLocations.map(p => [p.id, p]));
+  if (!map.has(startId)) throw Error('계획 출발지를 선택해 주세요.');
+  if (missions.some(m => m.cargo.some(c => !map.has(c.pickupId) || !map.has(c.dropoffId))))
+    throw Error('유일한 좌표가 있는 경로만 미리 볼 수 있습니다.');
+  const jumps = jumpLinks.filter(j => map.has(j.from) && map.has(j.to));
+  const route = withDeparture(planRoute({locations: routeLocations, jumps}, missions, startId,
+    {ship, includeReturn: false, routePolicy: partner === 'operator' ? 'delivery-first' : 'batch'}));
+  // Reuse the engine's shipments and full-load frame. Do not build and pack all
+  // shipments twice, or show an unrelated dense layout before the route layout.
+  const {shipments, warnings} = route;
+  const colors = new Map([...new Set(shipments.map(s => s.dropoffId))].sort().map((id,i) => [id,COLORS[i%COLORS.length]]));
+  const colorPacking = p => { for (const b of p?.boxes || []) b.color = colors.get(b.dropoffId); return p; };
+  const boxCount = shipments.reduce((n,s) => n+s.boxes.length, 0);
+  const destinations = [...new Set(route.visits.flatMap(v => v.events.filter(e => e.type === 'delivery').map(() => v.locationId)))];
+  const fullFrame = route.visits.find(v => v.packing.boxes.length === boxCount);
+  const packing = colorPacking(fullFrame?.packing || fullLoadLayout(shipments.map(s =>
+    ({items:s.boxes,rank:destinations.indexOf(s.dropoffId)/Math.max(1,destinations.length-1)})), [], ship));
+  for (const v of route.visits) colorPacking(v.packing);
+  return {scope: 'original-contracts-preview', ship, packing, route, stops: routeLocations, routeEvidence,
+    warnings: [...new Set(warnings)], partner, contractCount: contracts.length,
+    contracts: contracts.map(c => ({id: c.missionId, title: c.title})),
+    estimated: shipments.some(s => s.estimated),
+    boxCount, totalScu: shipments.reduce((n,s) => n+s.scu, 0),
+    currentInventoryVerified: false, remainingCargoVerified: false};
 }
