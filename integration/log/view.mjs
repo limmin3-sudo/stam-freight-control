@@ -1,5 +1,6 @@
 import {previewPanel} from './preview-view.mjs';
-import {createPreviewSession} from './preview-session.mjs';
+import {createPreviewSession,createPlanSelection} from './preview-session.mjs';
+import {previewReadiness} from './preview-packing.mjs';
 import { LogEvidence } from './state.mjs';
 import { LogLines } from './lines.mjs';
 import { connectLive } from './live-client.mjs';
@@ -18,10 +19,10 @@ const el = (tag, text, className) => {
   return node;
 };
 let storage; try { storage = localStorage; } catch {}
-const previewSession = createPreviewSession(storage), selectedContracts = new Set();
+const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
 let planner;
 function closePreviews() {
-  planner?.dispose(); planner = null; selectedContracts.clear(); previewSession.clearDrafts();
+  planner?.dispose(); planner = null; planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();
 }
 function renderPlanning() {
@@ -32,14 +33,18 @@ function renderPlanning() {
     $('planning-preview').append(planner.root);
   }
   const entries = snapshot.contracts;
-  for (const id of selectedContracts) if (!entries.some(c => c.missionId === id)) selectedContracts.delete(id);
+  const readiness=new Map(entries.map(c=>[c.missionId,previewReadiness(c,catalog,locations)]));
+  planSelection.reconcile(entries,new Set(entries.filter(c=>readiness.get(c.missionId).ready).map(c=>c.missionId)));
+  const readyCount=entries.filter(c=>readiness.get(c.missionId).ready).length;
+  $('planning-readiness').textContent=`자동 연결 가능 ${readyCount}개 · 추가 근거 필요 ${entries.length-readyCount}개. 미확인 계약은 아래에 보류 이유를 표시합니다.`;
   $('planning-contracts').replaceChildren();
   for (const c of entries) {
     const label = el('label'), check = el('input'); check.type = 'checkbox'; check.checked = selectedContracts.has(c.missionId);
     check.dataset.mission = c.missionId;
     label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
+    label.append(el('small',readiness.get(c.missionId).label,'planning-readiness'));
     check.onchange = () => {
-      if (check.checked) selectedContracts.add(c.missionId); else selectedContracts.delete(c.missionId);
+      planSelection.set(c.missionId,check.checked);
       updatePlanSelection();
     };
     $('planning-contracts').append(label);
@@ -104,7 +109,7 @@ function showMore() {
       body.append(renderContractLocations(contract, locations));
       if (snapshot.contracts.some(c => c.missionId === contract.missionId)) {
         const add = el('button', '함께 계획할 계약에 추가');
-        add.onclick = () => { selectedContracts.add(contract.missionId); renderPlanning(); $('planning').scrollIntoView({block:'start'}); };
+        add.onclick = () => { planSelection.set(contract.missionId,true); renderPlanning(); $('planning').scrollIntoView({block:'start'}); };
         body.append(add);
       }
       if (contract.objectiveNotices?.length) {

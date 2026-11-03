@@ -52,6 +52,12 @@ SCMDB의 법적 안내는 프로젝트와 기반 Star Citizen Wiki 자료에 CC 
 
 ## 전체 목록의 실제 범위
 
+### 2026-11-03 후속 변환 코드 검토
+
+위에 고정한 ScDataDumper 커밋의 `buildHaulingOrderRoutingMap` / `decodeRoutingEdge`를 다시 확인했다. 각 edge에서 참조 인덱스의 기준값 후보를 순회하고, pickup/dropoff가 cargo 변수가 아닌 위치에 들어가는 첫 후보를 반환한다. 모든 edge가 같은 기준값을 공유하는지는 이 함수에서 검증하지 않으며 결과는 cargo 변수 키로 저장된다. 여러 후보의 의미가 올바른지까지 검증하는 게임 런타임의 원본 연결은 이 코드만으로 알 수 없다. 공개 테스트는 합성 두 배송 묶음을 검사하지만, 문제가 있는 중형의 실제 템플릿 fixture는 확보하지 못했다.
+
+따라서 중형의 잘못된 `DropoffPool=PickupLocation2`와 두 번째 주문 묶음의 연결 누락을 우리가 주문 순서로 보정하지 않는다. 공개 SCMDB의 현재 빌드 주문 6개도 품목·수량·상한은 제공하지만 픽업별 연결은 제공하지 않는다. 실제 템플릿의 신뢰할 수 있는 공개 연결, 또는 해당 실행 계약의 품목별 픽업 할당 근거가 더 필요하다. 단일 주문도 로그에서 현재 마커 2개가 보인다는 사실만으로 전체 topology가 확인되었다고 승격하지 않는다. 이번에 자동 연결 유형을 늘렸다고 보고하지 않는다.
+
 재생 명령: `node scripts/audit-log-box-coverage.mjs`.
 
 [유형별 CSV](audits/mission-box-coverage.csv)와 [요약 JSON](audits/mission-box-coverage.json)은 기존 Wiki 인덱스의 공개 정의 1,840개를 중복 ID 없이 분류한다. 공개 변형·특수 화물·미출시 항목을 포함하므로 **현재 게임의 모든 활성 운송 미션을 확보했다는 뜻이 아니다.**

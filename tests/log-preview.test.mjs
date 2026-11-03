@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {fixture,data,index,stops} from './helpers/log-preview.mjs';
-import {calculatePreview,createPreview,previewOrders} from '../integration/log/preview-packing.mjs';
+import {calculatePreview,createPreview,previewOrders,previewReadiness} from '../integration/log/preview-packing.mjs';
 import {definitionIndex} from '../integration/log/catalog.mjs';
 import {DEFAULT_SHIP,selectShipGrids} from '../ships.mjs';
 const catalog=definitionIndex(JSON.parse(await readFile(new URL('../data/log-mission-index.json',import.meta.url))));
@@ -97,4 +97,11 @@ test('the all-cargo frame reuses the route layout when all selected boxes are ab
  const r=calculatePreview(input());
  const full=r.route.visits.find(v=>v.packing.boxes.length===r.boxCount);
  assert.ok(full);assert.deepEqual(r.packing,full.packing);
+});
+
+test('ambiguous routes stay pending and public bounds never become actual input quantities',()=>{
+ const c=unknown(),r=previewReadiness(c,catalog,index);
+ assert.equal(r.ready,false);assert.match(r.label,/배송지별/);assert.equal(r.preview,undefined);
+ c.markerObservations[0].position=[0,0,0];
+ assert.equal(previewReadiness(c,catalog,index).input,undefined);
 });

@@ -88,4 +88,8 @@
 .preview-instructions small{color:#8ba9b9;display:block;overflow-wrap:anywhere}
 .preview-orders{padding:8px 12px;margin:12px 0;border:1px solid #315160;border-radius:8px}
 .preview-orders h3{font-size:15px;overflow-wrap:anywhere}
+.planning-readiness{display:block;color:#a7c7d5;margin-top:5px}
+.preview-orders p,.preview-orders small{overflow-wrap:anywhere}
+.preview-orders details,.evidence-details{padding:12px 0}
+.preview-orders summary,.evidence-details>summary{cursor:pointer;color:#9be9ed}
 @media(max-width:600px){.preview-controls{grid-template-columns:1fr}.preview-orders{padding:8px}.preview-itinerary{padding-left:18px}}

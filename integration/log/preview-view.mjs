@@ -1,5 +1,4 @@
-import {previewOrders, createPreview, previewLocations} from './preview-packing.mjs';
-import {definitionQuantity} from './catalog.mjs';
+import {createPreview, previewLocations, previewReadiness} from './preview-packing.mjs';
 import {createPreviewSession} from './preview-session.mjs';
 import {DEFAULT_SHIP, selectShipGrids} from '../../ships.mjs';
 const el = (tag, text) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; return n; };
@@ -14,7 +13,7 @@ const boxText = boxes => {
 };
 
 export function previewPanel(initialContracts, {catalog, locations, locationData, prepareAssets, session = createPreviewSession()}) {
-  let contracts = [], signature = '', forms = [], view, worker, timer, serial = 0, opening = 0, closed = true;
+  let contracts = [], signature = '', forms = [], view, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP;
   const prefs = session.preferences;
   const root = el('section'); root.className = 'preview-panel';
@@ -49,10 +48,14 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     const label = el('label',text); label.append(control); controls.append(label);
   }
   panel.append(close,retry,status,partnerHint,controls,form,run,step,itinerary,warnings,instructions,canvas);
-  function stop() { serial++; clearTimeout(timer); worker?.terminate(); worker = null; }
+  function stop() { serial++; clearTimeout(timer); clearTimeout(scheduled); worker?.terminate(); worker = null; }
+  function scheduleCalculation() {
+    clearTimeout(scheduled);
+    if(!closed&&view)scheduled=setTimeout(calculate,350);
+  }
   function invalidate(message) {
     stop(); step.replaceChildren(); itinerary.replaceChildren(); instructions.replaceChildren(); warnings.replaceChildren();
-    view?.update(null,{ship}); if (message) status.textContent = message;
+    view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
   }
   function dispose() {
     closed = true; opening++; stop(); view?.dispose(); view = null; panel.hidden = true; open.disabled = false;
@@ -68,12 +71,19 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       const group = el('section'); group.className = 'preview-orders';
       group.append(el('h3',contract.title || '제목 미확인'));
       try {
-        try {
-          createPreview(contract,catalog,locations);
-          group.append(el('p','확인된 유형의 원래 상자 명세를 사용합니다. 현재 실린 화물이나 남은 배송량이 아닙니다.'));
-        } catch {
-          const input = previewOrders(contract,catalog,locations), draft = session.draft(contract.missionId);
-          group.append(el('p','게임에서 주문별 수량과 픽업·배송지를 확인해 주세요. 상자는 품목별 상한으로 구성한 예상값입니다.'));
+        const readiness=previewReadiness(contract,catalog,locations);
+        group.append(el('p',readiness.label));
+        if(readiness.ready) {
+          const names=new Map(available.map(p=>[p.id,p.name]));
+          for(const c of readiness.preview.mission.cargo)group.append(el('p',
+            `${c.commodity} · ${c.scu} SCU · ${names.get(c.pickupId)} → ${names.get(c.dropoffId)} · ${c.boxes.length?c.boxes.map(b=>`${b.size} SCU × ${b.count}개`).join(' + '):`상한 ${c.maxBoxSize} SCU 기준 예상 구성`}`));
+          group.append(el('small','원래 요구량입니다. 현재 실린 화물이나 남은 배송량이 아닙니다.'));
+        } else if(readiness.input) {
+          const input = readiness.input, draft = session.draft(contract.missionId);
+          group.append(el('p',`픽업: ${input.pickups.map(p=>p.name).join(' / ')} → 배송: ${input.deliveries.map(p=>p.name).join(' / ')}`));
+          group.append(el('p','새 로그 근거가 들어오면 다시 대조합니다. 지금 수동 입력하실 필요는 없습니다. 이 계약은 자동 계획에 반영되지 않습니다.'));
+          const manual=el('details');manual.append(el('summary','직접 확인한 정보로 별도 예상 계획 만들기 (선택)'));
+          manual.append(el('p','로그로 확인되지 않은 배분을 직접 입력하는 선택 기능입니다. 자동 연동으로 처리하지 않습니다.'));
           const f = {id:contract.missionId,inputs:[],check:el('input')};
           f.check.type = 'checkbox'; f.check.checked = draft.confirmed;
           input.orders.forEach((order,i) => {
@@ -81,19 +91,22 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
             const amount = el('input'), pickup = el('select'), delivery = el('select');
             amount.type = 'number'; amount.min = '1'; amount.max = '10000';
             amount.setAttribute('aria-label',`주문 ${i+1} SCU`);
-            amount.value = draft.rows[i]?.scu ?? definitionQuantity(order).value ?? '';
+            amount.value = draft.rows[i]?.scu ?? '';
+            amount.placeholder = '실제 주문 SCU';
             options(pickup,[{id:'',name:'픽업 선택'},...input.pickups]);
             options(delivery,[{id:'',name:'배송 선택'},...input.deliveries]);
-            pickup.value = draft.rows[i]?.pickupId || ''; delivery.value = draft.rows[i]?.dropoffId || '';
+            pickup.value = draft.rows[i]?.pickupId || (input.pickups.length===1?input.pickups[0].id:'');
+            delivery.value = draft.rows[i]?.dropoffId || (input.deliveries.length===1?input.deliveries[0].id:'');
             pickup.setAttribute('aria-label',`주문 ${i+1} 픽업`); delivery.setAttribute('aria-label',`주문 ${i+1} 배송`);
             row.append(el('p',`주문 ${i+1} · ${order.name} · 상자 상한 ${order.maxBoxScu} SCU`),amount,pickup,delivery);
-            group.append(row); f.inputs.push({amount,pickup,delivery});
+            manual.append(row); f.inputs.push({amount,pickup,delivery});
           });
           const label = el('label'); label.append(f.check,document.createTextNode('각 주문의 수량과 경로를 확인했습니다 (실제 상자 구성 확인 아님)'));
-          group.append(label); forms.push(f);
+          manual.append(label);group.append(manual); forms.push(f);
           group.oninput = event => {
             if (event.target !== f.check) f.check.checked = false;
-            captureDraft(f); invalidate('입력이 변경되었습니다. 확인 후 다시 계산해 주세요.');
+            captureDraft(f); invalidate('직접 입력한 예상 계획이 변경되었습니다.');
+            if(f.check.checked)scheduleCalculation();
           };
         }
       } catch (e) { group.append(el('p',e.message)); }
@@ -109,8 +122,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     contracts = next; signature = key;
     open.disabled = !closed || !contracts.length;
     if (!closed) {
-      invalidate('선택한 계약이나 근거가 바뀌었습니다. 입력은 보존했습니다. 확인 후 다시 계산해 주세요.');
+      invalidate('선택한 계약의 근거를 다시 대조하고 있습니다.');
       buildForms(); run.disabled = !view || !contracts.length;
+      scheduleCalculation();
     }
   }
   function currentShip() {
@@ -123,7 +137,12 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     const confirmations = Object.fromEntries(contracts.map(c => [c.missionId,session.draft(c.missionId)]));
     try {
       if (!contracts.length) throw Error('계획할 계약을 선택해 주세요.');
-      for (const c of contracts) createPreview(c,catalog,locations,confirmations[c.missionId]);
+      for (const c of contracts) {
+        const readiness=previewReadiness(c,catalog,locations);
+        if(!readiness.ready&&!confirmations[c.missionId]?.confirmed)
+          throw Error(`${c.title || '제목 미확인'}: ${readiness.label}. 이 계약을 선택 해제하면 나머지 계약을 계획할 수 있습니다.`);
+        createPreview(c,catalog,locations,confirmations[c.missionId]);
+      }
       if (!start.value) throw Error('계획 출발지를 선택해 주세요.');
     } catch (e) { status.textContent = e.message; return; }
     const id = serial; status.textContent = '경로와 배치를 계산하고 있습니다…';
@@ -148,7 +167,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     for (const warning of r.warnings) warnings.append(el('p',warning));
     const frames = [{id:'all',name:'원래 화물 전체 · 합산 미리보기',packing:r.packing},...r.route.visits.map((v,i) =>
       ({id:String(i),name:`${i+1}. ${nameOf(v.locationId)} · ${i===0?'출발지':'작업 후'}`,packing:v.packing,visit:v,index:i}))];
-    options(step,frames); step.value = '0';
+    options(step,frames); step.value = r.packing ? 'all' : frames.find(f=>f.visit?.load>0)?.id || '0';
     step.onchange = () => {
       const frame = frames.find(f => f.id === step.value), v = frame?.visit;
       if (!frame) return;
@@ -173,9 +192,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     step.onchange();
   }
   run.onclick = calculate;
-  start.onchange = () => { session.setPreferences({startId:start.value}); invalidate('출발지가 변경되었습니다. 다시 계산해 주세요.'); };
-  partner.onchange = () => { session.setPreferences({partner:partner.value}); describePartner(); invalidate('파트너가 변경되었습니다. 다시 계산해 주세요.'); };
-  select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate('함선이 변경되었습니다. 다시 계산해 주세요.'); };
+  start.onchange = () => { session.setPreferences({startId:start.value}); invalidate();scheduleCalculation(); };
+  partner.onchange = () => { session.setPreferences({partner:partner.value}); describePartner(); invalidate();scheduleCalculation(); };
+  select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate();scheduleCalculation(); };
   open.onclick = async () => {
     if (!contracts.length) return;
     closed = false; open.disabled = true; panel.hidden = false; retry.hidden = true;
@@ -194,11 +213,11 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
         const disabled = new Set(ship.grids.filter(g => g.disabled).map(g => g.id)), key = ship.grids[index].id;
         if (disabled.has(key)) disabled.delete(key); else disabled.add(key);
         ship = selectShipGrids(ship,[...disabled]); session.setDisabled(ship.id,[...disabled]);
-        invalidate('사용할 그리드가 변경되었습니다. 다시 계산해 주세요.');
+        invalidate('사용할 그리드를 반영하고 있습니다.');scheduleCalculation();
       }});
       view.update(null,{ship});
-      if (!forms.length && start.value) calculate();
-      else status.textContent = '출발지와 필요한 주문 정보를 확인한 뒤 경로·배치를 계산해 주세요.';
+      if (start.value) calculate();
+      else status.textContent = '처음 한 번 출발지를 선택해 주세요. 선택한 계약의 근거가 충분하면 자동으로 계산합니다.';
     } catch {
       if (!closed && generation === opening) {
         status.textContent = '3D 준비를 완료하지 못했습니다. 인터넷 연결과 앱 폴더의 쓰기 권한을 확인한 뒤 다시 시도해 주세요. 라이브러리 다운로드가 차단된 경우에도 로그 감시는 계속됩니다.';
