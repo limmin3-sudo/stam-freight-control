@@ -1,3 +1,4 @@
+import {createFlightReady} from './flight-ready.mjs';
 import {mountWorkspaceTools} from './workspace-tools.mjs';
 import {mountAccount} from './account-view.mjs';
 import {previewPanel} from './preview-view.mjs';
@@ -24,14 +25,16 @@ mountAccount();
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
 let planner;
+const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
+  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
-  planner?.dispose(); planner = null; planSelection.clear(); previewSession.clearDrafts();
+  planner?.dispose(); planner = null;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
 }
 function renderPlanning() {
   if (!catalog || !locations || !snapshot) return;
   if (!planner) {
-    planner = previewPanel([], {catalog, locations, locationData, locationEdits:personalEdits, session: previewSession,
+    planner = previewPanel([], {catalog, locations, locationData, locationEdits:personalEdits, onGuidance:value=>flightReady.guidance(value), session: previewSession,
       prepareAssets: () => live?.preparePreview()});
     $('planning-preview').append(planner.root);
   }
@@ -78,21 +81,22 @@ function updatePlanSelection() {
   const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
+  flightReady.update({selected:chosen.length,blocked:chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:snapshot.pendingContracts?.length||0});
 }
 let locationData,personalEdits=[];
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
 const workspaceTools=mountWorkspaceTools({
   context:()=>({contracts:snapshot?.contracts?.length||0,pendingContracts:snapshot?.pendingContracts?.length||0}),
   onLocations:async edits=>{
-    personalEdits=structuredClone(edits);const reopen=planner?.isOpen();
+    personalEdits=structuredClone(edits);flightReady.setLocations(locationData,personalEdits);const reopen=planner?.isOpen();
     planner?.dispose();planner=null;$('planning-preview').replaceChildren();
     renderPlanning();if(reopen)planner?.root.querySelector('.preview-launch')?.click();
   },
 });
-window.addEventListener('pagehide',event=>{if(!event.persisted)workspaceTools.destroy();});
+window.addEventListener('pagehide',event=>{if(!event.persisted){workspaceTools.destroy();flightReady.destroy();}});
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
-  .then(data => { locationData=data; locations = locationIndex(data);personalEdits=workspaceTools.setLocations(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
+  .then(data => { locationData=data; locations = locationIndex(data);personalEdits=workspaceTools.setLocations(data);flightReady.setLocations(data,personalEdits); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
 const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
   .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
