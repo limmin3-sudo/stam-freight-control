@@ -1,0 +1,31 @@
+name: Log link checks
+on:
+  push:
+    branches: ['rebuild/**']
+  pull_request:
+    paths:
+      - 'integration/log/**'
+      - 'scripts/log-link*.mjs'
+      - 'scripts/build-log-index.mjs'
+      - 'tests/log-*.test.mjs'
+      - 'data/log-mission-index.json'
+      - 'log-link.html'
+      - 'start-log-link.cmd'
+      - '.github/workflows/log-link-checks.yml'
+permissions:
+  contents: read
+concurrency:
+  group: log-link-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/log-link.test.mjs tests/log-party.test.mjs tests/log-live.test.mjs
