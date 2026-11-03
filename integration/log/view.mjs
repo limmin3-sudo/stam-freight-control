@@ -2,6 +2,7 @@ import { LogEvidence } from './state.mjs';
 import { LogLines } from './lines.mjs';
 import { connectLive } from './live-client.mjs';
 import { definitionIndex, definitionReference } from './catalog.mjs';
+import { renderDefinitionRules } from './catalog-view.mjs';
 
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -49,6 +50,7 @@ function showMore() {
       body.append(el('p', reference?.status === 'matched'
         ? `공개 유형 참고: ${reference.title} · ${reference.version}${reference.notForRelease || !reference.released ? ' · 미출시 표시' : ''}`
         : '공개 유형 대조: 미확인', 'detail'));
+      if (reference?.status === 'matched') body.append(renderDefinitionRules(reference));
       body.append(el('p', `목표 마커 ${contract.markerObservations.length}건 · 수량 알림 ${contract.quantityObservations.length}건. 마커 좌표를 거점명이나 내 함선 위치로 추정하지 않습니다.`, 'detail'));
       for (const event of contract.partyObservations) {
         const action = ({ 'share-observed': '공유 알림(공유자)', 'participant-joined': '참여 기록', 'participant-left': '참여 이탈 기록' })[event.type];
