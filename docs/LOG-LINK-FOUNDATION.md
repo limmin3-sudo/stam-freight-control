@@ -19,7 +19,7 @@
 
 ## 실행
 
-Node.js 22, 저장소 루트에서:
+Node.js 22 이상, 저장소 루트에서:
 
 ```sh
 node scripts/log-link.mjs --file "선택한/Game.log"
@@ -43,7 +43,7 @@ npm start
 node scripts/log-link-server.mjs --file "선택한/Game.log" --open
 ```
 
-Node 22의 내장 모듈만 사용한다. 별도 npm 설치·prepare/Three.js 다운로드·게임 파일 추출은 필요 없다. Windows 실행 도우미는 OS 파일 선택창으로 로그를 고른 뒤 같은 명령을 실행한다. 파일 선택창 PowerShell 문법은 검사했지만 실제 Windows 대화상자 조작은 미확인이다.
+Node 22 이상에서 제공하는 내장 모듈만 사용한다. 실행기는 22 미만만 차단하며 이미 설치한 24/26을 제거할 필요가 없다. 별도 npm 설치·prepare/Three.js 다운로드·게임 파일 추출은 필요 없다. Windows 실행 도우미는 OS 파일 선택창으로 로그를 고른 뒤 같은 명령을 실행한다. 파일 선택창 PowerShell 문법은 검사했지만 실제 Windows 대화상자 조작은 미확인이다.
 
 - 서버는 `127.0.0.1`의 임의 포트에만 바인딩한다. 공개 웹사이트/휴대폰에서 연결하는 기능이 아니다. `Host`·`Origin`·`Sec-Fetch-Site` 검사, 실행마다 새 256비트 연결 키, API Authorization 헤더, POST 제어의 동일 Origin 검사를 적용한다. CORS를 허용하거나 브라우저 보안을 끄게 하지 않는다.
 - 서버는 시작 시 선택한 경로만 읽는다. HTTP로 경로를 변경하거나 파일 내용을 쓰는 API는 없다. 정해진 화면 모듈만 제공하며 `Game.log`·서버 코드·다른 파일은 정적 경로로 제공하지 않는다.

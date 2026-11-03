@@ -5,7 +5,7 @@ import { startLogService } from '../integration/log/live-server.mjs';
 async function main() {
   const { values } = parseArgs({ options: { file: { type: 'string' }, port: { type: 'string' }, open: { type: 'boolean' }, help: { type: 'boolean' } } });
   if (values.help || !values.file) {
-    console.log('Node 22: node scripts/log-link-server.mjs --file <Game.log> [--open] [--port 0]\n선택한 로그를 읽는 PC 전용 검증 서버입니다. Ctrl+C로 종료합니다.');
+    console.log('Node 22+: node scripts/log-link-server.mjs --file <Game.log> [--open] [--port 0]\n선택한 로그를 읽는 PC 전용 검증 서버입니다. Ctrl+C로 종료합니다.');
     return;
   }
   const service = await startLogService({ file: values.file, port: values.port === undefined ? 0 : Number(values.port) });

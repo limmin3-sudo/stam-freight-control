@@ -10,7 +10,7 @@ export async function runLogLink(args = process.argv.slice(2), output = console.
     json: { type: 'boolean' }, help: { type: 'boolean' },
   }});
   if (values.help || !values.file?.length) {
-    output('Node 22: node scripts/log-link.mjs --file <Game.log> [--file <backup.log>] [--watch] [--json]\n읽기 전용 검증기입니다. --watch는 파일 하나만 감시하며 --json은 로컬 계약 관측 정보를 출력합니다.');
+    output('Node 22+: node scripts/log-link.mjs --file <Game.log> [--file <backup.log>] [--watch] [--json]\n읽기 전용 검증기입니다. --watch는 파일 하나만 감시하며 --json은 로컬 계약 관측 정보를 출력합니다.');
     return;
   }
   if (values.watch && values.file.length !== 1) throw new Error('watch-requires-one-file');
