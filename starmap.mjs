@@ -5,6 +5,7 @@ import {koName} from './aliases.mjs';
 import {tr} from './i18n.mjs';
 import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
+import {observeRenderLoop} from './render-loop.mjs';
 
 // Star map with three levels (STARMAP › system › body). Directions and order are real; bodies are drawn
 // larger and moons/stations spread out so the map stays readable at every zoom.
@@ -23,11 +24,13 @@ function damp(cur,target,vel,key,time,dt){const o=2/Math.max(1e-4,time),x=o*dt,e
 
 // Camera rig: orbit around a centre with smoothed angles, log-distance zoom and screen-space panning.
 class Rig{
- constructor(camera,el){this.camera=camera;this.el=el;this.goal={x:0,y:0,z:0,theta:.7,phi:1.05,r:100};this.cur={...this.goal};this.vel={};this.minR=.02;this.maxR=900;this.bound=Infinity;this.ptrs=new Map();
-  el.addEventListener('pointerdown',e=>this.down(e));el.addEventListener('pointermove',e=>this.move(e));el.addEventListener('pointerup',e=>this.up(e));el.addEventListener('pointercancel',e=>this.up(e));
-  el.addEventListener('wheel',e=>{e.preventDefault();const k=Math.exp(clamp(e.deltaY,-300,300)*.0017);this.goal.r=clamp(this.goal.r*k,this.lo(),this.maxR);},{passive:false});
-  el.addEventListener('contextmenu',e=>e.preventDefault());}
- set(g,instant=false){Object.assign(this.goal,g);this.goal.r=clamp(this.goal.r,this.lo(),this.maxR);this.goal.phi=clamp(this.goal.phi,.03,Math.PI-.03);this.keepIn();if(instant){Object.assign(this.cur,this.goal);this.vel={};}}
+ constructor(camera,el){this.camera=camera;this.el=el;this.goal={x:0,y:0,z:0,theta:.7,phi:1.05,r:100};this.cur={...this.goal};this.vel={};this.minR=.02;this.maxR=900;this.bound=Infinity;this.ptrs=new Map();this.events=new AbortController();const listen=(type,fn,options={})=>el.addEventListener(type,fn,{...options,signal:this.events.signal});
+  listen('pointerdown',e=>this.down(e));listen('pointermove',e=>this.move(e));listen('pointerup',e=>this.up(e));listen('pointercancel',e=>this.up(e));
+  listen('wheel',e=>{e.preventDefault();const k=Math.exp(clamp(e.deltaY,-300,300)*.0017);this.goal.r=clamp(this.goal.r*k,this.lo(),this.maxR);},{passive:false});
+  listen('contextmenu',e=>e.preventDefault());}
+ dispose(){this.events.abort();this.ptrs.clear();}
+ moving(){const c=this.cur,g=this.goal;return this.ptrs.size>0||Math.hypot(c.x-g.x,c.y-g.y,c.z-g.z)>Math.max(1e-5,c.r*.00001)||Math.abs(c.theta-g.theta)>.0001||Math.abs(c.phi-g.phi)>.0001||Math.abs(Math.log(c.r/g.r))>.0001;}
+ set(g,instant=false){Object.assign(this.goal,g);this.goal.r=clamp(this.goal.r,this.lo(),this.maxR);this.goal.phi=clamp(this.goal.phi,.03,Math.PI-.03);this.keepIn();if(instant){Object.assign(this.cur,this.goal);this.vel={};}this.onChange?.();}
  aim(center,r,dir){const g={x:center.x,y:center.y,z:center.z,r};if(dir){const d=dir.clone().normalize();g.phi=Math.acos(clamp(d.y,-1,1));g.theta=Math.atan2(d.x,d.z);let dt=g.theta-this.goal.theta;while(dt>Math.PI){g.theta-=Math.PI*2;dt-=Math.PI*2;}while(dt<-Math.PI){g.theta+=Math.PI*2;dt+=Math.PI*2;}}return g;}
  down(e){this.el.setPointerCapture?.(e.pointerId);this.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,mode:e.button===2||e.button===1||e.shiftKey||e.ctrlKey?'pan':'rotate'});this.pinch=null;}
  move(e){const p=this.ptrs.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;if(!dx&&!dy)return;
@@ -42,12 +45,13 @@ class Rig{
 }
 
 export function createStarMap(container,labelContainer,data,onSelect){
- const {renderer,scene,camera,controls}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
+ const {renderer,scene,camera,controls,resizeObserver}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
  scene.traverse(o=>{if(o.isAmbientLight)o.intensity=0;if(o.isDirectionalLight)o.intensity=0;});
  let quality=QUALITY.high,qualityName='high';try{const q=localStorage.getItem('vh-map-quality');if(QUALITY[q]){quality=QUALITY[q];qualityName=q;}}catch{}
  renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));const bloom=createBloom(renderer,{strength:quality.bloom});
  const rig=new Rig(camera,renderer.domElement),backdrop=createBackdrop(scene);
  const galaxyGroup=new THREE.Group(),systemGroup=new THREE.Group(),routeGroup=new THREE.Group(),labelGroup=new THREE.Group();scene.add(galaxyGroup,systemGroup,routeGroup,labelGroup);
+ const events=new AbortController(),listen=(target,type,fn,options={})=>target.addEventListener(type,fn,{...options,signal:events.signal});
  const wrap=container.parentElement,tip=document.createElement('div');tip.className='map-tooltip';tip.hidden=true;wrap.append(tip);
  const crumbs=document.createElement('nav');crumbs.className='map-crumbs';wrap.append(crumbs);if(labelContainer)labelContainer.hidden=true;
  const byId=new Map(data.locations.map(l=>[l.id,l])),kids=new Map();for(const l of data.locations)if(l.parentId){const a=kids.get(l.parentId)||[];a.push(l);kids.set(l.parentId,a);}
@@ -155,19 +159,19 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function describe(l){const p=byId.get(l.parentId),n=visitNums(l.id);return `${n.length?n.map(x=>x+'번').join('·')+' 거점 · ':''}${l.name} · ${TYPE_KO[l.type]||l.type}${p&&p.type!=='Star'?' · '+p.name:''} · ${l.system.toUpperCase()}`;}
  function hover(h,e){hovered=h?.loc||null;renderer.domElement.style.cursor=h?'pointer':'grab';if(!h){tip.hidden=true;return;}tip.textContent=h.galaxy?`${h.galaxy.toUpperCase()} 항성계 · 더블클릭으로 들어가기`:describe(h.loc)+' · 더블클릭으로 이동';tip.hidden=false;const r=wrap.getBoundingClientRect();tip.style.left=(e.clientX-r.left+14)+'px';tip.style.top=(e.clientY-r.top+14)+'px';}
  let down=null,lastMove=0;const el=renderer.domElement;el.style.cursor='grab';
- el.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];el.style.cursor='grabbing';tip.hidden=true;});
- el.addEventListener('pointermove',e=>{if(down)return;const t=performance.now();if(t-lastMove<40)return;lastMove=t;hover(pick(e),e);});
- el.addEventListener('pointerleave',()=>hover(null));
- el.addEventListener('pointerup',e=>{const moved=down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;el.style.cursor='grab';if(moved)return;const h=pick(e);if(!h||h.galaxy)return;selected=h.loc.id;onSelect(h.loc,describe(h.loc));});
- el.addEventListener('dblclick',e=>{const h=pick(e);if(!h)return;if(h.galaxy){enterSystem(h.galaxy);const st=data.locations.find(l=>l.system===h.galaxy&&l.type==='Star');if(st)onSelect(st,h.galaxy.toUpperCase()+' 항성계');return;}selected=h.loc.id;onSelect(h.loc,describe(h.loc));focus(h.loc.id);});
- wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}});
+ listen(el,'pointerdown',e=>{down=[e.clientX,e.clientY];el.style.cursor='grabbing';tip.hidden=true;});
+ listen(el,'pointermove',e=>{if(down)return;const t=performance.now();if(t-lastMove<40)return;lastMove=t;hover(pick(e),e);});
+ listen(el,'pointerleave',()=>hover(null));
+ listen(el,'pointerup',e=>{const moved=down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;el.style.cursor='grab';if(moved)return;const h=pick(e);if(!h||h.galaxy)return;selected=h.loc.id;onSelect(h.loc,describe(h.loc));});
+ listen(el,'dblclick',e=>{const h=pick(e);if(!h)return;if(h.galaxy){enterSystem(h.galaxy);const st=data.locations.find(l=>l.system===h.galaxy&&l.type==='Star');if(st)onSelect(st,h.galaxy.toUpperCase()+' 항성계');return;}selected=h.loc.id;onSelect(h.loc,describe(h.loc));focus(h.loc.id);});
+ wrap.tabIndex=-1;listen(wrap,'keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}});
 
  // ---- frame loop -------------------------------------------------------------------------------
- const clock=new THREE.Clock(),tmp=V(),res=new THREE.Vector2();
- function frame(){requestAnimationFrame(frame);if(document.hidden)return;const dt=Math.min(.05,clock.getDelta());time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+ const tmp=V(),res=new THREE.Vector2();
+ function frame(dt){time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=time;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
-  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return;}
+  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return rig.moving()?60:20;}
   if(focusId&&rig.cur.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
   const camPos=camera.position;
   for(const it of items)if(it.mesh){const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds)it.clouds.rotation.y+=dt*.004;}
@@ -193,11 +197,15 @@ export function createStarMap(container,labelContainer,data,onSelect){
   const t=time-revealStart;for(const rb of ribbons){const k=clamp((t-rb.userData.order*.35)/.9,0,1);rb.material.uniforms.uReveal.value=k<1?1-Math.pow(1-k,3):1;}
   for(const m of markers){m.sprite.visible=screen(m.sprite.position).front;const pulse=m.active?1+.25*Math.sin(time*4):1;spriteScale(m.sprite,(m.active?34:22)*pulse,(m.active?34:22)*pulse);}
   if(legLabel){const [pw,ph]=legLabel.sprite.userData.px;legLabel.sprite.position.copy(legLabel.pos);spriteScale(legLabel.sprite,pw*.5,ph*.5);legLabel.sprite.center.set(.5,-.5);legLabel.sprite.visible=t>.6&&screen(legLabel.pos).front;}
-  bloom.render(scene,camera);}
- goGalaxy(true);enterSystem('stanton',true);frame();
- return {setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
+  bloom.render(scene,camera);return rig.moving()?60:20;}
+ const loop=observeRenderLoop(container,frame);rig.onChange=()=>loop.invalidate();
+ goGalaxy(true);enterSystem('stanton',true);
+ const api={setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
-  _debug:()=>({level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
+  _debug:()=>({loop:loop.stats(),post:bloom.stats(),level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
   search:q=>{const n=String(q).toLowerCase();return data.locations.filter(l=>l.name.toLowerCase().includes(n)).slice(0,12);}};
+ let disposed=false;
+ const dispose=()=>{if(disposed)return;disposed=true;loop.dispose();rig.dispose();events.abort();resizeObserver.disconnect();clearLabels();clearGroup(scene);bloom.dispose();renderer.dispose();renderer.forceContextLoss?.();renderer.domElement.remove();tip.remove();crumbs.remove();};
+ return {...api,dispose,...Object.fromEntries(['setSystem','setRoute','focus','focusLeg','home','flyTo','galaxy','setQuality'].map(key=>[key,(...args)=>{if(disposed)return;const result=api[key](...args);loop.invalidate();return result;}]))};
 }
