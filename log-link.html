@@ -3,11 +3,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA='; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>STAM · 운송 관제</title>
 <link rel="stylesheet" href="integration/log/view.css">
 <link rel="stylesheet" href="integration/log/preview.css">
+<link rel="stylesheet" href="integration/log/account.css">
 <main>
   <header><span class="eyebrow">STAM FREIGHT CONTROL · DEVELOPMENT</span><h1>운송 관제</h1>
     <p>계약 기록에서 방문 순서와 화물 배치까지. 이 기기에서 Game.log를 읽어 계획합니다.</p>
@@ -26,7 +27,12 @@
     <button id="cancel" type="button" disabled>읽기 중단</button>
     <p id="progress" role="status" aria-live="polite">로그 파일을 선택해 주세요.</p>
   </section>
-  <div class="log-workbench"><aside class="log-contract-rail"><section id="planning" aria-label="계약 묶음 계획">
+  <div class="log-workbench"><aside class="log-contract-rail"><section id="workspace-account" aria-label="계정과 운항 기록">
+    <h2>ACCOUNT / 계정</h2><p>로그인하고 다른 기기에서도 이어서 사용하세요.</p>
+    <button id="workspace-login" type="button">로그인</button>
+    <button id="workspace-history" type="button">운항 기록 · 누적 통계</button>
+    <p id="account-status" role="status" aria-live="polite"></p>
+  </section><section id="planning" aria-label="계약 묶음 계획">
     <h2>운송 계약</h2>
     <p>연결 가능한 계약은 자동 선택됩니다. 미확인 배분은 보류하며, 같은 유형도 계약별로 구분합니다.</p>
     <p id="planning-readiness" role="status">자동 연결할 수 있는 계약을 확인하고 있습니다.</p>

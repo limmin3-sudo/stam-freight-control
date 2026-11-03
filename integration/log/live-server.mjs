@@ -7,6 +7,9 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
+  ['/integration/log/account-view.mjs',['./account-view.mjs','text/javascript']],
+  ['/integration/log/account.css',['./account.css','text/css']],
   ['/icon.svg', ['../../icon.svg', 'image/svg+xml']],
   ['/integration/log/preview-routes.mjs', ['./preview-routes.mjs', 'text/javascript']],
   ['/bloom.mjs', ['../../bloom.mjs', 'text/javascript']],
@@ -115,7 +118,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
     const send = (code, body, type = 'application/json') => {
       res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA='; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
       res.end(body);
     };
     try {

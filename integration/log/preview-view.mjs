@@ -2,7 +2,7 @@ import {createPreview, previewLocations, previewReadiness, previewContractSignat
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
-import {DEFAULT_SHIP, selectShipGrids, capacity} from '../../ships.mjs';
+import {DEFAULT_SHIP, selectShipGrids, capacity, validateShip} from '../../ships.mjs';
 const el = (tag, text) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; return n; };
 const options = (node, items) => {
   node.replaceChildren();
@@ -304,7 +304,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate();scheduleCalculation(); };
   open.onclick = async () => {
     if (!contracts.length) return;
-    document.querySelector('.log-contract-rail')?.prepend(left);
+    const accountCard=document.getElementById('workspace-account');
+    if(accountCard)accountCard.after(left);else document.querySelector('.log-contract-rail')?.prepend(left);
     closed = false; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
     const generation = ++opening; invalidate('3D 라이브러리를 준비하고 있습니다. 처음에는 다운로드가 필요할 수 있습니다…'); buildForms();
     select.disabled = start.disabled = partner.disabled = run.disabled = true;
@@ -314,6 +315,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if (closed || generation !== opening) return;
       if (!response.ok) throw Error('ships-unavailable');
       ships = [DEFAULT_SHIP,...(await response.json()).filter(s => s.id !== DEFAULT_SHIP.id)];
+      for(const saved of session.savedShips())try{const custom=validateShip(saved);if(!ships.some(s=>s.id===custom.id))ships.push(custom);}catch{ /* Retain invalid originals in storage; do not calculate with them. */ }
       if (closed || generation !== opening) return;
       ship = currentShip(); options(select,ships); select.value = ship.id;
       select.disabled = start.disabled = partner.disabled = false; run.disabled = !contracts.length;
