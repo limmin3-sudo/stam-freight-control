@@ -6,6 +6,7 @@ import { renderDefinitionRules } from './catalog-view.mjs';
 import { locationIndex } from './locations.mjs';
 import { renderContractLocations } from './locations-view.mjs';
 import { renderBoxProfile } from './box-profiles-view.mjs';
+import { renderOriginalManifest } from './manifest-view.mjs';
 
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
@@ -42,7 +43,8 @@ function showMore() {
       if (!card.open || card.querySelector('.body')) return;
       const body = el('div', undefined, 'body');
       const boxesKnown = contract.boxComposition?.status === 'matched-fixed-profile';
-      body.append(el('p', boxesKnown
+      body.append(el('p', contract.originalManifest?.status === 'resolved-original-manifest'
+        ? '목적지별 원래 상자 명세 연결 완료 · 현재 적재·배송 진행 상태는 별도 확인이 필요합니다.' : boxesKnown
         ? '고정 상자 조합 확인 · 픽업·배송지별 할당 미확인으로 적재 계산 대기'
         : '적재 계산 차단 · 실제 품목별 할당과 상자 구성 미확인', 'blocked'));
       for (const conflict of contract.conflicts) body.append(el('p', ({
@@ -61,6 +63,7 @@ function showMore() {
         : '공개 유형 대조: 미확인', 'detail'));
       if (reference?.status === 'matched') body.append(renderDefinitionRules(reference));
       body.append(renderBoxProfile(contract.boxComposition));
+      if (boxesKnown) body.append(renderOriginalManifest(contract.originalManifest));
       body.append(renderContractLocations(contract, locations));
       if (contract.objectiveNotices?.length) {
         const notices = el('details', undefined, 'definition-location');
@@ -105,7 +108,7 @@ function renderSnapshot(next) {
   $('summary').replaceChildren();
   $('diagnostics').hidden = true;
 
-  for (const [label, value] of [['수락·본인 참여 기록이 있는 계약', snapshot.statistics.registeredHauling], ['수량 알림이 있는 계약', snapshot.statistics.withQuantityObservation], ['고정 상자 조합이 확인된 계약', snapshot.statistics.withKnownBoxComposition || 0], ['적재 계산 가능한 계약', 0]]) {
+  for (const [label, value] of [['수락·본인 참여 기록이 있는 계약', snapshot.statistics.registeredHauling], ['수량 알림이 있는 계약', snapshot.statistics.withQuantityObservation], ['고정 상자 조합이 확인된 계약', snapshot.statistics.withKnownBoxComposition || 0], ['목적지별 원래 명세가 연결된 계약', snapshot.statistics.withOriginalManifest || 0]]) {
     const metric = el('div', undefined, 'metric');
     metric.append(el('strong', String(value)), el('span', label));
     $('summary').append(metric);
@@ -163,6 +166,7 @@ $('files').addEventListener('change', async () => {
     }
     if (cancelled) throw new Error('cancelled');
     await Promise.all([catalogReady, locationsReady]);
+    state.locations = locations;
     renderSnapshot(state.snapshot());
     $('progress').textContent = '로그 재생을 완료했습니다. 실제 운항 데이터는 변경하지 않았습니다.';
   } catch (error) {
