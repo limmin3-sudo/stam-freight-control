@@ -1,3 +1,4 @@
+import {trackingPresentation} from './estimated-flight.mjs';
 import {jumpLinks} from './preview-routes.mjs';
 
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
@@ -31,6 +32,10 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
   tools.append(searchWrap,qualitySelect);
   const wrap=el('div');wrap.className='preview-map-viewport';
   const canvas=el('div');canvas.className='preview-map-canvas';
+  const tracking=el('div');tracking.className='preview-tracking';tracking.setAttribute('role','status');
+  const signal=el('i'),trackingTitle=el('strong'),trackingDetail=el('small');tracking.append(signal,trackingTitle,trackingDetail);wrap.append(tracking);
+  function showTracking(state){const presentation=trackingPresentation(state);tracking.dataset.state=presentation.state;trackingTitle.textContent=presentation.title;trackingDetail.textContent=presentation.detail;}
+  showTracking();
   const badge=partnerBadge(onPartner);badge.set(partner);wrap.append(canvas,badge.root);
   const nav=el('div');nav.className='preview-map-navigation';
   const selection=el('p','계획 경로입니다. 현재 함선 위치를 나타내지 않습니다.');selection.className='preview-map-selection';
@@ -67,6 +72,16 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
   qualitySelect.onchange=()=>{map.setQuality(qualitySelect.value);onQuality?.(qualitySelect.value);};
   useStart.onclick=()=>{if(selected)onStart?.(selected.id);};
   return {
+    startFlight(index,{follow,onState}) {
+      const destination=locations.find(l=>l.id===route?.visits[index]?.locationId)?.name||'목적지';
+      showTracking({kind:'estimated'});
+      selection.textContent='예상 함선 위치입니다. 실제 위치와 경유 시각을 보장하지 않습니다.';
+      try {return map.startEstimatedFlight(index,{follow,onState:state=>{showTracking({kind:'estimated',...state});onState?.({...state,destination});}});}
+      catch {showTracking();selection.textContent='구간 이동 시간을 확인하지 못해 예상 이동을 시작할 수 없습니다.';return false;}
+    },
+    pauseFlight:()=>map.pauseEstimatedFlight(),
+    followFlight:value=>map.followEstimatedFlight(value),
+    stopFlight(){map.stopEstimatedFlight();showTracking();selection.textContent='계획 경로입니다. 현재 함선 위치를 나타내지 않습니다.';},
     setPartner(id){badge.set(id);},
     setResult(result){route=result?.route||null;map.setRoute(route,-1);},
     focusStage(index) {

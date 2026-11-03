@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {setup,clearGroup} from './cargo-scene.mjs';
 import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
+import {createEstimatedFlight} from './integration/log/estimated-flight.mjs';
 import {observeRenderLoop} from './render-loop.mjs';
 
 // Star map with three levels (STARMAP › system › body). Directions and order are real; bodies are drawn
@@ -38,7 +39,7 @@ class Rig{
  pan(dx,dy){const h=this.el.clientHeight||400,s=2*this.cur.r*Math.tan(this.camera.fov*Math.PI/360)/h;const right=V().setFromMatrixColumn(this.camera.matrixWorld,0),up=V().setFromMatrixColumn(this.camera.matrixWorld,1);const m=right.multiplyScalar(-dx*s).add(up.multiplyScalar(dy*s));this.goal.x+=m.x;this.goal.y+=m.y;this.goal.z+=m.z;this.keepIn();}
  lo(){return Math.max(this.minR,this.minFor?.(this.goal)||0);}
  keepIn(){const g=this.goal,d=Math.hypot(g.x,g.y,g.z);if(d>this.bound){const k=this.bound/d;g.x*=k;g.y*=k;g.z*=k;}}
- update(dt){const c=this.cur,g=this.goal,v=this.vel;if(this.minFor)g.r=Math.max(g.r,this.lo());for(const k of ['x','y','z'])c[k]=damp(c[k],g[k],v,k,.34,dt);c.theta=damp(c.theta,g.theta,v,'t',.22,dt);c.phi=damp(c.phi,g.phi,v,'p',.22,dt);c.r=Math.exp(damp(Math.log(c.r),Math.log(g.r),v,'r',.32,dt));
+ update(dt,following=false){const c=this.cur,g=this.goal,v=this.vel;if(this.minFor)g.r=Math.max(g.r,this.lo());for(const k of ['x','y','z'])c[k]=damp(c[k],g[k],v,k,following?.12:.34,dt);c.theta=damp(c.theta,g.theta,v,'t',.22,dt);c.phi=damp(c.phi,g.phi,v,'p',.22,dt);c.r=Math.exp(damp(Math.log(c.r),Math.log(g.r),v,'r',.32,dt));
   const sp=Math.sin(c.phi);this.camera.position.set(c.x+c.r*sp*Math.sin(c.theta),c.y+c.r*Math.cos(c.phi),c.z+c.r*sp*Math.cos(c.theta));this.camera.lookAt(c.x,c.y,c.z);this.camera.near=Math.max(1e-5,c.r*.001);this.camera.far=30000;this.camera.updateProjectionMatrix();}
 }
 
@@ -56,6 +57,9 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
  const crumbs=document.createElement('nav');crumbs.className='map-crumbs';wrap.append(crumbs);if(labelContainer)labelContainer.hidden=true;
  const byId=new Map(data.locations.map(l=>[l.id,l])),kids=new Map();for(const l of data.locations)if(l.parentId){const a=kids.get(l.parentId)||[];a.push(l);kids.set(l.parentId,a);}
  const real=l=>V(l.position[0]/UNIT,l.position[2]/UNIT,-l.position[1]/UNIT);
+ const shipMarker=new THREE.Mesh(new THREE.ConeGeometry(.12,.42,4),new THREE.MeshBasicMaterial({color:0xffc77b,depthTest:false,transparent:true,opacity:.95}));
+ shipMarker.renderOrder=30;shipMarker.visible=false;scene.add(shipMarker);
+ let flight=null,flightPath=null,flightEdge=-1,flightSpace=null,flightState=null;
  let level='galaxy',system='stanton',layout=new Map(),items=[],itemById=new Map(),labels=new Map(),route=null,activeIndex=-1,selected=null,focusId=null,focusR=0,hovered=null,extent=50,legLabel=null,ribbons=[],markers=[],revealStart=0,time=0;
 
  // ---- layout -----------------------------------------------------------------------------------
@@ -150,6 +154,32 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
  function frameLeg(i){const v=route?.visits[i];if(!v)return;const sys=byId.get(v.locationId)?.system;if(sys!==system||level!=='system')enterSystem(sys,true);const pts=v.leg.nodes.filter(id=>byId.get(id)?.system===sys).map(posOf).filter(Boolean);if(pts.length<2){focus(v.locationId);return;}
   const box=new THREE.Box3().setFromPoints(pts),c=box.getCenter(V()),span=box.getSize(V()).length();focusId=null;rig.set(rig.aim(c,Math.max(span*1.35,2.4),V(Math.sin(rig.goal.theta),.85,Math.cos(rig.goal.theta))));crumbsRender();}
 
+ // Estimated navigation is a visual guide only; never an observation of the game.
+ function stopEstimatedFlight(){flight=null;flightPath=null;flightState=null;flightEdge=-1;shipMarker.visible=false;}
+ function updateEstimatedFlight(){
+  if(!flight)return;
+  const state=flight.clock.snapshot(),a=byId.get(state.from),b=byId.get(state.to);
+  if(!a||!b){stopEstimatedFlight();return;}
+  const cross=a.system!==b.system,space=cross?'galaxy':a.system;
+  if(flightEdge!==state.edge||flightSpace!==space){
+   if(cross)goGalaxy();else enterSystem(space);
+   flightSpace=space;flightEdge=state.edge;
+   if(cross)flightPath=new THREE.QuadraticBezierCurve3(GALAXY[a.system],GALAXY[a.system].clone().lerp(GALAXY[b.system],.5).add(V(0,8,0)),GALAXY[b.system]);
+   else {const path=avoidBodies(posOf(a.id),posOf(b.id));flightPath=new THREE.CurvePath();for(let i=1;i<path.length;i++)flightPath.add(new THREE.LineCurve3(path[i-1],path[i]));}
+   if(!flight.follow&&!cross){const points=flightPath.getPoints(16),box=new THREE.Box3().setFromPoints(points);rig.set(rig.aim(box.getCenter(V()),Math.max(3,box.getSize(V()).length()*1.35)));}
+  }
+  const key=[Math.floor(state.progress*100),state.paused,state.arrived].join(':');
+  flightState={...state,index:flight.index,follow:flight.follow};
+  if(key!==flight.last){flight.last=key;flight.onState?.(state);}
+  // Browsing another system is allowed; the marker is never drawn in the wrong coordinate frame.
+  shipMarker.visible=cross?level==='galaxy':level==='system'&&system===space;
+  if(!shipMarker.visible&&!flight.follow)return;
+  if(flight.follow){if(cross&&level!=='galaxy')goGalaxy();else if(!cross&&(level!=='system'||system!==space))enterSystem(space);shipMarker.visible=true;}
+  const position=flightPath.getPoint(state.fraction),tangent=flightPath.getTangent(state.fraction).normalize();
+  shipMarker.position.copy(position);if(tangent.lengthSq())shipMarker.quaternion.setFromUnitVectors(V(0,1,0),tangent);
+  shipMarker.scale.setScalar(Math.max(.025,rig.cur.r*.06));
+  if(flight.follow){rig.minR=cross?12:.5;const r=cross?24:Math.max(2.8,Math.min(9,extent*.05));if(Math.hypot(rig.goal.x-position.x,rig.goal.y-position.y,rig.goal.z-position.z)>1e-7||Math.abs(rig.goal.r-r)>1e-7)Object.assign(rig.goal,{x:position.x,y:position.y,z:position.z,r});}
+ }
  // ---- picking & pointer UI ---------------------------------------------------------------------
  const W=()=>container.clientWidth,H=()=>container.clientHeight;
  function screen(p){const v=p.clone().project(camera);return {x:(v.x*.5+.5)*W(),y:(-v.y*.5+.5)*H(),front:v.z<1&&v.z>-1};}
@@ -167,11 +197,11 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
  wrap.tabIndex=-1;listen(wrap,'keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}});
 
  // ---- frame loop -------------------------------------------------------------------------------
- const tmp=V(),res=new THREE.Vector2();
- function frame(dt){time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+ const tmp=V(),res=new THREE.Vector2();let lastFrameClock=performance.now();
+ function frame(dt){const clock=performance.now(),trackingDt=Math.min(.5,Math.max(dt,(clock-lastFrameClock)/1000));lastFrameClock=clock;time+=dt;updateEstimatedFlight();rig.update(flight?.follow?trackingDt:dt,!!flight?.follow);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=time;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
-  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return rig.moving()?60:idleFps;}
+  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return flight&&!flightState?.paused&&!flightState?.arrived?30:rig.moving()?60:idleFps;}
   if(focusId&&rig.cur.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
   const camPos=camera.position;
   for(const it of items)if(it.mesh){const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds)it.clouds.rotation.y+=dt*.004;}
@@ -197,15 +227,20 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
   const t=time-revealStart;for(const rb of ribbons){const k=clamp((t-rb.userData.order*.35)/.9,0,1);rb.material.uniforms.uReveal.value=k<1?1-Math.pow(1-k,3):1;}
   for(const m of markers){m.sprite.visible=screen(m.sprite.position).front;const pulse=m.active?1+.25*Math.sin(time*4):1;spriteScale(m.sprite,(m.active?34:22)*pulse,(m.active?34:22)*pulse);}
   if(legLabel){const [pw,ph]=legLabel.sprite.userData.px;legLabel.sprite.position.copy(legLabel.pos);spriteScale(legLabel.sprite,pw*.5,ph*.5);legLabel.sprite.center.set(.5,-.5);legLabel.sprite.visible=t>.6&&screen(legLabel.pos).front;}
-  bloom.render(scene,camera);return rig.moving()?60:ribbons.some(r=>r.material.uniforms.uReveal.value<1)?30:idleFps;}
+  bloom.render(scene,camera);return flight&&!flightState?.paused&&!flightState?.arrived?30:rig.moving()?60:ribbons.some(r=>r.material.uniforms.uReveal.value<1)?30:idleFps;}
  const loop=observeRenderLoop(container,frame);rig.onChange=()=>loop.invalidate();
  goGalaxy(true);enterSystem('stanton',true);
- const api={setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
+ const api={
+  startEstimatedFlight(index,{follow=false,onState}={}){const leg=route?.visits[index]?.leg;if(!leg)return false;stopEstimatedFlight();flight={index,follow,onState,clock:createEstimatedFlight(leg)};return true;},
+  pauseEstimatedFlight(){if(!flight)return false;return flight.clock.togglePause().paused;},
+  followEstimatedFlight(value){if(flight){flight.follow=!!value;flightEdge=-1;}},
+  stopEstimatedFlight,
+  setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;if(fresh)stopEstimatedFlight();route=p;activeIndex=index;if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{if(qualityStorageKey)localStorage.setItem(qualityStorageKey,q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);const old=sphereGeo;sphereGeo=new THREE.SphereGeometry(1,...quality.seg);sphereGeo.userData.shared=true;for(const group of [galaxyGroup,systemGroup])group.traverse(o=>{if(o.geometry===old)o.geometry=sphereGeo;});old.dispose();if(level==='system')buildSystem(system);},quality:()=>qualityName,
-  _debug:()=>({loop:loop.stats(),post:bloom.stats(),memory:{...renderer.info.memory},level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
+  _debug:()=>({loop:loop.stats(),post:bloom.stats(),memory:{...renderer.info.memory},estimatedFlight:flightState,shipVisible:shipMarker.visible,shipScreen:shipMarker.visible?screen(shipMarker.position):null,level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id))}))}),
   search:q=>{const n=String(q).toLowerCase();return data.locations.filter(l=>l.name.toLowerCase().includes(n)).slice(0,12);}};
  let disposed=false;
  const dispose=()=>{if(disposed)return;disposed=true;loop.dispose();rig.dispose();events.abort();resizeObserver.disconnect();clearLabels();clearGroup(scene);sphereGeo.dispose();bloom.dispose();renderer.dispose();renderer.forceContextLoss?.();renderer.domElement.remove();tip.remove();crumbs.remove();};
- return {...api,dispose,...Object.fromEntries(['setSystem','setRoute','focus','focusLeg','home','flyTo','galaxy','setQuality'].map(key=>[key,(...args)=>{if(disposed)return;const result=api[key](...args);loop.invalidate();return result;}]))};
+ return {...api,dispose,...Object.fromEntries(['startEstimatedFlight','pauseEstimatedFlight','followEstimatedFlight','stopEstimatedFlight','setSystem','setRoute','focus','focusLeg','home','flyTo','galaxy','setQuality'].map(key=>[key,(...args)=>{if(disposed)return;const result=api[key](...args);loop.invalidate();return result;}]))};
 }
