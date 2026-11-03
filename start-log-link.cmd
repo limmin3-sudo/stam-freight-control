@@ -4,11 +4,13 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 (
   echo Node.js was not found on PATH. Install Node.js 22 or newer and reopen this window.
+  echo Official download: https://nodejs.org/en/download
   pause
   exit /b 1
 )
 node -e "console.log('Using Node.js '+process.version+' at '+process.execPath);if(Number(process.versions.node.split('.')[0]) < 22){console.error('Node.js 22 or newer is required. Found '+process.version);process.exit(1)}"
 if errorlevel 1 (
+  echo Official download: https://nodejs.org/en/download
   pause
   exit /b 1
 )
