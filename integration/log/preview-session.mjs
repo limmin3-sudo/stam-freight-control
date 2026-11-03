@@ -29,6 +29,7 @@ export function createPreviewSession(storage) {
     shipId: typeof saved?.shipId === 'string' ? saved.shipId : '',
     startId: typeof saved?.startId === 'string' ? saved.startId : '',
     partner: saved?.partner === 'operator' ? 'operator' : 'navigator',
+    mapQuality: saved?.mapQuality === 'high' ? 'high' : 'normal',
     disabled: Object.fromEntries(Object.entries(saved?.disabled || {}).filter(([id, values]) =>
       id.length < 160 && Array.isArray(values) && values.length <= 500 && values.every(v => typeof v === 'string'))),
   };
