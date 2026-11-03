@@ -123,3 +123,13 @@ test('a restarted service does not accept the previous pairing token', async t =
   assert.notEqual(s.service.token, second.token);
   assert.equal((await fetch(second.origin + '/api/status', { headers: { Authorization: 'Bearer ' + s.service.token } })).status, 401);
 });
+
+test('preview asset preparation requires pairing and same origin; static closure excludes private files',async t=>{
+  const s=await setup(t);
+  assert.equal((await fetch(s.service.origin+'/api/preview-assets',{method:'POST'})).status,401);
+  assert.equal((await s.api('/api/preview-assets',{method:'POST'})).status,403);
+  for(const file of ['/cargo-scene.mjs','/integration/log/preview-worker.mjs','/integration/log/preview-packing.mjs','/integration/log/preview-routes.mjs','/data/ships.json'])
+    assert.equal((await fetch(s.service.origin+file)).status,200,file);
+  for(const file of ['/integration/log/preview-assets-node.mjs','/account.mjs','/.env'])
+    assert.equal((await fetch(s.service.origin+file)).status,404,file);
+});

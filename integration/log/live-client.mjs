@@ -9,10 +9,10 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
   history.replaceState(null, '', location.pathname + location.search);
   let timer, closed = false, polling = false, revision = -1, failures = 0;
   const pending = new Set();
-  async function request(path, method = 'GET') {
+  async function request(path, method = 'GET', timeoutMs = 4000) {
     const controller = new AbortController();
     pending.add(controller);
-    const timeout = setTimeout(() => controller.abort(), 4000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const response = await fetch(path, { method, headers: { Authorization: `Bearer ${token}` },
         credentials: 'omit', cache: 'no-store', redirect: 'error', signal: controller.signal });
@@ -69,5 +69,5 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
   }
   document.addEventListener('visibilitychange', wake);
   timer = setTimeout(poll, 0);
-  return { disconnect, pause: () => control('pause'), resume: () => control('resume') };
+  return { preparePreview: () => request('/api/preview-assets', 'POST', 20000), disconnect, pause: () => control('pause'), resume: () => control('resume') };
 }

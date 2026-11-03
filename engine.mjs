@@ -13,8 +13,8 @@ export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,
 export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
 export const COLORS=['#57d9db','#ecb969','#a697f4','#eb8fb1','#8cd6a1','#8dbbfa','#e3dd84','#cda17e'];
 export function assumedBoxes(scu,maxSize=8){const out=[];for(const size of SIZES.filter(s=>s<=maxSize)){while(scu>=size){out.push(size);scu-=size;}}return out;}
-// Unknown layout: the wiki mission's container limit is used as is (largest boxes are the hardest to fit, so the
-// plan still holds when smaller boxes arrive); otherwise the usual cap of `unknownBox` SCU.
+// Unknown layouts use the per-item cap as a planning assumption. Equal SCU
+// does not guarantee that a different box composition fits the same grids.
 export function assumedLimit(cargo,unknownBox=8){return SIZES.includes(cargo.maxBoxSize)?(cargo._maxBoxSource==='wiki'?cargo.maxBoxSize:Math.min(unknownBox,cargo.maxBoxSize)):unknownBox;}
 export function boxList(cargo,unknownBox=8){
  if(!Number.isInteger(cargo.scu)||cargo.scu<1||cargo.scu>10000)throw Error('화물 SCU는 1–10,000 사이 정수만 가능합니다.');
