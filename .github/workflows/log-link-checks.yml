@@ -37,4 +37,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Prepare deterministic public coordinates for the full test suite
+        run: node -e "require('node:fs').copyFileSync('.github/pages-baseline/locations.json', 'data/locations.json')"
       - run: npm test
