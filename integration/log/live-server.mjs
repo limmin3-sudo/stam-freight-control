@@ -16,6 +16,7 @@ const STATIC = new Map([
   ['/route-display.mjs', ['../../route-display.mjs', 'text/javascript']],
   ['/assets/partners/navigator.jpg', ['../../assets/partners/navigator.jpg', 'image/jpeg']],
   ['/assets/partners/aide.jpg', ['../../assets/partners/aide.jpg', 'image/jpeg']],
+  ['/integration/log/estimated-flight.mjs', ['./estimated-flight.mjs', 'text/javascript']],
   ['/integration/log/preview-map.mjs', ['./preview-map.mjs', 'text/javascript']],
   ['/data/ships.json', ['../../data/ships.json', 'application/json']],
   ['/delivery-first.mjs', ['../../delivery-first.mjs', 'text/javascript']],

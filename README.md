@@ -1,5 +1,8 @@
 # STAM FREIGHT CONTROL
 
+재구축 전체 범위와 미완료 항목: [기능 작업 목록](docs/REBUILD-FEATURE-TRACKER.md). 원래 화면 구도와 다른 도구에서 합칠 기능을 함께 추적합니다.
+
+
 Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션별 화물·경로·적재·시간을 정리하는 비공식 팬 도구입니다.
 
 - 사이트: https://limmin3-sudo.github.io/stam-freight-control/

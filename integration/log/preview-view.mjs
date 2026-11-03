@@ -2,7 +2,7 @@ import {createPreview, previewLocations, previewReadiness} from './preview-packi
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
-import {DEFAULT_SHIP, selectShipGrids} from '../../ships.mjs';
+import {DEFAULT_SHIP, selectShipGrids, capacity} from '../../ships.mjs';
 const el = (tag, text) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; return n; };
 const options = (node, items) => {
   node.replaceChildren();
@@ -16,7 +16,8 @@ const boxText = boxes => {
 
 export function previewPanel(initialContracts, {catalog, locations, locationData, prepareAssets, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
-  let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP;
+  let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
+  const events = new AbortController();
   const prefs = session.preferences;
   const root = el('section'); root.className = 'preview-panel';
   const open = el('button', '운송 관제 열기'), panel = el('div'), status = el('p');
@@ -41,7 +42,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   const canvas = el('div'); canvas.className = 'preview-canvas';
   const configuration=el('details');configuration.className='preview-configuration';configuration.open=!prefs.startId;
   configuration.append(el('summary','함선 · 출발지 · 파트너 설정'),controls,partnerHint);
-  const revealPartner=()=>{configuration.open=true;partner.focus();};
+  const revealPartner=()=>{if(controlMode)setControlMode(false);configuration.open=true;partner.focus();};
   const cargoPartner=partnerBadge(revealPartner);cargoPartner.set(partner.value);describePartner();
   const visuals=el('div');visuals.className='preview-visuals';
   const mapHost=el('div');mapHost.className='preview-map-host';
@@ -50,7 +51,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   cargoHost.append(cargoHeader,canvas);visuals.append(mapHost,cargoHost);
   const metrics=el('div');metrics.className='preview-metrics';metrics.setAttribute('aria-label','운송 계획 요약');
   const modeBar=el('div');modeBar.className='preview-view-modes';modeBar.setAttribute('aria-label','지도와 적재 화면');
-  for(const [mode,label] of [['both','나란히'],['map','지도'],['cargo','적재 3D']]) {
+  for(const [mode,label] of [['both','지도 + 아래 적재'],['map','지도'],['cargo','적재 3D']]) {
     const button=el('button',label);button.type='button';button.setAttribute('aria-pressed',String(mode==='both'));
     button.onclick=()=>{mapHost.hidden=mode==='cargo';cargoHost.hidden=mode==='map';visuals.dataset.mode=mode;
       for(const b of modeBar.children)b.setAttribute('aria-pressed',String(b===button));};modeBar.append(button);
@@ -61,10 +62,52 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   previous.onclick=()=>{if(step.selectedIndex>0){step.selectedIndex--;step.onchange?.();}};
   next.onclick=()=>{if(step.selectedIndex<step.options.length-1){step.selectedIndex++;step.onchange?.();}};
   const routePanel=el('section');routePanel.className='preview-route-panel';routePanel.append(el('h3','방문 순서'),itinerary);
-  const operations=el('div');operations.className='preview-operations';operations.append(routePanel,instructions);
+  const operations=el('aside');operations.className='preview-operations';operations.append(routePanel,instructions);
   const manifest=el('details');manifest.className='preview-manifest';manifest.append(el('summary','계약별 화물과 연결 근거'),form);
   const assumptions=el('details');assumptions.className='preview-assumptions';assumptions.append(el('summary','계산 근거와 주의 사항'),warnings);
-  const toolbar=el('div');toolbar.className='preview-toolbar';toolbar.append(el('h2','운송 관제'),close,retry);
+  const desk=el('button','관제 모드');desk.type='button';desk.setAttribute('aria-pressed','false');
+  const exitDesk=el('button','기본 화면으로');exitDesk.type='button';exitDesk.hidden=true;exitDesk.onclick=()=>setControlMode(false);
+  const toolbar=el('div');toolbar.className='preview-toolbar';toolbar.append(el('h2','운송 계획'),exitDesk,close,retry);
+  const flightBar=el('div');flightBar.className='preview-flight-bar';
+  const launch=el('button','운송 시작 · 예상 이동'),pause=el('button','일시정지'),end=el('button','이동 표시 종료');
+  launch.type=pause.type=end.type='button';launch.disabled=true;pause.hidden=end.hidden=true;
+  const flightNote=el('p','운송을 시작하면 계획 경로를 따라 예상 위치를 표시합니다. 실제 위치·도착·배송 완료와는 별개입니다.');
+  flightNote.className='preview-flight-note';
+  flightBar.append(launch,pause,end,flightNote);
+  function setControlMode(value) {
+    controlMode=value;panel.classList.toggle('preview-control-mode',value);
+    document.body.classList.toggle('preview-control-open',value);
+    exitDesk.hidden=!value;
+    mapHost.hidden=!value&&visuals.dataset.mode==='cargo';cargoHost.hidden=!value&&visuals.dataset.mode==='map';
+    // Reuse the existing views and controls; never create a second WebGL scene for control mode.
+    if(value)flightBar.prepend(launch);else left.insertBefore(launch,desk);
+    desk.textContent=value?'기본 화면으로':'관제 모드';desk.setAttribute('aria-pressed',String(value));
+    mapView?.followFlight(value);
+  }
+  desk.onclick=()=>setControlMode(!controlMode);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&controlMode){setControlMode(false);e.preventDefault();e.stopPropagation();}},{signal:events.signal,capture:true});
+  function resetFlight() {
+    flightRoute=null;flightIndex=0;launch.disabled=true;launch.textContent='운송 시작 · 예상 이동';
+    pause.hidden=end.hidden=true;pause.textContent='일시정지';
+    mapView?.stopFlight();flightNote.textContent='운송을 시작하면 계획 경로를 따라 예상 위치를 표시합니다. 실제 위치·도착·배송 완료와는 별개입니다.';
+  }
+  launch.onclick=()=>{
+    if(!flightRoute||!mapView)return;
+    flightIndex++;
+    const visit=flightRoute.visits[flightIndex];if(!visit)return;
+    // Stage inspection remains a preview. Animation never changes cargo or completes a contract.
+    step.value=String(flightIndex-1);step.onchange?.();
+    launch.disabled=true;pause.hidden=end.hidden=false;pause.textContent='일시정지';
+    if(!controlMode)mapHost.scrollIntoView({block:'center',behavior:'smooth'});
+    const started=mapView.startFlight(flightIndex,{follow:controlMode,onState:state=>{
+      flightNote.textContent=`예상 이동 · ${state.destination} · ${Math.round(state.progress*100)}%${state.paused?' · 일시정지':''}${state.arrived?' · 예상 시간 경과, 실제 도착 미확인':''}`;
+      if(state.arrived){pause.hidden=true;launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
+    }});
+    if(started){launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
+    if(!started){flightIndex--;launch.disabled=false;pause.hidden=end.hidden=true;flightNote.textContent='구간 이동 시간을 확인하지 못했습니다. 경로를 다시 계산해 주세요.';}
+  };
+  pause.onclick=()=>{const paused=mapView?.pauseFlight();pause.textContent=paused?'계속 이동':'일시정지';};
+  end.onclick=()=>{const saved=flightRoute;resetFlight();flightRoute=saved;launch.disabled=!saved||saved.visits.length<2;};
   const available = previewLocations(locationData).sort((a,b) => a.name.localeCompare(b.name));
   function fillStarts() {
     const query = search.value.trim().toLowerCase();
@@ -76,19 +119,31 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   for (const [text, control] of [['운항 파트너',partner],['함선',select],['출발지 검색',search],['계획 출발지 (현재 함선 위치 아님)',start]]) {
     const label = el('label',text); label.append(control); controls.append(label);
   }
-  panel.append(toolbar,status,configuration,run,metrics,modeBar,stageBar,visuals,operations,manifest,assumptions);
+  const center=el('div');center.className='preview-center';center.append(metrics,modeBar,stageBar,visuals,flightBar,manifest,assumptions);
+  const shipSummary=el('section');shipSummary.className='preview-ship-card';
+  function renderShipSummary(result) {
+    shipSummary.replaceChildren(el('small','SHIP / 운용 함선'),el('h3',ship.name));
+    const rows=[['화물칸',`${capacity(ship)} SCU · 사용 ${ship.grids.filter(g=>!g.disabled).length}/${ship.grids.length}`],
+      ['출발',available.find(p=>p.id===start.value)?.name||'선택 필요'],
+      ['계약',result?`${result.contractCount}건 · ${result.totalScu} SCU`:'계산 대기']];
+    const list=el('dl');for(const [name,value] of rows)list.append(el('dt',name),el('dd',value));shipSummary.append(list);
+  }
+  const left=el('div');left.className='preview-settings';left.append(shipSummary,launch,desk,configuration,run);
+  launch.className='preview-flight-launch';desk.className='preview-desk-launch';renderShipSummary();
+  // Same floorplan as the original: contracts/settings left, map/cargo center, route right.
+  panel.append(toolbar,status,left,center,operations);
   function stop() { serial++; clearTimeout(timer); clearTimeout(scheduled); worker?.terminate(); worker = null; }
   function scheduleCalculation() {
     clearTimeout(scheduled);
     if(!closed&&view)scheduled=setTimeout(calculate,350);
   }
   function invalidate(message) {
-    stop(); step.replaceChildren(); itinerary.replaceChildren(); instructions.replaceChildren(); warnings.replaceChildren();
+    resetFlight();renderShipSummary(); stop(); step.replaceChildren(); itinerary.replaceChildren(); instructions.replaceChildren(); warnings.replaceChildren();
     metrics.replaceChildren();previous.disabled=next.disabled=true;mapView?.setResult(null);
     view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
   }
   function dispose() {
-    closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; open.disabled = !contracts.length;open.hidden=false;
+    panel.insertBefore(left,center);setControlMode(false);resetFlight(); closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; open.disabled = !contracts.length;open.hidden=false;
   }
   close.onclick = dispose; retry.onclick = () => { dispose(); open.click(); };
   function captureDraft(f) {
@@ -192,6 +247,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   function renderResult(r) {
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));
     const numbers=stepNumbers(r.route.visits,map);
+    renderShipSummary(r);flightRoute=r.route;launch.disabled=!mapView||r.route.visits.length<2;
     mapView?.setResult(r);
     const nameOf = id => map.get(id)?.name || id;
     status.textContent = `${r.estimated?'예상 상자 배치 · 실제 구성 미확인':'확인된 원래 상자 구성'} · ${r.boxCount}개 / ${r.totalScu} SCU. 현재 적재·남은 수량이 아닌 운송 계획입니다.`;
@@ -248,6 +304,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate();scheduleCalculation(); };
   open.onclick = async () => {
     if (!contracts.length) return;
+    document.querySelector('.log-contract-rail')?.prepend(left);
     closed = false; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
     const generation = ++opening; invalidate('3D 라이브러리를 준비하고 있습니다. 처음에는 다운로드가 필요할 수 있습니다…'); buildForms();
     select.disabled = start.disabled = partner.disabled = run.disabled = true;
@@ -289,5 +346,5 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   };
   updateContracts(initialContracts);
-  return {root,dispose,updateContracts};
+  return {root,dispose(){dispose();events.abort();},updateContracts};
 }

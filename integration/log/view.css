@@ -30,3 +30,8 @@ footer{margin-top:26px;font-size:11px}
 button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #74e1d7;outline-offset:3px}
 @media(max-width:1000px){.log-workbench{grid-template-columns:1fr}.log-contract-rail{position:static;padding:12px}#planning-contracts{max-height:200px;grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:20px 16px}}
 @media(max-width:620px){main{padding:20px 12px}#planning-contracts{grid-template-columns:1fr}#live{gap:9px;padding:12px}#live-detail{flex-basis:100%}header h1{font-size:26px}.log-workbench{gap:12px}}
+main{max-width:1920px}
+.log-workbench{grid-template-columns:235px minmax(0,1fr);gap:16px}
+#planning-contracts{max-height:42vh}
+@media(max-width:1250px) and (min-width:1001px){.log-workbench{grid-template-columns:195px minmax(0,1fr);gap:12px}main{padding:20px 14px}.log-contract-rail{padding:12px}}
+@media(max-width:1000px){.log-workbench{grid-template-columns:1fr}#planning-contracts{max-height:200px}}
