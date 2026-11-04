@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +32,7 @@ jobs:
           STAM_WEB_RELEASE: /tmp/stam-release
         run: |
           node scripts/check-unified-deck-browser.mjs
+          cat /tmp/stam-visible-untranslated.json
           node scripts/check-account-browser.mjs
           node scripts/check-onboarding-browser.mjs
       - uses: actions/upload-artifact@v4
