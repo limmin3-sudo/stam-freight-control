@@ -1,11 +1,12 @@
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 $version = (Get-Content data/rebuild-version.json | ConvertFrom-Json).version
 $runtimeVersion = '22.23.4'
 $expected = 'cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20'
 $work = Join-Path $env:RUNNER_TEMP ('stam-' + [guid]::NewGuid().ToString())
 New-Item -ItemType Directory $work | Out-Null
 $zip = Join-Path $work 'node.zip'
-Invoke-WebRequest "https://nodejs.org/dist/v$runtimeVersion/node-v$runtimeVersion-win-x64.zip" -OutFile $zip
+Invoke-WebRequest -UseBasicParsing "https://nodejs.org/dist/v$runtimeVersion/node-v$runtimeVersion-win-x64.zip" -OutFile $zip
 if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Runtime checksum mismatch' }
 Expand-Archive $zip -DestinationPath $work
 $out = Join-Path $work "STAM-$version-win-x64"
@@ -15,7 +16,7 @@ New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')
 $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/out:$out/STAM.exe" desktop/Launcher.cs
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 # Run the compiled app against its bundled runtime, not the runner's node on PATH.
 $smoke = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test' -Wait -PassThru
