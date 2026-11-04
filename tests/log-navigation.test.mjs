@@ -65,3 +65,13 @@ test('malformed timestamps, entity mismatches and remote target events fail clos
  const ships=JSON.parse(readFileSync(new URL('../data/ships.json',import.meta.url)));
  for(const ref of Object.values(SHIP_REFERENCES).filter(r=>r.id))assert.equal(ships.find(s=>s.id===ref.id)?.name,ref.name);
 });
+
+test('quantum target offers expire separately, matching recent arrival never becomes a position',()=>{
+ const f=fixture();f.add(target());f.add(arrive());
+ const status={phase:'watching',generation:0},navigation=f.state.snapshot().navigation;
+ const candidate=liveNavigationCandidate(navigation,status,Date.parse(at)+150000);
+ assert.equal(candidate.ship,null);assert.equal(candidate.target.phase,'arrived');assert.equal(candidate.currentPositionVerified,false);
+ assert.equal(liveNavigationCandidate(navigation,status,Date.parse(at)+180001).target,null);
+ const g=fixture();g.add(target());assert.equal(liveNavigationCandidate(g.state.snapshot().navigation,status,Date.parse(at)-1).target,null);
+ assert.equal(liveNavigationCandidate(g.state.snapshot().navigation,status,Date.parse(at)+120001).target,null);
+});

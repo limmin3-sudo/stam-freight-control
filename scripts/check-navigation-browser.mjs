@@ -34,11 +34,22 @@ try{
  await appendFile(file,target('MISC_Hull_B',new Date(Date.now()-121000).toISOString()));
  await page.waitForFunction(()=>document.querySelector('#live-detail').textContent.includes('파일 교체 1회'));
  assert.equal(await page.locator('.ready-observed').isVisible(),false);
- await appendFile(file,target());await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).waitFor();
+ await appendFile(file,target('CRUS_Starlifter_C2').replace('PRIVATE_BEACON','LOC_RR_ARC_LEO'));
+ await page.waitForFunction(()=>document.querySelector('.ready-observed').textContent.includes('Crusader C2 Hercules'));
+ assert.match(await page.locator('.ready-observed').innerText(),/선택한 퀀텀 목적지 · Baijini Point/);
+ assert.equal(await page.getByLabel('출항 준비 함선',{exact:true}).inputValue(),'misc-hull-b');
+ await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).click();
+ assert.equal(await page.getByLabel('출항 준비 함선',{exact:true}).inputValue(),'crusader-c2-hercules-starlifter');
+ await appendFile(file,`<${stamp()}> [Notice] <Quantum Drive Arrived - Arrived at Final Destination> [ItemNavigation][CL][1] | NOT AUTH | CRUS_Starlifter_C2_12345[12345]|CSCItemNavigation::OnQuantumDriveArrived|Quantum Drive has arrived at final destination [Team_CGP4][QuantumTravel]\n`);
+ await page.waitForFunction(()=>document.querySelector('.ready-observed').textContent.includes('퀀텀 도착 기록 · Baijini Point'));
+ assert.equal(await page.getByLabel('출항 준비 출발지',{exact:true}).inputValue(),start);
+ assert.equal(await page.locator('canvas').count(),0);
+ await appendFile(file,target());await page.waitForFunction(()=>document.querySelector('.ready-observed').textContent.includes('MISC Hull B'));
+ await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).click();
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  assert.ok(!/(PRIVATE_NAME|PRIVATE_BEACON|PRIVATE_SESSION|12345)/.test(await page.locator('body').innerText()));
  await page.getByRole('button',{name:'화면 연결 해제',exact:true}).click();assert.equal(await page.locator('.ready-observed').isVisible(),false);
  assert.equal(await page.getByLabel('출항 준비 함선',{exact:true}).inputValue(),'misc-hull-b');assert.equal(await page.getByLabel('출항 준비 출발지',{exact:true}).inputValue(),start);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log(JSON.stringify({passed:true,sourcedCandidates:true,explicitApply:true,noAutomaticPreferences:true,noRenderers:true,pauseReleaseSessionRotation:true,unsupportedShipBlocked:true,staleBlocked:true,disconnectPreservesPlan:true,noPrivateText:true,mobileOverflow:false,errors,bad}));
+ console.log(JSON.stringify({passed:true,sourcedCandidates:true,expandedC2Candidate:true,quantumTargetAndArrival:true,noArrivalPositionOverwrite:true,explicitApply:true,noAutomaticPreferences:true,noRenderers:true,pauseReleaseSessionRotation:true,unsupportedShipBlocked:true,staleBlocked:true,disconnectPreservesPlan:true,noPrivateText:true,mobileOverflow:false,errors,bad}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}
