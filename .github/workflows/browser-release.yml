@@ -34,7 +34,7 @@ jobs:
           node scripts/check-unified-deck-browser.mjs
           cat /tmp/stam-visible-untranslated.json
           node scripts/check-account-browser.mjs
-          node scripts/check-onboarding-browser.mjs
+          STAM_CHROMIUM_PATH=$(command -v google-chrome) node scripts/check-onboarding-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -42,5 +42,7 @@ jobs:
           path: |
             /tmp/stam-unified-*.png
             /tmp/stam-visible-untranslated.json
+            /tmp/stam-guide-*.png
+            /tmp/stam-log-file-guide*.png
           if-no-files-found: ignore
           retention-days: 14
