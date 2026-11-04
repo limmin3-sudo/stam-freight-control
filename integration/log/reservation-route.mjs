@@ -22,11 +22,15 @@ function buildRoute(result,previews,{startId,partner}){
   const pickups=p.visitRequirements?.pickups||[...new Set(p.mission.cargo.map(c=>c.pickupId))];
   const deliveries=p.visitRequirements?.deliveries||[...new Set(p.mission.cargo.map(c=>c.dropoffId))];
   if(!complete||!pickups.length||!deliveries.length||[...pickups,...deliveries].some(id=>!ids.has(id)))return hold('계약의 전체 픽업·배송 지점을 확인하고 있습니다.');
-  for(const pickupId of pickups)for(const dropoffId of deliveries)constraints.push({missionId:p.mission.id,pickupId,dropoffId});
+  const progress=result.cargoProgress||{};
+  const allPicked=p.mission.cargo.length>0&&p.mission.cargo.every(row=>progress[row.key]?.picked);
+  const pendingDeliveries=deliveries.filter(id=>{const rows=p.mission.cargo.filter(row=>row.dropoffId===id);return !rows.length||!rows.every(row=>progress[row.key]?.delivered);});
+  for(const pickupId of pickups)for(const dropoffId of pendingDeliveries)constraints.push({missionId:p.mission.id,pickupId,dropoffId,picked:allPicked||p.mission.cargo.filter(row=>row.pickupId===pickupId).length>0&&p.mission.cargo.filter(row=>row.pickupId===pickupId).every(row=>progress[row.key]?.picked)});
  }
- if(!constraints.length||constraints.length>48)return hold('방문 조건이 많습니다. 계획할 계약을 나누어 선택해 주세요.');
+ if(!constraints.length)return hold('배송하셨다고 확인한 화물을 모두 반영했습니다. 게임 계약 완료는 로그에서 따로 확인합니다.');
+ if(constraints.length>48)return hold('방문 조건이 많습니다. 계획할 계약을 나누어 선택해 주세요.');
  const nav=navigator({locations:result.stops,jumps:jumpLinks.filter(j=>ids.has(j.from)&&ids.has(j.to))},{});
- const initial={status:constraints.map(()=>0),at:startId,cost:0,actions:[]};
+ const initial={status:constraints.map(c=>c.picked?1:0),at:startId,cost:0,actions:[]};
  const indices=new Map();constraints.forEach((c,i)=>{if(!indices.has(c.missionId))indices.set(c.missionId,[]);indices.get(c.missionId).push(i);});
  function advance(state,i){
   const c=constraints[i],stage=state.status[i];if(stage===2)return null;
@@ -40,13 +44,13 @@ function buildRoute(result,previews,{startId,partner}){
  let planned;
  if(partner==='operator')planned=deliveryFirstRoute(constraints,nav,initial,advance);
  else{
-  const proposal=planActionRoute(constraints,startId,nav);
+  const proposal=constraints.some(c=>c.picked)?null:planActionRoute(constraints,startId,nav);
   if(proposal){planned=initial;for(const a of proposal.actions){planned=advance(planned,a.shipmentIndex);if(!planned)break;}}
   if(!planned){
    planned=initial;
    // Bounded fallback for cyclic/large stop graphs. Retain source-system pickups
    // before crossing, and do all available work at a visited location.
-   for(let n=0;n<constraints.length*2;n++){
+   for(let n=0;n<constraints.length*2&&planned.status.some(s=>s!==2);n++){
     const options=constraints.map((c,i)=>({i,next:advance(planned,i),c})).filter(o=>o.next);
     const here=options.filter(o=>o.next.at===planned.at),system=nav.byId.get(planned.at)?.system;
     const localPickups=options.filter(o=>planned.status[o.i]===0&&nav.byId.get(o.c.pickupId)?.system===system);

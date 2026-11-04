@@ -8,6 +8,8 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/integration/log/cargo-continuity.mjs',['./cargo-continuity.mjs','text/javascript']],
+  ['/integration/log/cargo-continuity-view.mjs',['./cargo-continuity-view.mjs','text/javascript']],
   ['/integration/log/box-memory.mjs',['./box-memory.mjs','text/javascript']],
   ['/integration/log/partner-voice.mjs',['./partner-voice.mjs','text/javascript']],
   ['/integration/log/retained-cargo.mjs',['./retained-cargo.mjs','text/javascript']],
