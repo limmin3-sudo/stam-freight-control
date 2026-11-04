@@ -5,7 +5,7 @@
 | 영역 | 구현 상태 | 다음 완료 기준 |
 |---|---|---|
 | Windows 앱 | x64 휴대형 실행기·Node 런타임·안전한 종료·로컬 관제. Windows CI 실제 EXE/포함 런타임 검사 통과 | 실제 Node 미설치 PC·파일 선택 UI·DPI·종료 검증 |
-| 사이트 다운로드 | download.html·메인 링크·게시된 개발판 ZIP 직접 링크·체크섬 대조 완료 | 사용자가 운영 배포를 승인함. 최신 패키지 게시 후 Pages 반영·실제 URL 확인 |
+| 사이트 다운로드 | download.html·메인 링크·게시된 개발판 ZIP 직접 링크·체크섬 대조 완료 | 4.0.0 Pages 배포·실제 사이트의 .20 링크 확인 완료 |
 | 상세 이용 안내 | 13장 슬라이드·별도 창·키보드/모바일·복귀 | 사용자 흐름 피드백과 실제 Windows 화면에 맞춘 보완 |
 | 안내 영상 | 24초 1080p·영어 문구/한글 자막·엔진/트랙터/컨테이너 효과음 | 독자적인 화물선 이미지/예시 관제. 실제 조작 전체를 촬영한 튜토리얼은 후속 |
 | 로그·계약 연동 | 수락/목표/종료·ID별 결합·보류·파일 교체 | 추적 유지/해제 연속 수락·파티 공유·세션 복구 실검증 |
@@ -27,4 +27,4 @@
 
 패키지 게시: `[publish desktop]`를 명시한 시험 브랜치 커밋에서만 Windows 빌드·검증 성공 후 GitHub Actions가 prerelease 파일을 등록한다. 일반 푸시는 게시하지 않는다. 같은 버전의 자산은 덮어쓰지 않는다.
 
-2026-11-04 `.20` 패키지 게시 완료: Windows322검사·EXE/런타임 self-test 통과, Windows/Linux × Node22/24/26.13.0 성공. 공개 ZIP48,950,900바이트의 SHA-256과 내부142파일 해시를 재검증했다. [릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.20). Pages 배포 결과는 PROJECT_STATUS.md 최신 기록을 따른다.
+2026-11-04 `.20` 패키지 게시 완료: Windows322검사·EXE/런타임 self-test 통과, Windows/Linux × Node22/24/26.13.0 성공. 공개 ZIP48,950,900바이트의 SHA-256과 내부142파일 해시를 재검증했다. [릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.20). Pages41817153500 성공, main b19dcad/4.0.0 공개. 실제 URL Chromium에서 관제·다운로드·13장 안내·24초 영상 재생·JS/HTTP오류0 확인.

@@ -15,7 +15,7 @@
 - Windows 앱/영상: [개발판 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.20). `.20` 게시 완료. Windows322검사/포함 런타임 self-test 통과, 공개 ZIP 및 내부142파일 SHA-256 재검증. 실게임 미확인.
 - 출고 PR: https://github.com/limmin3-sudo/stam-freight-control/pull/1
 - 이전 목표/진행 기능의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41775699089) 6조합 성공 확인. Windows Node22/24/26.13.0 각각 실행기 포함245통과·건너뜀0.
-- 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 2026-11-04 사용자가 main/Pages 배포를 승인했다. 현재 배포 작업 결과는 PROJECT_STATUS.md의 최신 기록을 따른다.
+- 운영 main 배포: `b19dcad7f721fe287b25c8bcd4ba6a9c7d3da907` /4.0.0. PR #1 병합 및 Pages41817153500 성공. 공개 URL의 관제/앱 다운로드/13장 안내/24초 재생 확인. 후속 기능은 새 PR을 사용한다.
 - 코드·검증·인수인계를 시험 브랜치에 저장한다. 재개 시 위 기능 커밋으로 되돌리지 말고 최신 브랜치와 작업 트리를 먼저 확인한다.
 
 읽는 순서: [공통 지침](DEVELOPMENT.md) → [현재 상태](../PROJECT_STATUS.md) → 이 문서 → [전체 기능 목록](REBUILD-FEATURE-TRACKER.md). 오래된 CLOUD/CLAUDE 인계의 미구현 설명보다 현재 상태와 실제 코드가 우선이다.

@@ -1,5 +1,14 @@
 # 현재 프로젝트 상태 — Codex·Claude 공통
 
+## 2026-11-04 Codex — 4.0.0 공개 배포 완료
+
+- **배포:** [PR #1](https://github.com/limmin3-sudo/stam-freight-control/pull/1) main 병합 `b19dcad7f721fe287b25c8bcd4ba6a9c7d3da907`. [Pages41817153500](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41817153500) 성공. `https://limmin3-sudo.github.io/stam-freight-control/`의 version.json이 해당 SHA/4.0.0임을 확인했다. 후속 다운로드 메타데이터 커밋 `29d8b4f`의 여섯 환경 검사41817097075도 성공.
+- **실제 URL 확인:** 공개 사이트 Chromium에서 관제 진입·`.20` ZIP 다운로드 링크·13장 안내·자동 재생 없음·24초 영상 재생, JS/HTTP오류0 확인. 최초 환경 프록시 인증서 오류는 별도 임시 브라우저에서 해당 환경 CA의 공개키만 지정해 확인했으며 영구 신뢰 설정을 변경하지 않았다. HTTP/ZIP 검사는 기본 CA 검증을 유지했다.
+- **Windows 앱:** `.20` ZIP48,950,900바이트, 공개 SHA-256과 내부142파일 전부 검증. Windows322통과·실패0·건너뜀0. 24초1080p 영상은 영어 문구·한글 자막·독자적인 엔진/트랙터 빔/컨테이너 고정음을 포함한다. 영상 크기7,125,110바이트, 오디오 peak -4.4dBFS 확인. 실제 음향 기기/게임 동시 재생 체감은 사용자 확인 대상이다.
+- **남은 일:** 공개 시험판이다. 모든 미션의 실제 상자 구성·연속 실제 위치·전체 새 운항 클라우드 동기화·완전한 English·지급/통계 통합은 미완료다. 실게임 테스트는 `docs/FINAL-GAME-VALIDATION.md`를 따른다. 앱 설치/정지 위험/성능을 자동 검사만으로 확정하지 않는다.
+- **저장:** 작업 브랜치를 병합된 main까지 fast-forward한 뒤 이 배포 기록만 추가한다. PR #1은 병합 완료이므로 후속 기능을 main에 반영할 때 새 PR을 사용한다. 이번 마지막 커밋은 문서만 바꾸며 배포된 앱/영상은 변경하지 않는다.
+
+
 ## 2026-11-04 Codex — 출항 브리핑 재제작·백업·공개 배포 준비
 
 - **범위/승인:** `rebuild/log-evidence-foundation`, `rebuild.20261104.20`. 사용자가 남은 작업과 사이트/앱 배포를 명시적으로 승인했다. 기존 main 미배포 지시는 이번 배포 승인으로 대체한다. 전체 미구현 기능을 완료로 간주하지 않는다.
