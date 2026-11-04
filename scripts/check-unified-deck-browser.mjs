@@ -17,7 +17,7 @@ if(process.env.STAM_WEB_RELEASE){
  const staged=createWebUpdates({directory,fetchImpl});await staged.check();assert.equal(staged.status().phase,'ready');
  webBundle=await createWebUpdates({directory,fetchImpl}).select();assert.ok(webBundle);
 }
-const service=await startLogService({file,webBundle});let browser,page;
+let reportedPosition=null;const service=await startLogService({file,webBundle,positionStatus:()=>reportedPosition});let browser,page;
 try{
  browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
  page=await browser.newPage({viewport:{width:1920,height:1080}});const errors=[],bad=[];
@@ -67,8 +67,15 @@ try{
  assert.match(await page.locator('.preview-position-note').innerText(),/좌표 수신 · 항성계 기준 표시/);
  assert.notEqual(await page.locator('.preview-tracking').getAttribute('data-state'),'synced');
 
+ reportedPosition={system:'nyx',position:[1,2,3],receivedAt:Date.now(),source:'showlocation-clipboard'};
+ await page.waitForFunction(()=>document.querySelector('.preview-position-note')?.textContent.includes('NYX'));
+ await page.getByRole('button',{name:'내 위치',exact:true}).click();assert.match(await page.locator('.map-crumbs').innerText(),/NYX/);
  assert.match(await page.locator('.preview-calculation-status').innerText(),/118 SCU/);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await page.locator('[data-lang=en]').click();
+ await page.waitForFunction(()=>document.documentElement.lang==='en');
+ await writeFile('/tmp/stam-visible-untranslated.json',JSON.stringify(await page.evaluate(()=>{const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),out=[];for(let n=w.nextNode();n;n=w.nextNode())if(/[가-힣]/.test(n.nodeValue)&&n.parentElement?.getClientRects().length&&!n.parentElement.closest('script,style,[data-i18n-skip],.evidence'))out.push(n.nodeValue);return [...new Set(out)];}),null,2));
+ await page.locator('[data-lang=ko]').click();
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'/tmp/stam-unified-1920.png'});
  await page.setViewportSize({width:2560,height:1440});const bounds=await page.locator('main').boundingBox();assert.ok(bounds.width>=2500);await page.screenshot({path:'/tmp/stam-unified-2560.png'});
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);

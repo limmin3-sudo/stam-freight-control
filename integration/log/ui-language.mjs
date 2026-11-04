@@ -18,7 +18,22 @@ const EXTRA={
 '남아 있습니다':'Cargo remains aboard','없습니다':'No cargo remains',
 };
 const literals=Object.entries({...PHRASES,...EXTRA,...WORKSPACE_EN,...PARTNER_EN}).sort((a,b)=>b[0].length-a[0].length),hangul=/[가-힣]/;
-const patterns=PATTERNS.map(([re,to])=>[new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'),to]);
+const EXTRA_PATTERNS=[
+[/^마지막 읽기: (.+) · 읽은 로그 ([\d.]+) MB · 파일 교체 (\d+)회$/,"Last read: $1 · $2 MB read · $3 file rotations"],
+[/^최고 ([\d.]+) Mm\/s · 준비 ([\d.]+)초 · 재사용 대기 ([\d.]+)초$/,"Max $1 Mm/s · spool $2 s · cooldown $3 s"],
+[/선택한 계약 (\d+)(?:개|건)/g,"$1 selected contracts"],
+[/자동 연결 가능 (\d+)개 · 추가 근거 필요 (\d+)개/g,"$1 ready · $2 awaiting details"],
+[/한 번에 최대 (\d+)개/g,"up to $1 per plan"],
+[/(\d+)개 목표 중 (\d+)개 지점 연결/g,"$2 of $1 objective locations matched"],
+[/연결된 화물 (\d+) SCU · (\d+)개 항목/g,"$1 SCU linked · $2 cargo rows"],
+[/(\d+)개 목표 완료 · 확인된 목표 (\d+)개/g,"$1 objectives complete · $2 observed"],
+[/(\d+)개 항목/g,"$1 cargo rows"],
+[/^적재 공간 가이드 · (\d+) SCU · (\d+)개 배치 블록\. 실제 상자 개수와 다를 수 있습니다\. 확인된 거점의 방문 항로를 연결했습니다\.$/,"Cargo space guide · $1 SCU · $2 guide blocks. Actual container counts may differ. Route connects the confirmed stops."],
+[/^비행·접근·정박 (\d+)분 · 상하차 시간 미포함 · 작업량 미확인$/,"Flight, approach & docking $1 min · handling excluded; workload unconfirmed"],
+[/^(\d+) SCU에 맞춰 실제 확인한 크기별 개수를 입력해 주세요\. 같은 계약의 구성을 이 브라우저에 저장하며, 사용자 지정으로 표시합니다\.$/,"Enter the actual container counts for $1 SCU. The configuration is saved for this contract and marked as manually specified."],
+[/^(\d+)개 · 총 (\d+) SCU\. 포드의 길이와 반 높이를 유지해 배치합니다\.$/,"$1 pods · $2 SCU. Preserves the pod footprint and half-height stacking."]
+];
+const patterns=[...EXTRA_PATTERNS,...PATTERNS].map(([re,to])=>[new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'),to]);
 export function englishUI(value){if(typeof value!=='string'||!hangul.test(value))return value;let out=value;if(value==='위')return 'TOP';if(value==='아래')return 'BOTTOM';for(const [re,to] of patterns)out=out.replace(re,to);for(const [ko,en] of literals)out=out.split(ko).join(en);return hangul.test(out)?value:out;}
 export function mountLanguage(){
  const host=document.getElementById('workspace-language');if(!host)return;
