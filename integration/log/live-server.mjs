@@ -8,6 +8,9 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/integration/log/retained-cargo.mjs',['./retained-cargo.mjs','text/javascript']],
+  ['/integration/log/contract-removal.mjs',['./contract-removal.mjs','text/javascript']],
+  ['/integration/log/reservation-route.mjs',['./reservation-route.mjs','text/javascript']],
   ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
   ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),

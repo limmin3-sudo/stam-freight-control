@@ -14,3 +14,5 @@
 .box-editor button { margin: .35rem .5rem .35rem 0; }
 
 .screen-region{display:block;max-width:100%;height:auto;touch-action:none;cursor:crosshair;margin:12px 0}.screen-observation{border:1px solid #34525e;padding:10px;margin-top:8px;overflow-wrap:anywhere}#screen-watch select{max-width:100%;margin:4px;padding:6px}#screen-watch p{overflow-wrap:anywhere}
+
+.contract-removal{max-width:min(620px,90vw);max-height:85vh;overflow:auto;background:#0b1b26;color:#dce9f2;border:1px solid #49616f;border-radius:12px;padding:22px}.contract-removal::backdrop{background:#000a}.contract-removal label{display:block;margin:10px 0}.contract-removal input{margin-right:8px}.contract-removal small{display:block;margin-top:12px}.retained-card{border:1px solid #987346;padding:10px;margin:10px 0;overflow-wrap:anywhere}

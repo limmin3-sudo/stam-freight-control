@@ -1,3 +1,5 @@
+import {createRetainedCargo} from './retained-cargo.mjs';
+import {contractRemoval,confirmCargoCleared} from './contract-removal.mjs';
 import {mountScreenWatch} from './screen-watch.mjs';
 import {renderProgress,renderRewards,progressLabel} from './progress-view.mjs';
 import {createFlightReady} from './flight-ready.mjs';
@@ -26,7 +28,24 @@ const el = (tag, text, className) => {
 mountAccount();
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
-let planner;
+previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
+let planner,removalDialog=null;const dismissedRemoval=new Set();
+function removeContract(c,automatic=false){
+  if(removalDialog)return;
+  previewSession.removalPending.add(c.missionId);planner?.pauseForRemoval();
+  const saved=previewSession.retained.snapshot().records.find(r=>r.id===c.missionId);
+  const plan=saved?.review&&saved.ship?{ship:saved.ship,packing:{boxes:saved.boxes.map(b=>({...b,retained:false}))}}:planner?.getPacking();
+  removalDialog=contractRemoval({contract:c,plan,store:previewSession.retained,
+    onApply:()=>{removalDialog=null;previewSession.removalPending.delete(c.missionId);dismissedRemoval.delete(c.missionId);planSelection.set(c.missionId,false);renderPlanning();},
+    onCancel:()=>{removalDialog=null;if(!automatic)previewSession.removalPending.delete(c.missionId);else dismissedRemoval.add(c.missionId);renderPlanning();}});
+}
+function renderRetained(){
+ const host=$('retained-cargo'),state=previewSession.retained.snapshot();host.replaceChildren();
+ const records=state.records.filter(r=>r.boxes.length||r.unlocated||r.review);host.hidden=!state.error&&!records.length;
+ if(state.error){host.append(el('p',state.error));const reset=el('button','화물 기록 초기화');reset.type='button';reset.onclick=()=>confirmCargoCleared(()=>{previewSession.retained.clearCorrupt();previewSession.removalPending.clear();renderPlanning();},{title:'화물 기록 초기화',description:'이 브라우저의 남은 화물 기록을 모두 지웁니다. 함선에 화물이 있다면 초기화하지 말고 기록을 먼저 복구해 주세요.',confirm:'기록 초기화'});host.append(reset);}
+ if(records.length)host.append(el('h2','함선에 남은 화물'),el('p','제외한 계약의 화물입니다. 아래 기록은 이 브라우저에만 보관합니다.'));
+ for(const r of records){const card=el('div',undefined,'retained-card');card.dataset.mission=r.id;card.append(el('strong',r.title),el('p',r.review?'화물 확인이 필요합니다.':r.unlocated?'화물 위치 확인 중':`${r.ship.name} · ${r.boxes.reduce((n,b)=>n+b.size,0)} SCU · 위치 유지`));const clear=el('button',r.review?'남은 화물 확인':'화물 정리');clear.type='button';clear.onclick=()=>r.review?removeContract({missionId:r.id,title:r.title},true):confirmCargoCleared(()=>{previewSession.retained.release(r.id);renderPlanning();});card.append(clear);host.append(card);}
+}
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
@@ -43,6 +62,18 @@ function renderPlanning() {
     $('planning-preview').append(planner.root);
   }
   const entries = snapshot.contracts;
+  const dispositions=new Map(previewSession.retained.snapshot().records.map(r=>[r.id,r]));
+  for(const id of dispositions.keys())planSelection.set(id,false);
+  for(const c of entries)if(selectedContracts.has(c.missionId)&&!dispositions.has(c.missionId)&&(c.status==='end-observed'||c.participation?.state==='left-observed')){
+    planSelection.set(c.missionId,true);previewSession.removalPending.add(c.missionId);
+    const plan=planner?.getPacking();
+    try{previewSession.retained.markReview(c.missionId,c.title,plan?.ship,(plan?.packing?.boxes||[]).filter(b=>b.missionId===c.missionId&&!b.retained));}
+    catch(e){$('planning-readiness').textContent=e.message;}
+  }
+  for(const r of previewSession.retained.snapshot().records)if(r.review)previewSession.removalPending.add(r.id);
+  renderRetained();
+  const unresolved=entries.find(c=>previewSession.removalPending.has(c.missionId)&&!dismissedRemoval.has(c.missionId));
+  if(unresolved&&!removalDialog)removeContract(unresolved,true);
   const readiness=new Map(entries.map(c=>[c.missionId,previewReadiness(c,catalog,locations)]));
   planSelection.reconcile(entries,new Set(entries.filter(c=>readiness.get(c.missionId).ready).map(c=>c.missionId)));
   const readyCount=entries.filter(c=>readiness.get(c.missionId).ready).length;
@@ -65,7 +96,7 @@ function renderPlanning() {
   $('recovery-help').hidden=!waiting.length&&!entries.some(c=>!readiness.get(c.missionId).ready);
   for (const c of entries) {
     const label = el('label'), check = el('input'); check.type = 'checkbox'; check.checked = selectedContracts.has(c.missionId);
-    check.dataset.mission = c.missionId;
+    check.dataset.mission = c.missionId;const disposition=dispositions.get(c.missionId);check.disabled=!!(disposition?.boxes.length||disposition?.unlocated||disposition?.review);
     label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
     label.append(el('small',readiness.get(c.missionId).label,'planning-readiness'));
     if(!readiness.get(c.missionId).ready){
@@ -75,10 +106,11 @@ function renderPlanning() {
       if(missing.length)label.append(el('small',`${missing.join(' · ')} 확인 중. 새 기록이 들어오면 자동으로 보완합니다.`,'planning-waiting'));
     }
     check.onchange = () => {
-      planSelection.set(c.missionId,check.checked);
-      updatePlanSelection();
+      if(!check.checked){check.checked=true;removeContract(c);return;}
+      try{if(dispositions.has(c.missionId))previewSession.retained.restore(c.missionId);planSelection.set(c.missionId,true);renderPlanning();}catch(e){check.checked=false;$('planning-readiness').textContent=e.message;}
     };
     $('planning-contracts').append(label);
+    if(!disposition){const remove=el('button',previewSession.removalPending.has(c.missionId)?'남은 화물 확인':'운송에서 제외');remove.type='button';remove.dataset.removeMission=c.missionId;remove.onclick=()=>removeContract(c,previewSession.removalPending.has(c.missionId));$('planning-contracts').append(remove);}else label.append(el('small','운송 계획에서 제외했습니다.'));
     const progress=renderProgress(c,locations);progress.open=progressOpen.has(c.missionId);$('planning-contracts').append(progress);
   }
   updatePlanSelection();
@@ -87,7 +119,7 @@ function updatePlanSelection() {
   const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
-  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:snapshot.pendingContracts?.length||0});
+  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:snapshot.pendingContracts?.length||0});
 }
 let locationData,personalEdits=[];
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
