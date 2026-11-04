@@ -35,8 +35,15 @@ try{
  await dialog.getByRole('button',{name:'계약에 반영',exact:true}).click();assert.match(await dialog.locator(':scope > [role=status]').innerText(),/확인/);
  await dialog.locator('input[type=checkbox]').check();await dialog.getByRole('button',{name:'계약에 반영',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 2개'));
+ await page.locator('.manual-contract-open').click();const podDialog=page.locator('.user-contract-dialog');
+ await podDialog.getByLabel('계약 이름',{exact:true}).fill('Cryopod delivery');await podDialog.getByLabel('품목',{exact:true}).fill('CryoPod');
+ await podDialog.getByLabel('화물 형태',{exact:true}).selectOption('cryopod');await podDialog.getByLabel('총 SCU',{exact:true}).fill('2');
+ await podDialog.getByLabel('픽업지',{exact:true}).fill('ArcCorp Mining Area 061 · stanton');await podDialog.getByLabel('배송지',{exact:true}).fill("Chawla's Beach · pyro");
+ await podDialog.locator('input[type=checkbox]').check();await podDialog.getByRole('button',{name:'계약에 반영',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 3개'));
+
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
- await page.waitForFunction(()=>{const s=document.querySelector('.preview-calculation-status')?.textContent;return s&&!/준비하고|계산 중|계산하고|불러오|반영하고/.test(s)},null,{timeout:60000});assert.match(await page.locator('.preview-calculation-status').innerText(),/116 SCU/);
+ await page.waitForFunction(()=>{const s=document.querySelector('.preview-calculation-status')?.textContent;return s&&!/준비하고|계산 중|계산하고|불러오|반영하고/.test(s)},null,{timeout:60000});assert.match(await page.locator('.preview-calculation-status').innerText(),/118 SCU/);
  assert.equal(await page.locator('canvas').count(),2);assert.match(await page.locator('.preview-itinerary').innerText(),/ArcCorp Mining Area 061/);assert.match(await page.locator('.preview-itinerary').innerText(),/Brio's Breaker Yard/);assert.match(await page.locator('.preview-itinerary').innerText(),/Rayari Cantwell/);
  assert.equal(await page.locator('.preview-itinerary [data-visit]').filter({hasText:"Chawla's Beach"}).count(),1);
  assert.match(await page.locator('.preview-instructions').innerText(),/Hydrogen · 66 SCU/);
@@ -60,13 +67,14 @@ try{
  assert.match(await page.locator('.preview-position-note').innerText(),/좌표 수신 · 항성계 기준 표시/);
  assert.notEqual(await page.locator('.preview-tracking').getAttribute('data-state'),'synced');
 
- assert.match(await page.locator('.preview-calculation-status').innerText(),/116 SCU/);
+ assert.match(await page.locator('.preview-calculation-status').innerText(),/118 SCU/);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'/tmp/stam-unified-1920.png'});
  await page.setViewportSize({width:2560,height:1440});const bounds=await page.locator('main').boundingBox();assert.ok(bounds.width>=2500);await page.screenshot({path:'/tmp/stam-unified-2560.png'});
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
- await page.reload();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 2개'));
- assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-user-contracts-v1:guest')).records.length),1);
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 3개'));
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-user-contracts-v1:guest')).records.length),2);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-user-contracts-v1:guest')).records.find(r=>r.title==='Cryopod delivery').rows[0]._cargoShape),'cryopod');
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log('PASS: unified main deck, existing medium + manual 66 SCU, complete visit route without invented quotas, shared destinations, partner dialog, broker preview, last confirmed location, Pyro coordinate paste and return camera, no false live sync, control mode reuses canvases, reload, 1920/2560/mobile, no JS/HTTP errors.');
+ console.log('PASS: unified main deck, existing medium + manual 66 SCU + 2 cryopods = 118 SCU, complete visit route without invented quotas, shared destinations, partner dialog, broker preview, last confirmed location, Pyro coordinate paste and return camera, no false live sync, control mode reuses canvases, reload, 1920/2560/mobile, no JS/HTTP errors.');
 }catch(e){if(page)console.error(await page.locator('body').innerText());console.error(e);throw e;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

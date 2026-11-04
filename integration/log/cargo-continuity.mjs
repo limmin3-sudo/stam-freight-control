@@ -5,7 +5,7 @@ export function cargoRowsFor(previews,contracts){
  const byId=new Map(contracts.map(c=>[c.missionId,c]));
  return previews.flatMap(p=>p.mission.cargo.map((row,index)=>{
   const c=byId.get(p.mission.id),key=row.key||`${p.mission.id}:cargo:${index}`;
-  const identity=JSON.stringify([p.mission.id,c?.definitionId,c?.gameBuild?.status,c?.gameBuild?.value,row.commodity,row.scu,row.pickupId||null,row.dropoffId,row.maxBoxSize,row.parts||null,row.boxes||[]]);
+  const identity=JSON.stringify([p.mission.id,c?.definitionId,c?.gameBuild?.status,c?.gameBuild?.value,row.commodity,row.scu,row.pickupId||null,row.dropoffId,row.maxBoxSize,row.parts||null,row.boxes||[],...(row._cargoShape?[row._cargoShape]:[])]);
   return {key,missionId:p.mission.id,index,identity,scu:row.scu,pickupId:row.pickupId||null,dropoffId:row.dropoffId,commodity:row.commodity};
  }));
 }

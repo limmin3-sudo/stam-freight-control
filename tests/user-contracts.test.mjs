@@ -6,6 +6,9 @@ import {createPlanSelection} from '../integration/log/preview-session.mjs';
 import {exportFlightBackup,restoreFlightBackup} from '../integration/log/flight-backup.mjs';
 import {ACCOUNT_META} from '../sync.mjs';
 import {DEFAULT_SHIP} from '../ships.mjs';
+import {createCargoContinuity} from '../integration/log/cargo-continuity.mjs';
+import {checkedCargoRecord} from '../integration/log/retained-cargo.mjs';
+import {boxBinding,specifiedBoxes} from '../integration/log/reservations.mjs';
 import {data,index,fixture} from './helpers/log-preview.mjs';
 const stop=name=>data.locations.find(p=>p.name===name).id;
 const mem=()=>{const values=new Map();return {getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)};};
@@ -43,4 +46,26 @@ test('manual manifest persistence is owner-scoped, concurrent-safe, sanitized an
  const s=mem(),a=createUserContracts(s),b=createUserContracts(s),r=record();a.save({...r,rawText:'not retained',screenshot:'not retained'});assert.equal(a.snapshot().records[0].rawText,undefined);assert.throws(()=>b.save(r),/다른 창/);
  const dest=mem();restoreFlightBackup(dest,exportFlightBackup(s));assert.deepEqual(createUserContracts(dest).snapshot().records,[checkedUserContract(r)]);
  s.setItem(ACCOUNT_META,JSON.stringify({uid:'other'}));assert.match(a.snapshot().error,/계정/);assert.equal(createUserContracts(s).snapshot().records.length,0);
+});
+test('cryopods retain their half-height footprint through planning, onboard restore, delivery and retained cargo',()=>{
+ const r=record();r.rows[0]={...r.rows[0],commodity:'CryoPod',scu:2,_cargoShape:'cryopod'};
+ const contracts=mergeUserContracts([],[],[r]),ship={id:'pod-test',name:'Pod test',grids:[{id:'hold',w:1,h:1,l:2,x:0,y:0,z:0,maxBoxSize:2}]};
+ const plan=(extra={})=>calculatePreview({contracts,catalogData:[],locationData:data,ship,startId:r.rows[0].pickupIds[0],...extra});
+ const first=plan();assert.ok(first.routeReady);assert.equal(first.totalScu,2);assert.equal(first.packing.boxes.length,2);
+ assert.deepEqual(first.packing.boxes.map(b=>b.cell[1]).sort(),[0,.5]);
+ assert.ok(first.packing.boxes.every(b=>b._cargoShape==='cryopod'&&b.size===1&&b.dims[1]===.5&&!b.reservation));
+ assert.throws(()=>specifiedBoxes(first.rows[0],{binding:boxBinding(first.rows[0]),boxes:[{size:2,count:1}]}),/포드/);
+ const storage=mem(),state=createCargoContinuity(storage);state.lock(first,first.packing.boxes.map(b=>b.boxId));
+ const restored=createCargoContinuity(storage);assert.equal(restored.snapshot().error,null);
+ const again=plan({continuityRecords:restored.snapshot().records});
+ for(const box of first.packing.boxes){const actual=again.packing.boxes.find(b=>b.boxId===box.boxId);assert.deepEqual(actual.cell,box.cell);assert.deepEqual(actual.dims,box.dims);assert.equal(actual._cargoShape,'cryopod');}
+ const upper=first.packing.boxes.find(b=>b.cell[1]===.5);restored.deliver([upper.boxId],upper.dropoffId);
+ assert.equal(plan({continuityRecords:restored.snapshot().records}).totalScu,1);
+ restored.undoDelivery([upper.boxId],first.ship);
+ const retained=checkedCargoRecord(restored.snapshot().records[0]);
+ const abandoned=plan({contracts:[],retainedRecords:[retained]});assert.equal(abandoned.retainedScu,2);assert.ok(abandoned.packing.boxes.every(b=>b._cargoShape==='cryopod'));
+ const missingShape=structuredClone(retained);delete missingShape.boxes[0]._cargoShape;assert.throws(()=>checkedCargoRecord(missingShape));
+ const tilted=structuredClone(retained);tilted.boxes[0].dims=[.5,1,2];assert.throws(()=>checkedCargoRecord(tilted));
+ const floating=structuredClone(retained);floating.boxes[0].cell[1]=.25;assert.throws(()=>checkedCargoRecord(floating));
+ const tooNarrow=plan({ship:{...ship,grids:[{...ship.grids[0],l:1,h:2}]}});assert.equal(tooNarrow.packing,null,'same SCU capacity does not imply a pod fits');
 });
