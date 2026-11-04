@@ -8,6 +8,7 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/integration/log/reception.mjs',['./reception.mjs','text/javascript']],
   ['/data/log-vehicle-index.mjs',['../../data/log-vehicle-index.mjs','text/javascript']],
   ['/integration/log/timing.mjs',['./timing.mjs','text/javascript']],
   ['/integration/log/timing-view.mjs',['./timing-view.mjs','text/javascript']],

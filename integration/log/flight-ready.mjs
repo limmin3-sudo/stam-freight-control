@@ -24,7 +24,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  const observed=el('section');observed.className='ready-observed';observed.hidden=true;
  root.append(heading,partners,line,summary,observed,settings,count,action,note);host.append(root);
  let timingPanel;
- let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
+ let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,queued=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
  function say(key){noteKey=key;note.textContent=partnerVoice(session.preferences.partner)[key];}
  function options(node,rows,value){node.replaceChildren();const empty=el('option','선택해 주세요');empty.value='';node.append(empty);for(const r of rows){const o=el('option',r.name);o.value=r.id;node.append(o);}node.value=value;}
  function fillStarts(){const q=search.value.trim().toLowerCase();const matches=places.filter(p=>!q||[p.name,...(p.aliases||[])].some(n=>n.toLowerCase().includes(q))).slice(0,40);const current=places.find(p=>p.id===session.preferences.startId);if(current&&!matches.some(p=>p.id===current.id))matches.unshift(current);options(start,matches,session.preferences.startId);}
@@ -71,9 +71,9 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   if(!knownShip||!knownStart)confirmed=false;
   if(knownShip&&session.performancePanel)try{session.performancePanel.setShip(knownShip);}catch{}
   for(const [id,b] of buttons){b.setAttribute('aria-pressed',String(id===p.partner));b.disabled=busy;}
-  line.textContent=partnerVoice(p.partner)[active?'routePolicy':selected?'contractsReady':'waiting'];if(noteKey)note.textContent=partnerVoice(p.partner)[noteKey];
+  line.textContent=partnerVoice(p.partner)[active?(queued?'queuedContracts':'routePolicy'):selected?'contractsReady':'waiting'];if(noteKey)note.textContent=partnerVoice(p.partner)[noteKey];
   summary.textContent=`${knownShip?.name||'함선 선택 필요'} · ${knownStart?.name||'출발지 확인 필요'} · ${confirmed?'직접 확인':preparationOrigin==='log'?'로그 후보 · 확인 필요':preparationOrigin==='edited'?'설정 변경 · 확인 필요':p.shipId||p.startId?'이전 설정 · 확인 필요':'운항 정보 확인 필요'}`;
-  count.textContent=`선택한 계약 ${selected}건${blocked?` · 화물 확인 필요 ${blocked}건`:''}${pending?` · 수신 대기 ${pending}건`:''}`;
+  count.textContent=`선택한 계약 ${selected}건${blocked?` · 화물 확인 필요 ${blocked}건`:''}${pending?` · 정보 확인 중 ${pending}건`:''}${queued?` · 다음 계획 대기 ${queued}건`:''}`;
   ship.disabled=start.disabled=search.disabled=busy;action.disabled=busy||(!selected&&!active);confirm.disabled=!knownShip||!knownStart||busy;
   action.textContent=busy?'항로를 계산하고 있습니다…':active?(canAdvance()?'운송 중 · 다음 구간':'운송 안내 중'):!selected?'계약 수신 대기':!confirmed?'함선·출발지 확인':blocked?'화물 정보 확인':reservations?'항로·적재 공간 확인':'항로 계산·안내 시작';
   if(active)action.disabled=busy||!canAdvance();
@@ -92,7 +92,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  session.performanceReady=createPerformance(settings,{canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}}).then(panel=>{if(disposed){panel.destroy();return;}session.performancePanel=panel;render();return panel;});
  session.performanceReady.catch(()=>{noteKey=null;note.textContent='비행 성능 자료를 불러오지 못했습니다. 화면을 다시 열어 주세요.';});
  options(ship,ships,session.preferences.shipId);fillStarts();render();loadShips();
- return {root,update(value){({selected=0,blocked=0,pending=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
+ return {root,update(value){({selected=0,blocked=0,pending=0,queued=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
   observations(value,status){navigation=value;liveStatus=status;renderObserved();},
   guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;session.performancePanel?.destroy();timingPanel?.destroy();root.remove();}};
 }
