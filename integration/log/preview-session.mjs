@@ -14,13 +14,13 @@ export function createPlanSelection(limit=12) {
   return {
     selected,
     set(id,value) { manual.add(id); automatic.delete(id); value?selected.add(id):selected.delete(id); },
-    reconcile(contracts,readyIds) {
+    reconcile(contracts,readyIds,{autoSelect=true}={}) {
       const byId=new Map(contracts.map(c=>[c.missionId,c]));
       for(const id of selected)if(!byId.has(id)||(automatic.has(id)&&
         (byId.get(id).status==='end-observed'||byId.get(id).participation?.state==='left-observed'))) {
         selected.delete(id);automatic.delete(id);
       }
-      for(const c of contracts)if(selected.size<limit&&!manual.has(c.missionId)&&
+      for(const c of contracts)if(autoSelect&&selected.size<limit&&!manual.has(c.missionId)&&
         eligible(c)&&readyIds.has(c.missionId)) { selected.add(c.missionId);automatic.add(c.missionId); }
     },
     clear() { selected.clear();manual.clear();automatic.clear(); },
