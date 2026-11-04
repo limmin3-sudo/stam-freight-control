@@ -15,10 +15,9 @@ test('unknown or invalid travel time cannot silently become an estimated flight'
   for(const seconds of [0,-1,NaN,Infinity,undefined])assert.throws(()=>createEstimatedFlight({nodes:['a','b'],seconds}));
   assert.throws(()=>createEstimatedFlight({nodes:['a'],seconds:1}));
 });
-test('sync badge requires fresh verified position, never just logs, elapsed time or estimates',()=>{
-  const now=10000;
-  assert.equal(trackingPresentation({kind:'verified',observedAt:9000,continuous:true,sampleCount:3,now}).state,'synced');
-  for(const input of [{kind:'verified',observedAt:9000},{kind:'verified',observedAt:9000,continuous:true,sampleCount:1},{kind:'estimated',observedAt:9000},{kind:'log',observedAt:9000},{kind:'verified',observedAt:4000},{kind:'verified',observedAt:11000},{kind:'verified'}])
-    assert.notEqual(trackingPresentation({...input,now}).state,'synced');
-  assert.equal(trackingPresentation({kind:'estimated',arrived:true}).title,'위치 확인 대기');
+test('route display stays a planning estimate even if old position metadata is supplied',()=>{
+  assert.equal(trackingPresentation({kind:'verified',observedAt:Date.now(),continuous:true,sampleCount:3}).title,'항로 안내 대기');
+  assert.equal(trackingPresentation({kind:'estimated',arrived:true}).title,'예상 구간 이동 완료');
+  assert.equal(trackingPresentation({kind:'estimated',paused:true}).title,'예상 이동 일시정지');
+  assert.equal(trackingPresentation({kind:'estimated'}).state,'estimated');
 });

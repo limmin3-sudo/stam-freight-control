@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<link rel="icon" href="assets/stam-logo.png" type="image/png">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="assets/stam-logo-transparent.png" type="image/png">
 <title>STAM · 운송 관제</title>
 <link rel="stylesheet" href="integration/log/view.css">
 <link rel="stylesheet" href="integration/log/preview.css">
@@ -16,10 +16,11 @@
 <body>
 <main>
   <header class="workspace-header">
-    <a class="workspace-brand" href="./index.html" aria-label="STAM 운송 관제"><img src="assets/stam-logo.png" alt="" width="52" height="52"><span><b>STAM <span>FREIGHT CONTROL</span></b><small>STAR CITIZEN · 운송 관제</small></span></a>
-    <nav class="workspace-tools" aria-label="앱 도구"><button id="workspace-connection" type="button" data-state="disconnected"><i aria-hidden="true"></i><span>로그 연결 대기</span></button><a id="workspace-help" href="guide.html" target="_blank" rel="noopener">이용 안내 ↗</a><a href="download.html" target="_blank" rel="noopener">앱 다운로드 ↗</a><button id="workspace-backup" type="button">백업·복원</button><span id="workspace-places"></span><button id="workspace-updates" type="button">업데이트 기록</button><button id="workspace-feedback" type="button">피드백 · 오류 신고</button></nav>
+    <a class="workspace-brand" href="./index.html" aria-label="STAM 운송 관제"><img src="assets/stam-logo-transparent.png" alt="" width="52" height="52"><span><b>STAM <span>FREIGHT CONTROL</span></b><small>STAR CITIZEN · 운송 관제</small></span></a>
+    <nav class="workspace-tools" aria-label="앱 도구"><button id="workspace-connection" type="button" data-state="disconnected"><i aria-hidden="true"></i><span>로그 연결 대기</span></button><a id="workspace-help" href="guide.html">이용 안내 ↗</a><a href="download.html">앱 다운로드 ↗</a><button id="workspace-backup" type="button">백업·복원</button><span id="workspace-places"></span><button id="workspace-updates" type="button">업데이트 기록</button><button id="workspace-feedback" type="button">피드백 · 오류 신고</button></nav>
     <div id="workspace-language"></div><p id="workspace-message" role="status" aria-live="polite"></p>
   </header>
+  <dialog id="connection-dialog" aria-labelledby="connection-title"><header class="dialog-title"><h2 id="connection-title">로그 연결</h2><button id="connection-close" type="button" aria-label="연결 창 닫기">닫기</button></header>
   <section id="live" class="controls" aria-label="실시간 연결" hidden>
     <h2>실시간 로그 연결</h2>
     <p id="live-status" role="status" aria-live="polite">로컬 수집기에 연결하고 있습니다.</p>
@@ -30,13 +31,14 @@
   </section>
   <section id="replay-controls" class="controls" aria-label="로그 선택">
     <h2>게임 로그 연결</h2>
-    <p>실시간 연동은 <a href="download.html">Windows 앱</a>의 <strong>STAM.exe</strong>를 실행해 주세요. Game.log를 선택하면 이 화면에서 계약을 받습니다. 소스 ZIP은 기존 start-log-link.cmd로도 실행할 수 있습니다.</p>
+    <p>실시간 연동은 <a href="download.html">Windows 앱</a>의 <strong>STAM.exe</strong>를 실행해 주세요. Game.log를 선택하면 관제에서 계약을 받습니다.</p>
     <p class="detail">아래 파일 선택은 저장된 로그를 한 번 읽습니다. 실시간 감시와는 다릅니다.</p>
     <label for="files">Game.log 또는 백업 로그 선택</label>
     <input id="files" type="file" accept=".log,text/plain" multiple>
     <button id="cancel" type="button" disabled>읽기 중단</button>
     <p id="progress" role="status" aria-live="polite">로그 파일을 선택해 주세요.</p>
   </section>
+  </dialog>
   <div class="log-workbench"><aside class="log-contract-rail"><section id="workspace-account" aria-label="계정과 운항 기록">
     <h2>ACCOUNT / 계정</h2><p>로그인하고 다른 기기에서도 이어서 사용하세요.</p>
     <button id="workspace-login" type="button">로그인</button>
@@ -55,7 +57,7 @@
       <p>게임에서 해당 계약을 직접 추적해 새 목표 기록이 나오는지 확인할 수 있습니다. 이미 받은 계약의 정보가 다시 기록된다는 보장은 없습니다. 계약을 포기하거나 다시 받을 필요는 없습니다.</p>
       <p>다음 계약을 받기 전에 다른 계약의 추적을 해제하면 목표 누락을 피할 수 있다는 <a href="https://sc-hauling.tools/" target="_blank" rel="noopener noreferrer">SC Hauling Tools 안내</a>가 있습니다. 현재 누락 원인이 추적 상태 때문인지는 확인되지 않았습니다.</p>
     </details>
-  </section><section id="manual-contracts" aria-label="계약 보완과 직접 추가"></section><section id="cargo-continuity" hidden aria-label="적재 상태"></section><section id="retained-cargo" hidden aria-label="함선에 남은 화물"></section></aside><div id="planning-preview" class="log-planner-host"><section class="workspace-standby" aria-label="운송 대기"><span class="eyebrow">FLIGHT DECK</span><h1>출항 준비</h1><p>파트너를 고르고 게임에서 운송 계약을 받아 주세요.</p><p class="detail">계약이 들어오면 이곳에 항로와 적재 배치를 준비합니다.</p></section></div></div>
+  </section><section id="manual-contracts" aria-label="계약 보완과 직접 추가"></section><section id="cargo-continuity" hidden aria-label="적재 상태"></section><section id="retained-cargo" hidden aria-label="함선에 남은 화물"></section></aside><div id="planning-preview" class="log-planner-host"><p class="deck-loading" role="status">항성계 지도를 준비하고 있습니다…</p></div></div>
   <details id="run-guide" class="controls"><summary>처음 실행하셨나요? · 운항 시작 순서</summary>
     <ol>
       <li><strong>로그 연결을 확인해 주세요.</strong> 아래에 ‘실시간 감시 중’이 표시돼야 합니다. 실행 창은 켜 두세요.</li>

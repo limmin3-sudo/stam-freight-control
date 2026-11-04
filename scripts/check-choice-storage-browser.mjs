@@ -75,7 +75,7 @@ try{
 
  await page.locator('#flight-ready-settings > summary').click();await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('');
  assert.equal(await page.locator('#flight-ready-action').innerText(),'함선·출발지 확인');assert.equal(await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).isDisabled(),true);
- assert.match(await page.locator('.preview-tracking').innerText(),/위치 확인 대기/);
+ assert.match(await page.locator('.preview-tracking').innerText(),/항로 안내 대기/);
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);

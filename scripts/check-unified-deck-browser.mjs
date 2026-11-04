@@ -18,17 +18,18 @@ if(process.env.STAM_WEB_RELEASE||process.env.STAM_WEB_PUBLIC){
  if(process.env.STAM_WEB_PUBLIC)assert.equal(JSON.parse(await readFile(join(directory,'ready.json'),'utf8')).sourceRevision,process.env.GITHUB_SHA);
  webBundle=await createWebUpdates({directory,fetchImpl}).select();assert.ok(webBundle);
 }
-let reportedPosition=null;const service=await startLogService({file,webBundle,positionStatus:()=>reportedPosition});let browser,page;
+const service=await startLogService({file,webBundle});let browser,page;
 try{
  browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
- page=await browser.newPage({viewport:{width:1920,height:1080}});page.setDefaultTimeout(30000);const errors=[],bad=[];
+ page=await browser.newPage({viewport:{width:1920,height:1080}});page.setDefaultTimeout(60000);const errors=[],bad=[];
+ const captureGuide=async(name,target=page)=>{if(!process.env.STAM_CAPTURE_GUIDE)return;for(const lang of ['ko','en']){await page.evaluate(lang=>document.querySelector('#workspace-language [data-lang='+lang+']').click(),lang);await page.waitForTimeout(150);let clip;if(target!==page){await target.evaluate(n=>n.scrollIntoView({block:'start'}));clip=await target.boundingBox();}await page.screenshot({path:`assets/onboarding/${name}${lang==='en'?'-en':''}.jpg`,type:'jpeg',quality:88,...clip?{clip}: {}});}await page.evaluate(()=>document.querySelector('#workspace-language [data-lang=ko]').click());};
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)bad.push(new URL(r.url()).pathname);});
  await page.addInitScript(start=>{localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('vh-start',start);},data.locations.find(p=>p.name==='New Babbage').id);
  await page.goto(service.url);await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 1개'));
- assert.match(await page.locator('.workspace-brand img').getAttribute('src'),/stam-logo.png/);
- await page.locator('.ready-partner-open').click();assert.equal(await page.locator('.ready-partner-card').count(),3);
+ assert.match(await page.locator('.workspace-brand img').getAttribute('src'),/stam-logo-transparent.png/);
+ await page.locator('.ready-edit').click();await page.locator('.ready-partner-open').click();assert.equal(await page.locator('.ready-partner-card').count(),3);await captureGuide('partner-ready',page.locator('.ready-briefing'));
  await page.locator('[data-partner="broker"]').click();assert.match(await page.locator('.ready-briefing-note').innerText(),/거래망/);
- await page.locator('[data-partner="operator"]').click();await page.locator('.ready-briefing').waitFor({state:'detached'});
+ await page.locator('[data-partner="operator"]').click();await page.locator('.ready-briefing').waitFor({state:'detached'});await page.locator('.ready-settings-dialog header button').click();
  await page.locator('.manual-contract-open').click();const dialog=page.locator('.user-contract-dialog');
  await dialog.getByLabel('계약 이름',{exact:true}).fill('Hydrogen delivery');
  await dialog.getByLabel('품목',{exact:true}).fill('Hydrogen');await dialog.getByLabel('총 SCU',{exact:true}).fill('66');
@@ -45,32 +46,12 @@ try{
 
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
  await page.waitForFunction(()=>{const s=document.querySelector('.preview-calculation-status')?.textContent;return s&&!/준비하고|계산 중|계산하고|불러오|반영하고/.test(s)},null,{timeout:60000});assert.match(await page.locator('.preview-calculation-status').innerText(),/118 SCU/);
+ assert.equal(await page.getByRole('button',{name:/^(내 위치|위치 연결)$/}).count(),0);
  assert.equal(await page.locator('canvas').count(),2);assert.match(await page.locator('.preview-itinerary').innerText(),/ArcCorp Mining Area 061/);assert.match(await page.locator('.preview-itinerary').innerText(),/Brio's Breaker Yard/);assert.match(await page.locator('.preview-itinerary').innerText(),/Rayari Cantwell/);
  assert.equal(await page.locator('.preview-itinerary [data-visit]').filter({hasText:"Chawla's Beach"}).count(),1);
  assert.match(await page.locator('.preview-instructions').innerText(),/Hydrogen · 66 SCU/);
- await page.getByRole('button',{name:'관제 모드',exact:true}).click();assert.equal(await page.locator('canvas').count(),2);await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'위치 연결',exact:true}).click();
- const position=page.getByRole('dialog',{name:'위치 연결',exact:true});
- await position.getByLabel('현재 거점',{exact:true}).fill('New Babbage · stanton');
- await position.getByRole('button',{name:'위치 확인',exact:true}).click();await position.waitFor({state:'detached'});
- await page.getByRole('button',{name:'Pyro',exact:true}).click();await page.getByRole('button',{name:'내 위치',exact:true}).click();
- assert.match(await page.locator('.map-crumbs').innerText(),/STANTON/);
- assert.match(await page.locator('.preview-position-note').innerText(),/마지막 확인 위치 · New Babbage/);
- assert.notEqual(await page.locator('.preview-tracking').getAttribute('data-state'),'synced');
- await page.getByRole('button',{name:'위치 연결',exact:true}).click();
- const coordinateDialog=page.getByRole('dialog',{name:'위치 연결',exact:true});
- await coordinateDialog.getByLabel('확인 방식',{exact:true}).selectOption('coordinates');
- await coordinateDialog.getByLabel('항성계',{exact:true}).selectOption('pyro');
- await coordinateDialog.getByLabel('복사한 좌표',{exact:true}).fill('Coordinates: x:34178602716.244999 y:40592012681.869659 z:5875.998474');
- await coordinateDialog.getByRole('button',{name:'위치 확인',exact:true}).click();await coordinateDialog.waitFor({state:'detached'});
- await page.getByRole('button',{name:'내 위치',exact:true}).click();
- assert.match(await page.locator('.map-crumbs').innerText(),/PYRO/);
- assert.match(await page.locator('.preview-position-note').innerText(),/좌표 수신 · 항성계 기준 표시/);
- assert.notEqual(await page.locator('.preview-tracking').getAttribute('data-state'),'synced');
-
- reportedPosition={system:'nyx',position:[1,2,3],receivedAt:Date.now(),source:'showlocation-clipboard'};
- await page.waitForFunction(()=>document.querySelector('.preview-position-note')?.textContent.includes('NYX'));
- await page.getByRole('button',{name:'내 위치',exact:true}).click();assert.match(await page.locator('.map-crumbs').innerText(),/NYX/);
+ await page.evaluate(()=>scrollTo(0,0));await captureGuide('flight-deck');await captureGuide('route-map',page.locator('.preview-map-host'));await captureGuide('cargo-layout',page.locator('.preview-cargo-host'));await page.locator('.rail-cargo-open').click();await captureGuide('contract-reception',page.locator('.cargo-review-dialog'));await page.locator('.cargo-review-dialog header button').click();
+ await page.getByRole('button',{name:'관제 모드',exact:true}).click();assert.equal(await page.locator('canvas').count(),2);await page.screenshot({path:'/tmp/stam-control-active.png'});await page.keyboard.press('Escape');
  assert.match(await page.locator('.preview-calculation-status').innerText(),/118 SCU/);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.locator('[data-lang=en]').click();
@@ -84,5 +65,5 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-user-contracts-v1:guest')).records.length),2);
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-user-contracts-v1:guest')).records.find(r=>r.title==='Cryopod delivery').rows[0]._cargoShape),'cryopod');
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log('PASS: unified main deck, existing medium + manual 66 SCU + 2 cryopods = 118 SCU, complete visit route without invented quotas, shared destinations, partner dialog, broker preview, last confirmed location, Pyro coordinate paste and return camera, no false live sync, control mode reuses canvases, reload, 1920/2560/mobile, no JS/HTTP errors.');
-}catch(e){if(page)console.error(await page.locator('body').innerText());console.error(e);throw e;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}
+ console.log('PASS: unified main deck, existing medium + manual 66 SCU + 2 cryopods = 118 SCU, complete visit route without invented quotas, shared destinations, partner dialog, broker preview, control mode reuses canvases, reload, 1920/2560/mobile, no JS/HTTP errors.');
+}catch(e){if(page){await page.screenshot({path:'/tmp/stam-unified-failure.png'});console.error(await page.locator('body').innerText());console.error(await page.locator('.user-contract-dialog input').evaluateAll(ns=>ns.map(n=>({label:n.getAttribute('aria-label'),disabled:n.disabled,rect:n.getBoundingClientRect().toJSON(),style:getComputedStyle(n).visibility}))));}console.error(e);throw e;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

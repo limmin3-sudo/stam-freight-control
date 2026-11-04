@@ -1,7 +1,5 @@
 import {trackingPresentation} from './estimated-flight.mjs';
 import {jumpLinks} from './preview-routes.mjs';
-import {createPositionFeed} from './position-feed.mjs';
-import {positionDialog} from './position-view.mjs';
 
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 const partners={
@@ -21,7 +19,7 @@ export function partnerBadge(onChange) {
 
 // Loaded only after the pinned Three.js dependency is ready. No legacy aliases,
 // localization files, external maps or game position tracking are used here.
-export async function createPreviewMap(host,{locations,partner,onPartner,onStart,onVisit,quality='normal',onQuality,positionFeed}={}) {
+export async function createPreviewMap(host,{locations,partner,onPartner,onStart,onVisit,quality='normal',onQuality}={}) {
   const {createStarMap}=await import('../../starmap-core.mjs');
   const section=el('section');section.className='preview-map-section';
   const title=el('h3','운송 지도'),tools=el('div');tools.className='preview-map-tools';
@@ -60,22 +58,6 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
     ['Pyro',()=>map.setSystem('pyro')],['Nyx',()=>map.setSystem('nyx')],['시점 초기화',()=>map.home()]]) {
     const button=el('button',name);button.type='button';button.onclick=action;nav.append(button);
   }
-  const feed=positionFeed||createPositionFeed({locations}),myPosition=el('button','내 위치'),connectPosition=el('button','위치 연결');
-  myPosition.type=connectPosition.type='button';nav.append(myPosition,connectPosition);
-  const positionNote=el('p');positionNote.className='preview-position-note';positionNote.hidden=true;footer.prepend(positionNote);
-  let positionPopup=null,currentPartner=partner;
-  const openPosition=()=>{if(positionPopup)return;positionPopup=positionDialog({feed,locations,partner:currentPartner,onClose:()=>{positionPopup=null;connectPosition.focus();}});};
-  connectPosition.onclick=openPosition;
-  myPosition.onclick=()=>{if(!map.focusObservedLocation())openPosition();};
-  function describePosition(observation){
-    if(observation?.kind==='coordinates')map.setObservedPosition({system:observation.system,position:observation.referencePosition});
-    else map.setObservedLocation(observation?.kind==='place'?observation.locationId:null);
-    positionNote.hidden=!observation;
-    myPosition.title=observation?'마지막 확인 위치로':'위치 연결';
-    if(observation?.kind==='place')positionNote.textContent=`마지막 확인 위치 · ${observation.name} · ${new Date(observation.confirmedAt).toLocaleTimeString()} 확인`;
-    else if(observation?.kind==='coordinates')positionNote.textContent=`${observation.system.toUpperCase()} · ${new Date(observation.receivedAt).toLocaleTimeString()} 좌표 수신 · 항성계 기준 표시, 지표 위치 미보정`;
-  }
-  const unsubscribePosition=feed.subscribe(describePosition);
   search.oninput=()=>{
     results.replaceChildren();const q=search.value.trim().toLowerCase();results.hidden=!q;
     if(!q)return;
@@ -100,7 +82,7 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
     pauseFlight:()=>map.pauseEstimatedFlight(),
     followFlight:value=>map.followEstimatedFlight(value),
     stopFlight(){map.stopEstimatedFlight();showTracking();selection.textContent='계획 경로입니다. 현재 함선 위치를 나타내지 않습니다.';},
-    setPartner(id){currentPartner=id;badge.set(id);},
+    setPartner(id){badge.set(id);},
     setResult(result){route=result?.route||null;map.setRoute(route,-1);},
     focusStage(index) {
       map.setRoute(route,index);
@@ -113,7 +95,7 @@ export async function createPreviewMap(host,{locations,partner,onPartner,onStart
       else map.focusLeg(index);
     },
     focus(id){map.focus(id);},
-    dispose(){unsubscribePosition();positionPopup?.close();map.dispose();section.remove();},
+    dispose(){map.dispose();section.remove();},
     debug:()=>map._debug(),
   };
 }

@@ -1,3 +1,4 @@
+import {mountPageNavigation} from './page-navigation.mjs';
 import {createUserContracts,mergeUserContracts} from './user-contracts.mjs';
 import {mountUserContracts} from './user-contracts-view.mjs';
 import {recoverFlightBackup,BACKUP_JOURNAL} from './flight-backup.mjs';
@@ -42,6 +43,7 @@ if(restoreFailure){
  document.querySelector('main').append(heading,message,help,retry);
 }else mountWorkspace();
 function mountWorkspace(){
+mountPageNavigation();
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
   const node = document.createElement(tag);
@@ -51,7 +53,13 @@ const el = (tag, text, className) => {
 };
 const connection=$('workspace-connection');
 function connectionState(state,label){connection.dataset.state=state;connection.querySelector('span').textContent=label;}
-connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
+const connectionDialog=$('connection-dialog');
+connection.onclick=()=>connectionDialog?connectionDialog.showModal():($('live').hidden?$('replay-controls'):$('live')).scrollIntoView({block:'nearest'});
+$('connection-close')?.addEventListener('click',()=>connectionDialog.close());
+connectionDialog?.addEventListener('close',()=>connection.focus());
+const cargoDialog=el('dialog',undefined,'cargo-review-dialog');cargoDialog.setAttribute('aria-label','미션별 화물 확인');
+const cargoTitle=el('header'),cargoClose=el('button','닫기');cargoClose.type='button';cargoClose.onclick=()=>cargoDialog.close();cargoTitle.append(el('h2','미션별 화물 확인'),cargoClose);cargoDialog.append(cargoTitle,$('planning'));document.body.append(cargoDialog);
+const cargoOpen=el('button',undefined,'rail-cargo-open');cargoOpen.type='button';cargoOpen.append(el('b','미션별 화물 확인'),el('small','계약 · 품목 · 수량 · 상자 구성'));cargoOpen.onclick=()=>{const manifest=planner?.root.querySelector('.preview-manifest');if(manifest){manifest.open=true;cargoDialog.append(manifest);}cargoDialog.showModal();};$('manual-contracts').after(cargoOpen);
 let storage; try { storage = localStorage; } catch {}
 mountFlightBackup(storage);
 const userContracts=createUserContracts(storage);
@@ -92,7 +100,7 @@ function renderCargoContinuity(){
  }
 }
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
-  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();rewardPanel.refresh();},onSettings:()=>planner?.invalidateConfiguration()});
+  onReview:()=>cargoOpen.click(),onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();rewardPanel.refresh();},onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
   replayMode=true;previewSession.guidanceEnabled=false;
   rewardPanel.update(null);
@@ -174,6 +182,8 @@ function renderPlanning() {
 function updatePlanSelection() {
   const chosen = planningEntries().filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
+  const awaiting=planningEntries().filter(c=>planSelection.awaiting.has(c.missionId)&&receptionActive(c)).length;
+  cargoOpen.querySelector('small').textContent=awaiting?`새 계약 ${awaiting}건 · 현재 항로에 넣을지 선택해 주세요`:'계약 · 품목 · 수량 · 상자 구성';cargoOpen.classList.toggle('has-new-contracts',awaiting>0);
   planner?.updateContracts(chosen);
   flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+Number(!!previewSession.continuity.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:(snapshot.pendingContracts||[]).filter(receptionActive).length,queued:planningEntries().filter(c=>planSelection.awaiting.has(c.missionId)&&receptionActive(c)).length,deferred:planningEntries().filter(c=>planSelection.deferred.has(c.missionId)&&receptionActive(c)).length});
 }
@@ -393,7 +403,7 @@ function showLiveStatus(status) {
 }
 live = connectLive({
   onSnapshot: renderSnapshot,
-  onStatus: status=>{showLiveStatus(status);try{planner?.receivePosition(status.position);}catch{}},
+  onStatus: showLiveStatus,
   onError: code => {
     connectionState('error','로그 연결 확인 필요');
     flightReady.observations(null,null);

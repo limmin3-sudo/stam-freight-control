@@ -36,7 +36,7 @@ try{
  await page.getByRole('button',{name:'저장된 장소를 지도에 적용',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('.preview-panel [role=status]').textContent.includes('28개 / 168 SCU'));
  assert.equal(await page.locator('#planning-contracts input:checked').count(),1);assert.equal(await page.getByLabel('미리보기 출발지',{exact:true}).inputValue(),custom.id);
- assert.match(await page.locator('.preview-tracking').innerText(),/위치 확인 대기/);assert.equal(await page.locator('canvas').count(),2);
+ assert.match(await page.locator('.preview-tracking').innerText(),/항로 안내 대기/);assert.equal(await page.locator('canvas').count(),2);
  await page.getByLabel('지도 지명 검색',{exact:true}).fill('내 기지');assert.match(await page.locator('.preview-map-results').innerText(),/Edited Depot/);
  await page.getByRole('button',{name:'장소 관리',exact:true}).click();await page.getByRole('button',{name:'＋ 장소 등록',exact:true}).click();
  await page.locator('#location-form [name=name]').fill('No Coordinates');await page.getByRole('button',{name:'내 장소로 저장',exact:true}).click();

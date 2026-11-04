@@ -3,30 +3,35 @@ import {partnerBriefing} from './partner-briefing.mjs';
 import {createPerformance} from '../../performance.mjs';
 import {partnerVoice} from './partner-voice.mjs';
 import {liveNavigationCandidate} from './navigation.mjs';
-import {DEFAULT_SHIP,validateShip} from '../../ships.mjs';
+import {DEFAULT_SHIP,validateShip,capacity,selectShipGrids} from '../../ships.mjs';
 import {personalNavigation} from './personal-locations.mjs';
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 
 // Previous preferences are planning suggestions, not live ship/position telemetry.
-export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=>{},onAdvance=()=>false,canAdvance=()=>false}){
+export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=>{},onReview=()=>{},onAdvance=()=>false,canAdvance=()=>false}){
  const root=el('section');root.id='flight-ready';
- const heading=el('h2','출항 준비'),line=el('p'),partners=el('div');partners.className='ready-partners';
+ const heading=el('h2','SHIP / 운용 함선'),line=el('p'),partners=el('div');partners.className='ready-partners';
  const buttons=[];
  for(const [id,name,picture] of [['operator','브리지 오퍼레이터','aide'],['navigator','수석 항해사','navigator']]){
   const b=el('button');b.type='button';const img=el('img');img.src=new URL(`../../assets/partners/${picture}.jpg`,import.meta.url);img.alt='';img.width=36;img.height=36;b.append(img,el('span',name));
   b.onclick=()=>{session.setPreferences({partner:id});onPartner(id);render();};partners.append(b);buttons.push([id,b]);
  }
- const summary=el('p');summary.className='ready-ship-summary';
+ const summary=el('h3');summary.className='ready-ship-summary';const facts=el('dl');facts.className='ready-ship-facts';
  const settings=el('details'),controls=el('div');settings.id='flight-ready-settings';settings.append(el('summary','함선·출발지 수정'),controls);
  const ship=el('select'),start=el('select'),search=el('input');ship.setAttribute('aria-label','출항 준비 함선');start.setAttribute('aria-label','출항 준비 출발지');search.setAttribute('aria-label','출항 준비 지명 검색');search.placeholder='출발지 찾기';search.type='search';
  controls.append(ship,search,start);const confirm=el('button','이 설정으로 준비');confirm.type='button';controls.append(confirm);
  const count=el('p'),action=el('button','계약 수신 대기');action.id='flight-ready-action';action.type='button';action.className='ready-primary';
  let noteKey='received';const note=el('p');note.setAttribute('role','status');
  const observed=el('section');observed.className='ready-observed';observed.hidden=true;
- root.append(heading,partners,line,summary,observed,settings,count,action,note);host.append(root);
+ const dialog=el('dialog');dialog.className='ready-settings-dialog';dialog.setAttribute('aria-label','출항 준비');
+ const dialogHeader=el('header'),dialogClose=el('button','닫기');dialogClose.type='button';dialogClose.onclick=()=>dialog.close();dialogHeader.append(el('h2','출항 준비'),dialogClose);
+ const edit=el('button','함선·출발지 수정');edit.type='button';edit.className='ready-edit';edit.onclick=()=>{settings.open=true;dialog.showModal();};
+ root.append(heading,summary,facts,edit);host.append(root,action);
+ dialog.append(dialogHeader,partners,line,observed,settings,count,note);document.body.append(dialog);
+ const openPreparation=()=>{settings.open=true;if(!dialog.open)dialog.showModal();};
  let timingPanel;
  let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,queued=0,deferred=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
- const briefing=partnerBriefing({getPartner:()=>session.preferences.partner,canEdit:()=>!busy,onSelect:id=>{session.setPreferences({partner:id});onPartner(id);render();}});heading.after(briefing.button);
+ const briefing=partnerBriefing({getPartner:()=>session.preferences.partner,canEdit:()=>!busy,onSelect:id=>{session.setPreferences({partner:id});onPartner(id);render();}});dialogHeader.after(briefing.button);
  function say(key){noteKey=key;note.textContent=partnerVoice(session.preferences.partner)[key];}
  function options(node,rows,value){node.replaceChildren();const empty=el('option','선택해 주세요');empty.value='';node.append(empty);for(const r of rows){const o=el('option',r.name);o.value=r.id;node.append(o);}node.value=value;}
  function fillStarts(){const q=search.value.trim().toLowerCase();const matches=places.filter(p=>!q||[p.name,...(p.aliases||[])].some(n=>n.toLowerCase().includes(q))).slice(0,40);const current=places.find(p=>p.id===session.preferences.startId);if(current&&!matches.some(p=>p.id===current.id))matches.unshift(current);options(start,matches,session.preferences.startId);}
@@ -57,7 +62,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
     observed.append(el('p',`${arrived?'퀀텀 도착 기록':'선택한 퀀텀 목적지'} · ${target.location?.name||'장소 미확인'} · ${new Date(arrived?target.arrivalAt:target.at).toLocaleTimeString()}`));
     observed.append(el('small','퀀텀 기록만으로 정박·하역을 완료하거나 출발지를 바꾸지 않습니다.'));
   }
-  observed.append(el('p','현재 함선·출발지와 맞는지 확인해 주세요. 실시간 위치는 아직 연결되지 않았습니다.'));
+  observed.append(el('p','현재 함선·출발지와 맞는지 확인해 주세요.'));
   const apply=el('button','준비 정보에 적용');apply.type='button';apply.disabled=busy||active||(!shipId&&!startId);
   apply.onclick=()=>{
     // Recheck at click time: stale, paused or replaced evidence must not be applied.
@@ -74,27 +79,30 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   if(knownShip&&session.performancePanel)try{session.performancePanel.setShip(knownShip);}catch{}
   for(const [id,b] of buttons){b.setAttribute('aria-pressed',String(id===p.partner));b.disabled=busy;}
   line.textContent=partnerVoice(p.partner)[active?(queued?'queuedContracts':'routePolicy'):selected?'contractsReady':'waiting'];if(noteKey)note.textContent=partnerVoice(p.partner)[noteKey];
-  summary.textContent=`${knownShip?.name||'함선 선택 필요'} · ${knownStart?.name||'출발지 확인 필요'} · ${confirmed?'직접 확인':preparationOrigin==='log'?'로그 후보 · 확인 필요':preparationOrigin==='edited'?'설정 변경 · 확인 필요':p.shipId||p.startId?'이전 설정 · 확인 필요':'운항 정보 확인 필요'}`;
+  summary.textContent=knownShip?.name||'함선 선택';
+  let drive;try{drive=knownShip&&session.performancePanel?.getFor(knownShip)?.drive;}catch{}
+  const selectedShip=knownShip&&selectShipGrids(knownShip,p.disabled[knownShip.id]||[]);
+  facts.replaceChildren();for(const [label,value] of [['화물칸',selectedShip?`${capacity(selectedShip)} SCU · 사용 ${selectedShip.grids.filter(g=>!g.disabled).length}/${selectedShip.grids.length}`:'—'],['퀀텀',drive?`${drive.name} (S${drive.size})`:'—'],['출발',knownStart?.name||'출발지 선택'],['계약',`${selected}건`]])facts.append(el('dt',label),el('dd',value));
   count.textContent=`선택한 계약 ${selected}건${blocked?` · 화물 확인 필요 ${blocked}건`:''}${pending?` · 정보 확인 중 ${pending}건`:''}${queued?` · 반영 선택 대기 ${queued}건`:''}${deferred?` · 다음 계획 ${deferred}건`:''}`;
-  ship.disabled=start.disabled=search.disabled=busy;action.disabled=busy||(!selected&&!active);confirm.disabled=!knownShip||!knownStart||busy;
-  action.textContent=busy?'항로를 계산하고 있습니다…':active?(canAdvance()?'운송 중 · 다음 구간':'운송 안내 중'):!selected?'계약 수신 대기':!confirmed?'함선·출발지 확인':blocked?'화물 정보 확인':reservations?'항로·적재 공간 확인':'항로 계산·안내 시작';
+  ship.disabled=start.disabled=search.disabled=busy;action.disabled=busy;confirm.disabled=!knownShip||!knownStart||busy;
+  action.textContent=busy?'항로를 계산하고 있습니다…':active?(canAdvance()?'운송 중 · 다음 구간':'운송 안내 중'):!selected?'▶ 출항 준비':!confirmed?'▶ 출항 준비':blocked?'화물 정보 확인':reservations?'항로·적재 공간 확인':'항로 계산·안내 시작';
   if(active)action.disabled=busy||!canAdvance();
   renderObserved();
  }
  ship.onchange=()=>{preparationOrigin='edited';session.setPreferences({shipId:ship.value});confirmed=false;active=false;onSettings();render();};
  start.onchange=()=>{preparationOrigin='edited';session.setPreferences({startId:start.value});confirmed=false;active=false;onSettings();render();};
  search.oninput=fillStarts;
- confirm.onclick=()=>{confirmed=ships.some(s=>s.id===session.preferences.shipId)&&places.some(p=>p.id===session.preferences.startId);settings.open=!confirmed;say(confirmed?'prepared':'checkSettings');render();};
- action.onclick=async()=>{if(busy||!selected)return;if(active){if(!onAdvance())say('nextFailed');render();return;}if(timingPanel?.isDirty()){timingPanel.root.open=true;say('timingPending');timingPanel.root.scrollIntoView({block:'nearest'});return;}if(!confirmed){settings.open=true;say('checkSettings');ship.focus();return;}
-  if(blocked){say('blocked');document.getElementById('planning-contracts')?.scrollIntoView({block:'nearest'});return;}
+ confirm.onclick=()=>{confirmed=ships.some(s=>s.id===session.preferences.shipId)&&places.some(p=>p.id===session.preferences.startId);settings.open=!confirmed;say(confirmed?'prepared':'checkSettings');if(confirmed)dialog.close();render();};
+ action.onclick=async()=>{if(busy)return;if(!selected){openPreparation();return;}if(active){if(!onAdvance())say('nextFailed');render();return;}if(timingPanel?.isDirty()){openPreparation();timingPanel.root.open=true;say('timingPending');timingPanel.root.scrollIntoView({block:'nearest'});return;}if(!confirmed){openPreparation();say('checkSettings');ship.focus();return;}
+  if(blocked){say('blocked');onReview();return;}
   busy=true;say('calculating');render();
   try{const started=await onStart();active=started===true;say(active?'started':started==='reservation'?'reserved':started==='resume'?'resumeGuidance':'failed');}catch{say('failed');}finally{busy=false;render();}};
  async function loadShips(){try{const r=await fetch(new URL('../../data/ships.json',import.meta.url));if(!r.ok)throw Error();const base=await r.json();ships=[DEFAULT_SHIP,...base.filter(s=>s.id!==DEFAULT_SHIP.id)];for(const value of session.savedShips())try{const s=validateShip(value);if(!ships.some(p=>p.id===s.id))ships.push(s);}catch{}if(disposed)return;options(ship,ships,session.preferences.shipId);render();}catch{noteKey=null;note.textContent='함선 목록을 불러오지 못했습니다. 다시 연결한 뒤 화면을 열어 주세요.';}}
- timingPanel=mountTiming(root,{store:session.timing,canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}});
+ timingPanel=mountTiming(dialog,{store:session.timing,canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}});
  session.performanceReady=createPerformance(settings,{canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}}).then(panel=>{if(disposed){panel.destroy();return;}session.performancePanel=panel;render();return panel;});
  session.performanceReady.catch(()=>{noteKey=null;note.textContent='비행 성능 자료를 불러오지 못했습니다. 화면을 다시 열어 주세요.';});
  options(ship,ships,session.preferences.shipId);fillStarts();render();loadShips();
  return {root,update(value){({selected=0,blocked=0,pending=0,queued=0,deferred=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
   observations(value,status){navigation=value;liveStatus=status;renderObserved();},
-  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;briefing.destroy();session.performancePanel?.destroy();timingPanel?.destroy();root.remove();}};
+  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;briefing.destroy();session.performancePanel?.destroy();timingPanel?.destroy();dialog.remove();action.remove();root.remove();}};
 }
