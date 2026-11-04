@@ -60,7 +60,10 @@ export function createFrameLoop(draw, {
 export function observeRenderLoop(element, draw) {
   const loop = createFrameLoop(draw), events = new AbortController();
   let intersecting = true, contextLost = false, sized = element.clientWidth > 0 && element.clientHeight > 0;
-  const visibility = () => loop.setVisible(!document.hidden && intersecting && sized && !contextLost);
+  // Covered 3D views do not need GPU time while a modal owns interaction.
+  const visibility = () => loop.setVisible(!document.hidden && intersecting && sized && !contextLost && (!document.querySelector('dialog:modal') || !!element.closest('dialog:modal')));
+  const modalChanges=new MutationObserver(changes=>{if(changes.some(m=>m.type==='attributes'&&m.target.tagName==='DIALOG'||m.type==='childList'&&[...m.removedNodes].some(n=>n.nodeType===1&&n.matches('dialog'))))visibility();});
+  modalChanges.observe(document.body,{attributes:true,attributeFilter:['open'],childList:true,subtree:true});
   const intersection = new IntersectionObserver(entries => {
     intersecting = entries.at(-1).isIntersecting;
     visibility();
@@ -80,7 +83,7 @@ export function observeRenderLoop(element, draw) {
   }
   visibility();
   loop.invalidate();
-  return {...loop, dispose() { loop.dispose(); events.abort(); intersection.disconnect(); resize.disconnect(); }};
+  return {...loop, dispose() { loop.dispose(); events.abort(); intersection.disconnect(); resize.disconnect(); modalChanges.disconnect(); }};
 }
 
 // Match the original 60 Hz damping response at other refresh rates.

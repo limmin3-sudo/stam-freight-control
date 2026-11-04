@@ -88,7 +88,8 @@ test('browser visibility, sizing, intersection and context recovery wake only us
   const observers = [];
   const install = (key, value) => { originals.set(key, Object.getOwnPropertyDescriptor(globalThis, key)); Object.defineProperty(globalThis, key, {value, configurable: true}); };
   t.after(() => { for (const [key, descriptor] of originals) if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; });
-  const doc = new EventTarget(); doc.hidden = false;
+  const doc = new EventTarget(); doc.hidden = false; let modalOpen=false,modalObserver;doc.body={};doc.querySelector=()=>modalOpen?{}:null;
+  install('MutationObserver',class {constructor(fn){this.fn=fn;this.disconnected=false;modalObserver=this;}observe(){}disconnect(){this.disconnected=true;}});
   install('document', doc);
   install('requestAnimationFrame', fn => { pending.set(++id, fn); return id; });
   install('cancelAnimationFrame', key => pending.delete(key));
@@ -98,7 +99,7 @@ test('browser visibility, sizing, intersection and context recovery wake only us
     disconnect() { this.disconnected = true; }
   }
   install('IntersectionObserver', Observer); install('ResizeObserver', Observer);
-  const el = new EventTarget(); el.clientWidth = 640; el.clientHeight = 480;
+  const el = new EventTarget(); el.clientWidth = 640; el.clientHeight = 480;el.closest=()=>null;
   const loop = observeRenderLoop(el, () => { draws++; return 0; });
   const flush = () => { for (const [key, fn] of [...pending]) { pending.delete(key); fn(performance.now()); } };
   flush(); assert.equal(draws, 1);
@@ -110,6 +111,8 @@ test('browser visibility, sizing, intersection and context recovery wake only us
   doc.hidden = true; doc.dispatchEvent(new Event('visibilitychange')); loop.invalidate(); flush(); assert.equal(draws, 3);
   el.clientWidth = 0; observers[1].fn(); doc.hidden = false; doc.dispatchEvent(new Event('visibilitychange')); flush(); assert.equal(draws, 3);
   el.clientWidth = 640; observers[1].fn(); flush(); assert.equal(draws, 4);
-  loop.dispose(); el.dispatchEvent(new Event('pointermove')); flush(); assert.equal(draws, 4);
+  modalOpen=true;modalObserver.fn([{type:'attributes',target:{tagName:'DIALOG'}}]);loop.invalidate();flush();assert.equal(draws,4,'covered view remains idle');
+  modalOpen=false;modalObserver.fn([{type:'attributes',target:{tagName:'DIALOG'}}]);flush();assert.equal(draws,5,'closing the dialog resumes the view');
+  loop.dispose(); el.dispatchEvent(new Event('pointermove')); flush(); assert.equal(draws, 5);assert.equal(modalObserver.disconnected,true);
   assert.ok(observers.every(o => o.disconnected));
 });

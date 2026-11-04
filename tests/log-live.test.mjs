@@ -76,6 +76,7 @@ test('token, host, origin and request method protect local evidence', async t =>
   const page = await fetch(s.service.origin + '/log-link.html');
   assert.equal(page.status, 200);
   assert.ok(page.headers.get('content-security-policy').includes("frame-ancestors 'none'"));
+  const guidePage=await fetch(s.service.origin+'/guide.html');assert.equal(guidePage.headers.get('x-frame-options'),'SAMEORIGIN');assert.ok(guidePage.headers.get('content-security-policy').includes("frame-ancestors 'self'"));
   assert.equal(page.headers.get('access-control-allow-origin'), null);
   assert.match(await page.text(), /entry-redirect.mjs/);
   const main = await fetch(s.service.origin + '/index.html');
