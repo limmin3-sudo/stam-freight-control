@@ -14,7 +14,7 @@ function buildRoute(result,previews,{startId,partner,performance,timing}){
  const hold=message=>({...result,route:null,routeReady:false,routeHold:message});
  if(!previews.length)return hold('운송할 계약을 선택하면 항로를 준비합니다.');
  if(result.partial)return hold('일부 화물만 확인돼 전체 방문 순서를 만들지 않았습니다.');
- if(!result.packing)return hold('전체 예약 공간이 들어가지 않아 분할 운송 확인이 필요합니다.');
+ if(!result.packing)return hold('전체 가이드 공간이 들어가지 않아 분할 운송 확인이 필요합니다.');
  const ids=new Set(result.stops.map(p=>p.id));
  if(!ids.has(startId))return hold('방문 순서를 보려면 출발지를 선택해 주세요.');
  const constraints=[];
@@ -37,6 +37,9 @@ function buildRoute(result,previews,{startId,partner,performance,timing}){
   const c=constraints[i],stage=state.status[i];if(stage===2)return null;
   // Every pickup for this contract precedes every delivery, irrespective of quota.
   if(stage===1&&indices.get(c.missionId).some(j=>state.status[j]===0))return null;
+  // This mode already requires the entire load to fit. Gather every contract's
+  // cargo for the same destination before going there, keeping ownership intact.
+  if(stage===1&&constraints.some((other,j)=>other.dropoffId===c.dropoffId&&state.status[j]===0))return null;
   const locationId=stage===0?c.pickupId:c.dropoffId,leg=nav.path(state.at,locationId);
   if(!Number.isFinite(leg.seconds))return null;
   const status=[...state.status];status[i]++;

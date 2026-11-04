@@ -7,8 +7,11 @@ export function checkedCargoRecord(record){
  if(!record.boxes.length)return {id:record.id,title:record.title,boxes:[],...(record.review===true?{review:true}:{}),...(record.unlocated===true?{unlocated:true}:{})};
  const ship=withStacking(validateShip(record.ship)),ids=new Set();
  const boxes=record.boxes.map(b=>{
-  if(b.missionId!==record.id||typeof b.boxId!=='string'||b.boxId.length>400||ids.has(b.boxId)||!BOX_DIMS[b.size]||!Number.isInteger(b.bin)||!ship.grids[b.bin]||!Array.isArray(b.cell)||b.cell.length!==3||b.cell.some(n=>!Number.isInteger(n)||n<0)||!Array.isArray(b.dims)||JSON.stringify([...b.dims].sort((a,b)=>a-b))!==JSON.stringify([...BOX_DIMS[b.size]].sort((a,b)=>a-b)))throw Error('남은 화물의 위치와 크기를 확인해 주세요.');
-  ids.add(b.boxId);return {boxId:b.boxId,missionId:record.id,shipmentId:String(b.shipmentId||'').slice(0,400),commodity:String(b.commodity||'').slice(0,160),dropoffId:String(b.dropoffId||'').slice(0,160),size:b.size,bin:b.bin,cell:[...b.cell],dims:[...b.dims],reservation:!!b.reservation,retained:true,color:'#d99d62'};
+  const pod=b._cargoShape==='cryopod',knownShape=b._cargoShape===undefined||pod;
+  const validShape=pod?b.size===1&&['[1,0.5,2]','[2,0.5,1]'].includes(JSON.stringify(b.dims)):
+   BOX_DIMS[b.size]&&Array.isArray(b.dims)&&JSON.stringify([...b.dims].sort((a,b)=>a-b))===JSON.stringify([...BOX_DIMS[b.size]].sort((a,b)=>a-b));
+  if(!knownShape||!validShape||b.missionId!==record.id||typeof b.boxId!=='string'||b.boxId.length>400||ids.has(b.boxId)||!Number.isInteger(b.bin)||!ship.grids[b.bin]||!Array.isArray(b.cell)||b.cell.length!==3||b.cell.some((n,i)=>!Number.isInteger(n*(pod&&i===1?2:1))||n<0))throw Error('남은 화물의 위치와 크기를 확인해 주세요.');
+  ids.add(b.boxId);return {boxId:b.boxId,missionId:record.id,shipmentId:String(b.shipmentId||'').slice(0,400),commodity:String(b.commodity||'').slice(0,160),dropoffId:String(b.dropoffId||'').slice(0,160),size:b.size,...(pod?{_cargoShape:'cryopod'}:{}),bin:b.bin,cell:[...b.cell],dims:[...b.dims],reservation:!!b.reservation,retained:true,color:'#d99d62'};
  });
  if(!packBoxes([],boxes,ship))throw Error('남은 화물 위치가 겹치거나 화물칸을 벗어납니다.');
  return {id:record.id,title:record.title,ship,boxes,...(record.review===true?{review:true}:{})};

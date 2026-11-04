@@ -13,7 +13,7 @@ try{
  let page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(service.url);
  await page.waitForFunction(()=>document.querySelector('[aria-label="출항 준비 함선"] option[value="misc-hull-b"]'));
  await page.locator('#run-guide summary').click();assert.match(await page.locator('#run-guide').innerText(),/28상자\/168 SCU/);
- await page.locator('#flight-ready .ready-partners button').nth(1).click();
+ await page.locator('.ready-partner-open').click();await page.locator('.ready-briefing [data-partner="navigator"]').click();
  await page.locator('#flight-ready-settings > summary').click();
  await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('misc-hull-b');
  const startId=data.locations.find(p=>p.name==='New Babbage').id;

@@ -1,10 +1,11 @@
+import {createCompletionStore} from './completion-store.mjs';
 import {createRewardHistory} from './reward-history.mjs';
 import {createRewardStore,rewardCandidates,rewardKey} from './reward-store.mjs';
 import {renderRewards} from './progress-view.mjs';
 import {partnerSpeaker,partnerVoice} from './partner-voice.mjs';
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 export function createRewardPanel(host,{storage,partner=()=> 'navigator'}={}){
- const store=createRewardStore(storage),history=createRewardHistory(store);let current={rewards:[],contracts:[]},live=false,error=null,selected=new Map();
+ const store=createRewardStore(storage),completions=createCompletionStore(storage),history=createRewardHistory(store,completions);let current={rewards:[],contracts:[]},live=false,error=null,selected=new Map();
  function render(){
   history.refresh();
   if(!live){renderRewards(host,current.rewards);return;}
@@ -12,7 +13,7 @@ export function createRewardPanel(host,{storage,partner=()=> 'navigator'}={}){
   // Keep selections during unrelated log updates; no preselected contract, even when only one fits.
   host.replaceChildren();host.hidden=!records.length&&!current.rewards?.length&&!error&&!saved.error;if(host.hidden)return;
   const details=el('details');details.open=open;details.append(el('summary',`지급 알림 ${records.length}건`));
-  details.append(el('p','이 브라우저의 지급 기록입니다. 운송 외 지급도 포함될 수 있으며 기존 운항 수입에는 중복 합산하지 않습니다. 다른 기기에는 동기화하지 않습니다.'));
+  details.append(el('p','확인된 계약 보상은 운항 기록에 반영합니다. 계약이 확인되지 않은 지급은 따로 보관합니다.'));
   if(error||saved.error){const note=el('p',error||saved.error);note.setAttribute('role','alert');details.append(note);}
   if(!saved.error&&records.length)details.append(el('strong',`지급 알림 합계 · ${records.reduce((sum,r)=>sum+r.amount,0).toLocaleString()} aUEC`));
   const blocked=!!(saved.error||error||current.identity?.mixedPlayers),byId=new Map((current.contracts||[]).map(c=>[c.missionId,c])),candidates=rewardCandidates(current.contracts||[]);
@@ -38,5 +39,5 @@ export function createRewardPanel(host,{storage,partner=()=> 'navigator'}={}){
   host.append(details);
  }
  function apply(action,key){try{action();selected.delete(key);error=null;}catch(e){error=e.message;}render();}
- return {renderHistory:history.mount,refresh:render,update(snapshot,{persistent=false}={}){current=snapshot||{rewards:[],contracts:[]};live=persistent;error=null;if(live){if(current.identity?.mixedPlayers)error='서로 다른 캐릭터의 로그가 섞여 있어 지급 보관과 계약 연결을 멈췄습니다.';else try{store.observe(current.rewards||[]);}catch(e){error=e.message;}}render();}};
+ return {renderHistory:history.mount,refresh:render,update(snapshot,{persistent=false}={}){current=snapshot||{rewards:[],contracts:[]};live=persistent;error=null;if(live){if(current.identity?.mixedPlayers)error='서로 다른 캐릭터의 로그가 섞여 있어 지급 보관과 계약 연결을 멈췄습니다.';else try{store.observe(current.rewards||[]);completions.observe(current.contracts||[]);}catch(e){error=e.message;}}render();}};
 }

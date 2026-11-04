@@ -6,7 +6,7 @@ import {logServiceFiles} from '../integration/log/live-server.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 export async function desktopFiles(){
  const files=new Set(logServiceFiles().map(fileURLToPath));
- for(const name of ['desktop/bridge.mjs','scripts/log-link-server.mjs','integration/log/live-server.mjs','data/screen-reader-assets.json','LICENSE','THIRD-PARTY-NOTICES.md','vendor/THREE-LICENSE.txt','vendor/SUPERCARGO-LICENSE.txt','vendor/ocr-LICENSES.txt'])files.add(path.join(root,name));
+ for(const name of ['desktop/version.json','desktop/bridge.mjs','scripts/log-link-server.mjs','integration/log/live-server.mjs','data/screen-reader-assets.json','LICENSE','THIRD-PARTY-NOTICES.md','vendor/THREE-LICENSE.txt','vendor/SUPERCARGO-LICENSE.txt','vendor/ocr-LICENSES.txt'])files.add(path.join(root,name));
  const queue=[...files];
  for(let i=0;i<queue.length;i++){
   const full=queue[i];if(!/\.mjs$/.test(full))continue;
@@ -24,7 +24,7 @@ export async function buildDesktop(out){
  if(directory===root.slice(0,-1)||root.startsWith(directory+path.sep))throw Error('unsafe-output');
  try{await stat(directory);throw Error('output-exists');}catch(e){if(e.code!=='ENOENT')throw e;}
  await mkdir(path.join(directory,'app'),{recursive:true});
- const version=JSON.parse(await readFile(path.join(root,'data/rebuild-version.json'),'utf8')).version;
+ const version=JSON.parse(await readFile(path.join(root,'desktop/version.json'),'utf8')).version;
  const manifest=[];
  for(const full of await desktopFiles()){
   const relative=path.relative(root,full).split(path.sep).join('/');

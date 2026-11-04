@@ -59,6 +59,27 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
  const real=l=>V(l.position[0]/UNIT,l.position[2]/UNIT,-l.position[1]/UNIT);
  const shipMarker=new THREE.Mesh(new THREE.ConeGeometry(.12,.42,4),new THREE.MeshBasicMaterial({color:0xffc77b,depthTest:false,transparent:true,opacity:.95}));
  shipMarker.renderOrder=30;shipMarker.visible=false;scene.add(shipMarker);
+ const locationMarker=new THREE.Mesh(new THREE.TorusGeometry(.18,.035,8,32),new THREE.MeshBasicMaterial({color:0x62e7dc,depthTest:false,transparent:true,opacity:.95}));
+ locationMarker.renderOrder=31;locationMarker.visible=false;scene.add(locationMarker);let observedLocationId=null,observedPosition=null;
+ function referencePoint(){
+  if(!observedPosition||observedPosition.system!==system)return null;
+  const p=real({position:observedPosition.position});
+  // Bodies and moon systems are expanded for legibility. Without surface rotation calibration,
+  // show the planetary region, not a fabricated landing site on the expanded globe.
+  for(const body of data.locations.filter(l=>l.system===system&&l.type==='Planet')){
+   const moons=(kids.get(body.id)||[]).filter(l=>l.type==='Moon');
+   const radius=Math.max(kmR(body)*3000,...moons.map(m=>real(m).distanceTo(real(body))*UNIT*1.5));
+   if(p.distanceTo(real(body))*UNIT<=radius&&layout.has(body.id))return {point:layout.get(body.id).pos,bodyId:body.id};
+  }
+  return {point:p,bodyId:null};
+ }
+ function updateLocationMarker(){
+  const location=byId.get(observedLocationId),sys=location?.system||observedPosition?.system;
+  const point=level==='galaxy'?GALAXY[sys]:location?(location.system===system?posOf(location.id):null):referencePoint()?.point;
+  locationMarker.visible=!!point;if(!point)return;
+  locationMarker.position.copy(point);locationMarker.quaternion.copy(camera.quaternion);
+  locationMarker.scale.setScalar(Math.max(.01,camera.position.distanceTo(point)*.018));
+ }
  let flight=null,flightPath=null,flightEdge=-1,flightSpace=null,flightState=null;
  let level='galaxy',system='stanton',layout=new Map(),items=[],itemById=new Map(),labels=new Map(),route=null,activeIndex=-1,selected=null,focusId=null,focusR=0,hovered=null,extent=50,legLabel=null,ribbons=[],markers=[],revealStart=0,time=0;
 
@@ -198,7 +219,7 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
 
  // ---- frame loop -------------------------------------------------------------------------------
  const tmp=V(),res=new THREE.Vector2();let lastFrameClock=performance.now();
- function frame(dt){const clock=performance.now(),trackingDt=Math.min(.5,Math.max(dt,(clock-lastFrameClock)/1000));lastFrameClock=clock;time+=dt;updateEstimatedFlight();rig.update(flight?.follow?trackingDt:dt,!!flight?.follow);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+ function frame(dt){const clock=performance.now(),trackingDt=Math.min(.5,Math.max(dt,(clock-lastFrameClock)/1000));lastFrameClock=clock;time+=dt;updateEstimatedFlight();rig.update(flight?.follow?trackingDt:dt,!!flight?.follow);updateLocationMarker();const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=time;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
   if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return flight&&!flightState?.paused&&!flightState?.arrived?30:rig.moving()?60:idleFps;}
@@ -231,6 +252,15 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
  const loop=observeRenderLoop(container,frame);rig.onChange=()=>loop.invalidate();
  goGalaxy(true);enterSystem('stanton',true);
  const api={
+  setObservedLocation(id){observedPosition=null;observedLocationId=byId.has(id)?id:null;},
+  setObservedPosition(sample){observedLocationId=null;observedPosition=sample&&['stanton','pyro','nyx'].includes(sample.system)&&Array.isArray(sample.position)&&sample.position.length===3&&sample.position.every(n=>Number.isFinite(n)&&Math.abs(n)<=1e12)?{system:sample.system,position:[...sample.position]}:null;},
+  focusObservedLocation(){
+   if(byId.has(observedLocationId)){if(flight)flight.follow=false;focus(observedLocationId);return true;}
+   if(!observedPosition)return false;if(flight)flight.follow=false;enterSystem(observedPosition.system,true);
+   const projected=referencePoint();if(projected.bodyId)focus(projected.bodyId);else{
+    rig.bound=Math.max(rig.bound,projected.point.length()*1.2);focusId=null;rig.set(rig.aim(projected.point,3,V(Math.sin(rig.goal.theta),.7,Math.cos(rig.goal.theta))));crumbsRender();
+   }return true;
+  },
   startEstimatedFlight(index,{follow=false,onState}={}){const leg=route?.visits[index]?.leg;if(!leg)return false;stopEstimatedFlight();flight={index,follow,onState,clock:createEstimatedFlight(leg)};return true;},
   pauseEstimatedFlight(){if(!flight)return false;return flight.clock.togglePause().paused;},
   followEstimatedFlight(value){if(flight){flight.follow=!!value;flightEdge=-1;}},
@@ -242,5 +272,5 @@ export function createStarMap(container,labelContainer,data,onSelect=()=>{},opti
   search:q=>{const n=String(q).toLowerCase();return data.locations.filter(l=>l.name.toLowerCase().includes(n)).slice(0,12);}};
  let disposed=false;
  const dispose=()=>{if(disposed)return;disposed=true;loop.dispose();rig.dispose();events.abort();resizeObserver.disconnect();clearLabels();clearGroup(scene);sphereGeo.dispose();bloom.dispose();renderer.dispose();renderer.forceContextLoss?.();renderer.domElement.remove();tip.remove();crumbs.remove();};
- return {...api,dispose,...Object.fromEntries(['startEstimatedFlight','pauseEstimatedFlight','followEstimatedFlight','stopEstimatedFlight','setSystem','setRoute','focus','focusLeg','home','flyTo','galaxy','setQuality'].map(key=>[key,(...args)=>{if(disposed)return;const result=api[key](...args);loop.invalidate();return result;}]))};
+ return {...api,dispose,...Object.fromEntries(['setObservedPosition','setObservedLocation','focusObservedLocation','startEstimatedFlight','pauseEstimatedFlight','followEstimatedFlight','stopEstimatedFlight','setSystem','setRoute','focus','focusLeg','home','flyTo','galaxy','setQuality'].map(key=>[key,(...args)=>{if(disposed)return;const result=api[key](...args);loop.invalidate();return result;}]))};
 }

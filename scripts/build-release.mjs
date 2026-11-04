@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';import {createHash} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';import {execFileSync} from 'node:child_process';
+import {buildWebRelease} from './build-web-release.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export async function buildRelease(directory,version){
  const out=path.resolve(directory);if(out===root)throw Error('배포용 복사본에서만 실행하세요.');
@@ -10,7 +11,7 @@ export async function buildRelease(directory,version){
  const stamp=text=>text.replace(/(["'])((?:(?:\.{1,2}\/)+|(?:assets|data|vendor|integration|onboarding)\/)[^"'\s?]+\.(?:mjs|js|json|css|jpg|png|webp|svg|mp4|vtt))(?:\?v=[a-f0-9]+)?\1/g,(_,quote,url)=>`${quote}${url}?v=${version}${quote}`);
  async function stampModules(directory){for(const entry of await fs.readdir(directory,{withFileTypes:true})){const full=path.join(directory,entry.name);if(entry.isDirectory())await stampModules(full);else if(entry.name.endsWith('.mjs'))await fs.writeFile(full,stamp(await fs.readFile(full,'utf8')));}}
  await stampModules(out);
- for(const page of ['guide.html','download.html']){try{const full=path.join(out,page);await fs.writeFile(full,stamp(await fs.readFile(full,'utf8')));}catch(e){if(e.code!=='ENOENT')throw e;}}
+ for(const page of ['guide.html','download.html','patch-notes.html','flight-deck.html']){try{const full=path.join(out,page);await fs.writeFile(full,stamp(await fs.readFile(full,'utf8')));}catch(e){if(e.code!=='ENOENT')throw e;}}
  const index=path.join(out,'index.html');let html=stamp(await fs.readFile(index,'utf8'));
  html=html.replace(/<meta name="app-version" content="[^"]*">/g,'').replace('</head>',`<meta name="app-version" content="${version}"></head>`);
  html=html.replace(/((?:src|href)=)(["'])(app\.mjs|style\.css|icon\.svg)(?:\?v=[a-f0-9]+)?\2/g,(_,attr,q,url)=>`${attr}${q}${url}?v=${version}${q}`);
@@ -20,5 +21,8 @@ export async function buildRelease(directory,version){
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)){
  const version=process.env.GITHUB_SHA||execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
- console.log(await buildRelease(process.argv[2]||path.join(root,'public'),version));
+ const out=process.argv[2]||path.join(root,'public');
+ console.log(await buildRelease(out,version));
+ const web=await buildWebRelease(out,version);
+ console.log({webRelease:web.id,files:web.files.length,bridgeProtocol:web.protocol});
 }

@@ -1,7 +1,7 @@
 {
   "status": "published",
-  "version": "rebuild.20261104.20",
-  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/rebuild.20261104.20/STAM-rebuild.20261104.20-win-x64.zip",
-  "sha256": "82a46c43b4dce40fcc3efe7e28ff0999fa1d5e2b4f19624f1a882c16243e9cf5",
-  "bytes": 48950900
+  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.0.0/STAM-app.1.0.0-win-x64.zip",
+  "version": "app.1.0.0",
+  "bytes": 50076507,
+  "sha256": "fa7655cf0ceed12c4a4a1f6a6296be20de2f89317a69839511e51d98a4384e74"
 }

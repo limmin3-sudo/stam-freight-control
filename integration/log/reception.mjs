@@ -2,6 +2,7 @@ import {contractLocations} from './locations.mjs';
 export const receptionActive=c=>c.status!=='end-observed'&&c.participation?.state!=='left-observed';
 // Presentation of existing evidence only. No new inference or planning authority.
 export function contractReception(c,readiness,catalog,locations){
+ if(c.userManifest&&readiness?.ready){const rows=c.userManifest.rows,preview=readiness.preview;return {stage:'reserved',label:'직접 확인한 화물',items:[{name:'품목·총량',state:'linked',text:`${rows.length}개 항목 · ${rows.reduce((n,r)=>n+r.scu,0)} SCU`},{name:'방문 지점',state:'linked',text:`픽업 ${preview.visitRequirements.pickups.length}곳 · 배송 ${preview.visitRequirements.deliveries.length}곳`},{name:'상자 구성',state:rows.every(r=>r.boxes.length)?'linked':'waiting',text:rows.every(r=>r.boxes.length)?'직접 지정한 상자 구성':'크기별 개수는 화물 확인에서 지정할 수 있습니다. 그전에는 공간 가이드를 표시합니다.'}],note:'사용자가 확인한 계약 정보입니다. 실제 적재·배송 상태는 따로 확인합니다.'};}
  const closed=!receptionActive(c),conflict=!!c.conflicts?.length,preview=readiness?.preview;
  const stage=closed?'closed':conflict?'conflict':!readiness?.ready?'waiting':preview.partial?'partial':readiness.reservation?'reserved':'ready';
  const label={closed:'종료·참여 이탈 기록',conflict:'기록 확인 필요',waiting:'추가 정보 대기',partial:'일부 화물 연결',reserved:'배송지별 공간 준비',ready:'적재 명세 연결'}[stage];

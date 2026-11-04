@@ -18,7 +18,7 @@ export function renderProgress(contract,index){
   const role={pickup:'픽업',dropoff:'배송'}[g.role]||'목표';
   const row=el('div',undefined,'goal-progress');row.dataset.goal=g.objectiveId;
   row.append(el('strong',`${role} · ${place||`지점 확인 중 (${i+1})`}`),el('span',states[g.state]));
-  if(g.quantity)row.append(el('small',`목표 수량 ${g.quantity.current}/${g.quantity.total} SCU · 마지막 알림 기준`));
+  if(g.quantity)row.append(el('small',`목표 수량 ${g.quantity.current}/${g.quantity.total} ${g.quantity.unit==='count'?'개':'SCU'} · 마지막 알림 기준`));
   if(g.quantityConflict)row.append(el('small','수량 기록이 달라 다시 확인해야 합니다.','notice'));
   if(g.at)row.append(el('small',`마지막 기록 · ${new Date(g.at).toLocaleString()}`));
   body.append(row);

@@ -25,7 +25,7 @@ export function contractProgress(contract){
   const quantityConflict=totals.size>1||lastAmounts.size>1||regressed;
   const state=lastStates.size>1?'conflict':({MISSION_OBJECTIVE_STATE_COMPLETED:'completed',MISSION_OBJECTIVE_STATE_FAILED:'failed',MISSION_OBJECTIVE_STATE_INPROGRESS:'in-progress'}[last?.state]||'unconfirmed');
   return {objectiveId,role:roles.size===1?[...roles][0]:'unknown',state,at:last?.at??q?.at??null,
-   quantity:q&&!quantityConflict?{current:q.current,total:q.total,unit:'SCU',at:q.at}:null,quantityConflict};
+   quantity:q&&!quantityConflict?{current:q.current,total:q.total,unit:q.unit,at:q.at}:null,quantityConflict};
  }).sort((a,b)=>a.objectiveId.localeCompare(b.objectiveId));
  return {outcome,observedAt:latest?.at??[...known,...service].sort(order).at(-1)?.at??null,
   goals,observedGoals:goals.length,completedGoals:goals.filter(g=>g.state==='completed').length,

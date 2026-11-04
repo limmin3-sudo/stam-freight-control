@@ -1,3 +1,13 @@
+const readyWorkers=new WeakSet();
+// Load the pure planner while the crew and contracts are being prepared. The
+// initial WebGL frame must not compete with importing the calculation modules.
+export function warmPlanningWorker(createWorker){
+ let worker=null,failed=false;
+ const ready=e=>{if(e.data?.type==='ready'&&worker)readyWorkers.add(worker);},error=()=>{failed=true;};
+ try{worker=createWorker();worker.addEventListener('message',ready);worker.addEventListener('error',error);}catch{failed=true;}
+ const detach=()=>{worker?.removeEventListener('message',ready);worker?.removeEventListener('error',error);};
+ return {take(){detach();const value=worker;worker=null;if(value&&!failed)return value;value?.terminate();return createWorker();},dispose(){detach();worker?.terminate();worker=null;}};
+}
 // One worker per calculation; no polling. Keep optional resume work out of the route deadline.
 export function startPlanningTask({id,input,guidanceEvidence,createWorker,onPhase=()=>{},
   setTimer=setTimeout,clearTimer=clearTimeout,limits={prepare:8000,calculate:8000,fingerprint:2000}}) {
@@ -33,6 +43,7 @@ export function startPlanningTask({id,input,guidanceEvidence,createWorker,onPhas
         finish({result,planHash:valid?data.planHash:null,hashError:valid?null:hashUnavailable});
       }
     };
+    if(readyWorkers.has(worker))worker.onmessage({data:{type:'ready'}});
   }catch{finish({error:'계산 작업을 시작하지 못했습니다. 다시 계산해 주세요. 로그 감시는 계속됩니다.'});}
   return {promise,cancel:()=>finish({cancelled:true})};
 }
