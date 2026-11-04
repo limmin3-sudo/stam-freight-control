@@ -7,25 +7,37 @@ import {PLANNING_KEY,cleanPlanningPreferences} from '../../planning-preferences.
 const KEY = 'stam-log-preview-settings-v1';
 // Automatically add only resolvable, locally accepted/joined records. This is
 // an original-demand plan, not proof that every historical record is still active.
-export function createPlanSelection(limit=12) {
+export function createPlanSelection(limit=12,{store=null,persistent=!!store}={}) {
   const selected=new Set(), manual=new Set(), automatic=new Set(), awaiting=new Set(), deferred=new Set();
+  let choices=new Map(),saveError=null;
   const eligible=c=>['acceptance-observed','participation-observed'].includes(c.status)&&
     c.participation?.state!=='left-observed'&&!c.conflicts?.length;
+  const load=()=>{if(!persistent||!store)return;const saved=store.snapshot();saveError=saved.error;choices=new Map(saved.choices.map(r=>[r.id,r.choice]));for(const [id,choice] of choices){if(choice==='awaiting')awaiting.add(id);else manual.add(id);if(choice==='deferred')deferred.add(id);}};
+  const persist=next=>{if(persistent&&store)store.save([...next].map(([id,choice])=>({id,choice})));choices=next;saveError=null;};
+  const clear=()=>{selected.clear();manual.clear();automatic.clear();awaiting.clear();deferred.clear();choices.clear();saveError=null;};
+  load();
   return {
     selected,awaiting,deferred,
-    set(id,value) { manual.add(id); automatic.delete(id); awaiting.delete(id);deferred.delete(id);value?selected.add(id):selected.delete(id); },
-    defer(id) { manual.add(id);automatic.delete(id);awaiting.delete(id);selected.delete(id);deferred.add(id); },
+    status(){const state=persistent&&store?store.snapshot():{choices:[],error:null};return {persistent:!!(persistent&&store),count:state.choices.length,error:state.error||saveError};},
+    useSaved(value){if(persistent===value)return;clear();persistent=value;load();},
+    resetSaved(){if(!persistent||!store)return;store.reset();clear();},
+    set(id,value,{remember=true}={}) {if(remember){const next=new Map(choices);value?next.delete(id):next.set(id,'excluded');persist(next);}manual.add(id);automatic.delete(id);awaiting.delete(id);deferred.delete(id);value?selected.add(id):selected.delete(id);},
+    defer(id) {const next=new Map(choices);next.set(id,'deferred');persist(next);manual.add(id);automatic.delete(id);awaiting.delete(id);selected.delete(id);deferred.add(id);},
     reconcile(contracts,readyIds,{autoSelect=true}={}) {
       const byId=new Map(contracts.map(c=>[c.missionId,c]));
       for(const id of selected)if(!byId.has(id)||(automatic.has(id)&&
         (byId.get(id).status==='end-observed'||byId.get(id).participation?.state==='left-observed'))) {
         selected.delete(id);automatic.delete(id);
       }
-      if(!autoSelect)for(const c of contracts)if(!selected.has(c.missionId)&&!manual.has(c.missionId)&&eligible(c)&&readyIds.has(c.missionId))awaiting.add(c.missionId);
-      for(const c of contracts)if(autoSelect&&!awaiting.has(c.missionId)&&selected.size<limit&&!manual.has(c.missionId)&&
-        eligible(c)&&readyIds.has(c.missionId)) { selected.add(c.missionId);automatic.add(c.missionId); }
+      const next=new Map(choices);
+      if(!autoSelect)for(const c of contracts)if(!selected.has(c.missionId)&&!manual.has(c.missionId)&&eligible(c)&&readyIds.has(c.missionId)){awaiting.add(c.missionId);next.set(c.missionId,'awaiting');}
+      if(next.size!==choices.size)try{persist(next);}catch(e){saveError=e.message;}
+      const blocked=saveError||(persistent&&store?.snapshot().error);
+      for(const c of contracts)if(!blocked&&autoSelect&&!awaiting.has(c.missionId)&&selected.size<limit&&!manual.has(c.missionId)&&
+        eligible(c)&&readyIds.has(c.missionId)) {selected.add(c.missionId);automatic.add(c.missionId);}
     },
-    clear() { selected.clear();manual.clear();automatic.clear();awaiting.clear();deferred.clear(); },
+    // Clearing a replay/session view must not delete saved live choices.
+    clear,
   };
 }
 export function createPreviewSession(storage) {

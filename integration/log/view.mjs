@@ -1,3 +1,4 @@
+import {createPlanChoiceStore} from './plan-choice-store.mjs';
 import {partnerVoice,partnerSpeaker} from './partner-voice.mjs';
 import {receptionActive,contractReception,receptionDetails} from './reception.mjs';
 import {createRetainedCargo} from './retained-cargo.mjs';
@@ -33,9 +34,9 @@ function connectionState(state,label){connection.dataset.state=state;connection.
 connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
 $('workspace-help').onclick=()=>{const guide=$('run-guide');guide.open=!guide.open;if(guide.open)guide.scrollIntoView({block:'nearest',behavior:'smooth'});};
 let storage; try { storage = localStorage; } catch {}
-const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
+const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:false}), selectedContracts=planSelection.selected;
 previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
-let planner,removalDialog=null,guidanceActive=false;const dismissedRemoval=new Set();
+let planner,removalDialog=null,guidanceActive=false,replayMode=false;const dismissedRemoval=new Set();
 function removeContract(c,automatic=false){
   if(removalDialog)return;
   previewSession.removalPending.add(c.missionId);planner?.pauseForRemoval();
@@ -43,7 +44,7 @@ function removeContract(c,automatic=false){
   const cargo=previewSession.continuity.snapshot().records.find(r=>r.id===c.missionId);
   const plan=saved?.review&&saved.ship?{ship:saved.ship,packing:{boxes:saved.boxes.map(b=>({...b,retained:false}))}}:planner?.getPacking()||(cargo?{ship:cargo.ship,packing:{boxes:cargo.boxes.filter(b=>b.state==='aboard')}}:null);
   removalDialog=contractRemoval({contract:c,plan,store:previewSession.retained,partner:previewSession.preferences.partner,
-    onApply:()=>{try{previewSession.continuity.forget(c.missionId);}catch{}removalDialog=null;previewSession.removalPending.delete(c.missionId);dismissedRemoval.delete(c.missionId);planSelection.set(c.missionId,false);renderPlanning();},
+    onApply:()=>{try{previewSession.continuity.forget(c.missionId);}catch{}removalDialog=null;previewSession.removalPending.delete(c.missionId);dismissedRemoval.delete(c.missionId);planSelection.set(c.missionId,false,{remember:false});renderPlanning();},
     onCancel:()=>{removalDialog=null;if(!automatic)previewSession.removalPending.delete(c.missionId);else dismissedRemoval.add(c.missionId);renderPlanning();}});
 }
 function renderRetained(){
@@ -69,10 +70,16 @@ function renderCargoContinuity(){
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();},onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
+  replayMode=true;
   renderRewards($('reward-observations'));
   flightReady.observations(null,null);
-  planner?.dispose(); planner = null;guidanceActive=false;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.clear(); previewSession.clearDrafts();
+  planner?.dispose(); planner = null;guidanceActive=false;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.useSaved(false);planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
+}
+function renderChoiceStorage(){
+ const host=$('planning-choice-storage'),saved=planSelection.status();host.replaceChildren();
+ host.append(el('small',saved.persistent?'계약 선택은 이 브라우저에 저장합니다. 같은 계약이 로그에 다시 나오면 반영합니다.':'저장 로그의 선택은 이번 화면에서만 사용합니다.'));
+ if(saved.error){host.append(el('p',saved.error));const reset=el('button','계약 선택 기록 초기화');reset.type='button';reset.onclick=()=>confirmCargoCleared(()=>{planSelection.resetSaved();renderPlanning();},{partner:previewSession.preferences.partner,title:'계약 선택 기록 초기화',description:'현재 계정의 이 브라우저 선택 기록만 지웁니다. 다음 계획으로 남긴 선택과 제외 선택도 초기화됩니다. 실제 화물·게임 계약은 변경하지 않습니다.',confirm:'선택 기록 초기화'});host.append(reset);}
 }
 function renderPlanning() {
   if (!catalog || !locations || !snapshot) return;
@@ -84,9 +91,9 @@ function renderPlanning() {
   const entries = snapshot.contracts;
   const cargoById=new Map(previewSession.continuity.snapshot().records.map(r=>[r.id,r]));
   const dispositions=new Map(previewSession.retained.snapshot().records.map(r=>[r.id,r]));
-  for(const id of dispositions.keys())planSelection.set(id,false);
+  for(const id of dispositions.keys())planSelection.set(id,false,{remember:false});
   for(const c of entries)if((selectedContracts.has(c.missionId)||cargoById.get(c.missionId)?.boxes.some(b=>b.state==='aboard'))&&!dispositions.has(c.missionId)&&(c.status==='end-observed'||c.participation?.state==='left-observed')){
-    planSelection.set(c.missionId,true);previewSession.removalPending.add(c.missionId);
+    planSelection.set(c.missionId,true,{remember:false});previewSession.removalPending.add(c.missionId);
     const savedCargo=cargoById.get(c.missionId);
     const plan=planner?.getPacking()||(savedCargo?{ship:savedCargo.ship,packing:{boxes:savedCargo.boxes.filter(b=>b.state==='aboard')}}:null);
     try{previewSession.retained.markReview(c.missionId,c.title,plan?.ship,(plan?.packing?.boxes||[]).filter(b=>b.missionId===c.missionId&&!b.retained));}
@@ -98,6 +105,7 @@ function renderPlanning() {
   if(unresolved&&!removalDialog)removeContract(unresolved,true);
   const readiness=new Map(entries.map(c=>[c.missionId,previewReadiness(c,catalog,locations)]));
   planSelection.reconcile(entries,new Set(entries.filter(c=>readiness.get(c.missionId).ready).map(c=>c.missionId)),{autoSelect:!guidanceActive});
+  renderChoiceStorage();
   const readyCount=entries.filter(c=>readiness.get(c.missionId).ready).length;
   $('planning-readiness').textContent=`자동 연결 가능 ${readyCount}개 · 추가 근거 필요 ${entries.length-readyCount}개. 미확인 계약은 아래에 보류 이유를 표시합니다.`;
   const progressOpen=new Set([...$('planning-contracts').querySelectorAll('[data-progress][open]')].map(n=>n.dataset.progress));
@@ -122,14 +130,14 @@ function renderPlanning() {
     check.dataset.mission = c.missionId;const disposition=dispositions.get(c.missionId);check.disabled=!!(disposition?.boxes.length||disposition?.unlocated||disposition?.review);
     label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
     label.append(el('small',readiness.get(c.missionId).label,'planning-readiness'));
-    const include=()=>{try{if(dispositions.has(c.missionId)){previewSession.continuity.forget(c.missionId);previewSession.retained.restore(c.missionId);}planSelection.set(c.missionId,true);renderPlanning();}catch(e){check.checked=false;$('planning-readiness').textContent=e.message;}};
+    const include=()=>{try{planSelection.set(c.missionId,true);if(dispositions.has(c.missionId)){previewSession.continuity.forget(c.missionId);previewSession.retained.restore(c.missionId);}renderPlanning();}catch(e){check.checked=false;$('planning-readiness').textContent=e.message;}};
     check.onchange = () => {if(!check.checked){check.checked=true;removeContract(c);return;}include();};
     $('planning-contracts').append(label);
     if(!check.checked&&!disposition&&receptionActive(c)&&(planSelection.awaiting.has(c.missionId)||planSelection.deferred.has(c.missionId))){
       const deferred=planSelection.deferred.has(c.missionId),choice=el('div',undefined,'contract-choice');choice.dataset.choice=c.missionId;
       const partner=previewSession.preferences.partner;choice.append(partnerSpeaker(partner,partnerVoice(partner)[deferred?'contractDeferred':'contractChoice']));
       const add=el('button','현재 항로에 추가');add.type='button';add.disabled=!readiness.get(c.missionId).ready;add.onclick=include;
-      const later=el('button',deferred?'다음 계획에 보관됨':'다음 계획으로 보관');later.type='button';later.disabled=deferred;later.onclick=()=>{planSelection.defer(c.missionId);renderPlanning();};
+      const later=el('button',deferred?'다음 계획에 보관됨':'다음 계획으로 보관');later.type='button';later.disabled=deferred;later.onclick=()=>{try{planSelection.defer(c.missionId);renderPlanning();}catch(e){$('planning-readiness').textContent=e.message;}};
       choice.append(add,later,el('small','추가하면 현재 항로·적재 계획을 다시 계산합니다. 실제 적재 위치는 확인된 기록을 유지합니다.'));
       $('planning-contracts').append(choice);
     }
@@ -208,7 +216,7 @@ function showMore() {
       body.append(renderContractLocations(contract, locations));
       if (snapshot.contracts.some(c => c.missionId === contract.missionId)) {
         const add = el('button', '함께 계획할 계약에 추가');
-        add.onclick = () => { planSelection.set(contract.missionId,true); renderPlanning(); $('planning').scrollIntoView({block:'start'}); };
+        add.onclick = () => {try{planSelection.set(contract.missionId,true);renderPlanning();$('planning').scrollIntoView({block:'start'});}catch(e){$('planning-readiness').textContent=e.message;} };
         body.append(add);
       }
       if (contract.objectiveNotices?.length) {
@@ -344,6 +352,7 @@ const phaseLabels = {
   error: '감시가 중단되었습니다. 마지막 정상 기록만 표시합니다. 실행 도우미를 다시 시작해 주세요.',
 };
 function showLiveStatus(status) {
+  if(!replayMode)planSelection.useSaved(true);
   if(liveStatus&&status.generation!==liveStatus.generation)screenWatch.reset();
   liveStatus = status;
   connectionState(status.phase,status.phase==='watching'?'로그 연결됨':status.phase==='paused'?'로그 감시 일시정지':status.phase==='error'?'로그 연결 오류':status.phase==='waiting-file'?'로그 파일 확인 필요':'로그 확인 중');
