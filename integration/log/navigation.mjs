@@ -1,13 +1,6 @@
-// Read-only observations from build 12913470. These are candidates, never live XYZ.
-// Names/classes checked against public Wiki vehicle pages on 2026-11-04 KST.
-const WIKI = 'https://api.star-citizen.wiki/vehicles/';
-export const SHIP_REFERENCES = Object.freeze({
-  MISC_Hull_B: {id:'misc-hull-b', name:'MISC Hull B', source:WIKI+'misc-hull-b'},
-  MISC_Starfarer: {id:'misc-starfarer', name:'MISC Starfarer', source:WIKI+'misc-starfarer'},
-  RSI_Aurora_Mk2: {id:'rsi-aurora-mk-ii', name:'RSI Aurora Mk II', source:WIKI+'rsi-aurora-mk2'},
-  RSI_Salvation: {id:'rsi-salvation', name:'RSI Salvation', source:WIKI+'rsi-salvation'},
-  RSI_Constellation_Mk5_Centaurus: {id:null, name:'RSI Constellation Mk V Centaurus', source:WIKI+'rsi-constellation-mk5-centaurus'},
-});
+// Read-only observations; exact public class-to-profile references, never live XYZ.
+import {SHIP_REFERENCES} from '../../data/log-vehicle-index.mjs';
+export {SHIP_REFERENCES} from '../../data/log-vehicle-index.mjs';
 // Explicit community reference only; no code/name guessing or geometric proximity.
 // Four factual station correspondences, not copied parser implementation.
 const STATION_URL='https://github.com/tactilebiscuit4/StarCargoTracker/blob/main/src/locations.rs';
@@ -88,5 +81,6 @@ export function liveNavigationCandidate(navigation,status,now=Date.now()){
   if(!scope)return null;
   const recent=at=>{const age=now-Date.parse(at);return Number.isFinite(age)&&age>=0&&age<=120_000;};
   return {...scope,ship:scope.ship&&recent(scope.ship.at)?scope.ship:null,
-    inventory:scope.inventory&&recent(scope.inventory.at)?scope.inventory:null};
+    inventory:scope.inventory&&recent(scope.inventory.at)?scope.inventory:null,
+    target:scope.target&&Date.parse(scope.target.at)<=now&&recent(scope.target.arrivalAt||scope.target.at)?scope.target:null};
 }

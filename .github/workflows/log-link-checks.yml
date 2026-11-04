@@ -12,6 +12,8 @@ on:
       - 'tests/launcher.test.mjs'
       - 'data/log-mission-index.json'
       - 'data/log-location-index.json'
+      - 'data/log-vehicle-index.mjs'
+      - 'scripts/refresh-log-vehicles.mjs'
       - 'log-link.html'
       - 'index.html'
       - 'legacy-planner.html'

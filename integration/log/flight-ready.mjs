@@ -32,8 +32,8 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   const candidate=liveNavigationCandidate(navigation,liveStatus);
   const key=JSON.stringify([candidate,busy,active,ships.map(s=>s.id),places.map(p=>[p.id,p.name,p.system])]);
   if(key===observationKey)return;observationKey=key;observed.replaceChildren();
-  const shipRef=candidate?.ship,inventory=candidate?.inventory;
-  observed.hidden=!shipRef&&!inventory;if(observed.hidden)return;
+  const shipRef=candidate?.ship,inventory=candidate?.inventory,target=candidate?.target;
+  observed.hidden=!shipRef&&!inventory&&!target;if(observed.hidden)return;
   observed.append(el('strong','로그에서 찾은 준비 정보'));
   let shipId=null,startId=null;
   const sourceLink=(label,url)=>{if(!url)return;const a=el('a',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';observed.append(a);};
@@ -42,12 +42,18 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
     observed.append(el('p',`항법 기록 · ${shipRef.name||'함선 종류 미확인'} · ${new Date(shipRef.at).toLocaleTimeString()}`));
     if(!shipId)observed.append(el('p','이 함선의 적재칸을 아직 연결하지 못했습니다.'));
     sourceLink('함선 자료 · Star Citizen Wiki',shipRef.source);
+    if(shipRef.version)observed.append(el('small',`자료 버전 ${shipRef.version} · 현재 게임과 일치 여부 미확인`));
   }
   if(inventory){
     const place=inventory.location,found=place?places.filter(p=>p.name===place.name&&p.system===place.system):[];
     if(found.length===1)startId=found[0].id;
     observed.append(el('p',`최근 창고 조회 · ${place?.name||'장소 미확인'} · ${new Date(inventory.at).toLocaleTimeString()}`));
     sourceLink('장소 대응 · StarCargoTracker',place?.source);
+  }
+  if(target){
+    const arrived=target.phase==='arrived';
+    observed.append(el('p',`${arrived?'퀀텀 도착 기록':'선택한 퀀텀 목적지'} · ${target.location?.name||'장소 미확인'} · ${new Date(arrived?target.arrivalAt:target.at).toLocaleTimeString()}`));
+    observed.append(el('small','퀀텀 기록만으로 정박·하역을 완료하거나 출발지를 바꾸지 않습니다.'));
   }
   observed.append(el('p','현재 함선·출발지와 맞는지 확인해 주세요. 실시간 위치는 아직 연결되지 않았습니다.'));
   const apply=el('button','준비 정보에 적용');apply.type='button';apply.disabled=busy||active||(!shipId&&!startId);
