@@ -13,6 +13,7 @@ export function positionDialog({feed,locations,partner,onClose=()=>{}}) {
   coordinates.rows=3;coordinates.maxLength=512;coordinates.placeholder='Coordinates: x:… y:… z:…';
   const placeField=field('현재 거점',place),coordinateFields=el('section');
   coordinateFields.append(field('항성계',system),field('복사한 좌표',coordinates),el('p','게임 채팅에 /showlocation을 직접 입력한 뒤, 복사된 좌표를 여기에 붙여 넣어 주세요.'));
+  coordinateFields.append(el('p','앱에서 좌표 연결을 켜면 /showlocation으로 새로 복사한 위치가 지도에 반영됩니다. 항성계가 바뀌면 앱에서도 항성계를 바꿔 주세요.'));
   coordinateFields.hidden=true;
   method.onchange=()=>{placeField.hidden=method.value!=='place';coordinateFields.hidden=method.value!=='coordinates';};
   const status=el('p');status.setAttribute('role','status');

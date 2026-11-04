@@ -1,3 +1,5 @@
+import {WORKSPACE_EN} from './ui-english.mjs';
+import {PARTNER_EN} from './partner-english.mjs';
 import {PHRASES,PATTERNS} from '../../i18n-en.mjs';
 const EXTRA={
 '화물 형태':'Cargo shape','컨테이너':'Container','냉동포드 · 개당 1 SCU':'Cryopod · 1 SCU each',
@@ -15,7 +17,7 @@ const EXTRA={
 '함장님, 이 계약의 화물이 아직 실려 있습니까?':'Captain, do you still have cargo from this contract aboard?',
 '남아 있습니다':'Cargo remains aboard','없습니다':'No cargo remains',
 };
-const literals=Object.entries({...PHRASES,...EXTRA}).sort((a,b)=>b[0].length-a[0].length),hangul=/[가-힣]/;
+const literals=Object.entries({...PHRASES,...EXTRA,...WORKSPACE_EN,...PARTNER_EN}).sort((a,b)=>b[0].length-a[0].length),hangul=/[가-힣]/;
 const patterns=PATTERNS.map(([re,to])=>[new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'),to]);
 export function englishUI(value){if(typeof value!=='string'||!hangul.test(value))return value;let out=value;if(value==='위')return 'TOP';if(value==='아래')return 'BOTTOM';for(const [re,to] of patterns)out=out.replace(re,to);for(const [ko,en] of literals)out=out.split(ko).join(en);return hangul.test(out)?value:out;}
 export function mountLanguage(){

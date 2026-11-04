@@ -36,6 +36,12 @@ export function createPositionFeed({locations,now=Date.now}={}) {
       return publish({kind:'coordinates',source:'showlocation-paste',...point,receivedAt:now(),observedAt:null,
         referencePosition:systemReferencePosition(system,point.position),mapping:'reference-system',liveVerified:false,surfaceCalibrated:false});
     },
+    receiveCompanion(point){
+      if(!point||point.source!=='showlocation-clipboard'||!SYSTEMS.has(point.system)||!Number.isFinite(point.receivedAt)||point.receivedAt>now()+2000||point.receivedAt<now()-300000)return;
+      if(observation?.source===point.source&&point.receivedAt<=observation.receivedAt)return;
+      const referencePosition=systemReferencePosition(point.system,point.position);
+      return publish({kind:'coordinates',source:point.source,system:point.system,position:[...point.position],frame:'game-system-m',receivedAt:point.receivedAt,observedAt:null,referencePosition,mapping:'reference-system',liveVerified:false,surfaceCalibrated:false});
+    },
     clear:()=>publish(null),
     subscribe(listener){listeners.add(listener);listener(snapshot());return()=>listeners.delete(listener);},
   };

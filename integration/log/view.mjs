@@ -392,7 +392,7 @@ function showLiveStatus(status) {
 }
 live = connectLive({
   onSnapshot: renderSnapshot,
-  onStatus: showLiveStatus,
+  onStatus: status=>{showLiveStatus(status);try{planner?.receivePosition(status.position);}catch{}},
   onError: code => {
     connectionState('error','로그 연결 확인 필요');
     flightReady.observations(null,null);

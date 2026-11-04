@@ -27,3 +27,9 @@ test('Pyro game coordinates rotate back to the reference system without changing
  assert.deepEqual(systemReferencePosition('stanton',input),input);
  assert.deepEqual(systemReferencePosition('nyx',input),input);
 });
+test('companion samples update the chart once but never imply continuous or surface-calibrated tracking',()=>{
+ const feed=createPositionFeed({now:()=>1000000}),point={source:'showlocation-clipboard',receivedAt:1000000,position:[1,2,3],system:'stanton'};let changes=0;feed.subscribe(()=>changes++);
+ feed.receiveCompanion(point);feed.receiveCompanion(point);assert.equal(changes,2);assert.equal(feed.snapshot().liveVerified,false);
+ feed.receiveCompanion({...point,receivedAt:1});assert.equal(changes,2);
+ feed.receiveCompanion({...point,source:'arbitrary'});assert.equal(changes,2);
+});
