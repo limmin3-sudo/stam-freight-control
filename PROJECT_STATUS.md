@@ -8,6 +8,7 @@
 - **언어:** 한국어/English 미리보기 토글과 주요 조작/파트너/3D 명칭 전환. 화면만 변경하고 원본 계약 근거는 보존. 번역되지 않은 완전한 문장은 한국어로 유지하며 일부 단어만 바뀐 혼합 문장을 만들지 않는다. 새 UI 전체 번역은 남아 있다.
 - **공개 구성:** Pages를 새 관제 정적 허용 목록으로 조립. Node 전용 코드/로그/구 패치 데이터 제외. 하위 경로 모듈·안내 페이지 버전 URL과 inline importmap CSP hash 갱신, 기존 locations.json URL 보존. README를 현재 실행 흐름/보존 범위/한계 기준으로 교체하고 기존 LICENSE 및 제3자 고지 유지. 사용자 체감 흐름 변경으로 공개 이력4.0.0 기록.
 - **검증:** Node22 전체 검사와 Chromium 메인 진입·실시간/재생 구분·구 설정 보존·13장 안내·24초 재생·모바일 검사를 실행했다. `/stam-freight-control/` 하위 경로의 배포 복사본에서 CSP·언어 왕복·백업 다운로드/복원·중단 복구·다른 키 보존·다운로드 링크·JS/HTTP 오류0 확인. 최종 Node22:322검사 중321통과·실패0·Windows전용1건너뜀. 배포 경로 Chromium 최종 재검사도 통과. Windows/게시/Pages 결과는 후속 기록을 따른다. 초기 제한 샌드박스의 자식 프로세스/loopback 검사 실패는 허용된 네트워크 실행 환경에서 재검사해 통과했다.
+- **Windows/게시 확인:** 기능 커밋 `6c45b2a`의 [여섯 환경 검사41816556348](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41816556348) 모두 성공. [Windows 패키지/게시41816556336](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41816556336) 성공, Windows322통과·실패0·건너뜀0. EXE 컴파일/포함 런타임 self-test 후 `.20` 릴리스 ZIP48,950,900바이트 게시. 공개 ZIP을 직접 내려받아 SHA-256 `82a46c43b4dce40fcc3efe7e28ff0999fa1d5e2b4f19624f1a882c16243e9cf5`와 SHA256SUMS 일치, 내부142파일 해시 전부 재검증. 다운로드 메타데이터는 이 실제 게시 결과로 활성화했다. PR #1 ready 전환, 이후 main/Pages 결과 기록 예정.
 - **남은 범위:** 모든 미션 명세/실제 상자·실제 연속 위치·신규 운항 전체 클라우드 동기화·지급과 기존 통계 통합·전체 English·실게임 성능/정확성. `docs/RELEASE-READINESS.md`와 `docs/FINAL-GAME-VALIDATION.md`에 유지한다. Windows 패키지·Pages는 CI 성공 후 결과를 별도 기록한다.
 
 

@@ -26,3 +26,5 @@
 - main/Pages 운영 배포와 테스트용 GitHub prerelease는 구분한다. 2026-11-04 사용자가 main/사이트 배포를 명시적으로 요청했다. 배포 결과는 아래와 PROJECT_STATUS.md에 기록한다.
 
 패키지 게시: `[publish desktop]`를 명시한 시험 브랜치 커밋에서만 Windows 빌드·검증 성공 후 GitHub Actions가 prerelease 파일을 등록한다. 일반 푸시는 게시하지 않는다. 같은 버전의 자산은 덮어쓰지 않는다.
+
+2026-11-04 `.20` 패키지 게시 완료: Windows322검사·EXE/런타임 self-test 통과, Windows/Linux × Node22/24/26.13.0 성공. 공개 ZIP48,950,900바이트의 SHA-256과 내부142파일 해시를 재검증했다. [릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.20). Pages 배포 결과는 PROJECT_STATUS.md 최신 기록을 따른다.
