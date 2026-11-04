@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdtemp,readFile,writeFile,appendFile,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {startLogService} from '../integration/log/live-server.mjs';
+import {fixture,data} from '../tests/helpers/log-preview.mjs';
+const {chromium}=createRequire(import.meta.url)(process.env.STAM_PLAYWRIGHT_MODULE||'playwright');
+const dir=await mkdtemp(join(tmpdir(),'stam-ready-')),file=join(dir,'synthetic.log');await writeFile(file,'');
+let service=await startLogService({file});let browser;
+try{
+ browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],bad=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)bad.push(new URL(r.url()).pathname);});
+ await page.addInitScript(start=>{if(location.protocol!=='http:'||location.hostname!=='127.0.0.1')return;localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('vh-start',start);},data.locations.find(p=>p.name==='New Babbage').id);
+ await page.goto(service.url);await page.waitForSelector('#flight-ready-action');
+ assert.equal(await page.locator('canvas').count(),0);assert.equal(await page.locator('#flight-ready-action').isDisabled(),true);
+ await page.locator('#flight-ready .ready-partners button').first().click();
+ assert.match(await page.locator('#flight-ready').innerText(),/계약 수신 대기/);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-log-account-settings-v1')).partner),'operator');
+ const {events}=fixture(),pre='<2026-11-03T10:00:00.000Z> [Notice] ';
+ await appendFile(file,'<2026-11-03T10:00:00.000Z> [CIG] build_version[12913470]\n'+pre+`<SHUDEvent_OnNotification> Added notification "Contract Accepted: Synthetic cargo: " [1] to queue. MissionId: [${events[1].missionId}], ObjectiveId: []\n`+events.slice(2).map(e=>pre+`<CLocalMissionPhaseMarker::CreateMarker> missionId [${e.missionId}], contract [Test_HaulCargo_Large], contractDefinitionId[${e.definitionId}], objectiveId [${e.objectiveId}], zoneHostId [1], position [x: ${e.position[0]}, y: ${e.position[1]}, z: ${e.position[2]}]\n`).join(''));
+ await page.waitForFunction(()=>document.querySelector('#flight-ready-action').textContent==='함선·출발지 확인');
+ assert.equal(await page.locator('canvas').count(),0); // no renderer until the user starts planning
+ await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();
+ assert.equal(await page.locator('#flight-ready-action').innerText(),'항로 계산·안내 시작');
+ await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000}).catch(async e=>{console.error(JSON.stringify({stage:'start-guidance',errors,bad,status:await page.locator('.preview-calculation-status').allTextContents(),ready:await page.locator('#flight-ready').innerText()}));throw e;});
+ await page.waitForFunction(()=>document.querySelector('#flight-ready-action').textContent==='운송 중 · 다음 구간');
+ assert.equal(await page.locator('canvas').count(),2);assert.match(await page.locator('.preview-calculation-status').innerText(),/28개 \/ 168 SCU/);
+ await appendFile(file,`<${new Date().toISOString()}> [Notice] <Player Selected Quantum Target - Local> [ItemNavigation][CL][1] | NOT AUTH | RSI_Salvation_12345[12345]|CSCItemNavigation::OnPlayerSelectedQuantumTarget|Player has selected point LOC_RR_ARC_LEO as their destination, routing locally [Team_CGP4][QuantumTravel]\n`);
+ await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).isDisabled(),true);
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-log-account-settings-v1')).shipId),'misc-hull-b');
+ await page.locator('#flight-ready-action').click();assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);
+ const key='stam-guidance-v1:guest';
+ const checkpoint=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).record,key);assert.equal(checkpoint.leg,2);assert.match(checkpoint.hash,/^[a-f0-9]{64}$/);
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#flight-ready-action')?.textContent==='함선·출발지 확인');assert.equal(await page.locator('canvas').count(),0);
+ await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
+ await page.getByRole('button',{name:'이전 구간부터 안내',exact:true}).waitFor({timeout:60000});
+ assert.notEqual(await page.locator('.preview-tracking').getAttribute('data-state'),'estimated');assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).record.leg,key),2);
+ await page.getByRole('button',{name:'이전 구간부터 안내',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated');
+ assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);
+ await page.getByRole('button',{name:'경로·배치 계산',exact:true}).click();await page.getByRole('button',{name:'처음부터 안내',exact:true}).waitFor();await page.getByRole('button',{name:'처음부터 안내',exact:true}).click();
+ assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'0');assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).record.leg,key),1);
+ // A different departure must not reuse a saved leg, even for the same mission.
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#flight-ready-action')?.textContent==='함선·출발지 확인');
+ await page.locator('#flight-ready-action').click();
+ const departure=data.locations.find(p=>p.name==='Lorville').id;await page.getByLabel('출항 준비 지명 검색',{exact:true}).fill('Lorville');await page.getByLabel('출항 준비 출발지',{exact:true}).selectOption(departure);await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
+ await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000});
+ assert.equal(await page.getByRole('button',{name:'이전 구간부터 안내',exact:true}).isVisible(),false);assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'0');
+ assert.notEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).record.hash,key),checkpoint.hash);
+ await page.getByRole('button',{name:'이동 표시 종료',exact:true}).click();assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).record,key),null);
+ await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000});
+ const beforeReplay=await page.evaluate(key=>localStorage.getItem(key),key);assert.ok(JSON.parse(beforeReplay).record);
+ await page.locator('#live-disconnect').click();await page.locator('#files').setInputFiles({name:'synthetic-replay.log',mimeType:'text/plain',buffer:await readFile(file)});
+ await page.waitForFunction(()=>document.querySelector('#progress').textContent.includes('재생을 완료'));
+ await page.locator('#flight-ready-action').click();
+ if(await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).isVisible()){await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();}
+ await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000});
+ assert.equal(await page.evaluate(key=>localStorage.getItem(key),key),beforeReplay);assert.equal(await page.getByRole('button',{name:'이전 구간부터 안내',exact:true}).isVisible(),false);
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
+ console.log(JSON.stringify({passed:true,explicitSamePlanResume:true,noAutomaticAnimationOnReload:true,restartFromDeparture:true,changedDepartureDoesNotResume:true,endClearsCheckpoint:true,offlineReplayDoesNotReadOrWriteCheckpoint:true,noFakeHistory:true,mobileOverflow:false,errors,bad}));
+}catch(error){for(const context of browser?.contexts()||[])for(const page of context.pages())try{console.error(JSON.stringify({errors:await page.locator('.preview-calculation-status').allTextContents(),ready:await page.locator('#flight-ready').innerText(),resume:await page.locator('.preview-resume').allTextContents(),flight:await page.locator('.preview-flight-bar').innerText(),checkpoint:await page.evaluate(()=>localStorage.getItem('stam-guidance-v1:guest'))}));}catch{}throw error;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

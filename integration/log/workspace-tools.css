@@ -30,3 +30,5 @@
 .credit-observation label{display:grid;gap:6px;min-width:0}.credit-observation select{width:100%;min-width:0;max-width:100%}.credit-observation button{justify-self:start;max-width:100%;white-space:normal}
 
 .payout-history{border-top:1px solid #284553;margin-top:22px;padding-top:16px;overflow-wrap:anywhere}.payout-filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.payout-filters label{display:grid;gap:4px}.payout-filters input,.payout-filters select{min-width:0;max-width:100%;box-sizing:border-box}.payout-list{padding:0;list-style:none}.payout-list li{display:grid;gap:5px;padding:10px 0;border-bottom:1px solid #284553}.payout-list small{color:#95a9b4}.payout-pages{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+
+.preview-resume{padding:14px;border:1px solid #39c9cf;border-radius:8px;background:#102733;max-width:100%;overflow-wrap:anywhere}.preview-resume button{margin:8px 8px 0 0;white-space:normal;max-width:100%}.preview-resume[hidden]{display:none}
