@@ -42,7 +42,11 @@ async function atomicWrite(file, bytes) {
   finally { await rm(temp,{force:true}).catch(()=>{}); }
 }
 async function boundedBody(response, limit, signal) {
-  if (!response.ok || Number(response.headers.get('content-length') || 0) > limit) throw Error('web-download-failed');
+  // Fetch decodes HTTP compression before exposing body chunks. Content-Length
+  // describes the encoded transfer, which can be larger than a small JPEG.
+  // Bound the decoded stream below; only compare identity lengths up front.
+  const encoding=response.headers.get('content-encoding');
+  if (!response.ok || ((!encoding||encoding==='identity') && Number(response.headers.get('content-length') || 0) > limit)) throw Error('web-download-failed');
   const parts=[]; let length=0;
   try { for await (const chunk of response.body) {
     if (signal?.aborted) throw Error('web-download-aborted');
