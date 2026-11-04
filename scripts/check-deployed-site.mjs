@@ -8,9 +8,10 @@ assert.equal(version.version,process.env.GITHUB_SHA);
 const expected=JSON.parse(await readFile('data/desktop-release.json','utf8'));
 const actual=await (await fetch(base+'data/desktop-release.json',{cache:'no-store'})).json();
 assert.deepEqual(actual,expected);
-const browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+const browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
 try{
  const page=await browser.newPage({viewport:{width:1920,height:1080}}),errors=[],bad=[];
+ page.setDefaultTimeout(30000);
  page.on('pageerror',e=>errors.push(e.message));
  page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)bad.push(r.url());});
  await page.goto(base);await page.waitForSelector('#flight-ready-action');
@@ -22,7 +23,7 @@ try{
  await page.goto(base+'download.html');await page.waitForFunction(()=>document.querySelector('#app-download')?.textContent==='Windows 앱 다운로드');
  assert.equal(await page.locator('#app-download').getAttribute('href'),expected.url);
  await page.goto(base+'patch-notes.html');await page.waitForSelector('#release-0');
- assert.match(await page.locator('#release-0').innerText(),/4\.1\.0/);
+ assert.ok((await page.locator('#release-0').innerText()).includes('v'+version.releases[0].version));
  assert.equal(await page.locator('#draft').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
  console.log('PASS: deployed revision, partner dialog, guide image, current app download and patch notes');
