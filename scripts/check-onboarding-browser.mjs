@@ -14,6 +14,14 @@ try{
  await guide.reload();await guide.waitForSelector('#slide-title');assert.equal(await guide.locator('#counter').innerText(),'12 / 13');
  await guide.setViewportSize({width:390,height:844});assert.equal(await guide.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await guide.setViewportSize({width:1440,height:1000});await guide.locator('#chapters button').first().click();await guide.screenshot({path:'/tmp/stam-guide-desktop.png',fullPage:true});
+ await guide.locator('#chapters button').nth(2).click();
+ assert.equal(await guide.locator('#guide-log-name').innerText(),'Game');assert.match(await guide.locator('.log-operator img').getAttribute('src'),/aide.jpg/);
+ await guide.locator('#guide-extensions').click();assert.equal(await guide.locator('#guide-log-name').innerText(),'Game.log');assert.equal(await guide.locator('#guide-extensions').getAttribute('aria-pressed'),'true');
+ await guide.screenshot({path:'/tmp/stam-log-file-guide.png',fullPage:true});
+ await guide.setViewportSize({width:390,height:844});assert.equal(await guide.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.equal(await guide.locator('#guide-extensions').isVisible(),true);
+ await guide.screenshot({path:'/tmp/stam-log-file-guide-mobile.png',fullPage:true});await guide.setViewportSize({width:1440,height:1000});
+ for(const width of [1920,2560]){await guide.setViewportSize({width,height:width===2560?1440:1080});const rect=await guide.locator('main').boundingBox();assert.ok(rect.width>=width-2);const slide=await guide.locator('#slide').boundingBox();assert.ok(slide.width>width*.8);assert.equal(await guide.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await guide.screenshot({path:`/tmp/stam-guide-${width}.png`,fullPage:true});}
+ await guide.setViewportSize({width:1440,height:1000});
  await guide.locator('video').evaluate(v=>v.play());await guide.waitForFunction(()=>document.querySelector('video').currentTime>0.5);assert.ok(await guide.locator('video').evaluate(v=>v.duration>=23&&v.duration<=25));await guide.locator('video').evaluate(v=>v.pause());
  const closed=guide.waitForEvent('close');await guide.locator('#return-main').click();await closed;assert.equal(await page.locator('#workspace-connection').getAttribute('data-state'),'watching');
  await page.goto(service.origin+'/download.html');await page.waitForSelector('#app-download');await page.waitForFunction(()=>document.querySelector('#app-download').textContent==='Windows 앱 다운로드');assert.match(await page.locator('#app-download').getAttribute('href'),/github.com\/limmin3-sudo\/stam-freight-control\/releases\//);

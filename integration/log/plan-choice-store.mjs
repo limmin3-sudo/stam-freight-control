@@ -1,5 +1,5 @@
 import {ACCOUNT_META} from '../../sync.mjs';
-const UUID=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
+const UUID=/^(?:manual:)?[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
 const STATES=new Set(['awaiting','deferred','excluded']);
 export function checkedChoices(rows){
  if(!Array.isArray(rows)||rows.length>2048)throw Error('계약 선택 기록이 너무 많거나 손상됐습니다.');

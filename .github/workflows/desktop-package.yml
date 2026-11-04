@@ -2,7 +2,7 @@ name: Windows desktop package
 on:
   push:
     branches: ['rebuild/**']
-    paths: ['desktop/**', 'scripts/build-desktop.mjs', 'data/rebuild-version.json', '.github/workflows/desktop-package.yml']
+    paths: ['desktop/**', 'scripts/build-desktop.mjs', '.github/workflows/desktop-package.yml']
   workflow_dispatch:
 permissions:
   contents: read

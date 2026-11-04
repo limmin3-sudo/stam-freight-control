@@ -52,7 +52,8 @@ export function locationIndex(data) {
     return {status: matches.length === 1 && !matches[0].multipleInstances ? 'coordinate-match'
       : matches.length ? 'ambiguous' : 'unmatched', candidates: matches};
   }
-  return {match, indexed, metadata: {source: data.source, retrievedAt: data.retrievedAt,
+  const uniqueIds=new Map();for(const values of byId.values())for(const p of values){if(!uniqueIds.has(p.id))uniqueIds.set(p.id,[]);uniqueIds.get(p.id).push(p);}
+  return {match, get(id){const values=uniqueIds.get(id);return values?.length===1?{...values[0],position:[...values[0].position]}:null;}, indexed, metadata: {source: data.source, retrievedAt: data.retrievedAt,
     version: null, sourceSha256: data.sourceSha256, toleranceMeters: POSITION_EPSILON_METERS}};
 }
 

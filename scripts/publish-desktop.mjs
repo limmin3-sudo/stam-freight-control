@@ -2,8 +2,8 @@
 import {readFile,writeFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import {execFileSync} from 'node:child_process';
 if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_REPOSITORY!=='limmin3-sudo/stam-freight-control'||!/^refs\/heads\/rebuild\//.test(process.env.GITHUB_REF||''))throw Error('publish-context');
 const release=JSON.parse((await readFile('dist/desktop-release.json','utf8')).replace(/^\uFEFF/,''));
-const version=JSON.parse(await readFile('data/rebuild-version.json','utf8')).version;
-if(release.version!==version||!/^rebuild\.\d{8}\.\d+$/.test(version))throw Error('version-mismatch');
+const version=JSON.parse(await readFile('desktop/version.json','utf8')).version;
+if(release.version!==version||!/^app\.\d+\.\d+\.\d+(?:-preview\.\d+)?$/.test(version))throw Error('version-mismatch');
 const zip=`dist/STAM-${version}-win-x64.zip`,bytes=await readFile(zip);
 if(bytes.length!==release.bytes||createHash('sha256').update(bytes).digest('hex')!==release.sha256)throw Error('package-integrity');
 const body=`Windows x64용 **개발판 관제 연결 앱**입니다. 전체 재구축과 실게임 검증이 끝난 완성본은 아닙니다.

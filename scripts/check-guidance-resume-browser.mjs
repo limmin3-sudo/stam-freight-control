@@ -14,7 +14,7 @@ try{
  await page.addInitScript(start=>{if(location.protocol!=='http:'||location.hostname!=='127.0.0.1')return;localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('vh-start',start);},data.locations.find(p=>p.name==='New Babbage').id);
  await page.goto(service.url);await page.waitForSelector('#flight-ready-action');
  assert.equal(await page.locator('canvas').count(),0);assert.equal(await page.locator('#flight-ready-action').isDisabled(),true);
- await page.locator('#flight-ready .ready-partners button').first().click();
+ await page.locator('.ready-partner-open').click();await page.locator('.ready-briefing [data-partner="operator"]').click();
  assert.match(await page.locator('#flight-ready').innerText(),/계약 수신 대기/);
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-log-account-settings-v1')).partner),'operator');
  const {events}=fixture(),pre='<2026-11-03T10:00:00.000Z> [Notice] ';

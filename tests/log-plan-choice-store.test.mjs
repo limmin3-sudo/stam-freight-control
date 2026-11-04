@@ -29,3 +29,14 @@ test('offline replay and view clearing neither apply nor overwrite saved live ch
  const s=createPlanSelection(12,{store,persistent:false});s.reconcile([contract(a)],ready);assert.ok(s.selected.has(a));s.set(a,true);s.defer(b);s.clear();assert.equal(storage.getItem('stam-plan-choices-v1:guest'),raw);
  s.useSaved(true);s.reconcile([contract(a),contract(b)],ready);assert.ok(s.deferred.has(a));assert.equal(s.selected.has(a),false);assert.ok(s.selected.has(b));
 });
+
+test('manual contract exclusions and deferred choices persist alongside log contracts',()=>{
+ const storage=memory(),manual='manual:'+a,c={missionId:manual,status:'user-entered'},readyIds=new Set([manual]);
+ let selection=createPlanSelection(12,{store:createPlanChoiceStore(storage)});selection.reconcile([c],readyIds);
+ assert.ok(selection.selected.has(manual));selection.defer(manual);
+ selection=createPlanSelection(12,{store:createPlanChoiceStore(storage)});selection.reconcile([c],readyIds);
+ assert.equal(selection.selected.size,0);assert.ok(selection.deferred.has(manual));
+ selection.set(manual,false);selection=createPlanSelection(12,{store:createPlanChoiceStore(storage)});
+ selection.reconcile([c],readyIds);assert.equal(selection.selected.size,0);
+ assert.deepEqual(createPlanChoiceStore(storage).snapshot().choices,[{id:manual,choice:'excluded'}]);
+});

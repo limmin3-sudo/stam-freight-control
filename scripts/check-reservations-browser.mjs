@@ -16,7 +16,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 1개'));
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();
  assert.equal(await page.locator('#flight-ready-action').innerText(),'항로·적재 공간 확인');await page.locator('#flight-ready-action').click();
- await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 50 SCU'),null,{timeout:60000});
+ await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('적재 공간 가이드 · 50 SCU'),null,{timeout:60000});
  assert.equal(await page.locator('.preview-workspace').getAttribute('data-packing-mode'),'destination-space-reservation');
  assert.equal(await page.locator('.preview-flight-launch').isDisabled(),false);assert.match(await page.locator('.preview-itinerary').innerText(),/Brio's Breaker Yard/);assert.match(await page.locator('.preview-itinerary').innerText(),/Rayari Cantwell Research Outpost/);assert.equal(await page.locator('.preview-tracking').getAttribute('data-state'),'estimated');assert.match(await page.locator('.preview-instructions').innerText(),/Nitrogen · 24 SCU/);
  await page.locator('.preview-manifest > summary').click();const editor=page.locator('[data-box-editor]').filter({has:page.locator('summary',{hasText:'Nitrogen'})});await editor.locator('summary').click();
@@ -26,14 +26,14 @@ try{
  await page.waitForFunction(()=>document.querySelector('.preview-instructions')?.textContent.includes('Nitrogen · 24 SCU · 사용자 지정 상자'));
  assert.match(await page.locator('.preview-instructions').innerText(),/Organics · 12 SCU · 공간 가이드/);
  const b=structuredClone(c);b.missionId='22222222-2222-4222-8222-222222222222';await appendFile(file,lines(b));
- await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 100 SCU'),null,{timeout:60000});
+ await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('적재 공간 가이드 · 100 SCU'),null,{timeout:60000});
  assert.equal(await page.locator('.preview-instructions h3').count(),1);
  const text=await page.locator('.preview-instructions').innerText();assert.match(text,/사용자 지정 상자/);assert.match(text,/계약 1/);assert.match(text,/계약 2/);
- await page.locator('.preview-itinerary').getByRole('button',{name:/STANTON → PYRO · 점프/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/예약 공간을 유지/);
+ await page.locator('.preview-itinerary').getByRole('button',{name:/STANTON → PYRO · 점프/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/가이드 공간을 유지/);
  await page.locator('.preview-itinerary').getByRole('button',{name:/Chawla/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/화물 배송/);assert.match(await page.locator('.preview-calculation-status').innerText(),/100 SCU/);
  await page.reload();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 2개'));
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
- await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 100 SCU'),null,{timeout:60000});
+ await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('적재 공간 가이드 · 100 SCU'),null,{timeout:60000});
  assert.equal((await page.locator('.preview-instructions').innerText()).match(/Nitrogen · 24 SCU · 사용자 지정 상자/g)?.length,1);
  assert.match(await page.locator('.preview-instructions').innerText(),/Nitrogen · 24 SCU · 공간 가이드/);
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);assert.equal(await page.locator('canvas').count(),2);

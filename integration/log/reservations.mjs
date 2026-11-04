@@ -18,7 +18,7 @@ export function reservationPreview(contract,catalog,index){
  const reference=definitionReference(contract,catalog);
  const resources=rows=>(rows||[]).flatMap(o=>o.kind==='Or'?o.options.flatMap(resources):o.kind==='Resource'?[o]:[]);
  const orders=resources(reference.rules?.orders);
- if(!orders.length)throw Error('이 화물 유형의 공간 예약은 아직 지원하지 않습니다.');
+ if(!orders.length)throw Error('이 화물 유형의 적재 공간 가이드은 아직 지원하지 않습니다.');
  const compared=contractLocations(contract,index),destinations=compared.objectives.filter(o=>o.role==='dropoff');
  if(compared.objectives.some(o=>o.status!=='coordinate-match'||o.quantityConflict))throw Error('배송 좌표·수량을 먼저 확인해야 합니다.');
  const rows=[],pending=[];
@@ -34,7 +34,7 @@ export function reservationPreview(contract,catalog,index){
   }
   for(const [commodity,scu,cap,part] of mediumTotals){
    const matches=orders.filter(o=>o.name===commodity);
-   if(matches.length!==2||matches.some(o=>o.maxBoxScu!==cap||!((o.minScu===part&&o.maxScu===null)||(o.maxScu===part&&o.minScu===null)||(o.minScu===part&&o.maxScu===part))))throw Error('공개 주문 규칙이 달라 중형 공간 예약을 보류합니다.');
+   if(matches.length!==2||matches.some(o=>o.maxBoxScu!==cap||!((o.minScu===part&&o.maxScu===null)||(o.maxScu===part&&o.minScu===null)||(o.minScu===part&&o.maxScu===part))))throw Error('공개 주문 규칙이 달라 중형 적재 가이드을 보류합니다.');
    rows.push({key:rowKey(contract,commodity),commodity,scu,maxBoxSize:32,publicMaxBoxSize:cap,parts:[scu],dropoffId:destinations[0].candidates[0].id,boxes:[]});
   }
  }else{
@@ -75,7 +75,7 @@ export function calculateReservations(previews,rawShip,stops,overrides={},retain
   const recipe=manual||row.boxes?.length&&row.boxes;
   const sizes=recipe?recipe.flatMap(b=>Array(b.count).fill(b.size)):guideSizes(row.scu);
   count+=sizes.length;if(count>2048)throw Error('예약 블록이 2,048개를 넘습니다. 계약을 나누어 선택해 주세요.');
-  row.boxSource=manual?'user':recipe?'profile':'estimate';row.blockCount=sizes.length;
+  row.boxSource=manual?'user':recipe?(row.boxSource==='user'?'user':'profile'):'estimate';row.blockCount=sizes.length;
   groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
  }
  const continuity=applyCargoContinuity(groups,cargoRows,ship,continuityRecords,retainedRecords);

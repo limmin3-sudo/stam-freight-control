@@ -1,3 +1,5 @@
+> 최신 작업은 `PROJECT_STATUS.md` 첫 항목과 `REQUEST-COMPLETION-AUDIT.md` 우선. 기본 관제는 `index.html`로 통합 중이며 `flight-deck.html`은 비교용 개발 화면이다. 사이트/앱 업데이트 분리 구현은 `APP-WEB-UPDATE-CONTRACT.md` 참고. 기능 정확성 우선, 안내 최종 작업은 뒤로 미룸. main/Pages/릴리스 게시 보류.
+
 # 재구축 작업 인수인계 — 2026-11-04 KST
 
 **2026-11-04 사용자 요청으로 재개했다. 현재 시험판은 사용자 확인 적재 위치 유지·부분 배송·상태 로컬 복원까지 연결했다. 다음 작업은 아래 남은 범위와 최신 PROJECT_STATUS.md를 따른다.**

@@ -13,11 +13,11 @@ const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 const mmss=s=>{s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');};
 const KEY='sfc-run';
 
-export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nameOf,onFinish,containerLabel}){
+export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nameOf,onFinish,containerLabel,storageKey=KEY}){
  let plan=null,names=new Map(),run=load()||blank();
  function blank(){return {planKey:'',index:0,jump:0,log:[],started:false,elapsed:0,since:null,finished:false,picked:[],delivered:[],aboard:[],startId:null};}
- function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null');}catch{return null;}}
- function save(){try{localStorage.setItem(KEY,JSON.stringify(run));}catch{}}
+ function load(){try{return JSON.parse(localStorage.getItem(storageKey)||'null');}catch{return null;}}
+ function save(){try{localStorage.setItem(storageKey,JSON.stringify(run));}catch{}}
  const elapsed=()=>run.elapsed+(run.since?(Date.now()-run.since)/1000:0);
  const keyOf=p=>p?JSON.stringify(p.visits.map(v=>[v.locationId,v.events.map(e=>[e.shipmentId,e.type])])):'';
  const nm=id=>names.get(id)?placeLabel(names.get(id)):id;

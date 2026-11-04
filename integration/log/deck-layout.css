@@ -1,0 +1,73 @@
+/* One flight deck: the original floorplan with the live runtime underneath. */
+body{background:#070f18}
+main{max-width:none;width:100%;padding:16px clamp(12px,1.1vw,28px)}
+.workspace-header{padding:0 0 14px;margin-bottom:14px;gap:12px}
+.workspace-brand>span>b{display:flex;align-items:baseline;gap:9px;white-space:nowrap;font-size:24px;letter-spacing:.1em}
+.workspace-brand b span{display:inline;font-size:16px;letter-spacing:.12em}
+.workspace-brand img{object-fit:contain;flex:none}
+.workspace-brand small{font-size:9px;letter-spacing:.14em}
+.log-workbench{grid-template-columns:clamp(240px,15vw,300px) minmax(0,1fr);gap:16px}
+.log-contract-rail{padding:0;background:none;border:0;border-radius:0;position:static;min-width:0}
+#workspace-account,#flight-ready,#planning,#cargo-continuity,#retained-cargo{padding:15px;border:1px solid #263e50;background:#0d1824;border-radius:9px;margin-bottom:14px}
+.log-contract-rail h2{font-size:14px;letter-spacing:.03em}
+#flight-ready>h2{font-size:11px;color:#6ee2df;letter-spacing:.14em}
+#planning>p:first-of-type{display:none}
+.preview-panel{padding:0;border:0;background:none;border-radius:0;margin:0}
+.preview-workspace:not(.preview-control-mode){grid-template-columns:minmax(0,1fr) clamp(235px,16vw,310px);gap:0 16px}
+.preview-workspace:not(.preview-control-mode) .preview-toolbar{margin:0 0 10px}
+.preview-workspace:not(.preview-control-mode) .preview-toolbar h2{font-size:12px;color:#88acbf;letter-spacing:.12em}
+.preview-workspace:not(.preview-control-mode) .preview-map-host,.preview-workspace:not(.preview-control-mode) .preview-cargo-host{padding:0;border:1px solid #233c50;border-radius:9px;overflow:hidden;background:#08131f}
+.preview-map-section{padding:12px}
+.preview-workspace:not(.preview-control-mode) .preview-map-viewport{height:clamp(440px,53vh,780px);border:0;border-radius:4px}
+.preview-cargo-header{padding:12px 14px;margin:0}
+.preview-workspace:not(.preview-control-mode) .preview-cargo-host .preview-canvas{height:clamp(440px,43vh,640px)}
+.preview-operations{margin-top:0;top:16px}
+.preview-route-panel,.preview-instructions{background:#0d1824;border:1px solid #263e50;border-radius:9px}
+.preview-itinerary{max-height:50vh}
+.preview-metrics{border:0;background:transparent;margin-bottom:12px;gap:8px}
+.preview-metrics>div{border-right:1px solid #203747;padding:8px 12px}
+.preview-metrics>div:last-child{border-right:0}
+.preview-metrics strong{font-size:24px}
+.preview-metrics small{color:#90adbf}
+.log-contract-rail .preview-settings{padding:0;border:0;margin-bottom:14px}
+.log-contract-rail .preview-ship-card,.log-contract-rail .preview-flight-launch{display:none}
+.preview-settings .preview-configuration{margin:10px 0;background:#0d1824;border:1px solid #263e50;border-radius:8px;padding:12px}
+.preview-desk-launch{border-radius:28px!important;padding:15px!important;font-size:14px!important}
+.preview-calculation-status:empty{display:none}
+.ready-partner-open{display:flex;width:100%;align-items:center;gap:10px;text-align:left;padding:10px;background:#102a38;border-color:#336374;margin-bottom:12px}
+.ready-partner-open img{width:42px;height:48px;object-fit:cover;object-position:center 25%;border-radius:5px}
+.ready-partner-open span{display:grid;gap:4px}.ready-partner-open small{font-size:10px;color:#9fbcca}
+.ready-partners{display:none}
+.ready-briefing{width:min(1040px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:28px;background:radial-gradient(ellipse at top,#173444,#0a1420 70%);color:#e0edf3;border:1px solid #446777;border-radius:14px;box-shadow:0 30px 100px #0009;overflow:auto}
+.ready-briefing::backdrop{background:#02070ddd;backdrop-filter:blur(8px)}
+.ready-briefing-header{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:20px}
+.ready-briefing-header h2{font-size:28px;margin:7px 0}.ready-briefing-header p{margin:6px 0}
+.ready-partner-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ready-partner-card{display:flex;flex-direction:column;overflow:hidden;padding:0;text-align:left;border:1px solid #314e60;background:#0c1a27;transition:border-color .15s,transform .15s}
+.ready-partner-card:hover{border-color:#78e3de;transform:translateY(-3px)}
+.ready-partner-card[aria-pressed=true]{border-color:#77e4d7;box-shadow:0 0 0 1px #77e4d7}
+.ready-partner-card>img{width:100%;height:260px;object-fit:cover;object-position:center 25%}
+.ready-partner-card>span{padding:18px;display:grid;gap:10px}
+.ready-partner-card strong{font-size:19px}.ready-partner-card small{font-size:12px;line-height:1.7;color:#b8cfdb}
+.ready-briefing-note{min-height:30px;margin:18px 0 0;color:#a7e2de;font-size:14px}
+@media(min-width:2300px){.preview-workspace:not(.preview-control-mode) .preview-map-viewport{height:60vh}.preview-cargo-host .preview-canvas{min-height:500px}}
+@media(max-width:1100px){.log-workbench{grid-template-columns:230px minmax(0,1fr)}.preview-workspace:not(.preview-control-mode){grid-template-columns:1fr}.preview-workspace:not(.preview-control-mode) .preview-operations{grid-column:1;grid-row:auto;position:static;grid-template-columns:1fr 1fr}.workspace-brand>span>b{font-size:20px}.workspace-brand b span{font-size:13px}}
+@media(max-width:760px){.log-workbench{grid-template-columns:1fr}.ready-briefing{padding:18px}.ready-partner-cards{grid-template-columns:1fr}.ready-partner-card{display:grid;grid-template-columns:95px minmax(0,1fr)}.ready-partner-card>img{height:100%;min-height:125px}.ready-partner-card>span{padding:14px}.ready-briefing-header h2{font-size:22px}.workspace-brand>span>b{font-size:17px;gap:6px}.workspace-brand b span{font-size:11px}.workspace-brand img{width:40px;height:40px}.workspace-brand small{font-size:8px}.preview-workspace:not(.preview-control-mode) .preview-operations{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.ready-partner-card{transition:none}.ready-partner-card:hover{transform:none}}
+.manual-contract-open{width:100%;text-align:left;margin-bottom:8px;background:#122231;border-color:#315366;padding:15px}
+#manual-contracts>p:empty{display:none}
+.user-contract-dialog{width:min(1060px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #426576;border-radius:12px;background:#0d1c29;color:#dbeaf1;padding:24px}
+.user-contract-dialog::backdrop{background:#030a12db;backdrop-filter:blur(6px)}
+.user-contract-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}.user-contract-dialog h2{font-size:22px;margin:0}
+.user-contract-dialog>input,.user-contract-dialog>select{width:100%;margin:8px 0}
+.user-contract-dialog input:not([type=checkbox]),.user-contract-dialog select,.user-contract-dialog textarea{border:1px solid #3a5a6b;background:#071722;color:#e6f3f6;padding:10px;border-radius:5px;min-width:0;font:inherit}
+.user-contract-dialog details{border:1px solid #2d495a;padding:14px;border-radius:7px;margin:12px 0}.user-contract-dialog summary{cursor:pointer}
+.user-contract-dialog textarea{display:block;width:100%;margin:10px 0}.user-contract-dialog details img{display:block;max-height:250px;max-width:100%;margin:10px 0}
+.user-cargo-row{display:grid;grid-template-columns:2fr 1fr 3fr;gap:10px;padding:16px;margin:14px 0;background:#102533;border:1px solid #2d4b5e;border-radius:8px}
+.user-cargo-row>label{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#aecbd7}.user-cargo-row>label:nth-of-type(4){grid-column:1/-1}
+.user-pickups{display:grid;gap:8px}.user-pickups>div{display:flex;gap:8px}.user-pickups input{flex:1;width:0;margin:0}
+.user-cargo-row>button{font-size:12px;padding:8px}.user-cargo-row>small{grid-column:1/-1;color:#b6cdd9;line-height:1.6}
+.user-contract-confirm{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:14px}.user-contract-confirm input{order:-1;accent-color:#6ce2d7;flex:none}
+.user-contract-dialog>[role=status]{color:#edc48a}.user-contract-dialog>.ready-primary{padding:13px 24px}
+@media(max-width:650px){.user-contract-dialog{padding:16px}.user-cargo-row{grid-template-columns:1fr 1fr;padding:12px}.user-cargo-row>label:nth-of-type(3){grid-column:1/-1}.user-contract-dialog h2{font-size:18px}}
+.position-dialog{width:min(560px,calc(100vw - 32px));max-height:90vh;overflow:auto;border:1px solid #376170;border-radius:14px;padding:28px;background:#0c202b;color:#d9edf4;box-shadow:0 24px 90px #0009}.position-dialog::backdrop{background:#020b11c9}.position-dialog h2{margin:0 0 12px}.position-dialog form{display:grid;gap:16px}.position-dialog label{display:grid;gap:8px;color:#b7d6e2}.position-dialog input,.position-dialog select,.position-dialog textarea{width:100%;box-sizing:border-box;background:#06141d;color:#e4f5fb;border:1px solid #416675;border-radius:6px;padding:10px;font:inherit}.position-dialog form>div{display:flex;flex-wrap:wrap;gap:8px}.position-dialog button{padding:10px 14px;border:1px solid #3e6977;border-radius:6px;background:#15313e;color:#dff6fc}.position-dialog button[type=submit]{background:#61d9df;color:#06232c;font-weight:700}.position-dialog p{line-height:1.6}.preview-position-note{color:#70e4d8;border-left:2px solid currentColor;padding-left:9px}
