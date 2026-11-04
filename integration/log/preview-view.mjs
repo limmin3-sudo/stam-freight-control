@@ -7,7 +7,7 @@ import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
 import {DEFAULT_SHIP, selectShipGrids, capacity, validateShip} from '../../ships.mjs';
-const el = (tag, text) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; return n; };
+const el = (tag, text, className) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if(className)n.className=className; return n; };
 const options = (node, items) => {
   node.replaceChildren();
   for (const item of items) { const o = el('option', item.name); o.value = item.id; node.append(o); }
@@ -30,7 +30,11 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   const root = el('section'); root.className = 'preview-panel';
   const open = el('button', '운송 관제 열기'), panel = el('div'), status = el('p');
   open.className='preview-launch';panel.className='preview-workspace';
-  status.setAttribute('role', 'status'); status.className='preview-calculation-status'; panel.hidden = true; root.append(open, panel);
+  const standby=el('section');standby.className='workspace-standby';standby.setAttribute('aria-label','항로 준비 대기');
+  standby.append(el('span','FLIGHT DECK','eyebrow'),el('h2','계약을 기다리고 있습니다'),el('p','왼쪽에서 파트너와 운항 정보를 확인해 주세요. 계약이 들어오면 항로와 적재 공간을 준비합니다.'));
+  const standbyLayout=el('div');standbyLayout.className='standby-layout';standbyLayout.setAttribute('aria-hidden','true');
+  standbyLayout.append(el('span','항성계 지도'),el('span','방문 순서'),el('span','적재 3D'));standby.append(standbyLayout);
+  status.setAttribute('role', 'status'); status.className='preview-calculation-status'; panel.hidden = true; root.append(standby,open, panel);
   const close = el('button', '관제 닫기'), retry = el('button', '3D 준비 다시 시도'); retry.hidden = true;
   const form = el('div'), controls = el('div'); controls.className = 'preview-controls';
   const select = el('select'), start = el('select'), partner = el('select'), step = el('select'), search = el('input');
@@ -153,7 +157,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     lastResult=null;cargoState.disabled=true;refreshGridLocks();view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
   }
   function dispose() {
-    panel.insertBefore(left,center);setControlMode(false);resetFlight(); closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; open.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length;open.hidden=false;
+    panel.insertBefore(left,center);setControlMode(false);resetFlight(); closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; standby.hidden=false; open.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length;open.hidden=false;
   }
   close.onclick = dispose; retry.onclick = () => { dispose(); open.click(); };
   function captureDraft(f) {
@@ -217,6 +221,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   }
   function updateContracts(next) {
+    standby.querySelector('h2').textContent=next.length?'항로를 준비할 수 있습니다':'계약을 기다리고 있습니다';
+    standby.querySelector('p').textContent=next.length?'왼쪽 출항 준비에서 함선·출발지를 확인하고 항로 안내를 시작해 주세요.':'왼쪽에서 파트너와 운항 정보를 확인해 주세요. 계약이 들어오면 항로와 적재 공간을 준비합니다.';
     next = Array.isArray(next) ? next : next ? [next] : [];
     if(session.removalPending?.size){contracts=next;stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';return;}
     const key = JSON.stringify([next.map(c=>previewContractSignature(c,catalog,locations)),session.retained?.snapshot(),session.continuity.snapshot()]);
@@ -384,7 +390,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     if (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length) return;
     const accountCard=document.getElementById('flight-ready-host')||document.getElementById('workspace-account');
     if(accountCard)accountCard.after(left);else document.querySelector('.log-contract-rail')?.prepend(left);
-    closed = false; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
+    closed = false; standby.hidden=true; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
     const generation = ++opening; invalidate('3D 라이브러리를 준비하고 있습니다. 처음에는 다운로드가 필요할 수 있습니다…'); buildForms();
     select.disabled = start.disabled = partner.disabled = run.disabled = true;
     try {

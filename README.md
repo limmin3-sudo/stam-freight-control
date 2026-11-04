@@ -1,5 +1,7 @@
 # STAM FREIGHT CONTROL
 
+**시험 브랜치 기본 화면:** `index.html`은 로그 연동 운송 관제입니다. 예전 `log-link.html` 주소도 같은 화면으로 연결됩니다. 기존 수동 화면은 `legacy-planner.html`에 보존했으며, 운영 GitHub Pages는 아직 기존 버전입니다.
+
 **로그 연동 개발판 실행:** [로컬 실행 안내](docs/TODAY-RUN.md). `start-log-link.cmd`로 실행하면 로컬 브라우저 화면이 열립니다. 기본 주소를 고정해 같은 브라우저의 설정을 유지합니다. 설치형 완성본은 아직 제작 전입니다.
 
 재구축 재개 지점: [최신 인수인계](docs/REBUILD-HANDOFF.md). 2026-11-04 사용자 요청으로 재개했습니다. 현재 구현·검증·남은 작업은 인수인계와 PROJECT_STATUS.md를 기준으로 확인하세요.

@@ -56,6 +56,8 @@ const STATIC = new Map([
   ['/travel.mjs', ['../../travel.mjs', 'text/javascript']],
   ['/vendor/OrbitControls.js', ['../../vendor/OrbitControls.js', 'text/javascript']],
   ['/vendor/three.module.js', ['../../vendor/three.module.js', 'text/javascript']],
+  ['/index.html', ['../../index.html', 'text/html; charset=utf-8']],
+  ['/integration/log/entry-redirect.mjs', ['./entry-redirect.mjs', 'text/javascript']],
   ['/log-link.html', ['../../log-link.html', 'text/html; charset=utf-8']],
   ['/data/log-mission-index.json', ['../../data/log-mission-index.json', 'application/json']],
   ['/data/log-location-index.json', ['../../data/log-location-index.json', 'application/json']],
@@ -167,7 +169,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
         send(405, '{"error":"unsupported-operation"}'); return;
       }
       if (req.method !== 'GET') { send(405, 'Method not allowed', 'text/plain'); return; }
-      const resource = STATIC.get(url.pathname === '/' ? '/log-link.html' : url.pathname);
+      const resource = STATIC.get(url.pathname === '/' ? '/index.html' : url.pathname);
       if (!resource) { send(404, 'Not found', 'text/plain'); return; }
       send(200, await readFile(new URL(resource[0], import.meta.url)), resource[1]);
     } catch { if (!res.headersSent) send(500, '{"error":"local-service-error"}'); else res.end(); }
@@ -180,7 +182,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
   origin = `http://127.0.0.1:${server.address().port}`;
   schedule(0);
   return {
-    origin, url: origin + '/log-link.html#token=' + token, token,
+    origin, url: origin + '/index.html#token=' + token, token,
     async close() {
       stopped = true;
       clearTimeout(timer);
