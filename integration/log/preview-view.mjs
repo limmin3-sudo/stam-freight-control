@@ -1,3 +1,4 @@
+import {resumableGuidance} from './guidance-store.mjs';
 import {routeTimeSummary,TIMING_FIELDS} from './timing.mjs';
 import {cargoContinuityDialog} from './cargo-continuity-view.mjs';
 import {partnerVoice} from './partner-voice.mjs';
@@ -21,7 +22,7 @@ const boxText = boxes => {
 
 export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, onCargoChange=()=>{}, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
-  let settleCalculation, lastResult=null;
+  let settleCalculation, lastResult=null,planHash=null,resumeCandidate=null;
   let boxOverrides={};
   let lockedGridIndices=new Set();
   function refreshGridLocks(){const excluded=session.retained?.snapshot().records||[],ignored=new Set(excluded.map(r=>r.id)),active=session.continuity.snapshot().records.filter(r=>!ignored.has(r.id));lockedGridIndices=new Set([...excluded,...active].filter(r=>r.ship?.id===ship.id).flatMap(r=>r.boxes.filter(b=>b.state!=='delivered').map(b=>b.bin)));}
@@ -87,7 +88,21 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   launch.type=pause.type=end.type='button';launch.disabled=true;pause.hidden=end.hidden=true;
   const flightNote=el('p','운송을 시작하면 계획 경로를 따라 예상 위치를 표시합니다. 실제 위치·도착·배송 완료와는 별개입니다.');
   flightNote.className='preview-flight-note';
-  flightBar.append(launch,pause,end,flightNote);
+  const resumeBox=el('section');resumeBox.className='preview-resume';resumeBox.hidden=true;resumeBox.setAttribute('aria-label','이전 안내 이어가기');
+  const checkpointNote=el('p');checkpointNote.className='detail';checkpointNote.setAttribute('role','status');
+  flightBar.append(launch,pause,end,flightNote,resumeBox,checkpointNote);
+  function saveGuidance(){if(!session.guidanceEnabled||!planHash)return;try{session.guidance.save({hash:planHash,leg:flightIndex,at:new Date().toISOString()});checkpointNote.textContent='이 안내 구간을 이 브라우저에 저장했습니다. 실제 위치·배송 상태는 별도입니다.';}catch(e){checkpointNote.textContent=e.message;}}
+  function offerResume(){
+    resumeCandidate=null;resumeBox.replaceChildren();resumeBox.hidden=true;
+    if(!session.guidanceEnabled||!mapView||!flightRoute||lastResult?.scope==='destination-space-reservation'&&!lastResult.routeReady)return;
+    const saved=session.guidance.snapshot();if(saved.error){checkpointNote.textContent=saved.error;return;}
+    if(!saved.record)return;
+    if(!resumableGuidance(saved.record,planHash,flightRoute?.visits.length||0)){checkpointNote.textContent='이전 안내와 계약·항로 또는 적재 정보가 달라 이전 구간은 복원하지 않았습니다.';return;}
+    resumeCandidate=saved.record;launch.disabled=true;resumeBox.hidden=false;
+    const location=id=>available.find(p=>p.id===id)?.name||'거점 확인 필요',leg=saved.record.leg;
+    resumeBox.append(el('h3','이전 안내 이어가기'),el('p',partnerVoice(partner.value).resumeGuidance),el('p',`${location(flightRoute.visits[leg-1].locationId)} → ${location(flightRoute.visits[leg].locationId)}`),el('small','현재 계획이 저장된 계획과 일치합니다. 실제 현재 위치는 알 수 없어 해당 구간의 예상 이동을 처음부터 표시합니다.'));
+    for(const [label,index] of [['이전 구간부터 안내',leg-1],['처음부터 안내',0]]){const b=el('button',label);b.type='button';b.onclick=()=>{if(!resumeCandidate)return;const latest=session.guidance.snapshot();if(latest.error||!resumableGuidance(latest.record,planHash,flightRoute?.visits.length||0)||latest.record.leg!==resumeCandidate.leg){checkpointNote.textContent=latest.error||'안내 기록이 바뀌었습니다. 항로를 다시 계산해 주세요.';return;}resumeCandidate=null;resumeBox.hidden=true;flightIndex=index;launch.disabled=false;launch.onclick();};resumeBox.append(b);}
+  }
   function setControlMode(value) {
     controlMode=value;panel.classList.toggle('preview-control-mode',value);
     document.body.classList.toggle('preview-control-open',value);
@@ -101,13 +116,14 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   desk.onclick=()=>setControlMode(!controlMode);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&controlMode){setControlMode(false);e.preventDefault();e.stopPropagation();}},{signal:events.signal,capture:true});
   function resetFlight() {
+    planHash=null;resumeCandidate=null;resumeBox.hidden=true;checkpointNote.textContent='';
     onGuidance(false);
     flightRoute=null;flightIndex=0;launch.disabled=true;launch.textContent='운송 시작 · 예상 이동';
     pause.hidden=end.hidden=true;pause.textContent='일시정지';
     mapView?.stopFlight();flightNote.textContent='운송을 시작하면 계획 경로를 따라 예상 위치를 표시합니다. 실제 위치·도착·배송 완료와는 별개입니다.';
   }
   launch.onclick=()=>{
-    if(!flightRoute||!mapView)return;
+    if(!flightRoute||!mapView||resumeCandidate)return;
     flightIndex++;
     const visit=flightRoute.visits[flightIndex];if(!visit)return;
     // Stage inspection remains a preview. Animation never changes cargo or completes a contract.
@@ -118,12 +134,12 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       flightNote.textContent=`예상 이동 · ${state.destination} · ${Math.round(state.progress*100)}%${state.paused?' · 일시정지':''}${state.arrived?' · 예상 시간 경과, 실제 도착 미확인':''}`;
       if(state.arrived){pause.hidden=true;launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
     }});
-    if(started){launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
+    if(started){saveGuidance();launch.disabled=flightIndex>=flightRoute.visits.length-1;launch.textContent='다음 구간 출발 · 예상 이동';}
     if(!started){flightIndex--;launch.disabled=false;pause.hidden=end.hidden=true;flightNote.textContent='구간 이동 시간을 확인하지 못했습니다. 항로를 다시 계산해 주세요.';}
     onGuidance(!!started);return !!started;
   };
   pause.onclick=()=>{const paused=mapView?.pauseFlight();pause.textContent=paused?'계속 이동':'일시정지';};
-  end.onclick=()=>{const saved=flightRoute;resetFlight();flightRoute=saved;launch.disabled=!saved||saved.visits.length<2;};
+  end.onclick=()=>{const saved=flightRoute,hash=planHash;resetFlight();flightRoute=saved;planHash=hash;launch.disabled=!saved||saved.visits.length<2;if(session.guidanceEnabled)try{session.guidance.clear();}catch(e){checkpointNote.textContent=e.message;}};
   const available = personalNavigation(locationData,locationEdits).locations.sort((a,b) => a.name.localeCompare(b.name));
   function fillStarts() {
     const query = search.value.trim().toLowerCase();
@@ -282,10 +298,13 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if (closed || id !== serial || data.id !== id) return;
       clearTimeout(timer); worker.terminate(); worker = null;
       if (data.error) { fail(data.error); return; }
-      try {renderResult(data.result);const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
+      try {
+        renderResult(data.result);planHash=data.planHash;if(planHash)offerResume();if(data.hashError)checkpointNote.textContent=data.hashError;
+        const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':resumeCandidate?'resume':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;
+      }
       catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    try{worker.postMessage({id,input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    try{worker.postMessage({id,guidanceEvidence:session.guidanceEnabled?contracts.map(c=>previewContractSignature(c,catalog,locations)):null,input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
     });
   }
   function renderResult(r) {

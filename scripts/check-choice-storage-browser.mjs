@@ -66,6 +66,7 @@ try{
  assert.equal(await page.locator(`input[data-mission="${second}"]`).isChecked(),false);
  assert.equal(await page.locator('canvas').count(),0);
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
+ await page.getByRole('button',{name:'이전 구간부터 안내',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('#flight-ready-action').textContent==='운송 중 · 다음 구간');
  assert.match(await page.locator('.preview-calculation-status').innerText(),/28개 \/ 168 SCU/);
  await page.locator(`[data-choice="${second}"]`).getByRole('button',{name:'현재 항로에 추가',exact:true}).click();

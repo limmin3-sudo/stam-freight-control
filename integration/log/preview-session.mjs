@@ -1,3 +1,4 @@
+import {createGuidanceStore} from './guidance-store.mjs';
 import {createTimingStore} from './timing.mjs';
 import {createCargoContinuity} from './cargo-continuity.mjs';
 import {createBoxMemory} from './box-memory.mjs';
@@ -57,7 +58,7 @@ export function createPreviewSession(storage) {
   // Migrate the old preview key once so guest/account restoration cannot reuse its account fields.
   if(!shared&&saved&&(saved.shipId||saved.startId||saved.partner||saved.disabled))persist();
   return {
-    preferences,timing:createTimingStore(storage),continuity:createCargoContinuity(storage),boxMemory:createBoxMemory(storage),
+    preferences,guidance:createGuidanceStore(storage),guidanceEnabled:false,timing:createTimingStore(storage),continuity:createCargoContinuity(storage),boxMemory:createBoxMemory(storage),
     savedShips() { const ships=read('vh-ships');return Array.isArray(ships)?ships.slice(0,200):[]; },
     setPreferences(patch) { Object.assign(preferences, patch); persist(); },
     setDisabled(shipId, ids) { preferences.disabled[shipId] = [...ids]; persist(); },

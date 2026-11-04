@@ -72,7 +72,7 @@ function renderCargoContinuity(){
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();rewardPanel.refresh();},onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
-  replayMode=true;
+  replayMode=true;previewSession.guidanceEnabled=false;
   rewardPanel.update(null);
   flightReady.observations(null,null);
   planner?.dispose(); planner = null;guidanceActive=false;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.useSaved(false);planSelection.clear(); previewSession.clearDrafts();
@@ -259,6 +259,7 @@ function renderSnapshot(next) {
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
+  previewSession.guidanceEnabled=!replayMode&&!!liveStatus&&!snapshot.identity?.mixedPlayers;
   screenWatch.update();
   rewardPanel.update(snapshot,{persistent:!replayMode&&!!liveStatus});
   flightReady.observations(snapshot.identity?.mixedPlayers?null:snapshot.navigation,liveStatus);
