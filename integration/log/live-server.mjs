@@ -21,7 +21,7 @@ const STATIC = new Map([
   ['/i18n-en.mjs',['../../i18n-en.mjs','text/javascript']],
   ...['guide.html','download.html'].map(name=>['/'+name,['../../'+name,'text/html; charset=utf-8']]),
   ...['guide.mjs','guide-data.mjs','guide-data-en.mjs','language.mjs','download.mjs','guide.css'].map(name=>['/onboarding/'+name,['../../onboarding/'+name,name.endsWith('.css')?'text/css':'text/javascript']]),
-  ...['partners-gestures.png','launcher.png','poster.jpg','briefing.mp4','briefing-ko.vtt','flight-deck.jpg','partner-ready.jpg','contract-reception.jpg','cargo-layout.jpg','route-map.jpg','flight-deck-en.jpg','partner-ready-en.jpg','contract-reception-en.jpg','cargo-layout-en.jpg','route-map-en.jpg'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'png':'image/png','jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
+  ...['partners-gestures.png','launcher.png','launcher-en.png','poster.jpg','briefing.mp4','briefing-ko.vtt','flight-deck.jpg','partner-ready.jpg','contract-reception.jpg','cargo-layout.jpg','route-map.jpg','flight-deck-en.jpg','partner-ready-en.jpg','contract-reception-en.jpg','cargo-layout-en.jpg','route-map-en.jpg'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'png':'image/png','jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
   ['/data/desktop-release.json',['../../data/desktop-release.json','application/json']],
   ['/integration/log/plan-choice-store.mjs',['./plan-choice-store.mjs','text/javascript']],
   ['/integration/log/reception.mjs',['./reception.mjs','text/javascript']],
