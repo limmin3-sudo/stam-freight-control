@@ -1,6 +1,7 @@
 import {createUserContracts,mergeUserContracts} from './user-contracts.mjs';
 import {mountUserContracts} from './user-contracts-view.mjs';
 import {recoverFlightBackup,BACKUP_JOURNAL} from './flight-backup.mjs';
+import {recoverCloudRestore} from './flight-sync.mjs';
 import {mountLanguage} from './ui-language.mjs';
 import {mountFlightBackup} from './flight-backup-view.mjs';
 import {createRewardPanel} from './reward-view.mjs';
@@ -30,7 +31,7 @@ import { renderOriginalManifest } from './manifest-view.mjs';
 // Recover interrupted imports before any planner/store takes a snapshot.
 let restoreFailure=null;
 let restoreStorage;try{restoreStorage=localStorage;}catch{}
-try { if(restoreStorage?.getItem(BACKUP_JOURNAL))recoverFlightBackup(restoreStorage); }
+try { if(restoreStorage){recoverCloudRestore(restoreStorage);if(restoreStorage.getItem(BACKUP_JOURNAL))recoverFlightBackup(restoreStorage);} }
 catch(e) { restoreFailure=e; }
 if(restoreFailure){
  document.querySelector('main').replaceChildren();
