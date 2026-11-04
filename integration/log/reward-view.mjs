@@ -1,10 +1,12 @@
+import {createRewardHistory} from './reward-history.mjs';
 import {createRewardStore,rewardCandidates,rewardKey} from './reward-store.mjs';
 import {renderRewards} from './progress-view.mjs';
 import {partnerSpeaker,partnerVoice} from './partner-voice.mjs';
 const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 export function createRewardPanel(host,{storage,partner=()=> 'navigator'}={}){
- const store=createRewardStore(storage);let current={rewards:[],contracts:[]},live=false,error=null,selected=new Map();
+ const store=createRewardStore(storage),history=createRewardHistory(store);let current={rewards:[],contracts:[]},live=false,error=null,selected=new Map();
  function render(){
+  history.refresh();
   if(!live){renderRewards(host,current.rewards);return;}
   const open=!!host.querySelector('details')?.open,saved=store.snapshot(),records=saved.records;
   // Keep selections during unrelated log updates; no preselected contract, even when only one fits.
@@ -36,5 +38,5 @@ export function createRewardPanel(host,{storage,partner=()=> 'navigator'}={}){
   host.append(details);
  }
  function apply(action,key){try{action();selected.delete(key);error=null;}catch(e){error=e.message;}render();}
- return {refresh:render,update(snapshot,{persistent=false}={}){current=snapshot||{rewards:[],contracts:[]};live=persistent;error=null;if(live){if(current.identity?.mixedPlayers)error='서로 다른 캐릭터의 로그가 섞여 있어 지급 보관과 계약 연결을 멈췄습니다.';else try{store.observe(current.rewards||[]);}catch(e){error=e.message;}}render();}};
+ return {renderHistory:history.mount,refresh:render,update(snapshot,{persistent=false}={}){current=snapshot||{rewards:[],contracts:[]};live=persistent;error=null;if(live){if(current.identity?.mixedPlayers)error='서로 다른 캐릭터의 로그가 섞여 있어 지급 보관과 계약 연결을 멈췄습니다.';else try{store.observe(current.rewards||[]);}catch(e){error=e.message;}}render();}};
 }

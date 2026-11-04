@@ -20,7 +20,7 @@ export function historyTotalsMarkup(records=readHistory(),L=(ko)=>ko){const s=su
  return `<div class="history-totals"><div><small>${L('총 누적수입','Total earnings')}</small><b>${fmt(s.reward)} <em>aUEC</em></b></div><div><small>${L('총 운항거리','Total flight distance')}</small><b>${distance}</b></div><div><small>${L('완료 운항','Completed runs')}</small><b>${s.runs}</b></div><div><small>${L('완료 계약','Completed contracts')}</small><b>${s.missions}</b></div><div><small>${L('누적 운항 시간','Total flight time')}</small><b>${hm(s.seconds)}</b></div><div><small>${L('누적 운송량','Total cargo')}</small><b>${fmt(s.scu)} <em>SCU</em></b></div></div><p class="small subtle">${L('운항거리는 완료한 구간의 계산 거리 합계이며 항성계 점프 거리는 제외합니다. 수입은 완료 운항의 계약 보상 기준입니다.','Distance sums calculated completed legs, excluding system jump distances. Earnings use contract rewards from completed runs.')}${s.distanceRuns<s.runs?' '+L(`거리 정보가 없는 예전 기록 ${s.runs-s.distanceRuns}건은 거리 합계에서 제외했습니다.`,`${s.runs-s.distanceRuns} older records without distance are excluded from the distance total.`):''}</p>`;
 }
 
-export function createHistory(button,{notify=()=>{},translate:L=(ko)=>ko,emptyMessage='아직 완료한 운항이 없습니다. 관제 모드에서 마지막 거점까지 완료하면 함선·계약·수익·걸린 시간이 여기에 쌓입니다.'}={}){
+export function createHistory(button,{notify=()=>{},translate:L=(ko)=>ko,renderExtra=null,emptyMessage='아직 완료한 운항이 없습니다. 관제 모드에서 마지막 거점까지 완료하면 함선·계약·수익·걸린 시간이 여기에 쌓입니다.'}={}){
  const dialog=document.createElement('dialog');dialog.className='history-dialog';document.body.append(dialog);
  function render(){const list=readHistory(),s=summarize(list);
   dialog.innerHTML=`<div class="dialog-title"><h2>운항 기록</h2><button type="button" data-close aria-label="닫기">×</button></div>
@@ -30,6 +30,7 @@ export function createHistory(button,{notify=()=>{},translate:L=(ko)=>ko,emptyMe
    <ul>${(r.missions||[]).map(m=>`<li>${esc(m.company||'')} ${esc(m.title||m.id)} · ${fmt(m.scu)} SCU · ${fmt(m.reward)} aUEC</li>`).join('')}</ul><p class="small subtle">${esc(r.route||'')} · ${formatHistoryDistance(r.distanceMeters)} · 거점 ${r.stops||0}곳</p><button type="button" class="text-button" data-delete="${esc(r.id)}">이 기록 삭제</button></details></li>`).join('')}</ol>`
   :`<p>${esc(emptyMessage)}</p>`}
   <p class="small subtle">기록은 이 브라우저에 저장되고, 로그인하면 계정에도 저장되어 다른 PC에서 함께 볼 수 있습니다. 수익은 계약에 입력된 보상 기준입니다.</p>`;
+  if(renderExtra){const extra=document.createElement('section');dialog.append(extra);renderExtra(extra);}
   dialog.querySelector('[data-close]').onclick=()=>dialog.close();dialog.querySelector('[data-reset]')?.addEventListener('click',()=>{if(reset())render();});
   dialog.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!confirm('이 운항 기록을 삭제할까요?'))return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(readHistory().filter(r=>r.id!==b.dataset.delete)));window.dispatchEvent(new Event('sfc-history-changed'));render();}catch{notify('운항 기록을 삭제하지 못했습니다.',true);}});}
  function reset(){if(!readHistory().length)return false;if(!confirm(L('완료된 운항기록과 누적 통계를 모두 초기화할까요? 진행 중인 미션과 설정은 유지됩니다. 로그인 중이면 계정에도 반영됩니다.','Reset all completed runs and cumulative statistics? Active missions and settings are kept. While signed in, this change also syncs to your account.')))return false;
