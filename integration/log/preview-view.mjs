@@ -1,4 +1,4 @@
-import {startPlanningTask} from './planning-task.mjs';
+import {startPlanningTask,warmPlanningWorker} from './planning-task.mjs';
 import {resumableGuidance} from './guidance-store.mjs';
 import {routeTimeSummary,TIMING_FIELDS} from './timing.mjs';
 import {cargoContinuityDialog} from './cargo-continuity-view.mjs';
@@ -8,6 +8,7 @@ import {boxEditor} from './box-editor.mjs';
 import {createPreview, previewReadiness, previewContractSignature} from './preview-packing.mjs';
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
+import {createPositionFeed} from './position-feed.mjs';
 import {stepNumbers,jumpSegments} from '../../route-display.mjs';
 import {DEFAULT_SHIP, selectShipGrids, capacity, validateShip} from '../../ships.mjs';
 const el = (tag, text, className) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if(className)n.className=className; return n; };
@@ -22,6 +23,8 @@ const boxText = boxes => {
 };
 
 export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, onCargoChange=()=>{}, session = createPreviewSession()}) {
+  const workerFactory=()=>new Worker(new URL('./preview-worker.mjs',import.meta.url),{type:'module'});
+  let warmWorker=warmPlanningWorker(workerFactory);
   let contracts = [], signature = '', forms = [], view, mapView, planningTask, scheduled, serial = 0, opening = 0, closed = true;
   let lastResult=null,planHash=null,resumeCandidate=null;
   let boxOverrides={};
@@ -142,6 +145,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   pause.onclick=()=>{const paused=mapView?.pauseFlight();pause.textContent=paused?'계속 이동':'일시정지';};
   end.onclick=()=>{const saved=flightRoute,hash=planHash;resetFlight();flightRoute=saved;planHash=hash;launch.disabled=!saved||saved.visits.length<2;if(session.guidanceEnabled)try{session.guidance.clear();}catch(e){checkpointNote.textContent=e.message;}};
   const available = personalNavigation(locationData,locationEdits).locations.sort((a,b) => a.name.localeCompare(b.name));
+  const positionFeed=createPositionFeed({locations:available});
   function fillStarts() {
     const query = search.value.trim().toLowerCase();
     options(start, [{id:'',name:'출발지를 선택해 주세요'}, ...available.filter(p =>
@@ -291,7 +295,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     } catch (e) { status.textContent = e.message; return; }
     const id = serial; status.textContent = '항로와 적재 순서를 계산하고 있습니다…';
     const task=startPlanningTask({id,
-      createWorker:()=>new Worker(new URL('./preview-worker.mjs',import.meta.url),{type:'module'}),
+      createWorker:()=>{if(warmWorker){const prepared=warmWorker.take();warmWorker=null;return prepared;}return workerFactory();},
       onPhase:phase=>{status.textContent=({prepare:'항로 계산을 준비하고 있습니다…',calculate:'항로와 적재 순서를 계산하고 있습니다…',fingerprint:'항로 계산 완료 · 이전 안내 구간을 확인하고 있습니다…'})[phase];},
       guidanceEvidence:session.guidanceEnabled?contracts.map(c=>previewContractSignature(c,catalog,locations)):null,
       input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});
@@ -322,7 +326,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     panel.dataset.packingMode=r.scope;
     if(r.scope==='destination-space-reservation'){
       renderShipSummary(r);flightRoute=r.route;launch.disabled=!mapView||!r.routeReady||r.route.visits.length<2;mapView?.setResult(r);
-      status.textContent=`공간 예약 · ${r.totalScu} SCU · ${r.boxCount}개 배치 블록${r.partial?' · 확인된 일부 화물만 포함':''}. 실제 상자 개수와 다를 수 있습니다.${r.retainedScu?` 함선에 남은 화물 ${r.retainedScu} SCU의 위치는 유지합니다.`:''}${r.aboardScu?` 사용자 확인 · ${r.aboardScu} SCU 위치 유지.`:''}${r.deliveredScu?` 사용자 배송 확인 · ${r.deliveredScu} SCU.`:''}`;
+      status.textContent=`적재 공간 가이드 · ${r.totalScu} SCU · ${r.boxCount}개 배치 블록${r.partial?' · 확인된 일부 화물만 포함':''}. 실제 상자 개수와 다를 수 있습니다.${r.retainedScu?` 함선에 남은 화물 ${r.retainedScu} SCU의 위치는 유지합니다.`:''}${r.aboardScu?` 사용자 확인 · ${r.aboardScu} SCU 위치 유지.`:''}${r.deliveredScu?` 사용자 배송 확인 · ${r.deliveredScu} SCU.`:''}`;
       const nameOf=id=>map.get(id)?.name||'배송지 확인 필요';
       view.update(r.packing,{ship:r.ship,nameOf,missionNameOf:id=>names.get(id)||'계약 미확인'});
       const showCargo=()=>{if(r.retainedScu)instructions.append(el('p',`제외한 계약의 남은 화물 · ${r.retainedScu} SCU · 위치 유지`));for(const id of [...new Set(r.rows.map(x=>x.dropoffId))]){
@@ -332,7 +336,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       showCargo();
       if(r.routeReady){
         status.textContent+=' 확인된 거점의 방문 항로를 연결했습니다.';
-        const numbers=stepNumbers(r.route.visits,map),frames=[{id:'all',name:'전체 화물 · 배송지별 공간 예약'},...r.route.visits.flatMap((v,i)=>[
+        const numbers=stepNumbers(r.route.visits,map),frames=[{id:'all',name:'전체 화물 · 배송지별 적재 공간 가이드'},...r.route.visits.flatMap((v,i)=>[
           ...jumpSegments(v.leg,map).map((jump,j)=>({id:`jump-${i}-${j}`,index:i,jump,name:`${numbers.jumps[i][j]}. ${jump.fromSystem.toUpperCase()} → ${jump.toSystem.toUpperCase()} · 점프`})),
           {id:String(i),index:i,visit:v,name:`${numbers.stop[i]}. ${nameOf(v.locationId)}${i===0?' · 출발':''}`}])];
         options(step,frames);step.value='all';
@@ -350,14 +354,14 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
             if(e.type==='departure'){instructions.append(el('p','여기서 출발합니다.'));continue;}
             instructions.append(el('p',`${e.type==='pickup'?'↑ 화물 접수':'↓ 화물 배송'} · ${names.get(e.missionId)||'계약 미확인'}`));
           }
-          instructions.append(el('p','픽업별 수량·현재 적재량은 표시하지 않습니다. 아래 3D는 모든 화물의 예약 공간을 유지합니다.'));showCargo();
+          instructions.append(el('p','픽업별 수량·현재 적재량은 표시하지 않습니다. 아래 3D는 모든 화물의 가이드 공간을 유지합니다.'));showCargo();
         };
         for(const frame of frames.slice(1)){const li=el('li'),b=el('button',frame.name);b.type='button';b.dataset.visit=frame.id;b.onclick=()=>{step.value=frame.id;step.onchange();};li.append(b);itinerary.append(li);}
         next.disabled=frames.length<2;
-        for(const [value,label] of [[r.contractCount,'계약'],[`${r.totalScu} SCU`,'전체 예약 공간'],[`${Math.round(r.route.seconds/60)}분`,'예상 이동 · 상하차 제외']]){const metric=el('div');metric.append(el('strong',String(value)),el('small',label));metrics.append(metric);}
+        for(const [value,label] of [[r.contractCount,'계약'],[`${r.totalScu} SCU`,'전체 가이드 공간'],[`${Math.round(r.route.seconds/60)}분`,'예상 이동 · 상하차 제외']]){const metric=el('div');metric.append(el('strong',String(value)),el('small',label));metrics.append(metric);}
         warnings.append(el('p',r.route.algorithm),el('p',`점프 연결: ${r.routeEvidence.snapshot} 공개 스냅샷. 이동 시간은 예상이며 상하차 시간은 제외합니다.`),el('p','계약별 모든 픽업을 마친 뒤 배송하도록 방문 순서를 잡았습니다. 픽업별 수량과 단계별 적재 상태를 추정하지 않습니다. 실제 상자 조합에 따라 배치는 달라질 수 있습니다.'));
       }else itinerary.append(el('li',r.routeHold||'전체 목표 지점을 확인한 뒤 방문 순서를 연결합니다.'));
-      warnings.append(el('p','테두리는 적재 공간 예약입니다. 같은 SCU여도 실제 상자 형상·그리드 제한에 따라 다시 배치해야 할 수 있습니다. 정확한 구성이 필요하면 계약별 화물에서 상자 크기와 개수를 직접 지정해 주세요.'));
+      warnings.append(el('p','테두리는 적재 공간 가이드입니다. 같은 SCU여도 실제 상자 형상·그리드 제한에 따라 다시 배치해야 할 수 있습니다. 정확한 구성이 필요하면 계약별 화물에서 상자 크기와 개수를 직접 지정해 주세요.'));
       if(!r.packing){status.textContent+=' 현재 그리드에 전량을 배치할 수 없습니다.';warnings.append(el('p','다른 함선·사용할 그리드·직접 지정한 상자 구성을 확인해 주세요. 빈 그리드를 적재 완료로 간주하지 않습니다.'));}
       return;
     }
@@ -445,7 +449,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       view.update(null,{ship});
       mapHost.replaceChildren();
       try {
-        const createdMap=await createPreviewMap(mapHost,{locations:available,partner:partner.value,onPartner:revealPartner,
+        const createdMap=await createPreviewMap(mapHost,{locations:available,positionFeed,partner:partner.value,onPartner:revealPartner,
           onVisit:i=>{step.value=String(i);step.onchange?.();},
           quality:prefs.mapQuality,onQuality:mapQuality=>session.setPreferences({mapQuality}),
           onStart:id=>{session.setPreferences({startId:id});fillStarts();start.onchange();}});
@@ -465,7 +469,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   };
   updateContracts(initialContracts);
-  return {root,getPacking:()=>lastResult,pauseForRemoval(){stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';},refreshRetained(){signature='';updateContracts(contracts);},isOpen:()=>!closed,dispose(){dispose();events.abort();},updateContracts,
+  return {root,getPacking:()=>lastResult,pauseForRemoval(){stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';},refreshRetained(){signature='';updateContracts(contracts);},isOpen:()=>!closed,dispose(){warmWorker?.dispose();warmWorker=null;dispose();events.abort();},updateContracts,
     canAdvance:()=>!!flightRoute&&!launch.disabled,advanceGuidance:()=>!launch.disabled&&launch.onclick()===true,
     setPartner(value){partner.value=value;partner.onchange();},
     invalidateConfiguration(){ship=currentShip();select.value=ship.id;fillStarts();invalidate('운항 설정을 변경했습니다. 준비를 마치면 항로 안내를 시작해 주세요.');},

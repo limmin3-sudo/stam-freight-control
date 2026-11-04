@@ -1,3 +1,4 @@
+import {createUserContracts} from './user-contracts.mjs';
 import {createManualDrafts} from './manual-drafts.mjs';
 import {snapshot,SYNC_KEYS,cleanValue,ACCOUNT_META} from '../../sync.mjs';
 import {createCargoContinuity} from './cargo-continuity.mjs';
@@ -7,7 +8,7 @@ import {createGuidanceStore} from './guidance-store.mjs';
 import {createPlanChoiceStore} from './plan-choice-store.mjs';
 import {createRewardStore} from './reward-store.mjs';
 export const BACKUP_JOURNAL='stam-flight-restore-journal-v1';
-const definitions=[['drafts','stam-manual-drafts-v1:',createManualDrafts,'records'],['cargo','stam-cargo-continuity-v1:',createCargoContinuity,'records'],['retained','stam-retained-cargo-v1:',createRetainedCargo,'records'],['boxes','stam-log-box-memory-v1:',createBoxMemory,'records'],['guidance','stam-guidance-v1:',createGuidanceStore,'record'],['choices','stam-plan-choices-v1:',createPlanChoiceStore,'choices'],['rewards','stam-rewards-v1:',createRewardStore,'records']];
+const definitions=[['userContracts','stam-user-contracts-v1:',createUserContracts,'records'],['drafts','stam-manual-drafts-v1:',createManualDrafts,'records'],['cargo','stam-cargo-continuity-v1:',createCargoContinuity,'records'],['retained','stam-retained-cargo-v1:',createRetainedCargo,'records'],['boxes','stam-log-box-memory-v1:',createBoxMemory,'records'],['guidance','stam-guidance-v1:',createGuidanceStore,'record'],['choices','stam-plan-choices-v1:',createPlanChoiceStore,'choices'],['rewards','stam-rewards-v1:',createRewardStore,'records']];
 const plain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
 const owner=s=>{const raw=s.getItem(ACCOUNT_META);if(!raw)return 'guest';const a=JSON.parse(raw);if(typeof a?.uid!=='string'||!a.uid)throw Error('현재 계정을 확인해 주세요.');return a.uid;};
 const memory=entries=>({getItem:k=>entries[k]??null,setItem:(k,v)=>{entries[k]=v;},removeItem:k=>{delete entries[k];}});

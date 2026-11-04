@@ -97,7 +97,7 @@ export function applyCargoContinuity(groups,rows,ship,records=[],excluded=[]){
    for(const b of boxes){
     if(b.reservation){
      let left=b.size;const replacement=[];
-     for(const item of group.items){if(!item.reservation)throw Error('예약 영역이 실물 상자로 바뀌었습니다. 위치를 다시 확인해 주세요.');const used=Math.min(left,item.size);left-=used;let rest=item.size-used;for(const size of [32,16,8,4,2,1])while(rest>=size){replacement.push({...item,size,boxId:item.boxId+':rest:'+replacement.length});rest-=size;}}
+     for(const item of group.items){if(!item.reservation)throw Error('가이드 영역이 실물 상자로 바뀌었습니다. 위치를 다시 확인해 주세요.');const used=Math.min(left,item.size);left-=used;let rest=item.size-used;for(const size of [32,16,8,4,2,1])while(rest>=size){replacement.push({...item,size,boxId:item.boxId+':rest:'+replacement.length});rest-=size;}}
      if(left)throw Error('예약한 공간이 남은 수량을 넘습니다.');group.items=replacement;
     }else{const i=group.items.findIndex(item=>!item.reservation&&item.size===b.size);if(i<0)throw Error('기록한 실물 상자와 현재 구성이 다릅니다.');group.items.splice(i,1);}
     if(b.state==='aboard')fixed.push(b);

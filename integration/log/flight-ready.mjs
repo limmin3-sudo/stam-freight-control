@@ -1,4 +1,5 @@
 import {mountTiming} from './timing-view.mjs';
+import {partnerBriefing} from './partner-briefing.mjs';
 import {createPerformance} from '../../performance.mjs';
 import {partnerVoice} from './partner-voice.mjs';
 import {liveNavigationCandidate} from './navigation.mjs';
@@ -25,6 +26,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  root.append(heading,partners,line,summary,observed,settings,count,action,note);host.append(root);
  let timingPanel;
  let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,queued=0,deferred=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
+ const briefing=partnerBriefing({getPartner:()=>session.preferences.partner,canEdit:()=>!busy,onSelect:id=>{session.setPreferences({partner:id});onPartner(id);render();}});heading.after(briefing.button);
  function say(key){noteKey=key;note.textContent=partnerVoice(session.preferences.partner)[key];}
  function options(node,rows,value){node.replaceChildren();const empty=el('option','선택해 주세요');empty.value='';node.append(empty);for(const r of rows){const o=el('option',r.name);o.value=r.id;node.append(o);}node.value=value;}
  function fillStarts(){const q=search.value.trim().toLowerCase();const matches=places.filter(p=>!q||[p.name,...(p.aliases||[])].some(n=>n.toLowerCase().includes(q))).slice(0,40);const current=places.find(p=>p.id===session.preferences.startId);if(current&&!matches.some(p=>p.id===current.id))matches.unshift(current);options(start,matches,session.preferences.startId);}
@@ -67,7 +69,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   };
   observed.append(apply);
  }
- function render(){if(disposed)return;timingPanel?.refresh();const p=session.preferences,knownShip=ships.find(s=>s.id===p.shipId),knownStart=places.find(s=>s.id===p.startId);
+ function render(){if(disposed)return;briefing.refresh();timingPanel?.refresh();const p=session.preferences,knownShip=ships.find(s=>s.id===p.shipId),knownStart=places.find(s=>s.id===p.startId);
   if(!knownShip||!knownStart)confirmed=false;
   if(knownShip&&session.performancePanel)try{session.performancePanel.setShip(knownShip);}catch{}
   for(const [id,b] of buttons){b.setAttribute('aria-pressed',String(id===p.partner));b.disabled=busy;}
@@ -94,5 +96,5 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  options(ship,ships,session.preferences.shipId);fillStarts();render();loadShips();
  return {root,update(value){({selected=0,blocked=0,pending=0,queued=0,deferred=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
   observations(value,status){navigation=value;liveStatus=status;renderObserved();},
-  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;session.performancePanel?.destroy();timingPanel?.destroy();root.remove();}};
+  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;briefing.destroy();session.performancePanel?.destroy();timingPanel?.destroy();root.remove();}};
 }

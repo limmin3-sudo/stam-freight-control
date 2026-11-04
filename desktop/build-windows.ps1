@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$version = (Get-Content data/rebuild-version.json | ConvertFrom-Json).version
+$version = (Get-Content desktop/version.json | ConvertFrom-Json).version
 $runtimeVersion = '22.23.4'
 $expected = 'cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20'
 $work = Join-Path $env:RUNNER_TEMP ('stam-' + [guid]::NewGuid().ToString())
@@ -25,6 +25,10 @@ $manifest = @{ version=$version; runtime="Node.js $runtimeVersion win-x64"; runt
 Get-ChildItem $out -File -Recurse | ForEach-Object { $manifest.files += @{path=$_.FullName.Substring($out.Length+1).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'PACKAGE.json') -Encoding UTF8
 New-Item -ItemType Directory -Force dist | Out-Null
+# Capture the real Windows form, including disabled button text and the bundled logo.
+$previewPath = Join-Path (Resolve-Path dist) 'launcher-preview.png'
+$capture = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui', ('"' + $previewPath + '"')) -Wait -PassThru
+if ($capture.ExitCode -ne 0 -or !(Test-Path $previewPath)) { throw 'Launcher UI capture failed' }
 $destination = Join-Path (Resolve-Path dist) "STAM-$version-win-x64.zip"
 Compress-Archive -Path $out -DestinationPath $destination
 $hash=(Get-FileHash $destination -Algorithm SHA256).Hash.ToLowerInvariant()

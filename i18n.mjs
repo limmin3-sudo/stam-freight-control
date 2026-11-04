@@ -5,14 +5,15 @@
 // history carry their own English versions. User data (mission names, commodities typed in Korean) is left as is.
 import {PHRASES,PATTERNS,HTML} from './i18n-en.mjs';
 const KEY='sfc-lang';
-const MODES=['ko','mix','en'];
+const flightDeck=typeof document!=='undefined'&&document.documentElement.dataset.flightDeck==='development';
+const MODES=flightDeck?['ko','en']:['ko','mix','en'];
 function initial(){if(typeof document==='undefined')return 'ko';// tests and scripts run in Korean
  try{const v=localStorage.getItem(KEY);if(MODES.includes(v))return v;if(localStorage.getItem('vh-missions')||localStorage.getItem('sfc-voice'))return 'ko';}catch{}
  return /^ko\b/i.test(navigator.language||'ko')?'ko':'en';}
 export const lang=initial();
 export const isEn=lang==='en';
 // Game names (places, contracts, goods) are English in 'mix' and 'en'.
-export const gameEn=lang!=='ko';
+export const gameEn=flightDeck||lang!=='ko';
 export function setLang(next){if(!MODES.includes(next)||next===lang)return;try{localStorage.setItem(KEY,next);}catch{}location.reload();}
 export const L=(ko,en)=>isEn?en:ko;
 
@@ -55,5 +56,5 @@ export function startTranslation(){
 // The three-way language switch in the top menu (labels stay in their own language).
 export function languageButton(){const box=document.createElement('div');box.className='lang-switch';box.dataset.i18nSkip='';box.setAttribute('role','group');box.setAttribute('aria-label','Language / 언어');
  for(const [v,label,title] of [['ko','한국어','모두 한국어 (한글 게임 화면용)'],['mix','한/영','한국어 화면 + 지명·계약·품목은 영어 (영어 게임 화면용)'],['en','English','Everything in English (English game client)']]){
-  const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-pressed',String(v===lang));b.onclick=()=>setLang(v);box.append(b);}
+  if(!MODES.includes(v))continue;const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-pressed',String(v===lang));b.onclick=()=>setLang(v);box.append(b);}
  return box;}

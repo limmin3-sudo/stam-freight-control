@@ -1,4 +1,5 @@
 import {timingSettings} from './timing.mjs';
+import {userContractPreview} from './user-contracts.mjs';
 import {checkedPerformance} from '../../performance-core.mjs';
 import {cargoRowsFor,attachCargoRows} from './cargo-continuity.mjs';
 import {personalNavigation} from './personal-locations.mjs';
@@ -38,6 +39,7 @@ export function createPreview(contract,catalog,locations,confirmation,boxOverrid
     });
     return preview;
   };
+  if(contract.userManifest)return decorate(userContractPreview(contract,locations));
   if(resolveOriginalManifest(contract,locations).status==='resolved-original-manifest')return decorate(originalPackingPreview(contract,locations));
   if(confirmation?.confirmed!==true){try{return decorate(reservationPreview(contract,catalog,locations));}catch(e){if(Object.keys(boxOverrides).some(k=>k.startsWith(contract.missionId+':')))throw e;}}
   const input=previewOrders(contract,catalog,locations);
@@ -59,7 +61,7 @@ export function createPreview(contract,catalog,locations,confirmation,boxOverrid
 export function previewReadiness(contract,catalog,locations) {
   try {
     const preview=createPreview(contract,catalog,locations);
-    return {ready:true,preview,reservation:preview.scope==='destination-space-reservation',label:preview.scope==='destination-space-reservation'?(preview.partial?'확인된 일부 화물 · 공간 예약 가능':'배송지·총량 연결 · 공간 예약 가능'):'경로·수량·상자 자동 연결'};
+    return {ready:true,preview,reservation:preview.scope==='destination-space-reservation',label:preview.userEntered?'직접 확인한 화물 · 항로와 적재 공간 준비':preview.scope==='destination-space-reservation'?(preview.partial?'확인된 일부 화물 · 적재 공간 가이드 가능':'배송지·총량 연결 · 적재 공간 가이드 가능'):'경로·수량·상자 자동 연결'};
   } catch {
     try {
       const input=previewOrders(contract,catalog,locations);

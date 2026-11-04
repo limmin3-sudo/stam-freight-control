@@ -8,7 +8,7 @@ export function contractRemoval({contract,plan,store,partner,onApply,onCancel}){
  for(const [value,label] of [['yes','남아 있습니다'],['no','없습니다']]){const row=el('label'),radio=el('input');radio.type='radio';radio.name='remaining-cargo';radio.value=value;row.append(radio,document.createTextNode(label));d.append(row);radio.onchange=()=>{choice=value;remaining.hidden=value!=='yes';message.textContent='';};}
  if(boxes.length){
   remaining.append(el('p',`${plan.ship.name} · ${voice.chooseCargo}`));
-  for(const b of boxes){const row=el('label'),check=el('input');check.type='checkbox';check.dataset.box=b.boxId;row.append(check,document.createTextNode(`${b.commodity} · ${b.size} SCU${b.reservation?' 예약 영역':''} · ${plan.ship.grids[b.bin].name}`));remaining.append(row);checks.push({box:b,check});}
+  for(const b of boxes){const row=el('label'),check=el('input');check.type='checkbox';check.dataset.box=b.boxId;row.append(check,document.createTextNode(`${b.commodity} · ${b.size} SCU${b.reservation?' 가이드 영역':''} · ${plan.ship.grids[b.bin].name}`));remaining.append(row);checks.push({box:b,check});}
  }else remaining.append(el('p',voice.unknownCargo));
  const location=el('label'),confirmed=el('input');confirmed.type='checkbox';location.append(confirmed,document.createTextNode('선택한 화물이 적재도에 표시된 위치에 있습니다.'));if(boxes.length)remaining.append(location);
  remaining.append(el('p',voice.keepCargo));
