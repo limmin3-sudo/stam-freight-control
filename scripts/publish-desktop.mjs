@@ -12,9 +12,9 @@ const body=`Windows x64용 **개발판 관제 연결 앱**입니다. 전체 재�
 2. StarCitizen/LIVE/Game.log를 선택하면 기본 브라우저에 관제가 열립니다.
 3. Node 설치·관리자 권한은 필요하지 않습니다. runtime·app 폴더를 함께 유지해 주세요.
 4. 실행기 창은 최소화해 두셔도 됩니다. 닫으면 로그 연결이 종료됩니다.
-5. 상단 **이용 안내**에서 13단계 슬라이드와 66초 소개 영상을 볼 수 있습니다.
+5. 상단 **이용 안내**에서 13단계 슬라이드와 24초 1080p 출항 브리핑을 볼 수 있습니다.
 
-영상은 예시 관제 화면·자체 도형·오리지널 음악으로 만든 브리핑입니다. 공식 Star Citizen 영상/음악을 복사하지 않았으며 실게임 검증 영상이 아닙니다. 별도 briefing.mp4 파일로도 볼 수 있습니다.
+영상은 독자적인 화물선 콘셉트 이미지·예시 관제 화면·오리지널 음악과 효과음으로 만든 브리핑입니다. 영어 화면 문구와 한글 자막을 사용합니다. 공식 Star Citizen 영상/음악을 복사하지 않았으며 실게임 검증 영상이 아닙니다. 별도 briefing.mp4 파일로도 볼 수 있습니다.
 
 - Windows 10/11 x64 휴대형 앱. ARM/설치 관리자는 지원하지 않습니다. 코드 서명 전이므로 출처와 체크섬을 확인하세요. 보안 기능을 끄도록 안내하지 않습니다.
 - 선택한 로그만 읽습니다. 게임 수정·메모리 접근·주입·패킷 감청·자동 입력을 하지 않습니다. CIG/EAC의 공식 승인을 받았다고 주장하지 않습니다.
@@ -27,7 +27,7 @@ const body=`Windows x64용 **개발판 관제 연결 앱**입니다. 전체 재�
 ZIP SHA-256: ${release.sha256}
 파일별 목록은 ZIP의 PACKAGE.json, 라이선스는 runtime/LICENSE와 app/THIRD-PARTY-NOTICES.md에 있습니다.
 
-main 및 운영 Pages는 변경하지 않았습니다.
+사이트는 별도 Pages 배포로 갱신됩니다. 앱 버전은 이 릴리스의 소스와 체크섬을 기준으로 확인하세요.
 `;
 await writeFile('dist/RELEASE-NOTES.md',body);
 // No --clobber: an existing version is immutable and must not be silently replaced.

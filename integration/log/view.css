@@ -72,3 +72,5 @@ main{max-width:1920px}
 @media(max-width:600px){.standby-layout{grid-template-rows:90px 55px}.workspace-standby h2{font-size:19px}}
 
 .workspace-header .workspace-tools>a{font-size:12px;padding:9px 12px;border:1px solid #294450;border-radius:5px;text-decoration:none;color:#b9e8ef;background:#10232e}
+
+#workspace-language{display:flex;gap:4px}#workspace-language button{padding:7px 10px;font-size:12px}#workspace-language button[aria-pressed=true]{color:#06161d;background:#70dfe3}

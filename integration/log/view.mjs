@@ -1,3 +1,6 @@
+import {recoverFlightBackup,BACKUP_JOURNAL} from './flight-backup.mjs';
+import {mountLanguage} from './ui-language.mjs';
+import {mountFlightBackup} from './flight-backup-view.mjs';
 import {createRewardPanel} from './reward-view.mjs';
 import {createPlanChoiceStore} from './plan-choice-store.mjs';
 import {partnerVoice,partnerSpeaker} from './partner-voice.mjs';
@@ -22,6 +25,20 @@ import { renderContractLocations } from './locations-view.mjs';
 import { renderBoxProfile } from './box-profiles-view.mjs';
 import { renderOriginalManifest } from './manifest-view.mjs';
 
+// Recover interrupted imports before any planner/store takes a snapshot.
+let restoreFailure=null;
+let restoreStorage;try{restoreStorage=localStorage;}catch{}
+try { if(restoreStorage?.getItem(BACKUP_JOURNAL))recoverFlightBackup(restoreStorage); }
+catch(e) { restoreFailure=e; }
+if(restoreFailure){
+ document.querySelector('main').replaceChildren();
+ const heading=document.createElement('h1');heading.textContent='이전 기록 복구가 필요합니다.';
+ const message=document.createElement('p');message.textContent=restoreFailure.message;
+ const retry=document.createElement('button');retry.textContent='복구 다시 시도';retry.onclick=()=>location.reload();
+ const help=document.createElement('p');help.textContent='복원 중이던 기록을 보호하기 위해 관제를 시작하지 않았습니다. 저장 공간과 복원 당시 계정을 확인해 주세요. 브라우저 데이터를 삭제하지 마세요.';
+ document.querySelector('main').append(heading,message,help,retry);
+}else mountWorkspace();
+function mountWorkspace(){
 const $ = id => document.getElementById(id);
 const el = (tag, text, className) => {
   const node = document.createElement(tag);
@@ -33,6 +50,7 @@ const connection=$('workspace-connection');
 function connectionState(state,label){connection.dataset.state=state;connection.querySelector('span').textContent=label;}
 connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
 let storage; try { storage = localStorage; } catch {}
+mountFlightBackup(storage);
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:false}), selectedContracts=planSelection.selected;
 const rewardPanel=createRewardPanel($('reward-observations'),{storage,partner:()=>previewSession.preferences.partner});
 mountAccount({renderHistoryExtra:host=>rewardPanel.renderHistory(host)});
@@ -406,3 +424,7 @@ $('save-report').addEventListener('click', () => {
   const link = el('a'); link.href = url; link.download = 'STAM-log-check.json'; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
+
+mountLanguage();
+
+}

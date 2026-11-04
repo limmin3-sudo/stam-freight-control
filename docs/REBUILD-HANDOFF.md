@@ -2,18 +2,20 @@
 
 **2026-11-04 사용자 요청으로 재개했다. 현재 시험판은 사용자 확인 적재 위치 유지·부분 배송·상태 로컬 복원까지 연결했다. 다음 작업은 아래 남은 범위와 최신 PROJECT_STATUS.md를 따른다.**
 
+최신 보완: 계정별 입력 초안 보관, 구조화된 백업/복원/중단 복구, 한국어/English 주요 조작 전환. 전체 자동 명세/위치/클라우드 운항 동기화/전체 영어 번역은 남아 있다.
+
 실검증 준비 범위는 [출고 점검표](RELEASE-READINESS.md)를 함께 확인한다. 앱 패키지는 전체 재구축 완료를 뜻하지 않는다.
 
 ## 저장 위치와 기준
 
 - 저장소: https://github.com/limmin3-sudo/stam-freight-control
 - 작업 브랜치: `rebuild/log-evidence-foundation`
-- 마지막 기능: Windows 관제 연결 앱·다운로드/13장 출항 안내·66초 오리지널 소개 영상·계산 대기 단계 분리. 지급 내역 조회/내보내기와 실제 화물 위치 보존도 이어서 유지한다. 커밋 SHA는 최신 브랜치 Git 이력 기준이며 이전 커밋으로 되돌리지 않는다.
-- 시험판: `rebuild.20261104.19`
-- Windows 앱/영상: [개발판 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.19). Windows 빌드·포함 런타임 실행·318검사 통과 후 게시, 실게임은 미확인. 웹 다운로드 메타데이터는 게시된 ZIP 체크섬과 대조했다.
+- 마지막 기능: Windows 관제 연결 앱·다운로드/13장 출항 안내·24초1080p 영어 브리핑·한글 자막·엔진/트랙터/컨테이너 효과음·계산 대기 단계 분리. 지급 내역 조회/내보내기와 실제 화물 위치 보존도 이어서 유지한다. 커밋 SHA는 최신 브랜치 Git 이력 기준이며 이전 커밋으로 되돌리지 않는다.
+- 시험판: `rebuild.20261104.20`
+- Windows 앱/영상: [개발판 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.20). 새 패키지는 Windows 빌드·포함 런타임 검사 후 게시한다. 최종 게시와 체크섬 결과는 최신 상태 문서를 확인한다. 실게임 미확인.
 - Draft PR: https://github.com/limmin3-sudo/stam-freight-control/pull/1
 - 이전 목표/진행 기능의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41775699089) 6조합 성공 확인. Windows Node22/24/26.13.0 각각 실행기 포함245통과·건너뜀0.
-- 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 이번 작업은 main에 반영하거나 Pages에 배포하지 않았다.
+- 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 2026-11-04 사용자가 main/Pages 배포를 승인했다. 현재 배포 작업 결과는 PROJECT_STATUS.md의 최신 기록을 따른다.
 - 코드·검증·인수인계를 시험 브랜치에 저장한다. 재개 시 위 기능 커밋으로 되돌리지 말고 최신 브랜치와 작업 트리를 먼저 확인한다.
 
 읽는 순서: [공통 지침](DEVELOPMENT.md) → [현재 상태](../PROJECT_STATUS.md) → 이 문서 → [전체 기능 목록](REBUILD-FEATURE-TRACKER.md). 오래된 CLOUD/CLAUDE 인계의 미구현 설명보다 현재 상태와 실제 코드가 우선이다.

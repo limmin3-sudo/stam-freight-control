@@ -18,6 +18,7 @@ export function createBoxMemory(storage){
   records=next;error=null;
  };
  return {
+  exportData(){if(error)throw Error(error);return {version:1,records:records.map(checked)};},
   error:()=>error||(owner()!==initialOwner?'계정이 바뀌었습니다. 화면을 새로 열어 주세요.':null),
   lookup(contract,row){
    if(owner()!==initialOwner)return {error:'계정이 바뀌었습니다. 화면을 새로 열어 주세요.'};

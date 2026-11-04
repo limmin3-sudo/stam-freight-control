@@ -185,6 +185,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   }
   function buildForms() {
     forms = []; form.replaceChildren();
+    if(session.draftError?.())form.append(el('p',session.draftError()));
     if(session.boxMemory.error()){
       const reset=el('button','저장된 상자 구성 지우기');reset.type='button';
       const error=el('p',session.boxMemory.error());form.append(error,reset);
