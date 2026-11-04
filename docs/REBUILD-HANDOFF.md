@@ -10,6 +10,7 @@
 - 작업 브랜치: `rebuild/log-evidence-foundation`
 - 마지막 기능: Windows 관제 연결 앱·다운로드/13장 출항 안내·66초 오리지널 소개 영상·계산 대기 단계 분리. 지급 내역 조회/내보내기와 실제 화물 위치 보존도 이어서 유지한다. 커밋 SHA는 최신 브랜치 Git 이력 기준이며 이전 커밋으로 되돌리지 않는다.
 - 시험판: `rebuild.20261104.19`
+- Windows 앱/영상: [개발판 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.19). Windows 빌드·포함 런타임 실행·318검사 통과 후 게시, 실게임은 미확인. 웹 다운로드 메타데이터는 게시된 ZIP 체크섬과 대조했다.
 - Draft PR: https://github.com/limmin3-sudo/stam-freight-control/pull/1
 - 이전 목표/진행 기능의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41775699089) 6조합 성공 확인. Windows Node22/24/26.13.0 각각 실행기 포함245통과·건너뜀0.
 - 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 이번 작업은 main에 반영하거나 Pages에 배포하지 않았다.
