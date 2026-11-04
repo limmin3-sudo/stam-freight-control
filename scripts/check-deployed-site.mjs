@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFile} from 'node:fs/promises';
+const {chromium}=createRequire(import.meta.url)(process.env.STAM_PLAYWRIGHT_MODULE||'playwright');
+const base='https://limmin3-sudo.github.io/stam-freight-control/';
+const version=await (await fetch(base+'version.json',{cache:'no-store'})).json();
+assert.equal(version.version,process.env.GITHUB_SHA);
+const expected=JSON.parse(await readFile('data/desktop-release.json','utf8'));
+const actual=await (await fetch(base+'data/desktop-release.json',{cache:'no-store'})).json();
+assert.deepEqual(actual,expected);
+const browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+try{
+ const page=await browser.newPage({viewport:{width:1920,height:1080}}),errors=[],bad=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)bad.push(r.url());});
+ await page.goto(base);await page.waitForSelector('#flight-ready-action');
+ assert.equal(await page.locator('meta[name="app-version"]').getAttribute('content'),process.env.GITHUB_SHA);
+ await page.locator('.ready-partner-open').click();assert.equal(await page.locator('.ready-partner-card').count(),3);
+ await page.goto(base+'guide.html');await page.waitForSelector('#slide-title');assert.equal(await page.locator('#chapters button').count(),13);
+ await page.locator('#chapters button').nth(1).click();
+ await page.waitForFunction(()=>{const img=document.querySelector('.guide-screen>a>img');return img?.complete&&img.naturalWidth>0;});
+ await page.goto(base+'download.html');await page.waitForFunction(()=>document.querySelector('#app-download')?.textContent==='Windows 앱 다운로드');
+ assert.equal(await page.locator('#app-download').getAttribute('href'),expected.url);
+ await page.goto(base+'patch-notes.html');await page.waitForSelector('#release-0');
+ assert.match(await page.locator('#release-0').innerText(),/4\.1\.0/);
+ assert.equal(await page.locator('#draft').count(),0);
+ assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
+ console.log('PASS: deployed revision, partner dialog, guide image, current app download and patch notes');
+}finally{await browser.close();}

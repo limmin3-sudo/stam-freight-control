@@ -12,9 +12,10 @@ const pre='<2026-11-03T10:00:00.000Z> [Notice] ';
 const log='<2026-11-03T10:00:00.000Z> [CIG] build_version[12913470]\n'+pre+`<SHUDEvent_OnNotification> Added notification "Contract Accepted: Medium hauling: " [1] to queue. MissionId: [${c.missionId}], ObjectiveId: []\n`+c.markerObservations.map(e=>pre+`<CLocalMissionPhaseMarker::CreateMarker> missionId [${c.missionId}], contract [Test_HaulCargo_Medium], contractDefinitionId[${e.definitionId}], objectiveId [${e.objectiveId}], zoneHostId [1], position [x: ${e.position[0]}, y: ${e.position[1]}, z: ${e.position[2]}]\n`).join('');
 await writeFile(file,log);
 let webBundle=null;
-if(process.env.STAM_WEB_RELEASE){
- const directory=join(dir,'web-cache'),fetchImpl=async url=>new Response(await readFile(join(process.env.STAM_WEB_RELEASE,String(url).slice(WEB_CHANNEL.length))));
+if(process.env.STAM_WEB_RELEASE||process.env.STAM_WEB_PUBLIC){
+ const directory=join(dir,'web-cache'),fetchImpl=process.env.STAM_WEB_PUBLIC?undefined:async url=>new Response(await readFile(join(process.env.STAM_WEB_RELEASE,String(url).slice(WEB_CHANNEL.length))));
  const staged=createWebUpdates({directory,fetchImpl});await staged.check();assert.equal(staged.status().phase,'ready');
+ if(process.env.STAM_WEB_PUBLIC)assert.equal(JSON.parse(await readFile(join(directory,'ready.json'),'utf8')).sourceRevision,process.env.GITHUB_SHA);
  webBundle=await createWebUpdates({directory,fetchImpl}).select();assert.ok(webBundle);
 }
 let reportedPosition=null;const service=await startLogService({file,webBundle,positionStatus:()=>reportedPosition});let browser,page;

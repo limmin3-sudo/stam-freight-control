@@ -6,7 +6,6 @@ const target=allowed.has(requested)?requested:'index.html';
 const back=document.getElementById('return-control');back.href=target;
 back.onclick=e=>{try{if(window.opener&&!window.opener.closed&&window.opener.location.origin===location.origin){e.preventDefault();window.opener.focus();window.close();}}catch{/* A regular link remains usable without an opener. */}};
 const host=document.getElementById('releases'),nav=document.getElementById('release-nav');
-const draft=el('a','4.0.0 개발 현황');draft.href='#draft';nav.append(draft);
 async function load(){
  try{const r=await fetch(new URL('../data/releases.json',import.meta.url),{cache:'no-store'});if(!r.ok)throw Error();const records=await r.json();if(!Array.isArray(records))throw Error();
   host.replaceChildren();for(const [i,record] of records.slice(0,300).entries()){
