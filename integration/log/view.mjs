@@ -1,3 +1,4 @@
+import {partnerVoice,partnerSpeaker} from './partner-voice.mjs';
 import {receptionActive,contractReception,receptionDetails} from './reception.mjs';
 import {createRetainedCargo} from './retained-cargo.mjs';
 import {contractRemoval,confirmCargoCleared} from './contract-removal.mjs';
@@ -66,7 +67,7 @@ function renderCargoContinuity(){
  }
 }
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
-  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
+  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();},onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
   renderRewards($('reward-observations'));
   flightReady.observations(null,null);
@@ -121,12 +122,17 @@ function renderPlanning() {
     check.dataset.mission = c.missionId;const disposition=dispositions.get(c.missionId);check.disabled=!!(disposition?.boxes.length||disposition?.unlocated||disposition?.review);
     label.append(check, document.createTextNode(`${c.title || '제목 미확인'} · ${statuses[c.status] || '미확인'}`));
     label.append(el('small',readiness.get(c.missionId).label,'planning-readiness'));
-    if(guidanceActive&&!check.checked&&!disposition&&receptionActive(c)&&readiness.get(c.missionId).ready)label.append(el('small','다음 계획 대기 · 선택하면 현재 항로를 다시 계산합니다.','planning-waiting'));
-    check.onchange = () => {
-      if(!check.checked){check.checked=true;removeContract(c);return;}
-      try{if(dispositions.has(c.missionId)){previewSession.continuity.forget(c.missionId);previewSession.retained.restore(c.missionId);}planSelection.set(c.missionId,true);renderPlanning();}catch(e){check.checked=false;$('planning-readiness').textContent=e.message;}
-    };
+    const include=()=>{try{if(dispositions.has(c.missionId)){previewSession.continuity.forget(c.missionId);previewSession.retained.restore(c.missionId);}planSelection.set(c.missionId,true);renderPlanning();}catch(e){check.checked=false;$('planning-readiness').textContent=e.message;}};
+    check.onchange = () => {if(!check.checked){check.checked=true;removeContract(c);return;}include();};
     $('planning-contracts').append(label);
+    if(!check.checked&&!disposition&&receptionActive(c)&&(planSelection.awaiting.has(c.missionId)||planSelection.deferred.has(c.missionId))){
+      const deferred=planSelection.deferred.has(c.missionId),choice=el('div',undefined,'contract-choice');choice.dataset.choice=c.missionId;
+      const partner=previewSession.preferences.partner;choice.append(partnerSpeaker(partner,partnerVoice(partner)[deferred?'contractDeferred':'contractChoice']));
+      const add=el('button','현재 항로에 추가');add.type='button';add.disabled=!readiness.get(c.missionId).ready;add.onclick=include;
+      const later=el('button',deferred?'다음 계획에 보관됨':'다음 계획으로 보관');later.type='button';later.disabled=deferred;later.onclick=()=>{planSelection.defer(c.missionId);renderPlanning();};
+      choice.append(add,later,el('small','추가하면 현재 항로·적재 계획을 다시 계산합니다. 실제 적재 위치는 확인된 기록을 유지합니다.'));
+      $('planning-contracts').append(choice);
+    }
     if(!disposition){const remove=el('button',previewSession.removalPending.has(c.missionId)?'남은 화물 확인':'운송에서 제외');remove.type='button';remove.dataset.removeMission=c.missionId;remove.onclick=()=>removeContract(c,previewSession.removalPending.has(c.missionId));$('planning-contracts').append(remove);}else label.append(el('small','운송 계획에서 제외했습니다.'));
     const detail=receptionDetails(contractReception(c,readiness.get(c.missionId),catalog,locations),c.missionId);detail.open=receptionOpen.has(c.missionId);$('planning-contracts').append(detail);
     const progress=renderProgress(c,locations);progress.open=progressOpen.has(c.missionId);$('planning-contracts').append(progress);
@@ -137,7 +143,7 @@ function updatePlanSelection() {
   const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
-  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+Number(!!previewSession.continuity.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:(snapshot.pendingContracts||[]).filter(receptionActive).length,queued:guidanceActive?snapshot.contracts.filter(c=>!selectedContracts.has(c.missionId)&&receptionActive(c)&&!previewSession.retained.snapshot().records.some(r=>r.id===c.missionId)&&previewReadiness(c,catalog,locations).ready).length:0});
+  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+Number(!!previewSession.continuity.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:(snapshot.pendingContracts||[]).filter(receptionActive).length,queued:snapshot.contracts.filter(c=>planSelection.awaiting.has(c.missionId)&&receptionActive(c)).length,deferred:snapshot.contracts.filter(c=>planSelection.deferred.has(c.missionId)&&receptionActive(c)).length});
 }
 let locationData,personalEdits=[];
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;

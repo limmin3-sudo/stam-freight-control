@@ -30,3 +30,13 @@ test('newly ready contracts wait during guidance; manual inclusion is honored an
  s.set(second.missionId,true);s.reconcile([first,second],new Set([first.missionId,second.missionId]),{autoSelect:false});assert.equal(s.selected.size,2);
  s.set(second.missionId,false);s.reconcile([first,second],new Set([first.missionId,second.missionId]));assert.deepEqual([...s.selected],[first.missionId]);
 });
+
+test('unanswered and deferred choices survive later automatic selection; explicit addition clears the choice',()=>{
+ const first=fixture().contract,second=fixture('22222222-2222-4222-8222-222222222222').contract,s=createPlanSelection(),both=[first,second],ready=new Set(both.map(c=>c.missionId));
+ s.reconcile([first],ready);s.reconcile(both,ready,{autoSelect:false});assert.ok(s.awaiting.has(second.missionId));
+ s.reconcile(both,ready);assert.equal(s.selected.size,1); // stopping/replanning must not decide for the user
+ s.defer(second.missionId);assert.equal(s.awaiting.size,0);assert.ok(s.deferred.has(second.missionId));
+ s.reconcile(both,ready);assert.equal(s.selected.size,1);
+ s.set(second.missionId,true);assert.equal(s.deferred.size,0);assert.equal(s.selected.size,2);
+ s.clear();assert.equal(s.awaiting.size,0);assert.equal(s.deferred.size,0);
+});
