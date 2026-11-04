@@ -1,3 +1,4 @@
+import {routeTimeSummary,TIMING_FIELDS} from './timing.mjs';
 import {cargoContinuityDialog} from './cargo-continuity-view.mjs';
 import {partnerVoice} from './partner-voice.mjs';
 import {personalNavigation} from './personal-locations.mjs';
@@ -61,6 +62,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   const cargoState=el('button','적재 상태 확인');cargoState.type='button';cargoState.disabled=true;cargoState.className='cargo-state-action';cargoHeader.append(cargoState);
   cargoState.onclick=()=>{try{if(!lastResult?.packing)return;step.value='all';step.onchange?.();cargoContinuityDialog({plan:lastResult,store:session.continuity,partner:partner.value,getPlan:()=>lastResult,onApply:locationId=>{session.setPreferences({startId:locationId});fillStarts();signature='';onCargoChange();updateContracts(contracts);}});}catch(e){status.textContent=e.message;}};
   cargoHost.append(cargoHeader,canvas);visuals.append(mapHost,cargoHost);
+  const timingLine=el('p');timingLine.className='preview-time-summary';timingLine.hidden=true;
   const metrics=el('div');metrics.className='preview-metrics';metrics.setAttribute('aria-label','운송 계획 요약');
   const modeBar=el('div');modeBar.className='preview-view-modes';modeBar.setAttribute('aria-label','지도와 적재 화면');
   for(const [mode,label] of [['both','지도 + 아래 적재'],['map','지도'],['cargo','적재 3D']]) {
@@ -133,7 +135,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   for (const [text, control] of [['운항 파트너',partner],['함선',select],['출발지 검색',search],['계획 출발지 (현재 함선 위치 아님)',start]]) {
     const label = el('label',text); label.append(control); controls.append(label);
   }
-  const center=el('div');center.className='preview-center';center.append(metrics,modeBar,stageBar,visuals,flightBar,manifest,assumptions);
+  const center=el('div');center.className='preview-center';center.append(metrics,timingLine,modeBar,stageBar,visuals,flightBar,manifest,assumptions);
   const shipSummary=el('section');shipSummary.className='preview-ship-card';
   function renderShipSummary(result) {
     shipSummary.replaceChildren(el('small','SHIP / 운용 함선'),el('h3',ship.name));
@@ -153,7 +155,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   }
   function invalidate(message) {
     resetFlight();renderShipSummary(); stop(); step.replaceChildren(); itinerary.replaceChildren(); instructions.replaceChildren(); warnings.replaceChildren();
-    metrics.replaceChildren();previous.disabled=next.disabled=true;mapView?.setResult(null);
+    metrics.replaceChildren();timingLine.hidden=true;timingLine.textContent='';previous.disabled=next.disabled=true;mapView?.setResult(null);
     lastResult=null;cargoState.disabled=true;refreshGridLocks();view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
   }
   function dispose() {
@@ -244,10 +246,10 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   function calculate({startGuidance=false}={}) {
     if (closed || !view) return;
     invalidate(); forms.forEach(captureDraft);
-    let flightPerformance;
+    let flightPerformance,flightTiming;
     const confirmations = Object.fromEntries(contracts.map(c => [c.missionId,session.draft(c.missionId)]));
     try {
-      flightPerformance=session.performancePanel?.getFor(ship);
+      flightPerformance=session.performancePanel?.getFor(ship);flightTiming=session.timing.get();
       const continuity=session.continuity.snapshot();if(continuity.error)throw Error(continuity.error);
       const held=session.retained?.snapshot();if(held?.error)throw Error(held.error);
       if(session.removalPending?.size)throw Error('제외할 계약의 남은 화물을 확인해 주세요.');
@@ -283,10 +285,18 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       try {renderResult(data.result);const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
       catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    try{worker.postMessage({id,input:{performance:flightPerformance,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    try{worker.postMessage({id,input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
     });
   }
   function renderResult(r) {
+    const time=routeTimeSummary(r.route);timingLine.hidden=!time;
+    if(time){const minutes=n=>`${Math.round(n/60)}분`;timingLine.textContent=`비행·접근·정박 ${minutes(time.transit)} · ${time.handlingIncluded?`적재·하역 작업 ${minutes(time.handling)} (${r.estimated?'상자 수 가정':'예상'})`:'상하차 시간 미포함 · 작업량 미확인'}`;
+      const basis=el('details');basis.className='preview-time-basis';basis.append(el('summary','이번 항로의 시간 계산 기준'));
+      for(const [key,label] of TIMING_FIELDS)basis.append(el('p',`${label}: ${r.route.settings[key]??'미확인'}`));
+      basis.append(el('p',time.handlingIncluded?'실제 완료 시간은 아닙니다. 계획 상자 수와 필요한 재배치 작업을 기준으로 계산합니다.':'상자 구성 또는 픽업별 작업량이 미확인이라 상하차 시간을 합산하지 않았습니다.'));
+      warnings.append(basis);
+    }
+
     options(step,[{id:'all',name:'전체 화물'}]);step.value='all';step.onchange=null;
     refreshGridLocks();lastResult=r;cargoState.disabled=!r.packing||!r.packing.boxes.some(b=>!b.retained)&&!session.continuity.snapshot().records.some(saved=>saved.ship.id===r.ship.id&&r.contracts.some(c=>c.id===saved.id)&&saved.boxes.some(b=>b.state==='delivered'));
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));

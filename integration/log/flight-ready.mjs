@@ -1,3 +1,4 @@
+import {mountTiming} from './timing-view.mjs';
 import {createPerformance} from '../../performance.mjs';
 import {partnerVoice} from './partner-voice.mjs';
 import {liveNavigationCandidate} from './navigation.mjs';
@@ -15,13 +16,14 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   b.onclick=()=>{session.setPreferences({partner:id});onPartner(id);render();};partners.append(b);buttons.push([id,b]);
  }
  const summary=el('p');summary.className='ready-ship-summary';
- const settings=el('details'),controls=el('div');settings.append(el('summary','함선·출발지 수정'),controls);
+ const settings=el('details'),controls=el('div');settings.id='flight-ready-settings';settings.append(el('summary','함선·출발지 수정'),controls);
  const ship=el('select'),start=el('select'),search=el('input');ship.setAttribute('aria-label','출항 준비 함선');start.setAttribute('aria-label','출항 준비 출발지');search.setAttribute('aria-label','출항 준비 지명 검색');search.placeholder='출발지 찾기';search.type='search';
  controls.append(ship,search,start);const confirm=el('button','이 설정으로 준비');confirm.type='button';controls.append(confirm);
  const count=el('p'),action=el('button','계약 수신 대기');action.id='flight-ready-action';action.type='button';action.className='ready-primary';
  let noteKey='received';const note=el('p');note.setAttribute('role','status');
  const observed=el('section');observed.className='ready-observed';observed.hidden=true;
  root.append(heading,partners,line,summary,observed,settings,count,action,note);host.append(root);
+ let timingPanel;
  let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
  function say(key){noteKey=key;note.textContent=partnerVoice(session.preferences.partner)[key];}
  function options(node,rows,value){node.replaceChildren();const empty=el('option','선택해 주세요');empty.value='';node.append(empty);for(const r of rows){const o=el('option',r.name);o.value=r.id;node.append(o);}node.value=value;}
@@ -59,7 +61,7 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
   };
   observed.append(apply);
  }
- function render(){if(disposed)return;const p=session.preferences,knownShip=ships.find(s=>s.id===p.shipId),knownStart=places.find(s=>s.id===p.startId);
+ function render(){if(disposed)return;timingPanel?.refresh();const p=session.preferences,knownShip=ships.find(s=>s.id===p.shipId),knownStart=places.find(s=>s.id===p.startId);
   if(!knownShip||!knownStart)confirmed=false;
   if(knownShip&&session.performancePanel)try{session.performancePanel.setShip(knownShip);}catch{}
   for(const [id,b] of buttons){b.setAttribute('aria-pressed',String(id===p.partner));b.disabled=busy;}
@@ -75,15 +77,16 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  start.onchange=()=>{preparationOrigin='edited';session.setPreferences({startId:start.value});confirmed=false;active=false;onSettings();render();};
  search.oninput=fillStarts;
  confirm.onclick=()=>{confirmed=ships.some(s=>s.id===session.preferences.shipId)&&places.some(p=>p.id===session.preferences.startId);settings.open=!confirmed;say(confirmed?'prepared':'checkSettings');render();};
- action.onclick=async()=>{if(busy||!selected)return;if(active){if(!onAdvance())say('nextFailed');render();return;}if(!confirmed){settings.open=true;say('checkSettings');ship.focus();return;}
+ action.onclick=async()=>{if(busy||!selected)return;if(active){if(!onAdvance())say('nextFailed');render();return;}if(timingPanel?.isDirty()){timingPanel.root.open=true;say('timingPending');timingPanel.root.scrollIntoView({block:'nearest'});return;}if(!confirmed){settings.open=true;say('checkSettings');ship.focus();return;}
   if(blocked){say('blocked');document.getElementById('planning-contracts')?.scrollIntoView({block:'nearest'});return;}
   busy=true;say('calculating');render();
   try{const started=await onStart();active=started===true;say(active?'started':started==='reservation'?'reserved':'failed');}catch{say('failed');}finally{busy=false;render();}};
  async function loadShips(){try{const r=await fetch(new URL('../../data/ships.json',import.meta.url));if(!r.ok)throw Error();const base=await r.json();ships=[DEFAULT_SHIP,...base.filter(s=>s.id!==DEFAULT_SHIP.id)];for(const value of session.savedShips())try{const s=validateShip(value);if(!ships.some(p=>p.id===s.id))ships.push(s);}catch{}if(disposed)return;options(ship,ships,session.preferences.shipId);render();}catch{noteKey=null;note.textContent='함선 목록을 불러오지 못했습니다. 다시 연결한 뒤 화면을 열어 주세요.';}}
+ timingPanel=mountTiming(root,{store:session.timing,canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}});
  session.performanceReady=createPerformance(settings,{canEdit:()=>!busy&&!active,onChange:()=>{confirmed=false;onSettings();render();}}).then(panel=>{if(disposed){panel.destroy();return;}session.performancePanel=panel;render();return panel;});
  session.performanceReady.catch(()=>{noteKey=null;note.textContent='비행 성능 자료를 불러오지 못했습니다. 화면을 다시 열어 주세요.';});
  options(ship,ships,session.preferences.shipId);fillStarts();render();loadShips();
  return {root,update(value){({selected=0,blocked=0,pending=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
   observations(value,status){navigation=value;liveStatus=status;renderObserved();},
-  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;session.performancePanel?.destroy();root.remove();}};
+  guidance(value){active=value;render();},refresh(){options(ship,ships,session.preferences.shipId);fillStarts();render();},destroy(){disposed=true;session.performancePanel?.destroy();timingPanel?.destroy();root.remove();}};
 }
