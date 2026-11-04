@@ -1,3 +1,4 @@
+import {renderProgress,renderRewards,progressLabel} from './progress-view.mjs';
 import {createFlightReady} from './flight-ready.mjs';
 import {mountWorkspaceTools} from './workspace-tools.mjs';
 import {mountAccount} from './account-view.mjs';
@@ -28,6 +29,7 @@ let planner;
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
+  renderRewards($('reward-observations'));
   flightReady.observations(null,null);
   planner?.dispose(); planner = null;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
@@ -44,6 +46,7 @@ function renderPlanning() {
   planSelection.reconcile(entries,new Set(entries.filter(c=>readiness.get(c.missionId).ready).map(c=>c.missionId)));
   const readyCount=entries.filter(c=>readiness.get(c.missionId).ready).length;
   $('planning-readiness').textContent=`자동 연결 가능 ${readyCount}개 · 추가 근거 필요 ${entries.length-readyCount}개. 미확인 계약은 아래에 보류 이유를 표시합니다.`;
+  const progressOpen=new Set([...$('planning-contracts').querySelectorAll('[data-progress][open]')].map(n=>n.dataset.progress));
   $('planning-contracts').replaceChildren();
   const waiting=(snapshot.pendingContracts||[]).filter(c=>c.status!=='end-observed'&&c.participation.state!=='left-observed').sort((a,b)=>(b.acceptedAt||b.lastEvidenceAt||'').localeCompare(a.acceptedAt||a.lastEvidenceAt||''));
   const pending=$('pending-contracts'),pendingOpen=!!pending.querySelector('details')?.open;pending.replaceChildren();pending.hidden=!waiting.length;
@@ -75,6 +78,7 @@ function renderPlanning() {
       updatePlanSelection();
     };
     $('planning-contracts').append(label);
+    const progress=renderProgress(c,locations);progress.open=progressOpen.has(c.missionId);$('planning-contracts').append(progress);
   }
   updatePlanSelection();
 }
@@ -113,7 +117,7 @@ function showMore() {
     const card = el('details', undefined, 'contract');
     card.dataset.mission = contract.missionId;
     const title = el('summary', contract.title || '제목 미확인');
-    title.append(el('span', statuses[contract.status] || '미확인', 'badge'));
+    title.append(el('span', contract.progress?.outcome!=='unconfirmed'&&progressLabel(contract)||statuses[contract.status]||'미확인','badge'));
     if (contract.participation.shared) title.append(el('span', '공유 기록 있음', 'badge'));
     if (contract.participation.state === 'left-observed') title.append(el('span', memberships['left-observed'], 'badge'));
     card.append(title);
@@ -187,6 +191,7 @@ function renderSnapshot(next) {
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
+  renderRewards($('reward-observations'),snapshot.rewards);
   flightReady.observations(snapshot.identity?.mixedPlayers?null:snapshot.navigation,liveStatus);
   displayed = 0;
   $('contracts').replaceChildren();

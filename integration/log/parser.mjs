@@ -3,7 +3,7 @@ import {parseNavigationLine} from './navigation.mjs';
 // These are observations, not a complete cargo manifest or a position tracker.
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const OBJECTIVE = /^[\w-]{1,200}$/;
-const TAGS = ['SHUDEvent_OnNotification', 'CLocalMissionPhaseMarker::CreateMarker', 'EndMission', 'ObjectiveUpserted',
+const TAGS = ['SHUDEvent_OnNotification', 'CLocalMissionPhaseMarker::CreateMarker', 'EndMission', 'MissionEnded', 'ObjectiveUpserted',
   'AccountLoginCharacterStatus_Character', 'MissionShared', 'PlayerJoined', 'PlayerLeft'];
 const PLAYER_ID = /^[1-9]\d{0,19}$/;
 const field = (line, name) => line.match(new RegExp(`${name}\\s*:?\\s*\\[([^\\]]*)\\]`))?.[1];
@@ -54,6 +54,21 @@ export function parseLogLine(line, provenance) {
     if (!missionId) return {};
     const text = line.match(/Added notification "(.*)" \[\d+\] to queue\./)?.[1];
     if (text === undefined) return fail();
+    const plain=clean(text);
+    const award=plain.match(/^(?:Awarded\s+((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC|((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC\s+지급)\s*:?\s*$/i);
+    if(award){
+      const amount=Number((award[1]||award[2]).replaceAll(',',''));
+      if(!UUID.test(missionId)||!Number.isSafeInteger(amount)||amount<=0)return fail();
+      const notificationId=line.match(/Added notification ".*" \[(\d+)\] to queue\./)?.[1];
+      if(!notificationId||notificationId.length>20)return fail();
+      return {event:{...base,type:'credit-award-observed',amount,currency:'aUEC',notificationId,
+        missionId:/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId)?null:missionId.toLowerCase()}};
+    }
+    const terminal=plain.match(/^(Contract Complete|계약 완료|Contract Failed|계약 실패):\s*\S/i);
+    if(terminal){
+      if(/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId))return fail();
+      return emit('terminal-notice-observed',missionId,{completion:/Complete|완료/i.test(terminal[1])?'Complete':'Fail'});
+    }
     const accepted = text.match(/^(?:계약 수락|Contract Accepted):\s*(.+)$/i);
     if (accepted) {
       const title = clean(accepted[1]).replace(/:\s*$/, '').trim();
@@ -90,6 +105,10 @@ export function parseLogLine(line, provenance) {
       hauling: /(?:^|_)HaulCargo(?:_|$)/.test(template),
       role: objectiveId.startsWith('pickup_') ? 'pickup' : objectiveId.startsWith('dropoff_') ? 'dropoff' : 'unknown',
     });
+  }
+  if(tag==='MissionEnded'){
+    const m=line.match(/Received MissionEnded push message for: mission_id ([\w-]+) - mission_state (MISSION_STATE_[A-Z_]+)\b/);
+    return m?emit('mission-state-observed',m[1],{state:m[2]}):fail();
   }
   if (tag === 'EndMission') {
     const completion = field(line, 'CompletionType');
