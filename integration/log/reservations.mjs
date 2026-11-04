@@ -4,6 +4,7 @@ import {definitionReference} from './catalog.mjs';
 import {SIZES,fullLoadLayout,COLORS} from '../../engine.mjs';
 import {validateShip,withStacking} from '../../ships.mjs';
 import {fixedRetained} from './retained-cargo.mjs';
+import {completeDemand} from './manifest-coverage.mjs';
 
 const medium='6f207f9c-0575-4a88-82f8-ccc348eab9da',objective='7ad329fd-b582-4675-91ed-c474102627b7';
 const mediumTotals=[['Nitrogen',24,8,12],['Organics',12,4,6],['Ranta Dung',14,2,7]];
@@ -16,9 +17,9 @@ const guideSizes=scu=>{const out=[];for(const size of [32,16,8,4,2,1]){while(scu
 export function reservationPreview(contract,catalog,index){
  if(contract.conflicts?.length||contract.definitionObservations?.length!==1)throw Error('계약 기록 충돌을 확인해 주세요.');
  const reference=definitionReference(contract,catalog);
- const resources=rows=>(rows||[]).flatMap(o=>o.kind==='Or'?o.options.flatMap(resources):o.kind==='Resource'?[o]:[]);
+ const resources=rows=>(rows||[]).flatMap(o=>o.kind==='Or'?o.options.flatMap(resources):o.kind==='Resource'||o.kind==='Entity'&&o.name==='CryoPod'?[o]:[]);
  const orders=resources(reference.rules?.orders);
- if(!orders.length)throw Error('이 화물 유형의 공간 예약은 아직 지원하지 않습니다.');
+ if(!orders.length)throw Error('이 화물 유형의 적재 공간 가이드는 아직 지원하지 않습니다.');
  const compared=contractLocations(contract,index),destinations=compared.objectives.filter(o=>o.role==='dropoff');
  if(compared.objectives.some(o=>o.status!=='coordinate-match'||o.quantityConflict))throw Error('배송 좌표·수량을 먼저 확인해야 합니다.');
  const rows=[],pending=[];
@@ -34,7 +35,7 @@ export function reservationPreview(contract,catalog,index){
   }
   for(const [commodity,scu,cap,part] of mediumTotals){
    const matches=orders.filter(o=>o.name===commodity);
-   if(matches.length!==2||matches.some(o=>o.maxBoxScu!==cap||!((o.minScu===part&&o.maxScu===null)||(o.maxScu===part&&o.minScu===null)||(o.minScu===part&&o.maxScu===part))))throw Error('공개 주문 규칙이 달라 중형 공간 예약을 보류합니다.');
+   if(matches.length!==2||matches.some(o=>o.maxBoxScu!==cap||!((o.minScu===part&&o.maxScu===null)||(o.maxScu===part&&o.minScu===null)||(o.minScu===part&&o.maxScu===part))))throw Error('공개 주문 규칙이 달라 중형 적재 가이드를 보류합니다.');
    rows.push({key:rowKey(contract,commodity),commodity,scu,maxBoxSize:32,publicMaxBoxSize:cap,parts:[scu],dropoffId:destinations[0].candidates[0].id,boxes:[]});
   }
  }else{
@@ -43,23 +44,26 @@ export function reservationPreview(contract,catalog,index){
    const marker=destinations.find(o=>o.objectiveId===id),totals=new Set(events.map(q=>q.total));
    const names=new Set();for(const q of events){const hits=[...new Set(orders.map(o=>o.name).filter(n=>typeof n==='string'&&new RegExp(`(?<![A-Za-z])${escaped(n)}(?![A-Za-z])`,'i').test(q.notification||'')))];if(hits.length!==1){names.add(null);continue;}names.add(hits[0]);}
    const total=events[0]?.total,name=[...names][0],matches=orders.filter(o=>o.name===name),caps=new Set(matches.map(o=>o.maxBoxScu));
-   if(!marker||events.some(q=>q.unit!=='SCU')||totals.size!==1||names.size!==1||!name||!Number.isSafeInteger(total)||total<1||total>10000){pending.push(id);continue;}
-   rows.push({key:rowKey(contract,id),commodity:name,scu:total,maxBoxSize:32,publicMaxBoxSize:caps.size===1&&SIZES.includes([...caps][0])?[...caps][0]:null,limitSource:'reservation-guide',parts:[total],dropoffId:marker.candidates[0].id,boxes:[]});
+   const pod=matches.length>0&&matches.every(o=>o.kind==='Entity'&&o.name==='CryoPod');
+   if(!marker||events.some(q=>q.unit!==(pod?'count':'SCU'))||totals.size!==1||names.size!==1||!name||!Number.isSafeInteger(total)||total<1||total>(pod?2048:10000)){pending.push(id);continue;}
+   rows.push({key:rowKey(contract,id),commodity:name,scu:total,maxBoxSize:pod?1:32,publicMaxBoxSize:caps.size===1&&SIZES.includes([...caps][0])?[...caps][0]:null,limitSource:'reservation-guide',parts:[total],dropoffId:marker.candidates[0].id,boxes:pod?[{size:1,count:total}]:[],...(pod?{_cargoShape:'cryopod'}:{})});
   }
  }
  if(!rows.length)throw Error('배송지·품목·수량이 함께 확인된 화물을 기다리고 있습니다.');
+ const complete=mediumMatch||!pending.length&&completeDemand(reference.rules.orders,reference.rules.locations,rows,compared.objectives);
  return {scope:'destination-space-reservation',mission:{id:contract.missionId,title:contract.title,cargo:rows},
   evidence:{source:reference.source,version:reference.version,allocation:'pickup-unresolved',boxComposition:'estimated-space-only',totals:mediumMatch?'user-corroborated-fixed-type':'exact-objective-log-notices'},
-  ...(mediumMatch?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
-  partial:!mediumMatch,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
+  visitRequirements:{complete,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)},
+  partial:!complete,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
-export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null]);}
+export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null,...(row._cargoShape?[row._cargoShape]:[])]);}
 export function specifiedBoxes(row,value){
  if(!value)return null;
  if(value.binding!==boxBinding(row))throw Error('화물 정보가 바뀌었습니다. 직접 지정한 상자 구성을 다시 확인해 주세요.');
  if(!Array.isArray(value.boxes)||!value.boxes.length||value.boxes.length>SIZES.length)throw Error('상자 크기와 개수를 입력해 주세요.');
  let total=0,count=0;const sizes=new Set();
  for(const b of value.boxes){if(!SIZES.includes(b.size)||sizes.has(b.size)||!Number.isSafeInteger(b.count)||b.count<1||b.count>2048)throw Error('상자 크기·개수가 올바르지 않습니다.');sizes.add(b.size);total+=b.size*b.count;count+=b.count;}
+ if(row._cargoShape==='cryopod'&&value.boxes.some(b=>b.size!==1))throw Error('냉동포드는 개당 1 SCU입니다. 포드를 큰 상자로 합칠 수 없습니다.');
  if(total!==row.scu)throw Error(`상자 합계 ${total} SCU · 필요한 화물 ${row.scu} SCU입니다. ${Math.abs(total-row.scu)} SCU ${total<row.scu?'부족합니다':'초과합니다'}.`);
  if(count>2048)throw Error('상자는 2,048개까지 지정할 수 있습니다.');
  return value.boxes.map(b=>({...b}));
@@ -75,8 +79,8 @@ export function calculateReservations(previews,rawShip,stops,overrides={},retain
   const recipe=manual||row.boxes?.length&&row.boxes;
   const sizes=recipe?recipe.flatMap(b=>Array(b.count).fill(b.size)):guideSizes(row.scu);
   count+=sizes.length;if(count>2048)throw Error('예약 블록이 2,048개를 넘습니다. 계약을 나누어 선택해 주세요.');
-  row.boxSource=manual?'user':recipe?'profile':'estimate';row.blockCount=sizes.length;
-  groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
+  row.boxSource=manual?'user':recipe?(row.boxSource==='user'?'user':'profile'):'estimate';row.blockCount=sizes.length;
+  groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,...(row._cargoShape?{_cargoShape:row._cargoShape}:{}),boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
  }
  const continuity=applyCargoContinuity(groups,cargoRows,ship,continuityRecords,retainedRecords);
  for(const box of continuity.fixed)if(ids.includes(box.dropoffId))box.color=COLORS[ids.indexOf(box.dropoffId)%COLORS.length];

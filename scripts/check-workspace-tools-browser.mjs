@@ -19,15 +19,9 @@ try{
  await page.addInitScript(custom=>{localStorage.setItem('sfc-location-overrides-v1',JSON.stringify({format:'sfc-locations-v1',locations:[custom]}));localStorage.setItem('vh-start',custom.id);localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('sfc-voice','aide');},custom);
  await page.goto(service.url);await page.waitForSelector('#locations-open');
  assert.equal(remote.length,0);
- await page.getByRole('button',{name:'업데이트 기록',exact:true}).click();await page.getByText('기존 운영판 기록',{exact:true}).waitFor();
- assert.match(await page.locator('.updates-dialog').innerText(),/함선별 그리드 켜기/);
- assert.equal(remote.length,0);let version='rebuild.20990101.1';
- await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({version})}));
- await page.getByRole('button',{name:'새 시험판 확인',exact:true}).click();await page.locator('.updates-dialog a:not([hidden])').waitFor();
- assert.equal(remote.length,1);assert.equal(remote[0].headers().referer,undefined);
- assert.match(await page.locator('.updates-dialog a').getAttribute('href'),/^https:\/\/codeload.github.com\/limmin3-sudo/);
- version='rebuild.20200101.1';await page.getByRole('button',{name:'새 시험판 확인',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.updates-dialog a').hidden);
- await page.getByRole('button',{name:'업데이트 기록 닫기',exact:true}).click();
+ const notesPromise=page.waitForEvent('popup');await page.getByRole('button',{name:'업데이트 기록',exact:true}).click();const notes=await notesPromise;
+ await notes.getByText('공개 이력',{exact:true}).waitFor();await notes.getByRole('heading',{name:'함선별 그리드 켜기·끄기 · 인접 블록 채우기',exact:true}).waitFor();
+ assert.equal(remote.length,0);await notes.close();
  await page.getByRole('button',{name:'운송 관제 열기',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('.preview-panel [role=status]').textContent.includes('28개 / 168 SCU'));
  assert.equal(await page.getByLabel('미리보기 출발지',{exact:true}).inputValue(),custom.id);assert.equal(await page.getByLabel('운항 파트너',{exact:true}).inputValue(),'operator');
@@ -65,6 +59,6 @@ try{
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'장소 관리',exact:true}).click();assert.equal(await page.locator('#location-manager').evaluate(n=>n.scrollWidth>n.clientWidth),false);await page.getByRole('button',{name:'장소 관리 닫기',exact:true}).click();
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
- assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);assert.equal(remote.length,2);
+ assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);assert.equal(remote.length,0);
  console.log(JSON.stringify({passed:true,personalDeparture:true,applyPreservesContract:true,draftExcluded:true,backup:true,updatesExplicitOnly:true,feedback,errors,bad,mobileOverflow:false}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

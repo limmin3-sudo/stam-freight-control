@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {startPlanningTask} from '../integration/log/planning-task.mjs';
+import {startPlanningTask,warmPlanningWorker} from '../integration/log/planning-task.mjs';
 function harness(){
  let now=0,n=0;const timers=new Map(),phases=[],sent=[];
  const worker={terminate(){this.terminated=true;},postMessage(m){sent.push(m);}};
@@ -29,4 +29,14 @@ test('cancelled and foreign messages cannot restart, replace or settle a newer c
  const late=h.worker.onmessage;h.task.cancel();late({data:{id:7,type:'result',result:{bad:true}}});h.advance(20000);
  assert.deepEqual(await h.task.promise,{cancelled:true});assert.equal(h.timers.size,0);assert.equal(h.worker.onmessage,null);
  const next=harness();next.emit({type:'ready'});next.emit({id:7,type:'result',result:{good:true},hashPending:false});assert.deepEqual(await next.task.promise,{result:{good:true},planHash:null});
+});
+test('a worker prepared before WebGL starts retains readiness and is used once',async()=>{
+ const listeners=new Map(),sent=[];let terminated=0;
+ const worker={addEventListener:(k,f)=>listeners.set(k,f),removeEventListener:k=>listeners.delete(k),postMessage:m=>sent.push(m),terminate:()=>terminated++};
+ const warm=warmPlanningWorker(()=>worker);listeners.get('message')({data:{type:'ready'}});
+ const task=startPlanningTask({id:1,input:{cargo:66},createWorker:()=>warm.take()});
+ assert.equal(sent.length,1);assert.equal(sent[0].input.cargo,66);assert.equal(listeners.size,0);
+ worker.onmessage({data:{id:1,type:'result',result:{totalScu:66},hashPending:false}});assert.equal((await task.promise).result.totalScu,66);assert.equal(terminated,1);
+ warm.dispose();assert.equal(terminated,1);
+ const unused=warmPlanningWorker(()=>worker);unused.dispose();assert.equal(terminated,2);assert.equal(listeners.size,0);
 });

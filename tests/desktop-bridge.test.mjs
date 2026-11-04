@@ -10,6 +10,13 @@ test('desktop bridge opens selected log read-only, serves guide, and exits when 
   const url=new URL(message.url),headers={Authorization:'Bearer '+url.hash.slice(7)};
   assert.equal((await (await fetch(url.origin+'/api/status',{headers})).json()).protocol,1);
   assert.equal((await fetch(url.origin+'/api/status')).status,401);
+  child.stdin.write(JSON.stringify({type:'position',system:'pyro',position:[1,2,3]})+'\n');
+  let state;for(let i=0;i<20;i++){state=await(await fetch(url.origin+'/api/status',{headers})).json();if(state.position)break;await new Promise(r=>setTimeout(r,25));}
+  assert.deepEqual(state.position.position,[1,2,3]);assert.equal(state.position.source,'showlocation-clipboard');
+  child.stdin.write(JSON.stringify({type:'position',system:'other',position:[9,9,9]})+'\n');
+  assert.equal((await(await fetch(url.origin+'/api/status',{headers})).json()).position.system,'pyro');
+  child.stdin.write('{"type":"position-off"}\n');
+  for(let i=0;i<20;i++){state=await(await fetch(url.origin+'/api/status',{headers})).json();if(!state.position)break;await new Promise(r=>setTimeout(r,25));}assert.equal(state.position,null);
   assert.match(await (await fetch(url.origin+'/guide.html')).text(),/출항 안내/);
   child.stdin.end();assert.equal((await exit)[0],0);assert.equal(await readFile(file,'utf8'),original);assert.equal(stderr,'');
  }finally{clearTimeout(timeout);child.kill();lines.close();await rm(dir,{recursive:true,force:true});}

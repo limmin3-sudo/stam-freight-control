@@ -1,0 +1,48 @@
+name: Packaged browser validation
+on:
+  push:
+    branches: ['rebuild/**']
+    paths: ['integration/**', 'scripts/check-unified-deck-browser.mjs', 'onboarding/**', '.github/workflows/browser-release.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare dependencies
+        run: |
+          cp .github/pages-baseline/locations.json data/locations.json
+          node scripts/ensure-three.mjs
+          node --input-type=module -e "import {prepareScreenAssets} from './integration/log/screen-assets-node.mjs'; await prepareScreenAssets()"
+          npm install --prefix /tmp/stam-browser --no-save playwright@1.56.1
+          /tmp/stam-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Assemble release assets
+        run: |
+          node scripts/build-public.mjs /tmp/stam-release
+          node scripts/build-release.mjs /tmp/stam-release
+      - name: Verify contract to route to cargo and account recovery
+        env:
+          STAM_PLAYWRIGHT_MODULE: /tmp/stam-browser/node_modules/playwright
+          STAM_WEB_RELEASE: /tmp/stam-release
+        run: |
+          node scripts/check-unified-deck-browser.mjs
+          cat /tmp/stam-visible-untranslated.json
+          node scripts/check-account-browser.mjs
+          STAM_CHROMIUM_PATH=$(command -v google-chrome) node scripts/check-onboarding-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: STAM-browser-validation
+          path: |
+            /tmp/stam-unified-*.png
+            /tmp/stam-visible-untranslated.json
+            /tmp/stam-guide-*.png
+            /tmp/stam-log-file-guide*.png
+          if-no-files-found: ignore
+          retention-days: 14

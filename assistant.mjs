@@ -13,7 +13,7 @@ export function createAssistant(app){
  const root=document.createElement('div');root.className='aide-overlay';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','항해사 운항 안내');document.body.append(root);
  let step='welcome',typing=null,poll=null,preview=null,pendingStart=null;
  const P=()=>V(preview||voiceId()),portraitId=()=>preview||voiceId();
- const stepsOrder=['choose','welcome','ship','start','shots','confirm','boxes','brief'];
+ const stepsOrder=['choose','welcome','ship','start',...(app.liveReception?['reception']:[]),'shots','confirm','boxes','brief'];
  function frame(title,sub,body,buttons,{compact=false}={}){const idx=Math.max(0,stepsOrder.indexOf(step));
   root.classList.toggle('compact',compact);root.classList.toggle('partner-picker',step==='choose');root.classList.toggle('partner-intro',step==='welcome');
   root.innerHTML=`<div class="aide-card"><button class="aide-close" type="button" aria-label="닫기">×</button>
@@ -22,7 +22,7 @@ export function createAssistant(app){
   root.querySelector('.aide-close').onclick=()=>close();type(root.querySelector('.aide-title'),title);}
  function type(el,text){text=tr(text);clearInterval(typing);if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;return;}let i=0;el.textContent='';typing=setInterval(()=>{el.textContent=text.slice(0,++i);if(i>=text.length)clearInterval(typing);},22);}
  const on=(sel,fn)=>{const el=root.querySelector(sel);if(el)el.onclick=fn;};
- function go(s){if(preview==='broker'&&!['choose','welcome'].includes(s))return;root.onpaste=null;step=s;clearInterval(poll);({choose,welcome,ship,start,shots,confirm,boxes,brief})[s]();}
+ function go(s){if(preview==='broker'&&!['choose','welcome'].includes(s))return;root.onpaste=null;step=s;clearInterval(poll);({choose,welcome,ship,start,reception,shots,confirm,boxes,brief})[s]();}
 
  function choose(){
   frame('오늘 함께할 파트너를 선택하세요.','선택한 파트너가 미션 접수부터 마지막 배송까지 안내합니다.',
@@ -56,9 +56,17 @@ export function createAssistant(app){
   on('#a-next',()=>{if(!selected)return;pendingStart=selected;startConfirm();});on('#a-back',()=>go('ship'));}
  function startConfirm(){
   frame(P().startConfirm(app.placeName(pendingStart)),L('출발 위치를 확인한 뒤 계약을 준비합니다.','Confirm your starting location before adding contracts.'),`<div class="start-confirm"><b>${esc(app.locationLabel(pendingStart))}</b></div>`,`<button class="primary" id="a-confirm-start">${L('확인 · 다음','Confirm · next')}</button><button class="quiet" id="a-change-start">${L('출발지 다시 선택','Choose another location')}</button>`);
-  on('#a-confirm-start',()=>{app.setStart(pendingStart);pendingStart=null;go('shots');});on('#a-change-start',()=>go('start'));
+  on('#a-confirm-start',()=>{app.setStart(pendingStart);pendingStart=null;go(app.liveReception?'reception':'shots');});on('#a-change-start',()=>go('start'));
  }
 
+ function reception(){
+  const operator=voiceId()==='aide';
+  frame(operator?'계약은 제가 받을게요, 함장님!':'계약 수신을 대기합니다.',operator?'게임에서 계약을 받으세요. 들어온 계약으로 항로를 준비할게요.':'게임에서 수락한 계약을 확인하고 기존 항로 계산에 연결합니다.',
+   '<p id="a-reception-status" class="aide-note" role="status"></p>',
+   '<button class="primary" id="a-next">계약 확인 · 항로 준비</button><button id="a-reception-details">접수 현황</button><button id="a-supplement">스크린샷·글로 보완</button><button class="quiet" id="a-back">이전</button>');
+  const refresh=()=>{root.querySelector('#a-reception-status').textContent=app.liveReception();root.querySelector('#a-next').disabled=!app.missions().length;};refresh();poll=setInterval(refresh,1000);
+  on('#a-next',()=>go('confirm'));on('#a-reception-details',()=>app.openReception());on('#a-supplement',()=>go('shots'));on('#a-back',()=>go('start'));
+ }
  function shots(){
   frame(P().shots,P().shotsSub,`<label class="aide-drop" id="a-drop"><input type="file" id="a-files" accept="image/png,image/jpeg,image/webp" multiple><b>＋ 계약 스샷 올리기</b><span>스샷은 이 브라우저 안에서만 읽습니다</span></label><p class="aide-note" id="a-progress"></p><details class="aide-ai-paste" open><summary><b>스샷 인식이 잘 안 되면 · AI 앱으로 읽기</b><span>ChatGPT · Claude 구독만으로 사용 · 추가 요금 없음</span></summary><ol class="aide-howto" data-i18n="aide-ai-steps"><li><b>요청 문장 복사</b>를 누릅니다.</li><li>ChatGPT나 Claude 앱에 계약 스샷을 올리고, 복사한 문장을 붙여 넣어 보냅니다. 여러 장을 한 번에 올려도 됩니다. <b>Ctrl+Alt+PrtSc</b>로 게임 화면을 캡처한 뒤 AI 앱 입력창에 <b>Ctrl+V</b>로 바로 붙여 넣으면 파일 저장 없이 편하게 보낼 수 있습니다.</li><li>AI가 옮겨 적은 글을 전부 복사해 아래 칸에 붙여 넣고 <b>글자로 계약 만들기</b>를 누릅니다.</li></ol><div class="aide-paste-row"><button type="button" id="a-copy-prompt">요청 문장 복사</button><span class="aide-note">게임 화면이 넓고 글씨가 작아 기본 인식이 실패할 때 훨씬 정확합니다.</span></div><textarea id="a-text" rows="5" spellcheck="false" placeholder="AI가 옮겨 적은 글을 여기에 붙여 넣으세요. 미션이 여러 개면 사이에 --- 가 들어갑니다."></textarea><button type="button" class="primary" id="a-text-go">글자로 계약 만들기</button><p class="aide-note" id="a-text-msg" role="status"></p></details>`,
    `<button class="primary" id="a-next" ${app.missions().length?'':'disabled'}>읽은 계약 확인하기</button><button id="a-manual">직접 입력하겠습니다</button><button class="quiet" id="a-demo">예시로 둘러보기</button><button class="quiet" id="a-back">이전</button>`);

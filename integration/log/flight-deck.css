@@ -1,0 +1,12 @@
+/* The original three-column flight deck remains the layout authority. */
+.topbar .brand-name{display:flex;align-items:baseline;gap:9px;white-space:nowrap;font-size:clamp(16px,1.3vw,23px)}
+.topbar .brand-name b,.topbar .brand-title{font-size:inherit;line-height:1.2;letter-spacing:.07em}
+.topbar .brand-name i{display:none}.topbar .brand-text small{font-size:9px;letter-spacing:.12em}
+.topbar .brand-mark{width:52px;height:52px;flex-shrink:0}.topbar .brand-mark img{width:100%;height:100%;object-fit:contain}
+#log-reception-open{color:#b9eff0;border-color:#427f87;background:#102b34}
+#log-reception-open[data-connected=true]{color:#8ef4c8;border-color:#418d79}
+#log-reception{padding:18px;border:1px solid #315766;border-radius:8px;background:#0c202b;margin-bottom:24px}
+#log-reception p{line-height:1.65}#log-reception small{color:#afc6d1;line-height:1.65}
+.reception-contract{padding:14px 0;border-top:1px solid #294451;margin-top:15px;overflow-wrap:anywhere}
+.reception-contract strong{color:#dcf8fb}.reception-contract button{margin:12px 8px 0 0;color:#e7f7fc;border-color:#456779;min-height:38px}
+@media(max-width:600px){.topbar .brand-name{font-size:15px;gap:6px}.topbar .brand-mark{width:36px;height:36px}.topbar .brand-text small{font-size:8px}}

@@ -12,7 +12,7 @@ const KEY = 'stam-log-preview-settings-v1';
 export function createPlanSelection(limit=12,{store=null,persistent=!!store}={}) {
   const selected=new Set(), manual=new Set(), automatic=new Set(), awaiting=new Set(), deferred=new Set();
   let choices=new Map(),saveError=null;
-  const eligible=c=>['acceptance-observed','participation-observed'].includes(c.status)&&
+  const eligible=c=>(['acceptance-observed','participation-observed','user-entered'].includes(c.status)||c.userManifest&&c.status==='classification-pending')&&
     c.participation?.state!=='left-observed'&&!c.conflicts?.length;
   const load=()=>{if(!persistent||!store)return;const saved=store.snapshot();saveError=saved.error;choices=new Map(saved.choices.map(r=>[r.id,r.choice]));for(const [id,choice] of choices){if(choice==='awaiting')awaiting.add(id);else manual.add(id);if(choice==='deferred')deferred.add(id);}};
   const persist=next=>{if(persistent&&store)store.save([...next].map(([id,choice])=>({id,choice})));choices=next;saveError=null;};

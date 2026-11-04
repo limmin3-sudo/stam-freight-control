@@ -1,5 +1,32 @@
 [
   {
+    "id": "2026-11-04-unified-flight-control",
+    "version": "4.1.0",
+    "date": "2026-11-04 23:10",
+    "title": "통합 운송 관제 · 독립 업데이트 앱",
+    "changes": [
+      "기존 양쪽 사이드바·중앙 지도·아래 적재 3D에 자동 계약 접수를 연결했습니다. 파트너를 고르고 함선·출발지를 확인한 뒤 항로를 계산합니다.",
+      "같은 배송지의 화물을 모으고, 상자 구성이 없으면 적재 공간 가이드로 계획합니다. 확인한 상자 구성은 저장해 같은 유형·빌드의 다음 계약에서 불러올 수 있습니다.",
+      "진행 중 새 계약의 현재 항로 합류·다음 계획 보관, 계약 제외와 잔여 화물, 부분 적재·배송·재접속을 연결했습니다.",
+      "새 운송 상태의 계정 복원과 완료·지급 기록을 연결했습니다. 이전 수동 보상과 로그 지급을 중복 합산하지 않습니다.",
+      "Windows 관제 연결 앱을 새로 제공합니다. 사이트 화면·항로·적재 업데이트는 앱 재설치 없이 다음 실행부터 적용합니다.",
+      "직접 복사한 /showlocation 좌표 연결과 내 위치로 이동을 추가했습니다. 마지막 수신 위치와 예상 이동을 구분합니다.",
+      "13단계 출항 안내, 실제 앱 화면, 한국어·English 조작과 파트너 대사를 정리했습니다. 실제 게임에서만 확인할 항목은 최종 출항 목록에 남겼습니다."
+    ],
+    "en": {
+      "title": "Unified freight control · independent companion updates",
+      "changes": [
+        "The familiar sidebars, central map and cargo view now receive log contracts. Choose a partner, review your ship and departure, then plan the route.",
+        "Cargo stays grouped by destination. Unknown crate layouts use space guides; confirmed layouts can be recalled for matching mission types and builds.",
+        "Add contracts to the active route or the next plan, review retained cargo on cancellation, and resume partial loading and deliveries.",
+        "Account recovery includes the new flight stores. Completed contracts and observed payouts are recorded without double-counting earlier manual rewards.",
+        "The new Windows companion receives compatible website updates for its next launch without reinstalling the app.",
+        "Connect coordinates copied from /showlocation and return the map to the last received position. Estimated movement remains distinct.",
+        "The 13-step guide, actual app screenshots and English partner dialogue are updated. Live-game checks remain in the final flight checklist."
+      ]
+    }
+  },
+  {
     "id": "2026-11-04-log-workspace",
     "version": "4.0.0",
     "date": "2026-11-04 19:52",

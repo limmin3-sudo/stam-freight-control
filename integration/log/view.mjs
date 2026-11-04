@@ -1,4 +1,7 @@
+import {createUserContracts,mergeUserContracts} from './user-contracts.mjs';
+import {mountUserContracts} from './user-contracts-view.mjs';
 import {recoverFlightBackup,BACKUP_JOURNAL} from './flight-backup.mjs';
+import {recoverCloudRestore} from './flight-sync.mjs';
 import {mountLanguage} from './ui-language.mjs';
 import {mountFlightBackup} from './flight-backup-view.mjs';
 import {createRewardPanel} from './reward-view.mjs';
@@ -28,7 +31,7 @@ import { renderOriginalManifest } from './manifest-view.mjs';
 // Recover interrupted imports before any planner/store takes a snapshot.
 let restoreFailure=null;
 let restoreStorage;try{restoreStorage=localStorage;}catch{}
-try { if(restoreStorage?.getItem(BACKUP_JOURNAL))recoverFlightBackup(restoreStorage); }
+try { if(restoreStorage){recoverCloudRestore(restoreStorage);if(restoreStorage.getItem(BACKUP_JOURNAL))recoverFlightBackup(restoreStorage);} }
 catch(e) { restoreFailure=e; }
 if(restoreFailure){
  document.querySelector('main').replaceChildren();
@@ -51,7 +54,9 @@ function connectionState(state,label){connection.dataset.state=state;connection.
 connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
 let storage; try { storage = localStorage; } catch {}
 mountFlightBackup(storage);
-const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:false}), selectedContracts=planSelection.selected;
+const userContracts=createUserContracts(storage);
+const planningEntries=()=>replayMode?(snapshot?.contracts||[]):mergeUserContracts(snapshot?.contracts||[],snapshot?.pendingContracts||[],userContracts.snapshot().records);
+const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:true}), selectedContracts=planSelection.selected;
 const rewardPanel=createRewardPanel($('reward-observations'),{storage,partner:()=>previewSession.preferences.partner});
 mountAccount({renderHistoryExtra:host=>rewardPanel.renderHistory(host)});
 previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
@@ -81,7 +86,7 @@ function renderCargoContinuity(){
  for(const r of records){const card=el('div',undefined,'retained-card');card.dataset.cargoContinuity=r.id;
   const aboard=r.boxes.filter(b=>b.state==='aboard'),delivered=r.boxes.filter(b=>b.state==='delivered');
   card.append(el('strong',r.title),el('p',`${r.ship.name} · 위치 유지 ${aboard.reduce((n,b)=>n+b.size,0)} SCU · 배송 확인 ${delivered.reduce((n,b)=>n+b.size,0)} SCU`));
-  if(aboard.some(b=>b.reservation))card.append(el('small','예약 영역 포함 · 실제 상자 구성 미확인'));
+  if(aboard.some(b=>b.reservation))card.append(el('small','가이드 영역 포함 · 실제 상자 구성 미확인'));
   if(!snapshot.contracts.some(c=>c.missionId===r.id))card.append(el('p','현재 로그에서 이 계약을 기다리고 있습니다. 남은 화물 위치는 유지합니다.'));
   const review=el('button','계약 정리');review.type='button';review.onclick=()=>removeContract({missionId:r.id,title:r.title});card.append(review);host.append(card);
  }
@@ -107,7 +112,7 @@ function renderPlanning() {
       prepareAssets: () => live?.preparePreview()});
     $('planning-preview').replaceChildren(planner.root);
   }
-  const entries = snapshot.contracts;
+  const entries = planningEntries();
   const cargoById=new Map(previewSession.continuity.snapshot().records.map(r=>[r.id,r]));
   const dispositions=new Map(previewSession.retained.snapshot().records.map(r=>[r.id,r]));
   for(const id of dispositions.keys())planSelection.set(id,false,{remember:false});
@@ -130,7 +135,7 @@ function renderPlanning() {
   const progressOpen=new Set([...$('planning-contracts').querySelectorAll('[data-progress][open]')].map(n=>n.dataset.progress));
   const receptionOpen=new Set([...document.querySelectorAll('[data-reception][open]')].map(n=>n.dataset.reception));
   $('planning-contracts').replaceChildren();
-  const waiting=(snapshot.pendingContracts||[]).filter(receptionActive).sort((a,b)=>(b.acceptedAt||b.lastEvidenceAt||'').localeCompare(a.acceptedAt||a.lastEvidenceAt||''));
+  const waiting=(snapshot.pendingContracts||[]).filter(c=>receptionActive(c)&&!entries.some(e=>e.missionId===c.missionId&&e.userManifest)).sort((a,b)=>(b.acceptedAt||b.lastEvidenceAt||'').localeCompare(a.acceptedAt||a.lastEvidenceAt||''));
   const pending=$('pending-contracts'),pendingOpen=!!pending.querySelector('details')?.open;pending.replaceChildren();pending.hidden=!waiting.length;
   if(waiting.length){
     pending.append(el('h3',`계약 정보 확인 중 · ${waiting.length}개`),el('p','수락·참여 기록을 보관했습니다. 운송 유형과 목표가 확인되면 자동으로 연결합니다.'));
@@ -167,13 +172,14 @@ function renderPlanning() {
   updatePlanSelection();
 }
 function updatePlanSelection() {
-  const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
+  const chosen = planningEntries().filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
-  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+Number(!!previewSession.continuity.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:(snapshot.pendingContracts||[]).filter(receptionActive).length,queued:snapshot.contracts.filter(c=>planSelection.awaiting.has(c.missionId)&&receptionActive(c)).length,deferred:snapshot.contracts.filter(c=>planSelection.deferred.has(c.missionId)&&receptionActive(c)).length});
+  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:previewSession.removalPending.size+Number(!!previewSession.retained.snapshot().error)+Number(!!previewSession.continuity.snapshot().error)+chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:(snapshot.pendingContracts||[]).filter(receptionActive).length,queued:planningEntries().filter(c=>planSelection.awaiting.has(c.missionId)&&receptionActive(c)).length,deferred:planningEntries().filter(c=>planSelection.deferred.has(c.missionId)&&receptionActive(c)).length});
 }
 let locationData,personalEdits=[];
-let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
+let cancelled = false, displayed = 0, snapshot=new LogEvidence().snapshot(), catalog, locations, live, liveStatus;
+const manualInput=mountUserContracts($('manual-contracts'),{store:userContracts,context:()=>({locationData,catalog,locations,canEdit:!replayMode,contracts:[...(snapshot?.contracts||[]),...(snapshot?.pendingContracts||[])]}),onChange:()=>renderPlanning(),prepareOCR:()=>live?.prepareScreen()});
 const screenWatch=mountScreenWatch($('screen-watch'),{prepare:()=>live?.prepareScreen(),getSnapshot:()=>snapshot,isLive:()=>!!live&&liveStatus?.phase==='watching'});
 const workspaceTools=mountWorkspaceTools({
   context:()=>({contracts:snapshot?.contracts?.length||0,pendingContracts:snapshot?.pendingContracts?.length||0}),
@@ -183,14 +189,14 @@ const workspaceTools=mountWorkspaceTools({
     renderPlanning();if(reopen)planner?.root.querySelector('.preview-launch')?.click();
   },
 });
-window.addEventListener('pagehide',event=>{if(!event.persisted){workspaceTools.destroy();flightReady.destroy();screenWatch.destroy();}});
+window.addEventListener('pagehide',event=>{if(!event.persisted){manualInput.destroy();workspaceTools.destroy();flightReady.destroy();screenWatch.destroy();}});
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
   .then(data => { locationData=data; locations = locationIndex(data);personalEdits=workspaceTools.setLocations(data);flightReady.setLocations(data,personalEdits); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
 const catalogReady = fetch(new URL('../../data/log-mission-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('catalog-unavailable'); return r.json(); })
   .then(data => { catalog = definitionIndex(data); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
-const statuses = { 'acceptance-observed': '수락 기록 관측', 'end-observed': '종료 기록 관측',
+const statuses = { 'user-entered':'직접 입력', 'acceptance-observed': '수락 기록 관측', 'end-observed': '종료 기록 관측',
   'participation-observed': '본인 참여 기록 관측', 'acceptance-unconfirmed': '내 참여 미확인 · 후보', conflict: '기록 충돌 · 확인 필요' };
 const memberships = { 'acceptance-observed': '수락 기록 관측', 'joined-observed': '본인 참여 기록 관측',
   'left-observed': '본인 참여 이탈 기록 관측', conflict: '참여·이탈 기록 충돌', unconfirmed: '내 참여 상태 미확인' };
@@ -379,12 +385,15 @@ function showLiveStatus(status) {
   flightReady.observations(snapshot?.identity?.mixedPlayers?null:snapshot?.navigation,status);
   $('live-status').textContent = phaseLabels[status.phase] || '연결 상태 미확인';
   $('live-detail').textContent = `마지막 읽기: ${status.lastReadAt ? new Date(status.lastReadAt).toLocaleTimeString() : '미확인'} · 읽은 로그 ${(status.bytesRead / 1024 / 1024).toFixed(1)} MB · 파일 교체 ${status.generation}회${status.lastError ? ' · 오류: ' + status.lastError : ''}`;
+  const update=$('web-update-status'),updatePhase=status.webUpdate?.phase;
+  update.hidden=!['ready','app-update-required'].includes(updatePhase);
+  update.textContent=updatePhase==='ready'?'관제 업데이트 준비 완료 · 다음 앱 실행부터 적용됩니다.':updatePhase==='app-update-required'?'새 관제를 연결하려면 앱 업데이트가 필요합니다. 현재 관제는 계속 사용할 수 있습니다.':'';
   $('live-pause').disabled = status.phase === 'error';
   $('live-pause').textContent = status.phase === 'paused' ? '감시 다시 시작' : '감시 일시정지';
 }
 live = connectLive({
   onSnapshot: renderSnapshot,
-  onStatus: showLiveStatus,
+  onStatus: status=>{showLiveStatus(status);try{planner?.receivePosition(status.position);}catch{}},
   onError: code => {
     connectionState('error','로그 연결 확인 필요');
     flightReady.observations(null,null);

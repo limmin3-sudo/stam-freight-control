@@ -3,6 +3,15 @@ import {createBoxMemory} from '../integration/log/box-memory.mjs';import {boxBin
 const memory=()=>{const values=new Map();return {getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v),values};};
 const c={missionId:'runtime-a',definitionId:'definition-a',gameBuild:{status:'known',value:'12913470'}},row={key:'runtime-a:Hydrogen',commodity:'Hydrogen',scu:66,maxBoxSize:32,parts:[66],dropoffId:'destination-a'};
 const value={binding:boxBinding(row),boxes:[{size:32,count:2},{size:2,count:1}]};
+test('saved recipes are suggestions for matching types and builds, never automatic assignments',()=>{
+ const s=memory(),store=createBoxMemory(s);store.set(c,row,value);
+ const next={...c,missionId:'runtime-b'},cargo={...row,key:'runtime-b:Hydrogen',dropoffId:'destination-b'};
+ const suggestions=store.suggest(next,cargo);
+ assert.equal(suggestions.length,1);assert.equal(suggestions[0].binding,boxBinding(cargo));
+ assert.deepEqual(suggestions[0].boxes,value.boxes);assert.deepEqual(store.lookup(next,cargo),{});
+ for(const contract of [{...next,definitionId:'other'},{...next,gameBuild:{status:'known',value:'new'}},{...next,gameBuild:{status:'unknown'}}])assert.deepEqual(store.suggest(contract,cargo),[]);
+ for(const changed of [{...cargo,scu:64},{...cargo,publicMaxBoxSize:2},{...cargo,commodity:'Medical Supplies'},{...cargo,parts:[32,34]}])assert.deepEqual(store.suggest(next,changed),[]);
+});
 test('manual box counts survive reload only for the same contract and unchanged cargo',()=>{
  const s=memory(),a=createBoxMemory(s);a.set(c,row,value);const b=createBoxMemory(s);assert.deepEqual(b.lookup(c,row).value,value);
  assert.deepEqual(b.lookup({...c,missionId:'runtime-b'},{...row,key:'runtime-b:Hydrogen'}),{});

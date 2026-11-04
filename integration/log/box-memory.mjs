@@ -20,6 +20,17 @@ export function createBoxMemory(storage){
  return {
   exportData(){if(error)throw Error(error);return {version:1,records:records.map(checked)};},
   error:()=>error||(owner()!==initialOwner?'계정이 바뀌었습니다. 화면을 새로 열어 주세요.':null),
+  suggest(contract,row){
+   if(error||owner()!==initialOwner||!contract.definitionId||contract.gameBuild?.status!=='known')return [];
+   const targetScope=JSON.parse(scope(contract)).slice(1),target=JSON.parse(boxBinding(row));
+   const equivalent=b=>JSON.stringify([b[1],b[2],b[4],b[5],b[7],b[8]||null])===JSON.stringify([target[1],target[2],target[4],target[5],target[7],target[8]||null]);
+   const found=new Map();
+   for(const r of records){try{
+    if(r.key===row.key||JSON.stringify(JSON.parse(r.scope).slice(1))!==JSON.stringify(targetScope)||!equivalent(JSON.parse(r.value.binding)))continue;
+    const boxes=r.value.boxes.map(b=>({...b})).sort((a,b)=>b.size-a.size),value={binding:boxBinding(row),boxes};specifiedBoxes(row,value);found.set(JSON.stringify(boxes),value);
+   }catch{}}
+   return [...found.values()];
+  },
   lookup(contract,row){
    if(owner()!==initialOwner)return {error:'계정이 바뀌었습니다. 화면을 새로 열어 주세요.'};
    if(error)return {error};
