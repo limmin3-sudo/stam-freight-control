@@ -30,20 +30,10 @@ jobs:
       - name: Refresh hauling mission data (keeps the bundled file if the wiki is unavailable)
         run: node scripts/refresh-missions.mjs
       - run: npm test
-      - name: Assemble public files only
-        run: |
-          mkdir public
-          cp index.html style.css *.mjs public/
-          # Rebuild entry remains on the test branch until production migration is approved.
-          # Preserve the existing deployed app if this workflow is invoked on this branch.
-          if [ -f legacy-planner.html ]; then cp legacy-planner.html public/index.html; fi
-          cp -R data vendor public/
-          cp guide.html download.html public/
-          mkdir -p public/onboarding
-          cp onboarding/guide.mjs onboarding/guide-data.mjs onboarding/download.mjs onboarding/guide.css public/onboarding/
-          if [ -d assets ]; then cp -R assets public/; fi
-          if [ -f icon.svg ]; then cp icon.svg public/; fi
-          touch public/.nojekyll
+      - name: Prepare optional screen-reader assets with integrity checks
+        run: node --input-type=module -e "import {prepareScreenAssets} from './integration/log/screen-assets-node.mjs'; await prepareScreenAssets()"
+      - name: Assemble the public transport workspace
+        run: node scripts/build-public.mjs public
       - name: Stamp release version and update history
         run: node scripts/build-release.mjs public
       - uses: actions/configure-pages@v5

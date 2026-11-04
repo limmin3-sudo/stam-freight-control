@@ -1,10 +1,11 @@
+import {createManualDrafts} from './manual-drafts.mjs';
 import {createGuidanceStore} from './guidance-store.mjs';
 import {createTimingStore} from './timing.mjs';
 import {createCargoContinuity} from './cargo-continuity.mjs';
 import {createBoxMemory} from './box-memory.mjs';
 import {PLANNING_KEY,cleanPlanningPreferences} from '../../planning-preferences.mjs';
-// Preferences and explicitly entered box counts persist. Contract evidence and
-// allocation drafts stay in memory, outside the existing guest/account run store.
+// Preferences and explicitly entered box counts persist. Contract evidence stays in memory;
+// allocation drafts persist per account, without restoring confirmation.
 const KEY = 'stam-log-preview-settings-v1';
 // Automatically add only resolvable, locally accepted/joined records. This is
 // an original-demand plan, not proof that every historical record is still active.
@@ -50,7 +51,7 @@ export function createPreviewSession(storage) {
   // Old account values win over stale experimental preferences after account switching.
   const hasLegacy=legacy.shipId||legacy.startId||get('sfc-voice')||Object.keys(legacy.disabled).length;
   const preferences={...cleanPlanningPreferences(shared||(hasLegacy?legacy:saved)),mapQuality:saved?.mapQuality==='high'?'high':'normal'};
-  const drafts = new Map();
+  const drafts = new Map(),manualDrafts=createManualDrafts(storage);let draftError=null;
   const persist = () => { try {
     storage?.setItem(PLANNING_KEY,JSON.stringify(cleanPlanningPreferences(preferences)));
     storage?.setItem(KEY,JSON.stringify({mapQuality:preferences.mapQuality}));
@@ -58,20 +59,21 @@ export function createPreviewSession(storage) {
   // Migrate the old preview key once so guest/account restoration cannot reuse its account fields.
   if(!shared&&saved&&(saved.shipId||saved.startId||saved.partner||saved.disabled))persist();
   return {
-    preferences,guidance:createGuidanceStore(storage),guidanceEnabled:false,timing:createTimingStore(storage),continuity:createCargoContinuity(storage),boxMemory:createBoxMemory(storage),
+    preferences,manualDrafts,draftError:()=>draftError,guidance:createGuidanceStore(storage),guidanceEnabled:false,timing:createTimingStore(storage),continuity:createCargoContinuity(storage),boxMemory:createBoxMemory(storage),
     savedShips() { const ships=read('vh-ships');return Array.isArray(ships)?ships.slice(0,200):[]; },
     setPreferences(patch) { Object.assign(preferences, patch); persist(); },
     setDisabled(shipId, ids) { preferences.disabled[shipId] = [...ids]; persist(); },
     observe(contract) {
       const fingerprint = JSON.stringify(contract), previous = drafts.get(contract.missionId);
       if (previous?.fingerprint === fingerprint) return false;
-      drafts.set(contract.missionId, {fingerprint, rows: previous?.rows || [], confirmed: false});
+      let rows=previous?.rows||[];if(!previous&&this.guidanceEnabled)try{rows=manualDrafts.lookup(contract);}catch(e){draftError=e.message;}
+      drafts.set(contract.missionId, {fingerprint,contract, rows, confirmed: false});
       return true;
     },
-    draft(id) { return structuredClone(drafts.get(id) || {rows: [], confirmed: false}); },
+    draft(id) { const d=drafts.get(id);return structuredClone(d?{rows:d.rows,confirmed:d.confirmed}:{rows:[],confirmed:false}); },
     saveDraft(id, value) {
       const draft = drafts.get(id);
-      if (draft) { draft.rows = structuredClone(value.rows); draft.confirmed = value.confirmed === true; }
+      if (draft) { draft.rows = structuredClone(value.rows); draft.confirmed = value.confirmed === true;try{if(this.guidanceEnabled)manualDrafts.save(draft.contract,draft.rows);draftError=null;}catch(e){draftError=e.message;} }
     },
     clearDrafts() { drafts.clear(); },
   };

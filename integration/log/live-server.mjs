@@ -8,6 +8,7 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/i18n-en.mjs',['../../i18n-en.mjs','text/javascript']],
   ...['guide.html','download.html'].map(name=>['/'+name,['../../'+name,'text/html; charset=utf-8']]),
   ...['guide.mjs','guide-data.mjs','download.mjs','guide.css'].map(name=>['/onboarding/'+name,['../../onboarding/'+name,name.endsWith('.css')?'text/css':'text/javascript']]),
   ...['poster.jpg','briefing.mp4','briefing-ko.vtt'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
@@ -31,7 +32,7 @@ const STATIC = new Map([
   ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
   ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','flight-backup.mjs','flight-backup-view.mjs','manual-drafts.mjs','ui-language.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),

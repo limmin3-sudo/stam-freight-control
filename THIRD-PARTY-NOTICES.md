@@ -19,7 +19,7 @@ STAM은 비공식 비영리 팬 도구입니다. CIG의 공식 제품·승인 �
 
 ## 안내 영상과 음악
 
-`assets/onboarding/briefing.mp4`는 STAM용으로 제작한 도형·화면과 자막을 사용합니다. 음악은 `scripts/make-briefing-audio.py`로 합성한 독자적인 음원입니다. 공식 Star Citizen / Invictus / IAE 영상·음악·음성·로고를 복사하거나 샘플링하지 않습니다. 참고한 분위기를 공식 제작·제휴라고 표시하지 않습니다. 영상은 흐름 소개이며 실게임 자동 연동을 증명하는 기록이 아닙니다.
+`assets/onboarding/briefing.mp4`는 STAM용으로 생성한 독자적인 화물선 콘셉트 이미지와 합성 계약으로 촬영한 실제 앱 화면, 영어 문구와 한글 자막을 사용합니다. 이미지의 함선은 특정 Star Citizen 기체의 정확한 모델이 아닙니다. 음악과 엔진·트랙터 빔·금속 고정 효과음은 `scripts/make-briefing-audio.py`로 합성한 독자적인 음원입니다. 공식 Star Citizen / Invictus / IAE 영상·음악·음성·로고를 복사하거나 샘플링하지 않습니다. 참고한 분위기를 공식 제작·제휴라고 표시하지 않습니다. 영상은 흐름 소개이며 실게임 자동 연동을 증명하는 기록이 아닙니다.
 
 ## 로컬 실행
 
