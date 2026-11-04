@@ -30,3 +30,22 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+  publish:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish desktop]')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: STAM-Windows-x64
+          path: dist
+      - name: Publish verified development package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-desktop.mjs

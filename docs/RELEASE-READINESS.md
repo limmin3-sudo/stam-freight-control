@@ -24,3 +24,5 @@
 - 산출물의 ZIP·SHA256SUMS·PACKAGE.json으로 버전과 파일 내용을 확인한다. 자동 검사 성공은 실제 게임·EAC 공식 승인·Windows 서명을 의미하지 않는다.
 - Node가 설치된 개발자용 `start-log-link.cmd`도 유지한다. 사용자는 완성된 Windows ZIP을 받으면 Node를 따로 설치할 필요가 없다.
 - main/Pages 운영 배포와 테스트용 GitHub prerelease는 구분한다. 현재 운영 사이트를 조용히 교체하지 않는다.
+
+패키지 게시: `[publish desktop]`를 명시한 시험 브랜치 커밋에서만 Windows 빌드·검증 성공 후 GitHub Actions가 prerelease 파일을 등록한다. 일반 푸시는 게시하지 않는다. 같은 버전의 자산은 덮어쓰지 않는다.
