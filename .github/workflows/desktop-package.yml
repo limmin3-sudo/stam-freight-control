@@ -59,13 +59,14 @@ jobs:
           assert len(data)==meta['bytes']
           assert hashlib.sha256(data).hexdigest()==meta['sha256']
           with zipfile.ZipFile(io.BytesIO(data)) as z:
-              manifests=[n for n in z.namelist() if n.endswith('/PACKAGE.json')]
+              names={n.replace('\\\\','/'):n for n in z.namelist()}
+              manifests=[n for n in names if n.endswith('/PACKAGE.json')]
               assert len(manifests)==1
               root=manifests[0][:-len('PACKAGE.json')]
-              package=json.loads(z.read(manifests[0]).decode('utf-8-sig'))
+              package=json.loads(z.read(names[manifests[0]]).decode('utf-8-sig'))
               assert package['version']==meta['version']
               for entry in package['files']:
-                  content=z.read(root+entry['path'])
+                  content=z.read(names[root+entry['path']])
                   assert len(content)==entry['bytes']
                   assert hashlib.sha256(content).hexdigest()==entry['sha256']
           print('Public ZIP and all packaged file checksums verified.')
