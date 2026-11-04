@@ -53,7 +53,7 @@ export function reservationPreview(contract,catalog,index){
  const complete=mediumMatch||!pending.length&&completeDemand(reference.rules.orders,reference.rules.locations,rows,compared.objectives);
  return {scope:'destination-space-reservation',mission:{id:contract.missionId,title:contract.title,cargo:rows},
   evidence:{source:reference.source,version:reference.version,allocation:'pickup-unresolved',boxComposition:'estimated-space-only',totals:mediumMatch?'user-corroborated-fixed-type':'exact-objective-log-notices'},
-  ...(complete?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
+  visitRequirements:{complete,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)},
   partial:!complete,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
 export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null,...(row._cargoShape?[row._cargoShape]:[])]);}

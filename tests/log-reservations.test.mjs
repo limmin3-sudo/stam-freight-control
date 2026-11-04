@@ -46,3 +46,7 @@ test('unmapped or ambiguous quantities cannot become complete cargo or use neigh
  const s=synthetic();s.c.quantityObservations.push({...s.c.quantityObservations[0],total:99});assert.throws(()=>reservationPreview(s.c,s.cat,index));
  const t=synthetic();t.c.quantityObservations[0].notification='unknown commodity';assert.throws(()=>reservationPreview(t.c,t.cat,index));
 });
+
+test('partial cargo keeps known visit locations available for one-step manual completion',()=>{
+ const {preview}=synthetic();assert.equal(preview.partial,true);assert.equal(preview.visitRequirements.complete,false);assert.ok(preview.visitRequirements.pickups.length);assert.ok(preview.visitRequirements.deliveries.length);
+});
