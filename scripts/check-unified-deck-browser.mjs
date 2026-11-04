@@ -21,7 +21,7 @@ if(process.env.STAM_WEB_RELEASE||process.env.STAM_WEB_PUBLIC){
 let reportedPosition=null;const service=await startLogService({file,webBundle,positionStatus:()=>reportedPosition});let browser,page;
 try{
  browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
- page=await browser.newPage({viewport:{width:1920,height:1080}});const errors=[],bad=[];
+ page=await browser.newPage({viewport:{width:1920,height:1080}});page.setDefaultTimeout(30000);const errors=[],bad=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)bad.push(new URL(r.url()).pathname);});
  await page.addInitScript(start=>{localStorage.setItem('vh-ship-id','misc-hull-b');localStorage.setItem('vh-start',start);},data.locations.find(p=>p.name==='New Babbage').id);
  await page.goto(service.url);await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 1개'));

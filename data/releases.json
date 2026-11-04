@@ -1,5 +1,22 @@
 [
   {
+    "id": "2026-11-04-companion-update-transfer",
+    "version": "4.1.1",
+    "date": "2026-11-04 23:26",
+    "title": "연결 앱 업데이트 수신 수정",
+    "changes": [
+      "Windows 연결 앱 app.1.0.1을 제공합니다. 공개 서버의 압축 전송 때문에 최신 관제 파일을 받지 못하던 문제를 수정했습니다.",
+      "사이트 화면·항로·적재 기능은 계속 별도로 업데이트되며 다음 앱 실행부터 적용됩니다. 현재 공개 다운로드는 수정된 앱으로 연결됩니다."
+    ],
+    "en": {
+      "title": "Companion update download fix",
+      "changes": [
+        "Windows companion app.1.0.1 fixes an update download failure caused by HTTP compression overhead.",
+        "Website layout, route and cargo updates remain independent and apply on the next app launch. The download page now points to the corrected companion."
+      ]
+    }
+  },
+  {
     "id": "2026-11-04-unified-flight-control",
     "version": "4.1.0",
     "date": "2026-11-04 23:10",
