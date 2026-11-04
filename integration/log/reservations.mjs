@@ -53,13 +53,14 @@ export function reservationPreview(contract,catalog,index){
   ...(mediumMatch?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
   partial:!mediumMatch,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
-export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null]);}
+export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null,...(row._cargoShape?[row._cargoShape]:[])]);}
 export function specifiedBoxes(row,value){
  if(!value)return null;
  if(value.binding!==boxBinding(row))throw Error('화물 정보가 바뀌었습니다. 직접 지정한 상자 구성을 다시 확인해 주세요.');
  if(!Array.isArray(value.boxes)||!value.boxes.length||value.boxes.length>SIZES.length)throw Error('상자 크기와 개수를 입력해 주세요.');
  let total=0,count=0;const sizes=new Set();
  for(const b of value.boxes){if(!SIZES.includes(b.size)||sizes.has(b.size)||!Number.isSafeInteger(b.count)||b.count<1||b.count>2048)throw Error('상자 크기·개수가 올바르지 않습니다.');sizes.add(b.size);total+=b.size*b.count;count+=b.count;}
+ if(row._cargoShape==='cryopod'&&value.boxes.some(b=>b.size!==1))throw Error('냉동포드는 개당 1 SCU입니다. 포드를 큰 상자로 합칠 수 없습니다.');
  if(total!==row.scu)throw Error(`상자 합계 ${total} SCU · 필요한 화물 ${row.scu} SCU입니다. ${Math.abs(total-row.scu)} SCU ${total<row.scu?'부족합니다':'초과합니다'}.`);
  if(count>2048)throw Error('상자는 2,048개까지 지정할 수 있습니다.');
  return value.boxes.map(b=>({...b}));
@@ -76,7 +77,7 @@ export function calculateReservations(previews,rawShip,stops,overrides={},retain
   const sizes=recipe?recipe.flatMap(b=>Array(b.count).fill(b.size)):guideSizes(row.scu);
   count+=sizes.length;if(count>2048)throw Error('예약 블록이 2,048개를 넘습니다. 계약을 나누어 선택해 주세요.');
   row.boxSource=manual?'user':recipe?(row.boxSource==='user'?'user':'profile'):'estimate';row.blockCount=sizes.length;
-  groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
+  groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,...(row._cargoShape?{_cargoShape:row._cargoShape}:{}),boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
  }
  const continuity=applyCargoContinuity(groups,cargoRows,ship,continuityRecords,retainedRecords);
  for(const box of continuity.fixed)if(ids.includes(box.dropoffId))box.color=COLORS[ids.indexOf(box.dropoffId)%COLORS.length];
