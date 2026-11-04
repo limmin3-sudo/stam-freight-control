@@ -29,7 +29,6 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
-mountAccount();
 const connection=$('workspace-connection');
 function connectionState(state,label){connection.dataset.state=state;connection.querySelector('span').textContent=label;}
 connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
@@ -37,6 +36,7 @@ $('workspace-help').onclick=()=>{const guide=$('run-guide');guide.open=!guide.op
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:false}), selectedContracts=planSelection.selected;
 const rewardPanel=createRewardPanel($('reward-observations'),{storage,partner:()=>previewSession.preferences.partner});
+mountAccount({renderHistoryExtra:host=>rewardPanel.renderHistory(host)});
 previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
 let planner,removalDialog=null,guidanceActive=false,replayMode=false;const dismissedRemoval=new Set();
 function removeContract(c,automatic=false){

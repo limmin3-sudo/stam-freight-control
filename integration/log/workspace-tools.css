@@ -28,3 +28,5 @@
 .cargo-continuity-dialog{box-sizing:border-box;width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px)}
 
 .credit-observation label{display:grid;gap:6px;min-width:0}.credit-observation select{width:100%;min-width:0;max-width:100%}.credit-observation button{justify-self:start;max-width:100%;white-space:normal}
+
+.payout-history{border-top:1px solid #284553;margin-top:22px;padding-top:16px;overflow-wrap:anywhere}.payout-filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.payout-filters label{display:grid;gap:4px}.payout-filters input,.payout-filters select{min-width:0;max-width:100%;box-sizing:border-box}.payout-list{padding:0;list-style:none}.payout-list li{display:grid;gap:5px;padding:10px 0;border-bottom:1px solid #284553}.payout-list small{color:#95a9b4}.payout-pages{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}

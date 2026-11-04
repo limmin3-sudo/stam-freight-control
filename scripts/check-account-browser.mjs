@@ -11,7 +11,7 @@ const service=await startLogService({file});
 const browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],remote=[];
- page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(service.url.split('/log-link')[0]))remote.push(r.url());});
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(new URL(r.url()).origin!==new URL(service.url).origin)remote.push(r.url());});
  await page.goto(service.url);await page.waitForFunction(()=>document.querySelector('#workspace-login b'));
  await page.getByRole('button',{name:'운항 기록 · 누적 통계',exact:true}).click();
  assert.match(await page.locator('.history-dialog').innerText(),/예상 이동은 완료 기록이나 수입으로 저장되지 않습니다/);
