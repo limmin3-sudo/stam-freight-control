@@ -25,6 +25,7 @@ try{
  assert.equal(await page.locator('#flight-ready-action').innerText(),'항로 계산·안내 시작');
  await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-tracking')?.dataset.state==='estimated',null,{timeout:60000}).catch(async e=>{console.error(JSON.stringify({stage:'start-guidance',errors,bad,status:await page.locator('.preview-calculation-status').allTextContents(),ready:await page.locator('#flight-ready').innerText()}));throw e;});
  await page.waitForFunction(()=>document.querySelector('#flight-ready-action').textContent==='운송 중 · 다음 구간');
+ if(process.env.STAM_CAPTURE_BRIEFING)await page.screenshot({path:process.env.STAM_CAPTURE_BRIEFING,type:'jpeg',quality:90});
  assert.equal(await page.locator('canvas').count(),2);assert.match(await page.locator('.preview-calculation-status').innerText(),/28개 \/ 168 SCU/);
  await appendFile(file,`<${new Date().toISOString()}> [Notice] <Player Selected Quantum Target - Local> [ItemNavigation][CL][1] | NOT AUTH | RSI_Salvation_12345[12345]|CSCItemNavigation::OnPlayerSelectedQuantumTarget|Player has selected point LOC_RR_ARC_LEO as their destination, routing locally [Team_CGP4][QuantumTravel]\n`);
  await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'준비 정보에 적용',exact:true}).isDisabled(),true);

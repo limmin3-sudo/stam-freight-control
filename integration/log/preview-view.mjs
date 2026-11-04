@@ -1,3 +1,4 @@
+import {startPlanningTask} from './planning-task.mjs';
 import {resumableGuidance} from './guidance-store.mjs';
 import {routeTimeSummary,TIMING_FIELDS} from './timing.mjs';
 import {cargoContinuityDialog} from './cargo-continuity-view.mjs';
@@ -21,8 +22,8 @@ const boxText = boxes => {
 };
 
 export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, onCargoChange=()=>{}, session = createPreviewSession()}) {
-  let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
-  let settleCalculation, lastResult=null,planHash=null,resumeCandidate=null;
+  let contracts = [], signature = '', forms = [], view, mapView, planningTask, scheduled, serial = 0, opening = 0, closed = true;
+  let lastResult=null,planHash=null,resumeCandidate=null;
   let boxOverrides={};
   let lockedGridIndices=new Set();
   function refreshGridLocks(){const excluded=session.retained?.snapshot().records||[],ignored=new Set(excluded.map(r=>r.id)),active=session.continuity.snapshot().records.filter(r=>!ignored.has(r.id));lockedGridIndices=new Set([...excluded,...active].filter(r=>r.ship?.id===ship.id).flatMap(r=>r.boxes.filter(b=>b.state!=='delivered').map(b=>b.bin)));}
@@ -164,7 +165,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   launch.className='preview-flight-launch';desk.className='preview-desk-launch';renderShipSummary();
   // Same floorplan as the original: contracts/settings left, map/cargo center, route right.
   panel.append(toolbar,status,left,center,operations);
-  function stop() { settleCalculation?.(false);settleCalculation=null;serial++; clearTimeout(timer); clearTimeout(scheduled); worker?.terminate(); worker = null; }
+  function stop() { serial++; clearTimeout(scheduled); planningTask?.cancel(); planningTask = null; }
   function scheduleCalculation() {
     clearTimeout(scheduled);
     if(!closed&&view)scheduled=setTimeout(calculate,350);
@@ -288,25 +289,23 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if (!start.value&&!contracts.some(c=>previewReadiness(c,catalog,locations).reservation)) throw Error('계획 출발지를 선택해 주세요.');
     } catch (e) { status.textContent = e.message; return; }
     const id = serial; status.textContent = '항로와 적재 순서를 계산하고 있습니다…';
-    return new Promise(resolve=>{settleCalculation=resolve;
-    const fail = message => { if (id !== serial || closed) return; stop(); status.textContent = message; };
-    try { worker = new Worker(new URL('./preview-worker.mjs',import.meta.url),{type:'module'}); }
-    catch { fail('계산 작업을 시작하지 못했습니다. 다시 계산해 주세요. 로그 감시는 계속됩니다.'); return; }
-    timer = setTimeout(() => fail('계산 시간이 8초를 넘었습니다. 계약을 나누거나 함선·그리드를 확인해 주세요.'),8000);
-    worker.onerror = () => fail('미리보기 작업을 시작하지 못했습니다. 로그 감시는 계속됩니다.');
-    worker.onmessage = ({data}) => {
-      if (closed || id !== serial || data.id !== id) return;
-      clearTimeout(timer); worker.terminate(); worker = null;
-      if (data.error) { fail(data.error); return; }
-      try {
+    const task=startPlanningTask({id,
+      createWorker:()=>new Worker(new URL('./preview-worker.mjs',import.meta.url),{type:'module'}),
+      onPhase:phase=>{status.textContent=({prepare:'항로 계산을 준비하고 있습니다…',calculate:'항로와 적재 순서를 계산하고 있습니다…',fingerprint:'항로 계산 완료 · 이전 안내 구간을 확인하고 있습니다…'})[phase];},
+      guidanceEvidence:session.guidanceEnabled?contracts.map(c=>previewContractSignature(c,catalog,locations)):null,
+      input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});
+    planningTask=task;
+    return task.promise.then(data=>{
+      if(closed||id!==serial||data.cancelled)return false;
+      planningTask=null;
+      if(data.error){status.textContent=data.error;return false;}
+      try{
         renderResult(data.result);planHash=data.planHash;if(planHash)offerResume();if(data.hashError)checkpointNote.textContent=data.hashError;
-        const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':resumeCandidate?'resume':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;
-      }
-      catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
-    };
-    try{worker.postMessage({id,guidanceEvidence:session.guidanceEnabled?contracts.map(c=>previewContractSignature(c,catalog,locations)):null,input:{performance:flightPerformance,timing:flightTiming,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+        return data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':resumeCandidate?'resume':!startGuidance||(!launch.disabled&&launch.onclick()===true);
+      }catch{status.textContent='항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.';return false;}
     });
   }
+
   function renderResult(r) {
     const time=routeTimeSummary(r.route);timingLine.hidden=!time;
     if(time){const minutes=n=>`${Math.round(n/60)}분`;timingLine.textContent=`비행·접근·정박 ${minutes(time.transit)} · ${time.handlingIncluded?`적재·하역 작업 ${minutes(time.handling)} (${r.estimated?'상자 수 가정':'예상'})`:'상하차 시간 미포함 · 작업량 미확인'}`;

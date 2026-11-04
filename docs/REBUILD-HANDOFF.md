@@ -2,12 +2,14 @@
 
 **2026-11-04 사용자 요청으로 재개했다. 현재 시험판은 사용자 확인 적재 위치 유지·부분 배송·상태 로컬 복원까지 연결했다. 다음 작업은 아래 남은 범위와 최신 PROJECT_STATUS.md를 따른다.**
 
+실검증 준비 범위는 [출고 점검표](RELEASE-READINESS.md)를 함께 확인한다. 앱 패키지는 전체 재구축 완료를 뜻하지 않는다.
+
 ## 저장 위치와 기준
 
 - 저장소: https://github.com/limmin3-sudo/stam-freight-control
 - 작업 브랜치: `rebuild/log-evidence-foundation`
-- 마지막 기능: 같은 계획의 마지막 예상 안내 구간 복원. 지급 내역 조회/내보내기와 실제 화물 위치 보존도 이어서 유지한다. 커밋 SHA는 최신 브랜치 Git 이력 기준이며 이전 커밋으로 되돌리지 않는다.
-- 시험판: `rebuild.20261104.18`
+- 마지막 기능: Windows 관제 연결 앱·다운로드/13장 출항 안내·66초 오리지널 소개 영상·계산 대기 단계 분리. 지급 내역 조회/내보내기와 실제 화물 위치 보존도 이어서 유지한다. 커밋 SHA는 최신 브랜치 Git 이력 기준이며 이전 커밋으로 되돌리지 않는다.
+- 시험판: `rebuild.20261104.19`
 - Draft PR: https://github.com/limmin3-sudo/stam-freight-control/pull/1
 - 이전 목표/진행 기능의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41775699089) 6조합 성공 확인. Windows Node22/24/26.13.0 각각 실행기 포함245통과·건너뜀0.
 - 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 이번 작업은 main에 반영하거나 Pages에 배포하지 않았다.

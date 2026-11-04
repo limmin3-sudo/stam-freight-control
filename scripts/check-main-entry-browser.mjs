@@ -17,8 +17,7 @@ try{
  assert.equal(await page.locator('#replay-controls').isVisible(),true);
  assert.equal(await page.locator('canvas').count(),0);
  assert.ok(!requests.includes('/api/status'));
- await page.locator('#workspace-help').click();assert.equal(await page.locator('#run-guide').getAttribute('open'),'');
- await page.locator('#workspace-help').click();assert.equal(await page.locator('#run-guide').getAttribute('open'),null);
+ await Promise.all([page.waitForEvent('popup').then(async guide=>{await guide.waitForLoadState();assert.match(await guide.title(),/출항/);await guide.close();}),page.locator('#workspace-help').click()]);
  const old=new URL(service.url);old.pathname='/log-link.html';
  await page.goto(old.href);await page.waitForFunction(()=>document.querySelector('#workspace-connection')?.dataset.state==='watching');
  assert.equal(new URL(page.url()).pathname,'/index.html');assert.equal(new URL(page.url()).hash,'');
