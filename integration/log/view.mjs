@@ -1,10 +1,11 @@
+import {createRewardPanel} from './reward-view.mjs';
 import {createPlanChoiceStore} from './plan-choice-store.mjs';
 import {partnerVoice,partnerSpeaker} from './partner-voice.mjs';
 import {receptionActive,contractReception,receptionDetails} from './reception.mjs';
 import {createRetainedCargo} from './retained-cargo.mjs';
 import {contractRemoval,confirmCargoCleared} from './contract-removal.mjs';
 import {mountScreenWatch} from './screen-watch.mjs';
-import {renderProgress,renderRewards,progressLabel} from './progress-view.mjs';
+import {renderProgress,progressLabel} from './progress-view.mjs';
 import {createFlightReady} from './flight-ready.mjs';
 import {mountWorkspaceTools} from './workspace-tools.mjs';
 import {mountAccount} from './account-view.mjs';
@@ -35,6 +36,7 @@ connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('li
 $('workspace-help').onclick=()=>{const guide=$('run-guide');guide.open=!guide.open;if(guide.open)guide.scrollIntoView({block:'nearest',behavior:'smooth'});};
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(12,{store:storage?createPlanChoiceStore(storage):null,persistent:false}), selectedContracts=planSelection.selected;
+const rewardPanel=createRewardPanel($('reward-observations'),{storage,partner:()=>previewSession.preferences.partner});
 previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
 let planner,removalDialog=null,guidanceActive=false,replayMode=false;const dismissedRemoval=new Set();
 function removeContract(c,automatic=false){
@@ -68,10 +70,10 @@ function renderCargoContinuity(){
  }
 }
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
-  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();},onSettings:()=>planner?.invalidateConfiguration()});
+  onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>{planner?.setPartner(value);renderPlanning();rewardPanel.refresh();},onSettings:()=>planner?.invalidateConfiguration()});
 function closePreviews() {
   replayMode=true;
-  renderRewards($('reward-observations'));
+  rewardPanel.update(null);
   flightReady.observations(null,null);
   planner?.dispose(); planner = null;guidanceActive=false;flightReady.update({selected:0,blocked:0,pending:0}); planSelection.useSaved(false);planSelection.clear(); previewSession.clearDrafts();
   $('planning-preview').replaceChildren(); $('planning-contracts').replaceChildren();$('pending-contracts').replaceChildren();$('pending-contracts').hidden=true;$('recovery-help').hidden=true;
@@ -258,7 +260,7 @@ function renderSnapshot(next) {
   const visible = Math.max(50, displayed);
   snapshot = next;
   screenWatch.update();
-  renderRewards($('reward-observations'),snapshot.rewards);
+  rewardPanel.update(snapshot,{persistent:!replayMode&&!!liveStatus});
   flightReady.observations(snapshot.identity?.mixedPlayers?null:snapshot.navigation,liveStatus);
   displayed = 0;
   $('contracts').replaceChildren();
