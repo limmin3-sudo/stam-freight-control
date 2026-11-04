@@ -1,4 +1,4 @@
-> 최신 작업은 `PROJECT_STATUS.md` 첫 항목과 `REQUEST-COMPLETION-AUDIT.md` 우선. 기본 관제는 `index.html`로 통합 중이며 `flight-deck.html`은 비교용 개발 화면이다. 사이트/앱 업데이트 분리 구현은 `APP-WEB-UPDATE-CONTRACT.md` 참고. 기능 정확성 우선, 안내 최종 작업은 뒤로 미룸. main/Pages/릴리스 게시 보류.
+> 최신 작업은 `PROJECT_STATUS.md` 첫 항목과 `REQUEST-COMPLETION-AUDIT.md` 우선. 기본 관제는 `index.html`로 통합 중이며 `flight-deck.html`은 비교용 개발 화면이다. 사이트/앱 업데이트 분리 구현은 `APP-WEB-UPDATE-CONTRACT.md` 참고. **사용자 최신 승인: 남은 개발·통합 검증을 마치면 최종 이용안내를 만들고 사이트·앱을 배포한다. 이후 사용자 실게임 피드백을 받는다.** 조건 충족 후 배포 허락을 다시 묻지 않는다. 현재 미완료 기능을 검증 대기로 바꾸어 출고하지 않는다.
 
 # 재구축 작업 인수인계 — 2026-11-04 KST
 
