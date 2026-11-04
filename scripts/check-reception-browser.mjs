@@ -43,12 +43,18 @@ try{
  assert.equal(await page.locator('#pending-contracts').isVisible(),false);
  assert.equal(await page.locator(`[data-reception="${second}"]`).evaluate(n=>n.open),true);
  assert.equal(await page.locator(`input[data-mission="${second}"]`).isChecked(),false);
- assert.match(await page.locator('#flight-ready').innerText(),/다음 계획 대기 1건/);
+ assert.match(await page.locator('#flight-ready').innerText(),/반영 선택 대기 1건/);
  assert.match(await page.locator('#flight-ready').innerText(),/지금 항로는 그대로/);
  assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');
  assert.match(await page.locator('.preview-calculation-status').innerText(),/28개 \/ 168 SCU/);
  assert.equal(await page.evaluate(()=>window.stamCanvases.every((c,i)=>c===document.querySelectorAll('canvas')[i])),true);
- await page.locator(`input[data-mission="${second}"]`).check();
+ await page.locator(`[data-choice="${second}"]`).getByRole('button',{name:'다음 계획으로 보관',exact:true}).click();
+ assert.equal(await page.locator(`[data-choice="${second}"]`).getByRole('button',{name:'다음 계획에 보관됨',exact:true}).isDisabled(),true);
+ assert.match(await page.locator('#flight-ready').innerText(),/다음 계획 1건/);
+ assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');
+ assert.equal(await page.locator(`input[data-mission="${second}"]`).isChecked(),false);
+ assert.equal(await page.evaluate(()=>window.stamCanvases.every((c,i)=>c===document.querySelectorAll('canvas')[i])),true);
+ await page.locator(`[data-choice="${second}"]`).getByRole('button',{name:'현재 항로에 추가',exact:true}).click();
  await page.waitForFunction(()=>document.querySelector('.preview-calculation-status').textContent.includes('56개 / 336 SCU'));
  assert.match(await page.locator('#planning-count').innerText(),/선택한 계약 2개/);
 
@@ -58,5 +64,5 @@ try{
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log(JSON.stringify({passed:true,lateReceptionDetails:true,preservesExpandedDetails:true,newContractQueued:true,currentStepAndCanvasesPreserved:true,explicitInclusionReplans:true,partnerBeforeContract:true,waitingWithoutRenderer:true,previousSettingsRequireConfirmation:true,oneActionPlansAndStarts:true,nextLegSameButton:true,liveCandidateCannotReplaceActiveShip:true,missingShipBlocks:true,noFakeHistory:true,mobileOverflow:false,errors,bad}));
+ console.log(JSON.stringify({passed:true,lateReceptionDetails:true,preservesExpandedDetails:true,newContractQueued:true,currentStepAndCanvasesPreserved:true,explicitInclusionReplans:true,explicitDeferPreservesGuidance:true,deferredCanJoinCurrent:true,partnerBeforeContract:true,waitingWithoutRenderer:true,previousSettingsRequireConfirmation:true,oneActionPlansAndStarts:true,nextLegSameButton:true,liveCandidateCannotReplaceActiveShip:true,missingShipBlocks:true,noFakeHistory:true,mobileOverflow:false,errors,bad}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

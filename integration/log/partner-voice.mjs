@@ -1,7 +1,9 @@
 // Dialogue for the existing hauling partners. No localization or game-patch imports.
 const navigator={
  name:'수석 항해사',portrait:'navigator',
- queuedContracts:'새 계약을 대기 목록에 보관했습니다. 현재 항로는 유지하겠습니다. 함께 운송하시려면 계약 목록에서 선택해 주십시오.',
+ queuedContracts:'새 계약이 들어왔습니다. 현재 항로에 추가할지, 다음 계획으로 남길지 선택해 주십시오. 결정 전까지 현재 안내를 유지하겠습니다.',
+ contractChoice:'함장님, 이 계약을 현재 항로에 추가하시겠습니까? 다음 계획으로 남겨두실 수도 있습니다.',
+ contractDeferred:'다음 계획으로 남겨두었습니다. 필요하시면 현재 항로에 추가하실 수 있습니다.',
  cargoUndoHelp:'잘못 기록한 배송을 되돌립니다. 상자가 이전 적재 위치에 있는지 먼저 확인해 주십시오.',
  cargoCheck:'함장님, 실제 화물 상태를 확인하겠습니다. 실린 화물의 위치는 유지하고, 배송하신 상자만 계획에서 정리하겠습니다.',
  cargoLockHelp:'예약 영역은 공간만 유지합니다. 영역을 사용한다고 픽업을 완료한 것으로 기록하지 않습니다.',
@@ -28,7 +30,9 @@ const navigator={
 };
 const operator={
  name:'브리지 오퍼레이터',portrait:'aide',
- queuedContracts:'함장님, 새 계약은 받아뒀어요! 지금 항로는 그대로 안내할게요. 같이 가실 계약은 목록에서 골라 주세요.',
+ queuedContracts:'함장님, 새 계약이 들어왔어요! 지금 같이 갈지 다음 계획으로 남길지 골라 주세요. 고르실 때까지 지금 항로는 그대로 안내할게요.',
+ contractChoice:'함장님, 이 계약도 지금 같이 갈까요? 다음 계획으로 남겨두셔도 돼요!',
+ contractDeferred:'다음 계획으로 남겨뒀어요. 지금 같이 가고 싶으시면 언제든 추가해 주세요!',
  cargoUndoHelp:'잘못 기록한 배송은 되돌릴 수 있어요. 상자가 전에 기록한 자리에 있는지 확인해 주세요!',
  cargoCheck:'함장님, 지금 실린 화물을 알려 주세요! 그 자리는 그대로 두고, 배송한 상자만 정리할게요.',
  cargoLockHelp:'예약 영역은 자리만 잡아둘게요. 실제로 픽업을 끝냈다는 뜻으로 쓰지는 않아요.',
