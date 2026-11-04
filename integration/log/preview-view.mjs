@@ -1,3 +1,4 @@
+import {cargoContinuityDialog} from './cargo-continuity-view.mjs';
 import {partnerVoice} from './partner-voice.mjs';
 import {personalNavigation} from './personal-locations.mjs';
 import {boxEditor} from './box-editor.mjs';
@@ -17,10 +18,12 @@ const boxText = boxes => {
   return [...counts].sort((a,b) => b[0]-a[0]).map(([size,count]) => `${size} SCU × ${count}개`).join(' + ');
 };
 
-export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, session = createPreviewSession()}) {
+export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, onCargoChange=()=>{}, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
   let settleCalculation, lastResult=null;
   let boxOverrides={};
+  let lockedGridIndices=new Set();
+  function refreshGridLocks(){const excluded=session.retained?.snapshot().records||[],ignored=new Set(excluded.map(r=>r.id)),active=session.continuity.snapshot().records.filter(r=>!ignored.has(r.id));lockedGridIndices=new Set([...excluded,...active].filter(r=>r.ship?.id===ship.id).flatMap(r=>r.boxes.filter(b=>b.state!=='delivered').map(b=>b.bin)));}
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
   const events = new AbortController();
   const prefs = session.preferences;
@@ -51,6 +54,8 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   const mapHost=el('div');mapHost.className='preview-map-host';
   const cargoHost=el('section');cargoHost.className='preview-cargo-host';
   const cargoHeader=el('div');cargoHeader.className='preview-cargo-header';cargoHeader.append(el('h3','화물 배치'),cargoPartner.root);
+  const cargoState=el('button','적재 상태 확인');cargoState.type='button';cargoState.disabled=true;cargoState.className='cargo-state-action';cargoHeader.append(cargoState);
+  cargoState.onclick=()=>{try{if(!lastResult?.packing)return;step.value='all';step.onchange?.();cargoContinuityDialog({plan:lastResult,store:session.continuity,partner:partner.value,getPlan:()=>lastResult,onApply:locationId=>{session.setPreferences({startId:locationId});fillStarts();signature='';onCargoChange();updateContracts(contracts);}});}catch(e){status.textContent=e.message;}};
   cargoHost.append(cargoHeader,canvas);visuals.append(mapHost,cargoHost);
   const metrics=el('div');metrics.className='preview-metrics';metrics.setAttribute('aria-label','운송 계획 요약');
   const modeBar=el('div');modeBar.className='preview-view-modes';modeBar.setAttribute('aria-label','지도와 적재 화면');
@@ -145,10 +150,10 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   function invalidate(message) {
     resetFlight();renderShipSummary(); stop(); step.replaceChildren(); itinerary.replaceChildren(); instructions.replaceChildren(); warnings.replaceChildren();
     metrics.replaceChildren();previous.disabled=next.disabled=true;mapView?.setResult(null);
-    view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
+    lastResult=null;cargoState.disabled=true;refreshGridLocks();view?.update(null,{ship}); status.textContent = message || '변경 사항을 반영하고 있습니다…';
   }
   function dispose() {
-    panel.insertBefore(left,center);setControlMode(false);resetFlight(); closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; open.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length);open.hidden=false;
+    panel.insertBefore(left,center);setControlMode(false);resetFlight(); closed = true; opening++; stop(); view?.dispose(); view = null;mapView?.dispose();mapView=null; panel.hidden = true; open.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length;open.hidden=false;
   }
   close.onclick = dispose; retry.onclick = () => { dispose(); open.click(); };
   function captureDraft(f) {
@@ -214,15 +219,15 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   function updateContracts(next) {
     next = Array.isArray(next) ? next : next ? [next] : [];
     if(session.removalPending?.size){contracts=next;stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';return;}
-    const key = JSON.stringify([next.map(c=>previewContractSignature(c,catalog,locations)),session.retained?.snapshot()]);
+    const key = JSON.stringify([next.map(c=>previewContractSignature(c,catalog,locations)),session.retained?.snapshot(),session.continuity.snapshot()]);
     if (key === signature) { contracts=next;return; }
     forms.forEach(captureDraft);
     for (const contract of next) session.observe(contract);
     contracts = next; signature = key;
-    open.disabled = !closed || (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length));
+    open.disabled = !closed || (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length);
     if (!closed) {
       invalidate('선택한 계약의 근거를 다시 대조하고 있습니다.');
-      buildForms(); run.disabled = !view || (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length));
+      buildForms(); run.disabled = !view || (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length);
       scheduleCalculation();
     }
   }
@@ -235,9 +240,10 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     invalidate(); forms.forEach(captureDraft);
     const confirmations = Object.fromEntries(contracts.map(c => [c.missionId,session.draft(c.missionId)]));
     try {
+      const continuity=session.continuity.snapshot();if(continuity.error)throw Error(continuity.error);
       const held=session.retained?.snapshot();if(held?.error)throw Error(held.error);
       if(session.removalPending?.size)throw Error('제외할 계약의 남은 화물을 확인해 주세요.');
-      if (!contracts.length&&!held?.records.some(r=>r.boxes.length)) throw Error('계획할 계약을 선택해 주세요.');
+      if (!contracts.length&&!held?.records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length) throw Error('계획할 계약을 선택해 주세요.');
       if(session.boxMemory.error())throw Error(session.boxMemory.error());
       boxOverrides={};
       for(const c of contracts){
@@ -269,21 +275,22 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       try {renderResult(data.result);const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
       catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
     });
   }
   function renderResult(r) {
-    lastResult=r;
+    options(step,[{id:'all',name:'전체 화물'}]);step.value='all';step.onchange=null;
+    refreshGridLocks();lastResult=r;cargoState.disabled=!r.packing||!r.packing.boxes.some(b=>!b.retained)&&!session.continuity.snapshot().records.some(saved=>saved.ship.id===r.ship.id&&r.contracts.some(c=>c.id===saved.id)&&saved.boxes.some(b=>b.state==='delivered'));
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));
     panel.dataset.packingMode=r.scope;
     if(r.scope==='destination-space-reservation'){
       renderShipSummary(r);flightRoute=r.route;launch.disabled=!mapView||!r.routeReady||r.route.visits.length<2;mapView?.setResult(r);
-      status.textContent=`공간 예약 · ${r.totalScu} SCU · ${r.boxCount}개 배치 블록${r.partial?' · 확인된 일부 화물만 포함':''}. 실제 상자 개수와 다를 수 있습니다.${r.retainedScu?` 함선에 남은 화물 ${r.retainedScu} SCU의 위치는 유지합니다.`:''}`;
+      status.textContent=`공간 예약 · ${r.totalScu} SCU · ${r.boxCount}개 배치 블록${r.partial?' · 확인된 일부 화물만 포함':''}. 실제 상자 개수와 다를 수 있습니다.${r.retainedScu?` 함선에 남은 화물 ${r.retainedScu} SCU의 위치는 유지합니다.`:''}${r.aboardScu?` 사용자 확인 · ${r.aboardScu} SCU 위치 유지.`:''}${r.deliveredScu?` 사용자 배송 확인 · ${r.deliveredScu} SCU.`:''}`;
       const nameOf=id=>map.get(id)?.name||'배송지 확인 필요';
       view.update(r.packing,{ship:r.ship,nameOf,missionNameOf:id=>names.get(id)||'계약 미확인'});
       const showCargo=()=>{if(r.retainedScu)instructions.append(el('p',`제외한 계약의 남은 화물 · ${r.retainedScu} SCU · 위치 유지`));for(const id of [...new Set(r.rows.map(x=>x.dropoffId))]){
         instructions.append(el('h3',nameOf(id)));
-        for(const row of r.rows.filter(x=>x.dropoffId===id))instructions.append(el('p',`${row.commodity} · ${row.scu} SCU · ${row.boxSource==='user'?'사용자 지정 상자':row.boxSource==='profile'?'확인된 원래 상자':'공간 가이드 · 실물 조합 미확인'}`),el('small',names.get(row.missionId)));
+        for(const row of r.rows.filter(x=>x.dropoffId===id))instructions.append(el('p',`${row.commodity} · ${row.remainingScu??row.scu} SCU${row.deliveredScu?` (배송 확인 ${row.deliveredScu} SCU)`:''} · ${row.boxSource==='user'?'사용자 지정 상자':row.boxSource==='profile'?'확인된 원래 상자':'공간 가이드 · 실물 조합 미확인'}`),el('small',names.get(row.missionId)));
       }};
       showCargo();
       if(r.routeReady){
@@ -374,7 +381,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   partner.onchange = () => { session.setPreferences({partner:partner.value}); describePartner(); invalidate();scheduleCalculation(); };
   select.onchange = () => { session.setPreferences({shipId:select.value}); ship = currentShip(); invalidate();scheduleCalculation(); };
   open.onclick = async ({planOnOpen=true}={}) => {
-    if (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)) return;
+    if (!contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length) return;
     const accountCard=document.getElementById('flight-ready-host')||document.getElementById('workspace-account');
     if(accountCard)accountCard.after(left);else document.querySelector('.log-contract-rail')?.prepend(left);
     closed = false; open.disabled = true;open.hidden=true; panel.hidden = false; retry.hidden = true;
@@ -388,10 +395,10 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       ships = [DEFAULT_SHIP,...(await response.json()).filter(s => s.id !== DEFAULT_SHIP.id)];
       for(const saved of session.savedShips())try{const custom=validateShip(saved);if(!ships.some(s=>s.id===custom.id))ships.push(custom);}catch{ /* Retain invalid originals in storage; do not calculate with them. */ }
       if (closed || generation !== opening) return;
-      ship = currentShip(); options(select,ships); select.value = ship.id;
-      select.disabled = start.disabled = partner.disabled = false; run.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length);
-      view = renderer.createCargoView(canvas,{isGridLocked:index=>session.retained?.snapshot().records.some(r=>r.ship?.id===ship.id&&r.boxes.some(b=>b.bin===index)),onGridToggle:index => {
-        if(session.retained?.snapshot().records.some(r=>r.ship?.id===ship.id&&r.boxes.some(b=>b.bin===index))){status.textContent='화물이 남아 있는 구역은 끌 수 없습니다.';return;}
+      ship = currentShip();refreshGridLocks(); options(select,ships); select.value = ship.id;
+      select.disabled = start.disabled = partner.disabled = false; run.disabled = !contracts.length&&!session.retained?.snapshot().records.some(r=>r.boxes.length)&&!session.continuity.snapshot().records.length;
+      view = renderer.createCargoView(canvas,{isGridLocked:index=>lockedGridIndices.has(index),onGridToggle:index => {
+        if(lockedGridIndices.has(index)){status.textContent='화물이 남아 있는 구역은 끌 수 없습니다.';return;}
         const disabled = new Set(ship.grids.filter(g => g.disabled).map(g => g.id)), key = ship.grids[index].id;
         if (disabled.has(key)) disabled.delete(key); else disabled.add(key);
         ship = selectShipGrids(ship,[...disabled]); session.setDisabled(ship.id,[...disabled]);

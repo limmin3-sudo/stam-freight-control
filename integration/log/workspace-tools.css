@@ -18,3 +18,11 @@
 .contract-removal{max-width:min(620px,90vw);max-height:85vh;overflow:auto;background:#0b1b26;color:#dce9f2;border:1px solid #49616f;border-radius:12px;padding:22px}.contract-removal::backdrop{background:#000a}.contract-removal label{display:block;margin:10px 0}.contract-removal input{margin-right:8px}.contract-removal small{display:block;margin-top:12px}.retained-card{border:1px solid #987346;padding:10px;margin:10px 0;overflow-wrap:anywhere}
 
 .partner-dialogue{display:flex;align-items:flex-start;gap:12px;margin:16px 0}.partner-dialogue img{flex:none;object-fit:cover;border:1px solid #315464;border-radius:5px}.partner-dialogue strong{color:var(--cyan,#54e2ed);font-size:.85rem}.partner-dialogue p{margin:.4em 0;line-height:1.6}
+
+.cargo-state-boxes{max-height:40vh;overflow:auto;margin:12px 0}.cargo-continuity-dialog select{max-width:100%;margin:6px 0}.cargo-state-action{margin-left:auto}
+
+.cargo-state-boxes label[hidden]{display:none}
+
+.preview-cargo-header{flex-wrap:wrap}
+
+.cargo-continuity-dialog{box-sizing:border-box;width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px)}

@@ -1,3 +1,4 @@
+import {applyCargoContinuity} from './cargo-continuity.mjs';
 import {contractLocations} from './locations.mjs';
 import {definitionReference} from './catalog.mjs';
 import {SIZES,fullLoadLayout,COLORS} from '../../engine.mjs';
@@ -63,7 +64,7 @@ export function specifiedBoxes(row,value){
  if(count>2048)throw Error('상자는 2,048개까지 지정할 수 있습니다.');
  return value.boxes.map(b=>({...b}));
 }
-export function calculateReservations(previews,rawShip,stops,overrides={},retainedRecords=[]){
+export function calculateReservations(previews,rawShip,stops,overrides={},retainedRecords=[],continuityRecords=[],cargoRows=[]){
  const ship=withStacking(validateShip(rawShip)),rows=previews.flatMap(p=>p.mission.cargo.map((r,i)=>({...r,key:r.key||`${p.mission.id}:${i}`,missionId:p.mission.id})));
  const fixed=fixedRetained(ship,retainedRecords);
  if(rows.some(r=>fixed.some(b=>b.missionId===r.missionId)))throw Error('제외한 계약의 화물이 남아 있습니다. 남은 화물을 먼저 확인해 주세요.');
@@ -75,9 +76,14 @@ export function calculateReservations(previews,rawShip,stops,overrides={},retain
   const sizes=recipe?recipe.flatMap(b=>Array(b.count).fill(b.size)):guideSizes(row.scu);
   count+=sizes.length;if(count>2048)throw Error('예약 블록이 2,048개를 넘습니다. 계약을 나누어 선택해 주세요.');
   row.boxSource=manual?'user':recipe?'profile':'estimate';row.blockCount=sizes.length;
-  groups.push({rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
+  groups.push({key:row.key,rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
  }
- let packing=fullLoadLayout(groups,fixed,ship),subdivided=false;
+ const continuity=applyCargoContinuity(groups,cargoRows,ship,continuityRecords,retainedRecords);
+ for(const box of continuity.fixed)if(ids.includes(box.dropoffId))box.color=COLORS[ids.indexOf(box.dropoffId)%COLORS.length];
+ const allFixed=[...fixed,...continuity.fixed];
+ if(allFixed.length+groups.reduce((n,g)=>n+g.items.length,0)>2048)throw Error('남은 화물을 포함한 배치가 2,048개를 넘습니다. 계획할 계약을 나누어 주세요.');
+ count=allFixed.length+groups.reduce((n,g)=>n+g.items.length,0);
+ let packing=fullLoadLayout(groups,allFixed,ship),subdivided=false;
  // Only virtual guides may be divided to fit small/disabled grids. Never
  // change the counts of user-specified or confirmed physical boxes.
  for(let pass=0;!packing&&pass<5;pass++){
@@ -86,11 +92,12 @@ export function calculateReservations(previews,rawShip,stops,overrides={},retain
   const extra=groups.reduce((n,g)=>n+g.items.filter(b=>b.reservation&&b.size===largest).length,0);
   if(count+extra>2048)break;
   for(const g of groups)g.items=g.items.flatMap(b=>b.reservation&&b.size===largest?[0,1].map(i=>({...b,size:b.size/2,boxId:b.boxId+':'+i})):b);
-  count+=extra;subdivided=true;packing=fullLoadLayout(groups,fixed,ship);
+  count+=extra;subdivided=true;packing=fullLoadLayout(groups,allFixed,ship);
  }
- for(const row of rows)row.blockCount=groups.flatMap(g=>g.items).filter(b=>b.shipmentId===row.key).length;
- return {scope:'destination-space-reservation',ship,packing,rows,stops,route:null,routeReady:false,retained:fixed,retainedScu:fixed.reduce((n,b)=>n+b.size,0),
+ for(const row of rows){row.blockCount=(packing?.boxes||[...allFixed,...groups.flatMap(g=>g.items)]).filter(b=>b.shipmentId===row.key||b.rowKey===row.key).length;row.deliveredScu=continuity.progress[row.key]?.deliveredScu||0;row.remainingScu=row.scu-row.deliveredScu;}
+ count=(packing?.boxes||[...allFixed,...groups.flatMap(g=>g.items)]).filter(b=>!b.retained).length;
+ return {scope:'destination-space-reservation',ship,packing,rows,stops,route:null,routeReady:false,cargoProgress:continuity.progress,aboard:continuity.fixed,aboardScu:continuity.fixed.reduce((n,b)=>n+b.size,0),deliveredScu:Object.values(continuity.progress).reduce((n,p)=>n+p.deliveredScu,0),retained:fixed,retainedScu:fixed.reduce((n,b)=>n+b.size,0),
   contracts:previews.map(p=>({id:p.mission.id,title:p.mission.title})),contractCount:previews.length,
-  estimated:rows.some(r=>r.boxSource==='estimate'),subdivided,boxCount:count,totalScu:rows.reduce((n,r)=>n+r.scu,0),partial:previews.some(p=>p.partial),
+  estimated:rows.some(r=>r.boxSource==='estimate'),subdivided,boxCount:count,totalScu:rows.reduce((n,r)=>n+r.remainingScu,0),originalScu:rows.reduce((n,r)=>n+r.scu,0),partial:previews.some(p=>p.partial),
   currentInventoryVerified:false,remainingCargoVerified:false};
 }
