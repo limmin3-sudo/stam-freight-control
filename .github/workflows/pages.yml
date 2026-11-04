@@ -49,7 +49,7 @@ jobs:
           STAM_WEB_PUBLIC: '1'
         run: |
           npm install --prefix /tmp/stam-browser --no-save playwright@1.56.1
-          /tmp/stam-browser/node_modules/.bin/playwright install --with-deps chromium
+          export STAM_CHROMIUM_PATH="$(command -v google-chrome)"
           node scripts/check-deployed-site.mjs
           node scripts/check-unified-deck-browser.mjs
           python scripts/check-published-app.py
