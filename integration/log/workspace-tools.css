@@ -7,3 +7,10 @@
 .ready-observed{margin:12px 0;padding:12px;border:1px solid #275967;border-radius:8px;background:#0d2632}.ready-observed p{font-size:.85rem;overflow-wrap:anywhere}.ready-observed a{display:block;margin:6px 0;font-size:.75rem;color:#8acbd5}.ready-observed button{width:100%;margin-top:8px}
 
 .contract-progress{margin:0 0 12px;border:1px solid #284553;border-radius:8px;padding:9px}.contract-progress summary{cursor:pointer;color:#8cd7db;font-size:.85rem}.goal-progress,.credit-observation{display:grid;gap:5px;padding:10px 0;border-bottom:1px solid #284553;overflow-wrap:anywhere}.goal-progress small,.credit-observation small{color:#95a9b4;font-size:.75rem}#reward-observations{margin:16px 0;padding:14px;background:#0b1b26;border:1px solid #284553;border-radius:8px}
+
+.box-editor { margin: .7rem 0; padding: .65rem; border: 1px solid #31515e; border-radius: 8px; }
+.box-editor label { display: inline-flex; align-items: center; gap: .35rem; margin: .35rem .6rem .35rem 0; }
+.box-editor input { width: 5rem; }
+.box-editor button { margin: .35rem .5rem .35rem 0; }
+
+.screen-region{display:block;max-width:100%;height:auto;touch-action:none;cursor:crosshair;margin:12px 0}.screen-observation{border:1px solid #34525e;padding:10px;margin-top:8px;overflow-wrap:anywhere}#screen-watch select{max-width:100%;margin:4px;padding:6px}#screen-watch p{overflow-wrap:anywhere}

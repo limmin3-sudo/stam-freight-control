@@ -1,4 +1,5 @@
 import {personalNavigation} from './personal-locations.mjs';
+import {reservationPreview,calculateReservations,specifiedBoxes} from './reservations.mjs';
 import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 import {originalPackingPreview,resolveOriginalManifest} from './manifest.mjs';
 import {resolveBoxProfile} from './box-profiles.mjs';
@@ -23,8 +24,17 @@ export function previewOrders(contract,catalog,locations) {
   if(!pickups.length||!deliveries.length)throw Error('확인된 픽업·배송 마커가 필요합니다.');
   return {orders,reference,pickups,deliveries};
 }
-export function createPreview(contract,catalog,locations,confirmation) {
-  if(resolveOriginalManifest(contract,locations).status==='resolved-original-manifest')return originalPackingPreview(contract,locations);
+export function createPreview(contract,catalog,locations,confirmation,boxOverrides={}) {
+  const decorate=preview=>{
+    preview.mission.cargo=preview.mission.cargo.map((row,i)=>{
+      const next={...row,key:row.key||`${contract.missionId}:cargo:${i}`};
+      const boxes=specifiedBoxes(next,boxOverrides[next.key]);
+      return boxes?{...next,boxes,boxSource:'user'}:next;
+    });
+    return preview;
+  };
+  if(resolveOriginalManifest(contract,locations).status==='resolved-original-manifest')return decorate(originalPackingPreview(contract,locations));
+  if(confirmation?.confirmed!==true){try{return decorate(reservationPreview(contract,catalog,locations));}catch(e){if(Object.keys(boxOverrides).some(k=>k.startsWith(contract.missionId+':')))throw e;}}
   const input=previewOrders(contract,catalog,locations);
   if(confirmation?.confirmed!==true||confirmation.rows?.length!==input.orders.length)throw Error('주문별 수량과 경로를 확인해 주세요.');
   const cargo=input.orders.map((order,i)=>{
@@ -34,9 +44,9 @@ export function createPreview(contract,catalog,locations,confirmation) {
     return {commodity:order.name,scu:row.scu,pickupId:row.pickupId,dropoffId:row.dropoffId,
       maxBoxSize:order.maxBoxScu,_maxBoxSource:'wiki',boxes:[],orderIndex:i};
   });
-  return {scope:'estimated-original-contract-preview',mission:{id:contract.missionId,title:contract.title,cargo},
+  return decorate({scope:'estimated-original-contract-preview',mission:{id:contract.missionId,title:contract.title,cargo},
     evidence:{allocation:'user-confirmed-per-order',boxComposition:'estimated-max-per-order',source:input.reference.source,version:input.reference.version},
-    currentInventoryVerified:false,remainingCargoVerified:false};
+    currentInventoryVerified:false,remainingCargoVerified:false});
 }
 
 // Readiness is recomputed from evidence, not from a caller's saved planning flag.
@@ -44,7 +54,7 @@ export function createPreview(contract,catalog,locations,confirmation) {
 export function previewReadiness(contract,catalog,locations) {
   try {
     const preview=createPreview(contract,catalog,locations);
-    return {ready:true,preview,label:'경로·수량·상자 자동 연결'};
+    return {ready:true,preview,reservation:preview.scope==='destination-space-reservation',label:preview.scope==='destination-space-reservation'?(preview.partial?'확인된 일부 화물 · 공간 예약 가능':'배송지·총량 연결 · 공간 예약 가능'):'경로·수량·상자 자동 연결'};
   } catch {
     try {
       const input=previewOrders(contract,catalog,locations);
@@ -78,14 +88,15 @@ export function previewLocations(locationData) {
 }
 
 export function calculatePreview({contract, contracts = contract ? [contract] : [], catalogData, locationData,
-  confirmation, confirmations = {}, locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
+  confirmation, confirmations = {}, boxOverrides = {}, locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
   if (!contracts.length || contracts.length > MAX_PREVIEW_CONTRACTS ||
       new Set(contracts.map(c => c.missionId)).size !== contracts.length)
     throw Error(`서로 다른 계약을 1~${MAX_PREVIEW_CONTRACTS}개 선택해 주세요.`);
   if (!['navigator', 'operator'].includes(partner)) throw Error('운항 파트너를 선택해 주세요.');
   const catalog = new Map(catalogData), locations = locationIndex(locationData);
   const previews = contracts.map(c => createPreview(c, catalog, locations,
-    confirmations[c.missionId] || (contracts.length === 1 ? confirmation : undefined)));
+    confirmations[c.missionId] || (contracts.length === 1 ? confirmation : undefined),boxOverrides));
+  if(previews.some(p=>p.scope==='destination-space-reservation'))return calculateReservations(previews,rawShip,personalNavigation(locationData,locationEdits).locations,boxOverrides);
   const missions = previews.map(p => p.mission);
   // Bound work before allocating boxes. Larger jobs can be split explicitly;
   // never silently truncate a selected contract or its cargo.
@@ -126,7 +137,7 @@ export function calculatePreview({contract, contracts = contract ? [contract] : 
   return {scope: 'original-contracts-preview', ship, packing, route, stops: routeLocations, routeEvidence,
     warnings: [...new Set([...warnings,...(locationEdits.length?['개인 장소의 좌표·이름을 예상 경로에 적용했습니다. 로그 목적지 판별에는 공개 좌표만 사용합니다.']:[])])], partner, contractCount: contracts.length,
     contracts: contracts.map(c => ({id: c.missionId, title: c.title})),
-    estimated: shipments.some(s => s.estimated),
+    estimated: shipments.some(s => s.estimated),userBoxes:previews.some(p=>p.mission.cargo.some(c=>c.boxSource==='user')),
     boxCount, totalScu: shipments.reduce((n,s) => n+s.scu, 0),
     currentInventoryVerified: false, remainingCargoVerified: false};
 }

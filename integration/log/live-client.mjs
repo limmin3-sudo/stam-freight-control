@@ -69,5 +69,5 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
   }
   document.addEventListener('visibilitychange', wake);
   timer = setTimeout(poll, 0);
-  return { preparePreview: () => request('/api/preview-assets', 'POST', 20000), disconnect, pause: () => control('pause'), resume: () => control('resume') };
+  return { prepareScreen: () => request('/api/screen-assets', 'POST', 210000), preparePreview: () => request('/api/preview-assets', 'POST', 20000), disconnect, pause: () => control('pause'), resume: () => control('resume') };
 }
