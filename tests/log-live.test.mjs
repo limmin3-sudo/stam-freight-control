@@ -119,7 +119,12 @@ test('fatal parse limits retain last good snapshot instead of publishing partial
   const s = await setup(t);
   await until(async () => (await s.status()).revision === 1);
   const before = await s.snapshot();
-  await appendFile(s.file, accept(b) + marker(b) + 'x'.repeat(128 * 1024 + 1) + '\n');
+  // Stage a complete failing batch before the collector can see it. An async
+  // append may expose valid rows first; publishing those is a legitimate prior
+  // snapshot, not partial publication of the later failed read.
+  const replacement = join(s.dir, 'complete-failing-batch.log');
+  await writeFile(replacement, accept(a) + marker(a) + accept(b) + marker(b) + 'x'.repeat(128 * 1024 + 1) + '\n');
+  await rename(replacement, s.file);
   await until(async () => (await s.status()).phase === 'error');
   assert.equal((await s.status()).lastError, 'line-limit');
   assert.deepEqual(await s.snapshot(), before);
