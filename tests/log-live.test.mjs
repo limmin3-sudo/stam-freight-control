@@ -25,6 +25,15 @@ async function setup(t, initial = accept(a) + marker(a)) {
   const snapshot = async () => (await api('/api/snapshot')).json();
   return { dir, file, service, api, status, snapshot };
 }
+// Windows may briefly deny replacement while the read-only collector holds a
+// descriptor. Retry the fixture writer, never relax the snapshot assertion.
+async function replaceFixture(source,target) {
+  const deadline=Date.now()+2000;
+  for(;;)try{return await rename(source,target);}catch(error){
+    if(process.platform!=='win32'||!['EPERM','EBUSY','EACCES'].includes(error.code)||Date.now()>=deadline)throw error;
+    await delay(20);
+  }
+}
 async function until(fn) {
   const deadline = Date.now() + 4000;
   while (Date.now() < deadline) { const value = await fn(); if (value) return value; await delay(20); }
@@ -124,7 +133,7 @@ test('fatal parse limits retain last good snapshot instead of publishing partial
   // snapshot, not partial publication of the later failed read.
   const replacement = join(s.dir, 'complete-failing-batch.log');
   await writeFile(replacement, accept(a) + marker(a) + accept(b) + marker(b) + 'x'.repeat(128 * 1024 + 1) + '\n');
-  await rename(replacement, s.file);
+  await replaceFixture(replacement, s.file);
   await until(async () => (await s.status()).phase === 'error');
   assert.equal((await s.status()).lastError, 'line-limit');
   assert.deepEqual(await s.snapshot(), before);
