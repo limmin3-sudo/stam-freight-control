@@ -1,5 +1,6 @@
 // Dialogue for the existing hauling partners. No localization or game-patch imports.
 const navigator={
+ rewardUnassigned:'함장님, 지급은 확인했으나 어느 계약의 보상인지는 기록에 없습니다. 완료하신 계약과 대조해 주십시오. 확인 전까지 연결을 보류하겠습니다.',
  name:'수석 항해사',portrait:'navigator',
  queuedContracts:'새 계약이 들어왔습니다. 현재 항로에 추가할지, 다음 계획으로 남길지 선택해 주십시오. 결정 전까지 현재 안내를 유지하겠습니다.',
  contractChoice:'함장님, 이 계약을 현재 항로에 추가하시겠습니까? 다음 계획으로 남겨두실 수도 있습니다.',
@@ -29,6 +30,7 @@ const navigator={
  nextFailed:'다음 구간을 연결하지 못했습니다. 항로를 확인해 주십시오.'
 };
 const operator={
+ rewardUnassigned:'함장님, 지급 알림이 들어왔어요! 어느 계약 보상인지는 아직 모르겠어요. 확인되면 아래에서 연결해 주세요. 그전까지 따로 보관할게요.',
  name:'브리지 오퍼레이터',portrait:'aide',
  queuedContracts:'함장님, 새 계약이 들어왔어요! 지금 같이 갈지 다음 계획으로 남길지 골라 주세요. 고르실 때까지 지금 항로는 그대로 안내할게요.',
  contractChoice:'함장님, 이 계약도 지금 같이 갈까요? 다음 계획으로 남겨두셔도 돼요!',

@@ -30,6 +30,8 @@ try{
  assert.equal(await page.locator('#planning-contracts input:checked').count(),2);
  await appendFile(file,notice('Contract Complete: Synthetic cargo',ids[0],3));
  await page.waitForFunction(id=>document.querySelector(`[data-progress="${id}"] summary`)?.textContent==='계약 완료 기록',ids[0]);
+ await page.getByRole('dialog',{name:'계약 제외',exact:true}).getByLabel('없습니다',{exact:true}).check();
+ await page.getByRole('button',{name:'운송 계획에서 제외',exact:true}).click();
  assert.equal(await page.locator('#planning-contracts input:checked').count(),1);
  assert.equal(await page.locator(`#planning-contracts input[data-mission="${ids[1]}"]`).isChecked(),true);
  const reward=notice('50250 aUEC 지급',zero,4);await appendFile(file,reward+reward);
