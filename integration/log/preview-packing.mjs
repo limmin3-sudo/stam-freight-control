@@ -1,4 +1,6 @@
 import {personalNavigation} from './personal-locations.mjs';
+import {connectReservationRoute} from './reservation-route.mjs';
+import {fixedRetained} from './retained-cargo.mjs';
 import {reservationPreview,calculateReservations,specifiedBoxes} from './reservations.mjs';
 import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 import {originalPackingPreview,resolveOriginalManifest} from './manifest.mjs';
@@ -88,15 +90,16 @@ export function previewLocations(locationData) {
 }
 
 export function calculatePreview({contract, contracts = contract ? [contract] : [], catalogData, locationData,
-  confirmation, confirmations = {}, boxOverrides = {}, locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
-  if (!contracts.length || contracts.length > MAX_PREVIEW_CONTRACTS ||
+  confirmation, confirmations = {}, boxOverrides = {}, retainedRecords = [], locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
+  const retained=fixedRetained(rawShip,retainedRecords);
+  if ((!contracts.length&&!retained.length) || contracts.length > MAX_PREVIEW_CONTRACTS ||
       new Set(contracts.map(c => c.missionId)).size !== contracts.length)
     throw Error(`서로 다른 계약을 1~${MAX_PREVIEW_CONTRACTS}개 선택해 주세요.`);
   if (!['navigator', 'operator'].includes(partner)) throw Error('운항 파트너를 선택해 주세요.');
   const catalog = new Map(catalogData), locations = locationIndex(locationData);
   const previews = contracts.map(c => createPreview(c, catalog, locations,
     confirmations[c.missionId] || (contracts.length === 1 ? confirmation : undefined),boxOverrides));
-  if(previews.some(p=>p.scope==='destination-space-reservation'))return calculateReservations(previews,rawShip,personalNavigation(locationData,locationEdits).locations,boxOverrides);
+  if(retained.length||previews.some(p=>p.scope==='destination-space-reservation'))return connectReservationRoute(calculateReservations(previews,rawShip,personalNavigation(locationData,locationEdits).locations,boxOverrides,retainedRecords),previews,{startId,partner});
   const missions = previews.map(p => p.mission);
   // Bound work before allocating boxes. Larger jobs can be split explicitly;
   // never silently truncate a selected contract or its cargo.

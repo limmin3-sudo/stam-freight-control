@@ -2,6 +2,7 @@ import {contractLocations} from './locations.mjs';
 import {definitionReference} from './catalog.mjs';
 import {SIZES,fullLoadLayout,COLORS} from '../../engine.mjs';
 import {validateShip,withStacking} from '../../ships.mjs';
+import {fixedRetained} from './retained-cargo.mjs';
 
 const medium='6f207f9c-0575-4a88-82f8-ccc348eab9da',objective='7ad329fd-b582-4675-91ed-c474102627b7';
 const mediumTotals=[['Nitrogen',24,8,12],['Organics',12,4,6],['Ranta Dung',14,2,7]];
@@ -48,6 +49,7 @@ export function reservationPreview(contract,catalog,index){
  if(!rows.length)throw Error('배송지·품목·수량이 함께 확인된 화물을 기다리고 있습니다.');
  return {scope:'destination-space-reservation',mission:{id:contract.missionId,title:contract.title,cargo:rows},
   evidence:{source:reference.source,version:reference.version,allocation:'pickup-unresolved',boxComposition:'estimated-space-only',totals:mediumMatch?'user-corroborated-fixed-type':'exact-objective-log-notices'},
+  ...(mediumMatch?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
   partial:!mediumMatch,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
 export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts]);}
@@ -61,8 +63,10 @@ export function specifiedBoxes(row,value){
  if(count>2048)throw Error('상자는 2,048개까지 지정할 수 있습니다.');
  return value.boxes.map(b=>({...b}));
 }
-export function calculateReservations(previews,rawShip,stops,overrides={}){
+export function calculateReservations(previews,rawShip,stops,overrides={},retainedRecords=[]){
  const ship=withStacking(validateShip(rawShip)),rows=previews.flatMap(p=>p.mission.cargo.map((r,i)=>({...r,key:r.key||`${p.mission.id}:${i}`,missionId:p.mission.id})));
+ const fixed=fixedRetained(ship,retainedRecords);
+ if(rows.some(r=>fixed.some(b=>b.missionId===r.missionId)))throw Error('제외한 계약의 화물이 남아 있습니다. 남은 화물을 먼저 확인해 주세요.');
  if(rows.length>64)throw Error('예약할 화물 항목은 64개까지입니다.');
  const ids=[...new Set(rows.map(r=>r.dropoffId))].sort(),groups=[];let count=0;
  for(const row of rows){
@@ -73,7 +77,7 @@ export function calculateReservations(previews,rawShip,stops,overrides={}){
   row.boxSource=manual?'user':recipe?'profile':'estimate';row.blockCount=sizes.length;
   groups.push({rank:ids.indexOf(row.dropoffId)/Math.max(1,ids.length-1),items:sizes.map((size,i)=>({size,boxId:`${row.key}:reserve:${i}`,missionId:row.missionId,shipmentId:row.key,commodity:row.commodity,dropoffId:row.dropoffId,color:COLORS[ids.indexOf(row.dropoffId)%COLORS.length],reservation:row.boxSource==='estimate'}))});
  }
- let packing=fullLoadLayout(groups,[],ship),subdivided=false;
+ let packing=fullLoadLayout(groups,fixed,ship),subdivided=false;
  // Only virtual guides may be divided to fit small/disabled grids. Never
  // change the counts of user-specified or confirmed physical boxes.
  for(let pass=0;!packing&&pass<5;pass++){
@@ -82,10 +86,10 @@ export function calculateReservations(previews,rawShip,stops,overrides={}){
   const extra=groups.reduce((n,g)=>n+g.items.filter(b=>b.reservation&&b.size===largest).length,0);
   if(count+extra>2048)break;
   for(const g of groups)g.items=g.items.flatMap(b=>b.reservation&&b.size===largest?[0,1].map(i=>({...b,size:b.size/2,boxId:b.boxId+':'+i})):b);
-  count+=extra;subdivided=true;packing=fullLoadLayout(groups,[],ship);
+  count+=extra;subdivided=true;packing=fullLoadLayout(groups,fixed,ship);
  }
  for(const row of rows)row.blockCount=groups.flatMap(g=>g.items).filter(b=>b.shipmentId===row.key).length;
- return {scope:'destination-space-reservation',ship,packing,rows,stops,route:null,routeReady:false,
+ return {scope:'destination-space-reservation',ship,packing,rows,stops,route:null,routeReady:false,retained:fixed,retainedScu:fixed.reduce((n,b)=>n+b.size,0),
   contracts:previews.map(p=>({id:p.mission.id,title:p.mission.title})),contractCount:previews.length,
   estimated:rows.some(r=>r.boxSource==='estimate'),subdivided,boxCount:count,totalScu:rows.reduce((n,r)=>n+r.scu,0),partial:previews.some(p=>p.partial),
   currentInventoryVerified:false,remainingCargoVerified:false};

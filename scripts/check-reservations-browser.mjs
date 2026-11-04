@@ -15,10 +15,10 @@ try{
  const c=mediumFixture();await appendFile(file,'<2026-11-03T10:00:00.000Z> [CIG] build_version[12913470]\n'+lines(c));
  await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 1개'));
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();
- assert.equal(await page.locator('#flight-ready-action').innerText(),'공간 예약·적재 보기');await page.locator('#flight-ready-action').click();
+ assert.equal(await page.locator('#flight-ready-action').innerText(),'항로·적재 공간 확인');await page.locator('#flight-ready-action').click();
  await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 50 SCU'),null,{timeout:60000});
  assert.equal(await page.locator('.preview-workspace').getAttribute('data-packing-mode'),'destination-space-reservation');
- assert.equal(await page.locator('.preview-flight-launch').isDisabled(),true);assert.match(await page.locator('.preview-instructions').innerText(),/Nitrogen · 24 SCU/);
+ assert.equal(await page.locator('.preview-flight-launch').isDisabled(),false);assert.match(await page.locator('.preview-itinerary').innerText(),/Brio's Breaker Yard/);assert.match(await page.locator('.preview-itinerary').innerText(),/Rayari Cantwell Research Outpost/);assert.equal(await page.locator('.preview-tracking').getAttribute('data-state'),'estimated');assert.match(await page.locator('.preview-instructions').innerText(),/Nitrogen · 24 SCU/);
  await page.locator('.preview-manifest > summary').click();const editor=page.locator('[data-box-editor]').filter({has:page.locator('summary',{hasText:'Nitrogen'})});await editor.locator('summary').click();
  await editor.getByLabel('Nitrogen 8 SCU 상자 개수',{exact:true}).fill('2');await editor.getByRole('button',{name:'이 상자 구성 적용',exact:true}).click();
  assert.match(await editor.locator('[role=status]').innerText(),/8 SCU 부족/);
@@ -29,9 +29,11 @@ try{
  await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 100 SCU'),null,{timeout:60000});
  assert.equal(await page.locator('.preview-instructions h3').count(),1);
  const text=await page.locator('.preview-instructions').innerText();assert.match(text,/사용자 지정 상자/);assert.match(text,/계약 1/);assert.match(text,/계약 2/);
+ await page.locator('.preview-itinerary').getByRole('button',{name:/STANTON → PYRO · 점프/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/예약 공간을 유지/);
+ await page.locator('.preview-itinerary').getByRole('button',{name:/Chawla/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/화물 배송/);assert.match(await page.locator('.preview-calculation-status').innerText(),/100 SCU/);
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);assert.equal(await page.locator('canvas').count(),2);
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log(JSON.stringify({passed:true,mediumAutomaticReservation:true,manualCounts:true,mismatchedTotalRejected:true,noInventedPickupRoute:true,sameDestinationGrouped:true,twoContractOwnership:true,manualSurvivesNewContract:true,noFakeHistory:true,mobileOverflow:false,cleanup:true,errors,bad}));
+ console.log(JSON.stringify({passed:true,mediumAutomaticReservation:true,manualCounts:true,mismatchedTotalRejected:true,visitRouteWithoutInventedQuotas:true,jumpAndDeliveryKeepReservation:true,sameDestinationGrouped:true,twoContractOwnership:true,manualSurvivesNewContract:true,noFakeHistory:true,mobileOverflow:false,cleanup:true,errors,bad}));
 }catch(e){console.error(e);throw e;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}
