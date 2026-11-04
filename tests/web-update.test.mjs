@@ -71,6 +71,24 @@ test('manifest rejects traversal, duplicate paths, native executables and checks
   assert.throws(()=>readWebManifest({...r,id:'b'.repeat(64)}));
   assert.throws(()=>readWebManifest({...r,files:[{...r.files[0],bytes:128*1024*1024}]}));
 });
+test('HTTP compression overhead is not mistaken for decoded size; decoded excess still rejects',async t=>{
+ const directory=await mkdtemp(path.join(tmpdir(),'stam-web-encoding-'));
+ t.after(()=>rm(directory,{recursive:true,force:true}));
+ const remote=release('compressed');let excess=false;
+ const fetchImpl=async url=>{
+  const name=String(url).slice(WEB_CHANNEL.length);
+  if(name==='web-release.json')return new Response(JSON.stringify(remote.manifest));
+  const original=remote.objects.get(name.split('/')[1]);
+  const body=excess?Buffer.concat([original,Buffer.from('extra')]):original;
+  return new Response(body,{headers:{'content-encoding':'gzip','content-length':String(excess?1:original.length+20)}});
+ };
+ const manager=createWebUpdates({directory,fetchImpl});await manager.check();assert.equal(manager.status().phase,'ready');
+ const before=await readFile(path.join(directory,'ready.json'),'utf8');
+ await rm(path.join(directory,'objects',remote.manifest.files[0].sha256));excess=true;
+ await createWebUpdates({directory,fetchImpl}).check();
+ assert.equal(await readFile(path.join(directory,'ready.json'),'utf8'),before);
+ assert.equal(await createWebUpdates({directory,fetchImpl}).select(),null,'oversized decoded data cannot form a valid cache');
+});
 test('cached release serves new frontend files with the same protected bridge, without mixing bundled files',async t=>{
   const f=await fixture(t);await f.manager().check();const manager=f.manager(),webBundle=await manager.select();
   const file=path.join(f.directory,'Game.log');await writeFile(file,'');
