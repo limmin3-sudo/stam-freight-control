@@ -121,3 +121,6 @@ button{background:var(--surface2);border-color:var(--line);color:var(--text)}
 dialog::backdrop,.ready-briefing::backdrop,.user-contract-dialog::backdrop{backdrop-filter:none;background:#020810e8}
 .rail-cargo-open.has-new-contracts{border-color:#efba72}.rail-cargo-open.has-new-contracts small{color:#efba72}
 .workspace-page{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;padding:0;margin:0;background:#08121b}.workspace-page:not([open]){display:none}.workspace-page iframe{display:block;width:100%;height:100%;border:0}body:has(.workspace-page[open]){overflow:hidden}
+
+/* Keep the entire chart in the viewport when route controls are present. */
+@media(min-width:901px){.preview-workspace:not(.preview-control-mode):not(.deck-idle) .preview-map-viewport{height:max(480px,calc(100dvh - 420px))}}

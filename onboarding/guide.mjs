@@ -5,7 +5,7 @@ const chapters=koreanChapters.map((c,i)=>en?{...c,...englishChapters[i]}:c);
 const $=id=>document.getElementById(id);let current=0;
 const screens={
  bridge:{file:'flight-deck.jpg',alt:t('STAM 관제의 함선 설정, 중앙 지도와 방문 순서','STAM flight setup, central starmap and stop sequence'),tip:t('왼쪽에서 출항을 준비하고, 오른쪽에서 방문 순서를 확인해요. 적재 3D는 지도 아래에 있어요, 함장님.','Get ready on the left and check your stops on the right. Cargo 3D is below the map, Captain.')},
- download:{file:'launcher.png',alt:t('Windows 관제 연결 앱의 로그 선택 화면','Windows companion log selection'),tip:t('압축을 전부 풀고 STAM.exe를 실행해 주세요. 로그를 연결하면 관제로 안내할게요.','Extract the whole ZIP and launch STAM.exe. Connect your log and I’ll bring up the flight deck.')},
+ download:{file:en?'launcher-en.png':'launcher.png',alt:t('Windows 관제 연결 앱의 로그 선택 화면','Windows companion log selection'),tip:t('압축을 전부 풀고 STAM.exe를 실행해 주세요. 로그를 연결하면 관제로 안내할게요.','Extract the whole ZIP and launch STAM.exe. Connect your log and I’ll bring up the flight deck.')},
  ready:{file:'partner-ready.jpg',alt:t('오퍼레이터와 항해사 선택 화면','Bridge Operator and Chief Navigator selection'),tip:t('함장님 스타일에 맞는 파트너를 골라 주세요. 함선과 출발지도 함께 확인하면 돼요.','Choose your flight partner, Captain. Then check your ship and departure point.')},
  contracts:{file:'contract-reception.jpg',alt:t('게임에서 수락한 운송 계약의 접수 상태','Reception of hauling contracts accepted in game'),tip:t('들어온 계약은 여기에서 확인해요. 필요한 내용이 빠졌다면 그 계약만 따로 확인할 수 있어요.','Incoming contracts appear here. If something is missing, open that contract and check the details.')},
  cargo:{file:'cargo-layout.jpg',alt:t('배송지별로 구분한 실제 STAM 적재 계획 화면','STAM cargo plan grouped by delivery location'),tip:t('같은 색은 같은 배송지예요. 어디에 내릴 화물인지 확인하고 가까이 모아 주세요.','Matching colours mean the same destination. Keep those containers close together for unloading.')},

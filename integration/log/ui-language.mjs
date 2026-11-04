@@ -41,7 +41,7 @@ const EXTRA_PATTERNS=[
 [/^(\d+)개 · 총 (\d+) SCU\. 포드의 길이와 반 높이를 유지해 배치합니다\.$/,"$1 pods · $2 SCU. Preserves the pod footprint and half-height stacking."]
 ];
 const patterns=[...EXTRA_PATTERNS,...PATTERNS].map(([re,to])=>[new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g'),to]);
-export function englishUI(value){if(typeof value!=='string'||!hangul.test(value))return value;let out=value;if(value==='위')return 'TOP';if(value==='아래')return 'BOTTOM';for(const [re,to] of patterns)out=out.replace(re,to);for(const [ko,en] of literals)out=out.split(ko).join(en);return hangul.test(out)?value:out;}
+export function englishUI(value){if(typeof value!=='string'||!hangul.test(value))return value;const exact=literals.find(([ko])=>ko===value.trim());if(exact)return value.replace(value.trim(),exact[1]);let out=value;if(value==='위')return 'TOP';if(value==='아래')return 'BOTTOM';for(const [re,to] of patterns)out=out.replace(re,to);for(const [ko,en] of literals)out=out.split(ko).join(en);return hangul.test(out)?value:out;}
 export function mountLanguage(){
  const host=document.getElementById('workspace-language');if(!host)return;
  let lang='ko';try{lang=localStorage.getItem('sfc-lang')==='en'?'en':'ko';}catch{}

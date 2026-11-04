@@ -62,6 +62,7 @@ internal static class Launcher {
     }
 }
 internal sealed class BridgeWindow : Form {
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
     Process child;string url;bool stopping;readonly System.Windows.Forms.Timer startup=new System.Windows.Forms.Timer{Interval=15000};
     readonly Label status=new Label(),path=new Label(),stateName=new Label();
     readonly DeckButton choose=new DeckButton(),open=new DeckButton(),stop=new DeckButton(),guide=new DeckButton();
@@ -120,7 +121,9 @@ internal sealed class BridgeWindow : Form {
         foreach(int height in new[]{108,60,114,108,64,50})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(layout);
         var heading=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Margin=Padding.Empty};heading.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,96));heading.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));heading.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));
         logo.SizeMode=PictureBoxSizeMode.Zoom;logo.Dock=DockStyle.Fill;logo.Margin=new Padding(0,0,16,22);
-        try{using(var original=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))logo.Image=new Bitmap(original);}catch{}
+        try{using(var original=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))logo.Image=new Bitmap(original);
+            using(var iconBitmap=new Bitmap(logo.Image,32,32)){IntPtr handle=iconBitmap.GetHicon();try{using(var sourceIcon=System.Drawing.Icon.FromHandle(handle))Icon=(System.Drawing.Icon)sourceIcon.Clone();}finally{DestroyIcon(handle);}}
+        }catch{}
         heading.Controls.Add(logo,0,0);
         var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty};brand.RowStyles.Add(new RowStyle(SizeType.Absolute,40));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         brand.Controls.Add(new Label{Text="STAM FREIGHT CONTROL",Dock=DockStyle.Fill,Font=new Font("Segoe UI Semibold",21,FontStyle.Bold),ForeColor=Ink,Margin=Padding.Empty});
@@ -147,7 +150,7 @@ internal sealed class BridgeWindow : Form {
         startup.Tick+=(sender,e)=>{startup.Stop();status.Text=T("연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도해 주세요.");Disconnect(false);};
         FormClosing+=(sender,e)=>{if(child!=null&&MessageBox.Show(T("로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다."),"STAM",MessageBoxButtons.YesNo)!=DialogResult.Yes){e.Cancel=true;return;}Disconnect();};
     }
-    protected override void Dispose(bool disposing){if(disposing){startup.Dispose();hints.Dispose();if(logo.Image!=null){logo.Image.Dispose();logo.Image=null;}}base.Dispose(disposing);}
+    protected override void Dispose(bool disposing){if(disposing){startup.Dispose();hints.Dispose();if(logo.Image!=null){logo.Image.Dispose();logo.Image=null;}if(Icon!=null){Icon.Dispose();Icon=null;}}base.Dispose(disposing);}
     void SelectLog(){using(var dialog=new OpenFileDialog{Title=T("Star Citizen Game.log 선택 · 읽기 전용"),Filter=T("게임 로그 (Game.log)|Game.log|로그 파일 (*.log)|*.log"),CheckFileExists=true}){
         try{if(File.Exists(settings)){string prior=File.ReadAllText(settings);if(File.Exists(prior))dialog.FileName=prior;}}catch{}
         if(dialog.ShowDialog()!=DialogResult.OK)return;

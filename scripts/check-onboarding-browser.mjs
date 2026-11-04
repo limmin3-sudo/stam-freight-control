@@ -9,7 +9,7 @@ try{
  await page.locator('#workspace-help').click();await page.waitForSelector('.workspace-page[open] iframe');const guide=await page.locator('.workspace-page iframe').elementHandle().then(n=>n.contentFrame());await guide.waitForSelector('#slide-title');assert.equal(context.pages().length,1);
  assert.equal(await guide.locator('#chapters button').count(),13);assert.equal(await guide.locator('#previous').isDisabled(),true);
  assert.equal(await guide.locator('video').evaluate(v=>v.paused&&v.preload==='none'&&!v.autoplay),true);
- for(let i=1;i<13;i++){await guide.locator('#next').click();assert.equal(await guide.locator('#counter').innerText(),`${i+1} / 13`);assert.equal(await guide.locator('#steps li').count(),i===6?4:3);}
+ for(let i=1;i<13;i++){await guide.locator('#next').click();assert.equal(await guide.locator('#counter').innerText(),`${i+1} / 13`);assert.equal(await guide.locator('#steps li').count(),3);}
  assert.equal(await guide.locator('#next').isDisabled(),true);await page.keyboard.press('ArrowLeft');assert.equal(await guide.locator('#counter').innerText(),'12 / 13');
  await guide.evaluate(()=>location.reload());await guide.waitForSelector('#slide-title');assert.equal(await guide.locator('#counter').innerText(),'12 / 13');
  await page.setViewportSize({width:390,height:844});assert.equal(await guide.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -36,7 +36,7 @@ try{
  await page.reload();await page.waitForSelector('#slide-title');assert.equal(await page.locator('#counter').innerText(),'3 / 13');assert.equal(await page.locator('html').getAttribute('lang'),'en');
  assert.match(await page.locator('#return-main').getAttribute('href'),/lang=en/);
  await page.goto(service.origin+'/patch-notes.html');await page.waitForSelector('#releases article');assert.equal(await page.locator('html').getAttribute('lang'),'en');assert.equal(/[가-힣]/.test(await page.locator('#releases').innerText()),false);const versions=await page.locator('#releases article').count();assert.ok(versions>=72);
- await page.locator('.page-language [data-lang=ko]').click();await page.waitForSelector('#releases article');assert.equal(await page.locator('#releases article').count(),versions);assert.equal(await page.locator('html').getAttribute('lang'),'ko');
+ await page.locator('.page-language [data-lang=ko]').click();await page.waitForFunction(()=>document.documentElement.lang==='ko');await page.waitForSelector('#releases article');assert.equal(await page.locator('#releases article').count(),versions);assert.equal(await page.locator('html').getAttribute('lang'),'ko');
  await page.goto(service.origin+'/download.html?lang=en');await page.waitForFunction(()=>document.querySelector('#app-download')?.textContent==='Download for Windows');assert.equal(/[가-힣]/.test(await page.locator('main').innerText()),false);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);console.log(JSON.stringify({passed:true,slides:13,keyboard:true,deepLink:true,backToMainWithoutDisconnect:true,noAutoAudio:true,videoDuration:24,mobileOverflow:false,errors,bad}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}
