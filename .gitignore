@@ -10,3 +10,5 @@ data/locations.json
 public/
 
 vendor/screen/
+
+dist/

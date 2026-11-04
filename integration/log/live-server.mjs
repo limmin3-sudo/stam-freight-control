@@ -8,6 +8,10 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ...['guide.html','download.html'].map(name=>['/'+name,['../../'+name,'text/html; charset=utf-8']]),
+  ...['guide.mjs','guide-data.mjs','download.mjs','guide.css'].map(name=>['/onboarding/'+name,['../../onboarding/'+name,name.endsWith('.css')?'text/css':'text/javascript']]),
+  ...['poster.jpg','briefing.mp4','briefing-ko.vtt'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
+  ['/data/desktop-release.json',['../../data/desktop-release.json','application/json']],
   ['/integration/log/plan-choice-store.mjs',['./plan-choice-store.mjs','text/javascript']],
   ['/integration/log/reception.mjs',['./reception.mjs','text/javascript']],
   ['/data/log-vehicle-index.mjs',['../../data/log-vehicle-index.mjs','text/javascript']],
@@ -27,7 +31,7 @@ const STATIC = new Map([
   ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
   ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
@@ -73,6 +77,7 @@ const STATIC = new Map([
   ...['view.mjs', 'view.css', 'live-client.mjs', 'state.mjs', 'lines.mjs', 'parser.mjs', 'participation.mjs', 'catalog.mjs', 'catalog-view.mjs', 'locations.mjs', 'locations-view.mjs', 'builds.mjs', 'box-profiles.mjs', 'box-profiles-view.mjs', 'manifest.mjs', 'manifest-view.mjs']
     .map(name => ['/integration/log/' + name, [name, name.endsWith('.css') ? 'text/css' : 'text/javascript']]),
 ]);
+export const logServiceFiles = () => [...STATIC.values()].map(([path])=>new URL(path,import.meta.url));
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
 
 // Local test service. It never accepts file paths over HTTP and never writes game files.

@@ -1,5 +1,10 @@
 # STAM FREIGHT CONTROL
 
+**Windows 관제 연결 앱:** 시험 브랜치에 Node 런타임 포함 `STAM.exe` 제작과 다운로드 화면을 추가했습니다. 배포 파일은 [개발판 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/rebuild.20261104.19)에서 확인하세요. ZIP 전체를 풀고 실행하면 선택한 Game.log를 읽어 기본 브라우저에 관제를 엽니다. unsigned Windows x64 휴대형 앱이며, 전체 미션 자동 명세·실게임 검증이 끝난 완성본은 아닙니다.
+
+**출항 안내:** `guide.html`은 13단계 슬라이드와 66초 오리지널 소개 영상, `download.html`은 앱 다운로드·설정 보존·지원 범위를 담습니다. 운영 Pages에는 아직 반영하지 않았습니다. [출고 점검표](docs/RELEASE-READINESS.md) · [구성 요소/영상 출처](THIRD-PARTY-NOTICES.md).
+
+
 **시험 브랜치 기본 화면:** `index.html`은 로그 연동 운송 관제입니다. 예전 `log-link.html` 주소도 같은 화면으로 연결됩니다. 기존 수동 화면은 `legacy-planner.html`에 보존했으며, 운영 GitHub Pages는 아직 기존 버전입니다.
 
 **로그 연동 개발판 실행:** [로컬 실행 안내](docs/TODAY-RUN.md). `start-log-link.cmd`로 실행하면 로컬 브라우저 화면이 열립니다. 기본 주소를 고정해 같은 브라우저의 설정을 유지합니다. 설치형 완성본은 아직 제작 전입니다.

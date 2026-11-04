@@ -70,3 +70,5 @@ main{max-width:1920px}
 .ready-partners button{word-break:keep-all;overflow-wrap:normal}
 @media(min-width:1001px){.log-workbench{grid-template-columns:260px minmax(0,1fr)}}
 @media(max-width:600px){.standby-layout{grid-template-rows:90px 55px}.workspace-standby h2{font-size:19px}}
+
+.workspace-header .workspace-tools>a{font-size:12px;padding:9px 12px;border:1px solid #294450;border-radius:5px;text-decoration:none;color:#b9e8ef;background:#10232e}

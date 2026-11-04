@@ -38,6 +38,9 @@ jobs:
           # Preserve the existing deployed app if this workflow is invoked on this branch.
           if [ -f legacy-planner.html ]; then cp legacy-planner.html public/index.html; fi
           cp -R data vendor public/
+          cp guide.html download.html public/
+          mkdir -p public/onboarding
+          cp onboarding/guide.mjs onboarding/guide-data.mjs onboarding/download.mjs onboarding/guide.css public/onboarding/
           if [ -d assets ]; then cp -R assets public/; fi
           if [ -f icon.svg ]; then cp icon.svg public/; fi
           touch public/.nojekyll
