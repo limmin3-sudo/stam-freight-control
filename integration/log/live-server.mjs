@@ -1,4 +1,5 @@
 import http from 'node:http';
+import {prepareScreenAssets,screenAssets} from './screen-assets-node.mjs';
 import { readFile } from 'node:fs/promises';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { LogEvidence } from './state.mjs';
@@ -7,8 +8,10 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
+  ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['progress.mjs','progress-view.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
@@ -122,7 +125,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
     const send = (code, body, type = 'application/json') => {
       res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-GqsWfEjHm73zbHa7lGbVXfv95jxypKuCtjd6kntjIRA=' https://www.gstatic.com https://apis.google.com; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
       res.end(body);
     };
     try {
@@ -139,6 +142,10 @@ export async function startLogService({ file, port = 0, intervalMs = 250 } = {})
         if (req.headers['transfer-encoding'] || Number(req.headers['content-length'] || 0) !== 0) { req.resume(); send(413, '{"error":"body-not-allowed"}'); return; }
         if (req.method === 'GET' && url.pathname === '/api/status') { send(200, JSON.stringify(status())); return; }
         if (req.method === 'GET' && url.pathname === '/api/snapshot') { send(200, published); return; }
+        if (req.method === 'POST' && url.pathname === '/api/screen-assets') {
+          if (req.headers.origin !== origin) { send(403, '{}'); return; }
+          await prepareScreenAssets(); send(200, '{"ready":true}'); return;
+        }
         if (req.method === 'POST' && url.pathname === '/api/preview-assets') {
           if (req.headers.origin !== origin) { send(403, '{}'); return; }
           await preparePreviewAssets(); send(200, '{"ready":true}'); return;

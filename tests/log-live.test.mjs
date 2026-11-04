@@ -128,6 +128,12 @@ test('preview asset preparation requires pairing and same origin; static closure
   const s=await setup(t);
   assert.equal((await fetch(s.service.origin+'/api/preview-assets',{method:'POST'})).status,401);
   assert.equal((await s.api('/api/preview-assets',{method:'POST'})).status,403);
+  assert.equal((await fetch(s.service.origin+'/api/screen-assets',{method:'POST'})).status,401);
+  assert.equal((await s.api('/api/screen-assets',{method:'POST'})).status,403);
+  assert.equal((await s.api('/api/screen-assets',{method:'POST',headers:{Origin:s.service.origin},body:'image'})).status,413);
+  for(const file of ['/integration/log/screen-watch.mjs','/integration/log/screen-reader.mjs','/integration/log/screen-evidence.mjs','/integration/log/reservations.mjs','/integration/log/box-editor.mjs'])
+    assert.equal((await fetch(s.service.origin+file)).status,200,file);
+  assert.equal((await fetch(s.service.origin+'/integration/log/screen-assets-node.mjs')).status,404);
   for(const file of ['/integration/log/flight-ready.mjs','/feedback-core.mjs','/feedback-data.mjs','/location-manager-core.mjs','/locations.mjs','/integration/log/personal-locations.mjs','/integration/log/workspace-tools.mjs','/integration/log/workspace-updates.mjs','/integration/log/workspace-tools.css','/data/rebuild-version.json','/data/rebuild-releases.json','/data/releases.json','/account-core.mjs','/history-core.mjs','/sync.mjs','/planning-preferences.mjs','/firebase-config.mjs','/integration/log/account-view.mjs','/integration/log/account.css','/cargo-scene.mjs','/starmap-core.mjs','/mapfx.mjs','/route-display.mjs',
     '/integration/log/preview-map.mjs','/assets/partners/navigator.jpg','/assets/partners/aide.jpg',
     '/integration/log/preview-worker.mjs','/integration/log/preview-packing.mjs','/integration/log/preview-routes.mjs','/data/ships.json'])

@@ -1,3 +1,4 @@
+import {mountScreenWatch} from './screen-watch.mjs';
 import {renderProgress,renderRewards,progressLabel} from './progress-view.mjs';
 import {createFlightReady} from './flight-ready.mjs';
 import {mountWorkspaceTools} from './workspace-tools.mjs';
@@ -86,10 +87,11 @@ function updatePlanSelection() {
   const chosen = snapshot.contracts.filter(c => selectedContracts.has(c.missionId));
   $('planning-count').textContent = `선택한 계약 ${chosen.length}개 · 한 번에 최대 12개`;
   planner?.updateContracts(chosen);
-  flightReady.update({selected:chosen.length,blocked:chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:snapshot.pendingContracts?.length||0});
+  flightReady.update({selected:chosen.length,reservations:chosen.filter(c=>previewReadiness(c,catalog,locations).reservation).length,blocked:chosen.filter(c=>!previewReadiness(c,catalog,locations).ready&&!previewSession.draft(c.missionId).confirmed).length,pending:snapshot.pendingContracts?.length||0});
 }
 let locationData,personalEdits=[];
 let cancelled = false, displayed = 0, snapshot, catalog, locations, live, liveStatus;
+const screenWatch=mountScreenWatch($('screen-watch'),{prepare:()=>live?.prepareScreen(),getSnapshot:()=>snapshot,isLive:()=>!!live&&liveStatus?.phase==='watching'});
 const workspaceTools=mountWorkspaceTools({
   context:()=>({contracts:snapshot?.contracts?.length||0,pendingContracts:snapshot?.pendingContracts?.length||0}),
   onLocations:async edits=>{
@@ -98,7 +100,7 @@ const workspaceTools=mountWorkspaceTools({
     renderPlanning();if(reopen)planner?.root.querySelector('.preview-launch')?.click();
   },
 });
-window.addEventListener('pagehide',event=>{if(!event.persisted){workspaceTools.destroy();flightReady.destroy();}});
+window.addEventListener('pagehide',event=>{if(!event.persisted){workspaceTools.destroy();flightReady.destroy();screenWatch.destroy();}});
 const locationsReady = fetch(new URL('../../data/log-location-index.json', import.meta.url))
   .then(r => { if (!r.ok) throw new Error('locations-unavailable'); return r.json(); })
   .then(data => { locationData=data; locations = locationIndex(data);personalEdits=workspaceTools.setLocations(data);flightReady.setLocations(data,personalEdits); if (snapshot) renderSnapshot(snapshot); }).catch(() => {});
@@ -191,6 +193,7 @@ function renderSnapshot(next) {
   const open = new Set([...document.querySelectorAll('.contract[open]')].map(node => node.dataset.mission));
   const visible = Math.max(50, displayed);
   snapshot = next;
+  screenWatch.update();
   renderRewards($('reward-observations'),snapshot.rewards);
   flightReady.observations(snapshot.identity?.mixedPlayers?null:snapshot.navigation,liveStatus);
   displayed = 0;
@@ -228,6 +231,7 @@ $('files').addEventListener('change', async () => {
     $('progress').textContent = '한 번에 64개·512MB 이하의 로그를 선택해 주세요.';
     return;
   }
+  void screenWatch.stop();screenWatch.reset();
   closePreviews();
   cancelled = false;
   snapshot = null;
@@ -281,6 +285,7 @@ const phaseLabels = {
   error: '감시가 중단되었습니다. 마지막 정상 기록만 표시합니다. 실행 도우미를 다시 시작해 주세요.',
 };
 function showLiveStatus(status) {
+  if(liveStatus&&status.generation!==liveStatus.generation)screenWatch.reset();
   liveStatus = status;
   flightReady.observations(snapshot?.identity?.mixedPlayers?null:snapshot?.navigation,status);
   $('live-status').textContent = phaseLabels[status.phase] || '연결 상태 미확인';
@@ -297,6 +302,7 @@ live = connectLive({
     $('live-pause').disabled = true;
   },
   onDisconnect: () => {
+    void screenWatch.stop();
     live = null;
     liveStatus = null;
     flightReady.observations(null,null);

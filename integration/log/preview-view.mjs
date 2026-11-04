@@ -1,4 +1,5 @@
 import {personalNavigation} from './personal-locations.mjs';
+import {boxEditor} from './box-editor.mjs';
 import {createPreview, previewReadiness, previewContractSignature} from './preview-packing.mjs';
 import {createPreviewSession} from './preview-session.mjs';
 import {createPreviewMap,partnerBadge} from './preview-map.mjs';
@@ -18,13 +19,14 @@ const boxText = boxes => {
 export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
   let settleCalculation;
+  const boxOverrides={};
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
   const events = new AbortController();
   const prefs = session.preferences;
   const root = el('section'); root.className = 'preview-panel';
   const open = el('button', '운송 관제 열기'), panel = el('div'), status = el('p');
   open.className='preview-launch';panel.className='preview-workspace';
-  status.setAttribute('role', 'status'); panel.hidden = true; root.append(open, panel);
+  status.setAttribute('role', 'status'); status.className='preview-calculation-status'; panel.hidden = true; root.append(open, panel);
   const close = el('button', '관제 닫기'), retry = el('button', '3D 준비 다시 시도'); retry.hidden = true;
   const form = el('div'), controls = el('div'); controls.className = 'preview-controls';
   const select = el('select'), start = el('select'), partner = el('select'), step = el('select'), search = el('input');
@@ -164,8 +166,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
         group.append(el('p',readiness.label));
         if(readiness.ready) {
           const names=new Map(available.map(p=>[p.id,p.name]));
-          for(const c of readiness.preview.mission.cargo)group.append(el('p',
-            `${c.commodity} · ${c.scu} SCU · ${names.get(c.pickupId)} → ${names.get(c.dropoffId)} · ${c.boxes.length?c.boxes.map(b=>`${b.size} SCU × ${b.count}개`).join(' + '):`상한 ${c.maxBoxSize} SCU 기준 예상 구성`}`));
+          for(const c of readiness.preview.mission.cargo){group.append(el('p',
+            `${c.commodity} · ${c.scu} SCU · ${c.pickupId?names.get(c.pickupId):'픽업별 배분 미확인'} → ${names.get(c.dropoffId)} · ${c.boxes.length?c.boxes.map(b=>`${b.size} SCU × ${b.count}개`).join(' + '):`${c.maxBoxSize} SCU 이하 공간 가이드`}`));
+            group.append(boxEditor(c,boxOverrides[c.key],value=>{if(value)boxOverrides[c.key]=value;else delete boxOverrides[c.key];invalidate('상자 구성을 반영하고 있습니다.');scheduleCalculation();}));}
           group.append(el('small','원래 요구량입니다. 현재 실린 화물이나 남은 배송량이 아닙니다.'));
         } else if(readiness.input) {
           const input = readiness.input, draft = session.draft(contract.missionId);
@@ -230,9 +233,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
         const readiness=previewReadiness(c,catalog,locations);
         if(!readiness.ready&&!confirmations[c.missionId]?.confirmed)
           throw Error(`${c.title || '제목 미확인'}: ${readiness.label}. 이 계약을 선택 해제하면 나머지 계약을 계획할 수 있습니다.`);
-        createPreview(c,catalog,locations,confirmations[c.missionId]);
+        createPreview(c,catalog,locations,confirmations[c.missionId],boxOverrides);
       }
-      if (!start.value) throw Error('계획 출발지를 선택해 주세요.');
+      if (!start.value&&!contracts.some(c=>previewReadiness(c,catalog,locations).reservation)) throw Error('계획 출발지를 선택해 주세요.');
     } catch (e) { status.textContent = e.message; return; }
     const id = serial; status.textContent = '항로와 적재 순서를 계산하고 있습니다…';
     return new Promise(resolve=>{settleCalculation=resolve;
@@ -245,19 +248,34 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       if (closed || id !== serial || data.id !== id) return;
       clearTimeout(timer); worker.terminate(); worker = null;
       if (data.error) { fail(data.error); return; }
-      try {renderResult(data.result);const started=!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
+      try {renderResult(data.result);const started=data.result.scope==='destination-space-reservation'?'reservation':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
       catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
     });
   }
   function renderResult(r) {
     const map = new Map(r.stops.map(p => [p.id,p])), names = new Map(r.contracts.map((c,i) => [c.id,`계약 ${i+1} · ${c.title || '제목 미확인'}`]));
+    panel.dataset.packingMode=r.scope;
+    if(r.scope==='destination-space-reservation'){
+      renderShipSummary(r);flightRoute=null;launch.disabled=true;mapView?.setResult(null);
+      status.textContent=`공간 예약 · ${r.totalScu} SCU · ${r.boxCount}개 배치 블록${r.partial?' · 확인된 일부 화물만 포함':''}. 실제 상자 개수와 다를 수 있습니다.`;
+      const nameOf=id=>map.get(id)?.name||'배송지 확인 필요';
+      view.update(r.packing,{ship:r.ship,nameOf,missionNameOf:id=>names.get(id)||'계약 미확인'});
+      itinerary.append(el('li','배송지별 적재 공간입니다. 픽업별 배분이 확인되기 전에는 운항 순서로 사용하지 않습니다.'));
+      for(const id of [...new Set(r.rows.map(x=>x.dropoffId))]){
+        instructions.append(el('h3',nameOf(id)));
+        for(const row of r.rows.filter(x=>x.dropoffId===id))instructions.append(el('p',`${row.commodity} · ${row.scu} SCU · ${row.boxSource==='user'?'사용자 지정 상자':row.boxSource==='profile'?'확인된 원래 상자':'공간 가이드 · 실물 조합 미확인'}`),el('small',names.get(row.missionId)));
+      }
+      warnings.append(el('p','테두리는 적재 공간 예약입니다. 같은 SCU여도 실제 상자 형상·그리드 제한에 따라 다시 배치해야 할 수 있습니다. 정확한 구성이 필요하면 계약별 화물에서 상자 크기와 개수를 직접 지정해 주세요.'));
+      if(!r.packing){status.textContent+=' 현재 그리드에 전량을 배치할 수 없습니다.';warnings.append(el('p','다른 함선·사용할 그리드·직접 지정한 상자 구성을 확인해 주세요. 빈 그리드를 적재 완료로 간주하지 않습니다.'));}
+      return;
+    }
     const numbers=stepNumbers(r.route.visits,map);
     renderShipSummary(r);flightRoute=r.route;launch.disabled=!mapView||r.route.visits.length<2;
     mapView?.setResult(r);
     const nameOf = id => map.get(id)?.name || id;
-    status.textContent = `${r.estimated?'예상 상자 배치 · 실제 구성 미확인':'확인된 원래 상자 구성'} · ${r.boxCount}개 / ${r.totalScu} SCU. 현재 적재·남은 수량이 아닌 운송 계획입니다.`;
+    status.textContent = `${r.userBoxes?'사용자 지정 상자 구성 포함':r.estimated?'예상 상자 배치 · 실제 구성 미확인':'확인된 원래 상자 구성'} · ${r.boxCount}개 / ${r.totalScu} SCU. 현재 적재·남은 수량이 아닌 운송 계획입니다.`;
     for(const [value,label] of [[r.contractCount,'계약'],[`${r.totalScu} SCU`,'전체 화물'],[r.boxCount,'상자'],[`${Math.round(r.route.seconds/60)}분`,'예상 운항·작업']]){
       const metric=el('div');metric.append(el('strong',String(value)),el('small',label));metrics.append(metric);
     }
@@ -345,7 +363,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
         if(closed||generation!==opening)return;
         mapHost.replaceChildren(el('p','지도를 시작하지 못했습니다. 화물 3D와 방문 목록은 계속 사용할 수 있습니다.'));
       }
-      if (start.value) {if(planOnOpen)calculate();}
+      if (start.value||contracts.some(c=>previewReadiness(c,catalog,locations).reservation)) {if(planOnOpen)calculate();}
       else status.textContent = '처음 한 번 출발지를 선택해 주세요. 선택한 계약의 근거가 충분하면 자동으로 계산합니다.';
     } catch {
       if (!closed && generation === opening) {
