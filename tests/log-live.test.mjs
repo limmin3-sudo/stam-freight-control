@@ -68,6 +68,16 @@ test('token, host, origin and request method protect local evidence', async t =>
   assert.equal(page.status, 200);
   assert.ok(page.headers.get('content-security-policy').includes("frame-ancestors 'none'"));
   assert.equal(page.headers.get('access-control-allow-origin'), null);
+  assert.match(await page.text(), /entry-redirect.mjs/);
+  const main = await fetch(s.service.origin + '/index.html');
+  const html = await main.text();
+  assert.match(html, /id="workspace-connection"/);
+  assert.match(html, /integration\/log\/view.mjs/);
+  assert.doesNotMatch(html, /src="app.mjs"/);
+  assert.equal(await (await fetch(s.service.origin + '/')).text(), html);
+  assert.equal(new URL(s.service.url).pathname, '/index.html');
+  assert.equal((await fetch(s.service.origin + '/legacy-planner.html')).status, 404);
+  assert.equal((await fetch(s.service.origin + '/integration/log/entry-redirect.mjs')).status, 200);
 });
 
 test('pause and resume retain evidence and catch up with the same selected log', async t => {

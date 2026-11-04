@@ -13,6 +13,8 @@ on:
       - 'data/log-mission-index.json'
       - 'data/log-location-index.json'
       - 'log-link.html'
+      - 'index.html'
+      - 'legacy-planner.html'
       - 'start-log-link.cmd'
       - 'render-loop.mjs'
       - 'scene.mjs'

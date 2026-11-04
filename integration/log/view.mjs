@@ -26,6 +26,10 @@ const el = (tag, text, className) => {
   return node;
 };
 mountAccount();
+const connection=$('workspace-connection');
+function connectionState(state,label){connection.dataset.state=state;connection.querySelector('span').textContent=label;}
+connection.onclick=()=>{const target=$('live').hidden?$('replay-controls'):$('live');target.scrollIntoView({block:'nearest',behavior:'smooth'});};
+$('workspace-help').onclick=()=>{const guide=$('run-guide');guide.open=!guide.open;if(guide.open)guide.scrollIntoView({block:'nearest',behavior:'smooth'});};
 let storage; try { storage = localStorage; } catch {}
 const previewSession = createPreviewSession(storage), planSelection=createPlanSelection(), selectedContracts=planSelection.selected;
 previewSession.retained=createRetainedCargo(storage);previewSession.removalPending=new Set();
@@ -73,7 +77,7 @@ function renderPlanning() {
   if (!planner) {
     planner = previewPanel([], {catalog, locations, locationData, locationEdits:personalEdits, onGuidance:value=>flightReady.guidance(value), onCargoChange:()=>{renderPlanning();flightReady.refresh();}, session: previewSession,
       prepareAssets: () => live?.preparePreview()});
-    $('planning-preview').append(planner.root);
+    $('planning-preview').replaceChildren(planner.root);
   }
   const entries = snapshot.contracts;
   const cargoById=new Map(previewSession.continuity.snapshot().records.map(r=>[r.id,r]));
@@ -292,6 +296,7 @@ $('files').addEventListener('change', async () => {
   $('diagnostics').hidden = true;
   $('save-report').disabled = true;
   $('progress').textContent = '로그 읽는 중 · 0%';
+  connectionState('replay','저장 로그 읽는 중');
   const state = new LogEvidence();
   let done = 0;
   try {
@@ -312,9 +317,11 @@ $('files').addEventListener('change', async () => {
     await Promise.all([catalogReady, locationsReady]);
     state.locations = locations;
     renderSnapshot(state.snapshot());
+    connectionState('replay','저장 로그 · 실시간 아님');
     $('progress').textContent = '로그 재생을 완료했습니다. 실제 운항 데이터는 변경하지 않았습니다.';
   } catch (error) {
     snapshot = null;
+    connectionState('disconnected','로그 연결 대기');
     $('progress').textContent = error.message === 'cancelled' ? '읽기를 중단했습니다. 결과를 적용하지 않았습니다.' : '로그 처리를 완료하지 못했습니다. 부분 결과는 적용하지 않습니다.';
   } finally {
     $('files').disabled = false;
@@ -335,6 +342,7 @@ const phaseLabels = {
 function showLiveStatus(status) {
   if(liveStatus&&status.generation!==liveStatus.generation)screenWatch.reset();
   liveStatus = status;
+  connectionState(status.phase,status.phase==='watching'?'로그 연결됨':status.phase==='paused'?'로그 감시 일시정지':status.phase==='error'?'로그 연결 오류':status.phase==='waiting-file'?'로그 파일 확인 필요':'로그 확인 중');
   flightReady.observations(snapshot?.identity?.mixedPlayers?null:snapshot?.navigation,status);
   $('live-status').textContent = phaseLabels[status.phase] || '연결 상태 미확인';
   $('live-detail').textContent = `마지막 읽기: ${status.lastReadAt ? new Date(status.lastReadAt).toLocaleTimeString() : '미확인'} · 읽은 로그 ${(status.bytesRead / 1024 / 1024).toFixed(1)} MB · 파일 교체 ${status.generation}회${status.lastError ? ' · 오류: ' + status.lastError : ''}`;
@@ -345,6 +353,7 @@ live = connectLive({
   onSnapshot: renderSnapshot,
   onStatus: showLiveStatus,
   onError: code => {
+    connectionState('error','로그 연결 확인 필요');
     flightReady.observations(null,null);
     $('live-status').textContent = code === 'pairing-expired' ? '연결 키가 만료되었습니다. 실행 도우미에 표시된 주소로 다시 접속해 주세요.' : '로컬 연결을 확인하고 있습니다. 표시된 기록은 최신이 아닐 수 있습니다.';
     $('live-pause').disabled = true;
@@ -353,13 +362,14 @@ live = connectLive({
     void screenWatch.stop();
     live = null;
     liveStatus = null;
+    connectionState('disconnected','로그 연결 해제');
     flightReady.observations(null,null);
     $('live-pause').disabled = true;
     $('live-disconnect').disabled = true;
     $('replay-controls').hidden = false;
   },
 });
-if (live) { $('live').hidden = false; $('replay-controls').hidden = true; }
+if (live) { connectionState('starting','로그 연결 중'); $('live').hidden = false; $('replay-controls').hidden = true; }
 $('live-pause').addEventListener('click', async () => {
   $('live-pause').disabled = true;
   if (liveStatus?.phase === 'paused') await live?.resume(); else await live?.pause();
