@@ -14,7 +14,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('[aria-label="출항 준비 함선"] option[value="misc-hull-b"]'));
  await page.locator('#run-guide summary').click();assert.match(await page.locator('#run-guide').innerText(),/28상자\/168 SCU/);
  await page.locator('#flight-ready .ready-partners button').nth(1).click();
- await page.locator('#flight-ready summary').click();
+ await page.locator('#flight-ready > details > summary').click();
  await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('misc-hull-b');
  const startId=data.locations.find(p=>p.name==='New Babbage').id;
  await page.getByLabel('출항 준비 지명 검색',{exact:true}).fill('New Babbage');

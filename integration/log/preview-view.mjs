@@ -221,7 +221,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   }
   function updateContracts(next) {
-    standby.querySelector('h2').textContent=next.length?'항로를 준비할 수 있습니다':'계약을 기다리고 있습니다';
+    standby.querySelector('h2').textContent=next.length?'운송 계약이 들어왔습니다':'계약을 기다리고 있습니다';
     standby.querySelector('p').textContent=next.length?'왼쪽 출항 준비에서 함선·출발지를 확인하고 항로 안내를 시작해 주세요.':'왼쪽에서 파트너와 운항 정보를 확인해 주세요. 계약이 들어오면 항로와 적재 공간을 준비합니다.';
     next = Array.isArray(next) ? next : next ? [next] : [];
     if(session.removalPending?.size){contracts=next;stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';return;}
@@ -244,8 +244,10 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   function calculate({startGuidance=false}={}) {
     if (closed || !view) return;
     invalidate(); forms.forEach(captureDraft);
+    let flightPerformance;
     const confirmations = Object.fromEntries(contracts.map(c => [c.missionId,session.draft(c.missionId)]));
     try {
+      flightPerformance=session.performancePanel?.getFor(ship);
       const continuity=session.continuity.snapshot();if(continuity.error)throw Error(continuity.error);
       const held=session.retained?.snapshot();if(held?.error)throw Error(held.error);
       if(session.removalPending?.size)throw Error('제외할 계약의 남은 화물을 확인해 주세요.');
@@ -281,7 +283,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       try {renderResult(data.result);const started=data.result.scope==='destination-space-reservation'&&!data.result.routeReady?'reservation':!startGuidance||(!launch.disabled&&launch.onclick()===true);settleCalculation?.(started);settleCalculation=null;}
       catch{fail('항로를 표시하지 못했습니다. 함선과 출발지를 확인한 뒤 다시 시도해 주세요.');}
     };
-    try{worker.postMessage({id,input:{contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
+    try{worker.postMessage({id,input:{performance:flightPerformance,contracts,catalogData:[...catalog],locationData,locationEdits,confirmations,boxOverrides,retainedRecords:session.retained?.snapshot().records||[],continuityRecords:session.continuity.snapshot().records,ship,startId:start.value,partner:partner.value}});}catch{fail('계산할 화물을 전달하지 못했습니다. 다시 시도해 주세요.');}
     });
   }
   function renderResult(r) {
@@ -395,6 +397,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     select.disabled = start.disabled = partner.disabled = run.disabled = true;
     try {
       await prepareAssets?.();
+      await session.performanceReady;
       const [renderer,response] = await Promise.all([import('../../cargo-scene.mjs'),fetch(new URL('../../data/ships.json',import.meta.url))]);
       if (closed || generation !== opening) return;
       if (!response.ok) throw Error('ships-unavailable');
@@ -436,7 +439,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   return {root,getPacking:()=>lastResult,pauseForRemoval(){stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';},refreshRetained(){signature='';updateContracts(contracts);},isOpen:()=>!closed,dispose(){dispose();events.abort();},updateContracts,
     canAdvance:()=>!!flightRoute&&!launch.disabled,advanceGuidance:()=>!launch.disabled&&launch.onclick()===true,
     setPartner(value){partner.value=value;partner.onchange();},
-    invalidateConfiguration(){ship=currentShip();select.value=ship.id;fillStarts();invalidate('함선·출발지를 변경했습니다. 준비를 마치면 항로 안내를 시작해 주세요.');},
+    invalidateConfiguration(){ship=currentShip();select.value=ship.id;fillStarts();invalidate('운항 설정을 변경했습니다. 준비를 마치면 항로 안내를 시작해 주세요.');},
     async prepareAndStart(){
       if(closed)await open.onclick({planOnOpen:false});if(closed||!view)return false;
       ship=currentShip();options(select,ships);select.value=ship.id;partner.value=prefs.partner;describePartner();fillStarts();

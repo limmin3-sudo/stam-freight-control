@@ -207,3 +207,5 @@ body.preview-control-open{overflow:hidden}
 .preview-ship-card dt{color:#859eae}.preview-ship-card dd{margin:0;overflow-wrap:anywhere;color:#d9e7f0}
 .preview-flight-launch{background:linear-gradient(110deg,#68e5e0,#2bb7c9);border-color:#80e9e7;color:#05202b;font-size:17px!important;font-weight:750;text-align:left;padding:17px 13px;margin-bottom:12px}
 .preview-desk-launch{background:linear-gradient(110deg,#efb569,#e8953f);border-color:#f5c27b;color:#20170b;font-weight:750;border-radius:30px;margin-bottom:10px;padding:13px}
+
+.performance-panel{border-top:1px solid #2c4b5c;padding-top:12px;margin-top:12px;font-size:12px;min-width:0}.performance-panel strong{color:#bfe7e7}.performance-panel p{font-size:11px;line-height:1.7}.performance-panel summary{cursor:pointer;line-height:1.6}.performance-panel label{display:block;margin:10px 0}.performance-panel input,.performance-panel select{display:block;width:100%;min-width:0;background:#102331;color:#dae8ef;border:1px solid #3b6473;border-radius:5px;padding:8px;margin-top:6px}.performance-panel .performance-message{color:#efc48b}.performance-panel a{overflow-wrap:anywhere}

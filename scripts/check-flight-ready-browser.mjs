@@ -31,7 +31,7 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam-log-account-settings-v1')).shipId),'misc-hull-b');
  await page.locator('#flight-ready-action').click();assert.equal(await page.getByLabel('미리보기 작업 단계',{exact:true}).inputValue(),'1');
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);
- await page.locator('#flight-ready summary').click();await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('');
+ await page.locator('#flight-ready > details > summary').click();await page.getByLabel('출항 준비 함선',{exact:true}).selectOption('');
  assert.equal(await page.locator('#flight-ready-action').innerText(),'함선·출발지 확인');assert.equal(await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).isDisabled(),true);
  assert.match(await page.locator('.preview-tracking').innerText(),/위치 확인 대기/);
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);

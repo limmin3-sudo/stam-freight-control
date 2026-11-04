@@ -5,11 +5,11 @@ import {jumpLinks,routeEvidence} from './preview-routes.mjs';
 
 // These are precedence constraints, not cargo shipments or invented allocations.
 // The full reservation must fit at once; no partial-capacity trip is inferred.
-export function connectReservationRoute(result,previews,{startId,partner='navigator'}={}){
- try{return buildRoute(result,previews,{startId,partner});}
+export function connectReservationRoute(result,previews,{startId,partner='navigator',performance}={}){
+ try{return buildRoute(result,previews,{startId,partner,performance});}
  catch{return {...result,route:null,routeReady:false,routeHold:'항로 연결을 확인하지 못했습니다. 적재 공간은 계속 확인할 수 있습니다.'};}
 }
-function buildRoute(result,previews,{startId,partner}){
+function buildRoute(result,previews,{startId,partner,performance}){
  const hold=message=>({...result,route:null,routeReady:false,routeHold:message});
  if(!previews.length)return hold('운송할 계약을 선택하면 항로를 준비합니다.');
  if(result.partial)return hold('일부 화물만 확인돼 전체 방문 순서를 만들지 않았습니다.');
@@ -29,7 +29,7 @@ function buildRoute(result,previews,{startId,partner}){
  }
  if(!constraints.length)return hold('배송하셨다고 확인한 화물을 모두 반영했습니다. 게임 계약 완료는 로그에서 따로 확인합니다.');
  if(constraints.length>48)return hold('방문 조건이 많습니다. 계획할 계약을 나누어 선택해 주세요.');
- const nav=navigator({locations:result.stops,jumps:jumpLinks.filter(j=>ids.has(j.from)&&ids.has(j.to))},{});
+ const nav=navigator({locations:result.stops,jumps:jumpLinks.filter(j=>ids.has(j.from)&&ids.has(j.to))},{performance});
  const initial={status:constraints.map(c=>c.picked?1:0),at:startId,cost:0,actions:[]};
  const indices=new Map();constraints.forEach((c,i)=>{if(!indices.has(c.missionId))indices.set(c.missionId,[]);indices.get(c.missionId).push(i);});
  function advance(state,i){
@@ -71,6 +71,6 @@ function buildRoute(result,previews,{startId,partner}){
   else visits.push({locationId:action.locationId,events:[event],load:null,elapsed,seconds:leg.seconds,leg});
  }
  const route={scope:'visit-order-with-reserved-space',visits,seconds:elapsed,peak:null,handlingIncluded:false,
-  algorithm:partner==='operator'?'오퍼레이터 · 계약 완료 우선, 모든 픽업 선행':'수석 항해사 · 픽업을 모은 뒤 배송',settings:{startId,routePolicy:partner==='operator'?'delivery-first':'batch'}};
+  algorithm:partner==='operator'?'오퍼레이터 · 계약 완료 우선, 모든 픽업 선행':'수석 항해사 · 픽업을 모은 뒤 배송',settings:{startId,performance,routePolicy:partner==='operator'?'delivery-first':'batch'}};
  return {...result,route,routeReady:true,routeHold:null,routeEvidence,partner};
 }
