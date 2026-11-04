@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdtemp,writeFile,appendFile,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {startLogService} from '../integration/log/live-server.mjs';
+import {fixture} from '../tests/helpers/log-preview.mjs';
+const {chromium}=createRequire(import.meta.url)(process.env.STAM_PLAYWRIGHT_MODULE||'playwright');
+const dir=await mkdtemp(join(tmpdir(),'stam-progress-')),file=join(dir,'synthetic.log');await writeFile(file,'');
+const service=await startLogService({file});let browser;
+const pre='<2026-11-03T10:01:00.000Z> [Notice] ',zero='00000000-0000-0000-0000-000000000000';
+const notice=(text,id,n)=>pre+`<SHUDEvent_OnNotification> Added notification "${text}: " [${n}] to queue. MissionId: [${id}], ObjectiveId: []\n`;
+try{
+ browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],bad=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)bad.push(new URL(r.url()).pathname);});
+ await page.goto(service.url);await page.waitForSelector('#flight-ready-action');
+ const a=fixture(),b=fixture('22222222-2222-4222-8222-222222222222'),ids=[a.events[1].missionId,b.events[1].missionId];
+ let lines='<2026-11-03T10:00:00.000Z> [CIG] build_version[12913470]\n';
+ for(const [i,f] of [a,b].entries()){
+  lines+=notice('Contract Accepted: Synthetic cargo',ids[i],i+1);
+  lines+=f.events.slice(2).map(e=>pre+`<CLocalMissionPhaseMarker::CreateMarker> missionId [${e.missionId}], contract [Test_HaulCargo_Large], contractDefinitionId[${e.definitionId}], objectiveId [${e.objectiveId}], zoneHostId [1], position [x: ${e.position[0]}, y: ${e.position[1]}, z: ${e.position[2]}]\n`).join('');
+ }
+ await appendFile(file,lines);
+ await page.waitForFunction(()=>document.querySelectorAll('#planning-contracts input:checked').length===2);
+ const first=page.locator(`[data-progress="${ids[0]}"]`),second=page.locator(`[data-progress="${ids[1]}"]`);
+ await first.locator('summary').click();
+ await appendFile(file,pre+`<ObjectiveUpserted> Received ObjectiveUpserted push message for: mission_id ${ids[0]} - objective_id ${a.events[3].objectiveId} - state MISSION_OBJECTIVE_STATE_COMPLETED - created 0\n`);
+ await page.waitForFunction(id=>document.querySelector(`[data-progress="${id}"] summary`)?.textContent.startsWith('1개 목표 완료'),ids[0]);
+ assert.equal(await first.evaluate(e=>e.open),true);assert.match(await second.locator('summary').innerText(),/^0개 목표 완료/);
+ assert.equal(await page.locator('#planning-contracts input:checked').count(),2);
+ await appendFile(file,notice('Contract Complete: Synthetic cargo',ids[0],3));
+ await page.waitForFunction(id=>document.querySelector(`[data-progress="${id}"] summary`)?.textContent==='계약 완료 기록',ids[0]);
+ await page.getByRole('dialog',{name:'계약 제외',exact:true}).getByLabel('없습니다',{exact:true}).check();
+ await page.getByRole('button',{name:'운송 계획에서 제외',exact:true}).click();
+ assert.equal(await page.locator('#planning-contracts input:checked').count(),1);
+ assert.equal(await page.locator(`#planning-contracts input[data-mission="${ids[1]}"]`).isChecked(),true);
+ const reward=notice('50250 aUEC 지급',zero,4);await appendFile(file,reward+reward);
+ await page.waitForFunction(()=>document.querySelector('#reward-observations summary')?.textContent==='지급 알림 1건');
+ await page.locator('#reward-observations summary').click();
+ assert.match(await page.locator('#reward-observations').innerText(),/50,250 aUEC/);
+ assert.match(await page.locator('#reward-observations').innerText(),/계약 연결 미확인/);
+ await appendFile(file,notice('Awarded 45,000 aUEC',ids[1],5));
+ await page.waitForFunction(()=>document.querySelector('#reward-observations summary')?.textContent==='지급 알림 2건');
+ assert.equal(await page.locator('#reward-observations details').evaluate(e=>e.open),true);
+ assert.match(await page.locator('#reward-observations').innerText(),/계약 ID 일치 · Synthetic cargo/);
+ assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);
+ assert.equal(await page.locator('canvas').count(),0);
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
+ console.log(JSON.stringify({passed:true,instanceIsolation:true,goalDoesNotFinishContract:true,terminalRemovesOnlyAutomaticSelection:true,detailsStayOpen:true,unassignedAndExactIdRewards:true,duplicateSuppressed:true,noFakeHistory:true,noRendererWhileWaiting:true,mobileOverflow:false,errors,bad}));
+}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

@@ -150,7 +150,7 @@ export function labelSprite(name,sub,color='#cfe6f2',opts={}){const c=document.c
  
  if(sub){g.shadowColor='rgba(0,0,0,.9)';g.shadowBlur=4;g.font=`500 20px "Noto Sans KR",Arial,sans-serif`;g.fillStyle=opts.pill?'#14100a':opts.backed?'#dcecf5':'rgba(205,225,236,.85)';g.fillText(sub,c.width/2,big+10);}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;
- const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false,depthWrite:false,sizeAttenuation:false}));s.renderOrder=20;s.userData.px=[c.width/2,c.height/2];return s;}
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false,depthWrite:false,sizeAttenuation:false}));s.material.userData.ownedMap=true;s.renderOrder=20;s.userData.px=[c.width/2,c.height/2];return s;}
 
 // Nebula backdrop + layered starfield, tinted by system. The nebula is computed per pixel from the view
 // direction (3D noise), so it has no texture seam, stays sharp at any zoom and is dithered against banding.
