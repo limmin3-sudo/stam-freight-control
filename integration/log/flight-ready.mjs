@@ -1,3 +1,4 @@
+import {partnerVoice} from './partner-voice.mjs';
 import {liveNavigationCandidate} from './navigation.mjs';
 import {DEFAULT_SHIP,validateShip} from '../../ships.mjs';
 import {personalNavigation} from './personal-locations.mjs';
@@ -17,10 +18,11 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  const ship=el('select'),start=el('select'),search=el('input');ship.setAttribute('aria-label','출항 준비 함선');start.setAttribute('aria-label','출항 준비 출발지');search.setAttribute('aria-label','출항 준비 지명 검색');search.placeholder='출발지 찾기';search.type='search';
  controls.append(ship,search,start);const confirm=el('button','이 설정으로 준비');confirm.type='button';controls.append(confirm);
  const count=el('p'),action=el('button','계약 수신 대기');action.id='flight-ready-action';action.type='button';action.className='ready-primary';
- const note=el('p','계약을 받으시면 이곳에 자동으로 들어옵니다.');note.setAttribute('role','status');
+ let noteKey='received';const note=el('p');note.setAttribute('role','status');
  const observed=el('section');observed.className='ready-observed';observed.hidden=true;
  root.append(heading,partners,line,summary,observed,settings,count,action,note);host.append(root);
  let ships=[DEFAULT_SHIP],places=[],confirmed=false,busy=false,active=false,selected=0,blocked=0,pending=0,reservations=0,disposed=false,navigation=null,liveStatus=null,observationKey='',preparationOrigin='saved';
+ function say(key){noteKey=key;note.textContent=partnerVoice(session.preferences.partner)[key];}
  function options(node,rows,value){node.replaceChildren();const empty=el('option','선택해 주세요');empty.value='';node.append(empty);for(const r of rows){const o=el('option',r.name);o.value=r.id;node.append(o);}node.value=value;}
  function fillStarts(){const q=search.value.trim().toLowerCase();const matches=places.filter(p=>!q||[p.name,...(p.aliases||[])].some(n=>n.toLowerCase().includes(q))).slice(0,40);const current=places.find(p=>p.id===session.preferences.startId);if(current&&!matches.some(p=>p.id===current.id))matches.unshift(current);options(start,matches,session.preferences.startId);}
  function renderObserved(){
@@ -52,14 +54,14 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
     if(busy||active||JSON.stringify(latest)!==JSON.stringify(candidate)){render();return;}
     preparationOrigin='log';session.setPreferences({...shipId?{shipId}:{},...startId?{startId}:{}});confirmed=false;
     options(ship,ships,session.preferences.shipId);fillStarts();onSettings();settings.open=true;
-    note.textContent='준비 정보에 반영했습니다. 함선과 출발지를 확인해 주세요.';render();
+    say('observedApplied');render();
   };
   observed.append(apply);
  }
  function render(){if(disposed)return;const p=session.preferences,knownShip=ships.find(s=>s.id===p.shipId),knownStart=places.find(s=>s.id===p.startId);
   if(!knownShip||!knownStart)confirmed=false;
   for(const [id,b] of buttons){b.setAttribute('aria-pressed',String(id===p.partner));b.disabled=busy;}
-  line.textContent=p.partner==='operator'?'함장님, 계약을 받아 주세요. 가까운 배송부터 정리할게요.':'계약을 받으시면 항로와 적재 순서를 준비하겠습니다.';
+  line.textContent=partnerVoice(p.partner)[active?'routePolicy':selected?'contractsReady':'waiting'];if(noteKey)note.textContent=partnerVoice(p.partner)[noteKey];
   summary.textContent=`${knownShip?.name||'함선 선택 필요'} · ${knownStart?.name||'출발지 확인 필요'} · ${confirmed?'직접 확인':preparationOrigin==='log'?'로그 후보 · 확인 필요':preparationOrigin==='edited'?'설정 변경 · 확인 필요':p.shipId||p.startId?'이전 설정 · 확인 필요':'운항 정보 확인 필요'}`;
   count.textContent=`선택한 계약 ${selected}건${blocked?` · 화물 확인 필요 ${blocked}건`:''}${pending?` · 수신 대기 ${pending}건`:''}`;
   ship.disabled=start.disabled=search.disabled=busy;action.disabled=busy||(!selected&&!active);confirm.disabled=!knownShip||!knownStart||busy;
@@ -70,12 +72,12 @@ export function createFlightReady(host,{session,onStart,onPartner,onSettings=()=
  ship.onchange=()=>{preparationOrigin='edited';session.setPreferences({shipId:ship.value});confirmed=false;active=false;onSettings();render();};
  start.onchange=()=>{preparationOrigin='edited';session.setPreferences({startId:start.value});confirmed=false;active=false;onSettings();render();};
  search.oninput=fillStarts;
- confirm.onclick=()=>{confirmed=ships.some(s=>s.id===session.preferences.shipId)&&places.some(p=>p.id===session.preferences.startId);settings.open=!confirmed;note.textContent=confirmed?'출항 준비가 됐습니다. 안내를 시작할 계약을 확인해 주세요.':'함선과 출발지를 확인해 주세요.';render();};
- action.onclick=async()=>{if(busy||!selected)return;if(active){if(!onAdvance())note.textContent='다음 구간을 시작하지 못했습니다. 항로를 확인해 주세요.';render();return;}if(!confirmed){settings.open=true;note.textContent='저장된 함선과 출발지가 이번 운항과 맞는지 확인해 주세요.';ship.focus();return;}
-  if(blocked){note.textContent='선택한 계약에 확인할 화물이 있습니다. 아래 계약 목록에서 확인하거나 이번 항로에서 빼 주세요.';document.getElementById('planning-contracts')?.scrollIntoView({block:'nearest'});return;}
-  busy=true;note.textContent='항로와 적재 순서를 준비하고 있습니다.';render();
-  try{const started=await onStart();active=started===true;note.textContent=active?'항로 안내를 시작합니다. 지도에는 예상 이동이 표시됩니다.':started==='reservation'?'배송지별 공간을 예약했습니다. 항로 연결에 필요한 내용은 지도 위 안내를 확인해 주세요.':'항로를 준비하지 못했습니다. 지도 위 안내를 확인해 주세요.';}catch{note.textContent='항로를 준비하지 못했습니다. 다시 시도해 주세요.';}finally{busy=false;render();}};
- async function loadShips(){try{const r=await fetch(new URL('../../data/ships.json',import.meta.url));if(!r.ok)throw Error();const base=await r.json();ships=[DEFAULT_SHIP,...base.filter(s=>s.id!==DEFAULT_SHIP.id)];for(const value of session.savedShips())try{const s=validateShip(value);if(!ships.some(p=>p.id===s.id))ships.push(s);}catch{}if(disposed)return;options(ship,ships,session.preferences.shipId);render();}catch{note.textContent='함선 목록을 불러오지 못했습니다. 다시 연결한 뒤 화면을 열어 주세요.';}}
+ confirm.onclick=()=>{confirmed=ships.some(s=>s.id===session.preferences.shipId)&&places.some(p=>p.id===session.preferences.startId);settings.open=!confirmed;say(confirmed?'prepared':'checkSettings');render();};
+ action.onclick=async()=>{if(busy||!selected)return;if(active){if(!onAdvance())say('nextFailed');render();return;}if(!confirmed){settings.open=true;say('checkSettings');ship.focus();return;}
+  if(blocked){say('blocked');document.getElementById('planning-contracts')?.scrollIntoView({block:'nearest'});return;}
+  busy=true;say('calculating');render();
+  try{const started=await onStart();active=started===true;say(active?'started':started==='reservation'?'reserved':'failed');}catch{say('failed');}finally{busy=false;render();}};
+ async function loadShips(){try{const r=await fetch(new URL('../../data/ships.json',import.meta.url));if(!r.ok)throw Error();const base=await r.json();ships=[DEFAULT_SHIP,...base.filter(s=>s.id!==DEFAULT_SHIP.id)];for(const value of session.savedShips())try{const s=validateShip(value);if(!ships.some(p=>p.id===s.id))ships.push(s);}catch{}if(disposed)return;options(ship,ships,session.preferences.shipId);render();}catch{noteKey=null;note.textContent='함선 목록을 불러오지 못했습니다. 다시 연결한 뒤 화면을 열어 주세요.';}}
  options(ship,ships,session.preferences.shipId);fillStarts();render();loadShips();
  return {root,update(value){({selected=0,blocked=0,pending=0,reservations=0}=value);render();},setLocations(data,edits){places=personalNavigation(data,edits).locations;fillStarts();render();},
   observations(value,status){navigation=value;liveStatus=status;renderObserved();},

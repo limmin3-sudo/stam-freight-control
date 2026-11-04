@@ -12,6 +12,11 @@ try{
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
  await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('100 SCU'),null,{timeout:60000});
  await page.locator(`[data-remove-mission="${a.missionId}"]`).click();const d=page.getByRole('dialog',{name:'계약 제외',exact:true});
+ assert.match(await d.locator('.partner-dialogue').innerText(),/수석 항해사[\s\S]*아직 실려 있습니까/);
+ await d.getByRole('button',{name:'취소',exact:true}).click();await page.locator('#flight-ready .ready-partners button').first().click();
+ await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('100 SCU'),null,{timeout:60000});
+ await page.locator(`[data-remove-mission="${a.missionId}"]`).click();assert.match(await d.locator('.partner-dialogue').innerText(),/브리지 오퍼레이터[\s\S]*배에 남아 있나요/);
+ assert.match(await d.locator('.partner-dialogue img').getAttribute('src'),/aide\.jpg$/);
  await d.getByLabel('남아 있습니다',{exact:true}).check();await d.locator('input[data-box]').first().check();
  await d.getByRole('button',{name:'운송 계획에서 제외',exact:true}).click();assert.match(await d.locator('[role=status]').innerText(),/현재 위치/);
  await d.getByLabel('선택한 화물이 적재도에 표시된 위치에 있습니다.',{exact:true}).check();await d.getByRole('button',{name:'운송 계획에서 제외',exact:true}).click();
@@ -21,11 +26,11 @@ try{
  await page.reload();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 1개'));assert.equal(await page.locator('#retained-cargo .retained-card').count(),1);
  await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 50 SCU'),null,{timeout:60000});
  await appendFile(file,pre+`<EndMission> Ending mission for player. MissionId[${b.missionId}] Player[TEST] PlayerId[123] CompletionType[Abandon] Reason[test]\n`);
- await d.waitFor({timeout:10000});assert.match(await d.innerText(),/Contract B/);assert.equal(await page.locator('#retained-cargo .retained-card').count(),2);
+ await d.waitFor({timeout:10000}).catch(async e=>{console.error(JSON.stringify({errors,planning:await page.locator('#planning').innerText(),status:await page.locator('.preview-calculation-status').innerText()}));throw e;});assert.match(await d.innerText(),/Contract B/);assert.equal(await page.locator('#retained-cargo .retained-card').count(),2);
  await page.reload();await d.waitFor({timeout:10000});
  await d.getByLabel('없습니다',{exact:true}).check();await d.getByRole('button',{name:'운송 계획에서 제외',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 0개'));
  assert.equal(await page.locator('#retained-cargo .retained-card').count(),1);
  await page.locator('#retained-cargo').getByRole('button',{name:'화물 정리',exact:true}).click();await page.getByRole('dialog',{name:'남은 화물 정리'}).getByRole('button',{name:'화물이 없습니다',exact:true}).click();assert.equal(await page.locator('#retained-cargo .retained-card').count(),0);
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);assert.deepEqual(errors,[]);
- console.log(JSON.stringify({passed:true,partialCargoRetained:true,positionConfirmationRequired:true,excludedNotAutoReadded:true,reloadPreservesCargo:true,abandonmentNeedsCargoDecision:true,lastContractDoesNotClearOtherCargo:true,explicitRelease:true,noFakeHistory:true,errors}));
+ console.log(JSON.stringify({passed:true,partialCargoRetained:true,selectedPartnerDialogue:true,positionConfirmationRequired:true,excludedNotAutoReadded:true,reloadPreservesCargo:true,abandonmentNeedsCargoDecision:true,lastContractDoesNotClearOtherCargo:true,explicitRelease:true,noFakeHistory:true,errors}));
 }finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

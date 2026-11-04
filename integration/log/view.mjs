@@ -35,7 +35,7 @@ function removeContract(c,automatic=false){
   previewSession.removalPending.add(c.missionId);planner?.pauseForRemoval();
   const saved=previewSession.retained.snapshot().records.find(r=>r.id===c.missionId);
   const plan=saved?.review&&saved.ship?{ship:saved.ship,packing:{boxes:saved.boxes.map(b=>({...b,retained:false}))}}:planner?.getPacking();
-  removalDialog=contractRemoval({contract:c,plan,store:previewSession.retained,
+  removalDialog=contractRemoval({contract:c,plan,store:previewSession.retained,partner:previewSession.preferences.partner,
     onApply:()=>{removalDialog=null;previewSession.removalPending.delete(c.missionId);dismissedRemoval.delete(c.missionId);planSelection.set(c.missionId,false);renderPlanning();},
     onCancel:()=>{removalDialog=null;if(!automatic)previewSession.removalPending.delete(c.missionId);else dismissedRemoval.add(c.missionId);renderPlanning();}});
 }
@@ -44,7 +44,7 @@ function renderRetained(){
  const records=state.records.filter(r=>r.boxes.length||r.unlocated||r.review);host.hidden=!state.error&&!records.length;
  if(state.error){host.append(el('p',state.error));const reset=el('button','화물 기록 초기화');reset.type='button';reset.onclick=()=>confirmCargoCleared(()=>{previewSession.retained.clearCorrupt();previewSession.removalPending.clear();renderPlanning();},{title:'화물 기록 초기화',description:'이 브라우저의 남은 화물 기록을 모두 지웁니다. 함선에 화물이 있다면 초기화하지 말고 기록을 먼저 복구해 주세요.',confirm:'기록 초기화'});host.append(reset);}
  if(records.length)host.append(el('h2','함선에 남은 화물'),el('p','제외한 계약의 화물입니다. 아래 기록은 이 브라우저에만 보관합니다.'));
- for(const r of records){const card=el('div',undefined,'retained-card');card.dataset.mission=r.id;card.append(el('strong',r.title),el('p',r.review?'화물 확인이 필요합니다.':r.unlocated?'화물 위치 확인 중':`${r.ship.name} · ${r.boxes.reduce((n,b)=>n+b.size,0)} SCU · 위치 유지`));const clear=el('button',r.review?'남은 화물 확인':'화물 정리');clear.type='button';clear.onclick=()=>r.review?removeContract({missionId:r.id,title:r.title},true):confirmCargoCleared(()=>{previewSession.retained.release(r.id);renderPlanning();});card.append(clear);host.append(card);}
+ for(const r of records){const card=el('div',undefined,'retained-card');card.dataset.mission=r.id;card.append(el('strong',r.title),el('p',r.review?'화물 확인이 필요합니다.':r.unlocated?'화물 위치 확인 중':`${r.ship.name} · ${r.boxes.reduce((n,b)=>n+b.size,0)} SCU · 위치 유지`));const clear=el('button',r.review?'남은 화물 확인':'화물 정리');clear.type='button';clear.onclick=()=>r.review?removeContract({missionId:r.id,title:r.title},true):confirmCargoCleared(()=>{previewSession.retained.release(r.id);renderPlanning();},{partner:previewSession.preferences.partner});card.append(clear);host.append(card);}
 }
 const flightReady=createFlightReady($('flight-ready-host'),{session:previewSession,
   onStart:()=>planner?.prepareAndStart(),onAdvance:()=>planner?.advanceGuidance(),canAdvance:()=>planner?.canAdvance(),onPartner:value=>planner?.setPartner(value),onSettings:()=>planner?.invalidateConfiguration()});
