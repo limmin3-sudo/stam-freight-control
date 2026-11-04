@@ -1,3 +1,4 @@
+import {checkedPerformance} from '../../performance-core.mjs';
 import {cargoRowsFor,attachCargoRows} from './cargo-continuity.mjs';
 import {personalNavigation} from './personal-locations.mjs';
 import {connectReservationRoute} from './reservation-route.mjs';
@@ -91,7 +92,8 @@ export function previewLocations(locationData) {
 }
 
 export function calculatePreview({contract, contracts = contract ? [contract] : [], catalogData, locationData,
-  confirmation, confirmations = {}, boxOverrides = {}, retainedRecords = [], continuityRecords = [], locationEdits = [], ship: rawShip, startId, partner = 'navigator'}) {
+  confirmation, confirmations = {}, boxOverrides = {}, retainedRecords = [], continuityRecords = [], locationEdits = [], ship: rawShip, startId, partner = 'navigator', performance}) {
+  performance=checkedPerformance(performance);
   const retained=fixedRetained(rawShip,retainedRecords);
   if ((!contracts.length&&!retained.length&&!continuityRecords.length) || contracts.length > MAX_PREVIEW_CONTRACTS ||
       new Set(contracts.map(c => c.missionId)).size !== contracts.length)
@@ -101,7 +103,7 @@ export function calculatePreview({contract, contracts = contract ? [contract] : 
   const previews = contracts.map(c => createPreview(c, catalog, locations,
     confirmations[c.missionId] || (contracts.length === 1 ? confirmation : undefined),boxOverrides));
   const cargoRows=cargoRowsFor(previews,contracts);
-  if(retained.length||continuityRecords.length||previews.some(p=>p.scope==='destination-space-reservation'))return attachCargoRows(connectReservationRoute(calculateReservations(previews,rawShip,personalNavigation(locationData,locationEdits).locations,boxOverrides,retainedRecords,continuityRecords,cargoRows),previews,{startId,partner}),cargoRows);
+  if(retained.length||continuityRecords.length||previews.some(p=>p.scope==='destination-space-reservation'))return attachCargoRows(connectReservationRoute(calculateReservations(previews,rawShip,personalNavigation(locationData,locationEdits).locations,boxOverrides,retainedRecords,continuityRecords,cargoRows),previews,{startId,partner,performance}),cargoRows);
   const missions = previews.map(p => p.mission);
   // Bound work before allocating boxes. Larger jobs can be split explicitly;
   // never silently truncate a selected contract or its cargo.
@@ -127,7 +129,7 @@ export function calculatePreview({contract, contracts = contract ? [contract] : 
     throw Error('유일한 좌표가 있는 경로만 미리 볼 수 있습니다.');
   const jumps = jumpLinks.filter(j => map.has(j.from) && map.has(j.to));
   const route = withDeparture(planRoute({locations: routeLocations, jumps}, missions, startId,
-    {ship, includeReturn: false, routePolicy: partner === 'operator' ? 'delivery-first' : 'batch'}));
+    {ship, performance, includeReturn: false, routePolicy: partner === 'operator' ? 'delivery-first' : 'batch'}));
   // Reuse the engine's shipments and full-load frame. Do not build and pack all
   // shipments twice, or show an unrelated dense layout before the route layout.
   const {shipments, warnings} = route;

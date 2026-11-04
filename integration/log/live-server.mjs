@@ -8,6 +8,10 @@ import { preparePreviewAssets } from './preview-assets-node.mjs';
 import { locationIndex } from './locations.mjs';
 
 const STATIC = new Map([
+  ['/performance.mjs',['../../performance.mjs','text/javascript']],
+  ['/performance-core.mjs',['../../performance-core.mjs','text/javascript']],
+  ['/data/ship-performance.json',['../../data/ship-performance.json','application/json']],
+  ['/data/quantum-drives.json',['../../data/quantum-drives.json','application/json']],
   ['/integration/log/cargo-continuity.mjs',['./cargo-continuity.mjs','text/javascript']],
   ['/integration/log/cargo-continuity-view.mjs',['./cargo-continuity-view.mjs','text/javascript']],
   ['/integration/log/box-memory.mjs',['./box-memory.mjs','text/javascript']],
