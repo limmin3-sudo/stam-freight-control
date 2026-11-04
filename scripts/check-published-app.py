@@ -1,6 +1,6 @@
 """Verify the immutable public Windows ZIP and every bundled file."""
-import hashlib, io, json, urllib.request, zipfile
-meta=json.load(open('data/desktop-release.json',encoding='utf-8'))
+import hashlib, io, json, urllib.request, zipfile, sys
+meta=json.load(open(sys.argv[1] if len(sys.argv)>1 else 'data/desktop-release.json',encoding='utf-8-sig'))
 with urllib.request.urlopen(meta['url'],timeout=120) as response:
     data=response.read(100*1024*1024+1)
 assert len(data)==meta['bytes'], 'ZIP byte count'
