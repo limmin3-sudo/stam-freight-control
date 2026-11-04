@@ -1,3 +1,4 @@
+import {openWorkspacePage} from './page-navigation.mjs';
 export const UPDATE_MANIFEST='https://raw.githubusercontent.com/limmin3-sudo/stam-freight-control/refs/heads/rebuild/log-evidence-foundation/data/rebuild-version.json';
 export const DOWNLOAD_URL='https://codeload.github.com/limmin3-sudo/stam-freight-control/zip/refs/heads/rebuild/log-evidence-foundation';
 export function readRebuildVersion(raw){
@@ -9,6 +10,6 @@ export function newerRebuild(current,next){
  return Number(b[1])>Number(a[1])||(b[1]===a[1]&&Number(b[2])>Number(a[2]));
 }
 export function createWorkspaceUpdates(button){
- const open=()=>window.open(new URL('../../patch-notes.html?from=index.html',import.meta.url),'_blank','noopener');
+ const open=()=>openWorkspacePage('patch-notes.html?lang='+document.documentElement.lang);
  button.onclick=open;return {open,destroy(){button.onclick=null;}};
 }

@@ -14,12 +14,13 @@ try{
  page.setDefaultTimeout(30000);
  page.on('pageerror',e=>errors.push(e.message));
  page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)bad.push(r.url());});
- await page.goto(base);await page.waitForSelector('#flight-ready-action');
+ await page.goto(base);await page.waitForSelector('#flight-ready-action');await page.waitForSelector('.preview-map-canvas canvas');await page.waitForSelector('.preview-canvas canvas');assert.equal(await page.locator('#connection-dialog').isVisible(),false);assert.equal(await page.locator('.preview-route-panel').isVisible(),true);
  assert.equal(await page.locator('meta[name="app-version"]').getAttribute('content'),process.env.GITHUB_SHA);
- await page.locator('.ready-partner-open').click();assert.equal(await page.locator('.ready-partner-card').count(),3);
- await page.goto(base+'guide.html');await page.waitForSelector('#slide-title');assert.equal(await page.locator('#chapters button').count(),13);
+ await page.locator('.ready-edit').click();await page.locator('.ready-partner-open').click();assert.equal(await page.locator('.ready-partner-card').count(),3);
+ await page.goto(base+'patch-notes.html?lang=en');await page.waitForSelector('#releases article');assert.equal(/[가-힣]/.test(await page.locator('#releases').innerText()),false);
+ await page.goto(base+'guide.html?lang=ko');await page.waitForSelector('#slide-title');assert.equal(await page.locator('#chapters button').count(),13);
  await page.locator('#chapters button').nth(1).click();
- await page.waitForFunction(()=>{const img=document.querySelector('.guide-screen>a>img');return img?.complete&&img.naturalWidth>0;});
+ await page.waitForFunction(()=>{const img=document.querySelector('.presenter-screen img');return img?.complete&&img.naturalWidth>0;});
  await page.goto(base+'download.html');await page.waitForFunction(()=>document.querySelector('#app-download')?.textContent==='Windows 앱 다운로드');
  assert.equal(await page.locator('#app-download').getAttribute('href'),expected.url);
  await page.goto(base+'patch-notes.html');await page.waitForSelector('#release-0');

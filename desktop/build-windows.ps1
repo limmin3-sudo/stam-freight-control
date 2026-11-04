@@ -12,12 +12,17 @@ Expand-Archive $zip -DestinationPath $work
 $out = Join-Path $work "STAM-$version-win-x64"
 node scripts/build-desktop.mjs $out
 if ($LASTEXITCODE -ne 0) { throw 'App assembly failed' }
+foreach ($asset in @('assets/stam-logo-transparent.png', 'assets/onboarding/launcher.png', 'assets/onboarding/launcher-en.png', 'onboarding/guide-data-en.mjs')) {
+    if (!(Test-Path (Join-Path $out ('app/' + $asset)))) { throw ('Missing companion guide asset: ' + $asset) }
+}
 New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')
 $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 & $csc /nologo /target:winexe /platform:x64 /codepage:65001 /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
+$languageTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-language' -Wait -PassThru
+if ($languageTest.ExitCode -ne 0) { throw 'Launcher language switching failed' }
 # Run the compiled app against its bundled runtime, not the runner's node on PATH.
 $smoke = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test' -Wait -PassThru
 if ($smoke.ExitCode -ne 0) { throw 'Packaged launcher self-test failed' }
@@ -29,6 +34,9 @@ New-Item -ItemType Directory -Force dist | Out-Null
 $previewPath = Join-Path (Resolve-Path dist) 'launcher-preview.png'
 $capture = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui', ('"' + $previewPath + '"')) -Wait -PassThru
 if ($capture.ExitCode -ne 0 -or !(Test-Path $previewPath)) { throw 'Launcher UI capture failed' }
+$englishPreview = Join-Path (Resolve-Path dist) 'launcher-preview-en.png'
+$captureEnglish = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui-en', ('"' + $englishPreview + '"')) -Wait -PassThru
+if ($captureEnglish.ExitCode -ne 0 -or !(Test-Path $englishPreview)) { throw 'English launcher UI capture failed' }
 $destination = Join-Path (Resolve-Path dist) "STAM-$version-win-x64.zip"
 Compress-Archive -Path $out -DestinationPath $destination
 $hash=(Get-FileHash $destination -Algorithm SHA256).Hash.ToLowerInvariant()
