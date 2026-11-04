@@ -76,6 +76,8 @@ export function parseLogLine(line, provenance) {
     }
     const amounts = [...text.matchAll(/(?<![\w.,+−-])([\d]+(?:\.\d+)?)\s*\/\s*([\d]+(?:\.\d+)?)\s*SCU\b/gi)];
     if (!/SCU/i.test(text)) {
+      const pod=plain.match(/^(?:New Objective|Objective Complete|새 목표|새로운 목표|목표 완료):.*?(?<![\w.,+−-])(\d+)\s*\/\s*(\d+)\s*(?:개(?:의)?\s*)?CryoPods?\b/i);
+      if(pod){const objectiveId=field(line,'ObjectiveId'),current=Number(pod[1]),total=Number(pod[2]);if(!OBJECTIVE.test(objectiveId||'')||!Number.isSafeInteger(current)||!Number.isSafeInteger(total)||total<1||total>2048||current>total)return fail();return emit('quantity-observed',missionId,{objectiveId,current,total,unit:'count',notification:plain.replace(/CryoPods\b/gi,'CryoPod')});}
       // Return/visit instructions can coexist with a later successful delivery.
       // Preserve the notice; its wording does not prove a mandatory route leg.
       if (!/^(?:새로운 목표|New Objective):\s*\S/i.test(clean(text))) return {};

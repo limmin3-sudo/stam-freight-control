@@ -14,15 +14,17 @@ try{
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(new URL(r.url()).origin!==new URL(service.url).origin)remote.push(r.url());});
  await page.goto(service.url);await page.waitForFunction(()=>document.querySelector('#workspace-login b'));
  await page.getByRole('button',{name:'운항 기록 · 누적 통계',exact:true}).click();
- assert.match(await page.locator('.history-dialog').innerText(),/예상 이동은 완료 기록이나 수입으로 저장되지 않습니다/);
- await page.locator('.history-dialog [data-close]').click();assert.deepEqual(remote,[]);
+ assert.match(await page.locator('.history-dialog[open]').innerText(),/예상 이동은 완료 기록이나 수입으로 저장되지 않습니다/);
+ await page.locator('.history-dialog[open] [data-close]').click();assert.deepEqual(remote,[]);
  // Supply a Firebase-shaped mock. No requests or writes to a real account.
  const result=await page.evaluate(async()=>{
   const {createAccount}=await import('/account-core.mjs');const {createHistory}=await import('/history-core.mjs');
   const {snapshot}=await import('/sync.mjs');
+  const {flightSync}=await import('/integration/log/flight-sync.mjs');
+  document.querySelectorAll('.account-dialog,.history-dialog').forEach(d=>d.remove());
   const sleep=()=>new Promise(r=>setTimeout(r,30));
   const results=[];const check=(condition,label)=>{if(!condition)throw Error(label);results.push(label);};
-  function fixture({local={},cloud={},stamp=10,meta=null,failRead=false,race=false}={}){
+  function fixture({local={},cloud={},stamp=10,meta=null,failRead=false,race=false,adapter=null}={}){
    localStorage.clear();for(const [key,value] of Object.entries(local))localStorage.setItem(key,value);
    if(meta)localStorage.setItem('vh-account-meta',JSON.stringify(meta));
    let authChanged,readsFail=failRead,remoteStamp=stamp,reloads=0,commits=0,transactionStarted=false,release,hold=false;
@@ -37,11 +39,12 @@ try{
     signOut:async()=>authChanged?.(null),query:ref=>ref,orderBy:()=>{},limit:()=>{}};
    f.getDocs=f.getDocsFromServer;
    const button=document.createElement('button');document.body.append(button);
-   const api=createAccount(button,{loadFirebase:async()=>f,reloadPage:()=>reloads++,notify:t=>notes.push(t)});
+   const api=createAccount(button,{syncAdapter:adapter,loadFirebase:async()=>f,reloadPage:()=>reloads++,notify:t=>notes.push(t)});
    return {button,api,data,deleted,notes,signIn:async()=>{await button.onclick();await authChanged({uid:'A',displayName:'Test Captain'});},
     fail:v=>readsFail=v,hold:()=>hold=true,release:()=>release?.(),get commits(){return commits},get reloads(){return reloads},get started(){return transactionStarted},
     dispose:()=>{api.dispose();button.remove();}};
   }
+  let extra=fixture({adapter:flightSync,cloud:{'stam-flight-completions':JSON.stringify({version:1,records:[{missionId:'11111111-1111-4111-8111-111111111111',at:'2026-11-04T10:00:00.000Z'}]})}});await extra.signIn();check(extra.reloads===1&&JSON.parse(localStorage.getItem('stam-completions-v1:A')).records.length===1,'new flight state restores to signed-in scope');extra.dispose();
   const old={'vh-ship-id':'misc-hull-b','vh-start':'legacy-place','sfc-voice':'aide','vh-recipes':'{"keep":true}','sfc-history':'[{"id":"old","reward":322500,"ship":"Hull B","missions":[{}],"scu":50}]'};
   let x=fixture({cloud:old});await x.signIn();check(x.reloads===1,'cloud restore reload requested');
   check(localStorage.getItem('sfc-history')===old['sfc-history']&&localStorage.getItem('vh-recipes')===old['vh-recipes'],'old history and recipes preserved');check(x.commits===0,'restore does not write cloud');x.dispose();

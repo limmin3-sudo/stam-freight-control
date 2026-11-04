@@ -15,7 +15,8 @@ const device=()=>{const ua=navigator.userAgent||'';const os=/Windows/.test(ua)?'
 // Login is optional. Shown wherever the account is offered.
 const LOGIN_NOTE=`<div class="account-note" data-i18n="login-note"><b>로그인은 선택입니다.</b> 로그인하지 않아도 모든 기능을 그대로 쓸 수 있고, 데이터는 이 브라우저에 저장됩니다.<ul><li>로그인하면 <b>계정별 수정 기록</b>이 남아 언제·어느 기기에서 무엇을 바꿨는지 볼 수 있습니다.</li><li>미션·함선·설정과 <b>운항 기록(누적 수익)</b>을 다른 PC에서도 이어서 봅니다.</li></ul></div>`;
 const HISTORY_LINK='<div class="account-actions"><button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button></div>';
-export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,resetHistory,totalsMarkup=historyTotalsMarkup,loginNote=LOGIN_NOTE,syncDescription='미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.',loadFirebase,reloadPage=()=>location.reload()}={}){
+export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,resetHistory,totalsMarkup=historyTotalsMarkup,loginNote=LOGIN_NOTE,syncDescription='미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.',loadFirebase,reloadPage=()=>location.reload(),syncAdapter=null}={}){
+ const stateKeys=syncAdapter?.keys||SYNC_KEYS, take=syncAdapter?.snapshot||snapshot, applyState=syncAdapter?.apply||applySnapshot, changes=syncAdapter?.changed||changedKeys, describe=syncAdapter?.describe||describeChanges;
  let fb=null,user=null,timer=null,paused=true,status='',phase='guest',busy=false,epoch=0,unsubscribe,starting=null,disposed=false,pendingView=null;
  const dialog=document.createElement('dialog');dialog.className='account-dialog';document.body.append(dialog);
  const setButton=()=>{button.innerHTML=user?`<span class="account-dot ${paused?'warn':''}"></span><span><small>${phase==='checking'?'계정 확인 중':phase==='saving'?'저장 중':phase==='error'?'연결 확인 필요':paused?'동기화 멈춤':'동기화됨'}</small><b>${esc(user.label)}</b></span>`:`<span><small>계정</small><b>${FIREBASE_CONFIG?'로그인':'로그인 준비 중'}</b></span>`;button.title=status;};
@@ -29,18 +30,18 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  async function readCloud(uid){for(let attempt=0;attempt<3;attempt++){
   const before=await cloudStamp(uid),snap={};let updatedAt=before;
   const docs=await fb.getDocsFromServer(fb.collection(fb.db,'users',uid,'state'));
-  docs.forEach(d=>{const x=d.data();if(SYNC_KEYS.includes(d.id)&&typeof x.value==='string')snap[d.id]=x.value;updatedAt=Math.max(updatedAt,Number(x.updatedAt)||0);});
+  docs.forEach(d=>{const x=d.data();if(stateKeys.includes(d.id)&&typeof x.value==='string')snap[d.id]=x.value;updatedAt=Math.max(updatedAt,Number(x.updatedAt)||0);});
   if(before===await cloudStamp(uid))return {snap,updatedAt};
  }throw new Error('다른 기기에서 저장 중입니다. 잠시 후 다시 연결해 주세요.');}
  async function push(uid,keys,snap,note,expected){
-  const prev=readJSON(ACCOUNT_META)?.lastSnap||{},items=note?[note]:describeChanges(prev,snap,{shipName});
+  const prev=readJSON(ACCOUNT_META)?.lastSnap||{},items=note?[note]:describe(prev,snap,{shipName});
   // Compare and write atomically so a second device cannot be overwritten between checks.
   const stamp=await fb.runTransaction(fb.db,async tx=>{
    const root=fb.doc(fb.db,'users',uid),remote=Number((await tx.get(root)).data()?.updatedAt)||0;
    if(remote>Number(expected||0))throw Object.assign(new Error('다른 기기에서 더 최근에 저장했습니다.'),{code:'sync-conflict'});
    const now=Math.max(Date.now(),remote+1);
    if(items.length)tx.set(fb.doc(fb.collection(fb.db,'users',uid,'changes')),{at:now,device:device(),items});
-   for(const k of keys.filter(k=>SYNC_KEYS.includes(k))){const ref=fb.doc(fb.db,'users',uid,'state',k);if(snap[k]==null)tx.delete(ref);else tx.set(ref,{value:snap[k],updatedAt:now});}
+   for(const k of keys.filter(k=>stateKeys.includes(k))){const ref=fb.doc(fb.db,'users',uid,'state',k);if(snap[k]==null)tx.delete(ref);else tx.set(ref,{value:snap[k],updatedAt:now});}
    tx.set(root,{updatedAt:now},{merge:true});return now;
   });
   writeJSON(ACCOUNT_META,{uid,lastSyncedAt:stamp,lastSnap:snap});
@@ -50,29 +51,29 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  function fail(e){stop();phase=e?.code==='sync-conflict'?'conflict':'error';pendingView=phase==='conflict'?'conflict':null;status=message(e);setButton();notify('계정 동기화가 멈췄습니다: '+status,true);}
  function start(){paused=false;phase='synced';status='';pendingView=null;setButton();clearInterval(timer);timer=setInterval(tick,5000);}
  async function tick(){if(!user||paused||busy||disposed)return;busy=true;const owner=user.uid,turn=epoch;
-  try{const meta=readJSON(ACCOUNT_META)||{},now=snapshot(localStorage),keys=changedKeys(meta.lastSnap,now);if(!keys.length)return;
+  try{const meta=readJSON(ACCOUNT_META)||{},now=take(localStorage),keys=changes(meta.lastSnap,now);if(!keys.length)return;
    phase='saving';setButton();await push(owner,keys,now,undefined,meta.lastSyncedAt);
    if(turn===epoch){phase='synced';status='';setButton();}
   }catch(e){if(turn===epoch)fail(e);}finally{busy=false;}}
  async function onSignedIn(u){const turn=++epoch;stop();pendingView=null;user={uid:u.uid,label:label(u)};phase='checking';setButton();
-  try{const meta=readJSON(ACCOUNT_META),cloud=await readCloud(u.uid);if(turn!==epoch||disposed)return;const local=snapshot(localStorage);
+  try{const meta=readJSON(ACCOUNT_META),cloud=await readCloud(u.uid);if(turn!==epoch||disposed)return;const local=take(localStorage);
    if(meta?.uid===u.uid){
-    const localChanged=changedKeys(meta.lastSnap,local).length>0,remoteChanged=remoteIsNewer(cloud.updatedAt,meta.lastSyncedAt);
+    const localChanged=changes(meta.lastSnap,local).length>0,remoteChanged=remoteIsNewer(cloud.updatedAt,meta.lastSyncedAt);
     if(remoteChanged&&localChanged){phase='conflict';pendingView='conflict';setButton();open(pendingView);return;}
-    if(remoteChanged){applySnapshot(localStorage,cloud.snap);writeJSON(ACCOUNT_META,{uid:u.uid,lastSyncedAt:cloud.updatedAt,lastSnap:cloud.snap});reload();return;}
+    if(remoteChanged){applyState(localStorage,cloud.snap,u.uid);writeJSON(ACCOUNT_META,{uid:u.uid,lastSyncedAt:cloud.updatedAt,lastSnap:cloud.snap});reload();return;}
    }else{
     if(localStorage.getItem(GUEST_BACKUP)==null)localStorage.setItem(GUEST_BACKUP,JSON.stringify(local));
     const decision=decideOnLogin(local,cloud.snap);
-    if(decision==='pull'){applySnapshot(localStorage,cloud.snap);writeJSON(ACCOUNT_META,{uid:u.uid,lastSyncedAt:cloud.updatedAt,lastSnap:cloud.snap});reload();return;}
+    if(decision==='pull'){applyState(localStorage,cloud.snap,u.uid);writeJSON(ACCOUNT_META,{uid:u.uid,lastSyncedAt:cloud.updatedAt,lastSnap:cloud.snap});reload();return;}
     if(decision==='offer-upload'||decision==='ask'){phase='choice';pendingView=decision==='ask'?'first-conflict':'first-upload';setButton();open(pendingView);return;}
     writeJSON(ACCOUNT_META,{uid:u.uid,lastSyncedAt:cloud.updatedAt,lastSnap:local});
    }
    start();await tick();
   }catch(e){if(turn===epoch)fail(e);}
  }
- async function useCloud(){if(busy)return;busy=true;try{const c=await readCloud(user.uid);applySnapshot(localStorage,c.snap);writeJSON(ACCOUNT_META,{uid:user.uid,lastSyncedAt:c.updatedAt,lastSnap:c.snap});reload();}finally{busy=false;}}
- async function useLocal(){if(busy)return;busy=true;try{const s=snapshot(localStorage),c=await readCloud(user.uid);await push(user.uid,[...new Set([...Object.keys(s),...Object.keys(c.snap)])],s,'이 브라우저의 데이터로 계정 저장',c.updatedAt);dialog.close();start();notify('이 브라우저의 데이터를 계정에 저장했습니다.');}finally{busy=false;}}
- async function signOutKeepGuest(){if(busy)throw new Error('저장 중입니다. 잠시 후 다시 시도해 주세요.');await tick();if(phase==='error'||phase==='conflict')throw new Error('저장되지 않은 변경을 먼저 확인해 주세요. 다시 연결하거나 사용할 데이터를 선택해 주세요.');stop();await fb.signOut(fb.auth);const guest=readJSON(GUEST_BACKUP);applySnapshot(localStorage,guest||{});localStorage.removeItem(GUEST_BACKUP);writeJSON(ACCOUNT_META,null);reload();}
+ async function useCloud(){if(busy)return;busy=true;try{const c=await readCloud(user.uid);applyState(localStorage,c.snap,user.uid);writeJSON(ACCOUNT_META,{uid:user.uid,lastSyncedAt:c.updatedAt,lastSnap:c.snap});reload();}finally{busy=false;}}
+ async function useLocal(){if(busy)return;busy=true;try{const s=take(localStorage),c=await readCloud(user.uid);await push(user.uid,[...new Set([...Object.keys(s),...Object.keys(c.snap)])],s,'이 브라우저의 데이터로 계정 저장',c.updatedAt);if(syncAdapter){applyState(localStorage,s,user.uid);reload();return;}dialog.close();start();notify('이 브라우저의 데이터를 계정에 저장했습니다.');}finally{busy=false;}}
+ async function signOutKeepGuest(){if(busy)throw new Error('저장 중입니다. 잠시 후 다시 시도해 주세요.');await tick();if(phase==='error'||phase==='conflict')throw new Error('저장되지 않은 변경을 먼저 확인해 주세요. 다시 연결하거나 사용할 데이터를 선택해 주세요.');stop();await fb.signOut(fb.auth);const guest=readJSON(GUEST_BACKUP);applyState(localStorage,guest||{},'guest');localStorage.removeItem(GUEST_BACKUP);writeJSON(ACCOUNT_META,null);reload();}
  async function ensureAuth(){if(unsubscribe)return;if(starting)return starting;starting=load().then(f=>{if(disposed)return;unsubscribe=f.onAuthStateChanged(f.auth,u=>{if(u)return onSignedIn(u);++epoch;stop();user=null;phase='guest';setButton();});}).finally(()=>starting=null);return starting;}
 
  function open(view='login'){

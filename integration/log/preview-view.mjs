@@ -207,7 +207,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
             `${c.commodity} · ${c.scu} SCU · ${c.pickupId?names.get(c.pickupId):'픽업별 배분 미확인'} → ${names.get(c.dropoffId)} · ${c.boxes.length?c.boxes.map(b=>`${b.size} SCU × ${b.count}개`).join(' + '):`${c.maxBoxSize} SCU 이하 공간 가이드`}`));
             const remembered=session.boxMemory.lookup(contract,c);
             if(remembered.error)group.append(el('p',remembered.error,'notice'));
-            group.append(boxEditor(c,remembered.value||remembered.saved,value=>{session.boxMemory.set(contract,c,value);invalidate('상자 구성을 반영하고 있습니다.');scheduleCalculation();}));}
+            group.append(boxEditor(c,remembered.value||remembered.saved,value=>{session.boxMemory.set(contract,c,value);invalidate('상자 구성을 반영하고 있습니다.');scheduleCalculation();},session.boxMemory.suggest(contract,c)));}
           group.append(el('small','원래 요구량입니다. 현재 실린 화물이나 남은 배송량이 아닙니다.'));
         } else if(readiness.input) {
           const input = readiness.input, draft = session.draft(contract.missionId);
@@ -469,7 +469,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
     }
   };
   updateContracts(initialContracts);
-  return {root,getPacking:()=>lastResult,pauseForRemoval(){stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';},refreshRetained(){signature='';updateContracts(contracts);},isOpen:()=>!closed,dispose(){warmWorker?.dispose();warmWorker=null;dispose();events.abort();},updateContracts,
+  return {root,receivePosition:point=>positionFeed.receiveCompanion(point),getPacking:()=>lastResult,pauseForRemoval(){stop();resetFlight();status.textContent='제외할 계약의 남은 화물을 확인해 주세요.';},refreshRetained(){signature='';updateContracts(contracts);},isOpen:()=>!closed,dispose(){warmWorker?.dispose();warmWorker=null;dispose();events.abort();},updateContracts,
     canAdvance:()=>!!flightRoute&&!launch.disabled,advanceGuidance:()=>!launch.disabled&&launch.onclick()===true,
     setPartner(value){partner.value=value;partner.onchange();},
     invalidateConfiguration(){ship=currentShip();select.value=ship.id;fillStarts();invalidate('운항 설정을 변경했습니다. 준비를 마치면 항로 안내를 시작해 주세요.');},

@@ -4,6 +4,7 @@ import {definitionReference} from './catalog.mjs';
 import {SIZES,fullLoadLayout,COLORS} from '../../engine.mjs';
 import {validateShip,withStacking} from '../../ships.mjs';
 import {fixedRetained} from './retained-cargo.mjs';
+import {completeDemand} from './manifest-coverage.mjs';
 
 const medium='6f207f9c-0575-4a88-82f8-ccc348eab9da',objective='7ad329fd-b582-4675-91ed-c474102627b7';
 const mediumTotals=[['Nitrogen',24,8,12],['Organics',12,4,6],['Ranta Dung',14,2,7]];
@@ -16,7 +17,7 @@ const guideSizes=scu=>{const out=[];for(const size of [32,16,8,4,2,1]){while(scu
 export function reservationPreview(contract,catalog,index){
  if(contract.conflicts?.length||contract.definitionObservations?.length!==1)throw Error('계약 기록 충돌을 확인해 주세요.');
  const reference=definitionReference(contract,catalog);
- const resources=rows=>(rows||[]).flatMap(o=>o.kind==='Or'?o.options.flatMap(resources):o.kind==='Resource'?[o]:[]);
+ const resources=rows=>(rows||[]).flatMap(o=>o.kind==='Or'?o.options.flatMap(resources):o.kind==='Resource'||o.kind==='Entity'&&o.name==='CryoPod'?[o]:[]);
  const orders=resources(reference.rules?.orders);
  if(!orders.length)throw Error('이 화물 유형의 적재 공간 가이드는 아직 지원하지 않습니다.');
  const compared=contractLocations(contract,index),destinations=compared.objectives.filter(o=>o.role==='dropoff');
@@ -43,15 +44,17 @@ export function reservationPreview(contract,catalog,index){
    const marker=destinations.find(o=>o.objectiveId===id),totals=new Set(events.map(q=>q.total));
    const names=new Set();for(const q of events){const hits=[...new Set(orders.map(o=>o.name).filter(n=>typeof n==='string'&&new RegExp(`(?<![A-Za-z])${escaped(n)}(?![A-Za-z])`,'i').test(q.notification||'')))];if(hits.length!==1){names.add(null);continue;}names.add(hits[0]);}
    const total=events[0]?.total,name=[...names][0],matches=orders.filter(o=>o.name===name),caps=new Set(matches.map(o=>o.maxBoxScu));
-   if(!marker||events.some(q=>q.unit!=='SCU')||totals.size!==1||names.size!==1||!name||!Number.isSafeInteger(total)||total<1||total>10000){pending.push(id);continue;}
-   rows.push({key:rowKey(contract,id),commodity:name,scu:total,maxBoxSize:32,publicMaxBoxSize:caps.size===1&&SIZES.includes([...caps][0])?[...caps][0]:null,limitSource:'reservation-guide',parts:[total],dropoffId:marker.candidates[0].id,boxes:[]});
+   const pod=matches.length>0&&matches.every(o=>o.kind==='Entity'&&o.name==='CryoPod');
+   if(!marker||events.some(q=>q.unit!==(pod?'count':'SCU'))||totals.size!==1||names.size!==1||!name||!Number.isSafeInteger(total)||total<1||total>(pod?2048:10000)){pending.push(id);continue;}
+   rows.push({key:rowKey(contract,id),commodity:name,scu:total,maxBoxSize:pod?1:32,publicMaxBoxSize:caps.size===1&&SIZES.includes([...caps][0])?[...caps][0]:null,limitSource:'reservation-guide',parts:[total],dropoffId:marker.candidates[0].id,boxes:pod?[{size:1,count:total}]:[],...(pod?{_cargoShape:'cryopod'}:{})});
   }
  }
  if(!rows.length)throw Error('배송지·품목·수량이 함께 확인된 화물을 기다리고 있습니다.');
+ const complete=mediumMatch||!pending.length&&completeDemand(reference.rules.orders,reference.rules.locations,rows,compared.objectives);
  return {scope:'destination-space-reservation',mission:{id:contract.missionId,title:contract.title,cargo:rows},
   evidence:{source:reference.source,version:reference.version,allocation:'pickup-unresolved',boxComposition:'estimated-space-only',totals:mediumMatch?'user-corroborated-fixed-type':'exact-objective-log-notices'},
-  ...(mediumMatch?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
-  partial:!mediumMatch,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
+  ...(complete?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
+  partial:!complete,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
 export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null,...(row._cargoShape?[row._cargoShape]:[])]);}
 export function specifiedBoxes(row,value){

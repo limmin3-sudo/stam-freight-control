@@ -42,7 +42,7 @@ const STATIC = new Map([
   ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
   ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['box-editor.mjs','reservations.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','flight-backup.mjs','flight-backup-view.mjs','manual-drafts.mjs','ui-language.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['box-editor.mjs','reservations.mjs','manifest-coverage.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','completion-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','flight-backup.mjs','flight-sync.mjs','flight-backup-view.mjs','manual-drafts.mjs','ui-language.mjs','partner-english.mjs','ui-english.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
@@ -92,7 +92,7 @@ export const logServiceFiles = () => [...STATIC.values()].map(([path])=>new URL(
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
 
 // Local test service. It never accepts file paths over HTTP and never writes game files.
-export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null } = {}) {
+export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null, positionStatus = null } = {}) {
   if (typeof file !== 'string' || !file || !/\.log$/i.test(file)) throw new Error('select-log-file');
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
@@ -150,7 +150,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+    return { protocol: 1, position:positionStatus?.() || null, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
       lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }

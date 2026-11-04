@@ -8,6 +8,9 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 internal static class Launcher {
     [STAThread] static int Main(string[] args) {
@@ -61,6 +64,9 @@ internal static class Launcher {
     }
 }
 internal sealed class BridgeWindow : Form {
+    [DllImport("user32.dll")] static extern uint GetClipboardSequenceNumber();
+    readonly CheckBox positionLink=new CheckBox();readonly ComboBox positionSystem=new ComboBox();
+    readonly System.Windows.Forms.Timer clipboardTimer=new System.Windows.Forms.Timer{Interval=500};uint clipboardSequence;
     Process child;string url;bool stopping;readonly System.Windows.Forms.Timer startup=new System.Windows.Forms.Timer{Interval=15000};
     readonly Label status=new Label(),path=new Label(),stateName=new Label();
     readonly DeckButton choose=new DeckButton(),open=new DeckButton(),stop=new DeckButton(),guide=new DeckButton();
@@ -68,10 +74,10 @@ internal sealed class BridgeWindow : Form {
     readonly string settings=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","log-path.txt");
     static readonly Color Ink=Color.FromArgb(230,242,248),Muted=Color.FromArgb(169,191,205),Cyan=Color.FromArgb(98,222,228);
     public BridgeWindow(){
-        Text="STAM FREIGHT CONTROL · 관제 연결";ClientSize=new Size(780,610);MinimumSize=new Size(720,650);StartPosition=FormStartPosition.CenterScreen;
+        Text="STAM FREIGHT CONTROL · 관제 연결";ClientSize=new Size(780,670);MinimumSize=new Size(720,710);StartPosition=FormStartPosition.CenterScreen;
         BackColor=Color.FromArgb(8,17,25);ForeColor=Ink;Font=new Font("Malgun Gothic",10);AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;
-        var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(30,24,30,22),ColumnCount=1,RowCount=7};
-        foreach(int height in new[]{82,62,116,108,62,52})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(layout);
+        var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(30,24,30,22),ColumnCount=1,RowCount=8};
+        foreach(int height in new[]{82,62,116,108,62,52,56})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(layout);
         var heading=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=Padding.Empty};heading.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));heading.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
         logo.SizeMode=PictureBoxSizeMode.Zoom;logo.Dock=DockStyle.Fill;logo.Margin=new Padding(0,0,14,14);
         try{using(var original=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo.png")))logo.Image=new Bitmap(original);}catch{}
@@ -92,12 +98,30 @@ internal sealed class BridgeWindow : Form {
         choose.Text="Game.log 선택";choose.Primary=true;open.Text="관제 열기 ↗";stop.Text="연결 종료";
         foreach(var button in new[]{choose,open,stop}){button.Dock=DockStyle.Fill;button.Margin=new Padding(0,0,10,10);buttons.Controls.Add(button);}stop.Margin=new Padding(0,0,0,10);
         open.Enabled=stop.Enabled=false;guide.Text="로그 선택이 처음이라면 · 오퍼레이터 안내 ↗";guide.Dock=DockStyle.Fill;guide.Margin=new Padding(0,0,0,12);layout.Controls.Add(guide);
+        var positionPanel=new FlowLayoutPanel{Dock=DockStyle.Fill,Margin=Padding.Empty};
+        positionLink.Text="복사한 /showlocation 좌표 연결";positionLink.AutoSize=true;positionLink.ForeColor=Ink;positionLink.Margin=new Padding(0,7,18,0);
+        positionSystem.DropDownStyle=ComboBoxStyle.DropDownList;positionSystem.Items.AddRange(new object[]{"Stanton","Pyro","Nyx"});positionSystem.SelectedIndex=0;positionSystem.Width=130;
+        positionPanel.Controls.Add(positionLink);positionPanel.Controls.Add(positionSystem);layout.Controls.Add(positionPanel);
+        positionLink.CheckedChanged+=(s,e)=>{clipboardSequence=GetClipboardSequenceNumber();if(positionLink.Checked)clipboardTimer.Start();else{clipboardTimer.Stop();SendPositionMessage(new Dictionary<string,object>{{"type","position-off"}});}};
+        positionSystem.SelectedIndexChanged+=(s,e)=>{clipboardSequence=GetClipboardSequenceNumber();SendPositionMessage(new Dictionary<string,object>{{"type","position-off"}});};
+        clipboardTimer.Tick+=(s,e)=>ReadPositionClipboard();
+        hints.SetToolTip(positionLink,"직접 /showlocation을 입력해 새로 복사한 좌표만 읽습니다. 다른 클립보드 내용은 관제로 보내지 않습니다.");
         layout.Controls.Add(new Label{Text="이 창은 최소화해 두세요. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다.",Dock=DockStyle.Fill,ForeColor=Muted,Font=new Font("Malgun Gothic",9),Margin=new Padding(0,5,0,0)});
         choose.Click+=(sender,e)=>SelectLog();open.Click+=(sender,e)=>Open(url);guide.Click+=(sender,e)=>Open(url==null?"https://limmin3-sudo.github.io/stam-freight-control/guide.html#connect":new Uri(new Uri(url),"/guide.html#connect").ToString());stop.Click+=(sender,e)=>Disconnect();
         startup.Tick+=(sender,e)=>{startup.Stop();status.Text="연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도해 주세요.";Disconnect(false);};
         FormClosing+=(sender,e)=>{if(child!=null&&MessageBox.Show("로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다.","STAM",MessageBoxButtons.YesNo)!=DialogResult.Yes){e.Cancel=true;return;}Disconnect();};
     }
-    protected override void Dispose(bool disposing){if(disposing){startup.Dispose();hints.Dispose();if(logo.Image!=null){logo.Image.Dispose();logo.Image=null;}}base.Dispose(disposing);}
+    protected override void Dispose(bool disposing){if(disposing){startup.Dispose();clipboardTimer.Dispose();hints.Dispose();if(logo.Image!=null){logo.Image.Dispose();logo.Image=null;}}base.Dispose(disposing);}
+    void SendPositionMessage(Dictionary<string,object> message){try{if(child!=null&&!child.HasExited){child.StandardInput.WriteLine(new JavaScriptSerializer().Serialize(message));child.StandardInput.Flush();}}catch{}}
+    void ReadPositionClipboard(){
+        if(!positionLink.Checked||child==null)return;uint sequence=GetClipboardSequenceNumber();if(sequence==clipboardSequence)return;
+        try{if(!Clipboard.ContainsText()){clipboardSequence=sequence;return;}string text=Clipboard.GetText();clipboardSequence=sequence;if(text.Length>512)return;
+            string number=@"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)";
+            var match=Regex.Match(text,@"^\s*Coordinates\s*:\s*x\s*:\s*"+number+@"\s*,?\s*y\s*:\s*"+number+@"\s*,?\s*z\s*:\s*"+number+@"\s*$",RegexOptions.IgnoreCase);
+            if(!match.Success)return;double[] xyz=new double[3];for(int i=0;i<3;i++)if(!Double.TryParse(match.Groups[i+1].Value,NumberStyles.Float,CultureInfo.InvariantCulture,out xyz[i])||Double.IsNaN(xyz[i])||Double.IsInfinity(xyz[i])||Math.Abs(xyz[i])>1e12)return;
+            SendPositionMessage(new Dictionary<string,object>{{"type","position"},{"system",positionSystem.SelectedItem.ToString().ToLowerInvariant()},{"position",xyz}});
+        }catch(System.Runtime.InteropServices.ExternalException){}
+    }
     void SelectLog(){using(var dialog=new OpenFileDialog{Title="Star Citizen Game.log 선택 · 읽기 전용",Filter="게임 로그 (Game.log)|Game.log|로그 파일 (*.log)|*.log",CheckFileExists=true}){
         try{if(File.Exists(settings)){string prior=File.ReadAllText(settings);if(File.Exists(prior))dialog.FileName=prior;}}catch{}
         if(dialog.ShowDialog()!=DialogResult.OK)return;
@@ -116,7 +140,7 @@ internal sealed class BridgeWindow : Form {
     }}
     void UI(Action action){if(IsDisposed||!IsHandleCreated)return;try{BeginInvoke(action);}catch(InvalidOperationException){}}
     void Open(string address){try{Process.Start(new ProcessStartInfo(address){UseShellExecute=true});}catch{MessageBox.Show("기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정해 주세요.","STAM");}}
-    void Disconnect(bool update=true){startup.Stop();stopping=true;var old=child;child=null;Launcher.Stop(old);url=null;open.Enabled=stop.Enabled=false;choose.Enabled=true;stateName.Text=update?"● 연결 대기":"● 연결 확인 필요";stateName.ForeColor=Color.FromArgb(240,190,116);if(update)status.Text="연결 종료 · 저장된 설정은 유지됩니다.";stopping=false;}
+    void Disconnect(bool update=true){startup.Stop();positionLink.Checked=false;clipboardTimer.Stop();stopping=true;var old=child;child=null;Launcher.Stop(old);url=null;open.Enabled=stop.Enabled=false;choose.Enabled=true;stateName.Text=update?"● 연결 대기":"● 연결 확인 필요";stateName.ForeColor=Color.FromArgb(240,190,116);if(update)status.Text="연결 종료 · 저장된 설정은 유지됩니다.";stopping=false;}
 }
 
 // Owner-drawn buttons keep readable text in every state; Windows' disabled
