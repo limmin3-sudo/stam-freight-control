@@ -6,29 +6,32 @@ const version=JSON.parse(await readFile('desktop/version.json','utf8')).version;
 if(release.version!==version||!/^app\.\d+\.\d+\.\d+(?:-preview\.\d+)?$/.test(version))throw Error('version-mismatch');
 const zip=`dist/STAM-${version}-win-x64.zip`,bytes=await readFile(zip);
 if(bytes.length!==release.bytes||createHash('sha256').update(bytes).digest('hex')!==release.sha256)throw Error('package-integrity');
-const body=`Windows x64용 **개발판 관제 연결 앱**입니다. 전체 재구축과 실게임 검증이 끝난 완성본은 아닙니다.
+const body=`Windows x64 관제 연결 앱입니다. ZIP 전체를 새 폴더에 풀고 **STAM.exe**를 실행한 다음 **StarCitizen/LIVE/Game.log**를 선택하세요. Node 설치나 관리자 권한은 필요하지 않습니다.
 
-1. ZIP을 새 폴더에 전부 풀고 **STAM.exe**를 실행해 주세요.
-2. StarCitizen/LIVE/Game.log를 선택하면 기본 브라우저에 관제가 열립니다.
-3. Node 설치·관리자 권한은 필요하지 않습니다. runtime·app 폴더를 함께 유지해 주세요.
-4. 실행기 창은 최소화해 두셔도 됩니다. 닫으면 로그 연결이 종료됩니다.
-5. 상단 **이용 안내**에서 13단계 슬라이드와 24초 1080p 출항 브리핑을 볼 수 있습니다.
+- 브라우저에서 파트너·함선·출발지를 확인하고 계약을 받아 항로와 적재를 준비합니다.
+- 사이트의 화면·항로·적재 기능은 별도로 업데이트됩니다. 앱은 호환 자원을 받아 다음 실행부터 적용합니다.
+- 복사한 /showlocation 좌표 연결은 앱에서 직접 켭니다. 게임 명령은 사용자가 입력하며 마지막 수신 위치로 표시합니다.
+- 실행기 창은 최소화해 두세요. 닫으면 연결이 종료됩니다.
+- Windows 10/11 x64용 휴대형 앱이며 코드 서명이 없습니다. 보안 기능을 끄지 말고 출처를 확인하세요.
+- 현재 게임에서만 확인 가능한 계약 누락·위치 기준·부하 검증은 이용안내와 최종 확인 목록을 참고하세요.
 
-영상은 독자적인 화물선 콘셉트 이미지·예시 관제 화면·오리지널 음악과 효과음으로 만든 브리핑입니다. 영어 화면 문구와 한글 자막을 사용합니다. 공식 Star Citizen 영상/음악을 복사하지 않았으며 실게임 검증 영상이 아닙니다. 별도 briefing.mp4 파일로도 볼 수 있습니다.
+[운송 관제](https://limmin3-sudo.github.io/stam-freight-control/) · [이용안내](https://limmin3-sudo.github.io/stam-freight-control/guide.html)
 
-- Windows 10/11 x64 휴대형 앱. ARM/설치 관리자는 지원하지 않습니다. 코드 서명 전이므로 출처와 체크섬을 확인하세요. 보안 기능을 끄도록 안내하지 않습니다.
-- 선택한 로그만 읽습니다. 게임 수정·메모리 접근·주입·패킷 감청·자동 입력을 하지 않습니다. CIG/EAC의 공식 승인을 받았다고 주장하지 않습니다.
-- 같은 PC·브라우저·기본 로컬 주소에서 설정을 이어 씁니다. 기존 연결 종료 후 새 버전을 별도 폴더에 풀어 실행하세요.
-- **모든 유형의 자동 명세, 실제 위치의 연속 추적, 전체 운항 상태의 기기 간 동기화, 새 UI 전체 English 전환은 미완료**입니다.
-
-검증: Windows에서 전체 테스트→실제 EXE 컴파일→포함된 Node 런타임으로 로컬 서비스·안내 페이지 확인 후 이 파일을 생성했습니다. 실게임 미확인.
-검사 실행: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}
+Windows에서 전체 테스트와 실제 EXE·포함 런타임 검사를 통과한 패키지입니다. 실제 게임 검증을 완료했다는 뜻은 아닙니다.
+검사: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}
 소스: ${process.env.GITHUB_SHA}
 ZIP SHA-256: ${release.sha256}
-파일별 목록은 ZIP의 PACKAGE.json, 라이선스는 runtime/LICENSE와 app/THIRD-PARTY-NOTICES.md에 있습니다.
 
-사이트는 별도 Pages 배포로 갱신됩니다. 앱 버전은 이 릴리스의 소스와 체크섬을 기준으로 확인하세요.
+파일별 체크섬은 PACKAGE.json, 출처·라이선스는 app/THIRD-PARTY-NOTICES.md와 runtime/LICENSE에 있습니다.
 `;
+const preview=await readFile('dist/launcher-preview.png');
+const blob=JSON.parse(execFileSync('gh',['api','repos/'+process.env.GITHUB_REPOSITORY+'/git/blobs','--input','-'],{input:JSON.stringify({encoding:'base64',content:preview.toString('base64')}),encoding:'utf8'}));
+if(!/^[a-f0-9]{40}$/.test(blob.sha))throw Error('launcher-image-blob');
+release.launcherBlobSha=blob.sha;
+release.launcherSha256=createHash('sha256').update(preview).digest('hex');
+await writeFile('dist/desktop-release.json',JSON.stringify(release,null,2));
 await writeFile('dist/RELEASE-NOTES.md',body);
 // No --clobber: an existing version is immutable and must not be silently replaced.
-execFileSync('gh',['release','create',version,zip,'dist/SHA256SUMS.txt','assets/onboarding/briefing.mp4','--repo',process.env.GITHUB_REPOSITORY,'--target',process.env.GITHUB_SHA,'--prerelease','--title','STAM Windows 개발판 · 출항 안내','--notes-file','dist/RELEASE-NOTES.md'],{stdio:'inherit'});
+execFileSync('gh',['release','create',version,zip,'dist/SHA256SUMS.txt','dist/desktop-release.json','dist/launcher-preview.png','assets/onboarding/briefing.mp4','--repo',process.env.GITHUB_REPOSITORY,'--target',process.env.GITHUB_SHA,'--prerelease','--title','STAM Windows · 관제 연결','--notes-file','dist/RELEASE-NOTES.md'],{stdio:'inherit'});
+
+console.log('STAM_RELEASE_METADATA '+JSON.stringify(release));

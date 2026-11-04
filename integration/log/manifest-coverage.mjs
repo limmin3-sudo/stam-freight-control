@@ -1,7 +1,7 @@
 // Completeness needs the entire declared demand and every declared address slot.
 // A partial notice cannot be promoted because it merely mentions a valid item.
 export function completeDemand(orders,slots,rows,objectives){
- if(!orders?.length||!slots?.length||orders.some(o=>!['Resource','Entity'].includes(o.kind)||o.kind==='Entity'&&o.name!=='CryoPod'))return false;
+ if(!orders?.length||orders.length>64||!slots?.length||slots.length>24||orders.some(o=>!['Resource','Entity'].includes(o.kind)||o.kind==='Entity'&&o.name!=='CryoPod'))return false;
  const demand=new Map();
  for(const o of orders){const min=o.kind==='Resource'?o.minScu:o.minAmount,max=o.kind==='Resource'?o.maxScu:o.maxAmount;
   if(!Number.isSafeInteger(min)||min<=0||min!==max)return false;
@@ -13,8 +13,12 @@ export function completeDemand(orders,slots,rows,objectives){
  if(addresses.some(s=>!s.role)||objectives.length!==addresses.length||!objectives.some(o=>o.role==='pickup')||!objectives.some(o=>o.role==='dropoff'))return false;
  // Bipartite matching allows two identical candidate pools without assigning
  // commodity rows to a pickup by array position or objective suffix.
- const used=new Set();function match(i){if(i===objectives.length)return true;const o=objectives[i];if(o.status!=='coordinate-match'||o.candidates.length!==1)return false;
-  for(let j=0;j<addresses.length;j++){const s=addresses[j];if(used.has(j)||s.role!==o.role||!s.candidates.includes(o.candidates[0].name))continue;used.add(j);if(match(i+1))return true;used.delete(j);}return false;
+ const assigned=new Map();
+ function assign(i,seen){
+  const o=objectives[i];if(o.status!=='coordinate-match'||o.candidates.length!==1)return false;
+  for(let j=0;j<addresses.length;j++){const slot=addresses[j];if(seen.has(j)||slot.role!==o.role||!slot.candidates.includes(o.candidates[0].name))continue;
+   seen.add(j);if(!assigned.has(j)||assign(assigned.get(j),seen)){assigned.set(j,i);return true;}
+  }return false;
  }
- return match(0);
+ return objectives.every((_,i)=>assign(i,new Set()));
 }
