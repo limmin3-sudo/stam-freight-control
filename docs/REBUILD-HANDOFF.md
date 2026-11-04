@@ -6,10 +6,10 @@
 
 - 저장소: https://github.com/limmin3-sudo/stam-freight-control
 - 작업 브랜치: `rebuild/log-evidence-foundation`
-- 이전 기능 기준: `5671e02bd229044433b9ac80e13d31cc1d7b4741`. 재개 변경의 최종 SHA는 이 문서를 포함하는 브랜치 이력 기준.
+- 마지막 기능 커밋: `06478338d06eb18d6de54f3369bb8e6a14cb1efa`. 검사 결과를 저장한 후속 문서 커밋은 최신 브랜치 이력 기준.
 - 시험판: `rebuild.20261104.4`
 - Draft PR: https://github.com/limmin3-sudo/stam-freight-control/pull/1
-- 이전 기능 기준의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41671306193) 성공 확인.
+- 해당 기능의 [Rebuild checks](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41775699089) 6조합 성공 확인. Windows Node22/24/26.13.0 각각 실행기 포함245통과·건너뜀0.
 - 운영 main 기준: `e4c744d3eff14b59825260c8b2d0459fc3b5e56e`. 이번 작업은 main에 반영하거나 Pages에 배포하지 않았다.
 - 코드·검증·인수인계를 시험 브랜치에 저장한다. 재개 시 위 기능 커밋으로 되돌리지 말고 최신 브랜치와 작업 트리를 먼저 확인한다.
 
@@ -61,7 +61,7 @@
 
 ## 검증 결과와 재현
 
-재개 변경의 Node22 전체 검사: `npm test -- --test-concurrency=2` **245건 중244통과·Windows전용1건너뜀**, 실패0. 신규 목표/종료/지급8검사 포함.
+재개 변경의 Node22 전체 검사: `npm test -- --test-concurrency=2` **245건 중244통과·Windows전용1건너뜀**, 실패0. 신규 목표/종료/지급8검사 포함. GitHub Windows Node22/24/26.13.0에서는 각각245개 전부 통과·건너뜀0이며 `.cmd` 실행기 검사도 실제 실행됐다. Linux의 건너뜀을 Windows 미검증으로 혼동하지 않는다.
 
 - `scripts/check-progress-browser.mjs`: 동일 유형 실행 계약 분리, 목표 완료≠계약 완료, 종료 자동 선택 해제, 펼침 유지, 지급 중복/미배정/정확한 ID 대응, 계정 기록 무변경, 대기 캔버스0, 모바일390px·JS/HTTP오류0.
 
