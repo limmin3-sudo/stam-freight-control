@@ -153,3 +153,4 @@
 - **검증:** Node22 전체285건 중284통과·실패0·Windows전용1건너뜀. 새4검사: 카탈로그/슬롯/버전·수정 그리드, 숫자 검증/공개값 불변, 양 파트너의 대형/중형 항로 시간 변경과 소유권·수량 유지, 다른 함선·실패 저장·계정 격리. Chromium C급 Crossfield/D급 후보 표시·S1 제외·선택 저장/재접속·안내 중 잠금·28상자168SCU·다음 구간·390px·JS/HTTP오류0 확인. 새 details 때문에 기존 검사 선택자가 중복된 문제는 함선 설정 summary를 명시하도록 수정했다. 실제 장착·비행 시간/FPS는 실게임 미확인.
 - **갱신:** `node scripts/refresh-quantum-drives.mjs`. 페이지 누락/버전 혼합/필수 값 누락 시 기존 자료를 덮어쓰지 않는다. [자료·검증 범위](QUANTUM-DRIVES.md) 참조.
 - **남은 일:** 세부 시간 가정 UI, 실제 장착 함선/드라이브 근거, 일반 미션 누락 보완, 보상/기록, 언어/패키징/최종 게임 검증. CI와 최종 SHA는 후속 기록/Git 이력 참조.
+- **저장·CI:** 기능 `bd963cd9ff4e693c5b24e7a8ac5d1fe81dd70048` 시험 브랜치 푸시·원격 일치 확인. [Rebuild checks 41791110150](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41791110150) Windows/Linux × Node22·24·26.13.0 여섯 작업 모두 성공. PR #1 갱신. main `e4c744d` 유지·운영 배포 없음. 드라이브 스냅샷25,139바이트, 게임 중 API 폴링 없음. 후속 커밋은 검증 기록만 저장한다.
