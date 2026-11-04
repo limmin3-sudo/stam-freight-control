@@ -11,17 +11,17 @@ const STATIC = new Map([
   ['/data/locations.json',['../../data/locations.json','application/json']],
   ...['account-core.mjs', 'account.mjs', 'aliases.mjs', 'app.mjs', 'assistant.mjs', 'cargo-summary.mjs', 'execution.mjs', 'feedback-core.mjs', 'feedback-data.mjs', 'feedback.mjs', 'firebase-config.mjs', 'fleet.mjs', 'guide.mjs', 'history-core.mjs', 'history.mjs', 'i18n.mjs', 'location-manager-core.mjs', 'location-manager.mjs', 'mission-match.mjs', 'ocr.mjs', 'planning-preferences.mjs', 'route-editor.mjs', 'scene.mjs', 'starmap.mjs', 'sync.mjs', 'updates.mjs', 'voice.mjs', 'workbench.mjs'].map(n=>['/'+n,['../../'+n,'text/javascript']]),
   ...['flight-deck.html','patch-notes.html'].map(n=>['/'+n,['../../'+n,'text/html; charset=utf-8']]),
-  ...['patch-notes.css','patch-notes.mjs'].map(n=>['/onboarding/'+n,['../../onboarding/'+n,n.endsWith('.css')?'text/css':'text/javascript']]),
-  ...['manual-adapter.mjs','manual-reception.mjs','flight-deck.css','deck-layout.css','partner-briefing.mjs','user-contracts.mjs','user-contracts-view.mjs','position-feed.mjs','position-view.mjs'].map(n=>['/integration/log/'+n,['./'+n,n.endsWith('.css')?'text/css':'text/javascript']]),
-  ...['stam-logo.png','stam-logo-64.png'].map(n=>['/assets/'+n,['../../assets/'+n,'image/png']]),
+  ...['patch-notes.css','brand.css','patch-notes.mjs'].map(n=>['/onboarding/'+n,['../../onboarding/'+n,n.endsWith('.css')?'text/css':'text/javascript']]),
+  ...['manual-adapter.mjs','manual-reception.mjs','flight-deck.css','deck-layout.css','partner-briefing.mjs','user-contracts.mjs','user-contracts-view.mjs'].map(n=>['/integration/log/'+n,['./'+n,n.endsWith('.css')?'text/css':'text/javascript']]),
+  ...['stam-logo.png','stam-logo-64.png','stam-logo-transparent.png'].map(n=>['/assets/'+n,['../../assets/'+n,'image/png']]),
   ['/assets/partners/broker.jpg',['../../assets/partners/broker.jpg','image/jpeg']],
   ['/style.css',['../../style.css','text/css']],
   ['/data/hauling-missions.json',['../../data/hauling-missions.json','application/json']],
 
   ['/i18n-en.mjs',['../../i18n-en.mjs','text/javascript']],
   ...['guide.html','download.html'].map(name=>['/'+name,['../../'+name,'text/html; charset=utf-8']]),
-  ...['guide.mjs','guide-data.mjs','download.mjs','guide.css'].map(name=>['/onboarding/'+name,['../../onboarding/'+name,name.endsWith('.css')?'text/css':'text/javascript']]),
-  ...['launcher.png','poster.jpg','briefing.mp4','briefing-ko.vtt','flight-deck.jpg','partner-ready.jpg','contract-reception.jpg','cargo-layout.jpg','route-map.jpg'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'png':'image/png','jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
+  ...['guide.mjs','guide-data.mjs','guide-data-en.mjs','language.mjs','download.mjs','guide.css'].map(name=>['/onboarding/'+name,['../../onboarding/'+name,name.endsWith('.css')?'text/css':'text/javascript']]),
+  ...['partners-gestures.png','launcher.png','launcher-en.png','poster.jpg','briefing.mp4','briefing-ko.vtt','flight-deck.jpg','partner-ready.jpg','contract-reception.jpg','cargo-layout.jpg','route-map.jpg','flight-deck-en.jpg','partner-ready-en.jpg','contract-reception-en.jpg','cargo-layout-en.jpg','route-map-en.jpg'].map(name=>['/assets/onboarding/'+name,['../../assets/onboarding/'+name,({'png':'image/png','jpg':'image/jpeg','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()]]]),
   ['/data/desktop-release.json',['../../data/desktop-release.json','application/json']],
   ['/integration/log/plan-choice-store.mjs',['./plan-choice-store.mjs','text/javascript']],
   ['/integration/log/reception.mjs',['./reception.mjs','text/javascript']],
@@ -42,7 +42,7 @@ const STATIC = new Map([
   ...screenAssets.map(name=>['/vendor/screen/'+name,['../../vendor/screen/'+name,name.endsWith('.js')?'text/javascript':name.endsWith('.wasm')?'application/wasm':'application/octet-stream']]),
   ...['screen-watch.mjs','screen-evidence.mjs','screen-reader.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ...['feedback-core.mjs','feedback-data.mjs','location-manager-core.mjs','locations.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
-  ...['box-editor.mjs','reservations.mjs','manifest-coverage.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','completion-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','flight-backup.mjs','flight-sync.mjs','flight-backup-view.mjs','manual-drafts.mjs','ui-language.mjs','partner-english.mjs','ui-english.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
+  ...['box-editor.mjs','reservations.mjs','manifest-coverage.mjs','progress.mjs','progress-view.mjs','reward-store.mjs','completion-store.mjs','reward-view.mjs','reward-history.mjs','guidance-store.mjs','planning-task.mjs','flight-backup.mjs','flight-sync.mjs','flight-backup-view.mjs','manual-drafts.mjs','ui-language.mjs','partner-english.mjs','ui-english.mjs','navigation.mjs','flight-ready.mjs','workspace-tools.mjs','page-navigation.mjs','workspace-updates.mjs','personal-locations.mjs'].map(name=>['/integration/log/'+name,['./'+name,'text/javascript']]),
   ['/integration/log/workspace-tools.css',['./workspace-tools.css','text/css']],
   ...['releases.json','rebuild-version.json','rebuild-releases.json'].map(name=>['/data/'+name,['../../data/'+name,'application/json']]),
   ...['account-core.mjs','history-core.mjs','sync.mjs','planning-preferences.mjs','firebase-config.mjs'].map(name=>['/'+name,['../../'+name,'text/javascript']]),
@@ -92,7 +92,7 @@ export const logServiceFiles = () => [...STATIC.values()].map(([path])=>new URL(
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
 
 // Local test service. It never accepts file paths over HTTP and never writes game files.
-export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null, positionStatus = null } = {}) {
+export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null } = {}) {
   if (typeof file !== 'string' || !file || !/\.log$/i.test(file)) throw new Error('select-log-file');
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
@@ -150,7 +150,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, position:positionStatus?.() || null, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+    return { protocol: 1, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
       lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
@@ -159,10 +159,11 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     const send = (code, body, type = 'application/json') => {
       // Release stamping changes the import map. Hash the served map, not an old bundled page.
       const map=type.startsWith('text/html')?String(body).match(/<script\s+type="importmap"[^>]*>([\s\S]*?)<\/script>/):null;
+      const embeddedDocument=/^\/(?:guide|patch-notes|download)\.html(?:\?|$)/.test(req.url||'');
       const importPolicy=map?"'sha256-"+createHash('sha256').update(map[1]).digest('base64')+"'":'';
       res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
+        'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': embeddedDocument?'SAMEORIGIN':'DENY',
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors "+(embeddedDocument?"'self'":"'none'") });
       res.end(body);
     };
     try {

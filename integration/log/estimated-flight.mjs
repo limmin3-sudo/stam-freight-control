@@ -17,9 +17,7 @@ export function createEstimatedFlight(leg, now = () => performance.now()) {
   }};
 }
 
-export function trackingPresentation({kind='unavailable',observedAt,continuous=false,sampleCount=0,now=Date.now(),paused=false,arrived=false}={}) {
-  if(kind==='verified' && continuous && sampleCount>=2 && Number.isFinite(observedAt) && now>=observedAt && now-observedAt<=5000)
-    return {state:'synced',title:'실시간 동기화',detail:`위치 확인 ${new Date(observedAt).toLocaleTimeString('ko-KR')}`};
-  if(kind==='estimated')return {state:paused||arrived?'waiting':'estimated',title:arrived?'위치 확인 대기':paused?'예상 이동 일시정지':'예상 이동',detail:'실제 위치 미연결 · 계획 시간 기준'};
-  return {state:'waiting',title:'위치 확인 대기',detail:Number.isFinite(observedAt)?`마지막 위치 확인 ${new Date(observedAt).toLocaleTimeString('ko-KR')}`:'실제 위치 미연결'};
+export function trackingPresentation({kind='unavailable',paused=false,arrived=false}={}) {
+  if(kind==='estimated')return {state:paused||arrived?'waiting':'estimated',title:arrived?'예상 구간 이동 완료':paused?'예상 이동 일시정지':'예상 이동',detail:'계획 시간 기준'};
+  return {state:'waiting',title:'항로 안내 대기',detail:'계획 경로'};
 }

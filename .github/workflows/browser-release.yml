@@ -2,7 +2,7 @@ name: Packaged browser validation
 on:
   push:
     branches: ['rebuild/**']
-    paths: ['integration/**', 'scripts/check-unified-deck-browser.mjs', 'onboarding/**', '.github/workflows/browser-release.yml']
+    paths: ['integration/**', 'scripts/check-unified-deck-browser.mjs', 'scripts/check-initial-deck-browser.mjs', 'index.html', 'assets/**', 'onboarding/**', '.github/workflows/browser-release.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,6 +31,7 @@ jobs:
           STAM_PLAYWRIGHT_MODULE: /tmp/stam-browser/node_modules/playwright
           STAM_WEB_RELEASE: /tmp/stam-release
         run: |
+          node scripts/check-initial-deck-browser.mjs
           node scripts/check-unified-deck-browser.mjs
           cat /tmp/stam-visible-untranslated.json
           node scripts/check-account-browser.mjs
@@ -40,6 +41,8 @@ jobs:
         with:
           name: STAM-browser-validation
           path: |
+            /tmp/stam-initial-*.png
+            /tmp/stam-control-*.png
             /tmp/stam-unified-*.png
             /tmp/stam-visible-untranslated.json
             /tmp/stam-guide-*.png

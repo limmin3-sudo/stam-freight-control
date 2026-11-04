@@ -3,7 +3,7 @@ import {previewReadiness,previewOrders} from './preview-packing.mjs';
 import {userContractScope} from './user-contracts.mjs';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 export function mountUserContracts(host,{store,context,onChange,prepareOCR}){
- const button=el('button','계약 보완 · 직접 추가','manual-contract-open');button.type='button';const feedback=el('p');feedback.setAttribute('role','status');host.append(button,feedback);let dialog=null;
+ const button=el('button',undefined,'manual-contract-open');button.type='button';button.append(el('b','운송 계약 추가'),el('small','스크린샷 · 텍스트 · 직접 입력'));const feedback=el('p');feedback.setAttribute('role','status');host.append(button,feedback);let dialog=null;
  button.onclick=()=>{
   if(dialog)return;const {locationData,catalog,locations,contracts=[],canEdit=true}=context();if(!canEdit){feedback.textContent='저장 로그를 살펴보는 중입니다. 실시간 관제로 돌아온 뒤 계약을 추가해 주세요.';return;}if(!locationData||!catalog||!locations){feedback.textContent='거점과 미션 목록을 불러오는 중입니다. 잠시 후 다시 열어 주세요.';return;}
   const saved=store.snapshot();if(saved.error){feedback.textContent=saved.error;return;}
