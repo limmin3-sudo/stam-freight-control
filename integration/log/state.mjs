@@ -1,3 +1,4 @@
+import {contractProgress,rewardObservations} from './progress.mjs';
 import {isNavigationEvent,navigationSnapshot} from './navigation.mjs';
 import { parseLogLine } from './parser.mjs';
 import { identityScope, identityResolver, participation } from './participation.mjs';
@@ -20,6 +21,7 @@ export class LogEvidence {
     this.identities = [];
     this.builds = [];
     this.navigation = [];
+    this.awards = [];
     this.diagnostics = new Map();
     this.lines = 0;
     this.duplicates = 0;
@@ -37,6 +39,7 @@ export class LogEvidence {
     const identity = event.type === 'local-character-observed';
     const build = event.type === 'game-build-observed';
     const navigation=isNavigationEvent(event);
+    const award=event.type==='credit-award-observed';
     const key = stable(identity || build || navigation ? { ...observation, scope: identityScope(source) } : observation);
     if (this.events.has(key)) {
       this.duplicates++;
@@ -47,8 +50,8 @@ export class LogEvidence {
     }
     if (this.events.size >= this.maxEvents) throw new Error('event-limit');
     if (this.evidenceBytes + key.length * 2 > this.maxEvidenceBytes) throw new Error('evidence-size-limit');
-    let contract = identity ? this.identities : build ? this.builds : navigation ? this.navigation : this.contracts.get(event.missionId);
-    if (!identity && !build && !navigation && !contract) {
+    let contract = identity ? this.identities : build ? this.builds : navigation ? this.navigation : award ? this.awards : this.contracts.get(event.missionId);
+    if (!identity && !build && !navigation && !award && !contract) {
       if (this.contracts.size >= this.maxContracts) throw new Error('contract-limit');
       contract = [];
       this.contracts.set(event.missionId, contract);
@@ -63,7 +66,7 @@ export class LogEvidence {
     const resolveBuild = buildResolver(this.builds);
     const publicEvent = event => {
       const { playerId, ...safe } = event;
-      return { ...safe, ...((playerId !== undefined || event.type === 'accepted') ? { actor: identity.actor(event) } : {}) };
+      return { ...safe, ...((playerId !== undefined || event.type === 'accepted') ? { actor: identity.actor(event) } : event.type==='terminal-notice-observed'?{actor:'local-hud'}:{}) };
     };
     const hauling = [], candidates = [], pendingContracts = [];
     for (const [missionId, unordered] of this.contracts) {
@@ -71,7 +74,9 @@ export class LogEvidence {
       const accepted = events.filter(e => e.type === 'accepted');
       const markers = events.filter(e => e.type === 'marker-observed');
       const allEndings = events.filter(e => e.type === 'ended');
-      const ended = allEndings.filter(e => identity.actor(e) !== 'other');
+      const terminal=events.filter(e=>e.type==='terminal-notice-observed');
+      const service=events.filter(e=>e.type==='mission-state-observed');
+      const ended = [...allEndings.filter(e => identity.actor(e) !== 'other'),...terminal].sort(compare);
       const membership = participation(events, identity.actor);
       if (!markers.some(e => e.hauling)) {
         // Keep accepted/joined instances visible while the game has not emitted a marker.
@@ -107,6 +112,7 @@ export class LogEvidence {
         definitionId: definitions.length === 1 ? definitions[0] : null,
         definitionObservations: definitions, completionObservations: completions,
         quantityObservations: quantities, markerObservations: markers,
+        terminalObservations:terminal.map(publicEvent),missionStateObservations:service.map(publicEvent),
         objectiveNotices: events.filter(e => e.type === 'objective-notice-observed'),
         objectiveStateObservations: events.filter(e => e.type === 'objective-state-observed'),
         conflicts,
@@ -114,6 +120,8 @@ export class LogEvidence {
         manifest: null,
         planning: { allowed: false, reasons: [...conflicts, 'complete-manifest-unverified', 'cargo-allocation-unverified', 'box-composition-unverified'] },
       };
+      entry.progress=contractProgress(entry);
+      if(entry.progress.outcome==='conflict'&&!entry.conflicts.length){entry.conflicts.push('terminal-state-conflict');entry.status='conflict';entry.planning.reasons.push('terminal-state-conflict');}
       entry.boxComposition = resolveBoxProfile(entry);
       entry.originalManifest = resolveOriginalManifest(entry, this.locations);
       if (entry.boxComposition.status === 'matched-fixed-profile') {
@@ -128,6 +136,7 @@ export class LogEvidence {
     candidates.sort((a, b) => a.missionId.localeCompare(b.missionId));
     pendingContracts.sort((a,b)=>a.missionId.localeCompare(b.missionId));
     return structuredClone({
+      rewards:rewardObservations(this.awards,[...hauling,...candidates]),
       navigation:navigationSnapshot([...this.navigation,...this.identities,...this.builds]),
       schemaVersion: 1, verification: 'log-observations-with-fixed-box-profiles',
       identity: { observed: identity.observed, mixedPlayers: identity.mixedPlayers, scopes: identity.scopes },
