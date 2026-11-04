@@ -2,7 +2,7 @@ import {chapters} from './guide-data.mjs';
 const $=id=>document.getElementById(id);let current=0;
 const screens={
  bridge:{file:'flight-deck.jpg',alt:'STAM 관제의 함선 설정, 중앙 지도와 방문 순서',tip:'왼쪽에서 출항을 준비하고, 오른쪽에서 방문 순서를 확인해요. 적재 3D는 지도 아래에 있어요, 함장님.'},
- download:{file:'partner-ready.jpg',alt:'STAM에서 만날 운항 파트너',tip:'압축을 전부 풀고 STAM.exe를 실행해 주세요. 로그를 연결하면 관제로 안내할게요.'},
+ download:{file:'launcher.png',alt:'Windows 관제 연결 앱의 로그 선택과 좌표 연결 화면',tip:'압축을 전부 풀고 STAM.exe를 실행해 주세요. 로그를 연결하면 관제로 안내할게요.'},
  ready:{file:'partner-ready.jpg',alt:'오퍼레이터와 항해사 선택 화면',tip:'함장님 스타일에 맞는 파트너를 골라 주세요. 함선과 출발지도 함께 확인하면 돼요.'},
  contracts:{file:'contract-reception.jpg',alt:'게임에서 수락한 운송 계약의 접수 상태',tip:'들어온 계약은 여기에서 확인해요. 필요한 내용이 빠졌다면 그 계약만 따로 확인할 수 있어요.'},
  cargo:{file:'cargo-layout.jpg',alt:'배송지별로 구분한 실제 STAM 적재 계획 화면',tip:'같은 색은 같은 배송지예요. 어디에 내릴 화물인지 확인하고 가까이 모아 주세요.'},

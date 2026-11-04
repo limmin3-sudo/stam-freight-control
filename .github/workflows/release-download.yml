@@ -1,0 +1,15 @@
+name: Published app verification
+on:
+  push:
+    branches: ['rebuild/**', main]
+    paths: ['data/desktop-release.json', 'scripts/check-published-app.py', '.github/workflows/release-download.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python scripts/check-published-app.py
