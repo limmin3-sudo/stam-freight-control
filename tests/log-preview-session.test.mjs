@@ -41,7 +41,7 @@ test('auto-selection excludes candidates, ended, left and conflicted records and
  assert.deepEqual([...selection.selected],['b','c']);
  selection.clear();assert.equal(selection.selected.size,0);
 });
-test('only ship, grids, partner and start persist; contract drafts never enter storage', () => {
+test('planning preferences persist while unconfirmed allocation drafts stay in memory', () => {
   const values=new Map();
   const storage = {getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)};
   const a = createPreviewSession(storage);

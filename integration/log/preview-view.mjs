@@ -1,3 +1,4 @@
+import {partnerVoice} from './partner-voice.mjs';
 import {personalNavigation} from './personal-locations.mjs';
 import {boxEditor} from './box-editor.mjs';
 import {createPreview, previewReadiness, previewContractSignature} from './preview-packing.mjs';
@@ -19,7 +20,7 @@ const boxText = boxes => {
 export function previewPanel(initialContracts, {catalog, locations, locationData, locationEdits = [], prepareAssets, onGuidance=()=>{}, session = createPreviewSession()}) {
   let contracts = [], signature = '', forms = [], view, mapView, worker, timer, scheduled, serial = 0, opening = 0, closed = true;
   let settleCalculation, lastResult=null;
-  const boxOverrides={};
+  let boxOverrides={};
   let ships = [DEFAULT_SHIP], ship = DEFAULT_SHIP, controlMode = false, flightRoute = null, flightIndex = 0;
   const events = new AbortController();
   const prefs = session.preferences;
@@ -36,9 +37,7 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   options(partner, [{id:'operator',name:'브리지 오퍼레이터'}, {id:'navigator',name:'수석 항해사'}]); partner.value = prefs.partner;
   const partnerHint = el('p');
   function describePartner() {
-    partnerHint.textContent = partner.value === 'operator'
-      ? '가까운 계약부터 차근차근 마무리하겠습니다. 짧은 우회로 들를 수 있는 픽업도 함께 챙기겠습니다.'
-      : '함께 실을 수 있는 화물을 모으겠습니다. 같은 방향의 계약을 묶고 재방문을 줄이겠습니다.';
+    partnerHint.textContent = partnerVoice(partner.value).routePolicy;
     cargoPartner?.set(partner.value);mapView?.setPartner(partner.value);
   }
   const run = el('button','경로·배치 계산'), itinerary = el('ol'), instructions = el('div'), warnings = el('div');
@@ -158,6 +157,11 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
   }
   function buildForms() {
     forms = []; form.replaceChildren();
+    if(session.boxMemory.error()){
+      const reset=el('button','저장된 상자 구성 지우기');reset.type='button';
+      const error=el('p',session.boxMemory.error());form.append(error,reset);
+      reset.onclick=()=>{try{session.boxMemory.clear();buildForms();invalidate();scheduleCalculation();}catch(e){error.textContent=e.message;}};
+    }
     for (const contract of contracts) {
       const group = el('section'); group.className = 'preview-orders';
       group.append(el('h3',contract.title || '제목 미확인'));
@@ -168,7 +172,9 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
           const names=new Map(available.map(p=>[p.id,p.name]));
           for(const c of readiness.preview.mission.cargo){group.append(el('p',
             `${c.commodity} · ${c.scu} SCU · ${c.pickupId?names.get(c.pickupId):'픽업별 배분 미확인'} → ${names.get(c.dropoffId)} · ${c.boxes.length?c.boxes.map(b=>`${b.size} SCU × ${b.count}개`).join(' + '):`${c.maxBoxSize} SCU 이하 공간 가이드`}`));
-            group.append(boxEditor(c,boxOverrides[c.key],value=>{if(value)boxOverrides[c.key]=value;else delete boxOverrides[c.key];invalidate('상자 구성을 반영하고 있습니다.');scheduleCalculation();}));}
+            const remembered=session.boxMemory.lookup(contract,c);
+            if(remembered.error)group.append(el('p',remembered.error,'notice'));
+            group.append(boxEditor(c,remembered.value||remembered.saved,value=>{session.boxMemory.set(contract,c,value);invalidate('상자 구성을 반영하고 있습니다.');scheduleCalculation();}));}
           group.append(el('small','원래 요구량입니다. 현재 실린 화물이나 남은 배송량이 아닙니다.'));
         } else if(readiness.input) {
           const input = readiness.input, draft = session.draft(contract.missionId);
@@ -232,6 +238,15 @@ export function previewPanel(initialContracts, {catalog, locations, locationData
       const held=session.retained?.snapshot();if(held?.error)throw Error(held.error);
       if(session.removalPending?.size)throw Error('제외할 계약의 남은 화물을 확인해 주세요.');
       if (!contracts.length&&!held?.records.some(r=>r.boxes.length)) throw Error('계획할 계약을 선택해 주세요.');
+      if(session.boxMemory.error())throw Error(session.boxMemory.error());
+      boxOverrides={};
+      for(const c of contracts){
+        const readiness=previewReadiness(c,catalog,locations);
+        if(readiness.ready)for(const row of readiness.preview.mission.cargo){
+          const remembered=session.boxMemory.lookup(c,row);if(remembered.error)throw Error(remembered.error);
+          if(remembered.value)boxOverrides[row.key]=remembered.value;
+        }
+      }
       for (const c of contracts) {
         const readiness=previewReadiness(c,catalog,locations);
         if(!readiness.ready&&!confirmations[c.missionId]?.confirmed)

@@ -52,7 +52,7 @@ export function reservationPreview(contract,catalog,index){
   ...(mediumMatch?{visitRequirements:{complete:true,pickups:[...new Set(compared.objectives.filter(o=>o.role==='pickup').map(o=>o.candidates[0].id))],deliveries:destinations.map(o=>o.candidates[0].id)}}:{}),
   partial:!mediumMatch,pendingObjectives:pending.length,routeReady:false,currentInventoryVerified:false,remainingCargoVerified:false};
 }
-export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts]);}
+export function boxBinding(row){return JSON.stringify([row.key,row.commodity,row.scu,row.dropoffId,row.maxBoxSize,row.parts,row.pickupId||null,row.publicMaxBoxSize||null]);}
 export function specifiedBoxes(row,value){
  if(!value)return null;
  if(value.binding!==boxBinding(row))throw Error('화물 정보가 바뀌었습니다. 직접 지정한 상자 구성을 다시 확인해 주세요.');

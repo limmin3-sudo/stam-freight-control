@@ -31,9 +31,14 @@ try{
  const text=await page.locator('.preview-instructions').innerText();assert.match(text,/사용자 지정 상자/);assert.match(text,/계약 1/);assert.match(text,/계약 2/);
  await page.locator('.preview-itinerary').getByRole('button',{name:/STANTON → PYRO · 점프/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/예약 공간을 유지/);
  await page.locator('.preview-itinerary').getByRole('button',{name:/Chawla/}).click();assert.match(await page.locator('.preview-instructions').innerText(),/화물 배송/);assert.match(await page.locator('.preview-calculation-status').innerText(),/100 SCU/);
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#planning-count')?.textContent.includes('선택한 계약 2개'));
+ await page.locator('#flight-ready-action').click();await page.getByRole('button',{name:'이 설정으로 준비',exact:true}).click();await page.locator('#flight-ready-action').click();
+ await page.waitForFunction(()=>document.querySelector('.preview-calculation-status')?.textContent.includes('공간 예약 · 100 SCU'),null,{timeout:60000});
+ assert.equal((await page.locator('.preview-instructions').innerText()).match(/Nitrogen · 24 SCU · 사용자 지정 상자/g)?.length,1);
+ assert.match(await page.locator('.preview-instructions').innerText(),/Nitrogen · 24 SCU · 공간 가이드/);
  assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-history')),null);assert.equal(await page.locator('canvas').count(),2);
  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.getByRole('button',{name:'관제 닫기',exact:true}).click();assert.equal(await page.locator('canvas').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);
- console.log(JSON.stringify({passed:true,mediumAutomaticReservation:true,manualCounts:true,mismatchedTotalRejected:true,visitRouteWithoutInventedQuotas:true,jumpAndDeliveryKeepReservation:true,sameDestinationGrouped:true,twoContractOwnership:true,manualSurvivesNewContract:true,noFakeHistory:true,mobileOverflow:false,cleanup:true,errors,bad}));
+ console.log(JSON.stringify({passed:true,mediumAutomaticReservation:true,manualCounts:true,mismatchedTotalRejected:true,visitRouteWithoutInventedQuotas:true,jumpAndDeliveryKeepReservation:true,sameDestinationGrouped:true,twoContractOwnership:true,manualSurvivesNewContract:true,manualSurvivesReload:true,noRecipeCopiedToOtherContract:true,noFakeHistory:true,mobileOverflow:false,cleanup:true,errors,bad}));
 }catch(e){console.error(e);throw e;}finally{await browser?.close();await service.close();await rm(dir,{recursive:true,force:true});}

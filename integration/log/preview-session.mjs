@@ -1,6 +1,7 @@
+import {createBoxMemory} from './box-memory.mjs';
 import {PLANNING_KEY,cleanPlanningPreferences} from '../../planning-preferences.mjs';
-// Only planning preferences persist. Contract evidence and order drafts stay in
-// this page's memory; they never enter the existing guest/account run store.
+// Preferences and explicitly entered box counts persist. Contract evidence and
+// allocation drafts stay in memory, outside the existing guest/account run store.
 const KEY = 'stam-log-preview-settings-v1';
 // Automatically add only resolvable, locally accepted/joined records. This is
 // an original-demand plan, not proof that every historical record is still active.
@@ -40,7 +41,7 @@ export function createPreviewSession(storage) {
   // Migrate the old preview key once so guest/account restoration cannot reuse its account fields.
   if(!shared&&saved&&(saved.shipId||saved.startId||saved.partner||saved.disabled))persist();
   return {
-    preferences,
+    preferences,boxMemory:createBoxMemory(storage),
     savedShips() { const ships=read('vh-ships');return Array.isArray(ships)?ships.slice(0,200):[]; },
     setPreferences(patch) { Object.assign(preferences, patch); persist(); },
     setDisabled(shipId, ids) { preferences.disabled[shipId] = [...ids]; persist(); },
