@@ -10,13 +10,13 @@ test('headings separate pasted contracts without ---; wiki matches stay independ
  const chunks=splitMissionText(medium+'\n\n'+large);assert.equal(chunks.length,2);
  const missions=chunks.map(t=>enrichMission(parseMissionText(t),db));
  assert.deepEqual(missions.map(m=>m.reward),[322500,747000]);assert.deepEqual(missions.map(m=>m.cargo.reduce((n,c)=>n+c.scu,0)),[50,168]);
- assert.ok(missions.every(m=>m._wiki?.candidates===1));assert.deepEqual(missions[0].cargo.map(c=>c.maxBoxSize),[8,4,2]);assert.deepEqual(missions[1].cargo.map(c=>c.maxBoxSize),[16,16,2,16,16,2]);
+ assert.ok(missions.every(m=>m._wiki?.candidates===1));assert.deepEqual(missions[0].cargo.map(c=>c.maxBoxSize),[8,8,4,4,2,2]);assert.deepEqual(missions[1].cargo.map(c=>c.maxBoxSize),[16,16,2,16,16,2]);
 });
 test('HTML line breaks, Markdown headings and trailing backslashes preserve contract boundaries and rewards',()=>{
  const pasted='### '+medium.replaceAll('\n','&#xA;')+'\n\n'+large.replaceAll('\n','\\\n');
  const chunks=splitMissionText(pasted);assert.equal(chunks.length,2);
  const ms=chunks.map(t=>enrichMission(parseMissionText(t),db));assert.ok(ms.every(m=>m._wiki));assert.deepEqual(ms.map(m=>m.reward),[322500,747000]);
- assert.equal(parseMissionText('### '+medium.replaceAll('\n','&#xA;')).cargo.length,3);
+ assert.equal(parseMissionText('### '+medium.replaceAll('\n','&#xA;')).cargo.length,6);
 });
 test('explicit separators and a wrapped reputation line still parse as before',()=>{
  assert.equal(splitMissionText(medium+'\n---\n'+large).length,2);

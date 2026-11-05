@@ -12,7 +12,7 @@
 
 ## 제품에서 보존할 규칙
 
-- Use natural Korean in conversation and polite Korean in the UI. 화면과 파트너 대사는 [STAM 문구·말투 기준](UI-VOICE.md)을 따른다. 번역투를 피하고 항해·운송에 자연스러운 표현을 사용하되 미확인 정보를 사실처럼 꾸미지 않는다.
+- Use natural Korean in conversation and polite Korean in the UI.
 - Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts. For the senior navigator, collect every feasible shipment at a pickup before departing and batch source-system pickups before crossing when capacity permits. For the bridge operator, prioritise completing simple contracts and allow nearby pickups within the separate detour budget. Prefer destination-adjacent compact packing and shared free cells in automatic mode; preserve explicit shareGrids:false. Primary colour labels show destinations; mission IDs remain available for delivery checks.
 - Cryopods: one pod is **1 SCU**, occupying a 2-cell footprint at half cell height. Two vertically stacked pods equal the envelope of a standard 2 SCU crate. Odd pod stacks cannot support ordinary crates; no bridging uneven supports. Keep individual pod ownership and count. Do not turn the Wiki API item volume of 2 SCU into 2 SCU of cargo per pod. This is the user-confirmed packing rule (2026-11-02).
 - Hull B multi-block cargo: when spare space permits, keep each destination’s large and small containers in nearby physical blocks rather than fragmenting blocks between destinations. Using the other side is preferable to scattering a destination among other cargo. Keep the existing light-load one-side/one-level behavior and aboard positions. Preserve `_stack` and `_world` attachment frames through ship validation.
