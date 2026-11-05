@@ -11,10 +11,10 @@ const EMBLEM=`<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient 
 
 export function createAssistant(app){
  const root=document.createElement('div');root.className='aide-overlay';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','항해사 운항 안내');document.body.append(root);
- let step='welcome',typing=null,poll=null,preview=null,pendingStart=null;
+ let step='welcome',typing=null,poll=null,preview=null,inboxCleanup=null;
  const P=()=>V(preview||voiceId()),portraitId=()=>preview||voiceId();
  const stepsOrder=['choose','welcome','ship','start','shots','confirm','boxes','brief'];
- function frame(title,sub,body,buttons,{compact=false}={}){const idx=Math.max(0,stepsOrder.indexOf(step));
+ function frame(title,sub,body,buttons,{compact=false}={}){inboxCleanup?.();inboxCleanup=null;const idx=Math.max(0,stepsOrder.indexOf(step));
   root.classList.toggle('compact',compact);root.classList.toggle('partner-picker',step==='choose');root.classList.toggle('partner-intro',step==='welcome');
   root.innerHTML=`<div class="aide-card"><button class="aide-close" type="button" aria-label="닫기">×</button>
    <div class="aide-top"><div class="aide-emblem">${EMBLEM}</div><div><div class="aide-role">STAM FREIGHT CONTROL · ${P().role}</div><div class="aide-steps">${stepsOrder.slice(1).map((s,i)=>`<i class="${i+1<idx?'done':i+1===idx?'now':''}"></i>`).join('')}</div></div></div>
@@ -45,7 +45,7 @@ export function createAssistant(app){
   root.querySelector('#a-ship').value=s.id;root.querySelector('#a-ship').onchange=e=>{app.setShip(e.target.value);ship();};
   root.querySelectorAll('[data-drive-mode]').forEach(b=>b.onclick=()=>{app.setDriveSetup(b.dataset.driveMode);ship();});const speed=root.querySelector('#a-drive-speed');if(speed)speed.onchange=()=>{if(speed.reportValidity())app.setDriveSetup('custom',Number(speed.value));};
   on('#a-next',()=>go('start'));on('#a-back',()=>go('welcome'));on('#a-more-settings',()=>{close(true);app.openFlightSettings?.();});}
- function start(){const cur=pendingStart||app.start();let selected=cur||null;
+ function start(){const cur=app.start();let selected=cur||null;
   frame(P().start,P().startSub,`<label class="aide-field">${L('현재 위치','Current location')}<input id="a-loc" role="combobox" aria-autocomplete="list" aria-controls="a-location-results" aria-expanded="false" placeholder="${L('한글·영어로 지명 일부를 입력하세요','Type part of a place name')}" value="${esc(cur?app.locationLabel(cur):'')}" autocomplete="off"></label><div id="a-location-results" class="location-results" role="listbox" aria-label="${L('출발지 추천','Starting locations')}"></div><p class="aide-note" id="a-loc-hint" role="status"></p>`,
    `<button class="primary" id="a-next" ${selected?'':'disabled'}>${P().startOk}</button><button class="quiet" id="a-back">이전</button>`);
   const input=root.querySelector('#a-loc'),list=root.querySelector('#a-location-results'),hint=root.querySelector('#a-loc-hint'),next=root.querySelector('#a-next');let hits=[],active=-1;
@@ -53,15 +53,12 @@ export function createAssistant(app){
   function results(){selected=null;next.disabled=true;active=-1;hits=app.suggestLocations(input.value);list.innerHTML=hits.map((l,i)=>`<button type="button" role="option" aria-selected="false" id="a-location-${i}" data-location="${esc(l.id)}"><b>${esc(app.placeName(l.id))}</b><small>${esc(l.system.toUpperCase())}</small></button>`).join('');input.setAttribute('aria-expanded',String(!!hits.length));hint.textContent=hits.length?L('목록에서 출발지를 선택해 주세요.','Choose your starting location from the list.'):input.value?P().notFound:'';list.querySelectorAll('[data-location]').forEach(b=>b.onclick=()=>pick(b.dataset.location));}
   input.oninput=results;input.onkeydown=e=>{if(e.isComposing)return;if(['ArrowDown','ArrowUp'].includes(e.key)&&hits.length){e.preventDefault();active=(active+(e.key==='ArrowDown'?1:-1)+hits.length)%hits.length;list.querySelectorAll('[role="option"]').forEach((b,i)=>b.setAttribute('aria-selected',String(i===active)));input.setAttribute('aria-activedescendant',`a-location-${active}`);list.children[active]?.scrollIntoView({block:'nearest'});}else if(e.key==='Enter'){e.preventDefault();if(active>=0&&hits[active])pick(hits[active].id);else if(selected)next.click();}};
   if(selected)pick(selected);setTimeout(()=>input.focus(),50);
-  on('#a-next',()=>{if(!selected)return;pendingStart=selected;startConfirm();});on('#a-back',()=>go('ship'));}
- function startConfirm(){
-  frame(P().startConfirm(app.placeName(pendingStart)),L('출발 위치를 확인한 뒤 계약을 준비합니다.','Confirm your starting location before adding contracts.'),`<div class="start-confirm"><b>${esc(app.locationLabel(pendingStart))}</b></div>`,`<button class="primary" id="a-confirm-start">${L('확인 · 다음','Confirm · next')}</button><button class="quiet" id="a-change-start">${L('출발지 다시 선택','Choose another location')}</button>`);
-  on('#a-confirm-start',()=>{app.setStart(pendingStart);pendingStart=null;go('shots');});on('#a-change-start',()=>go('start'));
- }
+  on('#a-next',()=>{if(!selected)return;app.setStart(selected);go('shots');});on('#a-back',()=>go('ship'));}
 
  function shots(){
-  frame(P().shots,P().shotsSub,`<label class="aide-drop" id="a-drop"><input type="file" id="a-files" accept="image/png,image/jpeg,image/webp" multiple><b>＋ 계약 스샷 올리기</b><span>스샷은 이 브라우저 안에서만 읽습니다</span></label><p class="aide-note" id="a-progress"></p><details class="aide-ai-paste" open><summary><b>스샷 인식이 잘 안 되면 · AI 앱으로 읽기</b><span>ChatGPT · Claude 구독만으로 사용 · 추가 요금 없음</span></summary><ol class="aide-howto" data-i18n="aide-ai-steps"><li><b>요청 문장 복사</b>를 누릅니다.</li><li>ChatGPT나 Claude 앱에 계약 스샷을 올리고, 복사한 문장을 붙여 넣어 보냅니다. 여러 장을 한 번에 올려도 됩니다. <b>Ctrl+Alt+PrtSc</b>로 게임 화면을 캡처한 뒤 AI 앱 입력창에 <b>Ctrl+V</b>로 바로 붙여 넣으면 파일 저장 없이 편하게 보낼 수 있습니다.</li><li>AI가 옮겨 적은 글을 전부 복사해 아래 칸에 붙여 넣고 <b>글자로 계약 만들기</b>를 누릅니다.</li></ol><div class="aide-paste-row"><button type="button" id="a-copy-prompt">요청 문장 복사</button><span class="aide-note">게임 화면이 넓고 글씨가 작아 기본 인식이 실패할 때 훨씬 정확합니다.</span></div><textarea id="a-text" rows="5" spellcheck="false" placeholder="AI가 옮겨 적은 글을 여기에 붙여 넣으세요. 미션이 여러 개면 사이에 --- 가 들어갑니다."></textarea><button type="button" class="primary" id="a-text-go">글자로 계약 만들기</button><p class="aide-note" id="a-text-msg" role="status"></p></details>`,
+  frame(L(voiceId()==='aide'?'함장님, 들어온 계약부터 살펴볼까요?':'수신한 계약을 확인하십시오.','Review your received contracts.'),L('수신함에서 계약을 골라 내용을 확인하세요. 필요한 경우 스샷이나 글로 보완할 수 있습니다.','Choose a contract from the inbox. Screenshots, pasted text and manual entry remain available.'),`<div id="a-inbox"></div><details class="aide-inbox-supplement"><summary>${L('스샷·글로 추가하거나 보완하기','Add or complete details from a screenshot or text')}</summary><label class="aide-drop" id="a-drop"><input type="file" id="a-files" accept="image/png,image/jpeg,image/webp" multiple><b>＋ 계약 스샷 올리기</b><span>스샷은 이 브라우저 안에서만 읽습니다</span></label><p class="aide-note" id="a-progress"></p><details class="aide-ai-paste"><summary><b>스샷 인식이 잘 안 되면 · AI 앱으로 읽기</b><span>ChatGPT · Claude 구독만으로 사용 · 추가 요금 없음</span></summary><ol class="aide-howto" data-i18n="aide-ai-steps"><li><b>요청 문장 복사</b>를 누릅니다.</li><li>ChatGPT나 Claude 앱에 계약 스샷을 올리고, 복사한 문장을 붙여 넣어 보냅니다. 여러 장을 한 번에 올려도 됩니다. <b>Ctrl+Alt+PrtSc</b>로 게임 화면을 캡처한 뒤 AI 앱 입력창에 <b>Ctrl+V</b>로 바로 붙여 넣으면 파일 저장 없이 편하게 보낼 수 있습니다.</li><li>AI가 옮겨 적은 글을 전부 복사해 아래 칸에 붙여 넣고 <b>글자로 계약 만들기</b>를 누릅니다.</li></ol><div class="aide-paste-row"><button type="button" id="a-copy-prompt">요청 문장 복사</button><span class="aide-note">게임 화면이 넓고 글씨가 작아 기본 인식이 실패할 때 훨씬 정확합니다.</span></div><textarea id="a-text" rows="5" spellcheck="false" placeholder="AI가 옮겨 적은 글을 여기에 붙여 넣으세요. 미션이 여러 개면 사이에 --- 가 들어갑니다."></textarea><button type="button" class="primary" id="a-text-go">글자로 계약 만들기</button><p class="aide-note" id="a-text-msg" role="status"></p></details></details>`,
    `<button class="primary" id="a-next" ${app.missions().length?'':'disabled'}>읽은 계약 확인하기</button><button id="a-manual">직접 입력하겠습니다</button><button class="quiet" id="a-demo">예시로 둘러보기</button><button class="quiet" id="a-back">이전</button>`);
+  inboxCleanup=app.mountInbox(root.querySelector('#a-inbox'),()=>{root.querySelector('#a-next').disabled=!app.missions().length;});
   const drop=root.querySelector('#a-drop'),progress=root.querySelector('#a-progress');
   const read=async files=>{if(!files.length)return;progress.textContent=P().reading;poll=setInterval(()=>{progress.textContent=P().reading;},300);try{await app.readShots(files);}finally{clearInterval(poll);}progress.textContent=P().readDone(app.missions().length);go('confirm');};
   root.querySelector('#a-files').onchange=e=>read([...e.target.files]);drop.ondragover=e=>{e.preventDefault();drop.classList.add('drag');};drop.ondragleave=()=>drop.classList.remove('drag');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('drag');read([...e.dataTransfer.files]);};
@@ -73,7 +70,7 @@ export function createAssistant(app){
  function confirm(){const ms=app.missions();if(!ms.length){go('shots');return;}
   const cards=ms.map((m,i)=>{const total=m.cargo.reduce((a,c)=>a+(c.scu||0),0),issues=app.issues(m);return `<li class="aide-mission"><div><b>${esc(m.company||m.title||'계약')}</b><br><span>${m.cargo.map(c=>`${esc(app.placeName(c.pickupId,c._pickupText))} → ${esc(app.placeName(c.dropoffId,c._dropoffText))}${c._scuAssumed?` <em class="scu-assumed">${c.scu} SCU · 수량 가정</em>`:''}`).join('<br>')}</span></div><div class="aide-mission-side"><b>${fmt(total)} SCU</b>${m.reward?`<small>${fmt(m.reward)} aUEC</small>`:''}${issues.map(t=>`<em>${esc(t)}</em>`).join('')}<button type="button" data-edit="${i}">수정</button></div></li>`;}).join('');
   frame(P().confirm(ms.length),P().confirmSub,`<ul class="aide-missions">${cards}</ul>`,
-   `<button class="primary" id="a-next">${P().confirmOk}</button><button id="a-more">스샷 더 올리기</button><button class="quiet" id="a-back">이전</button>`);
+   `<button class="primary" id="a-next">${P().confirmOk}</button><button id="a-more">${L('계약 더 받기','Add more contracts')}</button><button class="quiet" id="a-back">이전</button>`);
   root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=async()=>{await app.editMission(Number(b.dataset.edit));go('confirm');});
   on('#a-next',()=>{const invalid=ms.find(m=>app.issues(m).some(t=>t.includes('SCU')));if(invalid){root.querySelector('.aide-sub').textContent=L('화물 수량을 먼저 확인해 주세요.','Please check the cargo amounts first.');return;}const bad=ms.find(m=>app.issues(m).some(t=>t.includes('위치')));if(bad){root.querySelector('.aide-sub').textContent=P().locationIssue(bad.id);return;}go(app.boxGroups().length?'boxes':'brief');});on('#a-more',()=>go('shots'));on('#a-back',()=>go('shots'));}
  function boxes(){const groups=app.boxGroups();
@@ -92,8 +89,8 @@ export function createAssistant(app){
   frame(P().brief,P().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked),`<ol class="aide-legs">${legs}</ol>`,
    `<button class="primary" id="a-launch">${P().launch}</button><button id="a-full">전체 계획 보기</button><button class="quiet" id="a-back">이전</button>`,{compact:true});
   app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',()=>close());on('#a-back',()=>go('confirm'));}
- function close(quiet=false){clearInterval(typing);clearInterval(poll);root.hidden=true;document.body.classList.remove('aide-open');try{localStorage.setItem(SEEN,'1');}catch{}if(!quiet)app.closed?.();}
- function open(s='choose'){preview=null;pendingStart=null;root.hidden=false;document.body.classList.add('aide-open');go(s);}
+ function close(quiet=false){inboxCleanup?.();inboxCleanup=null;clearInterval(typing);clearInterval(poll);root.hidden=true;document.body.classList.remove('aide-open');try{localStorage.setItem(SEEN,'1');}catch{}if(!quiet)app.closed?.();}
+ function open(s='choose'){preview=null;root.hidden=false;document.body.classList.add('aide-open');go(s);}
  root.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();close();}});
  return {open,close,firstVisit:()=>{try{return !localStorage.getItem(SEEN);}catch{return true;}}};
 }

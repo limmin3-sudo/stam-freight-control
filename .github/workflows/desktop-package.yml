@@ -1,0 +1,53 @@
+name: Windows desktop package
+on:
+  push:
+    branches: ['feature/**', 'rebuild/**']
+    paths: ['desktop/**', 'scripts/build-desktop.mjs', '.github/workflows/desktop-package.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare checked assets
+        run: |
+          node -e "require('node:fs').copyFileSync('.github/pages-baseline/locations.json','data/locations.json')"
+          node scripts/ensure-three.mjs
+          node scripts/build-ai-korean.mjs
+      - name: Verify app tests
+        run: npm test
+      - name: Compile, assemble and smoke-test Windows app
+        shell: powershell
+        run: ./desktop/build-windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: STAM-Windows-x64
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+  publish:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish desktop]')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: STAM-Windows-x64
+          path: dist
+      - name: Publish verified development package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-desktop.mjs
+      - name: Verify published ZIP from its public download
+        run: python scripts/check-published-app.py dist/desktop-release.json

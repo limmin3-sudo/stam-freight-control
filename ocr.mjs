@@ -19,13 +19,12 @@ export function splitMissionText(text){
 function koTitle(lines){const i=lines.findIndex(l=>/(?:운송|배송|수송)\s*[-–]|\[[\d,\s~-]+평판\s*\]|Cargo\s+(?:Haul|Run)|계약자\s*필요/i.test(l)&&!/SCU|하십시오|^\s*(?:보상|계약)/.test(l));if(i<0)return '';
  if(/^\s*\[/.test(lines[i])&&i>0)return lines[i-1]+' '+lines[i];return /\]\s*$/.test(lines[i])||!/^\s*\[[\d,\s~-]+평판\s*\]/.test(lines[i+1]||'')?lines[i]:lines[i]+' '+lines[i+1];}
 
-// Official Korean cargo names from the Korean patch (data/ko-commodities.json). Typos from OCR or AI transcription are
 // corrected only when one official name is clearly closest; anything else is kept and flagged, never guessed.
 let COMMODITIES=[];
 export function setCommodityNames(list){COMMODITIES=Array.isArray(list)?list.filter(x=>typeof x==='string'&&x):[];}
 function editDistance(a,b){const d=Array.from({length:b.length+1},(_,j)=>j);for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t;}}return d[b.length];}
 // Known misreads confirmed against the game mission data (철소홍 was 질소 / Nitrogen in a Red Wind contract).
-export const MISREADS={'철소홍':'질소'};
+export const MISREADS={};
 export function officialCommodity(name){if(MISREADS[String(name||'').trim()])return {name:MISREADS[String(name).trim()],status:'fixed'};if(!COMMODITIES.length||!name)return {name,status:'unchecked'};const key=s=>norm(s);const exact=COMMODITIES.find(c=>key(c)===key(name));if(exact)return {name:exact,status:exact===name?'ok':'fixed'};
  const j=jamo(key(name)),scored=COMMODITIES.map(c=>{const k=jamo(key(c));return {c,d:editDistance(j,k),len:Math.max(j.length,k.length)};}).sort((a,b)=>a.d-b.d);
  const [best,second]=scored;if(best&&best.d<=Math.floor(best.len*.3)&&(!second||second.d>best.d))return {name:best.c,status:'fixed'};return {name,status:'unknown'};}
@@ -61,7 +60,7 @@ export function parseMissionText(text,locations=[]){
  const total=Number(d[2].replaceAll(',','')),pickups=[pickup,...extra].filter(Boolean),n=Math.max(1,pickups.length),dropoffId=locationIn(d[3]);
  if(n>1)warnings.push(`${commodity}: 픽업지가 ${n}곳(${pickups.map(l=>l.split('에서')[0].trim()).join(', ')})입니다. 곳별 수량이 화면에 없어 ${total} SCU를 나눠 두었습니다. 실제 수량으로 수정해 주세요.`);
  (pickups.length?pickups:['']).forEach((p,k)=>koreanCargo.push({commodity,scu:Math.floor(total/n)+(k<total%n?1:0),pickupId:p?locationIn(p.split('에서')[0]):'',dropoffId,maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown',...(n>1?{_scuAssumed:true,_pickupText:p.split('에서')[0].trim()}:{})}));}
- if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 공식 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,cargo:koreanCargo,returnId,warnings,rawText:text};}
+ if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 품목 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,cargo:koreanCargo,returnId,warnings,rawText:text};}
  const action=/^(?:[•*\-\s\d.)]*)(Collect|Pick\s*up|Deliver|수령|수집|배송|배달|납품)\b/i,starts=[];lines.forEach((line,i)=>{const m=line.match(action);if(m)starts.push({index:i,type:/deliver|배송|배달|납품/i.test(m[1])?'delivery':'pickup'});});
  const objectives=starts.map((a,i)=>{const block=lines.slice(a.index,Math.min(starts[i+1]?.index??lines.length,a.index+6)).join(' '),quantity=block.match(/(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\b/i);const scu=quantity?Number(quantity[1].replaceAll(',','')):null;let commodity=(block.match(/SCU\s+(?:of\s+)?(.+?)\s+(?:from|to|at)\s+/i)||[])[1]||'';if(!commodity)commodity=(block.match(/(?:collect|pick\s*up|deliver)\s+(.+?)\s+(?:from|to)\s+/i)||[])[1]||'';commodity=commodity.replace(/^\d+\s*\/\s*\d+\s*/,'').trim();if(commodity.length>100)commodity='';return {type:a.type,scu,commodity,locationId:locationIn(block),block};}).filter(o=>o.scu!==null||o.locationId);
  const pickups=objectives.filter(o=>o.type==='pickup'),deliveries=objectives.filter(o=>o.type==='delivery');let cargo=[];
