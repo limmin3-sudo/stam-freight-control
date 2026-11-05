@@ -19,7 +19,7 @@ internal static class Launcher {
         }
         bool created;
         using (var mutex = new Mutex(true, "Local\\STAM-Freight-Control", out created)) {
-            if (!created) { MessageBox.Show(BridgeWindow.ReadEnglish()?"STAM is already running. Open its connection window from the taskbar.":"STAM이 이미 실행 중입니다. 작업 표시줄에서 관제 연결 창을 열어 주세요.", "STAM"); return 0; }
+            if (!created) { MessageBox.Show(BridgeWindow.ReadEnglish()?"STAM is already running. Open its connection window from the taskbar.":"STAM이 이미 실행 중입니다. 작업 표시줄에서 관제 연결 창을 열어 주십시오.", "STAM"); return 0; }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new BridgeWindow());
@@ -77,32 +77,32 @@ internal sealed class BridgeWindow : Form {
 
     static readonly string languageFile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","ui-language.txt");
     static readonly Dictionary<string,string> English=new Dictionary<string,string>{
-        {"StarCitizen 폴더의 LIVE 안에서 Game.log를 선택해 주세요. 파일 확장명을 숨겼다면 Game으로 표시됩니다.","Choose Game.log inside StarCitizen / LIVE. Windows may display it as Game when file extensions are hidden."},
+        {"StarCitizen 폴더의 LIVE 안에서 Game.log를 선택하십시오. 파일 확장명을 숨겼다면 Game으로 표시됩니다.","Choose Game.log inside StarCitizen / LIVE. Windows may display it as Game when file extensions are hidden."},
         {"STAM FREIGHT CONTROL · 관제 연결","STAM FREIGHT CONTROL · Companion"},
         {"LOCAL LINK  /  게임 로그 연결","LOCAL LINK  /  GAME LOG CONNECTION"},
-        {"함장님, Game.log를 연결해 주세요.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하세요.","Ready when you are, Captain. Connect Game.log.\nSign in and review received contracts on the STAM website."},
+        {"함장님, Game.log를 연결하십시오.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하십시오.","Ready when you are, Captain. Connect Game.log.\nSign in and review received contracts on the STAM website."},
         {"01 / 게임 로그","01 / GAME LOG"},
-        {"파일을 선택해 주세요. 확장자가 숨겨져 있으면 Game으로 보여요.","Choose the log file. Windows may display it as Game when extensions are hidden."},
+        {"파일을 선택하십시오. 확장자가 숨겨져 있으면 Game으로 표시됩니다.","Choose the log file. Windows may display it as Game when extensions are hidden."},
         {"● 연결 대기","● STANDING BY"},
-        {"Game.log를 선택한 뒤 STAM 사이트 열기를 눌러 주세요.","Select Game.log, then click Open STAM website."},
+        {"Game.log를 선택한 뒤 STAM 사이트 열기를 눌러 주십시오.","Select Game.log, then click Open STAM website."},
         {"Game.log 선택","Select Game.log"},
         {"STAM 사이트 열기 ↗","Open STAM website ↗"},
         {"연결 종료","Disconnect"},
         {"Game.log 위치 안내","Where to find Game.log"},
-        {"이 창은 최소화해 두세요. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다.","Keep this window open or minimised. Closing it ends the connection.\nRead-only log access. No game input or file modification."},
-        {"연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도해 주세요.","Connection is taking longer than expected. Check for an earlier STAM window and try again."},
+        {"이 창은 최소화해 두십시오. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다.","Keep this window open or minimised. Closing it ends the connection.\nRead-only log access. No game input or file modification."},
+        {"연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도하십시오.","Connection is taking longer than expected. Check for an earlier STAM window and try again."},
         {"로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다.","Disconnect the game log? Your saved flight settings will remain."},
         {"Star Citizen Game.log 선택 · 읽기 전용","Select Star Citizen Game.log · Read only"},
         {"게임 로그 (Game.log)|Game.log|로그 파일 (*.log)|*.log","Game log (Game.log)|Game.log|Log files (*.log)|*.log"},
         {"● 연결 준비 중","● ESTABLISHING LINK"},
         {"관제 연결을 준비하고 있습니다…","Preparing your flight deck…"},
-        {"로그가 연결됐습니다. STAM 사이트 열기를 눌러 주세요.","Log connected. Click Open STAM website to receive contracts."},
+        {"로그가 연결됐습니다. STAM 사이트 열기를 눌러 주십시오.","Log connected. Click Open STAM website to receive contracts."},
         {"● 관제 연결됨","● LINK ESTABLISHED"},
-        {"이전 STAM 연결을 종료한 뒤 다시 선택해 주세요.","Close the previous STAM connection, then select the log again."},
-        {"연결하지 못했습니다. 압축을 모두 풀었는지 확인해 주세요.","Could not connect. Check that the entire ZIP was extracted."},
-        {"로그 연결이 종료됐습니다. 다시 연결할 로그를 선택해 주세요.","The log connection ended. Select a log to reconnect."},
-        {"실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주세요.","Required files were not found. Extract the entire ZIP to a new folder."},
-        {"기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정해 주세요.","Could not open your browser. Set a default browser in Windows Settings."},
+        {"이전 STAM 연결을 종료한 뒤 다시 선택하십시오.","Close the previous STAM connection, then select the log again."},
+        {"연결하지 못했습니다. 압축을 모두 풀었는지 확인하십시오.","Could not connect. Check that the entire ZIP was extracted."},
+        {"로그 연결이 종료됐습니다. 다시 연결할 로그를 선택하십시오.","The log connection ended. Select a log to reconnect."},
+        {"실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주십시오.","Required files were not found. Extract the entire ZIP to a new folder."},
+        {"기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정하십시오.","Could not open your browser. Set a default browser in Windows Settings."},
         {"● 연결 확인 필요","● CHECK CONNECTION"},
         {"연결 종료 · 저장된 설정은 유지됩니다.","Disconnected. Your saved flight settings are intact."}
     };
@@ -138,23 +138,23 @@ internal sealed class BridgeWindow : Form {
         korean.Text="한국어";englishButton.Text="English";korean.Primary=!english;englishButton.Primary=english;
         foreach(var b in new[]{korean,englishButton}){b.Size=new Size(71,38);b.Font=new Font("Segoe UI",9,FontStyle.Bold);b.Margin=new Padding(0,0,5,0);languageRow.Controls.Add(b);}
         korean.Click+=(sender,e)=>SetLanguage(false);englishButton.Click+=(sender,e)=>SetLanguage(true);heading.Controls.Add(languageRow,2,0);layout.Controls.Add(heading);
-        layout.Controls.Add(new Label{Text=T("함장님, Game.log를 연결해 주세요.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하세요."),Dock=DockStyle.Fill,ForeColor=Ink,Margin=new Padding(0,0,0,12)});
+        layout.Controls.Add(new Label{Text=T("함장님, Game.log를 연결하십시오.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하십시오."),Dock=DockStyle.Fill,ForeColor=Ink,Margin=new Padding(0,0,0,12)});
         var filePanel=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,20,24,18),BackColor=Color.FromArgb(18,40,55),ColumnCount=1,RowCount=3,Margin=new Padding(0,0,0,14)};
         filePanel.RowStyles.Add(new RowStyle(SizeType.Absolute,23));filePanel.RowStyles.Add(new RowStyle(SizeType.Absolute,27));filePanel.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         filePanel.Controls.Add(new Label{Text=T("01 / 게임 로그"),Dock=DockStyle.Fill,ForeColor=Cyan,Font=new Font("Malgun Gothic",9),Margin=Padding.Empty});
         filePanel.Controls.Add(new Label{Text="StarCitizen  ›  LIVE  ›  Game.log",Dock=DockStyle.Fill,ForeColor=Ink,Font=new Font("Segoe UI",15,FontStyle.Bold),Margin=Padding.Empty});
-        path.Text=T("파일을 선택해 주세요. 확장자가 숨겨져 있으면 Game으로 보여요.");path.Dock=DockStyle.Fill;path.AutoEllipsis=true;path.ForeColor=Muted;path.Font=new Font("Malgun Gothic",9);path.Margin=Padding.Empty;filePanel.Controls.Add(path);layout.Controls.Add(filePanel);
+        path.Text=T("파일을 선택하십시오. 확장자가 숨겨져 있으면 Game으로 표시됩니다.");path.Dock=DockStyle.Fill;path.AutoEllipsis=true;path.ForeColor=Muted;path.Font=new Font("Malgun Gothic",9);path.Margin=Padding.Empty;filePanel.Controls.Add(path);layout.Controls.Add(filePanel);
         var connection=new LinkCard{Stripe=Color.FromArgb(222,187,132),Dock=DockStyle.Fill,Padding=new Padding(24,18,24,18),BackColor=Color.FromArgb(14,31,45),ColumnCount=1,RowCount=2,Margin=new Padding(0,0,0,16)};connection.RowStyles.Add(new RowStyle(SizeType.Absolute,29));connection.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         stateName.Dock=DockStyle.Fill;stateName.Text=T("● 연결 대기");stateName.ForeColor=Color.FromArgb(240,190,116);stateName.Font=new Font("Malgun Gothic",15,FontStyle.Bold);stateName.Margin=Padding.Empty;connection.Controls.Add(stateName);
-        status.Text=T("Game.log를 선택한 뒤 STAM 사이트 열기를 눌러 주세요.");status.Dock=DockStyle.Fill;status.ForeColor=Muted;status.Margin=Padding.Empty;status.Font=new Font("Malgun Gothic",9);connection.Controls.Add(status);layout.Controls.Add(connection);
+        status.Text=T("Game.log를 선택한 뒤 STAM 사이트 열기를 눌러 주십시오.");status.Dock=DockStyle.Fill;status.ForeColor=Muted;status.Margin=Padding.Empty;status.Font=new Font("Malgun Gothic",9);connection.Controls.Add(status);layout.Controls.Add(connection);
         var buttons=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Margin=Padding.Empty};buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,39));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,43));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,18));layout.Controls.Add(buttons);
         choose.Text=T("Game.log 선택");choose.Primary=true;choose.Step="01";open.Warm=true;open.Step="02";open.Text=T("STAM 사이트 열기 ↗");stop.Text=T("연결 종료");
         foreach(var button in new[]{choose,open,stop}){button.Dock=DockStyle.Fill;button.Margin=new Padding(0,0,10,10);buttons.Controls.Add(button);}stop.Margin=new Padding(0,0,0,10);
         open.Enabled=true;stop.Enabled=false;guide.Text=T("Game.log 위치 안내");guide.Dock=DockStyle.Fill;guide.Margin=new Padding(0,0,0,12);layout.Controls.Add(guide);
-        layout.Controls.Add(new Label{Text=T("이 창은 최소화해 두세요. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다."),Dock=DockStyle.Fill,ForeColor=Muted,Font=new Font("Malgun Gothic",9),Margin=new Padding(0,5,0,0)});
+        layout.Controls.Add(new Label{Text=T("이 창은 최소화해 두십시오. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다."),Dock=DockStyle.Fill,ForeColor=Muted,Font=new Font("Malgun Gothic",9),Margin=new Padding(0,5,0,0)});
         var edition=new Label{Text="STAM  /  COMPANION 1.3.0",ForeColor=Color.FromArgb(137,165,183),Font=new Font("Segoe UI",8,FontStyle.Bold),AutoSize=true,Anchor=AnchorStyles.Bottom|AnchorStyles.Right,Location=new Point(ClientSize.Width-225,ClientSize.Height-30),BackColor=Color.Transparent};Controls.Add(edition);edition.BringToFront();
-        choose.Click+=(sender,e)=>SelectLog();open.Click+=(sender,e)=>Open(url);guide.Click+=(sender,e)=>MessageBox.Show(T("StarCitizen 폴더의 LIVE 안에서 Game.log를 선택해 주세요. 파일 확장명을 숨겼다면 Game으로 표시됩니다."),"STAM");stop.Click+=(sender,e)=>Disconnect();
-        startup.Tick+=(sender,e)=>{startup.Stop();status.Text=T("연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도해 주세요.");Disconnect(false);};
+        choose.Click+=(sender,e)=>SelectLog();open.Click+=(sender,e)=>Open(url);guide.Click+=(sender,e)=>MessageBox.Show(T("StarCitizen 폴더의 LIVE 안에서 Game.log를 선택하십시오. 파일 확장명을 숨겼다면 Game으로 표시됩니다."),"STAM");stop.Click+=(sender,e)=>Disconnect();
+        startup.Tick+=(sender,e)=>{startup.Stop();status.Text=T("연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도하십시오.");Disconnect(false);};
         FormClosing+=(sender,e)=>{if(child!=null&&MessageBox.Show(T("로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다."),"STAM",MessageBoxButtons.YesNo)!=DialogResult.Yes){e.Cancel=true;return;}Disconnect();};
     }
     [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
@@ -168,17 +168,17 @@ internal sealed class BridgeWindow : Form {
             child=Launcher.StartBridge(dialog.FileName,false);var active=child;startup.Start();
             child.OutputDataReceived+=(s,e)=>{if(e.Data==null)return;string line=e.Data;UI(()=>{
                 if(child!=active||stopping)return;
-                try{url=Launcher.ReadUrl(line);startup.Stop();status.Text=T("로그가 연결됐습니다. STAM 사이트 열기를 눌러 주세요.");open.Enabled=stop.Enabled=true;choose.Enabled=true;stateName.Text=T("● 관제 연결됨");stateName.ForeColor=Color.FromArgb(130,235,190);}
-                catch(Exception error){status.Text=error.Message=="port-busy"?T("이전 STAM 연결을 종료한 뒤 다시 선택해 주세요."):T("연결하지 못했습니다. 압축을 모두 풀었는지 확인해 주세요.");Disconnect(false);}
+                try{url=Launcher.ReadUrl(line);startup.Stop();status.Text=T("로그가 연결됐습니다. STAM 사이트 열기를 눌러 주십시오.");open.Enabled=stop.Enabled=true;choose.Enabled=true;stateName.Text=T("● 관제 연결됨");stateName.ForeColor=Color.FromArgb(130,235,190);}
+                catch(Exception error){status.Text=error.Message=="port-busy"?T("이전 STAM 연결을 종료한 뒤 다시 선택하십시오."):T("연결하지 못했습니다. 압축을 모두 풀었는지 확인하십시오.");Disconnect(false);}
             });};
-            child.ErrorDataReceived+=(s,e)=>{};child.EnableRaisingEvents=true;child.Exited+=(s,e)=>UI(()=>{if(child==active&&!stopping){status.Text=T("로그 연결이 종료됐습니다. 다시 연결할 로그를 선택해 주세요.");Disconnect(false);}});
+            child.ErrorDataReceived+=(s,e)=>{};child.EnableRaisingEvents=true;child.Exited+=(s,e)=>UI(()=>{if(child==active&&!stopping){status.Text=T("로그 연결이 종료됐습니다. 다시 연결할 로그를 선택하십시오.");Disconnect(false);}});
             child.BeginOutputReadLine();child.BeginErrorReadLine();
             try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,dialog.FileName);}catch{}
-        }catch{status.Text=T("실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주세요.");Disconnect(false);}
+        }catch{status.Text=T("실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주십시오.");Disconnect(false);}
     }}
     void UI(Action action){if(IsDisposed||!IsHandleCreated)return;try{BeginInvoke(action);}catch(InvalidOperationException){}}
     internal static string SiteAddress(string address,bool english){var destination=new UriBuilder("https://limmin3-sudo.github.io/stam-freight-control/");if(!String.IsNullOrEmpty(address))destination.Fragment=new Uri(address).Fragment.TrimStart('#');destination.Query="lang="+(english?"en":"ko");return destination.Uri.ToString();}
-    void Open(string address){try{Process.Start(new ProcessStartInfo(SiteAddress(address,english)){UseShellExecute=true});}catch{MessageBox.Show(T("기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정해 주세요."),"STAM");}}
+    void Open(string address){try{Process.Start(new ProcessStartInfo(SiteAddress(address,english)){UseShellExecute=true});}catch{MessageBox.Show(T("기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정하십시오."),"STAM");}}
     void Disconnect(bool update=true){startup.Stop();stopping=true;var old=child;child=null;Launcher.Stop(old);url=null;open.Enabled=true;stop.Enabled=false;choose.Enabled=true;stateName.Text=update?T("● 연결 대기"):T("● 연결 확인 필요");stateName.ForeColor=Color.FromArgb(240,190,116);if(update)status.Text=T("연결 종료 · 저장된 설정은 유지됩니다.");stopping=false;}
 }
 

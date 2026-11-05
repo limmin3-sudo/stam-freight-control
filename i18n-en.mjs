@@ -1,3 +1,4 @@
+import {formalUi} from './ui-register.mjs';
 // English phrases for the Korean interface (i18n.mjs). PATTERNS run first (numbers and names captured), then
 // PHRASES longest first, then POST patterns for bare counters. Keep Korean keys exactly as the app renders them.
 export const PATTERNS=[
@@ -235,3 +236,5 @@ export const HTML={
  'aide-ai-steps':'<li>Press <b>Copy request</b>.</li><li>Upload your contract screenshots to the ChatGPT or Claude app and send the copied request with them. Several images at once are fine. Capture the game with <b>Ctrl+Alt+PrtSc</b> and paste with <b>Ctrl+V</b> — no need to save files.</li><li>Copy everything the AI wrote, paste it below and press <b>Create contracts from text</b>.</li>',
  'login-note':'<b>Logging in is optional.</b> Every feature works without it and your data stays in this browser.<ul><li>With an account you get a <b>change log</b> showing what changed, when and on which device.</li><li>Your missions, ships, settings and <b>run log (total reward)</b> continue on other PCs.</li></ul>'
 };
+
+for(const [ko,en] of Object.entries(PHRASES)){const formal=formalUi(ko);if(formal!==ko&&!Object.hasOwn(PHRASES,formal))PHRASES[formal]=en;}
