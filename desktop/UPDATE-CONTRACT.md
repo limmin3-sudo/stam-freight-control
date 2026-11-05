@@ -10,4 +10,4 @@
 - API protocol and snapshot schema remain 1. Native launcher/parser/transport changes require a separate companion release.
 - Earlier loopback browser data and UI caches are left in place; public-site data is not migrated over or erased.
 
-The selected visual theme is UEE control room. Windows build and actual Korean/English form captures must be reviewed by the user before app.1.3.0 is published. Do not add the publish marker until that approval arrives.
+The selected visual theme is UEE control room. The user reviewed the actual Korean/English Windows captures and approved proceeding, with formal neutral interface wording. The final formal copy passed the Windows EXE, included-runtime, language-switching and capture checks (run 42031408917). app.1.3.0 may now be published as a new immutable release; app.1.2.0 remains available.
