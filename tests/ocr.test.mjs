@@ -68,9 +68,9 @@ test('"…에 있는" locations, OCR "504" for SCU and Korean spaceport names', 
 
 test('Korean labels use the authored glossary and preserve personal aliases', async ()=>{
   const {placeLabel,koName}=await import('../aliases.mjs');
-  assert.equal(placeLabel({name:'Everus Harbor'}),'에버러스 항구');
-  assert.equal(placeLabel({name:'Shubin Mining Facility SMCa-8'}),'슈빈 채광 시설 SMCa-8');
-  assert.equal(placeLabel({name:'CRU-L4 Shallow Fields Station'}),'CRU-L4 얕은 들판 정거장');
+  assert.equal(placeLabel({name:'Everus Harbor'}),'Everus Harbor - 에버러스 항구');
+  assert.equal(placeLabel({name:'Shubin Mining Facility SMCa-8'}),'Shubin Mining Facility SMCa-8 - 슈빈 채광 시설 SMCa-8');
+  assert.equal(placeLabel({name:'CRU-L4 Shallow Fields Station'}),'CRU-L4 Shallow Fields Station - CRU-L4 얕은 들판 정거장');
   assert.equal(koName({name:'HUR-L1 Green Glade Station'}),'HUR-L1 푸른 숲속 공터 정거장');
   assert.equal(koName({name:'My Base',aliases:['우리 집']}),'우리 집');
 });

@@ -12,9 +12,10 @@ Expand-Archive $zip -DestinationPath $work
 $out = Join-Path $work "STAM-$version-win-x64"
 node scripts/build-desktop.mjs $out
 if ($LASTEXITCODE -ne 0) { throw 'App assembly failed' }
-foreach ($asset in @('assets/stam-logo-transparent.png', 'data/ai-korean.json', 'integration/inbox-view.mjs')) {
+foreach ($asset in @('assets/stam-logo-transparent.png', 'data/log-location-index.json', 'desktop/bridge.mjs')) {
     if (!(Test-Path (Join-Path $out ('app/' + $asset)))) { throw ('Missing companion guide asset: ' + $asset) }
 }
+if (Test-Path (Join-Path $out 'app/index.html')) { throw 'Website UI must not be bundled in the companion' }
 New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')

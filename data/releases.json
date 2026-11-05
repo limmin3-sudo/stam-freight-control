@@ -1,5 +1,34 @@
 [
   {
+    "id": "2026-11-05-briefing-and-intake",
+    "version": "3.10.0",
+    "date": "2026-11-05 21:18",
+    "title": "계약 명세 연결 · 운송 정보실 · 관제 화면 개선",
+    "changes": [
+      "수신 계약의 정의 ID와 미션 유형 목록을 연결해 품목·수량·픽업·배송지와 상자 상한을 편집창에 채웁니다. 확인한 계약만 저장해 계획에 넣는 흐름은 유지합니다.",
+      "파트너 선택과 출항 준비 카드를 넓히고 글자·역할 설명·함선 준비 정보를 키웠습니다. 자동 안내는 이 브라우저에서 처음 한 번만 표시하며 기존 버튼으로 다시 열 수 있습니다.",
+      "STAM 로고와 브랜드 표기는 유지하고 상단바를 높였습니다. 이용안내·앱 다운로드·언어 전환을 강조하고 설정·장소 관리는 관리 메뉴로 묶었습니다. 로그 연결은 왼쪽 운송 시작 위로 옮겼습니다.",
+      "두 언어판 모두 지명을 English - 한국어로 표시합니다. 한글·영문 검색과 흔한 철자 오류를 함께 처리합니다.",
+      "패치노트는 같은 탭의 별도 페이지에서 버전별로 선택·검색합니다. 뒤로가기로 관제로 돌아올 수 있습니다.",
+      "운송 정보실에서 회사·평판별 미션 유형, 품목, 수량 조건과 최대 상자 규격을 확인할 수 있습니다.",
+      "적재 3D의 도장 패널·모서리·조명·라벨과 카메라 시점을 개선했습니다. 표시 시점은 버튼으로 바꾸고 사용하지 않는 화물 화면의 렌더링을 멈춥니다. 기존 적재 계산과 실린 화물 위치는 유지합니다.",
+      "연결 앱은 브라우저를 자동으로 열지 않습니다. STAM 사이트 열기 버튼으로 원래 공개 주소를 사용하며 로그인과 계약 수신을 한 사이트에서 이어갑니다."
+    ],
+    "en": {
+      "title": "Contract details · hauling intelligence · flight-deck refinement",
+      "changes": [
+        "Accepted contract definitions now connect to mission data to prefill cargo, quantities, stops and container limits. Contracts still enter the plan only after review and save.",
+        "Partner selection and preparation cards have more room, larger text, role details and ship-readiness information. Automatic guidance appears once per browser; existing buttons reopen it.",
+        "The approved STAM branding is retained within a taller masthead. Guide, download and language controls are prominent; settings and places are grouped under Manage. Log connection sits above Start hauling.",
+        "Both languages display English - Korean place names. Search accepts both scripts and common spelling errors.",
+        "Release notes have a dedicated same-tab page with version selection and search. Browser Back returns to the flight deck.",
+        "Hauling intelligence groups mission types, commodities, quantity conditions and container limits by company and reputation.",
+        "Cargo 3D has refined painted panels, bevels, lighting, labels and camera presets. Stop-phase buttons replace the dropdown, and unused cargo views stop rendering. Packing calculations and aboard positions are retained.",
+        "The companion no longer opens a browser automatically. Open STAM website uses the original public address for both authentication and received contracts."
+      ]
+    }
+  },
+  {
     "id": "2026-11-05-contract-inbox",
     "version": "3.9.0",
     "date": "2026-11-05 20:17",

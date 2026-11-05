@@ -7,15 +7,16 @@ import {locationIndex} from './locations.mjs';
 import {webFiles,root,mime} from '../../scripts/web-files.mjs';
 import path from 'node:path';
 export const logServiceFiles=async()=> (await webFiles()).map(n=>new URL('../../'+n,import.meta.url));
+export const PUBLIC_SITE_ORIGIN='https://limmin3-sudo.github.io';
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
 
 // Local test service. It never accepts file paths over HTTP and never writes game files.
-export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null } = {}) {
+export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null, apiOnly = false } = {}) {
   if (typeof file !== 'string' || !file || !/\.log$/i.test(file)) throw new Error('select-log-file');
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
   const token = randomBytes(32).toString('hex');
-  const allowed=new Set(await webFiles());
+  const allowed=new Set(apiOnly?[]:await webFiles());
   // Load once locally; failure leaves allocation unresolved without stopping logs.
   let locations = null;
   try { locations = locationIndex(JSON.parse(await readFile(new URL('../../data/log-location-index.json', import.meta.url), 'utf8'))); } catch {}
@@ -80,17 +81,19 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
       const map=type.startsWith('text/html')?String(body).match(/<script\s+type="importmap"[^>]*>([\s\S]*?)<\/script>/):null;
       const embeddedDocument=/^\/(?:guide|patch-notes|download)\.html(?:\?|$)/.test(req.url||'');
       const importPolicy=map?"'sha256-"+createHash('sha256').update(map[1]).digest('base64')+"'":'';
-      res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+      res.writeHead(code, { ...(req.headers.origin===PUBLIC_SITE_ORIGIN&&/^\/api\/(?:status|snapshot)(?:\?|$)/.test(req.url||'')?{'Access-Control-Allow-Origin':PUBLIC_SITE_ORIGIN,'Vary':'Origin','Access-Control-Allow-Methods':'GET','Access-Control-Allow-Headers':'Authorization','Access-Control-Allow-Private-Network':'true','Access-Control-Max-Age':'600'}:{}), 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': embeddedDocument?'SAMEORIGIN':'DENY',
         'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors "+(embeddedDocument?"'self'":"'none'") });
       res.end(body);
     };
     try {
-      if (req.headers.host !== new URL(origin).host || (req.headers.origin && req.headers.origin !== origin) ||
-          (req.headers['sec-fetch-site'] && !['same-origin', 'none'].includes(req.headers['sec-fetch-site']))) {
-        send(403, '{"error":"origin-denied"}'); return;
+      const url = new URL(req.url, origin), publicRead=req.headers.origin===PUBLIC_SITE_ORIGIN&&['/api/status','/api/snapshot'].includes(url.pathname)&&['GET','OPTIONS'].includes(req.method);
+      if(req.headers.host!==new URL(origin).host||(!publicRead&&((req.headers.origin&&req.headers.origin!==origin)||(req.headers['sec-fetch-site']&&!['same-origin','none'].includes(req.headers['sec-fetch-site']))))){send(403,'{"error":"origin-denied"}');return;}
+      if(req.method==='OPTIONS'){
+        const requestedHeaders=String(req.headers['access-control-request-headers']||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);
+        if(!publicRead||req.headers['access-control-request-method']!=='GET'||requestedHeaders.some(h=>h!=='authorization')){send(403,'{"error":"preflight-denied"}');return;}
+        send(204,'');return;
       }
-      const url = new URL(req.url, origin);
       if (url.pathname.startsWith('/api/')) {
         const credential = req.headers.authorization;
         const expected = Buffer.from('Bearer ' + token);
@@ -108,6 +111,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         }
         send(405, '{"error":"unsupported-operation"}'); return;
       }
+      if(apiOnly){send(404,'Not found','text/plain');return;}
       if (req.method !== 'GET') { send(405, 'Method not allowed', 'text/plain'); return; }
       if (webBundle) {
         const resource=await webBundle.read(url.pathname);

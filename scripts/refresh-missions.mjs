@@ -40,6 +40,9 @@ try{
  missions.sort((a,b)=>a.giver.localeCompare(b.giver)||a.title.localeCompare(b.title)||a.id.localeCompare(b.id));
  if(previous?.missions?.length&&missions.length<previous.missions.length*0.6)keep(`새 데이터가 너무 적음 (${missions.length} < ${previous.missions.length})`);
  const meta={version,downloaded:new Date().toISOString().slice(0,10),source:'https://api.star-citizen.wiki/api/missions',entityUnits:'CryoPod',note:'Released hauling missions and variants; orders = [commodity, max SCU, max container size SCU (-1 = special item)]. entityOrders retain cryopod item counts and item volume in SCU.',definitions:hauling.length,variants:ids.length};
+ const rule=o=>o.kind==='Or'?{kind:'Or',options:(o.or_options||[]).map(group=>group.map(rule))}:{kind:o.kind??null,name:o.name??null,id:o.uuid??null,minScu:o.min_scu??null,maxScu:o.max_scu??null,minAmount:o.min_amount??null,maxAmount:o.max_amount??null,maxBoxScu:o.max_container_size??null};
+ const definitions=details.filter(d=>d?.uuid&&d.hauling_orders?.length).map(d=>({id:d.uuid,title:d.title||'',parents:hauling.filter(m=>m.uuid===d.uuid||(m.variants||[]).some(v=>v.uuid===d.uuid)).map(m=>m.uuid),released:d.released!==false,notForRelease:!!d.not_for_release,rules:{orders:d.hauling_orders.map(rule),locations:Object.entries(d.mission_tokens||{}).filter(([slot,values])=>/\|Address$/.test(slot)&&Array.isArray(values)).map(([slot,candidates])=>({slot,candidates}))}}));
+ await fs.writeFile(new URL('data/log-mission-index.json',root),JSON.stringify({schemaVersion:1,source:'https://api.star-citizen.wiki',version,scope:'Public definition bounds and address pools; accepted runtime demand is reviewed separately.',definitions})+'\n');
  await fs.writeFile(out,JSON.stringify({meta,missions})+'\n');
  console.log(JSON.stringify({version,definitions:hauling.length,fetched:ids.length,failed,unique:missions.length}));
 }catch(e){keep('가져오기 실패 · '+e.message);}

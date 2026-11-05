@@ -1,0 +1,33 @@
+/* Shared STAM masthead. The flight deck below keeps its original layout. */
+.topbar{position:relative;isolation:isolate;min-height:124px;padding:24px 32px;gap:28px;border-bottom:1px solid #52727f;background:linear-gradient(112deg,#173b4b 0%,#102b3c 38%,#0d2032 76%,#102437 100%);box-shadow:inset 0 1px #d0ecf51c,0 7px 22px #0004}
+.topbar::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(115deg,transparent 0 89px,#7fcdd006 90px 91px),radial-gradient(ellipse at 6% 0,#6fe0df1c,transparent 56%)}
+.topbar::after{content:'';position:absolute;left:32px;right:32px;bottom:-1px;height:2px;background:linear-gradient(90deg,#eabe7d 0 64px,#70dfe0 64px 240px,#70dfe025 42%,transparent 85%);pointer-events:none}
+.topbar .brand{gap:18px;flex-shrink:0;min-width:0}
+.topbar .brand-mark{width:76px!important;height:76px!important;filter:drop-shadow(0 0 12px #9ce9eb26)}
+.topbar .brand-name{gap:0;white-space:nowrap}
+.topbar .brand-name b{font-size:38px;letter-spacing:5px;text-shadow:0 2px 12px #0005}
+.topbar .brand-name i{height:36px;margin:0 17px;background:linear-gradient(transparent,#c4e7ec99,transparent)}
+.topbar .brand-title{font-size:25px;font-weight:600;letter-spacing:2.5px;color:#b7f2f0}
+.topbar .brand small{font-size:10px;letter-spacing:2.7px;color:#b4cbd7;margin-top:11px}
+.topbar .topnav{margin-left:auto;display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.topbar .topnav>button,.topbar .topnav>a{min-height:46px;padding:11px 15px;border:1px solid #4b6d7d;border-radius:5px;background:linear-gradient(#173449e6,#102638ed);box-shadow:inset 0 1px #c1e5ee0d;color:#e3f1f7;font-size:13px;font-weight:600;white-space:nowrap;text-decoration:none}
+.topbar .topnav>button:hover,.topbar .topnav>a:hover{background:#20465b;border-color:#9bdbe1;color:#fff}
+.topbar .topnav>.inbox-connection{border-color:#79bfc1;color:#a8efdf}
+.topbar .lang-switch{margin-left:8px;border:1px solid #537586;border-radius:5px;overflow:hidden;background:#0b2031}
+.topbar .lang-switch button{min-height:44px;border:0;border-radius:0;padding:10px 13px;font-size:12px;color:#b8ccd9}
+.topbar .lang-switch [aria-pressed=true]{background:#c5e9e6;color:#092a37;box-shadow:inset 0 -3px #eabe7d}
+@media(max-width:1450px){.topbar{gap:20px;padding:22px 24px}.topbar .brand-mark{width:66px;height:66px}.topbar .brand-name b{font-size:32px}.topbar .brand-title{font-size:22px;letter-spacing:1.8px}.topbar .topnav{gap:6px}.topbar .topnav>button,.topbar .topnav>a{padding:10px 11px;font-size:12px}.topbar .brand small{letter-spacing:1.8px}}
+@media(max-width:1100px){.topbar{flex-wrap:wrap}.topbar .topnav{flex-basis:100%;order:3}.topbar{min-height:124px}}
+@media(max-width:600px){.topbar{padding:18px 14px;gap:18px}.topbar::after{left:14px;right:14px}.topbar .brand{gap:11px}.topbar .brand-mark{width:52px;height:52px}.topbar .brand-name b{font-size:27px;letter-spacing:3px}.topbar .brand-name i{height:28px;margin:0 10px}.topbar .brand-title{font-size:16px;letter-spacing:.8px}.topbar .brand small{font-size:8px;letter-spacing:1px;margin-top:8px}.topbar .topnav{display:flex;justify-content:flex-start;gap:6px}.topbar .topnav>button,.topbar .topnav>a{min-height:42px;padding:9px 10px;font-size:11px}.topbar .lang-switch{margin-left:auto}.topbar .lang-switch button{min-height:40px;padding:8px 10px;font-size:11px}}
+.topbar .topnav>a.app-download{background:linear-gradient(135deg,#f1cc91,#dba85f);border-color:#f2d6a6;color:#1c2730;box-shadow:0 3px 14px #0003,inset 0 1px #fff5;font-weight:750}
+.topbar .topnav>a.app-download:hover{background:#f6d9a8;border-color:#fff0cc;color:#101a22}
+main>.mission-pane .desk-launchers .sidebar-log-link{grid-column:1/-1;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-height:78px;padding:17px 16px 17px 34px;border:1px solid #63bdbd;border-left:3px solid #86e4d5;background:linear-gradient(120deg,#133b46,#0e2739);box-shadow:inset 0 1px #c7f5e714}
+main>.mission-pane .desk-launchers .sidebar-log-link::before{content:'';position:absolute;left:15px;top:25px;width:7px;height:7px;border-radius:50%;background:#efbe79;box-shadow:0 0 9px #efbe7933}
+main>.mission-pane .desk-launchers .sidebar-log-link[data-connected=true]::before{background:#8df0c1;box-shadow:0 0 10px #8df0c166}
+main>.mission-pane .desk-launchers .sidebar-log-link b{font-size:17px;color:#ddfbf2}
+main>.mission-pane .desk-launchers .sidebar-log-link small{display:block;font-size:11px;color:#a9ced5;text-align:left;line-height:1.6}
+/* Keep the approved original logo and stacked wordmark. */
+.topbar .brand{gap:12px}.topbar .brand-mark{width:58px!important;height:58px!important}.topbar .brand-name b{font-size:29px;letter-spacing:5px}.topbar .brand-name i{height:36px;margin:0 12px 0 8px}.topbar .brand-title{font-size:25px;line-height:1.02;letter-spacing:3px;font-weight:400;color:#64dfe2}.topbar .brand small{font-size:9px;letter-spacing:2.3px;margin-top:7px;color:#8e9fb1}
+.topbar .topnav>#guide-open{background:linear-gradient(#255261,#173b50);border-color:#9ae1dd;box-shadow:inset 0 2px #a8e9df;color:#e4fffc;font-size:14px;padding-inline:19px}
+.topnav-more{position:relative;flex-shrink:0}.topnav-more>summary{list-style:none;cursor:pointer;padding:12px;color:#a7c2d1;font-size:12px}.topnav-more>summary::-webkit-details-marker{display:none}.topnav-more[open]>summary{color:#e7f8ff}.topnav-more-panel{position:absolute;right:0;top:calc(100% + 14px);z-index:950;min-width:175px;display:grid;gap:6px;padding:9px;background:#112b3d;border:1px solid #52778b;box-shadow:0 12px 30px #0008;border-radius:6px}.topnav-more-panel button{min-height:44px;text-align:left;padding:11px 15px!important;color:#d9ecf5;background:#17374b!important}.topbar .lang-switch{border-color:#b4dfdd;box-shadow:0 0 0 2px #80d1cd12}.topbar .lang-switch button{font-size:13px;font-weight:600;padding-inline:15px}
+@media(max-width:600px){.topbar .brand-mark{width:40px!important;height:40px!important}.topbar .brand-name b{font-size:23px;letter-spacing:3px}.topbar .brand-title{font-size:20px;letter-spacing:2px}.topbar .brand-name i{height:29px;margin:0 8px 0 5px}.topbar .brand small{font-size:7px;letter-spacing:1.2px}.topbar .topnav>#guide-open{font-size:12px;padding-inline:12px}.topbar .lang-switch button{font-size:12px;padding-inline:11px}.topnav-more-panel{left:0;right:auto}}
