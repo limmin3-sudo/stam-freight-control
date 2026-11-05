@@ -1,5 +1,30 @@
 [
   {
+    "id": "2026-11-05-contract-inbox",
+    "version": "3.9.0",
+    "date": "2026-11-05 20:03",
+    "title": "계약 수신함 · 연결 앱 독립 업데이트",
+    "changes": [
+      "게임에서 받은 계약을 계약 수신함에 모읍니다. 카드를 누르면 기존 미션 편집창에서 내용을 확인하고 저장할 수 있습니다.",
+      "같은 제목의 계약도 수주 ID로 구분합니다. 확인되지 않은 화물·픽업지·배송지는 직접 보완하며, 수신만으로 기존 계획을 바꾸지 않습니다.",
+      "운송 준비의 계약 단계에 수신함을 추가했습니다. 스크린샷·AI 글 붙여넣기·직접 입력도 계속 사용할 수 있습니다. 출발지 선택 후 추가 재확인 없이 진행합니다.",
+      "Windows 연결 앱과 사이트를 별도로 업데이트합니다. 사이트의 화면·항로·적재 기능 변경은 앱 재설치 없이 다음 실행부터 적용합니다.",
+      "한국어 화면의 지명·품목을 새 AI 한국어 표기로 표시합니다. English 화면에서는 영문 이름을 사용합니다.",
+      "브리지 오퍼레이터를 새 생단발 시안으로 교체했습니다. 기존 지도·좌우 패널·관제·적재 3D와 운송 기능은 그대로 이어갑니다."
+    ],
+    "en": {
+      "title": "Contract inbox · independent companion updates",
+      "changes": [
+        "Accepted contracts collect in a dedicated inbox. Open a card in the existing mission editor, review its details, then save it to your plan.",
+        "Separate acceptances keep their own mission IDs, even with identical titles. Missing cargo or stops remain for review; receiving a contract does not change your plan.",
+        "The preparation wizard now includes the inbox alongside screenshot, AI text and manual input. Selecting a departure proceeds directly to contracts.",
+        "The Windows companion and website update separately. Flight-deck, routing and packing updates apply on the next launch without reinstalling the companion.",
+        "Korean mode uses newly authored AI Korean place and commodity labels. English mode retains English names.",
+        "The bridge operator has a new straight-bob portrait. The original map, side panels, control mode, cargo view and hauling workflow are retained."
+      ]
+    }
+  },
+  {
     "id": "2026-11-02-grid-selection",
     "version": "3.8.0",
     "date": "2026-11-02 22:43",
@@ -129,7 +154,6 @@
     "date": "2026-11-02 18:38",
     "title": "한국어 미션 유형 · 함선 정보 칸 · 관제 모드 하단바 · 피드백 스크린샷",
     "changes": [
-      "한국어 모드에서도 게임 미션 유형과 품목별 최대 상자 크기를 자동으로 찾습니다. 한글 패치의 품목 117개·발주처 25곳 이름을 연결했습니다. 이제 한국어·한/영·English 세 모드 모두 같은 기능입니다.",
       "관제 모드 하단 진행 바를 큰 화면(1440p 등)에서 약 50% 키우고 글자와 버튼도 크게 했습니다.",
       "왼쪽 계정 칸 아래에 지금 쓰는 함선 정보(화물칸·퀀텀 드라이브·출발지·계획 방식·계약 수)를 보여 주는 칸을 넣었습니다. 누르면 운항 설정 창이 열립니다.",
       "왼쪽 사이드바가 노트북 등 작은 화면에서도 화면 아래로 넘치지 않게, 화면 높이에 맞춰 간격과 보조 문구를 줄입니다. 페이지를 내려도 사이드바는 그 자리에 있습니다.",
@@ -139,7 +163,6 @@
     "en": {
       "title": "Korean mission types · ship card · bigger control bar · feedback screenshots",
       "changes": [
-        "Korean mode now finds game mission types and the largest container per commodity too, using 117 goods and 25 contractor names from the Korean patch. All three modes work the same.",
         "The Control mode progress bar is about 50% taller on large screens (e.g. 1440p), with larger text and buttons.",
         "A card under the account box shows your ship (hold, quantum drive, start, planning mode, contracts); click it to open flight setup.",
         "The left sidebar now always fits the window height, even on laptops, tightening spacing on short screens and staying in place while the page scrolls.",
@@ -877,12 +900,10 @@
     "id": "h-ko-patch",
     "version": "1.15.1",
     "date": "2026-10-30 19:43",
-    "title": "한글 패치 지명",
-    "changes": [
-      "스타 시티즌 유저 한국어 프로젝트의 한글 패치 지명을 쓰도록 했습니다(출처 표시)."
-    ],
+    "title": "한국어 지명 표시",
+    "changes": [],
     "en": {
-      "title": "Korean patch place names",
+      "title": "Korean place labels",
       "changes": [
         "Place names from the Star Citizen Korean user project patch (credited)."
       ]

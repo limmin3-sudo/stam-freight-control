@@ -10,7 +10,6 @@ export function createWorkbench(root,{getMissions,locations,version,canEdit,onUp
  function find(value){const exact=locations.filter(l=>label(l.id)===value||l.name===value);return exact.length===1?exact[0].id:'';}
  function store(){try{localStorage.setItem('vh-recipes',JSON.stringify(recipes));}catch{notify('저장 공간이 부족합니다.',true);}}
  // Game mission type from the wiki data first (per-commodity container limits), then the remembered box layouts.
- // All three modes match mission types now that the Korean patch names are mapped (data/ko-hauling.json);
  // in Korean mode corrected goods names are written in Korean.
  function enrich(m){return enrichMission(m,missionDb(),{korean:!gameEn});}
  function apply(m){return fillDestinationRecipes(recipes,enrich(m),version);}

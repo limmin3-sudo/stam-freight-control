@@ -29,15 +29,11 @@ jobs:
         run: node scripts/refresh-data.mjs --previous-url https://limmin3-sudo.github.io/stam-freight-control/data/locations.json --fallback-file .github/pages-baseline/locations.json
       - name: Refresh hauling mission data (keeps the bundled file if the wiki is unavailable)
         run: node scripts/refresh-missions.mjs
+      - name: Build Korean display labels
+        run: node scripts/build-ai-korean.mjs
       - run: npm test
       - name: Assemble public files only
-        run: |
-          mkdir public
-          cp index.html style.css *.mjs public/
-          cp -R data vendor public/
-          if [ -d assets ]; then cp -R assets public/; fi
-          if [ -f icon.svg ]; then cp icon.svg public/; fi
-          touch public/.nojekyll
+        run: node scripts/build-public.mjs public
       - name: Stamp release version and update history
         run: node scripts/build-release.mjs public
       - uses: actions/configure-pages@v5
