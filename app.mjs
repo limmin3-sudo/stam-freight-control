@@ -1,3 +1,5 @@
+import {mountContextHelp} from './context-help.mjs';
+import {mountSiteIntro} from './site-intro.mjs';
 import {createPlanReset} from './plan-reset.mjs';
 import {commodityReference} from './commodity-labels.mjs';
 import {mountLocationSearch} from './location-search.mjs';
@@ -287,6 +289,7 @@ function setupDeskDialogs(){
  }
 }
 async function init(){
+ mountSiteIntro();
  setupDeskDialogs();
  data=await fetch('./data/locations.json').then(r=>{if(!r.ok)throw Error('지도 데이터를 불러오지 못했습니다.');return r.json();});await loadAiNames();
  let aiNames={};try{const r=await fetch('./data/ai-korean.json');if(r.ok){aiNames=await r.json();displayGoods=aiNames.goods||{};setCommodityNames([...Object.keys(displayGoods),...Object.values(displayGoods)]);}}catch{}
@@ -309,7 +312,7 @@ const locationManager=createLocationManager(data,{canEdit:()=>{if(busy){notify('
  try{localStorage.setItem('vh-missions','[]');localStorage.setItem('vh-settings',JSON.stringify(nextSettings));execution.reset();}catch(error){for(const [key,value] of previous){try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);}catch{}}throw Error(isEn?'Could not save the reset. The current plan was preserved.':'초기화를 저장하지 못했습니다. 현재 계획을 유지합니다.');}
  missions=[];settings=nextSettings;emptyPlan();renderMissions();save();notify(isEn?'Current hauling plan reset.':'현재 운송 계획을 초기화했습니다.');
  }});$('plan-reset-open').textContent=isEn?'Reset plan':'계획 초기화';$('plan-reset-open').onclick=()=>planReset.open();
- guide=createGuide($('guide-open'));createFeedback($('feedback-open'),{notify,context:()=>({ship:ship?.name||'',contracts:missions.length,mode,stops:plan?.visits?.length||0})});history=createHistory(null,{notify});createAccount($('account-btn'),{notify,shipName:id=>[...($('ship-select')?.options||[])].find(o=>o.value===id)?.textContent||id,openHistory:()=>history.open(),resetHistory:()=>history.reset()});mountAiLabels(aiNames);inbox=createInbox({places:data.locations,missions:()=>missions,review:reviewReceived,add:addReceived,notify,missionDb:()=>missionDb});assistant=makeAssistant();$('map-partner').onclick=()=>assistant.open('choose');refreshAideButton();organizeTopnav();
+ guide=createGuide($('guide-open'),{beforeNavigate:beforePageChange});mountContextHelp(guide);createFeedback($('feedback-open'),{notify,context:()=>({ship:ship?.name||'',contracts:missions.length,mode,stops:plan?.visits?.length||0})});history=createHistory(null,{notify});createAccount($('account-btn'),{notify,shipName:id=>[...($('ship-select')?.options||[])].find(o=>o.value===id)?.textContent||id,openHistory:()=>history.open(),resetHistory:()=>history.reset()});mountAiLabels(aiNames);inbox=createInbox({places:data.locations,missions:()=>missions,review:reviewReceived,add:addReceived,notify,missionDb:()=>missionDb});assistant=makeAssistant();$('map-partner').onclick=()=>assistant.open('choose');refreshAideButton();organizeTopnav();
  // Enrich saved contracts without changing their canonical identities.
  try{validateMissions(missions);missions=missions.map(m=>workbench.enrich({...m,cargo:m.cargo.map(c=>MISREADS[c.commodity]?{...c,commodity:MISREADS[c.commodity]}:c)}));save();}catch{missions=[];}renderMissions();setSystem('stanton');syncShip();initialized=true;if(assistant.firstVisit())assistant.open();
 }

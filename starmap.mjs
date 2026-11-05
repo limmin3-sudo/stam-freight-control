@@ -164,7 +164,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
 
  // ---- frame loop -------------------------------------------------------------------------------
  const clock=new THREE.Clock(),tmp=V(),res=new THREE.Vector2();
- function frame(){requestAnimationFrame(frame);if(document.hidden)return;const dt=Math.min(.05,clock.getDelta());time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+ let onScreen=false;new IntersectionObserver(entries=>{onScreen=entries.at(-1).isIntersecting;},{rootMargin:'80px'}).observe(el);
+ function frame(){requestAnimationFrame(frame);if(document.hidden||!onScreen)return;const dt=Math.min(.05,clock.getDelta());time+=dt;rig.update(dt);const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=time;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
   if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return;}

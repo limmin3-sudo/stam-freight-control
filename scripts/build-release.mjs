@@ -7,7 +7,7 @@ export async function buildRelease(directory,version){
  if(!Array.isArray(releases))throw Error('업데이트 기록 형식을 확인하세요.');
  // Give every local module, data file and asset its release URL. A new HTML
  // alone must not load dependencies cached from an older deployment.
- const stamp=text=>text.replace(/(["'])((?:\.\/|(?:assets|data|vendor)\/)[^"'\s?]+\.(?:mjs|js|json|css|jpg|png|webp|svg))(?:\?v=[a-f0-9]+)?\1/g,(_,quote,url)=>`${quote}${url}?v=${version}${quote}`);
+ const stamp=text=>text.replace(/(["'])((?:\.\/|(?:assets|data|vendor)\/)[^"'\s?]+\.(?:mjs|js|json|css|jpg|png|webp|svg|mp4|vtt))(?:\?v=[a-f0-9]+)?\1/g,(_,quote,url)=>`${quote}${url}?v=${version}${quote}`);
  async function modules(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory()&&entry.name!=='vendor')await modules(full);else if(entry.isFile()&&entry.name.endsWith('.mjs'))await fs.writeFile(full,stamp(await fs.readFile(full,'utf8')));}}await modules(out);
  for(const page of (await fs.readdir(out)).filter(n=>n.endsWith('.html'))){const index=path.join(out,page);let html=stamp(await fs.readFile(index,'utf8'));
  html=html.replace(/<meta name="app-version" content="[^"]*">/g,'').replace('</head>',`<meta name="app-version" content="${version}"></head>`);
