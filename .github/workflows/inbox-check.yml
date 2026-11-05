@@ -33,6 +33,7 @@ jobs:
           STAM_WEB_RELEASE: public
           STAM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/stam-browser/node_modules/playwright
         run: |
+          node scripts/check-preparation-frame-browser.mjs
           node scripts/check-cargo-grids-browser.mjs
           node scripts/check-inbox-browser.mjs
           node scripts/check-briefing-browser.mjs
@@ -46,4 +47,5 @@ jobs:
             /tmp/stam-briefing-*.png
             /tmp/stam-public-link-*.png
             /tmp/stam-empty-grids.png
+            /tmp/stam-preparation-frame-*.png
           if-no-files-found: ignore
