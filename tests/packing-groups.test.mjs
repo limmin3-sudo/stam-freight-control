@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {packBoxes} from '../engine.mjs';
+import {packBoxes,fullLoadLayout,gridRegions} from '../engine.mjs';
 import {DEFAULT_SHIP,withStacking} from '../ships.mjs';
 
 // Reported Hull B load: small boxes for two destinations were split into depth layers across every
@@ -46,8 +46,8 @@ test('route plan keeps each destination in one connected block of grids from the
   assert.equal(seen.size,list.length,`${dest} grids are split apart: ${list.map(i=>ship.grids[i].name).join(', ')}`);}
 });
 
-// Hull B priority: one side first, then one level (upper/lower) on that side, then the other.
-test('a light Hull B load stays on one side and one level',async()=>{
+// User clarified: one side, then one fore/aft quarter, then its upper/lower pair.
+test('a light Hull B load stays on one side and one fore-aft quarter',async()=>{
  const fs=await import('node:fs'),{planRoute,gridRegions}=await import('../engine.mjs');
  const game=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url)));
  const id=name=>game.locations.find(l=>l.name===name).id,c=(scu,p,d)=>({scu,pickupId:id(p),dropoffId:id(d),commodity:'x',boxes:[]});
@@ -55,7 +55,7 @@ test('a light Hull B load stays on one side and one level',async()=>{
  const plan=planRoute(game,[{id:'a',cargo:[c(32,'Orison','Sunset Mesa'),c(24,'Orison','Ashland')]},{id:'b',cargo:[c(40,'Orison',"Seer's Canyon")]}],id('Orison'),{ship,unknownBox:4});
  const bins=new Set(plan.visits.reduce((a,v)=>v.load>a.load?v:a).packing.boxes.map(b=>b.bin));
  assert.equal(new Set([...bins].map(i=>regions[i].side)).size,1,'one side');
- assert.equal(new Set([...bins].map(i=>regions[i].level)).size,1,'one level');
+ assert.equal(new Set([...bins].map(i=>regions[i].section)).size,1,'one fore/aft quarter');
 });
 
 // A 84 SCU destination cannot fit one 64 SCU Hull B block. Its 16 and 2 SCU
@@ -79,3 +79,8 @@ test('mixed 84/84/50 SCU Hull B load keeps each destination in adjacent physical
  const next=planRoute(game,missions,first.locationId,{ship,resume});assert.deepEqual(next.initialPacking.boxes,first.packing.boxes);
  for(const old of first.packing.boxes)for(const visit of next.visits){const box=visit.packing.boxes.find(b=>b.boxId===old.boxId);if(box){assert.equal(box.bin,old.bin);assert.deepEqual(box.cell,old.cell);assert.deepEqual(box.dims,old.dims);}}
 });
+
+
+test('Hull B uses the two upper or two lower grids of a rear quarter instead of a diagonal',()=>{const ship=withStacking(DEFAULT_SHIP),groups=[['a',1,[24,24,8]],['b',.5,[24,24,8]],['c',0,[32,2]]].map(([dropoffId,rank,sizes])=>({rank,items:sizes.map((size,i)=>({boxId:dropoffId+i,missionId:dropoffId,dropoffId,size,rank}))}));for(const packing of [packBoxes(groups.flatMap(g=>g.items),[],ship),fullLoadLayout(groups,[],ship)]){assert.ok(packing);assert.equal(packing.used,146);const bins=[...new Set(packing.boxes.filter(b=>b.dropoffId==='c').map(b=>b.bin))];assert.equal(bins.length,2);assert.ok([[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]].some(pair=>bins.every(i=>pair.includes(i))),JSON.stringify(bins));}});
+
+test('Hull B spill from a full pair stays in its quarter before moving fore/aft',()=>{const ship=withStacking(DEFAULT_SHIP),items=Array.from({length:12},(_,i)=>({boxId:'b'+i,missionId:'m',dropoffId:'d',size:8,rank:0}));for(const p of [packBoxes(items,[],ship),fullLoadLayout([{items,rank:0}],[],ship)]){assert.ok(p);const bins=[...new Set(p.boxes.map(b=>b.bin))],r=gridRegions(ship);assert.equal(new Set(bins.map(i=>r[i].side)).size,1);assert.equal(new Set(bins.map(i=>r[i].section)).size,1);assert.equal(p.used,96);}});

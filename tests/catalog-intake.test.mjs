@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {definitionDraft} from '../mission-catalog.mjs';import {inboxCards,cardDraft} from '../integration/inbox-core.mjs';
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {definitionDraft} from '../mission-catalog.mjs';import {inboxCards,cardDraft,cardReady} from '../integration/inbox-core.mjs';import {LogEvidence} from '../integration/log/state.mjs';
 const load=name=>JSON.parse(fs.readFileSync(new URL('../data/'+name,import.meta.url))),places=load('locations.json').locations,catalog=load('log-mission-index.json'),db=load('hauling-missions.json');
 const accepted={missionId:'33333333-3333-4333-8333-333333333333',definitionId:'6528ac09-f0b3-4f83-a198-72f098754d95',title:'Rookie Hauler, DIRECT Bulk Interstellar Large Haul | Ruin Station > Baijini Point [50/100/200/250/1000 Rep]',acceptanceObservations:[{actor:'self'}],quantityObservations:[],markerObservations:[],status:'acceptance-observed'};
 test('accepted direct 452 SCU haul fills actual corroborated original quotas and route into the original editor',()=>{const card=inboxCards({contracts:[accepted]},places,null,catalog,db).cards[0],draft=cardDraft(card);assert.equal(draft.company,'Red Wind Linehaul');assert.deepEqual(draft.cargo.map(c=>c.scu),[168,168,48,48,20]);assert.equal(draft.cargo.reduce((a,c)=>a+c.scu,0),452);for(const c of draft.cargo){assert.equal(places.find(p=>p.id===c.pickupId).name,'Ruin Station');assert.equal(places.find(p=>p.id===c.dropoffId).name,'Baijini Point');assert.equal(c.boxes.length,0);}assert.equal(draft.id,accepted.missionId);});
@@ -13,3 +13,30 @@ test('multiple destination pools bind by the published order and objective ID, w
 test('definition container limits feed the original largest-container planner without becoming confirmed boxes',async()=>{const {retainCatalogLimits}=await import('../mission-catalog.mjs'),{groupConfiguration}=await import('../cargo-summary.mjs'),{destinationGroups}=await import('../recipes.mjs');const card=inboxCards({contracts:[accepted]},places,null,catalog,db).cards[0],draft=cardDraft(card),enriched=retainCatalogLimits(draft,structuredClone(draft));assert.deepEqual(enriched.cargo.map(c=>c.maxBoxSize),[24,24,24,8,2]);assert.ok(enriched.cargo.every(c=>c._maxBoxSource==='wiki'&&c.boxes.length===0));const config=groupConfiguration(enriched,destinationGroups(enriched)[0],8);assert.equal(config.estimated,true);assert.equal(config.valid,true);assert.deepEqual(config.boxes,[{size:24,count:16},{size:8,count:6},{size:2,count:10}]);});
 
 test('partial objective notifications enrich rather than discard the other definition shipments',()=>{const card=inboxCards({contracts:[{...accepted,quantityObservations:[{objectiveId:'dropoff_test_0',current:0,total:168,at:'2026-11-05T10:00:00Z',notification:'Deliver 0/168 SCU of Ammonia to Baijini Point'}]}]},places,null,catalog,db).cards[0];assert.equal(card.rows.length,5);assert.equal(card.rows.reduce((n,r)=>n+r.scu,0),452);assert.equal(card.rows[0].maxBoxSize,24);});
+
+test('Pyro junior small-haul definition survives unknown template classification and binds three observed food quotas independently',()=>{
+ const e=new LogEvidence(),id='77777777-7777-4777-8777-777777777777',definition='ad7fe12b-b1fb-48f9-8347-8c12f8dcad79',objective='00cd527c-257a-43d0-9f7a-74272c528d21',stamp='<2026-11-05T10:00:00.000Z> [Notice] ';
+ e.ingest(stamp+`<SHUDEvent_OnNotification> Added notification "Contract Accepted: Junior small haul | from Ashland" [1] to queue. MissionId: [${id}], ObjectiveId: [pickup_${objective}_0]`);
+ e.ingest(stamp+`<CLocalMissionPhaseMarker::CreateMarker> missionId [${id}], contract [Unrecognised_Template], contractDefinitionId[${definition}], objectiveId [pickup_${objective}_0], zoneHostId [42], position [x: 1, y: 2, z: 3]`);
+ let card=inboxCards(e.snapshot(),places,null,catalog,db).cards[0];assert.equal(card.definition.id,definition);assert.equal(card.company,'Red Wind Linehaul');assert.equal(card.rows.length,3);assert.equal(cardReady(card,places),false);assert.ok(card.rows.every(r=>r.scu===''));
+ const stops=["Seer's Canyon",'Rustville','Last Landings'];for(const [i,name] of stops.entries())e.ingest(stamp+`<SHUDEvent_OnNotification> Added notification "New Objective: Deliver 0/${i?4:8} SCU of Processed Food to ${name}" [${i+2}] to queue. MissionId: [${id}], ObjectiveId: [dropoff_${objective}_${i}]`);
+ card=inboxCards(e.snapshot(),places,null,catalog,db).cards[0];assert.deepEqual(card.rows.map(r=>r.scu),[8,4,4]);assert.deepEqual(card.rows.map(r=>places.find(p=>p.id===r.dropoffId).name),stops);assert.ok(card.rows.every(r=>places.find(p=>p.id===r.pickupId).name==='Ashland'&&r.boxes.length===0&&r.maxBoxSize===4));assert.equal(cardReady(card,places),true);
+});
+
+test('definitions without order-pool names still bind exact per-order Pyro markers; partial pickup markers never fill the other sources',()=>{
+ const food={...accepted,definitionId:'ad7fe12b-b1fb-48f9-8347-8c12f8dcad79',title:'Junior small haul | from Ashland'},objective='00cd527c-257a-43d0-9f7a-74272c528d21',stops=["Seer's Canyon",'Rustville','Last Landings'],id=n=>places.find(p=>p.name===n).id;
+ const d=definitionDraft(food,places,catalog,db,{markers:stops.map((n,i)=>({role:'dropoff',objectiveId:`dropoff_${objective}_${i}`,pointId:id(n)}))});assert.deepEqual(d.rows.map(r=>r.dropoffId),stops.map(id));assert.ok(d.rows.every(r=>r.pickupId===id('Ashland')&&r.scu===''));
+ const silicon={...accepted,definitionId:'a74d6099-1212-4078-9dfd-cffc5ef55266',title:'Junior small haul | to Patch City'},pickup={role:'pickup',objectiveId:'pickup_690a1cd3-0dac-4792-99ee-5ee44b68dab3_0',pointId:id('Ashland')},partial=definitionDraft(silicon,places,catalog,db,{markers:[pickup],pickups:[pickup.pointId]});assert.equal(partial.rows[0].pickupId,pickup.pointId);assert.equal(partial.rows[1].pickupId,'');assert.ok(partial.rows.every(r=>r.dropoffId===id('Patch City')));
+});
+
+test('all released catalogue IDs survive unknown-template receipt projection without company or title filtering',()=>{
+ const evidence=new LogEvidence(),released=catalog.definitions.filter(d=>d.released&&!d.notForRelease),stamp='<2026-11-05T10:00:00.000Z> [Notice] ';
+ for(const [i,d] of released.entries()){
+  const id='aaaaaaaa-aaaa-4aaa-8aaa-'+String(i).padStart(12,'0');
+  evidence.ingest(stamp+`<SHUDEvent_OnNotification> Added notification "Contract Accepted: ${d.giver||'Company'} contract" [${i+1}] to queue. MissionId: [${id}], ObjectiveId: []`);
+  evidence.ingest(stamp+`<CLocalMissionPhaseMarker::CreateMarker> missionId [${id}], contract [Unrecognised_Template], contractDefinitionId[${d.id}], objectiveId [pickup_test_0], zoneHostId [42], position [x: 1, y: 2, z: 3]`);
+ }
+ const snapshot=evidence.snapshot(),cards=inboxCards(snapshot);
+ assert.ok(released.length>1700);assert.equal(cards.cards.length,released.length);assert.equal(snapshot.pendingContracts.length,released.length);assert.equal(snapshot.pendingContracts.filter(c=>c.definitionId).length,released.length);
+ for(const giver of ['Red Wind Linehaul','Covalex Independent Contractors','Ling Family Hauling','Dead Saints'])assert.ok(cards.cards.some(c=>c.title===giver+' contract'),giver);
+});

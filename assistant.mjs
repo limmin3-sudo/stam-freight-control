@@ -86,7 +86,10 @@ export function createAssistant(app){
  function brief(){const p=app.plan();
   if(!p){frame(P().fail,P().failSub,`<p class="aide-note">${esc(app.notice())}</p>`,'<button class="primary" id="a-back">계약 다시 보기</button>');on('#a-back',()=>go('confirm'));return;}
   const low=Math.max(1,Math.round(p.seconds/60*.8)),high=Math.ceil(p.seconds/60*1.3),reward=p.totalReward||0,rate=reward?`${fmt(reward/(p.seconds*1.3/3600))}–${fmt(reward/(p.seconds*.8/3600))}`:'',blocked=p.visits.filter(v=>v.blocked?.length).length;
-  const nums=app.stepNumbers(p.visits).stop,legs=p.visits.slice(0,6).map((v,i)=>`<li><span class="aide-n">${nums[i]}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='departure'?'출발지':e.type==='pickup'?'픽업':e.type==='delivery'?'배송':'복귀').filter((x,k,a)=>a.indexOf(x)===k).join('·')}${v.events.some(e=>e.type==='departure')?'':` · 약 ${Math.max(1,Math.round(v.seconds/60))}분`}</small></li>`).join('')+(p.visits.length>6?`<li class="aide-more">외 ${p.visits.length-6}곳</li>`:'');
+  const nums=app.stepNumbers(p.visits),legs=p.visits.flatMap((v,i)=>[
+   ...(app.jumpSegments?.(v.leg)||[]).map((j,q)=>`<li class="aide-leg-jump"><span class="aide-n">${nums.jumps[i][q]}</span>${L('항성계 점프','System jump')}<small>${esc(j.entryName)} → ${esc(j.exitName)}</small></li>`),
+   `<li><span class="aide-n">${nums.stop[i]}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='departure'?L('출발지','Departure'):e.type==='pickup'?L('픽업','Pickup'):e.type==='delivery'?L('배송','Delivery'):L('복귀','Return')).filter((x,k,a)=>a.indexOf(x)===k).join('·')}${v.events.some(e=>e.type==='departure')?'':L(` · 약 ${Math.max(1,Math.round(v.seconds/60))}분`,` · about ${Math.max(1,Math.round(v.seconds/60))} min`)}</small></li>`
+  ]).join('');
   frame(P().brief,P().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked),`<ol class="aide-legs">${legs}</ol>`,
    `<button class="primary" id="a-launch">${P().launch}</button><button id="a-full">전체 계획 보기</button><button class="quiet" id="a-back">이전</button>`);
   app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',()=>close());on('#a-back',()=>go('confirm'));}

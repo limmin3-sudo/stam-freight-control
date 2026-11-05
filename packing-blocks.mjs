@@ -14,7 +14,7 @@ export function destinationBlockZones(ship,groups,fixed=[]){
  const owner=new Map(),used=new Map(),byDest=new Map();
  for(const b of fixed){const block=blocks.findIndex(ids=>ids.includes(b.bin));if(block<0)return null;if(owner.has(block)&&owner.get(block)!==b.dropoffId)return null;owner.set(block,b.dropoffId);used.set(block,(used.get(block)||0)+b.size);}
  for(const {items} of groups)for(const b of items)byDest.set(b.dropoffId,(byDest.get(b.dropoffId)||0)+b.size);
- const cost=ids=>{let diameter=0;for(const a of ids)for(const b of ids)diameter=Math.max(diameter,Math.hypot(...centers[a].map((v,k)=>v-centers[b][k])));return (new Set(ids.map(i=>side[i])).size-1)*1000+diameter;};
+ const cost=ids=>{let diameter=0;for(const a of ids)for(const b of ids)diameter=Math.max(diameter,Math.hypot(...centers[a].map((v,k)=>v-centers[b][k])));const middleZ=(Math.min(...centers.map(c=>c[2]))+Math.max(...centers.map(c=>c[2])))/2,middleY=(Math.min(...centers.map(c=>c[1]))+Math.max(...centers.map(c=>c[1])))/2;return (new Set(ids.map(i=>side[i])).size-1)*10000+(new Set(ids.map(i=>side[i]+':'+Math.sign(centers[i][2]-middleZ))).size-1)*1000+(new Set(ids.map(i=>side[i]+':'+Math.sign(centers[i][2]-middleZ)+':'+Math.sign(centers[i][1]-middleY))).size-1)*100+diameter;};
  for(const [dest,scu] of [...byDest].sort((a,b)=>b[1]-a[1])){
   const own=[...owner].filter(([,d])=>d===dest).map(([i])=>i),free=blocks.map((_,i)=>i).filter(i=>!owner.has(i));let best=null;
   for(const anchor of own.length?[null]:free){const ids=[...own];if(anchor!==null)ids.push(anchor);

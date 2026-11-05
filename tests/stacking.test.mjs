@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DEFAULT_SHIP,withStacking,validateShip} from '../ships.mjs';
-import {packBoxes,boxDepth} from '../engine.mjs';
+import {packBoxes,boxDepth,fullLoadLayout,isUpright} from '../engine.mjs';
+import fs from 'node:fs';
 
 test('Hull B grids attach to the spine and stack outward; flat holds are untouched', ()=>{
   const s=withStacking(DEFAULT_SHIP),left=s.grids.findIndex(g=>g.name.startsWith('L')),right=s.grids.findIndex(g=>g.name.startsWith('R'));
@@ -29,4 +30,13 @@ test('ship validation retains attachment frames used by route packing and depth 
  const raw={id:'misc-hull-c',name:'Hull C',grids:[{id:'a',name:'A',w:12,h:6,l:8,x:0,y:0,z:0},{id:'b',name:'B',w:12,h:6,l:8,x:14,y:0,z:0}]};
  const hullC=withStacking(raw);assert.deepEqual(validateShip(hullC).grids.map(g=>g._world),hullC.grids.map(g=>g._world));
  assert.throws(()=>validateShip({...original,grids:[{...original.grids[0],_world:{x:0,y:0,w:Infinity,h:2}}]}),/부착 좌표/);
+});
+
+test('the actual RAFT IC 192 keeps all new 2 SCU crates horizontal in a 112 SCU two-destination load',()=>{
+ const raw=JSON.parse(fs.readFileSync(new URL('../data/ships.json',import.meta.url))).find(s=>s.id==='argo-raft');assert.equal(raw.grids[0].name,'IC 192');
+ const groups=['red','blue'].map((dropoffId,rank)=>({rank,items:[24,24,2,2,2,2].map((size,i)=>({boxId:dropoffId+i,missionId:dropoffId,dropoffId,size,rank}))}));
+ for(const profile of [raw,withStacking(raw),{...withStacking(raw),id:'custom-raft',performanceId:'argo-raft'}])for(const packing of [packBoxes(groups.flatMap(g=>g.items),[],profile),fullLoadLayout(groups,[],profile)]){
+  assert.ok(packing);assert.equal(packing.used,112);assert.equal(packing.boxes.filter(b=>b.size===2).length,8);assert.ok(packing.boxes.filter(b=>b.size===2).every(b=>!isUpright(b.dims)&&b.dims[1]===1));
+ }
+ const ship=withStacking(raw),aboard={boxId:'already-aboard',missionId:'saved',dropoffId:'red',size:2,bin:0,cell:[0,0,0],dims:[1,2,1]},continued=packBoxes([{boxId:'new',missionId:'new',dropoffId:'blue',size:2,rank:0}],[aboard],ship);assert.ok(continued);assert.deepEqual(continued.boxes.find(b=>b.boxId===aboard.boxId),aboard);assert.ok(!isUpright(continued.boxes.find(b=>b.boxId==='new').dims));
 });
