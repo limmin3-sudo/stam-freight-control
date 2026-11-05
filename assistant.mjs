@@ -1,7 +1,7 @@
 import {configurationLabel,missionTypeText,containerText} from './cargo-summary.mjs';
 import {L,tr,isEn} from './i18n.mjs';
 // 항해사: a polite step-by-step guide for planning a run. First visit opens it automatically;
-// afterwards the full page is the default and the guide is one click away (floating "파트너 호출" button).
+// Afterwards the flight deck is the default; the existing partner and hauling buttons reopen it.
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 import {V,VOICE_LIST,VOICE_PORTRAITS,voiceId,setVoice} from './voice.mjs';
@@ -14,10 +14,11 @@ export function createAssistant(app){
  let step='welcome',typing=null,poll=null,preview=null,inboxCleanup=null;
  const P=()=>V(preview||voiceId()),portraitId=()=>preview||voiceId();
  const stepsOrder=['choose','welcome','ship','start','shots','confirm','boxes','brief'];
+ const stageNames={welcome:L('파트너 소개','Partner briefing'),ship:L('함선·드라이브','Ship and drive'),start:L('출발 위치','Departure'),shots:L('계약 수신','Contract intake'),confirm:L('계약 확인','Contract review'),boxes:L('상자 구성','Container layout'),brief:L('출항 브리핑','Flight briefing')};
  function frame(title,sub,body,buttons,{compact=false}={}){inboxCleanup?.();inboxCleanup=null;const idx=Math.max(0,stepsOrder.indexOf(step));
   root.classList.toggle('compact',compact);root.classList.toggle('partner-picker',step==='choose');root.classList.toggle('partner-intro',step==='welcome');
   root.innerHTML=`<div class="aide-card"><button class="aide-close" type="button" aria-label="닫기">×</button>
-   <div class="aide-top"><div class="aide-emblem">${EMBLEM}</div><div><div class="aide-role">STAM FREIGHT CONTROL · ${P().role}</div><div class="aide-steps">${stepsOrder.slice(1).map((s,i)=>`<i class="${i+1<idx?'done':i+1===idx?'now':''}"></i>`).join('')}</div></div></div>
+   <div class="aide-top"><div class="aide-emblem">${EMBLEM}</div><div><div class="aide-role">STAM FREIGHT CONTROL · ${P().role}</div><div class="aide-steps">${stepsOrder.slice(1).map((s,i)=>`<i title="${stageNames[s]}" class="${i+1<idx?'done':i+1===idx?'now':''}"></i>`).join('')}</div>${step!=='choose'?`<div class="aide-stage-label">${String(idx).padStart(2,'0')} / 07 · ${stageNames[step]}</div>`:''}</div></div>
    ${step==='welcome'?`<div class="aide-intro-portrait"><img src="${VOICE_PORTRAITS[portraitId()]}" alt="${P().role} 인물 사진"><span>${P().role}</span></div>`:''}<h2 class="aide-title"></h2>${sub?`<p class="aide-sub">${sub}</p>`:''}<div class="aide-body">${body||''}</div><div class="aide-actions">${buttons}</div></div>`;
   root.querySelector('.aide-close').onclick=()=>close();type(root.querySelector('.aide-title'),title);}
  function type(el,text){text=tr(text);clearInterval(typing);if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;return;}let i=0;el.textContent='';typing=setInterval(()=>{el.textContent=text.slice(0,++i);if(i>=text.length)clearInterval(typing);},22);}
@@ -26,7 +27,7 @@ export function createAssistant(app){
 
  function choose(){
   frame('오늘 함께할 파트너를 선택하세요.','선택한 파트너가 미션 접수부터 마지막 배송까지 안내합니다.',
-   `<div class="aide-voices aide-choose" role="group" aria-label="운항 파트너 선택">${VOICE_LIST.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="${id==='broker'?'partner-coming':''}" aria-label="${name} 선택"><img class="partner-photo" src="${VOICE_PORTRAITS[id]}" alt="${name} 인물 사진"><span class="partner-copy"><b>${name}</b><small>${desc}</small><span class="aide-choose-link">${id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
+   `<div class="aide-voices aide-choose" role="group" aria-label="운항 파트너 선택">${VOICE_LIST.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="${id==='broker'?'partner-coming':''}" aria-label="${name} 선택"><img class="partner-photo" src="${VOICE_PORTRAITS[id]}" alt="${name} 인물 사진"><span class="partner-copy"><b>${name}</b><small>${desc}</small><span class="partner-capabilities">${V(id).profile.points.map(([label])=>`<span>${esc(label)}</span>`).join('')}</span><span class="aide-choose-link">${id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
    '<button class="quiet" id="a-skip">전체 화면으로 바로 가기</button>');
   root.querySelector('.aide-role').textContent='STAM FREIGHT CONTROL · 운항 파트너';
   root.querySelector('.aide-steps').hidden=true;
@@ -40,7 +41,7 @@ export function createAssistant(app){
   on('#a-guide',()=>app.showGuide?.());on('#a-partner',()=>go('choose'));on('#a-go',()=>go('ship'));on('#a-resume',()=>go('confirm'));on('#a-fresh',()=>{app.clearMissions();go('ship');});on('#a-skip',close);}
 
  function ship(){const s=app.ship(),d=app.driveSetup();
-  frame(P().ship(s.name),P().shipSub(fmt(s.capacity)),`<label class="aide-field">운용 함선<select id="a-ship">${app.shipOptions()}</select></label><div class="aide-drive-presets" role="group" aria-label="드라이브 초기 설정">${[['factory','기본 장착',d.factory||'미확인'],['auto','민수 A등급',d.auto],['custom','사용자 설정','평균 속도 직접 지정']].map(([v,t,desc])=>`<button type="button" data-drive-mode="${v}" aria-pressed="${d.mode===v}" ${v==='factory'&&!d.factory?'disabled':''}><b>${t}</b><small>${esc(desc)}</small></button>`).join('')}</div>${d.mode==='custom'?`<label class="aide-field">평균 퀀텀 속도 (km/s)<input id="a-drive-speed" type="number" min="1000" max="2000000" value="${d.quantumSpeed}" required></label>`:''}`,
+  frame(P().ship(s.name),P().shipSub(fmt(s.capacity)),`<dl class="aide-ship-summary"><div><dt>${L('사용 가능 화물칸','Available cargo')}</dt><dd>${fmt(s.capacity)} <small>SCU</small></dd></div><div><dt>${L('사용 중인 그리드','Enabled grids')}</dt><dd>${s.activeGrids} <small>/ ${s.totalGrids}</small></dd></div><div><dt>${L('선택한 계약','Selected contracts')}</dt><dd>${app.missions().length}</dd></div></dl><label class="aide-field">운용 함선<select id="a-ship">${app.shipOptions()}</select></label><div class="aide-drive-presets" role="group" aria-label="드라이브 초기 설정">${[['factory','기본 장착',d.factory||'미확인'],['auto','민수 A등급',d.auto],['custom','사용자 설정','평균 속도 직접 지정']].map(([v,t,desc])=>`<button type="button" data-drive-mode="${v}" aria-pressed="${d.mode===v}" ${v==='factory'&&!d.factory?'disabled':''}><b>${t}</b><small>${esc(desc)}</small></button>`).join('')}</div>${d.mode==='custom'?`<label class="aide-field">평균 퀀텀 속도 (km/s)<input id="a-drive-speed" type="number" min="1000" max="2000000" value="${d.quantumSpeed}" required></label>`:''}`,
    `<button class="primary" id="a-next">${P().shipOk}</button><button class="quiet" id="a-more-settings">상세 설정 (그리드·계획 방식)</button><button class="quiet" id="a-back">이전</button>`);
   root.querySelector('#a-ship').value=s.id;root.querySelector('#a-ship').onchange=e=>{app.setShip(e.target.value);ship();};
   root.querySelectorAll('[data-drive-mode]').forEach(b=>b.onclick=()=>{app.setDriveSetup(b.dataset.driveMode);ship();});const speed=root.querySelector('#a-drive-speed');if(speed)speed.onchange=()=>{if(speed.reportValidity())app.setDriveSetup('custom',Number(speed.value));};

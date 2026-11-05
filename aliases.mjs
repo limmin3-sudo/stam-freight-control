@@ -1,4 +1,3 @@
-import {gameEn} from './i18n.mjs';
 import AI from './data/ai-korean.json' with {type:'json'};
 import {aiPlace} from './data/ai-korean-lexicon.mjs';
 export const KO_NAMES=Object.fromEntries(Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en]));
@@ -6,8 +5,8 @@ Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지
 export const KO_DISPLAY=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[en,aiPlace(en)]));
 export const KO_TERMS=[['채광 시설','Mining Facility'],['채광 구역','Mining Area'],['보안 초소','Security Post'],['연구 전초기지','Research Outpost'],['구호 대피소','Aid Shelter'],['비상 대피소','Emergency Shelter'],['데이터센터','DataCenter'],['정거장','Station'],['슈빈','Shubin'],['아크코프','ArcCorp']];
 export function translateKoTerms(s){let out=String(s||'');for(const [ko,en]of KO_TERMS)out=out.split(ko).join(' '+en+' ');return out.replace(/\s+/g,' ').trim();}
-export function koName(l){if(!l||gameEn)return '';return (l.aliases||[]).find(a=>/[가-힣]/.test(a))||extraDisplay[l.name]||aiPlace(l.name);}
-export const placeLabel=l=>l?(koName(l)||l.name):'';
+export function koName(l){if(!l)return '';return (l.aliases||[]).find(a=>/[가-힣]/.test(a))||extraDisplay[l.name]||aiPlace(l.name);}
+export const placeLabel=l=>{if(!l)return '';const ko=koName(l);return ko&&ko!==l.name?`${l.name} - ${ko}`:l.name;};
 export const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
 let extra=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[norm(ko),en])),extraDisplay=AI.places;
 export async function loadAiNames(url='./data/ai-korean.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extraDisplay=j.places||{};extra=Object.fromEntries(Object.entries(extraDisplay).map(([en,ko])=>[norm(ko),en]));}}catch{}return Object.keys(extra).length;}
@@ -65,15 +64,17 @@ export function fuzzyLocations(text,locations,{system=null,limit=5}={}){const ra
   if(sc<(qs.length<=3?.92:.74))continue;let wb=0;for(let i=0;i<s.words.length&&!wb;i++){let acc='';for(let j=i;j<s.words.length;j++){acc=skel(acc+s.words[j]);if(acc===qs){wb=i===0?.05:.03;break;}if(acc.length>qs.length)break;}}sc+=wb;const vw=s.vw.length>qv.length+1&&full<1?s.vw.slice(0,qv.length):s.vw,vb=qv&&vw?(1-lev(qv,vw)/Math.max(qv.length,vw.length))*.08:0;add(l,sc+vb);}
  return [...out.values()].sort((a,b)=>b.score-a.score).slice(0,limit);}
 
+// Character edits supplement sound matching only in the explicit search list.
+function typoDistance(a,b){const rows=Array.from({length:a.length+1},(_,i)=>{const row=Array(b.length+1).fill(0);row[0]=i;return row;});for(let j=0;j<=b.length;j++)rows[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++){rows[i][j]=Math.min(rows[i-1][j]+1,rows[i][j-1]+1,rows[i-1][j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])rows[i][j]=Math.min(rows[i][j],rows[i-2][j-2]+1);}return rows[a.length][b.length];}
 // Ranked, explicit suggestions: native datalists cannot search Korean aliases of English values.
 export function suggestLocations(text,locations,{limit=8}={}){
  const q=norm(text);if(!q)return [];const aliases=new Map();
  for(const [alias,name] of Object.entries({...KO_NAMES,...extra,...Object.fromEntries(Object.entries(KO_DISPLAY).map(([en,ko])=>[ko,en]))})){
   if(!aliases.has(name))aliases.set(name,[]);aliases.get(name).push(norm(alias));}
  const hits=[];
- for(const loc of locations){if(loc.type==='Star')continue;const names=[loc.name,...(loc.aliases||[]),...(aliases.get(loc.name)||[])].map(norm);let score=0;
+ for(const loc of locations){if(loc.type==='Star')continue;const names=[loc.name,placeLabel(loc),...(loc.aliases||[]),...(aliases.get(loc.name)||[])].map(norm);let score=0;
   for(const name of names){if(name===q)score=Math.max(score,100);else if(name.startsWith(q))score=Math.max(score,80+q.length/name.length);else if(name.includes(q))score=Math.max(score,60+q.length/name.length);}
   if(score)hits.push({loc,score});}
- const seen=new Set(hits.map(h=>h.loc.id));if(q.length>=2)for(const h of fuzzyLocations(text,locations,{limit})){if(!seen.has(h.loc.id)){hits.push({loc:h.loc,score:h.score*40});seen.add(h.loc.id);}}
+ const seen=new Set(hits.map(h=>h.loc.id));if(/^[a-z0-9]+$/.test(q)&&q.length>=3){const max=q.length>=6?2:1;for(const loc of locations){if(loc.type==='Star'||seen.has(loc.id))continue;const names=[norm(loc.name),...loc.name.toLowerCase().split(/[^a-z0-9]+/).filter(n=>n.length>=4)];const distance=Math.min(...names.filter(n=>Math.abs(n.length-q.length)<=max).map(n=>typoDistance(q,n)));if(distance<=max){hits.push({loc,score:55-distance*3});seen.add(loc.id);}}}if(q.length>=2)for(const h of fuzzyLocations(text,locations,{limit})){if(!seen.has(h.loc.id)){hits.push({loc:h.loc,score:h.score*40});seen.add(h.loc.id);}}
  return hits.sort((a,b)=>b.score-a.score||a.loc.name.localeCompare(b.loc.name)).slice(0,limit).map(h=>h.loc);
 }

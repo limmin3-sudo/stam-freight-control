@@ -1,8 +1,9 @@
+import {definitionDraft} from '../mission-catalog.mjs';
 // The inbox projects evidence into editable drafts. Receiving never changes planner missions.
 const key=s=>String(s||'').normalize('NFKC').trim().toLowerCase();
 const text=s=>String(s||'').slice(0,240);
 const idPattern=/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
-export function inboxCards(snapshot,places=[],index=null){
+export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=null){
  if(snapshot?.identity?.mixedPlayers)return {blocked:true,cards:[]};
  const all=[...(snapshot?.contracts||[]),...(snapshot?.pendingContracts||[])],unique=new Map();
  const placeId=point=>{const found=places.filter(p=>p.id===point?.id||(p.uuid===point?.id&&p.system===point?.system));return found.length===1?found[0].id:'';};
@@ -25,13 +26,15 @@ export function inboxCards(snapshot,places=[],index=null){
     if(m&&Number(m[2])===q.total&&q.total>0&&q.total<=10000)rows.push({commodity:text(m[1]),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:byName(m[3]),_dropoffText:text(m[3]),boxes:[]});
    }
   }
+  const reference=definitionDraft(c,places,catalog,missionDb,{pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
+  if(reference){if(!rows.length)rows=reference.rows;else rows=rows.map(row=>({...row,pickupId:row.pickupId||reference.pickupId,dropoffId:row.dropoffId||reference.dropoffId}));}
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
-  const card={id:c.missionId,title:text(c.title||'수신한 계약'),acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling)};
+  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version}:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling)};
   card.signature=JSON.stringify([card.ended,card.conflict,card.rows]);unique.set(card.id,card);
  }
  return {blocked:false,cards:[...unique.values()].sort((a,b)=>(b.acceptedAt||'').localeCompare(a.acceptedAt||'')||a.id.localeCompare(b.id))};
 }
 export function cardDraft(card){
  if(!card||card.ended||card.conflict)throw Error('이 계약의 현재 기록을 먼저 확인해 주세요.');
- return {id:card.id,company:'',title:card.title,reward:0,cargo:card.rows.length?structuredClone(card.rows):[{commodity:'',scu:'',pickupId:'',dropoffId:'',boxes:[]}],_logInbox:{version:1,signature:card.signature}};
+ return {id:card.id,company:card.company||'',title:card.title,reward:0,cargo:card.rows.length?structuredClone(card.rows):[{commodity:'',scu:'',pickupId:'',dropoffId:'',boxes:[]}],_logInbox:{version:1,signature:card.signature}};
 }

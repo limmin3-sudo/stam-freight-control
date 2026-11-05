@@ -32,10 +32,16 @@ jobs:
         env:
           STAM_WEB_RELEASE: public
           STAM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/stam-browser/node_modules/playwright
-        run: node scripts/check-inbox-browser.mjs
+        run: |
+          node scripts/check-inbox-browser.mjs
+          node scripts/check-briefing-browser.mjs
+          node scripts/check-public-link-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: contract-inbox-browser
-          path: /tmp/stam-inbox-*.png
+          path: |
+            /tmp/stam-inbox-*.png
+            /tmp/stam-briefing-*.png
+            /tmp/stam-public-link-*.png
           if-no-files-found: ignore
