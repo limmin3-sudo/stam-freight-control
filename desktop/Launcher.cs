@@ -66,6 +66,12 @@ internal static class Launcher {
                 bool received=false;
                 for(int i=0;i<50;i++){if(client.DownloadString(new Uri(uri,"/api/snapshot")).Contains(mission)){received=true;break;}Thread.Sleep(100);}
                 if(!received||File.ReadAllText(file)!=fixture)throw new Exception("contract-read-only");
+                string nextMission="77777777-7777-4777-8777-777777777777";
+                string appended="<2026-11-05T10:01:00.000Z> [Notice] <SHUDEvent_OnNotification> Added notification \"Contract Accepted: Another hauling template\" [2] to queue. MissionId: ["+nextMission+"], ObjectiveId: [pickup_test_0]\n"+
+                    "<2026-11-05T10:01:00.000Z> [Notice] <CLocalMissionPhaseMarker::CreateMarker> missionId ["+nextMission+"], contract [Unrecognised_Template], contractDefinitionId[ad7fe12b-b1fb-48f9-8347-8c12f8dcad79], objectiveId [pickup_test_0], zoneHostId [42], position [x: 1, y: 2, z: 3]\n";
+                File.AppendAllText(file,appended);received=false;
+                for(int i=0;i<50;i++){string snapshot=client.DownloadString(new Uri(uri,"/api/snapshot"));if(snapshot.Contains(nextMission)&&snapshot.Contains("Unrecognised_Template")){received=true;break;}Thread.Sleep(100);}
+                if(!received||File.ReadAllText(file)!=fixture+appended)throw new Exception("appended-template-receipt-read-only");
             }
             return 0;
         } catch { return 1; } finally { Stop(child);File.Delete(file); }

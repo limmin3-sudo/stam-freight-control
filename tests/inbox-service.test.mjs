@@ -19,3 +19,15 @@ test('automatic pairing is limited to the trusted origin and a preflighted clien
   assert.equal((await fetch(s.origin+'/api/snapshot',{headers})).status,401);assert.equal((await fetch(s.origin+'/api/status',{headers:{...headers,Authorization:'Bearer '+s.token}})).status,200);
  }finally{await s.close();await rm(dir,{recursive:true,force:true});}
 });
+
+test('live append after a game session boundary preserves newly accepted receipts with unknown template names',async()=>{
+ const dir=await mkdtemp(path.join(tmpdir(),'stam-template-receipt-')),file=path.join(dir,'Game.log'),fresh='77777777-7777-4777-8777-777777777777';
+ const initial=notice('Contract Accepted: Existing receipt',1);await writeFile(file,initial);const service=await startLogService({file,intervalMs:20,apiOnly:true}),headers={Authorization:'Bearer '+service.token};
+ const until=async check=>{for(let i=0;i<120;i++){const data=await(await fetch(service.origin+'/api/snapshot',{headers})).json();if(check(data))return data;await new Promise(r=>setTimeout(r,20));}throw Error('live-receipt-timeout');};
+ try{
+  const before=await until(d=>d.snapshot.pendingContracts.length===1);
+  const appended=`<2026-11-05T10:01:00.000Z> [Trace] @session: 'synthetic-reconnect'\n`+notice('Contract Accepted: New Pyro receipt',2).replaceAll(id,fresh)+`<2026-11-05T10:01:00.000Z> [Notice] <CLocalMissionPhaseMarker::CreateMarker> missionId [${fresh}], contract [Unrecognised_Template], contractDefinitionId[ad7fe12b-b1fb-48f9-8347-8c12f8dcad79], objectiveId [pickup_test_0], zoneHostId [42], position [x: 1, y: 2, z: 3]\n`;
+  await appendFile(file,appended);const after=await until(d=>d.snapshot.pendingContracts.some(c=>c.missionId===fresh&&c.markerObservations.length===1));
+  assert.ok(after.revision>before.revision);assert.equal(after.snapshot.pendingContracts.length,2);assert.equal(after.snapshot.identity.mixedPlayers,false);assert.equal(after.snapshot.pendingContracts.find(c=>c.missionId===fresh).definitionId,'ad7fe12b-b1fb-48f9-8347-8c12f8dcad79');assert.equal((await(await fetch(service.origin+'/api/status',{headers})).json()).phase,'watching');assert.equal(await readFile(file,'utf8'),initial+appended);
+ }finally{await service.close();await rm(dir,{recursive:true,force:true});}
+});
