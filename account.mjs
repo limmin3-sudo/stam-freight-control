@@ -8,7 +8,7 @@ const SDK='https://www.gstatic.com/firebasejs/10.14.1/';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const readJSON=k=>{try{return JSON.parse(localStorage.getItem(k)||'null');}catch{return null;}};
 const writeJSON=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch{}};
-const ERRORS={'auth/invalid-credential':'아이디 또는 비밀번호가 맞지 않습니다.','auth/wrong-password':'아이디 또는 비밀번호가 맞지 않습니다.','auth/user-not-found':'아이디 또는 비밀번호가 맞지 않습니다.','auth/email-already-in-use':'이미 사용 중인 아이디입니다.','auth/weak-password':'비밀번호는 6자 이상으로 만들어 주세요.','auth/too-many-requests':'시도가 너무 많습니다. 잠시 후 다시 해 주세요.','auth/popup-closed-by-user':'로그인 창이 닫혔습니다.','auth/popup-blocked':'브라우저가 로그인 창을 막았습니다. 팝업을 허용해 주세요.','auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없습니다.','auth/network-request-failed':'네트워크에 연결할 수 없습니다.','permission-denied':'권한이 없습니다. Firestore 보안 규칙을 확인해 주세요.'};
+const ERRORS={'auth/invalid-credential':'아이디 또는 비밀번호가 맞지 않습니다.','auth/wrong-password':'아이디 또는 비밀번호가 맞지 않습니다.','auth/user-not-found':'아이디 또는 비밀번호가 맞지 않습니다.','auth/email-already-in-use':'이미 사용 중인 아이디입니다.','auth/weak-password':'비밀번호는 6자 이상으로 만들어 주십시오.','auth/too-many-requests':'시도가 너무 많습니다. 잠시 후 다시 하십시오.','auth/popup-closed-by-user':'로그인 창이 닫혔습니다.','auth/popup-blocked':'브라우저가 로그인 창을 막았습니다. 팝업을 허용하십시오.','auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없습니다.','auth/network-request-failed':'네트워크에 연결할 수 없습니다.','permission-denied':'권한이 없습니다. Firestore 보안 규칙을 확인하십시오.'};
 const message=e=>ERRORS[e?.code]||e?.message||String(e);
 
 const device=()=>{const ua=navigator.userAgent||'';const os=/Windows/.test(ua)?'Windows':/Mac OS/.test(ua)?'Mac':/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Linux/.test(ua)?'Linux':'기기';const br=/Edg\//.test(ua)?'Edge':/Whale\//.test(ua)?'Whale':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'브라우저';return `${os} · ${br}`;};
@@ -31,7 +31,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
 
  // Periodic upload of this browser's changes; stops instead of overwriting when another PC saved later.
  async function tick(){if(!user||paused)return;const meta=readJSON(ACCOUNT_META)||{},now=snapshot(localStorage),keys=changedKeys(meta.lastSnap,now);if(!keys.length)return;
-  try{if(remoteIsNewer(await cloudStamp(user.uid),meta.lastSyncedAt)){paused=true;status='다른 기기에서 더 최근에 저장했습니다.';setButton();notify('다른 기기에서 더 최근에 저장한 데이터가 있어 자동 저장을 멈췄습니다. 계정 버튼에서 어느 쪽을 쓸지 골라 주세요.',true);return;}
+  try{if(remoteIsNewer(await cloudStamp(user.uid),meta.lastSyncedAt)){paused=true;status='다른 기기에서 더 최근에 저장했습니다.';setButton();notify('다른 기기에서 더 최근에 저장한 데이터가 있어 자동 저장을 멈췄습니다. 계정 버튼에서 어느 쪽을 쓸지 골라 주십시오.',true);return;}
    await push(user.uid,keys,now);status='';setButton();}catch(e){status=message(e);notify('계정 저장 실패: '+status,true);}}
 
  async function onSignedIn(u){user={uid:u.uid,label:label(u)};setButton();
@@ -59,7 +59,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
   const choices={
    'first-upload':['이 브라우저 데이터를 계정에 저장할까요?','계정에 아직 저장된 데이터가 없습니다. 지금 이 브라우저의 미션·함선·설정·기록을 계정에 올리면 다른 PC에서도 이어서 쓸 수 있습니다.',[['use-local','이 브라우저 데이터 저장','primary'],['start-empty','빈 계정으로 시작','']]],
    'first-conflict':['어느 데이터를 쓸까요?','계정에 저장된 데이터와 이 브라우저의 데이터가 다릅니다. 자동으로 덮어쓰지 않았습니다.',[['use-cloud','계정 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 계정 덮어쓰기',''],['sign-out','취소하고 로그아웃','quiet']]],
-   'conflict':['다른 기기에서 더 최근에 저장했습니다','다른 PC에서 저장한 뒤 이 브라우저에서도 바뀐 내용이 있습니다. 어느 쪽을 쓸지 골라 주세요.',[['use-cloud','다른 기기 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 덮어쓰기',''],['close','나중에','quiet']]]};
+   'conflict':['다른 기기에서 더 최근에 저장했습니다','다른 PC에서 저장한 뒤 이 브라우저에서도 바뀐 내용이 있습니다. 어느 쪽을 쓸지 골라 주십시오.',[['use-cloud','다른 기기 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 덮어쓰기',''],['close','나중에','quiet']]]};
   if(choices[view]){const [t,p,bs]=choices[view];dialog.innerHTML=`<div class="dialog-title"><h2>${t}</h2></div><p>${p}</p><div class="account-actions">${bs.map(([a,l,c])=>`<button type="button" class="${c}" data-act="${a}">${l}</button>`).join('')}</div><p class="account-msg" role="status"></p>`;bind();if(!dialog.open)dialog.showModal();return;}
   if(user){dialog.innerHTML=`<div class="dialog-title"><h2>${esc(user.label)} 님</h2><button type="button" data-close aria-label="닫기">×</button></div><p>${paused?'⚠ '+esc(status||'자동 저장이 멈춰 있습니다.'):'미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.'}</p><div class="account-actions">${paused?'<button type="button" class="primary" data-act="open-conflict">어느 쪽을 쓸지 고르기</button>':''}<button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button><button type="button" data-act="sign-out">로그아웃</button></div><section class="account-run-totals">${historyTotalsMarkup()}</section>
    <h3 class="account-sub">수정 기록</h3><ol class="change-log"><li class="subtle">불러오는 중…</li></ol><p class="small subtle">이 계정에서 저장된 변경만 표시됩니다. 로그아웃하면 이 브라우저는 로그인 전의 게스트 데이터로 돌아갑니다.</p>`;bind();dialog.showModal();
@@ -88,7 +88,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
    google:async()=>{try{const f=await load();await f.signInWithPopup(f.auth,new f.GoogleAuthProvider());dialog.close();}catch(e){msg(message(e));}},
    check:async()=>{const id=dialog.querySelector('[name=id]').value,p=usernameProblem(id);if(p)return msg(p);try{const f=await load();const d=await f.getDoc(f.doc(f.db,'usernames',normalizeUsername(id)));msg(d.exists()?'이미 사용 중인 아이디입니다.':'사용할 수 있는 아이디입니다.');}catch(e){msg(message(e));}}};
   dialog.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act[b.dataset.act]?.());
-  dialog.querySelector('form')?.addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target),id=String(f.get('id')||''),pw=String(f.get('pw')||''),p=usernameProblem(id);if(p)return msg(p);if(pw.length<6)return msg('비밀번호는 6자 이상으로 만들어 주세요.');
+  dialog.querySelector('form')?.addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target),id=String(f.get('id')||''),pw=String(f.get('pw')||''),p=usernameProblem(id);if(p)return msg(p);if(pw.length<6)return msg('비밀번호는 6자 이상으로 만들어 주십시오.');
    try{const F=await load(),name=normalizeUsername(id);
     if(signup){if(pw!==f.get('pw2'))return msg('비밀번호 확인이 맞지 않습니다.');if((await F.getDoc(F.doc(F.db,'usernames',name))).exists())return msg('이미 사용 중인 아이디입니다.');
      const cred=await F.createUserWithEmailAndPassword(F.auth,usernameEmail(name),pw);

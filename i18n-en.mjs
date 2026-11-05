@@ -1,3 +1,4 @@
+import {formalUi} from './ui-register.mjs';
 // English phrases for the Korean interface (i18n.mjs). PATTERNS run first (numbers and names captured), then
 // PHRASES longest first, then POST patterns for bare counters. Keep Korean keys exactly as the app renders them.
 export const PATTERNS=[
@@ -165,7 +166,7 @@ export const PHRASES={
  '업데이트 정보를 확인하지 못했습니다.':'Could not check for updates.','올바르지 않은 버전입니다.':'Invalid version.','업데이트 기록':'Update history','새 업데이트가 있습니다.':'A new update is available.','미션·설정·운항 진행을 유지하고 새 버전을 불러옵니다.':'Loads the new version and keeps missions, settings and run progress.','업데이트':'Update',
  '변경 내용':'Changes','아직 등록된 업데이트 기록이 없습니다.':'No update history yet.','업데이트 기록을 불러오고 있습니다.':'Loading update history.','업데이트 기록을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.':'Could not load update history. Try again later.',
  // location manager
- '저장된 장소를 읽지 못했습니다. 기존 저장 내용은 유지했습니다.':'Could not read saved places. Existing data was kept.','장소 관리 · 지도 데이터':'Places · map data','장소 관리 닫기':'Close places','장소 관리':'Places','한글 지명 출처:':'Korean place names:','스타 시티즌 유저 한국어 프로젝트':'Star Citizen Korean user project','· 비영리 사용':'· non-commercial',
+ '저장된 장소를 읽지 못했습니다. 기존 저장 내용은 유지했습니다.':'Could not read saved places. Existing data was kept.','장소 관리 · 지도 데이터':'Places · map data','장소 관리 닫기':'Close places','장소 관리':'Places',
  '＋ 장소 등록':'＋ Add place','내 장소 백업':'Back up my places','백업 불러오기':'Load backup','최신 배포 확인':'Check latest release','수동 데이터 갱신 ↗':'Manual data refresh ↗','매일 갱신 작업이 실행됩니다. 수동 갱신은 GitHub 화면의 Run workflow로 실행합니다. 오류가 있으면 기존 배포를 유지합니다.':'A refresh runs daily. Run it manually with “Run workflow” on GitHub. On errors the current release is kept.',
  '장소 검색·선택':'Search/choose place','영문 이름 또는 한글 별칭':'English name or Korean alias','자동 갱신과 별도로 이 브라우저에 저장합니다. 백업 파일로 다른 기기에 옮길 수 있습니다.':'Saved in this browser, separate from the automatic refresh. Move it to other devices with a backup file.','저장된 장소를 지도에 적용 · 새로고침':'Apply saved places to the map · reload',
  '미션과 내 장소는 유지됩니다. 적용하면 화면이 새로 열리며, 선택한 스샷 파일은 다시 추가해야 합니다. 좌표가 없는 장소는 경로·시간 계산에서 제외합니다.':'Missions and your places are kept. Applying reloads the page; selected screenshots must be added again. Places without coordinates are left out of route and time calculations.',
@@ -235,3 +236,5 @@ export const HTML={
  'aide-ai-steps':'<li>Press <b>Copy request</b>.</li><li>Upload your contract screenshots to the ChatGPT or Claude app and send the copied request with them. Several images at once are fine. Capture the game with <b>Ctrl+Alt+PrtSc</b> and paste with <b>Ctrl+V</b> — no need to save files.</li><li>Copy everything the AI wrote, paste it below and press <b>Create contracts from text</b>.</li>',
  'login-note':'<b>Logging in is optional.</b> Every feature works without it and your data stays in this browser.<ul><li>With an account you get a <b>change log</b> showing what changed, when and on which device.</li><li>Your missions, ships, settings and <b>run log (total reward)</b> continue on other PCs.</li></ul>'
 };
+
+for(const [ko,en] of Object.entries(PHRASES)){const formal=formalUi(ko);if(formal!==ko&&!Object.hasOwn(PHRASES,formal))PHRASES[formal]=en;}

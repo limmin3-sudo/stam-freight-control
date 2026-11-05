@@ -1,6 +1,8 @@
-// Same-origin loopback only. No connection to game servers or public web endpoints.
+// The existing public flight deck reads only the explicitly paired local companion.
 export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
-  if (location.hostname !== '127.0.0.1' || location.protocol !== 'http:') return null;
+  const local=location.hostname==='127.0.0.1'&&location.protocol==='http:',publicSite=location.origin==='https://limmin3-sudo.github.io'&&location.pathname.startsWith('/stam-freight-control/');
+  if(!local&&!publicSite)return null;
+  const endpoint=local?location.origin:'http://127.0.0.1:23458';
   const key = 'stam-local-log-pairing';
   let token = new URLSearchParams(location.hash.slice(1)).get('token');
   try { token ||= sessionStorage.getItem(key); } catch {}
@@ -14,7 +16,7 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
     pending.add(controller);
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(path, { method, headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(new URL(path,endpoint), { method, headers: { Authorization: `Bearer ${token}` },
         credentials: 'omit', cache: 'no-store', redirect: 'error', signal: controller.signal });
       if (response.status === 401 || response.status === 403) throw new Error('pairing-expired');
       if (!response.ok) throw new Error('local-service-error');
@@ -69,5 +71,5 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
   }
   document.addEventListener('visibilitychange', wake);
   timer = setTimeout(poll, 0);
-  return { disconnect, pause: () => control('pause'), resume: () => control('resume') };
+  return { connect(){clearTimeout(timer);void poll();}, disconnect, pause: () => control('pause'), resume: () => control('resume') };
 }
