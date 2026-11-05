@@ -2,14 +2,14 @@
 import {PHRASES,PATTERNS,HTML} from './i18n-en.mjs';
 const KEY='sfc-lang';
 const MODES=['ko','en'];
-function initial(){if(typeof document==='undefined')return 'ko';// tests and scripts run in Korean
+function initial(){if(typeof document==='undefined')return 'ko';const requested=new URLSearchParams(location.search).get('lang');if(MODES.includes(requested)){try{localStorage.setItem(KEY,requested);}catch{}return requested;}// tests and scripts run in Korean
  try{const v=localStorage.getItem(KEY);if(MODES.includes(v))return v;if(localStorage.getItem('vh-missions')||localStorage.getItem('sfc-voice'))return 'ko';}catch{}
  return /^ko\b/i.test(navigator.language||'ko')?'ko':'en';}
 export const lang=initial();
 export const isEn=lang==='en';
 // English mode retains canonical English game names.
 export const gameEn=lang==='en';
-export function setLang(next){if(!MODES.includes(next)||next===lang)return;try{localStorage.setItem(KEY,next);}catch{}location.reload();}
+export function setLang(next){if(!MODES.includes(next)||next===lang)return;try{localStorage.setItem(KEY,next);}catch{}const url=new URL(location.href);if(url.searchParams.has('lang'))url.searchParams.set('lang',next);location.assign(url);}
 export const L=(ko,en)=>isEn?en:ko;
 
 const HANGUL=/[가-힣]/;

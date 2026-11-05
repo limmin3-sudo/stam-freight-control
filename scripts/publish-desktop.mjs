@@ -6,12 +6,13 @@ const version=JSON.parse(await readFile('desktop/version.json','utf8')).version;
 if(release.version!==version||!/^app\.\d+\.\d+\.\d+(?:-preview\.\d+)?$/.test(version))throw Error('version-mismatch');
 const zip=`dist/STAM-${version}-win-x64.zip`,bytes=await readFile(zip);
 if(bytes.length!==release.bytes||createHash('sha256').update(bytes).digest('hex')!==release.sha256)throw Error('package-integrity');
-const body=`Windows x64 관제 연결 앱입니다. ZIP 전체를 새 폴더에 풀고 **STAM.exe**를 실행한 다음 **StarCitizen/LIVE/Game.log**를 선택하세요. Node 설치나 관리자 권한은 필요하지 않습니다.
+const body=`Windows x64 관제 연결 앱입니다. ZIP 전체를 새 폴더에 풀고 **STAM.exe**를 실행한 다음 **StarCitizen/LIVE/Game.log**를 선택하십시오. Node 설치나 관리자 권한은 필요하지 않습니다.
 
 - 앱에서 한국어·English를 선택할 수 있으며 선택한 언어를 기억합니다.
+- 로그 선택 후 브라우저가 자동으로 열리지 않습니다. **STAM 사이트 열기** 버튼으로 기존 공개 사이트를 열며, 브라우저가 요청하면 로컬 네트워크 연결을 허용하십시오.
 - 브라우저의 계약 수신함에서 계약을 골라 기존 미션 편집창으로 열고, 확인·저장한 계약으로 항로를 준비합니다.
-- 사이트의 화면·항로·적재 기능은 별도로 업데이트됩니다. 앱은 호환 자원을 받아 다음 실행부터 적용합니다.
-- 실행기 창은 최소화해 두세요. 닫으면 연결이 종료됩니다.
+- 사이트의 화면·항로·적재 기능은 별도로 업데이트됩니다. 화면 자원은 앱에 포함되지 않으므로 사이트 변경마다 앱을 재설치할 필요가 없습니다.
+- 실행기 창은 최소화해 두십시오. 닫으면 연결이 종료됩니다.
 - Windows 10/11 x64용 휴대형 앱이며 코드 서명이 없습니다. 보안 기능을 끄지 말고 출처를 확인하세요.
 
 [운송 관제](https://limmin3-sudo.github.io/stam-freight-control/)

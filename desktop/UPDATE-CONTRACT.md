@@ -1,13 +1,13 @@
 # Companion update boundary
 
-`app.1.2.0` establishes the companion for the original flight deck and reviewed contract inbox.
+`app.1.3.0` connects the existing public website to a read-only local log API.
 
-- Native bridge protocol: 1. Snapshot schema: 1.
-- The website publishes `web-release.json` and content-addressed `web-assets/`.
-- The companion downloads browser resources only, verifies the complete manifest and all hashes, then applies them at the next launch.
-- The current flight deck never changes underneath an active trip. Offline or damaged-cache startup falls back to a verified previous release, then the bundled deck.
-- Browser resources are never loaded as Node modules. Selected log access stays in the bundled protected bridge.
-- Website layout, mission review, route planning, cargo packing and display labels can update without replacing the EXE. Changes to the native launcher, protected log parser or bridge protocol require a companion release.
-- Website and loopback browser storage have different origins. Keep existing public-site data; use existing backup/restore or account synchronization when moving to the companion deck.
+- The companion never automatically opens a browser. Its explicit Open STAM website button uses https://limmin3-sudo.github.io/stam-freight-control/.
+- Authentication, browser storage, mission review, routing, packing and every website update stay on that public origin. Website updates do not require reinstalling the companion.
+- The native package contains log processing, the local API, launcher and logo, with no bundled flight-deck HTML or browser application.
+- The browser receives a per-session pairing token in the URL fragment, immediately removes it from the address and sends it only to the fixed loopback API. Public static resources never receive it.
+- CORS permits authenticated GET status/snapshot reads only from the existing public origin. Preflight supports browser local-network permission; foreign origins and cross-origin controls remain denied.
+- API protocol and snapshot schema remain 1. Native launcher/parser/transport changes require a separate companion release.
+- Earlier loopback browser data and UI caches are left in place; public-site data is not migrated over or erased.
 
-Windows package validation compiles the EXE, uses the bundled Node runtime to read a synthetic accepted contract without changing its log, checks both languages and captures the actual forms.
+The selected visual theme is UEE control room. The user reviewed the actual Korean/English Windows captures and approved proceeding, with formal neutral interface wording. The final formal copy passed the Windows EXE, included-runtime, language-switching and capture checks (run 42031408917). app.1.3.0 may now be published as a new immutable release; app.1.2.0 remains available.
