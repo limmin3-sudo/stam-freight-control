@@ -1,7 +1,5 @@
 # Codex Cloud 인수인계 — STAM FREIGHT CONTROL
 
-**2026-11-04 재구축 재개:** [최신 재구축 인수인계](REBUILD-HANDOFF.md)를 먼저 확인한다. 사용자 요청으로 작업을 재개했다. 아래 내용은 기존 앱의 배경 설명이다.
-
 > 이 문서에는 초기 구현 시점의 설명이 포함돼 있다. 로그인·적재 공유·경로 편집·UI·현재 검증 상태는 [PROJECT_STATUS.md](../PROJECT_STATUS.md)가 현재 기준이다. 과거의 “미구현/연결 대기”를 현재 상태로 가정하거나 재구현하지 않는다.
 
 갱신일: 2026-11-02. 현재 개발 상태는 [PROJECT_STATUS.md](../PROJECT_STATUS.md), 공통 작업 규칙은 [DEVELOPMENT.md](DEVELOPMENT.md)를 먼저 확인한다. 이 문서는 프로젝트의 구현 상태와 확정 요구사항을 정리한 개발 인수인계다. 이전 로컬 대화나 컴퓨터에 접근하지 않아도 이어갈 수 있게 작성했다.

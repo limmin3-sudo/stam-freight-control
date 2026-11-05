@@ -18,7 +18,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,10 +30,14 @@ jobs:
       - name: Refresh hauling mission data (keeps the bundled file if the wiki is unavailable)
         run: node scripts/refresh-missions.mjs
       - run: npm test
-      - name: Prepare optional screen-reader assets with integrity checks
-        run: node --input-type=module -e "import {prepareScreenAssets} from './integration/log/screen-assets-node.mjs'; await prepareScreenAssets()"
-      - name: Assemble the public transport workspace
-        run: node scripts/build-public.mjs public
+      - name: Assemble public files only
+        run: |
+          mkdir public
+          cp index.html style.css *.mjs public/
+          cp -R data vendor public/
+          if [ -d assets ]; then cp -R assets public/; fi
+          if [ -f icon.svg ]; then cp icon.svg public/; fi
+          touch public/.nojekyll
       - name: Stamp release version and update history
         run: node scripts/build-release.mjs public
       - uses: actions/configure-pages@v5
@@ -43,20 +47,3 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify public site and independent app update
-        env:
-          STAM_PLAYWRIGHT_MODULE: /tmp/stam-browser/node_modules/playwright
-          STAM_WEB_PUBLIC: '1'
-        run: |
-          npm install --prefix /tmp/stam-browser --no-save playwright@1.56.1
-          export STAM_CHROMIUM_PATH="$(command -v google-chrome)"
-          node scripts/check-deployed-site.mjs
-          node scripts/check-unified-deck-browser.mjs
-          python scripts/check-published-app.py
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: STAM-public-verification
-          path: /tmp/stam-unified-*.png
-          if-no-files-found: ignore
-          retention-days: 14

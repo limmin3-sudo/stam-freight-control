@@ -13,8 +13,8 @@ export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,
 export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
 export const COLORS=['#57d9db','#ecb969','#a697f4','#eb8fb1','#8cd6a1','#8dbbfa','#e3dd84','#cda17e'];
 export function assumedBoxes(scu,maxSize=8){const out=[];for(const size of SIZES.filter(s=>s<=maxSize)){while(scu>=size){out.push(size);scu-=size;}}return out;}
-// Unknown layouts use the per-item cap as a planning assumption. Equal SCU
-// does not guarantee that a different box composition fits the same grids.
+// Unknown layout: the wiki mission's container limit is used as is (largest boxes are the hardest to fit, so the
+// plan still holds when smaller boxes arrive); otherwise the usual cap of `unknownBox` SCU.
 export function assumedLimit(cargo,unknownBox=8){return SIZES.includes(cargo.maxBoxSize)?(cargo._maxBoxSource==='wiki'?cargo.maxBoxSize:Math.min(unknownBox,cargo.maxBoxSize)):unknownBox;}
 export function boxList(cargo,unknownBox=8){
  if(!Number.isInteger(cargo.scu)||cargo.scu<1||cargo.scu>10000)throw Error('화물 SCU는 1–10,000 사이 정수만 가능합니다.');
@@ -178,23 +178,8 @@ export function planRoute(data,missions,startId,settings={}){
  const resume=settings.resume||null,startStatus=Array(n).fill(0);let startPacking=packBoxes([],[],opt.ship);
  if(resume){const picked=new Set(resume.picked||[]),delivered=new Set(resume.delivered||[]);shipments.forEach((s,i)=>{if(delivered.has(s.id))startStatus[i]=2;else if(picked.has(s.id))startStatus[i]=1;});
   const aboardIds=new Set(shipments.filter((s,i)=>startStatus[i]===1).flatMap(s=>s.boxes.map(b=>b.boxId))),known=new Map((resume.aboard||[]).map(b=>[b.boxId,b]));
-  // A missing or incompatible saved position is not permission to reload the
-  // hold. Stop instead of silently moving aboard cargo to newly chosen cells.
-  const expected=new Map(shipments.flatMap(s=>s.boxes).map(b=>[b.boxId,b]));
-  const shipmentIds=new Set(shipments.map(s=>s.id));
-  if([...picked].some(id=>!delivered.has(id)&&!shipmentIds.has(id))||(resume.aboard||[]).some(b=>!expected.has(b.boxId)))throw Error('실린 화물이 현재 계약 목록에서 빠져 있습니다. 진행 중인 계약과 위치 기록을 확인해 주세요.');
-  const saved=(resume.aboard||[]).filter(b=>aboardIds.has(b.boxId));
-  const fixed=[...aboardIds].map(id=>known.get(id));
-  const validPosition=b=>{
-   if(!b||!Number.isInteger(b.bin)||!opt.ship.grids[b.bin]||!Array.isArray(b.cell)||b.cell.length!==3||!b.cell.every(Number.isFinite)||!Number.isInteger(b.cell[0])||!Number.isInteger(b.cell[2])||!Array.isArray(b.dims)||b.dims.length!==3)return false;
-   const want=expected.get(b.boxId),pod=want._cargoShape==='cryopod',shapes=pod?[[1,.5,2],[2,.5,1]]:orientations(BOX_DIMS[want.size]);
-   return b.size===want.size&&b.missionId===want.missionId&&b.pickupId===want.pickupId&&b.dropoffId===want.dropoffId&&
-    (b._cargoShape||null)===(want._cargoShape||null)&&Number.isInteger(b.cell[1]*(pod?2:1))&&
-    shapes.some(d=>d.every((n,i)=>n===b.dims[i]))&&!(opt.ship.grids[b.bin].noUpright?.includes(b.size)&&isUpright(b.dims));
-  };
-  if(saved.length!==aboardIds.size||!fixed.every(validPosition))throw Error('실린 화물의 위치 기록이 누락되었거나 현재 구성과 다릅니다. 기존 위치와 상자 구성을 확인해 주세요.');
-  startPacking=packBoxes([],fixed.map(b=>({...b,...expected.get(b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})),opt.ship);
-  if(!startPacking)throw Error('지금 실린 화물의 기존 위치를 유지할 수 없습니다. 사용 중인 그리드와 함선 설정을 확인해 주세요.');
+  const fixed=[...aboardIds].map(id=>known.get(id)).filter(Boolean);startPacking=fixed.length===aboardIds.size?packBoxes([],fixed.map(b=>({...b,...shipments.flatMap(s=>s.boxes).find(x=>x.boxId===b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})),opt.ship):null;
+  if(!startPacking)startPacking=packBoxes(shipments.filter((s,i)=>startStatus[i]===1).flatMap(s=>s.boxes),[],opt.ship);if(!startPacking)throw Error('지금 실린 화물이 이 함선 그리드에 들어가지 않습니다. 함선 설정을 확인하세요.');
   if(startStatus.every(x=>x===2))throw Error('남은 운송이 없습니다. 모든 배송을 마쳤습니다.');}
  // The shared stop search looks ahead to the complete route. Validate every proposed
  // pickup against the real grids before using it; aboard boxes remain fixed.

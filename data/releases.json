@@ -1,99 +1,5 @@
 [
   {
-    "id": "2026-11-05-flight-deck-theme",
-    "version": "4.2.0",
-    "date": "2026-11-05 00:47",
-    "title": "첫 화면부터 운송 관제 · 새 브랜드와 한영 안내",
-    "changes": [
-      "로그 연결 전에도 중앙 지도, 지도 아래 적재 3D, 좌측 함선·계약, 우측 방문 순서를 표시합니다. 3.8의 배치를 바탕으로 출항 준비와 화물 확인을 별도 창에 정리했습니다.",
-      "로그 연결창이 메인 화면을 차지하지 않습니다. 관제 모드는 지도·적재와 아래 진행·파트너 패널을 함께 사용합니다.",
-      "배경을 정리한 STAM 로고와 여유 있는 헤더를 메인·이용안내·패치노트·다운로드에 적용했습니다.",
-      "이용안내와 패치노트는 같은 탭에서 열립니다. 관제로 돌아가기나 뒤로가기로 복귀하며 지원 앱에서는 관제를 유지합니다.",
-      "13단계 영문 이용안내, 영문 화면 예시와 패치노트 언어 전환을 추가했습니다. English의 preview 표기를 제거했습니다.",
-      "안내 파트너가 전신으로 등장해 장면을 가리킵니다. 파트너 선택과 동작 일시정지를 지원합니다.",
-      "Windows 앱 app.1.1.0은 새 로고·연결 화면과 한국어·English 선택을 제공합니다. 사이트의 항로·적재 업데이트는 앱 업데이트와 계속 분리됩니다.",
-      "실시간 위치 추적과 좌표 입력 기능을 제거했습니다. 계약 로그 연동, 출발지 선택과 항로 안내는 유지합니다."
-    ],
-    "en": {
-      "title": "Flight deck from the first visit · refreshed branding and bilingual briefing",
-      "changes": [
-        "The starmap, cargo 3D below it, ship sidebar and stop sequence are visible before connecting a log. Flight setup and cargo review use dedicated dialogs within the familiar 3.8 layout.",
-        "Log connection controls no longer occupy the main deck. Control room mode pairs the map and cargo view with flight progress and crew guidance below.",
-        "A clean STAM emblem and roomier masthead are shared across the deck, briefing, release notes and downloads.",
-        "Briefing and release notes open in the same tab. Return to control or use Back; supported companions keep the deck mounted underneath.",
-        "All 13 briefing chapters, web screenshots and release history are available in English. The language selector is now simply English.",
-        "Full-body briefing partners gesture toward the current scene. Choose a partner or pause gestures.",
-        "Windows companion app.1.1.0 brings the new emblem, refreshed connection screen and a remembered Korean/English preference. Website route and cargo updates remain independent of companion updates.",
-        "Removed live position tracking and coordinate input. Contract log updates, departure selection and route guidance remain available."
-      ]
-    }
-  },
-  {
-    "id": "2026-11-04-companion-update-transfer",
-    "version": "4.1.1",
-    "date": "2026-11-04 23:26",
-    "title": "연결 앱 업데이트 수신 수정",
-    "changes": [
-      "Windows 연결 앱 app.1.0.1을 제공합니다. 공개 서버의 압축 전송 때문에 최신 관제 파일을 받지 못하던 문제를 수정했습니다.",
-      "사이트 화면·항로·적재 기능은 계속 별도로 업데이트되며 다음 앱 실행부터 적용됩니다. 현재 공개 다운로드는 수정된 앱으로 연결됩니다."
-    ],
-    "en": {
-      "title": "Companion update download fix",
-      "changes": [
-        "Windows companion app.1.0.1 fixes an update download failure caused by HTTP compression overhead.",
-        "Website layout, route and cargo updates remain independent and apply on the next app launch. The download page now points to the corrected companion."
-      ]
-    }
-  },
-  {
-    "id": "2026-11-04-unified-flight-control",
-    "version": "4.1.0",
-    "date": "2026-11-04 23:10",
-    "title": "통합 운송 관제 · 독립 업데이트 앱",
-    "changes": [
-      "기존 양쪽 사이드바·중앙 지도·아래 적재 3D에 자동 계약 접수를 연결했습니다. 파트너를 고르고 함선·출발지를 확인한 뒤 항로를 계산합니다.",
-      "같은 배송지의 화물을 모으고, 상자 구성이 없으면 적재 공간 가이드로 계획합니다. 확인한 상자 구성은 저장해 같은 유형·빌드의 다음 계약에서 불러올 수 있습니다.",
-      "진행 중 새 계약의 현재 항로 합류·다음 계획 보관, 계약 제외와 잔여 화물, 부분 적재·배송·재접속을 연결했습니다.",
-      "새 운송 상태의 계정 복원과 완료·지급 기록을 연결했습니다. 이전 수동 보상과 로그 지급을 중복 합산하지 않습니다.",
-      "Windows 관제 연결 앱을 새로 제공합니다. 사이트 화면·항로·적재 업데이트는 앱 재설치 없이 다음 실행부터 적용합니다.",
-      "13단계 출항 안내, 실제 앱 화면, 한국어·English 조작과 파트너 대사를 정리했습니다. 실제 게임에서만 확인할 항목은 최종 출항 목록에 남겼습니다."
-    ],
-    "en": {
-      "title": "Unified freight control · independent companion updates",
-      "changes": [
-        "The familiar sidebars, central map and cargo view now receive log contracts. Choose a partner, review your ship and departure, then plan the route.",
-        "Cargo stays grouped by destination. Unknown crate layouts use space guides; confirmed layouts can be recalled for matching mission types and builds.",
-        "Add contracts to the active route or the next plan, review retained cargo on cancellation, and resume partial loading and deliveries.",
-        "Account recovery includes the new flight stores. Completed contracts and observed payouts are recorded without double-counting earlier manual rewards.",
-        "The new Windows companion receives compatible website updates for its next launch without reinstalling the app.",
-        "The 13-step guide, actual app screenshots and English partner dialogue are updated. Live-game checks remain in the final flight checklist."
-      ]
-    }
-  },
-  {
-    "id": "2026-11-04-log-workspace",
-    "version": "4.0.0",
-    "date": "2026-11-04 19:52",
-    "title": "로그 연동 관제 · Windows 앱 · 출항 안내",
-    "changes": [
-      "Game.log를 읽는 Windows 연결 앱과 새 운송 관제를 공개합니다. Node를 따로 설치하지 않고 실행할 수 있습니다.",
-      "파트너를 고르고 계약을 기다린 뒤 확인된 정보로 항로와 적재를 준비합니다. 같은 배송지의 화물을 모으고 실린 화물 위치를 보존합니다.",
-      "운송 중 새 계약 합류·다음 계획 보관, 계약 제외와 남은 화물 확인, 드라이브 교체와 그리드 선택을 제공합니다.",
-      "설정·운송 기록 백업, 13장 이용 안내와 영어 문구·한글 자막의 24초 출항 브리핑을 추가했습니다.",
-      "실게임 검증 전 공개 시험판입니다. 모든 미션 명세·실제 연속 위치·새 운송 기록 전체의 클라우드 동기화는 아직 완성되지 않았습니다."
-    ],
-    "en": {
-      "title": "Log-linked freight control · Windows app · Flight briefing",
-      "changes": [
-        "The Windows companion reads Game.log and opens the freight workspace. No separate Node installation is needed.",
-        "Choose a partner, receive contracts and plan routes and cargo using confirmed information. Group destinations and preserve cargo positions on board.",
-        "Add new contracts to the current route or keep them for the next plan. Review retained cargo, select quantum drives and choose active grids.",
-        "Flight data backups, a 13-step guide and a new 24-second briefing with English titles and Korean subtitles are available.",
-        "Public preview awaiting live-game validation. Automatic manifests for every mission, continuous live position and full flight-state cloud synchronization remain incomplete."
-      ]
-    }
-  },
-  {
     "id": "2026-11-02-grid-selection",
     "version": "3.8.0",
     "date": "2026-11-02 22:43",
@@ -255,9 +161,9 @@
     "en": {
       "title": "Three language modes · Wikelo labels · goods name fixes",
       "changes": [
-        "Choose Korean, Korean interface with English game names, or English at the top. The mixed mode keeps places, contracts and goods in English. Automatic mission matching works with the mixed and English modes.",
+        "Choose “한국어 / 한/영 / English” at the top. “한/영” keeps the Korean interface with game names (places, contracts, goods) in English, for the English game client. Automatic game mission types work in “한/영” and “English”.",
         "Wikelo trading post names on the map only appear when zoomed right in, unless they are on your route or selected.",
-        "Misread goods names are corrected from the mission data when the contractor and other goods identify the mission. Saved contracts are corrected too, with changes listed under Cargo by contract."
+        "Misread goods names are corrected from the game mission data: once the contractor and the other goods settle the mission, the leftover commodity is the real name (e.g. “철소홍” → Nitrogen). Saved contracts are fixed too, and Cargo by contract lists the corrections."
       ]
     }
   },
@@ -292,7 +198,7 @@
     "en": {
       "title": "English version · automatic game mission types",
       "changes": [
-        "The whole site is now available in English. Switch with the Korean/English button at the top; features are the same. Partner lines, the guide and the update history have English versions.",
+        "The whole site is now available in English. Switch with the “English / 한국어” button at the top; features are the same. Partner lines, the guide and the update history have English versions.",
         "Paste contracts from an English game client and they are matched to the game mission data (Star Citizen Wiki, 4.10.2) to find the mission type and the largest container per commodity; until you enter the real containers, loading is planned with those largest containers. Mission data refreshes daily.",
         "Mission type matching for the Korean client is coming soon; every other feature works in both languages."
       ]
