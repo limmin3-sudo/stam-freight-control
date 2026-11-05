@@ -35,7 +35,7 @@ export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dr
   const limit=[1,2,4,8,16,24,32].includes(o.maxBoxScu)?o.maxBoxScu:null;
   return {commodity:o.name,scu:quantity,pickupId:resolve('pickup',o),dropoffId:resolve('dropoff',o),boxes:[],...(limit?{maxBoxSize:limit,_maxBoxSource:'wiki',_catalog:{id:definition.id,commodity:o.name,maxBoxSize:limit,orderIndex:o.orderIndex,objectives:rules.haulingObjectives||[]}}:{}),_quantityBounds:{min,max,unit:entity?'items':'SCU'},_catalogBasis:o.fixedQuantity?'definition-fixed-quota':'definition-bounds'};
  });
- return {id:definition.id,title:definition.title,company:definition.giver||meta?.giver||'',rank:definition.rank??meta?.rank,rows,basis,version:catalog.version,pickupId:resolve('pickup'),dropoffId:resolve('dropoff')};
+ return {id:definition.id,title:definition.title,company:definition.giver||meta?.giver||'',rank:definition.rank??meta?.rank,rows,basis,version:catalog.version,pickupId:resolve('pickup'),dropoffId:resolve('dropoff'),multiplePickups:poolNames('pickup').length>1||pools.filter(p=>/^Location/.test(p.purpose||'')).length>1,multipleDropoffs:poolNames('dropoff').length>1||pools.filter(p=>/^Destination/.test(p.purpose||'')).length>1};
 }
 // Restore exact definition limits after legacy name/type enrichment. User changes
 // and actual box layouts remain authoritative; the old packer receives its usual

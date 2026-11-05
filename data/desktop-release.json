@@ -1,9 +1,9 @@
 {
   "status": "published",
-  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.3.1/STAM-app.1.3.1-win-x64.zip",
-  "version": "app.1.3.1",
-  "bytes": 35062003,
-  "sha256": "322b09cc4e8150d3f37192b8818e9fd9a4c4a054ab27b375e4f9e5e572baa460",
+  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.3.2/STAM-app.1.3.2-win-x64.zip",
+  "version": "app.1.3.2",
+  "bytes": 35062370,
+  "sha256": "db94f8eb1d63eda34a9ae73a6d283184c8e52a7be2857fc482ae877c9c169c29",
   "launcherBlobSha": "feba238964d685cf83d4816059694ecef083ee87",
   "launcherSha256": "6b0ddc5502149f26113e8a1cc09447b9c417b5d83e8a59068ac472a04b6e9149"
 }
