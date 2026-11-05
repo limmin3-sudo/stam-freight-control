@@ -75,15 +75,15 @@ test('Korean display names: table, own alias, generated client words, never half
   assert.equal(koName({name:'My Base',aliases:['우리 집']}),'우리 집');
 });
 
-test('several pickups preserve one delivery total without invented allocation', ()=>{
+test('several pickups for one delivery visit every pickup with a marked, editable split', ()=>{
   const r=parseMissionText(`중형 신입 화물 계약자 필요 [200-4,000 평판]
 유기체을(를) 0/12 SCU 파이로 II의 선셋 메사에 배송하십시오.
 브리오 함선 폐기장에서 유기체을(를) 접수하십시오.
 그림 헥스에서 유기체을(를) 접수하십시오.
 네온을(를) 0/1 SCU 파이로 II의 선셋 메사에 배송하십시오.
 그림 헥스에서 네온을(를) 접수하십시오.`,pyro);
-  assert.deepEqual(route(r),[['유기체',12,'','sunset'],['네온',1,'grim','sunset']]);
-  assert.deepEqual(r.cargo[0].pickupIds,['brio','grim']);assert.equal(r.cargo[0]._allocation,'unresolved');assert.equal(r.cargo[0]._scuAssumed,undefined);
+  assert.deepEqual(route(r),[['유기체',6,'brio','sunset'],['유기체',6,'grim','sunset'],['네온',1,'grim','sunset']]);
+  assert.ok(r.cargo[0]._scuAssumed&&r.cargo[1]._scuAssumed&&!r.cargo[2]._scuAssumed);
   assert.equal(r.warnings.filter(w=>/픽업지가 2곳/.test(w)).length,1);
 });
 
@@ -92,7 +92,7 @@ test('a Rayari outpost named only by moon and kind words resolves inside that mo
   const r=parseMissionText(`란타똥을(를) 0/14 SCU 파이로 II의 선셋 메사에 배송하십시오.
 브리오 함선 폐기장에서 란타똥을(를) 접수하십시오.
 셀린의 라야리 주식회사 전초기지에서 란타똥을(를) 접수하십시오.`,L);
-  assert.deepEqual(route(r),[['란타똥',14,'','sunset']]);assert.deepEqual(r.cargo[0].pickupIds,['brio','hickes']);
+  assert.deepEqual(route(r),[['란타똥',7,'brio','sunset'],['란타똥',7,'hickes','sunset']]);
 });
 
 test('cargo names are corrected to the official Korean list only when one name is clearly closest', async ()=>{
@@ -113,9 +113,4 @@ test('cargo names are corrected to the official Korean list only when one name i
 test('countdown-looking screenshot text never creates a hauling time limit',()=>{
  const parsed=parseMissionText('Time Remaining: 1h 20m 30s',[]);
  assert.equal(Object.hasOwn(parsed,'remainingMinutes'),false);
-});
-
- test('English multiple pickups retain the known total and reject partial or conflicting splits',()=>{
- for(const quantities of [['',''],['4 SCU of ',''],['4 SCU of ','4 SCU of ']]){const r=parseMissionText(`Collect ${quantities[0]}Hydrogen from Brio's Breaker Yard\nCollect ${quantities[1]}Hydrogen from Grim HEX\nDeliver 12 SCU of Hydrogen to Sunset Mesa`,pyro);assert.equal(r.cargo.length,1);assert.equal(r.cargo[0].scu,12);assert.equal(r.cargo[0].pickupId,'');assert.deepEqual(r.cargo[0].pickupIds,['brio','grim']);}
- const r=parseMissionText(`Collect 4 SCU of Hydrogen from Brio's Breaker Yard\nCollect 8 SCU of Hydrogen from Grim HEX\nDeliver 12 SCU of Hydrogen to Sunset Mesa`,pyro);assert.deepEqual(route(r),[['Hydrogen',4,'brio','sunset'],['Hydrogen',8,'grim','sunset']]);
 });

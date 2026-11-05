@@ -8,7 +8,3 @@ node_modules/
 vendor/three.module.js
 data/locations.json
 public/
-
-vendor/screen/
-
-dist/

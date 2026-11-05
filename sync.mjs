@@ -1,7 +1,6 @@
-import {PLANNING_KEY,cleanPlanningPreferences} from './planning-preferences.mjs';
 // Account sync rules, independent of the backend so they can be tested without a server.
 // Only player data is synced; device settings (map quality, AI server address, guide-seen flag) stay per browser.
-export const SYNC_KEYS=['vh-missions','vh-recipes','vh-ships','vh-ship-id','vh-ship-performance','vh-settings','vh-start','vh-mode','sfc-run','sfc-voice','sfc-location-overrides-v1','vh-storage-note','sfc-history',PLANNING_KEY];
+export const SYNC_KEYS=['vh-missions','vh-recipes','vh-ships','vh-ship-id','vh-ship-performance','vh-settings','vh-start','vh-mode','sfc-run','sfc-voice','sfc-location-overrides-v1','vh-storage-note','sfc-history'];
 export const GUEST_BACKUP='vh-guest-backup';
 export const ACCOUNT_META='vh-account-meta';
 const MAX_VALUE=900000;// Firestore documents are limited to 1 MiB.
@@ -9,7 +8,6 @@ const MAX_VALUE=900000;// Firestore documents are limited to 1 MiB.
 // Screenshot thumbnails can be hundreds of KB each; they stay in this browser only.
 export function cleanValue(key,value){
  if(value==null)return null;
- if(key===PLANNING_KEY){try{value=JSON.stringify(cleanPlanningPreferences(JSON.parse(value)));}catch{return null;}}
  if(key==='vh-missions'){try{const ms=JSON.parse(value);if(Array.isArray(ms))value=JSON.stringify(ms.map(({_sourcePreview,...m})=>m));}catch{}}
  return value.length>MAX_VALUE?null:value;
 }
@@ -29,7 +27,7 @@ export function changedKeys(prev,next){return SYNC_KEYS.filter(k=>(prev||{})[k]!
 // Another PC saved after our last sync: do not overwrite it.
 export const remoteIsNewer=(cloudUpdatedAt,lastSyncedAt)=>Number(cloudUpdatedAt||0)>Number(lastSyncedAt||0);
 
-export function applySnapshot(storage,snap){for(const k of SYNC_KEYS){if(snap[k]==null)storage.removeItem(k);else {const value=cleanValue(k,snap[k]);if(value!=null)storage.setItem(k,value);else storage.removeItem(k);}}}
+export function applySnapshot(storage,snap){for(const k of SYNC_KEYS){if(snap[k]==null)storage.removeItem(k);else storage.setItem(k,snap[k]);}}
 
 // Usernames for ID sign-up: lowercase letters, digits and underscore, 3–20 characters.
 export const USERNAME_RE=/^[a-z0-9_]{3,20}$/;
@@ -42,7 +40,7 @@ export const usernameEmail=u=>`${normalizeUsername(u)}@id.stam-freight-control.a
 const parse=v=>{try{return JSON.parse(v??'null');}catch{return null;}};
 const missionName=m=>[m.company,m.title].filter(Boolean).join(' ')||m.id;
 const won=n=>Math.round(Number(n)||0).toLocaleString('ko-KR');
-const SIMPLE={[PLANNING_KEY]:'운송 관제 함선·출발지·파트너·그리드 설정 수정','vh-ships':'함선·그리드 설정 수정','vh-ship-performance':'드라이브·속도 설정 수정','vh-recipes':'상자 구성 저장·수정','vh-settings':'계산 설정 수정','vh-start':'출발 위치 변경','vh-mode':'간편/상세 모드 변경','sfc-voice':'운항 파트너 변경','sfc-location-overrides-v1':'개인 장소 수정','vh-storage-note':'적재 메모 수정'};
+const SIMPLE={'vh-ships':'함선·그리드 설정 수정','vh-ship-performance':'드라이브·속도 설정 수정','vh-recipes':'상자 구성 저장·수정','vh-settings':'계산 설정 수정','vh-start':'출발 위치 변경','vh-mode':'간편/상세 모드 변경','sfc-voice':'운항 파트너 변경','sfc-location-overrides-v1':'개인 장소 수정','vh-storage-note':'적재 메모 수정'};
 export function describeChanges(prev={},next={},{shipName=id=>id}={}){
  const out=[];
  for(const k of changedKeys(prev,next)){
