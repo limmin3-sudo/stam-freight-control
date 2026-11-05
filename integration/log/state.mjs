@@ -78,20 +78,6 @@ export class LogEvidence {
       const service=events.filter(e=>e.type==='mission-state-observed');
       const ended = [...allEndings.filter(e => identity.actor(e) !== 'other'),...terminal].sort(compare);
       const membership = participation(events, identity.actor);
-      if (!markers.some(e => e.hauling)) {
-        // Keep accepted/joined instances visible while the game has not emitted a marker.
-        // Titles and SCU notifications alone must not classify a mission as hauling.
-        if (!markers.length && (accepted.length || membership.selfJoinObserved)) pendingContracts.push({
-          missionId, status:ended.length?'end-observed':'classification-pending',
-          acceptedAt:accepted[0]?.at??null, lastEvidenceAt:events.at(-1)?.at??null,
-          title:[...new Set(accepted.map(e=>e.title))].length===1?accepted[0]?.title:null,
-          participation:membership, classification:'unverified',
-          acceptanceObservations:accepted.map(publicEvent),
-          quantityObservations:events.filter(e=>e.type==='quantity-observed'),markerObservations:[],conflicts:[],
-          objectiveNoticeCount:events.filter(e=>['quantity-observed','objective-notice-observed'].includes(e.type)).length,
-        });
-        continue;
-      }
       const quantities = events.filter(e => e.type === 'quantity-observed');
       const definitions = [...new Set(markers.map(e => e.definitionId))].sort();
       const completions = [...new Set(ended.map(e => e.completion))].sort();
@@ -123,6 +109,17 @@ export class LogEvidence {
       };
       entry.progress=contractProgress(entry);
       if(entry.progress.outcome==='conflict'&&!entry.conflicts.length){entry.conflicts.push('terminal-state-conflict');entry.status='conflict';entry.planning.reasons.push('terminal-state-conflict');}
+      if (!markers.some(e => e.hauling)) {
+        // A template name outside the observed HaulCargo pattern does not undo
+        // a local acceptance. Keep its exact definition/marker/quantity evidence
+        // available to the website catalogue without claiming a hauling type.
+        if (accepted.length || membership.selfJoinObserved) pendingContracts.push({
+          ...entry, status:entry.status==='acceptance-observed'||entry.status==='participation-observed'?'classification-pending':entry.status,
+          lastEvidenceAt:events.at(-1)?.at??null, classification:'unverified',
+          objectiveNoticeCount:events.filter(e=>['quantity-observed','objective-notice-observed'].includes(e.type)).length,
+        });
+        continue;
+      }
       entry.boxComposition = resolveBoxProfile(entry);
       entry.originalManifest = resolveOriginalManifest(entry, this.locations);
       if (entry.boxComposition.status === 'matched-fixed-profile') {

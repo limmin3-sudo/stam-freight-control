@@ -1,3 +1,4 @@
+import {placeCargoLabels} from './cargo-label-layout.mjs';
 import {DEFAULT_SHIP,hullKind} from './ships.mjs';
 import {shipAccess} from './engine.mjs';
 import {createBloom} from './cargo-bloom.mjs';
@@ -77,12 +78,12 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
   v.loop?.invalidate();
  }
 
- function addLabel(v,text,point,cls,bin=-1){const el=document.createElement(bin>=0?'button':'span');if(bin>=0){el.type='button';el.dataset.gridBin=bin;el.tabIndex=-1;el.onclick=()=>{if(selecting)onGridToggle?.(bin);};}el.className=cls;el.textContent=text;v.el.querySelector('.cargo-zone-labels').append(el);v.labels.push({element:el,point,bin});}
+ function addLabel(v,text,point,cls,bin=-1){const el=document.createElement(bin>=0?'button':'span');if(bin>=0){el.type='button';el.dataset.gridBin=bin;el.tabIndex=-1;el.onclick=()=>{if(selecting)onGridToggle?.(bin);};}el.className=cls;el.textContent=text;v.el.querySelector('.cargo-zone-labels').append(el);const leader=document.createElementNS('http://www.w3.org/2000/svg','line');v.leaders?.append(leader);v.labels.push({element:el,point,bin,leader});}
  function shortNames(grids){const strip=new Set(['DRAK','MISC','RSI','CRUS','ANVL','AEGS','ARGO','ORIG','CNOU','Cargo','Inventory','Drake','Caterpillar','Hermes','Hercules','Starlifter']);return grids.map(g=>{const w=g.name.split(' · ')[0].split(/\s+/).filter(x=>!strip.has(x));return w.join(' ')||g.name.split(' · ')[0];});}
  const glowLine=(geo,color,op)=>new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false}));
  function model(next){ship=next;const short=shortNames(next.grids);const kind='single';if(kind!==layout)build(kind);
   const bounds=new THREE.Box3();ship.grids.forEach(G=>{const g=G._world?{...G,...G._world}:G;bounds.expandByPoint(new THREE.Vector3(g.x,g.y,g.z));bounds.expandByPoint(new THREE.Vector3(g.x+g.w,g.y+g.h,g.z+g.l));});const c=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),min=bounds.min,max=bounds.max;
-  for(const v of views){clearGroup(v.frame);clearGroup(v.boxes);v.el.querySelector('.cargo-zone-labels').replaceChildren();v.labels=[];v.cages=[];v.center.copy(c);v.radius=Math.max(6,size.length()*.55);
+  for(const v of views){clearGroup(v.frame);clearGroup(v.boxes);v.el.querySelector('.cargo-zone-labels').replaceChildren();v.leaders=document.createElementNS('http://www.w3.org/2000/svg','svg');v.leaders.classList.add('cargo-label-leaders');v.leaders.setAttribute('aria-hidden','true');v.el.querySelector('.cargo-zone-labels').append(v.leaders);v.labels=[];v.cages=[];v.center.copy(c);v.radius=Math.max(6,size.length()*.55);
    // Deck: dark plate with a fine holographic grid that fades toward the edges.
    const span=Math.ceil(Math.max(size.x,size.z)+10);const deckTex=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=512;const g=cv.getContext('2d'),rg=g.createRadialGradient(256,256,30,256,256,256);rg.addColorStop(0,'rgba(23,42,56,.6)');rg.addColorStop(1,'rgba(5,12,18,0)');g.fillStyle=rg;g.fillRect(0,0,512,512);g.strokeStyle='rgba(110,160,185,.09)';g.lineWidth=1;const step=512/span;for(let i=0;i<=span;i++){g.beginPath();g.moveTo(i*step,0);g.lineTo(i*step,512);g.stroke();g.beginPath();g.moveTo(0,i*step);g.lineTo(512,i*step);g.stroke();}g.globalCompositeOperation='destination-in';const fade=g.createRadialGradient(256,256,100,256,256,290);fade.addColorStop(0,'#fff');fade.addColorStop(1,'#0000');g.fillStyle=fade;g.fillRect(0,0,512,512);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;})();
    const deck=new THREE.Mesh(new THREE.PlaneGeometry(span,span),new THREE.MeshBasicMaterial({map:deckTex,transparent:true,depthWrite:false}));deck.rotation.x=-Math.PI/2;deck.position.set(c.x,min.y-.62,c.z);deck.material.userData.ownedMap=true;v.frame.add(deck);
@@ -143,7 +144,13 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
     if(u.focus){o.material.emissiveIntensity=.035;}
     else if(u.box.boxId===v.hoverId)o.material.emissiveIntensity=.1;else if(!o.material.transparent)o.material.emissiveIntensity=.01;});
    const rect=v.canvas.getBoundingClientRect();for(const b of v.badges||[]){const wp=b.mesh.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,b.mesh.geometry.parameters.height/2+.25,0)),p=wp.project(v.camera),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height;b.element.hidden=!(p.z<1&&x>8&&x<rect.width-8&&y>20&&y<rect.height-20);b.element.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px) translate(-50%,-50%)`;}
-   for(const l of v.labels){const p=l.point.clone().project(v.camera),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height;const visible=(l.bin<0||v.cages[l.bin].visible)&&p.z<1&&x>12&&x<rect.width-12&&y>26&&y<rect.height-26;l.element.hidden=!visible;if(visible)l.element.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px) translate(-50%,-50%)`;}
+   const projected=[];
+   for(const [id,l] of v.labels.entries()){const p=l.point.clone().project(v.camera),x=(p.x*.5+.5)*rect.width,y=(-p.y*.5+.5)*rect.height,visible=(l.bin<0||v.cages[l.bin].visible)&&p.z<1&&p.z>-1&&x>0&&x<rect.width&&y>0&&y<rect.height;l.element.hidden=!visible;l.leader.style.display='none';if(visible)projected.push({id,x,y,priority:l.bin<0?0:1});}
+   // Batch visibility writes before measuring; measuring after each write forces
+   // a separate layout for every grid label on a loaded ship.
+   for(const at of projected){const l=v.labels[at.id];at.width=l.element.offsetWidth||88;at.height=l.element.offsetHeight||22;}
+   for(const at of placeCargoLabels(projected,rect.width,rect.height)){const l=v.labels[at.id],original=projected.find(p=>p.id===at.id);l.element.style.transform=`translate(${Math.round(at.x)}px,${Math.round(at.y)}px) translate(-50%,-50%)`;if(l.bin>=0&&Math.hypot(at.x-original.x,at.y-original.y)>8){l.leader.style.display='';l.leader.setAttribute('x1',original.x);l.leader.setAttribute('y1',original.y);l.leader.setAttribute('x2',at.x);l.leader.setAttribute('y2',at.y);}}
+
    v.bloom.render(v.scene,v.camera);return cameraMoved||v.transition?60:animated?30:0;}
  update(null,{ship:DEFAULT_SHIP,hideEmpty:false});return {update,home(){views.forEach(v=>home(v));},
   dispose(){if(disposed)return;disposed=true;disposeViews();frameMat.dispose();if(--cargoUsers===0){crateCache.forEach(t=>t.dispose());crateCache.clear();frameCache.forEach(g=>g.dispose());frameCache.clear();bodyCache.forEach(g=>g.dispose());bodyCache.clear();shadowTex?.dispose();shadowTex=null;}container.replaceChildren();},

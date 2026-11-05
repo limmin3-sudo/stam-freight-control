@@ -2,11 +2,14 @@ export const DEFAULT_SHIP={id:'misc-hull-b',name:'MISC Hull B',access:'external'
 // How cargo attaches in each hold (user-confirmed 2026-10-30): flat holds stack up from the floor, Hull B and Hull C
 // grids attach to the spine and stack outward, the RAFT hangs cargo from the ceiling down.
 export const STACK_BY_SHIP={'misc-hull-b':'out','misc-hull-c':'out','argo-raft':'down'};
+// RAFT 2 SCU crates lie flat against the hanging stack. Explicit restrictions
+// on other ships/grids continue to apply; saved aboard coordinates stay fixed.
+export const restrictsUpright=(ship,grid,size)=>!!grid.noUpright?.includes(size)||size===2&&(ship.id==='argo-raft'||ship.performanceId==='argo-raft');
 // Converts world-space grids into each grid's own stacking frame: local y always runs from the attaching face, so the
 // packer's "floor/support/blocker" rules apply unchanged, and the 3D view turns the grid back with its rotation.
 export function withStacking(ship){if(!ship?.grids)return ship;const mode=STACK_BY_SHIP[ship.id]||STACK_BY_SHIP[ship.performanceId];
  const xs=ship.grids.flatMap(g=>[g.x,g.x+g.w]),mid=(Math.min(...xs)+Math.max(...xs))/2;
- return {...ship,grids:ship.grids.map(g=>{const stack=g.stack||mode;if(!stack||stack==='up'||(g.rotation||[]).some(a=>a))return g;
+ return {...ship,grids:ship.grids.map(g=>{if(restrictsUpright(ship,g,2)&&!g.noUpright?.includes(2))g={...g,noUpright:[...(g.noUpright||[]),2]};const stack=g.stack||mode;if(!stack||stack==='up'||(g.rotation||[]).some(a=>a))return g;
   const cx=g.x+g.w/2,cy=g.y+g.h/2,world={x:g.x,y:g.y,w:g.w,h:g.h};
   if(stack==='down')return {...g,_stack:'down',_world:world,rotation:[0,0,180]};
   const left=cx<mid,w=g.h,h=g.w;return {...g,_stack:'out',_world:world,w,h,x:cx-w/2,y:cy-h/2,rotation:[0,0,left?90:-90]};})};}
