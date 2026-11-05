@@ -33,6 +33,7 @@ jobs:
           STAM_WEB_RELEASE: public
           STAM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/stam-browser/node_modules/playwright
         run: |
+          node scripts/check-intro-guide-browser.mjs
           node scripts/check-preparation-frame-browser.mjs
           node scripts/check-cargo-grids-browser.mjs
           node scripts/check-inbox-browser.mjs
@@ -43,6 +44,8 @@ jobs:
         with:
           name: contract-inbox-browser
           path: |
+            /tmp/stam-guide-*.png
+            /tmp/stam-intro-*.png
             /tmp/stam-inbox-*.png
             /tmp/stam-briefing-*.png
             /tmp/stam-public-link-*.png

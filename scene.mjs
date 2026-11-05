@@ -24,9 +24,16 @@ const crateCache=new Map();let cargoUsers=0;
 function crateTexture(color,size){const key=color+size;if(crateCache.has(key))return crateCache.get(key);const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
  // Painted inset panels, structural rails and legible stencils. Destination colour
  // stays on the body; lighting/selection never replaces it with a white glow.
- g.fillStyle='#26333b';g.fillRect(0,0,256,256);g.fillStyle=color;g.fillRect(18,18,220,220);
+ g.fillStyle='#1c262c';g.fillRect(0,0,256,256);g.fillStyle=color;g.fillRect(18,18,220,220);
  const paint=g.createLinearGradient(0,0,256,256);paint.addColorStop(0,'rgba(255,255,255,.12)');paint.addColorStop(.45,'rgba(0,0,0,.05)');paint.addColorStop(1,'rgba(0,0,0,.35)');g.fillStyle=paint;g.fillRect(18,18,220,220);
- for(let x=31;x<236;x+=32){g.fillStyle='rgba(0,0,0,.25)';g.fillRect(x,28,5,145);g.fillStyle='rgba(255,255,255,.13)';g.fillRect(x+5,28,2,145);}
+ // Deep inset segmented panels and broad cast frame match in-game SCU crates.
+ // Destination paint remains visible; container dimensions and packing stay unchanged.
+ g.fillStyle='rgba(4,12,17,.43)';g.fillRect(31,33,194,137);
+ for(let y=42;y<163;y+=38){g.strokeStyle='rgba(6,14,20,.85)';g.lineWidth=5;g.strokeRect(40,y,176,28);g.strokeStyle='rgba(204,223,228,.2)';g.lineWidth=1;g.strokeRect(43,y+2,170,24);}
+ for(const x of [9,229]){g.fillStyle='#45545d';g.fillRect(x,7,18,242);g.fillStyle='#839097';g.fillRect(x+2,9,2,238);}
+ for(const y of [9,229]){g.fillStyle='#45545d';g.fillRect(8,y,240,18);g.fillStyle='#839097';g.fillRect(10,y+2,236,2);}
+ for(const x of [6,218])for(const y of [6,218]){g.fillStyle='#67767c';g.fillRect(x,y,32,32);g.fillStyle='#17242b';g.fillRect(x+8,y+9,16,14);g.strokeStyle='#a5b3b5';g.lineWidth=1;g.strokeRect(x+3,y+3,26,26);}
+ g.fillStyle=color;g.fillRect(42,18,172,7);g.fillRect(19,48,6,156);
  g.strokeStyle='#101a21';g.lineWidth=6;g.strokeRect(18,18,220,220);g.strokeStyle='#7c8b91';g.lineWidth=1;g.strokeRect(8,8,240,240);
  for(const x of [11,245])for(const y of [11,245]){g.fillStyle='#bac7cb';g.beginPath();g.arc(x,y,2.3,0,Math.PI*2);g.fill();}
  g.fillStyle='#14212be8';g.fillRect(28,184,200,40);g.textAlign='left';g.fillStyle='#91aab8';g.font='9px Arial';g.fillText('STAM / CARGO',36,198);

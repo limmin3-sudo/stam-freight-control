@@ -1,5 +1,5 @@
 /* Shared STAM masthead. The flight deck below keeps its original layout. */
-.topbar{position:relative;isolation:isolate;min-height:124px;padding:24px 32px;gap:28px;border-bottom:1px solid #52727f;background:linear-gradient(112deg,#173b4b 0%,#102b3c 38%,#0d2032 76%,#102437 100%);box-shadow:inset 0 1px #d0ecf51c,0 7px 22px #0004}
+.topbar{position:relative;z-index:20;isolation:isolate;min-height:124px;padding:24px 32px;gap:28px;border-bottom:1px solid #52727f;background:linear-gradient(112deg,#173b4b 0%,#102b3c 38%,#0d2032 76%,#102437 100%);box-shadow:inset 0 1px #d0ecf51c,0 7px 22px #0004}
 .topbar::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(115deg,transparent 0 89px,#7fcdd006 90px 91px),radial-gradient(ellipse at 6% 0,#6fe0df1c,transparent 56%)}
 .topbar::after{content:'';position:absolute;left:32px;right:32px;bottom:-1px;height:2px;background:linear-gradient(90deg,#eabe7d 0 64px,#70dfe0 64px 240px,#70dfe025 42%,transparent 85%);pointer-events:none}
 .topbar .brand{gap:18px;flex-shrink:0;min-width:0}
