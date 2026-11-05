@@ -1,49 +1,16 @@
 import {gameEn} from './i18n.mjs';
-// Korean names (user Korean patch) and common nicknames → English location names in the data.
-// A fuller table can be generated from the Korean patch's global.ini into data/ko-names.json
-// ({"한글 이름":"English Name", …}); it is merged in at start-up when present.
-export const KO_NAMES={
- // Stanton planets / numbering
- '허스턴':'Hurston','스탠턴1':'Hurston','스탠턴i':'Hurston','크루세이더':'Crusader','스탠턴2':'Crusader','스탠턴ii':'Crusader','아크코프':'ArcCorp','아크코퍼레이션':'ArcCorp','스탠턴3':'ArcCorp','스탠턴iii':'ArcCorp','마이크로텍':'microTech','마이크로테크':'microTech','스탠턴4':'microTech','스탠턴iv':'microTech',
- // Stanton moons
- '아리엘':'Arial','애리얼':'Arial','애버딘':'Aberdeen','에버딘':'Aberdeen','마그다':'Magda','막다':'Magda','이타':'Ita','셀린':'Cellin','데이마':'Daymar','데이마르':'Daymar','옐라':'Yela','리리아':'Lyria','왈라':'Wala','칼리오페':'Calliope','클리오':'Clio','유터피':'Euterpe','에우테르페':'Euterpe',
- // Stanton cities, spaceports, stations
- '로빌':'Lorville','로어빌':'Lorville','로르빌':'Lorville','티사우주공항':'Lorville','티사스페이스포트':'Lorville','티사우주항':'Lorville','teasaspaceport':'Lorville','에어리어18':'Area18','에어리어열여덟':'Area18','라이커메모리얼우주공항':'Area18','rikermemorialspaceport':'Area18','오리슨':'Orison','어거스트던로우우주공항':'Orison','augustdunlowspaceport':'Orison','뉴배비지':'New Babbage','뉴배비지성간우주공항':'New Babbage','newbabbageinterstellarspaceport':'New Babbage',
- '에버러스하버':'Everus Harbor','에버러스항구':'Everus Harbor','에버루스하버':'Everus Harbor','세라핌정거장':'Seraphim Station','세라핌스테이션':'Seraphim Station','바이지니포인트':'Baijini Point','바이니포인트':'Baijini Point','베이지니포인트':'Baijini Point','포트트레슬러':'Port Tressler','트레슬러항구':'Port Tressler','그림헥스':'Grim HEX','그림핵스':'Grim HEX',
- // Gateways
- '스탠턴게이트웨이':'Stanton Gateway','파이로게이트웨이':'Pyro Gateway','닉스게이트웨이':'Nyx Gateway','테라게이트웨이':'Terra Gateway',
- // Pyro planets / numbering (Pyro II = Monox, III = Bloom, VI = Terminus)
- '파이로1':'Pyro I','파이로i':'Pyro I','파이로2':'Monox','파이로ii':'Monox','모녹스':'Monox','파이로3':'Bloom','파이로iii':'Bloom','블룸':'Bloom','파이로4':'Pyro IV','파이로iv':'Pyro IV','파이로5':'Pyro V','파이로v':'Pyro V','파이로5a':'Ignis','파이로va':'Ignis','파이로5b':'Vatra','파이로vb':'Vatra','파이로6':'Terminus','파이로vi':'Terminus','터미누스':'Terminus','테르미누스':'Terminus',
- // Pyro moons
- '이그니스':'Ignis','바트라':'Vatra','아디르':'Adir','페어로':'Fairo','푸에고':'Fuego','부르':'Vuur','뷔르':'Vuur',
- // Pyro sites
- '카나드뷰':'Canard View','마지막착륙지':'Last Landings','애쉬랜드':'Ashland','애시랜드':'Ashland','에쉬랜드':'Ashland','오비츄어리':'Orbituary','잭슨교환소':"Jackson's Swap",'부에노골짜기':'Bueno Ravine','부에노협곡':'Bueno Ravine','잭슨스스왑':"Jackson's Swap",'체크메이트':'Checkmate','오비추어리':'Orbituary','오비튜어리':'Orbituary','루인정거장':'Ruin Station','루인스테이션':'Ruin Station','엔드게임':'Endgame','패치시티':'Patch City','가스라이트':'Gaslight','쥐구멍':"Rat's Nest",'랫츠네스트':"Rat's Nest",'스타라이트서비스스테이션':'Starlight Service Station','메구미급유소':'Megumi Refueling','더들리앤도터스':'Dudley & Daughters','촐라의해변':"Chawla's Beach",'촐라스비치':"Chawla's Beach",
- // Nyx
- '레브스키':'Levski','레브스키정거장':'Levski','닉스1':'Nyx I','닉스2':'Nyx II','닉스3':'Nyx III'
-};
-// Translated Korean words inside site names → the English words used in the data, so
-// "슈빈 채광 시설 SMCa-8" can be compared with "Shubin Mining Facility SMCa-8".
-export const KO_TERMS=[['채광시설','Mining Facility'],['채광 시설','Mining Facility'],['채광구역','Mining Area'],['채광 구역','Mining Area'],['함선 폐기장','Breaker Yard'],['함선폐기장','Breaker Yard'],['폐기장','Breaker Yard'],['슈빈','Shubin'],['아크코프','ArcCorp'],['아크콥','ArcCorp'],['셸로우 필즈','Shallow Fields'],['셸로우필즈','Shallow Fields'],['아크코퍼레이션','ArcCorp'],['노가드','Norgaard'],['브리오',"Brio's"],['브레오',"Brio's"],['선셋 메사','Sunset Mesa'],['선셋메사','Sunset Mesa'],['섈로우 필즈','Shallow Fields'],['섈로우필즈','Shallow Fields'],['스테이션','Station'],['시어스 캐니언',"Seer's Canyon"],['시어스캐니언',"Seer's Canyon"]];
-export function translateKoTerms(s){let t=String(s||'');for(const [k,v] of KO_TERMS)t=t.split(k).join(' '+v+' ');return t.replace(/\s+/g,' ').trim();}
-
-// Korean display names shown next to English place names (game Korean client spelling where known).
-export const KO_DISPLAY={'Stanton':'스탠턴','Pyro':'파이로','Nyx':'닉스','Hurston':'허스턴','Crusader':'크루세이더','ArcCorp':'아크콥','microTech':'마이크로텍','Arial':'아리엘','Aberdeen':'애버딘','Magda':'마그다','Ita':'이타','Cellin':'셀린','Daymar':'데이마','Yela':'옐라','Lyria':'리리아','Wala':'왈라','Calliope':'칼리오페','Clio':'클리오','Euterpe':'유터피',
- 'Lorville':'로빌','Area18':'에어리어18','Orison':'오리슨','New Babbage':'뉴 배비지','Everus Harbor':'에버러스 하버','Seraphim Station':'세라핌 스테이션','Baijini Point':'바이지니 포인트','Port Tressler':'포트 트레슬러','Grim HEX':'그림 헥스',
- 'Stanton Gateway':'스탠턴 게이트웨이','Pyro Gateway':'파이로 게이트웨이','Nyx Gateway':'닉스 게이트웨이','Terra Gateway':'테라 게이트웨이',
- 'Monox':'모녹스','Bloom':'블룸','Terminus':'터미누스','Ignis':'이그니스','Vatra':'바트라','Adir':'아디르','Fairo':'페어로','Fuego':'푸에고','Vuur':'부르',
- 'Canard View':'카나드 뷰','Last Landings':'마지막 착륙지','Ashland':'애쉬랜드',"Jackson's Swap":'잭슨 교환소','Checkmate':'체크메이트','Orbituary':'오비추어리','Ruin Station':'루인 스테이션','Endgame':'엔드게임','Patch City':'패치 시티','Gaslight':'가스라이트',"Rat's Nest":'쥐구멍','Starlight Service Station':'스타라이트 서비스 스테이션','Megumi Refueling':'메구미 급유소','Dudley & Daughters':'더들리 앤 도터스',"Chawla's Beach":'촐라의 해변',
- 'Levski':'레브스키','Bueno Ravine':'부에노 골짜기','Sunset Mesa':'선셋 메사',"Seer's Canyon":'시어스 캐니언','HDMS-Norgaard':'HDMS-노가드',"Brio's Breaker Yard":'브리오 함선 폐기장'};
-// English words inside data names → Korean client words, for names not in the table ("Shubin Mining Facility SMCa-8").
-const EN_TERMS=[['Shallow Fields','셸로우 필즈'],['Mining Facility','채광 시설'],['Mining Area','채광 구역'],['Breaker Yard','함선 폐기장'],['Spaceport','우주공항'],['Gateway','게이트웨이'],['Station','스테이션'],['Shubin','슈빈'],['ArcCorp','아크콥'],['Hurston','허스턴'],['Crusader','크루세이더'],['microTech','마이크로텍']];
-export function koName(l){if(!l||gameEn)return '';const own=(l.aliases||[]).find(a=>/[가-힣]/.test(a));if(own)return own;if(extraDisplay[l.name])return extraDisplay[l.name];if(KO_DISPLAY[l.name])return KO_DISPLAY[l.name];
- let t=' '+l.name+' ';for(const [en,ko] of EN_TERMS)t=t.split(' '+en+' ').join(' '+ko+' ');t=t.trim();
- // Only when every leftover Latin word is a code (SMCa-8, 056, CRU-L4); a half-translated name is worse than none.
- return /[가-힣]/.test(t)&&!t.split(/\s+/).some(w=>/^[A-Za-z'’&]+$/.test(w)&&/[a-z]/.test(w))?t:'';}
-export const placeLabel=l=>{if(!l)return '';const k=koName(l);return k&&k!==l.name?`${l.name} (${k})`:l.name;};
-
+import AI from './data/ai-korean.json' with {type:'json'};
+import {aiPlace} from './data/ai-korean-lexicon.mjs';
+export const KO_NAMES=Object.fromEntries(Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en]));
+Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지':'Last Landings','브리오함선폐기장':"Brio's Breaker Yard",'브레오함선폐기장':"Brio's Breaker Yard",'티사우주공항':'Lorville','티사스페이스포트':'Lorville','teasaspaceport':'Lorville','로빌':'Lorville','로어빌':'Lorville'});
+export const KO_DISPLAY=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[en,aiPlace(en)]));
+export const KO_TERMS=[['채광 시설','Mining Facility'],['채광 구역','Mining Area'],['보안 초소','Security Post'],['연구 전초기지','Research Outpost'],['구호 대피소','Aid Shelter'],['비상 대피소','Emergency Shelter'],['데이터센터','DataCenter'],['정거장','Station'],['슈빈','Shubin'],['아크코프','ArcCorp']];
+export function translateKoTerms(s){let out=String(s||'');for(const [ko,en]of KO_TERMS)out=out.split(ko).join(' '+en+' ');return out.replace(/\s+/g,' ').trim();}
+export function koName(l){if(!l||gameEn)return '';return (l.aliases||[]).find(a=>/[가-힣]/.test(a))||extraDisplay[l.name]||aiPlace(l.name);}
+export const placeLabel=l=>l?(koName(l)||l.name):'';
 export const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
-let extra={},extraDisplay={};
-export async function loadKoNames(url='./data/ko-names.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extra=Object.fromEntries(Object.entries(j).map(([k,v])=>[norm(k),v]));extraDisplay=Object.fromEntries(Object.entries(j).map(([k,v])=>[v,k]));}}catch{}return Object.keys(extra).length;}
+let extra=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[norm(ko),en])),extraDisplay=AI.places;
+export async function loadAiNames(url='./data/ai-korean.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extraDisplay=j.places||{};extra=Object.fromEntries(Object.entries(extraDisplay).map(([en,ko])=>[norm(ko),en]));}}catch{}return Object.keys(extra).length;}
 // Find the most specific location mentioned in free text (English or Korean). Longer matches win,
 // so "파이로 VI의 카나드 뷰" resolves to Canard View rather than Terminus.
 export function matchLocation(text,locations,{system=null,fuzzy=false}={}){const query=norm(text),personal=locations.filter(l=>(!system||l.system===system)&&l.aliases?.some(a=>{const n=norm(a);return n===query||n.length>=4&&query.includes(n);}));if(personal.length===1)return personal[0];if(personal.length>1)return null;const exact=matchExact(text,locations,system);if(exact||!fuzzy)return exact;return fuzzyLocations(text,locations,{system,limit:1})[0]?.loc||null;}
