@@ -1,3 +1,12 @@
+## 2026-11-05 — 기존 사이트 탭 자동 연결 복구
+
+- 작업자 Codex · feature/companion-auto-connect, 기준 main 5f99417. 사용자 버그 보고: 앱의 사이트 열기로 연 탭에서만 연결되고 기존 탭에서는 연결되지 않음.
+- 원인: public client가 URL/session token이 없으면 null을 반환해 연결 감지 자체를 시작하지 않았고 토큰은 탭별 sessionStorage에만 저장됨.
+- 수정 범위: 기존 공개 탭이 앱 실행 전부터 연결을 기다리고 trusted public origin + preflighted client header의 한정된 pairing endpoint로 세션 토큰을 취득. API reads의 Bearer, loopback Host, foreign origin/control 차단 유지. 재실행/재선택으로 토큰이 바뀌면 자동 재연결하고 새 snapshot을 다시 수신. 브라우저 자동 열기 없음, 미션/운항/설정 보존, 경로/적재 엔진 미수정.
+- native app.1.3.1 연결 API 수정 필요. 디자인 승인된1.3과 동일, 기존 app.1.3.0 immutable 유지. 웹3.11.0과 함께 테스트·배포 예정. Node160건 통과. 기존 탭/다중 탭/앱 나중 실행/재시작/오래된 토큰/인증 제한 검사와 Chromium HTTPS origin→실제 loopback 기존탭/재시작/동일연결 신규수락/삭제·복원·새로고침 보존 통과.
+
+- 추가 사용자 요청: 모든 준비 단계의 외곽 크기/위치 통일, 긴 본문 내부 스크롤과 footer 유지. 종료 계약 기본 숨김/펼쳐보기, 개별 삭제/전체 수신함 비우기/복원 및 브라우저 지속성. 창 크기/위치 고정은 모든 파트너·안내·이후 생성하는 단계형 창의 기본 개발 규칙으로 docs/DEVELOPMENT.md에 명문화. 현재 계획 초기화는 두 단계+체크 동의, 기존 새로 시작/비우기 경로도 같은 확인 절차 사용. execution에는 명시적인 reset API만 추가, 경로·적재 계산은 유지. 실제 신규 미션 미수신 원인은 사용자 로그 원문 없이 단정하지 않으며 앱 재연결 중단과 live append를 회귀 검사한다.
+
 ## 2026-11-05 — 후속 피드백 구현 중
 
 - 작업자 Codex · `feature/38-partner-briefing`. 기존 3.9 배포/앱 app.1.2.0 보존. 이번은 웹3.10과 native app.1.3.0 연결 방식·디자인 변경.
