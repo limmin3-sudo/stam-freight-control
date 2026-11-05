@@ -84,6 +84,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  document.addEventListener('keydown',e=>{if(document.body.classList.contains('aide-open')||document.querySelector('.cargo-grid-selecting')||document.querySelector('.map-ui-hidden'))return;if(!plan||run.finished||!document.body.classList.contains('map-fullscreen')&&!run.started)return;if(e.target.closest?.('input,select,textarea,button,dialog'))return;if(e.code==='Space'||e.key==='Enter'){e.preventDefault();complete();}});
  window.addEventListener('beforeunload',()=>{if(run.since){run.elapsed=elapsed();run.since=Date.now();}save();});
  return {
+  reset(){const next=blank();localStorage.setItem(KEY,JSON.stringify(next));run=next;render();},
   setPlan(p,byId,{keepRun=false}={}){plan=p;if(byId)names=byId;if(!p){render();return;}const k=keyOf(p);
    // Upgrade an existing run's indices when the only new step is the departure.
    if(!keepRun&&isDeparture(p.visits[0])&&run.planKey===keyOf({...p,visits:p.visits.slice(1)})){run.planKey=k;if(run.started){run.index++;run.log=run.log.map(l=>({...l,visit:l.visit+1}));if(!run.log.length)run.startId=p.settings.startId;}}
