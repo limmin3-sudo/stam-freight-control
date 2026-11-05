@@ -32,7 +32,7 @@ export function applySnapshot(storage,snap){for(const k of SYNC_KEYS){if(snap[k]
 // Usernames for ID sign-up: lowercase letters, digits and underscore, 3–20 characters.
 export const USERNAME_RE=/^[a-z0-9_]{3,20}$/;
 export function normalizeUsername(raw){return String(raw||'').trim().toLowerCase();}
-export function usernameProblem(raw){const u=normalizeUsername(raw);if(!u)return '아이디를 입력해 주세요.';if(!USERNAME_RE.test(u))return '아이디는 영문 소문자·숫자·밑줄(_) 3~20자로 만들어 주세요.';return '';}
+export function usernameProblem(raw){const u=normalizeUsername(raw);if(!u)return '아이디를 입력하십시오.';if(!USERNAME_RE.test(u))return '아이디는 영문 소문자·숫자·밑줄(_) 3~20자로 만들어 주십시오.';return '';}
 // Firebase email/password needs an email shape; the address is never mailed.
 export const usernameEmail=u=>`${normalizeUsername(u)}@id.stam-freight-control.app`;
 
