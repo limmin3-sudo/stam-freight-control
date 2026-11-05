@@ -1,5 +1,28 @@
 [
   {
+    "id": "2026-11-05-auto-connect-reset",
+    "version": "3.11.0",
+    "date": "2026-11-05 22:36",
+    "title": "기존 탭 자동 연결 · 수신함 정리 · 안전한 계획 초기화",
+    "changes": [
+      "앱에서 로그를 연결하면 이미 열려 있는 사이트도 자동 연결됩니다. 앱 재시작·로그 재선택 뒤에는 새 연결로 복구합니다. 연결 앱 app.1.3.1이 필요합니다.",
+      "파트너 선택부터 출항 브리핑까지 창 크기를 통일했습니다. 긴 내용만 내부에서 스크롤하며 단계별 축소를 제거했습니다.",
+      "수신함 카드 삭제·복원과 수신함 비우기를 추가했습니다. 삭제한 카드는 로그 재수신이나 새로고침으로 되살아나지 않습니다. 종료된 계약은 따로 펼쳐 봅니다.",
+      "현재 로그 연결 상태와 마지막 읽기·갱신 시각을 수신함에 표시합니다.",
+      "계획 초기화는 내용 확인과 최종 동의를 모두 거칩니다. 현재 계약·경로·운항 진행만 초기화하며 운항 기록·계정·함선·개인 장소·설정은 유지합니다."
+    ],
+    "en": {
+      "title": "Automatic connection, inbox cleanup and protected plan reset",
+      "changes": [
+        "Existing STAM tabs connect when the companion starts and reconnect after a restart or log reselection. Requires companion app.1.3.1.",
+        "Partner selection and every preparation stage use the same frame size. Long content scrolls inside without resizing the window.",
+        "Added individual card deletion, inbox clearing and restoration. Dismissed cards stay dismissed after new snapshots and reloads. Ended contracts can be shown separately.",
+        "The inbox shows connection status, last log read and update times.",
+        "Plan reset requires reviewing the scope and final acknowledgement. It clears current contracts, route and run progress while preserving history, account, ships, personal places and settings."
+      ]
+    }
+  },
+  {
     "id": "2026-11-05-briefing-and-intake",
     "version": "3.10.0",
     "date": "2026-11-05 22:04",
