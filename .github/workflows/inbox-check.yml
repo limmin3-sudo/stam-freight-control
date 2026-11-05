@@ -1,0 +1,41 @@
+name: Original deck contract inbox
+on:
+  push:
+    branches: ['feature/**']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare catalogue and display labels
+        run: |
+          node scripts/prepare.mjs
+          node scripts/build-ai-korean.mjs
+      - run: npm test
+      - name: Assemble independently delivered website
+        run: |
+          node scripts/build-public.mjs public
+          node scripts/build-release.mjs public
+      - name: Prepare browser
+        run: |
+          npm install --prefix "$RUNNER_TEMP/stam-browser" playwright@1.62.1
+          "$RUNNER_TEMP/stam-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify received contract review in packaged original deck
+        env:
+          STAM_WEB_RELEASE: public
+          STAM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/stam-browser/node_modules/playwright
+        run: node scripts/check-inbox-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-inbox-browser
+          path: /tmp/stam-inbox-*.png
+          if-no-files-found: ignore

@@ -12,12 +12,24 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 - **개발 인수인계:** [docs/CLOUD-HANDOFF.md](docs/CLOUD-HANDOFF.md)
 - **Codex Cloud 시작 프롬프트:** [docs/CLOUD-START-PROMPT.md](docs/CLOUD-START-PROMPT.md)
 
+## 연결 앱과 계약 수신함
+
+1. [Windows 연결 앱](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.2.0)의 ZIP 전체를 새 폴더에 풀고 STAM.exe를 실행합니다.
+2. StarCitizen / LIVE의 Game.log를 선택합니다. Windows가 확장명을 숨긴 경우 파일 이름은 Game입니다.
+3. 앱이 연 관제에서 「운송 계약 추가」 또는 운송 준비의 계약 단계로 들어갑니다. 받은 계약은 수신함 카드로 모입니다.
+4. 「내용 확인」을 눌러 기존 편집창에서 픽업·배송지·수량을 확인한 뒤 저장합니다. 취소하면 계획은 바뀌지 않습니다. 스샷·AI 글·직접 입력도 사용할 수 있습니다.
+
+앱은 선택한 로그를 읽는 연결 도구입니다. 사이트의 UI·항로·적재·데이터 업데이트는 앱과 별개이며, 검증된 웹 자원을 받아 다음 실행부터 적용합니다. 운송 중 화면을 강제로 바꾸지 않습니다. 네트워크가 없으면 마지막으로 검증된 화면을 사용합니다. 연결 프로토콜이나 Windows 실행기 자체가 바뀔 때만 새 앱이 필요합니다.
+
+앱이 여는 관제와 공개 사이트는 주소가 달라 게스트 저장소도 별개입니다. 기존 게스트 데이터는 원래 사이트에 남습니다. 기존 백업·복원 또는 계정 동기화를 이용해 옮겨 주세요. 앱을 닫으면 로그 연결이 종료되며, 최소화해 두면 계속 수신합니다. 로그에 남아 있지 않은 수주 내용은 복원하지 못하므로 누락된 내용은 보조 입력으로 채웁니다.
+
+한국어 화면은 새 AI 한국어 지명·품목을 표시하며 내부 원본 식별자는 영문 그대로 유지합니다. English 화면은 영문 이름을 사용합니다.
+
 ## 현재 되는 기능
 
 - 한국어 / 영어 화면 전환(상단 English · 한국어, `i18n.mjs`·`i18n-en.mjs`). 영어판은 스타 시티즌 게임 표현을 씁니다.
 - 스크린샷 여러 장·드래그·붙여넣기, 기본 브라우저 OCR, 읽은 값 즉시 수정.
 - 미션별 화물 소유권 보존, 배송지별 상자 크기·개수 입력, 같은 미션 유형에 구성 재사용.
-- 계약을 게임 미션 데이터(Star Citizen Wiki API)와 대조해 미션 유형·품목별 최대 상자 크기를 찾고, 상자 구성을 모르면 최대 상자로 임시 적재 계산(`mission-match.mjs`, `data/hauling-missions.json`은 `scripts/refresh-missions.mjs`로 매일 갱신, 한글 이름 대응은 `data/ko-hauling.json`).
 - Stanton·Pyro·Nyx의 3D 지도, 천체·정거장·지상 거점 검색, 확인된 게이트웨이 경유.
 - 간편 경로 / 상세 적재, 93종 함선 선택과 그리드 수정·등록·백업.
 - 모든 함선(Hull B 포함) 회전 가능한 3D 화물칸 한 화면, 방향 가이드, 거점 작업 전·후 배치와 하역 순서.
@@ -30,7 +42,7 @@ Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션�
 
 ## 아직 없는 기능
 
-실시간 게임 상태·로그 자동 입력, 완전한 연료/대기권/중량 시뮬레이션도 구현되지 않았습니다. 정확하지 않은 함선 외형을 그리는 대신 화물 그리드와 방향을 표시합니다.
+게임의 실시간 위치 추적과 완전한 연료/대기권/중량 시뮬레이션은 제공하지 않습니다. 정확하지 않은 함선 외형을 그리는 대신 화물 그리드와 방향을 표시합니다.
 
 ## 실행
 
@@ -109,7 +121,6 @@ API 키는 서버 환경 변수에만 설정하고 클라이언트·GitHub·문�
 - Three.js: MIT, `vendor/THREE-LICENSE.txt` 유지.
 - 참고한 도구와 리뷰 영상: [REFERENCE-NOTES.md](REFERENCE-NOTES.md), [인수인계](docs/CLOUD-HANDOFF.md).
 - 파트너 사진: 생성한 가상 성인 인물, `assets/partners/`에 포함.
-- 한글 지명: [스타 시티즌 유저 한국어 프로젝트](https://sc.galaxyhub.kr/)의 한국어 패치(`global.ini`)에서 **지명만** 추출한 `data/ko-names.json`. 패치 제작자의 출처 표시·비영리 사용 조건에 따르며, 패치 원본 파일은 저장소에 포함하지 않습니다. 같은 패치의 공식 화물 품목명은 `data/ko-commodities.json`으로, 미션 입력 시 품목명 오타를 공식 표기로 고치는 데 씁니다. 갱신: `node scripts/extract-ko-names.mjs <global.ini>`. 같은 패치에서 운송 품목·발주처 이름만 뽑은 `data/ko-hauling.json`은 한국어 계약을 게임 미션 데이터와 대조할 때 씁니다(갱신: `node scripts/extract-ko-hauling.mjs <global.ini>`).
 
 이 사이트는 비영리 팬 도구입니다. 앱 소스는 MIT이며 게임 데이터·Star Citizen 관련 자산의 권리는 별개로 각 권리자에게 있습니다. Cloud Imperium Games와 무관한 팬 도구입니다.
 

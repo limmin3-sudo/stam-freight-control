@@ -66,12 +66,12 @@ test('"…에 있는" locations, OCR "504" for SCU and Korean spaceport names', 
   assert.deepEqual(route(t),[['냉동포드',4,'lorville','sunset']]);
 });
 
-test('Korean display names: table, own alias, generated client words, never half-translated', async ()=>{
+test('Korean labels use the authored glossary and preserve personal aliases', async ()=>{
   const {placeLabel,koName}=await import('../aliases.mjs');
-  assert.equal(placeLabel({name:'Everus Harbor'}),'Everus Harbor (에버러스 하버)');
-  assert.equal(placeLabel({name:'Shubin Mining Facility SMCa-8'}),'Shubin Mining Facility SMCa-8 (슈빈 채광 시설 SMCa-8)');
-  assert.equal(placeLabel({name:'CRU-L4 Shallow Fields Station'}),'CRU-L4 Shallow Fields Station (CRU-L4 셸로우 필즈 스테이션)');
-  assert.equal(koName({name:'HUR-L1 Green Glade Station'}),'');
+  assert.equal(placeLabel({name:'Everus Harbor'}),'에버러스 항구');
+  assert.equal(placeLabel({name:'Shubin Mining Facility SMCa-8'}),'슈빈 채광 시설 SMCa-8');
+  assert.equal(placeLabel({name:'CRU-L4 Shallow Fields Station'}),'CRU-L4 얕은 들판 정거장');
+  assert.equal(koName({name:'HUR-L1 Green Glade Station'}),'HUR-L1 푸른 숲속 공터 정거장');
   assert.equal(koName({name:'My Base',aliases:['우리 집']}),'우리 집');
 });
 
@@ -95,7 +95,7 @@ test('a Rayari outpost named only by moon and kind words resolves inside that mo
   assert.deepEqual(route(r),[['란타똥',7,'brio','sunset'],['란타똥',7,'hickes','sunset']]);
 });
 
-test('cargo names are corrected to the official Korean list only when one name is clearly closest', async ()=>{
+test('cargo name correction requires one clearly closest name; unrelated words stay unknown', async ()=>{
   const {setCommodityNames,officialCommodity}=await import('../ocr.mjs');
   setCommodityNames(['이\'템','의약용품','란타 똥','수소','산소','레버넌트 나무 꽃가루','철']);
   try{
@@ -103,10 +103,10 @@ test('cargo names are corrected to the official Korean list only when one name i
     assert.deepEqual(officialCommodity('의약품'),{name:'의약용품',status:'fixed'});
     assert.deepEqual(officialCommodity('란타똥'),{name:'란타 똥',status:'fixed'});
     assert.deepEqual(officialCommodity('수소'),{name:'수소',status:'ok'});
-    // 철소홍 was later confirmed as 질소 (Nitrogen) from the game mission data, so it is a known misread now.
-    assert.deepEqual(officialCommodity('철소홍'),{name:'질소',status:'fixed'});
+    // An unrelated unreadable word must remain unknown rather than gain a guessed commodity.
+    assert.deepEqual(officialCommodity('철소홍'),{name:'철소홍',status:'unknown'});
     const r=parseMissionText(`이'펨을(를) 0/2 SCU 파이로 II의 선셋 메사에 배송하십시오.\n그림 헥스에서 이'펨을(를) 접수하십시오.`,pyro);
-    assert.equal(r.cargo[0].commodity,'이\'템');assert.ok(r.warnings.some(w=>/공식 표기로 고쳤습니다: 이'펨→이'템/.test(w)));
+    assert.equal(r.cargo[0].commodity,'이\'템');assert.ok(r.warnings.some(w=>/품목 표기로 고쳤습니다: 이'펨→이'템/.test(w)));
   }finally{setCommodityNames([]);}
 });
 
