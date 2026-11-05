@@ -1,0 +1,30 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: English,Noto Sans CJK KR,54,&H00F2F7F7,&H00FFFFFF,&H90101820,&H80000000,-1,0,0,0,100,100,0,0,1,1.5,1,4,110,750,0,1
+Style: Korean,Noto Sans CJK KR,30,&H00F2F7F7,&H00FFFFFF,&H80040810,&H80000000,0,0,0,0,100,100,0,0,1,2,1,2,100,100,112,1
+Style: Brand,Noto Sans CJK KR,18,&H00C3D8E0,&H00FFFFFF,&H80000000,&H80000000,0,0,0,0,100,100,3,0,1,1,0,7,100,100,54,1
+Style: Credit,Noto Sans CJK KR,16,&H00C6D1D7,&H00FFFFFF,&H80000000,&H80000000,0,0,0,0,100,100,0,0,1,1,0,2,100,100,20,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:40.00,Brand,,0,0,0,,STAM / FREIGHT CONTROL
+Dialogue: 0,0:00:00.00,0:00:40.00,Credit,,0,0,0,,MADE BY THE COMMUNITY · NON-COMMERCIAL FAN PRODUCTION · STAR CITIZEN © CLOUD IMPERIUM RIGHTS LLC / LTD
+Dialogue: 1,0:00:01.00,0:00:07.30,English,,0,0,0,,{\fad(450,450)}Bring your hauling\Ncontracts together.
+Dialogue: 1,0:00:01.00,0:00:07.30,Korean,,0,0,0,,{\fad(450,450)}받은 운송 미션을 한 번에 정리합니다.
+Dialogue: 1,0:00:09.00,0:00:15.30,English,,0,0,0,,{\fad(450,450)}Plan your route around\Nyour ship and cargo.
+Dialogue: 1,0:00:09.00,0:00:15.30,Korean,,0,0,0,,{\fad(450,450)}함선과 화물에 맞춰 경로를 짭니다.
+Dialogue: 1,0:00:16.80,0:00:21.30,English,,0,0,0,,{\fad(450,450)}Preview your cargo\Nlayout in 3D.
+Dialogue: 1,0:00:16.80,0:00:21.30,Korean,,0,0,0,,{\fad(450,450)}적재 계획은 3D로 확인합니다.
+Dialogue: 1,0:00:30.80,0:00:35.10,English,,0,0,0,,{\fad(450,450)}Know what to pick up\Nand deliver at every stop.
+Dialogue: 1,0:00:30.80,0:00:35.10,Korean,,0,0,0,,{\fad(450,450)}거점별 픽업과 배송을 한눈에 확인합니다.
+Dialogue: 1,0:00:35.80,0:00:39.70,English,,0,0,0,,{\fad(450,600)}STAM\NFREIGHT CONTROL
+Dialogue: 1,0:00:35.80,0:00:39.70,Korean,,0,0,0,,{\fad(450,600)}복잡한 미션도 한 번에.
+
+Dialogue: 2,0:00:37.00,0:00:40.00,Credit,,140,140,180,,{\fs18\fad(300,300)}This is a non-commercial fan production. Star Citizen, Squadron 42, and all related marks, logos and characters are solely owned by Cloud Imperium Rights, LLC and/or Cloud Imperium Rights Ltd. This fan production is not endorsed by, sponsored by, or affiliated with Cloud Imperium Group. No commercial exploitation, exhibition, or distribution is permitted. No alleged independent rights may be asserted against Cloud Imperium or its affiliates.
