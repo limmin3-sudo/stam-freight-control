@@ -30,7 +30,7 @@ const sizeHint=title=>SIZE_WORDS.find(([re])=>re.test(String(title||'')))?.[1]??
 export function matchMission(m,prepared){
  if(!prepared?.missions?.length||!m?.cargo?.length)return null;
  const all=new Set(prepared.missions.flatMap(e=>e.orders.map(o=>o.key)));
- const lines=m.cargo.map(c=>{const key=english(prepared.commodities,c.commodity);return {raw:c.commodity,key:all.has(key)?key:null,scu:c.scu,aggregate:c._allocation==='unresolved',weight:c._allocation==='unresolved'?Math.max(1,c.pickupIds?.length||1):1};});
+ const lines=m.cargo.map(c=>{const key=english(prepared.commodities,c.commodity);return {raw:c.commodity,key:all.has(key)?key:null,scu:c.scu};});
  const open=lines.filter(l=>!l.key);if(open.length===lines.length||new Set(open.map(l=>norm(l.raw))).size>1)return null;// at most one unknown name
  const giver=english(prepared.companies,m.company),giverKnown=/[a-z]/.test(giver);
  const wanted=new Set(lines.filter(l=>l.key).map(l=>l.key)),rank=rankHint(m.title),size=sizeHint(m.title),title=norm(m.title).replace(/\d+평판$/,'');let best=[],bestScore=-Infinity;
@@ -39,10 +39,10 @@ export function matchMission(m,prepared){
   const have=new Set(e.orders.map(o=>o.key));if([...wanted].some(k=>!have.has(k)))continue;
   const spare=e.orders.filter(o=>!wanted.has(o.key));if(open.length&&!open.every(l=>spare.some(o=>!Number.isFinite(o.maxScu)||!Number.isInteger(l.scu)||l.scu<=o.maxScu)))continue;
   let fits=true,exact=0;
-  for(const l of lines.filter(l=>l.key)){const limits=e.orders.filter(o=>o.key===l.key).map(o=>o.maxScu).filter(Number.isFinite);const max=limits.length?(l.aggregate?limits.reduce((n,v)=>n+v,0):Math.max(...limits)):null;
+  for(const l of lines.filter(l=>l.key)){const limits=e.orders.filter(o=>o.key===l.key).map(o=>o.maxScu).filter(Number.isFinite);const max=limits.length?Math.max(...limits):null;
    if(Number.isInteger(l.scu)&&max!==null&&l.scu>max){fits=false;break;}if(l.scu===max)exact++;}
   if(!fits)continue;
-  const score=(giverKnown?100:0)+(have.size===wanted.size+(open.length?1:0)?40:0)-Math.abs(e.orders.length-lines.reduce((n,l)=>n+l.weight,0))*3+exact*2+(rank!==null&&e.rank===rank?5:0)+(size&&sizeHint(e.title)===size?4:0)+(title&&norm(e.title)===title?30:0);
+  const score=(giverKnown?100:0)+(have.size===wanted.size+(open.length?1:0)?40:0)-Math.abs(e.orders.length-lines.length)*3+exact*2+(rank!==null&&e.rank===rank?5:0)+(size&&sizeHint(e.title)===size?4:0)+(title&&norm(e.title)===title?30:0);
   if(score>bestScore){bestScore=score;best=[e];}else if(score===bestScore)best.push(e);
  }
  if(!best.length)return null;
@@ -63,7 +63,7 @@ export function matchMission(m,prepared){
 // `namesOnly` (Korean mode, where mission types are not shown yet) applies only the misread-name corrections.
 // `korean` writes corrected names in Korean when the Korean name is known, otherwise in English.
 export function enrichMission(m,prepared,{namesOnly=false,korean=false}={}){
- if(m._logImport||!prepared?.missions?.length)return structuredClone(m);
+ if(!prepared?.missions?.length)return structuredClone(m);
  const next=structuredClone(m);delete next._wiki;delete next._nameFixes;
  for(const c of next.cargo||[]){if(['wiki','pod-profile'].includes(c._maxBoxSource)){c.maxBoxSize=null;delete c._maxBoxSource;}if(['cryopod','unknown'].includes(c._special))delete c._special;if(c._boxesOrigin==='pod-profile'){c.boxes=[];c._boxesOrigin='unknown';delete c._cargoShape;delete c._entityCount;delete c._entity;}}
  const match=matchMission(next,prepared);if(!match)return next;
