@@ -11,3 +11,5 @@
 @media(max-width:800px){.release-layout{grid-template-columns:1fr;gap:18px}.release-sidebar{position:static;padding:18px}#release-nav{display:flex;max-height:180px;overflow:auto;gap:8px;padding:0 0 6px}#release-nav button{flex:0 0 140px}.release-heading{margin-bottom:22px}.release-main{padding-top:28px}.release-detail{padding:24px 20px}.release-changes li{font-size:16px;padding:16px 16px 16px 35px}.release-changes li::before{left:16px;top:29px}.release-pager button{font-size:14px}}
 
 .release-layout>*{min-width:0}.release-sidebar{max-width:100%}#release-nav{max-width:100%}.release-page .topnav>*{max-width:100%}.release-main{min-width:0}
+
+.release-channel-heading{margin:16px 0 4px;font-size:14px;color:#8bd7d6;letter-spacing:.06em}#release-nav .release-channel-heading:first-child{margin-top:0}@media(max-width:800px){.release-channel-heading{flex:0 0 auto;align-self:center;margin:0 8px}}

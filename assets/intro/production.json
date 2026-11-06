@@ -1,0 +1,29 @@
+{
+  "edition": "beta-1.0.0",
+  "durationSeconds": 44,
+  "originalDesign": true,
+  "typography": "Korean; locally composed",
+  "film": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 24,
+    "sourceFootage": "1280x720",
+    "codec": "H.264",
+    "audio": "AAC stereo"
+  },
+  "masterSha256": "1bb5b87ccd95aacafeca73ecda0ff0eff8f09c9355cd27fa7f193244a5108e03",
+  "files": {
+    "intro.mp4": {
+      "bytes": 42201246,
+      "sha256": "cbd652652e3535ba6bd687cf6583d7d896a7470fb24fae73e8f167ac153a9dfa"
+    },
+    "teaser.mp4": {
+      "bytes": 2811908,
+      "sha256": "3c0e12fae379b37f723608ed280c935af00976fde213359e8d7d8db3c6460317"
+    },
+    "poster.jpg": {
+      "bytes": 1046133,
+      "sha256": "093eda10dd06626479bb74e1665aaa745410483cf57f42009fd267d056baa2ae"
+    }
+  }
+}

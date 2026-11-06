@@ -13,7 +13,7 @@ export function createUpdates({beforeReload=()=>true,intervalMs=60000}={}){
  document.querySelector('.topnav').append(historyButton);
  const banner=document.createElement('aside');banner.className='update-banner';banner.hidden=true;banner.setAttribute('aria-live','polite');banner.innerHTML='<div><strong>새 업데이트가 있습니다.</strong><span>미션·설정·운항 진행을 유지하고 새 버전을 불러옵니다.</span></div><button type="button" class="primary" data-update>업데이트</button><button type="button" class="quiet" data-notes>변경 내용</button>';
  document.body.append(banner);
- async function notes(){if(await beforeReload()===false)return;const url=new URL('./patch-notes.html',location.href);const version=latest?.releases[0]?.version;if(typeof version==='string')url.searchParams.set('version',version);location.assign(url);}
+ async function notes(){if(await beforeReload()===false)return;const url=new URL('./patch-notes.html',location.href);const release=latest?.releases[0];if(typeof release?.version==='string'){url.searchParams.set('version',release.version);if(release.channel)url.searchParams.set('channel',release.channel);}location.assign(url);}
  async function check(){if(checking||document.hidden)return;checking=true;
   try{const url=new URL('./version.json',location.href);url.searchParams.set('_',String(Date.now()));const response=await fetch(url,{cache:'no-store'});if(!response.ok)return;const manifest=readManifest(await response.json());latest=manifest;
    // Source checkouts have no embedded deployment version. Establish a baseline
