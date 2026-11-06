@@ -1,15 +1,17 @@
-# 계약 보상과 시간당 수익
+# 계약 보상과 예상 수입
 
-- 보상이 확인된 계약은 합계와 전체 계획의 예상 시간당 보상을 계산한다. 직접 입력은 해당 수주에만 적용한다.
-- 기존 `reward:0` 기본값은 금액을 확인했다는 증거가 아니다. 미확인으로 표시하고 부분 합계에는 빠진 계약 수를 표시한다. 직접 확인한0은 `_rewardKnown:true`로 구분할 수 있다.
-- 이 값은 보상 기준 수입이다. 연료·수리·보충 비용과 게임 지급 내역을 자동으로 확인한 순이익이 아니다. 예상 운항 시간이 바뀌어도 계약 보상을 늘리거나 줄이지 않는다.
+1. 실제 계약에서 확인·직접 입력한 보상이 우선이다. 직접 확인한0도 `_rewardKnown:true`로 구분한다.
+2. 실제 보상이 없으면 정의 ID로 대조한 **목록 기본 보상**을 예상 합계·시간당 수입에 쓸 수 있다. `_rewardReference`에 금액·출처·빌드·정의 ID를 따로 저장하며 실제 `reward`에 쓰지 않는다.
+3. 두 값 모두 없으면 보상 미확인으로 표시하고 합계에서 제외한 계약 수를 알린다. 기존 `reward:0` 기본값은 확인된0이라는 증거가 아니다.
 
-## 자동 산출의 확인 범위
+기본 보상이 포함된 합계와 완료 기록에는 **목록 기준 예상**임을 표시한다. 보너스·평판·부분 지급·패치 차이로 실제 지급액과 다를 수 있다. 연료·수리 비용을 뺀 순이익은 아니다. STAM의 예상 운항 시간이나 SCU×임의 단가로 보상을 만들어 넣지 않는다. OCR로 빠진 숫자를 채우지 않는다.
 
-현재 묶음과 같은4.10.2-LIVE.12881860 원본에서 문제의 Red Wind 정의는 `CalculatedReward:true`, 기준 시간25와 Logistics 난이도 정보를 가진다. 고정 aUEC 금액 자체는 없다. [확인한 원본](https://github.com/StarCitizenWiki/scunpacked-data/blob/1340c8303709904165e2da0fa7060bce0624260b/contracts/bc53a9c8-6adf-4f64-9a79-4fccdad4b587.json).
+## 확인한 자료
 
-CIG는 보상 산정이 시간과 난이도를 반영하는 Effort vs Reward 방식임을 설명한다. [CIG 월간 보고](https://robertsspaceindustries.com/comm-link/transmission/19999-Star-Citizen-Monthly-Report-May-2024).
+[원본 Red Wind 정의](https://github.com/StarCitizenWiki/scunpacked-data/blob/1340c8303709904165e2da0fa7060bce0624260b/contracts/bc53a9c8-6adf-4f64-9a79-4fccdad4b587.json)는 CalculatedReward와 시간·난이도만 있고 고정 금액은 없다. 그러나 이것이 공개 목록에도 금액이 없다는 뜻은 아니다.
 
-[Star Compendium](https://star-compendium.com/en/star-citizen-guide)은 해당 빌드의 게임 매개변수로 지원되는 기본 금액을 산출한다고 설명하지만, 그 안내만으로 STAM이 같은 공식을 검증했다고 할 수 없다. 이번 조사에서는 필요한 금액 계수·반올림·보너스 적용까지 재현하지 못했다. API의 `CalculatedReward` 플래그를 임의 금액으로 바꾸지 않았다. 다른 빌드의 가중치나 옛 계약의 실제 보상을 섞지 않는다.
+[SCMDB 목록](https://github.com/KrovaxCode/SCMDB_DATA/blob/937f66810a392aa5682b9615a1afbff20fe96e3f/data/merged-4.10.2-live.12913470.json)은 같은 정의 UUID를 별칭으로 포함하며 `rewardUEC:215250`을 제공한다. STAM은 이 공개 **기본 보상**을 가져온다. 게임의 전체 보상 산식을 직접 재현했다고 주장하지 않는다.
 
-따라서 현재 자동 수신에서 빠진 aUEC를 SCU×임의 단가 또는 STAM 예상 비행시간으로 만들어 넣지 않는다. 실제 계약 보상 직접 입력은 가능하며, 검증된 자동 보상 산식과 같은 빌드의 입력이 확보되면 확정·기본 산출·미확인 상태를 구분해 추가할 수 있다. OCR로 숫자를 다시 읽어 채우는 방식은 사용하지 않는다.
+CIG의 [월간 보고](https://robertsspaceindustries.com/comm-link/transmission/19999-Star-Citizen-Monthly-Report-May-2024)는 시간과 난이도를 반영하는 Effort vs Reward 방식을 설명한다. 특정 수주의 실제 보너스·부분 지급은 별도 확인이 필요하다.
+
+Wiki와 SCMDB의 서로 다른 값은 자동으로 한쪽을 택하지 않는다. 금액 자체가 충돌하면 자동 기본 보상으로 사용하지 않는다. 출처 버전·대조 결과·재생성은 [목록 대조 문서](MISSION-DATA-RECONCILIATION.md)에 기록했다. 직접 입력한 값은 해당 수주에만 적용하며 다음에 같은 유형을 받아도 복사하지 않는다.

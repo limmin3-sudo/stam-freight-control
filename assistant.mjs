@@ -1,4 +1,4 @@
-import {hasReward} from './reward-summary.mjs';
+import {rewardText} from './reward-summary.mjs';
 import {configurationLabel,missionTypeText,containerText} from './cargo-summary.mjs';
 import {L,tr,isEn} from './i18n.mjs';
 // 항해사: a polite step-by-step guide for planning a run. First visit opens it automatically;
@@ -76,7 +76,7 @@ export function createAssistant(app){
   on('#a-text-go',()=>{if(!textBox.value.trim()){textMsg.textContent='AI가 옮겨 적은 글을 먼저 붙여 넣어 주세요.';return;}const r=app.importText(textBox.value);if(!r.added){textMsg.textContent='배송 문장(…SCU …에 배송하십시오)을 찾지 못했습니다. 주 목표 문장이 들어 있는지 확인해 주세요.';return;}go('confirm');});
   on('#a-next',()=>go('confirm'));on('#a-manual',async()=>{await app.editMission(-1);if(app.missions().length)go('confirm');});on('#a-demo',()=>{app.demo();go('confirm');});on('#a-back',()=>go('start'));}
  function confirm(){const ms=app.missions();if(!ms.length){go('shots');return;}
-  const cards=ms.map((m,i)=>{const total=missionSCU(m),issues=app.issues(m);return `<li class="aide-mission"><div><b>${esc(m.company||m.title||'계약')}</b><br><span>${m.cargo.map(c=>`${esc(app.placeName(c.pickupId,c._pickupText))} → ${esc(app.placeName(c.dropoffId,c._dropoffText))}${c._scuAssumed?` <em class="scu-assumed">${c.scu} SCU · 수량 가정</em>`:''}`).join('<br>')}</span></div><div class="aide-mission-side"><b>${fmt(total)} SCU</b>${hasReward(m)?`<small>${fmt(m.reward)} aUEC</small>`:`<small>${L('보상 미확인','Reward unknown')}</small>`}${issues.map(t=>`<em>${esc(t)}</em>`).join('')}<button type="button" data-edit="${i}">수정</button></div></li>`;}).join('');
+  const cards=ms.map((m,i)=>{const total=missionSCU(m),issues=app.issues(m);return `<li class="aide-mission"><div><b>${esc(m.company||m.title||'계약')}</b><br><span>${m.cargo.map(c=>`${esc(app.placeName(c.pickupId,c._pickupText))} → ${esc(app.placeName(c.dropoffId,c._dropoffText))}${c._scuAssumed?` <em class="scu-assumed">${c.scu} SCU · 수량 가정</em>`:''}`).join('<br>')}</span></div><div class="aide-mission-side"><b>${fmt(total)} SCU</b><small>${esc(rewardText(m,isEn))}</small>${issues.map(t=>`<em>${esc(t)}</em>`).join('')}<button type="button" data-edit="${i}">수정</button></div></li>`;}).join('');
   frame(P().confirm(ms.length),P().confirmSub,`<ul class="aide-missions">${cards}</ul>`,
    `<button class="primary" id="a-next">${P().confirmOk}</button><button id="a-more">${L('계약 더 받기','Add more contracts')}</button><button class="quiet" id="a-back">이전</button>`);
   root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=async()=>{await app.editMission(Number(b.dataset.edit));go('confirm');});
@@ -101,7 +101,7 @@ export function createAssistant(app){
    ...(app.jumpSegments?.(v.leg)||[]).map((j,q)=>`<li class="aide-leg-jump"><span class="aide-n">${nums.jumps[i][q]}</span>${L('항성계 점프','System jump')}<small>${esc(j.entryName)} → ${esc(j.exitName)}</small></li>`),
    `<li><span class="aide-n">${nums.stop[i]}</span>${esc(app.placeName(v.locationId))}<small>${v.events.map(e=>e.type==='departure'?L('출발지','Departure'):e.type==='pickup'?L('픽업','Pickup'):e.type==='delivery'?L('배송','Delivery'):L('복귀','Return')).filter((x,k,a)=>a.indexOf(x)===k).join('·')}${v.events.some(e=>e.type==='departure')?'':L(` · 약 ${Math.max(1,Math.round(v.seconds/60))}분`,` · about ${Math.max(1,Math.round(v.seconds/60))} min`)}</small></li>`
   ]).join('');
-  const rewardNote=p.rewardSummary?.unknown?L(` 확인된 보상만 합산했습니다. 보상 미확인 ${p.rewardSummary.unknown}건은 제외했습니다.`,` Confirmed rewards only; ${p.rewardSummary.unknown} unknown reward(s) excluded.`):'';frame(P().brief,P().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked)+rewardNote,`<ol class="aide-legs">${legs}</ol>`,
+  const baseNote=p.rewardSummary?.estimated?L(' 목록 기본 보상을 포함한 예상 수입입니다. 실제 보너스·부분 지급과 다를 수 있습니다.',' Estimated earnings include catalogue base rewards; actual bonuses and partial payouts may differ.'):'';const rewardNote=baseNote+(p.rewardSummary?.unknown?L(` 보상 미확인 ${p.rewardSummary.unknown}건은 제외했습니다.`,` ${p.rewardSummary.unknown} unknown reward(s) excluded.`):'');frame(P().brief,P().briefSub(p.visits.length,`${low}–${high}`,reward?fmt(reward):'',rate,blocked)+rewardNote,`<ol class="aide-legs">${legs}</ol>`,
    `<button class="primary" id="a-launch">${P().launch}</button><button id="a-full">전체 계획 보기</button><button class="quiet" id="a-back">이전</button>`);
   app.showWholeRoute();on('#a-launch',()=>{close();app.startRun();});on('#a-full',()=>close());on('#a-back',()=>go('confirm'));}
  function close(quiet=false){inboxCleanup?.();inboxCleanup=null;clearInterval(typing);clearInterval(poll);root.hidden=true;document.body.classList.remove('aide-open');try{localStorage.setItem(SEEN,'1');}catch{}if(!quiet)app.closed?.();}
