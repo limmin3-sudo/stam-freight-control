@@ -2,7 +2,7 @@
 
 The current film is the 44-second original-container-freighter edition: generated ground-base/orbital footage, a wormhole sequence, locally rendered 3D cargo, Korean editorial typography, instrumental music and mixed effects. The featured vessel is an original design, not a C2 or an exact Star Citizen ship. It illustrates the tool; the cargo graphics are not recordings of its live interface.
 
-- `intro.mp4`: 1920×1080, 24 fps, H.264 / AAC stereo, fast-start metadata. The generated footage and cargo frames originate at 1280×720; typography is composed at 1080p. Web delivery is re-encoded from the approved 44-second master at CRF 20 without changing the edit or audio.
+- `intro.mp4`: 1920×1080, 24 fps, H.264 / AAC stereo, fast-start metadata. The generated footage and cargo frames originate at 1280×720; typography is composed at 1080p. Web delivery is re-encoded from the approved 44-second master with two-pass H.264 at 5.6 Mbps video, retaining the original audio and edit. Keep every delivery file below the existing companion cache limit of 32 MiB; do not raise the native app limit for a film replacement.
 - `poster.jpg`: a clean orbital frame of the same original freighter.
 - `teaser.mp4`: six-second, 1280×720 silent ground-base preview. Existing reduced-motion handling remains in force.
 
