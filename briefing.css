@@ -27,3 +27,4 @@
 .aide-overlay .aide-actions{position:static;flex:0 0 auto;max-height:32%;overflow-y:auto;margin-top:16px;bottom:auto;padding-top:18px}
 @media(max-width:560px){.aide-overlay .aide-card{height:calc(100dvh - 24px)}.aide-overlay .aide-top{min-height:62px;margin-bottom:16px;padding-right:18px}.aide-overlay .aide-actions{gap:8px;padding-top:12px;margin-top:12px}}
 .aide-overlay{animation:none}
+.aide-overlay .partner-photo[src*="assets/partners/aide.png"],.aide-overlay .aide-intro-portrait img[src*="assets/partners/aide.png"],.map-partner img[src*="assets/partners/aide.png"],.aide-call img[src*="assets/partners/aide.png"],.aide-fab img[src*="assets/partners/aide.png"]{object-position:center top}
