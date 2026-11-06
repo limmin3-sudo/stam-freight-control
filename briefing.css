@@ -40,7 +40,7 @@
 .partner-picker .aide-body{flex:1;min-height:0;display:flex;flex-direction:column;margin:0}
 .partner-picker .aide-voices{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);margin:0;gap:18px}
 .partner-picker .aide-choose .partner-choice{display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.partner-picker .partner-photo{flex:1 1 0;min-height:100px;max-height:none;height:0;object-fit:cover;object-position:center top}
+.partner-picker .partner-photo-frame{flex:1 1 0;min-height:100px;max-height:none;height:0;object-fit:cover;object-position:center top}
 .partner-picker .partner-copy{flex:0 0 auto;min-height:min-content;padding:16px 18px;gap:9px}
 .partner-picker .aide-choose .partner-copy>b{font-size:21px;line-height:1.35}
 .partner-picker .aide-choose .partner-copy>small{min-height:0;font-size:14px;line-height:1.65}
@@ -53,7 +53,7 @@
  .partner-preview-tabs button[aria-pressed=true]{background:#183a46;border-color:#84dfdd;color:#d4ffff}
  .partner-picker .aide-choose .partner-choice{display:none}
  .partner-picker .aide-choose .partner-choice.is-preview{display:grid;grid-template-columns:40% minmax(0,1fr)}
- .partner-picker .partner-photo{height:100%;min-height:0;max-height:none;border-right:1px solid #315163;border-bottom:0}
+ .partner-picker .partner-photo-frame{height:100%;min-height:0;max-height:none;border-right:1px solid #315163;border-bottom:0}
  .partner-picker .partner-copy{padding:22px;justify-content:center}
  .partner-picker .aide-choose-link{margin-top:14px}
 }
@@ -63,7 +63,7 @@
  .partner-picker .aide-title{font-size:24px;line-height:1.35;margin-bottom:8px}
  .partner-picker .aide-sub{font-size:13px;line-height:1.6;margin-bottom:12px}
  .partner-picker .aide-choose .partner-choice.is-preview{display:flex;flex-direction:column}
- .partner-picker .partner-photo{flex:1 1 0;height:0;min-height:90px;max-height:none;border-right:0;border-bottom:1px solid #315163}
+ .partner-picker .partner-photo-frame{flex:1 1 0;height:0;min-height:90px;max-height:none;border-right:0;border-bottom:1px solid #315163}
  .partner-picker .partner-copy{flex:0 0 auto;min-height:min-content;padding:14px 16px;gap:8px;justify-content:flex-start}
  .partner-picker .aide-choose .partner-copy>b{font-size:19px}
  .partner-picker .aide-choose .partner-copy>small{font-size:13px;line-height:1.6}
@@ -77,7 +77,7 @@
  .partner-picker .aide-top{min-height:40px;margin-bottom:8px}
  .partner-picker .aide-title{font-size:25px;margin-bottom:7px}
  .partner-picker .aide-sub{font-size:13px;margin-bottom:10px}
- .partner-picker .partner-photo{flex-basis:150px;height:150px;min-height:65px;max-height:150px}
+ .partner-picker .partner-photo-frame{flex-basis:150px;height:150px;min-height:65px;max-height:150px}
  .partner-picker .partner-copy{padding:11px 14px;gap:6px}
  .partner-picker .aide-choose .partner-copy>b{font-size:18px}
  .partner-picker .aide-choose .partner-copy>small{font-size:12px;line-height:1.5}
@@ -95,7 +95,7 @@
  .partner-picker .partner-preview-tabs{margin-bottom:8px}
  .partner-preview-tabs button{font-size:11px;min-height:32px;padding:6px 4px}
  .partner-picker .aide-choose .partner-choice.is-preview{display:grid;grid-template-columns:34% minmax(0,1fr)}
- .partner-picker .partner-photo{height:100%;min-height:0;max-height:none;border-bottom:0;border-right:1px solid #315163}
+ .partner-picker .partner-photo-frame{height:100%;min-height:0;max-height:none;border-bottom:0;border-right:1px solid #315163}
  .partner-picker .partner-copy{padding:12px 10px;gap:8px}
  .partner-picker .aide-choose .partner-copy>b{font-size:17px}
  .partner-picker .aide-choose .partner-copy>small{font-size:12px;line-height:1.6}
@@ -105,3 +105,19 @@
  .partner-picker .aide-actions button{min-height:36px;padding:8px 10px;font-size:12px}
 }
 .partner-picker .aide-steps{display:none}
+
+.aide-box-result{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px}.aide-box-result strong{font-size:18px;color:#d6f2f1}.aide-box-result>span{font-size:14px;color:#9fbcc9}.aide-box-result>button{margin-left:auto;min-height:38px;padding:8px 18px}.aide-box-editor[hidden]{display:none}.aide-box-editor{margin-top:16px;padding-top:14px;border-top:1px solid #315163}.aide-box-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:12px}.aide-box-editor .aide-box-basis{margin-top:12px}.aide-box-editor .aide-box-basis summary{cursor:pointer}.aide-box-summaries .aide-box-head{gap:6px}.aide-box-summaries .aide-box-head>b{font-size:18px}.aide-box-summaries .aide-box-head>span{font-size:14px}.aide-box-summaries .aide-box-head>em{font-size:13px}
+
+/* Every preparation stage uses the available viewport height. */
+.aide-overlay .aide-card{height:calc(100dvh - 48px)}
+
+@media(max-width:560px){.aide-overlay .aide-card{height:calc(100dvh - 24px)}}
+
+/* Four aligned opaque portraits: no letterbox bands inside the cards. */
+.partner-picker .partner-photo-frame{object-fit:cover;object-position:center top}
+@media(min-width:901px){.partner-picker .aide-voices{grid-template-columns:repeat(4,minmax(0,1fr))}.partner-picker .partner-copy{box-sizing:border-box;flex-basis:266px}.partner-picker .aide-choose .partner-copy>b{font-size:20px}.partner-picker .aide-choose-link{margin-top:auto}}
+.partner-picker .partner-preview-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-height:700px) and (min-width:901px){.partner-picker .partner-copy{flex-basis:222px}.partner-picker .aide-choose .partner-copy>b{font-size:17px}}
+
+.partner-photo-frame{display:block;overflow:hidden;position:relative;width:100%}.partner-picker .partner-photo-frame>.partner-photo{display:block;width:100%;height:100%;min-height:0;max-height:none;border:0;object-fit:cover;object-position:center top}
+.partner-picker [data-voice=tutorial] .partner-photo{transform:scale(1.3);transform-origin:center top}.partner-picker [data-voice=broker] .partner-photo{transform:scale(1.25);transform-origin:center top}

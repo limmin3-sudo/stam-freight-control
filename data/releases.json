@@ -1,5 +1,30 @@
 [
   {
+    "id": "2026-11-06-wiki-drives-and-compact-preparation",
+    "version": "3.16.0",
+    "date": "2026-11-06 20:54",
+    "title": "위키 퀀텀 선택과 간편한 운송 준비",
+    "changes": [
+      "퀀텀 데이터는 Star Citizen Wiki로 통일했습니다. 함선 기본 장착을 초기값으로 사용하고, 호환 드라이브를 거리별 예상 이동시간 순으로 비교·선택합니다.",
+      "최대치 예상 포함을 기본으로 켠 토글 버튼으로 바꿨습니다. 계약은 직접 체크하며, 카드에서 배송지별 총 SCU를 바로 입력할 수 있습니다. 품목·픽업별 분배가 불명확하면 실제 총량과 최대치 적재 예약을 구분합니다.",
+      "계약 수량 세 단계 설명을 추가했습니다. 상자 구성은 계산 결과를 먼저 보여주고 수정 버튼으로 해당 계약만 편집합니다. 변경 없이 진행해도 예상 구성을 확정 처리하지 않습니다.",
+      "파트너 선택과 이후 준비창이 화면 높이를 더 활용합니다. 그리드 선택 문구를 선택한 적재 구역으로 정리했습니다.",
+      "이용안내는 빠른 시작을 기본으로 열고 사진의 원래 비율과 최대 크기를 유지합니다. 관련 사진을 최신 화면으로 갱신하고 메인 화면 이동을 버튼으로 통일했으며 업데이트 기록의 시각 표시는 제거했습니다.",
+      "선택창 맨 왼쪽에 플라이트 디렉터를 추가했습니다. 별도 튜토리얼 소개로만 이동하며 운항 파트너·미션을 바꾸지 않습니다. 튜토리얼은 준비 중입니다. 배경 있는 디렉터·브로커 초상화와 네 카드 정렬을 반영했습니다."
+    ],
+    "en": {
+      "title": "Wiki quantum drives and simpler hauling preparation",
+      "changes": [
+        "Use Star Citizen Wiki for quantum statistics and factory loadouts. Default to factory equipment and compare compatible drives by estimated transit time over the selected distance.",
+        "Upper-bound estimates now use a toggle button enabled by default. Select contracts explicitly and enter total SCU per delivery directly on the card. Unknown cargo/pickup splits retain separate actual totals and upper-bound reservations.",
+        "Explain the three quantity levels beside the inbox. Show compact container results with contract-local editing; continuing without changes does not confirm an estimate.",
+        "Partner selection and subsequent preparation stages use more viewport height. Rename enabled grids to selected cargo zones.",
+        "Open the guide on Quick start, preserve image proportions and natural maximum size, and refresh affected captures. Use consistent Main screen buttons and show release dates without times.",
+        "Add the Flight Director as the leftmost card, linking only to a separate tutorial preview without changing the hauling partner or missions. The tutorial is coming soon. Add background portraits for the director and broker and align the four cards."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-confirmed-group-box-counts",
     "version": "3.15.1",
     "date": "2026-11-06 19:41",
