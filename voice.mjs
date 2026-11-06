@@ -76,11 +76,45 @@ L.broker={role:'밀수 브로커',welcome:'함장, 돈 되는 항로를 찾고 �
 EN.standard.profile={headline:'Combine contracts. Haul efficiently.',intro:'Captain, I will review your contracts together, gather cargo and reduce unnecessary return trips. Leave multi-contract runs and heavy freighters to me.',points:[['Collect before departing.','I gather every shipment that fits at each pickup.'],['Combine overlapping routes.','I group shared destinations and reduce repeat visits and system crossings.'],['Plan for unloading.','I check real cargo grids and arrange containers for the delivery order.']]};
 EN.aide.profile={headline:'Nearby contracts, one clear delivery at a time!',intro:'Captain, we do not have to fill the whole hold! Let us finish nearby contracts one by one. Starting with a small ship? I will guide every step!',points:[['Start nearby!','I look for contracts we can finish with fewer stops.'],['Load, then deliver.','I can collect cargo on a short detour, but completing our current contract comes first.'],['Know what to do next.','I point out the destination, container sizes and counts, and the next button to press!']]};
 EN.broker={role:'Smuggling Broker',welcome:'Looking for a profitable route, Captain?',welcomeSub:'I connect deals out in Pyro. Something different from contract hauling is in the works.',profile:{headline:'The next deal is coming. See you soon.',intro:'Tell me your ship and working capital. I will help figure out what to buy, how much, and where to sell it. The trading network is still being prepared; take a haul with the operator or navigator for now.',points:[['Trades for your ship and budget','Planned: commodities, quantities and purchase costs that fit your hold and funds.'],['From purchase to sale','Planned: buying and selling locations, estimated profit and price timestamps.'],['Trading is coming soon','Trade recommendations are not available yet. Meet me here when preparations are complete.']]}};
-for(const [id,v] of Object.entries(L)){if(id==='broker')continue;v.boxes='상자 구성을 확인해 주십시오.';v.boxesSub='미션 유형과 품목별 규격을 대조했습니다. 저장된 구성과 자동 계산의 근거를 확인하고, 다른 부분만 수정해 주십시오.';}
-L.aide.boxes='함장님! 상자 구성, 이렇게 준비했어요.';L.aide.boxesSub='미션 유형에 맞춰 미리 채웠어요! 품목별로 어떻게 계산했는지도 적어 뒀으니, 다른 부분만 고쳐 주세요!';
+// Intake and container review belong to the partner too, in both languages.
+L.standard.inbox='수신한 계약을 확인하겠습니다.';
+L.standard.inboxSub='정보가 확인된 카드를 누르면 계획에 추가됩니다. 부족한 항목은 게임의 계약 화면과 대조해 보완하십시오.';
+L.aide.inbox='함장님, 들어온 계약부터 챙겨봐요!';
+L.aide.inboxSub='내용이 다 찬 카드는 바로 누르면 돼요! 빠진 수량은 게임에서 확인해 주세요. 계약서 빈칸은 눈치로 채우면 안 되니까요.';
+EN.standard.inbox='Let us review the received contracts.';
+EN.standard.inboxSub='Complete cards go directly into the plan. Check missing fields against the in-game contract.';
+EN.aide.inbox='Captain, let’s pick up those new contracts!';
+EN.aide.inboxSub='Click a complete card and it is in! Check missing amounts in game—guesswork does not belong on the manifest.';
+L.standard.boxes='상자 구성과 계산 근거를 확인하십시오.';
+L.standard.boxesSub='저장된 구성과 미션의 최대 상자 규격을 대조했습니다. 자동 구성은 예상값이므로 실제 크기·개수와 다른 항목을 수정하십시오.';
+L.aide.boxes='상자는 이렇게 나눠봤어요!';
+L.aide.boxesSub='저장된 구성이나 미션 규격으로 채워뒀어요! 최대 크기로 잡은 예상 구성도 있으니 실제 상자와 비교해 주세요. 합계가 맞아도 상자 모양까지 같진 않거든요.';
+EN.standard.boxes='Review the container breakdown and its source.';
+EN.standard.boxesSub='I compared saved layouts and mission container limits. Automatic layouts are estimates; correct any differences in actual sizes and counts.';
+EN.aide.boxes='Here is the container breakdown!';
+EN.aide.boxesSub='I used saved layouts or mission limits to fill this in! Some layouts assume maximum-size crates, so check the real counts too. Equal SCU does not mean equal shapes.';
 L.aide.welcomeSub='가까운 계약부터 하나씩 끝내봐요! 픽업부터 마지막 배송까지 제가 안내할게요.';
-for(const [id,v] of Object.entries(EN)){if(id==='broker')continue;v.boxes='Review the container breakdown.';v.boxesSub='I checked the mission type and commodity limits. Review the source of each layout and edit any differences.';}
-EN.aide.welcomeSub='Let us finish nearby contracts one by one! I will guide you from pickup to final delivery.';
+EN.aide.welcomeSub='Let’s finish nearby contracts one by one! I’ll guide you from pickup to the final delivery.';
+L.aide.start='어디서 출발할까요, 함장님?';
+L.aide.startSub='지금 계신 곳을 알려주세요! 지명 일부만 입력하고 목록에서 고르면 돼요. 출발점은 정확히 잡고 가요!';
+L.aide.reading='계약서 확인 중이에요! 수량과 배송지부터 맞춰볼게요. 상자보다 일정이 먼저 엉키면 곤란하니까요.';
+L.aide.readDone=n=>`계약 ${n}건 읽었어요! 수량과 목적지, 같이 확인해봐요.`;
+L.aide.atStop=p=>`${p}에서 목록대로 싣고 내려주세요! 작업이 끝나면 완료를 눌러요. 다음 일정은 제가 챙길게요.`;
+L.aide.first=p=>`첫 거점은 ${p}예요! 도착하면 목록부터 확인해요. 상자가 닮았다고 다른 계약 것까지 가져오시면 안 돼요!`;
+EN.aide.start='Where are we starting, Captain?';
+EN.aide.startSub='Tell me where you are! Type part of the name and choose a result. Let’s get the starting point right!';
+EN.aide.reading='Checking amounts and destinations! Let’s untangle the schedule before we touch the crates.';
+EN.aide.readDone=n=>`${n} contract(s) read! Let’s check the quantities and destinations.`;
+EN.aide.atStop=p=>`Load and unload at ${p} as listed! Press Complete when the work is done. I’ll keep the next stop ready.`;
+EN.aide.first=p=>`First stop: ${p}! Check the list when we arrive. Matching crates can still belong to different contracts!`;
+L.standard.departure=p=>`${p}에서 출발합니다. 실제 출발 후 출발 완료를 기록하십시오.`;
+L.aide.departure=p=>`${p}에서 출발해요! 이륙하시면 출발 완료를 눌러주세요. 첫 픽업지는 제가 안내할게요.`;
+EN.standard.departure=p=>`Departing from ${p}. Record departure after you actually leave.`;
+EN.aide.departure=p=>`We’re leaving ${p}! Press Departed once we’re away. I’ll guide you to the first pickup.`;
+L.standard.jumpWork=(entry,exit)=>`${entry}에서 진입해 ${exit}로 나갑니다. 점프 완료 후 진행하십시오. 이 단계에는 화물 작업이 없습니다.`;
+L.aide.jumpWork=(entry,exit)=>`${entry}로 들어가서 ${exit}로 나와요! 실제로 건넌 뒤 점프 완료를 눌러주세요. 이번엔 상자 들 일이 없네요!`;
+EN.standard.jumpWork=(entry,exit)=>`Enter at ${entry} and exit at ${exit}. Record completion after crossing. No cargo handling at this step.`;
+EN.aide.jumpWork=(entry,exit)=>`In through ${entry}, out through ${exit}! Press Jump complete after crossing. No crates to lift this time!`;
 export function voiceId(){try{const v=localStorage.getItem(KEY);return v==='aide'?'aide':'standard';}catch{return 'standard';}}
 export function setVoice(v){if(!['standard','aide'].includes(v))return;try{localStorage.setItem(KEY,v);}catch{}}
 export const V=(id=voiceId())=>(isEn?EN:L)[id]||(isEn?EN:L).standard;
