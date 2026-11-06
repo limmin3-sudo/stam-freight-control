@@ -9,7 +9,8 @@
       "수석 항해사는 거리가 조금 늘어도 행성권 재방문을 먼저 줄이고, 예상 비행·착륙 부담과 거리를 차례로 비교합니다.",
       "오퍼레이터는 한 행성권에서 가까운 화물을 모은 뒤 배송합니다. 떠난 후 실은 화물의 배송을 마치기 전 다른 권역에서 새로 픽업하지 않습니다.",
       "지상 출발은 퀀텀 가능 고도까지 상승하고, 도착은 NAV→약10km SCM→최종 저속 접근·착륙으로 나눠 예상합니다. 함선별 상승 목표·순가속을 보정할 수 있으며 실측과 가정을 구분합니다.",
-      "수량 단계·예약 공간·경로 계산 안내를 갱신했습니다. 진행 중 화물의 소유권과 위치를 보존합니다."
+      "수량 단계·예약 공간·경로 계산 안내를 갱신했습니다. 진행 중 화물의 소유권과 위치를 보존합니다.",
+      "보상을 모르는 계약은 0 aUEC로 확정하지 않습니다. 확인된 보상 합계·시간당 수익과 미확인 계약 수를 구분합니다."
     ],
     "en": {
       "title": "Delivery-total reservations and regional routing",
@@ -18,7 +19,8 @@
         "The senior navigator prioritises fewer planet-region returns, then estimated flight and landing cost, then distance.",
         "The operator collects within one planet region, then finishes delivering the loaded batch before collecting in another region.",
         "Estimate climb to quantum altitude, NAV approach, SCM around 10 km and slow final landing separately. Calibrate climb target and net acceleration per ship; assumptions stay labelled.",
-        "Update quantity, reserved-space and routing guidance while preserving aboard ownership and positions."
+        "Update quantity, reserved-space and routing guidance while preserving aboard ownership and positions.",
+        "Keep unknown rewards distinct from confirmed zero. Label confirmed reward subtotals, hourly estimates and excluded unknown contracts."
       ]
     }
   },

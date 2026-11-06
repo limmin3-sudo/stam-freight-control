@@ -35,7 +35,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   if(!plan){root.hidden=true;document.body.classList.remove('run-active');return;}root.hidden=false;document.body.classList.toggle('run-active',run.started&&!run.finished);
   const total=plan.visits.length,i=run.index,v=plan.visits[i],next=plan.visits[i+1],reward=plan.totalReward||0;
   if(run.finished){const sec=elapsed(),rate=reward&&sec>0?reward/(sec/3600):0;
-   root.innerHTML=`<div class="run-summary"><div class="eyebrow">MISSION COMPLETE / 운항 완료</div><h2>${V().done}</h2><p class="subtle">${V().doneSub}</p><div class="run-sum-grid"><div><span>총 운항 시간</span><b>${mmss(sec)}</b></div><div><span>예상 수익</span><b>${reward?fmt(reward)+' aUEC':'—'}</b></div><div><span>시간당</span><b>${rate?fmt(rate)+' aUEC':'—'}</b></div><div><span>거점</span><b>${run.log.length}곳</b></div></div>
+   root.innerHTML=`<div class="run-summary"><div class="eyebrow">MISSION COMPLETE / 운항 완료</div><h2>${V().done}</h2><p class="subtle">${V().doneSub}</p><div class="run-sum-grid"><div><span>총 운항 시간</span><b>${mmss(sec)}</b></div><div><span>${plan.rewardSummary?.unknown?L('확인된 보상 합계','Confirmed reward subtotal'):'예상 수익'}</span><b>${reward?fmt(reward)+' aUEC':'—'}</b></div><div><span>시간당</span><b>${rate?fmt(rate)+' aUEC':'—'}</b></div><div><span>거점</span><b>${run.log.length}곳</b></div></div>
     <table class="run-log"><thead><tr><th>#</th><th>거점</th><th>실측</th><th>예상</th></tr></thead><tbody>${run.log.map((l,k)=>`<tr><td>${k+1}</td><td>${esc(l.name)}</td><td>${mmss(l.seconds)}</td><td>${l.est==null?'—':Math.max(1,Math.round(l.est/60))+'분'}</td></tr>`).join('')}</tbody></table>
     <div class="run-buttons"><button id="run-new" class="primary">새 운항 준비</button><button id="run-keep" class="quiet">이 계획 다시 보기</button></div></div>`;
    root.querySelector('#run-new').onclick=()=>{run=blank();save();onReset?.('new');};root.querySelector('#run-keep').onclick=()=>{run=blank();run.planKey=keyOf(plan);save();render();onAdvance?.(0);};return;}
@@ -59,7 +59,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
   root.querySelector('#run-stop').onclick=()=>{if(!confirm('운항 기록을 지우고 종료할까요? 실린 화물은 게임에서 직접 확인하세요.'))return;run=blank();save();render();onReset?.('stop');};
   tick();}
  function tick(){if(!plan||run.finished)return;const c=root.querySelector('#run-clock');if(!c)return;const sec=elapsed();c.textContent=mmss(sec);const left=remainingSeconds();root.querySelector('#run-left').textContent=left?`${Math.max(1,Math.round(left/60*.8))}–${Math.ceil(left/60*1.3)}분`:'0분';
-  const reward=plan.totalReward||0,proj=sec+left;root.querySelector('#run-rate').textContent=reward&&run.started&&sec>30?fmt(reward/(proj/3600))+' aUEC':reward?'출항 후 계산':'보상 미입력';}
+  const reward=plan.totalReward||0,proj=sec+left;root.querySelector('#run-rate').textContent=reward&&run.started&&sec>30?fmt(reward/(proj/3600))+' aUEC'+(plan.rewardSummary?.unknown?L(' · 확인된 보상만',' · confirmed rewards only'):''):reward?'출항 후 계산':'보상 미입력';}
  function complete(){if(!plan||run.finished)return;const v=plan.visits[run.index],now=elapsed();if(!run.started){run.started=true;run.startedAt=Date.now();run.since=Date.now();run.startId=run.startId||plan.settings.startId;}
   const jp=jumpPending();
   if(jp){const prevAt=run.log.length?run.log.at(-1).at:0;run.log.push({visit:run.index,jump:jp.k,locationId:jp.seg.exitId,name:`점프 · ${jp.seg.entryName} → ${jp.seg.exitName}`,at:now,seconds:Math.max(0,now-prevAt),est:null,events:[]});
