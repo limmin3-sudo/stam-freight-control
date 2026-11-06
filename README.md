@@ -175,4 +175,4 @@ GitHub는 코드와 개발 문서를 공유합니다. AI 채팅 전체·설치�
 
 대기권 상승·NAV/SCM 접근·착륙 계산의 가정과 외부 도구 비교는 [대기권 계산 안내](docs/ATMOSPHERIC-ROUTING.md)와 [운송 도구 비교](docs/HAULING-TOOLS-COMPARISON.md)를 참고하십시오.
 
-미션 정의 ID별 정보·목록 기본 보상은 Wiki와 SCMDB를 필드별 대조합니다. 같은 값·한쪽에만 있는 정보는 합치고, 차이는 출처별로 분리합니다. [대조 결과와 갱신 방법](docs/MISSION-DATA-RECONCILIATION.md), [보상·예상 수입 규칙](docs/CONTRACT-REWARDS.md)을 참고하십시오. 실제 수량·직접 입력한 보상은 유지하며 퀀텀 자료는 계속 Wiki만 사용합니다.
+미션 유형·설명·기본 보상·수량/상자 규격은 [SCMDB](https://scmdb.dev/)만 사용합니다. 매일 오전09:23(KST) Pages 작업에서 최신 LIVE 데이터를 확인하고, commit·파일 해시·규모 검증을 통과한 자료를 반영합니다. 실패하면 마지막 정상 자료를 유지합니다. [데이터 출처와 자동 갱신](docs/MISSION-DATA-RECONCILIATION.md), [보상·예상 수입 규칙](docs/CONTRACT-REWARDS.md)을 참고하십시오. 직접 입력한 실제 수량·보상은 유지하고 함선·퀀텀 자료는 계속 Wiki만 사용합니다.

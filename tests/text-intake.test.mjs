@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {splitMissionText,parseMissionText} from '../ocr.mjs';
 import {prepareMissionDb,enrichMission} from '../mission-match.mjs';
-const read=p=>JSON.parse(fs.readFileSync(new URL('../data/'+p,import.meta.url))),db=prepareMissionDb(read('hauling-missions.json'),{commodities:Object.fromEntries(Object.entries(read('ai-korean.json').goods).map(([en,ko])=>[ko,en]))});
+const read=p=>JSON.parse(fs.readFileSync(new URL((['hauling-missions.json','ai-korean.json'].includes(p)?'./fixtures/legacy-catalogue/':'../data/')+p,import.meta.url))),db=prepareMissionDb(read('hauling-missions.json'),{commodities:Object.fromEntries(Object.entries(read('ai-korean.json').goods).map(([en,ko])=>[ko,en]))});
 const medium=['중형 신입 화물 계약자 필요 [200-4,000 평판]','¤ 322,500','레드 윈드 노선화물',...['질소|24','유기물|12','란타 배설물|14'].flatMap(row=>{const [c,n]=row.split('|');return [`${c}을(를) 0/${n} SCU 잭슨 교환소에 배송하십시오.`,`브리오 함선 폐기장에서 ${c}을(를) 접수하십시오.`,`라야리 맥그래스 연구 기지 [McGrath]에서 ${c}을(를) 접수하십시오.`];})].join('\n');
 const large=['대형 신입 화물 계약자 필요 [100-4,000 평판]','¤ 747,000','레드 윈드 노선화물',...['카나드 뷰','셰퍼드의 안식처'].flatMap(d=>['함선 탄약|32','수소|32','의료 보급품|20'].flatMap(row=>{const [c,n]=row.split('|');return [`${c}을(를) 0/${n} SCU ${d}에 배송하십시오.`,`아크콥 채광 구역 056에서 ${c}을(를) 접수하십시오.`];}))].join('\n');
 test('headings separate pasted contracts without ---; wiki matches stay independent',()=>{

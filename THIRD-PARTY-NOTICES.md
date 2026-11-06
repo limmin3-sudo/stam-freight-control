@@ -4,7 +4,7 @@ STAM is an unofficial Star Citizen fan tool. Star Citizen and related marks belo
 
 - Three.js and OrbitControls: MIT; licence in vendor/THREE-LICENSE.txt.
 - SuperCargo cargo-grid reference data: MIT; licence in vendor/SUPERCARGO-LICENSE.txt.
-- Star Citizen Wiki API: public English location and hauling mission reference data. Source URLs and versions are recorded in the data files. https://api.star-citizen.wiki/
+- Star Citizen Wiki API: public English location, ship and quantum-drive reference data. Source URLs and versions are recorded in the data files. https://api.star-citizen.wiki/
 - The confirmed hauling allocation references in integration/log/manifest.mjs cite their public source URLs and game builds. They do not establish the player's current inventory.
 - Optional browser OCR uses Tesseract.js (Apache-2.0) and its trained language models, fetched only when image recognition is used. https://github.com/naptha/tesseract.js
 - The portable Windows package includes Node.js with its own runtime/LICENSE.
@@ -21,4 +21,4 @@ Policies checked 2026-11-06:
 
 The final scene artwork is created for this fan tool; source generation files and discarded concepts are not part of the public website bundle.
 
-- SCMDB_DATA by KrovaxCode: public mission catalogue reference fields and base reward values, pinned to commit `937f66810a392aa5682b9615a1afbff20fe96e3f`, build `4.10.2-live.12913470`. https://github.com/KrovaxCode/SCMDB_DATA . Per-field source/version and differing values are retained in `data/mission-details.json`; see `docs/MISSION-DATA-RECONCILIATION.md`. Game content belongs to its respective owners.
+- SCMDB_DATA by KrovaxCode: public mission catalogue reference fields and base reward values, pinned to commit `937f66810a392aa5682b9615a1afbff20fe96e3f`, build `4.10.2-live.12913470`. https://github.com/KrovaxCode/SCMDB_DATA . Source/version and any unresolved SCMDB ambiguities are retained in `data/mission-details.json`; see `docs/MISSION-DATA-RECONCILIATION.md`. Game content belongs to its respective owners.
