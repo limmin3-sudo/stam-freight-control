@@ -9,13 +9,14 @@
     "fps": 24,
     "sourceFootage": "1280x720",
     "codec": "H.264",
-    "audio": "AAC stereo"
+    "audio": "AAC stereo",
+    "webEncoding": "Two-pass H.264, 5.6 Mbps video, original AAC audio"
   },
   "masterSha256": "1bb5b87ccd95aacafeca73ecda0ff0eff8f09c9355cd27fa7f193244a5108e03",
   "files": {
     "intro.mp4": {
-      "bytes": 42201246,
-      "sha256": "cbd652652e3535ba6bd687cf6583d7d896a7470fb24fae73e8f167ac153a9dfa"
+      "bytes": 32402854,
+      "sha256": "58b8471b05c1781e5f7db5f04f3de91c9e42b53b04df05a84a1390f69300bab7"
     },
     "teaser.mp4": {
       "bytes": 2811908,
