@@ -2,6 +2,14 @@
 const SIZES=[32,24,16,8,4,2,1];
 export function containerCounts(boxes=[]){const counts=new Map();for(const b of boxes){const size=typeof b==='number'?b:b.size,count=typeof b==='number'?1:(b.count??1);if(SIZES.includes(size)&&Number.isInteger(count)&&count>0)counts.set(size,(counts.get(size)||0)+count);}return [...counts].sort((a,b)=>b[0]-a[0]).map(([size,count])=>({size,count}));}
 export function containerText(boxes=[]){return containerCounts(boxes).map(b=>`${b.size} SCU × ${b.count}`).join(' + ');}
+export const visibleCargoEvents=events=>events.filter(event=>!event.reservationContinuation);
+export function eventQuantityText(event,en=false){
+ if(!event.reservationId)return event.scu?`${event.scu} SCU`:'';
+ if(event.type==='delivery')return `${event.scu} SCU`;
+ const amount=event.pickupQuantityUnknown?(en?'Pickup quantity unknown':'픽업 수량 미확인'):`${event.scu} SCU`;
+ return amount+(en?` · ${event.reservationScu} SCU space reserved`:` · 배송 총량 ${event.reservationScu} SCU 공간 예약`);
+}
+export function eventContainers(event,shipment){return shipment?.reservation?(event.type==='delivery'?shipment.reservation.boxes||[]:[]):shipment?.boxes||[];}
 const total=boxes=>boxes.reduce((n,b)=>n+b.size*b.count,0);
 export function configurationBasis(cargo=[]){
  if(cargo.length&&cargo.every(c=>c._cargoShape==='cryopod'))return 'entity';
@@ -13,6 +21,7 @@ export function configurationBasis(cargo=[]){
  return 'default';
 }
 export function configurationLabel(config,en=false){
+ if(config.reservation)return en?'Delivery-total space reservation':'배송 총량 기준 공간 예약';
  if(config.basis==='entity')return en?'Cryopod stacking layout':'냉동포드 적재 구성';
  if(!config.estimated)return en?'Confirmed box configuration':'상자 구성 확인';
  const labels={wiki:['위키 기준 자동 구성','Wiki-based layout'],mixed:['일부 규격 미확인 · 임시 구성','Partly unknown · provisional layout'],special:['특수 화물 · 규격 미확인','Special cargo · size unknown'],contract:['계약 규격 기준 자동 구성','Contract-based layout'],default:['상자 규격 미확인 · 임시 구성','Size unknown · provisional layout']};
@@ -27,6 +36,12 @@ export function missionTypeText(wiki,en=false){
 }
 export function groupConfiguration(m,g,unknownBox=8){
  const saved=m.destinationBoxes?.find(d=>d.pickupId===g.pickupId&&d.dropoffId===g.dropoffId);
+ if(g.reservation){
+  if(g.cargo.every(c=>c._cargoShape==='cryopod'))return {boxes:[{size:1,count:g.scu}],estimated:false,reservation:true,basis:'entity',valid:true};
+  if(saved?.boxes?.length)return {boxes:saved.boxes,estimated:false,reservation:true,origin:saved.origin||'manual',valid:total(saved.boxes)===g.scu};
+  const limit=Math.max(...g.cargo.map(c=>SIZES.includes(c.maxBoxSize)?c._maxBoxSource==='wiki'?c.maxBoxSize:Math.min(c.maxBoxSize,unknownBox):unknownBox)),single={scu:g.scu,maxBoxSize:limit,_maxBoxSource:'wiki',boxes:[]};
+  return {...groupConfiguration({}, {...g,reservation:false,cargo:[single]},unknownBox),reservation:true};
+ }
  if(saved?.boxes?.length&&!g.cargo.some(c=>c._cargoShape==='cryopod'))return {boxes:saved.boxes,estimated:false,origin:saved.origin||'manual',valid:total(saved.boxes)===g.scu};
  if(g.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<1||c.scu>10000))return {boxes:[],estimated:true,origin:'unavailable',valid:false};
  let estimated=false;const all=[];

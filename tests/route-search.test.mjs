@@ -70,11 +70,11 @@ test('starting pickup is collected immediately even when a later delivery requir
  assert.equal(result.actions[0].shipmentIndex,0);
 });
 
-test('distance beats a faster route after avoiding revisits and extra gate crossings',()=>{
+test('flight and landing cost beats distance after avoiding revisits and extra gate crossings',()=>{
  const ids=['A','B','C'],legs={AB:[10,1],BC:[10,1],AC:[2,20],CB:[2,20]};
  const nav={byId:new Map(ids.map(id=>[id,{id,system:'stanton'}])),path(a,b){const [meters,seconds]=a===b?[0,0]:legs[a+b]||[100,100];return {meters,seconds,jumps:0};}};
  const result=planActionRoute([cargo('A','B'),cargo('A','C')],'A',nav);
  verify(result,[cargo('A','B'),cargo('A','C')]);
  const stops=result.actions.map(a=>a.locationId).filter((id,i,a)=>!i||id!==a[i-1]);
- assert.deepEqual(stops,['A','C','B']);assert.equal(result.seconds,40);
+ assert.deepEqual(stops,['A','B','C']);assert.equal(result.seconds,2);
 });
