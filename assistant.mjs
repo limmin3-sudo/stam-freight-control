@@ -27,10 +27,11 @@ export function createAssistant(app){
 
  function choose(){
   frame('오늘 함께할 파트너를 선택하세요.','선택한 파트너가 미션 접수부터 마지막 배송까지 안내합니다.',
-   `<div class="aide-voices aide-choose" role="group" aria-label="운항 파트너 선택">${VOICE_LIST.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="${id==='broker'?'partner-coming':''}" aria-label="${name} 선택"><img class="partner-photo" src="${VOICE_PORTRAITS[id]}" alt="${name} 인물 사진"><span class="partner-copy"><b>${name}</b><small>${desc}</small><span class="partner-capabilities">${V(id).profile.points.map(([label])=>`<span>${esc(label)}</span>`).join('')}</span><span class="aide-choose-link">${id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
+   `<div class="partner-preview-tabs" role="group" aria-label="${L('살펴볼 파트너','Preview a partner')}">${VOICE_LIST.map(([id,name])=>`<button type="button" data-partner-tab="${id}" aria-label="${esc(name)}" aria-pressed="${id===voiceId()}">${({aide:L('오퍼레이터','Operator'),standard:L('항해사','Navigator'),broker:L('브로커','Broker')})[id]}</button>`).join('')}</div><div class="aide-voices aide-choose" role="group" aria-label="운항 파트너 선택">${VOICE_LIST.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="partner-choice ${id===voiceId()?'is-preview':''} ${id==='broker'?'partner-coming':''}" aria-label="${name} 선택"><img class="partner-photo" src="${VOICE_PORTRAITS[id]}" alt="${name} 인물 사진"><span class="partner-copy"><b>${name}</b><small>${desc}</small><span class="partner-capabilities">${V(id).profile.points.map(([label])=>`<span>${esc(label)}</span>`).join('')}</span><span class="aide-choose-link">${id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
    '<button class="quiet" id="a-skip">전체 화면으로 바로 가기</button>');
   root.querySelector('.aide-role').textContent='STAM FREIGHT CONTROL · 운항 파트너';
   root.querySelector('.aide-steps').hidden=true;
+  root.querySelectorAll('[data-partner-tab]').forEach(tab=>tab.onclick=()=>{root.querySelectorAll('[data-partner-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b===tab)));root.querySelectorAll('[data-voice]').forEach(b=>b.classList.toggle('is-preview',b.dataset.voice===tab.dataset.partnerTab));});
   root.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{preview=b.dataset.voice;if(preview!=='broker'){setVoice(preview);app.voiceChanged?.();}go('welcome');});on('#a-skip',close);
  }
 

@@ -11,7 +11,7 @@
 .aide-overlay .aide-field{gap:9px;font-size:16px}.aide-overlay .aide-field input,.aide-overlay .aide-field select{font-size:18px;padding:14px 16px}
 .aide-overlay .aide-voices{gap:18px}.aide-overlay .partner-photo{height:clamp(240px,30vh,350px);object-position:center 18%}
 .aide-overlay .partner-copy{padding:24px;gap:14px}.aide-overlay .aide-choose button b{font-size:23px}.aide-overlay .aide-choose button small{font-size:16px;line-height:1.8;min-height:58px;color:#bfd3de}.aide-overlay .aide-choose-link{font-size:16px;padding-top:16px;border-top:1px solid #2d4a5a}
-.partner-capabilities{display:grid;gap:8px;font-size:14px;color:#d9edf4}.partner-capabilities>span::before{content:'＋';margin-right:9px;color:#7de1da}
+.partner-capabilities{display:grid;gap:8px;font-size:14px;color:#d9edf4}.partner-capabilities>span::before{content:'\FF0B';margin-right:9px;color:#7de1da}
 .aide-overlay .aide-intro-portrait{width:270px;height:370px;margin-left:34px}.aide-overlay .aide-intro-portrait span{font-size:16px;padding:30px 16px 14px}
 .aide-overlay .aide-profile{padding:24px 28px;margin-top:0}.aide-overlay .aide-profile h3{font-size:26px;line-height:1.5}.aide-overlay .aide-profile-intro{font-size:18px;line-height:1.9}.aide-overlay .partner-functions{gap:18px;margin-top:24px}.aide-overlay .partner-functions b{font-size:18px}.aide-overlay .partner-functions span{font-size:16px}
 .aide-ship-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 25px}.aide-ship-summary>div{padding:18px 22px;background:#112f40;border:1px solid #35596c;border-top:2px solid #75c5cd;border-radius:6px}.aide-ship-summary dt{font-size:14px;color:#b2ccd8}.aide-ship-summary dd{margin:8px 0 0;font-size:30px;font-weight:600;color:#e7f5fa}.aide-ship-summary dd small{font-size:17px;color:#b4d2dc}
@@ -28,3 +28,80 @@
 @media(max-width:560px){.aide-overlay .aide-card{height:calc(100dvh - 24px)}.aide-overlay .aide-top{min-height:62px;margin-bottom:16px;padding-right:18px}.aide-overlay .aide-actions{gap:8px;padding-top:12px;margin-top:12px}}
 .aide-overlay{animation:none}
 .aide-overlay .partner-photo[src*="assets/partners/aide.png"],.aide-overlay .aide-intro-portrait img[src*="assets/partners/aide.png"],.map-partner img[src*="assets/partners/aide.png"],.aide-call img[src*="assets/partners/aide.png"],.aide-fab img[src*="assets/partners/aide.png"]{object-position:center top}
+
+/* Selection has no nested scrolling; compact cards keep every action reachable. */
+.aide-overlay .aide-actions{max-height:none;overflow:visible}
+.partner-preview-tabs{display:none}
+.partner-picker .aide-card{padding:24px 30px 22px}
+.partner-picker .aide-top{min-height:54px;margin-bottom:12px}
+.partner-picker .aide-scroll{display:flex;flex-direction:column;overflow:visible;scrollbar-gutter:auto}
+.partner-picker .aide-title{flex:none;font-size:30px;line-height:1.35;margin:0 0 10px}
+.partner-picker .aide-sub{flex:none;font-size:15px;line-height:1.65;margin:0 0 18px}
+.partner-picker .aide-body{flex:1;min-height:0;display:flex;flex-direction:column;margin:0}
+.partner-picker .aide-voices{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);margin:0;gap:18px}
+.partner-picker .aide-choose .partner-choice{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.partner-picker .partner-photo{flex:1 1 0;min-height:100px;max-height:none;height:0;object-fit:cover;object-position:center top}
+.partner-picker .partner-copy{flex:0 0 auto;min-height:min-content;padding:16px 18px;gap:9px}
+.partner-picker .aide-choose .partner-copy>b{font-size:21px;line-height:1.35}
+.partner-picker .aide-choose .partner-copy>small{min-height:0;font-size:14px;line-height:1.65}
+.partner-picker .partner-capabilities{font-size:13px;line-height:1.5;gap:6px}
+.partner-picker .aide-choose-link{font-size:14px;line-height:1.4;margin-top:10px;padding-top:10px}
+.partner-picker .aide-actions{margin-top:16px;padding-top:14px}
+@media(max-width:900px){
+ .partner-picker .partner-preview-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 12px;flex:none}
+ .partner-preview-tabs button{font-size:13px;min-height:38px;padding:8px 6px}
+ .partner-preview-tabs button[aria-pressed=true]{background:#183a46;border-color:#84dfdd;color:#d4ffff}
+ .partner-picker .aide-choose .partner-choice{display:none}
+ .partner-picker .aide-choose .partner-choice.is-preview{display:grid;grid-template-columns:40% minmax(0,1fr)}
+ .partner-picker .partner-photo{height:100%;min-height:0;max-height:none;border-right:1px solid #315163;border-bottom:0}
+ .partner-picker .partner-copy{padding:22px;justify-content:center}
+ .partner-picker .aide-choose-link{margin-top:14px}
+}
+@media(max-width:560px){
+ .partner-picker .aide-card{padding:20px 18px}
+ .partner-picker .aide-top{min-height:50px;margin-bottom:10px}
+ .partner-picker .aide-title{font-size:24px;line-height:1.35;margin-bottom:8px}
+ .partner-picker .aide-sub{font-size:13px;line-height:1.6;margin-bottom:12px}
+ .partner-picker .aide-choose .partner-choice.is-preview{display:flex;flex-direction:column}
+ .partner-picker .partner-photo{flex:1 1 0;height:0;min-height:90px;max-height:none;border-right:0;border-bottom:1px solid #315163}
+ .partner-picker .partner-copy{flex:0 0 auto;min-height:min-content;padding:14px 16px;gap:8px;justify-content:flex-start}
+ .partner-picker .aide-choose .partner-copy>b{font-size:19px}
+ .partner-picker .aide-choose .partner-copy>small{font-size:13px;line-height:1.6}
+ .partner-picker .partner-capabilities{font-size:12px;line-height:1.5;gap:5px}
+ .partner-picker .aide-choose-link{margin-top:10px;font-size:13px;padding-top:8px}
+ .partner-picker .aide-actions{margin-top:12px;padding-top:10px}
+ .partner-picker .aide-actions button{min-height:42px;font-size:13px;padding:9px 12px}
+}
+@media(max-height:700px) and (min-width:901px){
+ .partner-picker .aide-card{padding:18px 24px}
+ .partner-picker .aide-top{min-height:40px;margin-bottom:8px}
+ .partner-picker .aide-title{font-size:25px;margin-bottom:7px}
+ .partner-picker .aide-sub{font-size:13px;margin-bottom:10px}
+ .partner-picker .partner-photo{flex-basis:150px;height:150px;min-height:65px;max-height:150px}
+ .partner-picker .partner-copy{padding:11px 14px;gap:6px}
+ .partner-picker .aide-choose .partner-copy>b{font-size:18px}
+ .partner-picker .aide-choose .partner-copy>small{font-size:12px;line-height:1.5}
+ .partner-picker .partner-capabilities{font-size:12px;gap:4px}
+ .partner-picker .aide-choose-link{font-size:12px;padding-top:7px}
+ .partner-picker .aide-actions{margin-top:10px;padding-top:9px}
+ .partner-picker .aide-actions button{min-height:40px;padding:8px 14px;font-size:13px}
+}
+@media(max-height:700px) and (max-width:560px){
+ .partner-picker .aide-card{padding:14px 16px}
+ .partner-picker .aide-top{min-height:36px;margin-bottom:8px}
+ .partner-picker .aide-emblem{width:32px;height:32px;flex-basis:32px}
+ .partner-picker .aide-title{font-size:21px;line-height:1.25}
+ .partner-picker .aide-sub{font-size:12px;line-height:1.5;margin-bottom:8px}
+ .partner-picker .partner-preview-tabs{margin-bottom:8px}
+ .partner-preview-tabs button{font-size:11px;min-height:32px;padding:6px 4px}
+ .partner-picker .aide-choose .partner-choice.is-preview{display:grid;grid-template-columns:34% minmax(0,1fr)}
+ .partner-picker .partner-photo{height:100%;min-height:0;max-height:none;border-bottom:0;border-right:1px solid #315163}
+ .partner-picker .partner-copy{padding:12px 10px;gap:8px}
+ .partner-picker .aide-choose .partner-copy>b{font-size:17px}
+ .partner-picker .aide-choose .partner-copy>small{font-size:12px;line-height:1.6}
+ .partner-picker .partner-capabilities{display:none}
+ .partner-picker .aide-choose-link{font-size:12px;padding-top:7px}
+ .partner-picker .aide-actions{margin-top:8px;padding-top:8px}
+ .partner-picker .aide-actions button{min-height:36px;padding:8px 10px;font-size:12px}
+}
+.partner-picker .aide-steps{display:none}

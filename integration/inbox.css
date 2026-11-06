@@ -7,3 +7,33 @@
 .inbox-read-state{font:12px/1.6 monospace;color:#81c8ce;margin:-6px 0 14px}.inbox-clear,.inbox-ended-toggle{font-size:11px;padding:6px 9px}.inbox-clear[hidden],.inbox-ended-toggle[hidden]{display:none}
 
 .inbox-card-footer .inbox-review{position:relative;z-index:2}.inbox-card-footer .inbox-add{border-color:#397b7d;color:#a5f1df}.inbox-card.is-added .inbox-add{color:#bbffe5}.inbox-card-footer{margin-top:auto}.inbox-card{display:flex;flex-direction:column}.inbox-cargo{margin-bottom:14px}
+
+/* Selection is separate from planning; only the dialog body scrolls. */
+.inbox-cards{max-height:none;overflow:visible}
+.inbox-card .inbox-add::after{display:none}
+.inbox-batch-actions{position:sticky;top:0;z-index:3;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;margin:0 0 14px;background:#102936;border:1px solid #365f6d;border-radius:7px}
+.inbox-selected-count{font-size:13px;margin-right:auto;white-space:nowrap}
+.inbox-batch-actions button{font-size:12px;padding:9px 12px;min-height:38px}
+.inbox-batch-actions .inbox-plan{font-weight:700}
+.inbox-batch-actions [hidden]{display:none}
+.inbox-check{appearance:auto;width:21px;height:21px;flex:none;accent-color:#64dde0;margin:0;cursor:pointer}
+.inbox-check:disabled{cursor:not-allowed}
+.inbox-card-head small{margin-right:auto}
+.inbox-card.is-selected{border-color:#8affdf;background:linear-gradient(135deg,#17464a,#0e303e);box-shadow:inset 0 0 0 1px #7ff6dc}
+.inbox-card:has(.inbox-check:not(:disabled)){cursor:pointer}
+.inbox-card.is-incomplete{border-top-color:#aa936c}
+.inbox-card .inbox-missing{font-size:12px;line-height:1.6;color:#f1cf91;margin:0 0 14px}
+.inbox-card:has(.inbox-check:focus-visible){outline:2px solid #a4f1e5;outline-offset:3px}
+.inbox-bulk-editor{width:min(1000px,calc(100% - 24px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid #426b7b;border-radius:12px;background:#0c1e2b;color:#dcecf3}
+.inbox-bulk-editor form{display:flex;flex-direction:column;max-height:calc(100dvh - 84px)}
+.inbox-bulk-body{overflow:auto;min-height:0;padding-right:5px}
+.inbox-bulk-contract{border-top:1px solid #365362;padding:14px 0}
+.inbox-bulk-contract h3{font-size:16px;margin:0 0 7px}.inbox-bulk-contract>small{color:#8ca9b9}
+.inbox-bulk-row{display:flex;gap:12px;flex-wrap:wrap;align-items:end;padding:10px 0}
+.inbox-bulk-row p{flex:1 1 270px;align-self:center;font-size:13px;line-height:1.7;margin:0}
+.inbox-bulk-row label{display:grid;gap:5px;font-size:12px;flex:0 1 180px}
+.inbox-bulk-row input{width:100%;padding:10px}.inbox-bulk-actions{display:flex;gap:10px;justify-content:end;flex:none;padding-top:14px}
+.inbox-form-error{color:#ffbcab;font-size:13px;margin:8px 0 0}.inbox-form-error:empty{display:none}
+@media(max-width:600px){.inbox-batch-actions .inbox-plan{width:100%}.inbox-batch-actions{position:static}.inbox-bulk-editor{padding:16px}.inbox-bulk-row label{flex:1 1 130px}}
+.inbox-route-preview{width:min(800px,calc(100% - 28px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:1px solid #426b7b;border-radius:12px;background:#0c1e2b;color:#dcecf3}.inbox-route-preview li{padding:14px;border-bottom:1px solid #294756}.inbox-route-preview li p{font-size:13px;line-height:1.7;margin:6px 0;color:#b5cdd8}
+.inbox-upper-bound-label{display:flex;align-items:center;gap:7px;font-size:12px;color:#efd39c}.inbox-upper-bound{appearance:auto;width:18px;height:18px;accent-color:#e1ba70}.inbox-certainty{font-size:12px;line-height:1.6;padding:7px 9px;background:#133744;border-radius:5px;color:#a9e6de}.inbox-certainty.upper-bound{color:#f3d59b;background:#3c3323}
