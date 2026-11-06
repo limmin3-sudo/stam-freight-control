@@ -14,8 +14,9 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   if(!idPattern.test(c.missionId||'')||unique.has(c.missionId)||!(c.acceptanceObservations?.some(e=>e.actor!=='other')||c.participation?.selfJoinObserved))continue;
   const markerPlaces=(c.markerObservations||[]).map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position)})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
   const pickupIds=[...new Set(markerPlaces.filter(m=>m.role==='pickup').map(m=>placeId(m.point)).filter(Boolean))];
+  const useOriginal=catalog?.sourceName==='Wiki'&&c.originalManifest?.status==='resolved-original-manifest';
   let rows=[],quantityHints=[];
-  if(c.originalManifest?.status==='resolved-original-manifest')rows=c.originalManifest.shipments.map(s=>({commodity:text(s.commodity),scu:s.scu,pickupId:placeId({id:s.pickupId,system:c.originalManifest.pickup.system}),dropoffId:placeId({id:s.dropoffId,system:c.originalManifest.deliveries.find(d=>d.id===s.dropoffId)?.system}),boxes:s.boxes.map(b=>({...b}))}));
+  if(useOriginal)rows=c.originalManifest.shipments.map(s=>({commodity:text(s.commodity),scu:s.scu,pickupId:placeId({id:s.pickupId,system:c.originalManifest.pickup.system}),dropoffId:placeId({id:s.dropoffId,system:c.originalManifest.deliveries.find(d=>d.id===s.dropoffId)?.system}),boxes:s.boxes.map(b=>({...b}))}));
   else{
    const goals=new Map();for(const q of c.quantityObservations||[]){if(!goals.has(q.objectiveId))goals.set(q.objectiveId,[]);goals.get(q.objectiveId).push(q);}
    for(const group of goals.values()){
@@ -31,18 +32,18 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    }
   }
   const reference=definitionDraft(c,places,catalog,missionDb,{markers:markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)})),pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
-  if(reference?.multiplePickups&&!reference.multipleDropoffs&&c.originalManifest?.status!=='resolved-original-manifest'){
+  if(reference?.multiplePickups&&!reference.multipleDropoffs&&!useOriginal){
    const matchesOrder=(row,base)=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`);
    // A single delivery counter can aggregate several pickup orders. Show that
    // evidence, but never assign the whole amount to just the first pickup.
    rows=rows.filter(row=>{const base=reference.rows.find(b=>matchesOrder(row,b)),commodity=base?.commodity||row.commodity,siblings=reference.rows.filter(b=>key(b.commodity)===key(commodity)),complete=siblings.every(b=>rows.some(r=>matchesOrder(r,b)));if(siblings.length<2||complete)return true;quantityHints.push({commodity,scu:row.scu,dropoffId:row.dropoffId||reference.dropoffId,dropoffText:row._dropoffText});return false;});
   }
-  if(reference){if(!rows.length)rows=reference.rows;else if(c.originalManifest?.status!=='resolved-original-manifest'){
+  if(reference){if(!rows.length)rows=reference.rows;else if(!useOriginal){
    const observed=rows,used=new Set();rows=reference.rows.map(base=>{const available=observed.map((row,i)=>({row,i})).filter(({i})=>!used.has(i)),exact=available.filter(({row})=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`)),matches=exact.length?exact:available.filter(({row})=>key(row.commodity)===key(base.commodity)&&(!base.dropoffId||row.dropoffId===base.dropoffId));if(matches.length!==1)return base;const {row,i}=matches[0];used.add(i);return {...base,...row,commodity:base.commodity,pickupId:row.pickupId||base.pickupId,dropoffId:row.dropoffId||base.dropoffId};});for(const [i,row] of observed.entries())if(!used.has(i))rows.push({...row,pickupId:row.pickupId||reference.pickupId,dropoffId:row.dropoffId||reference.dropoffId});
   }}
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
-  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
+  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
   if(quantityHints.length)card.quantityHints=quantityHints;
   card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints]);unique.set(card.id,card);
  }

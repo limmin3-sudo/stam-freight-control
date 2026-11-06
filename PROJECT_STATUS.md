@@ -1,3 +1,11 @@
+## 2026-11-07 — 사용자 최종 결정: SCMDB 미션 전용·자동 갱신
+
+- Codex, PR20/`feature/delivery-reservations-regional-routing`. 이전 Wiki 대조·보완 계획은 사용자의 “SCMDB로만” 지시로 대체됐다. 기존 배포 승인은 계속 유효하다. 미추적 `prototypes/`는 보존·제외한다.
+- 미션 정보·보상·수량/상자 규격은 SCMDB만 사용한다. 원문 commit937f668 / LIVE12913470에서 정의2360·안전한 단일 화물 명세864를 생성했다. 정의 UUID 별칭·부모/자식 구분·고정 min/max0 쿼터·실제 objective 인덱스·위치 후보를 연결했다. 직접 입력한 실제 수량/보상과 운항 중 데이터는 보존한다. 기존 연결 앱의 옛 카탈로그 기반 originalManifest는 새 SCMDB 수신에 섞지 않는다. 함선·퀀텀·지도는 별도 Wiki 자료를 유지한다.
+- `scripts/refresh-missions.mjs`는 이제 SCMDB LIVE 전용이다. 기존 매일09:23 KST Pages 작업에 연결했고 같은 commit의 game-versions/LIVE JSON을 조회한다. GitHub blob/바이트 수/버전/규모 검증, PTU 제외, 실패 시 기존3개 파일 보존, SHA256·commit 출처 보관. 실제 SCMDB 요청에서 unchanged/4.10.2-live.12913470 확인(`/tmp/stam-scmdb-live-refresh.log`).
+- Node216 통과(`/tmp/stam-scmdb-only-final-full.log`), 자동 갱신·자료 전용 검증10 통과(`/tmp/stam-scmdb-only-refresh.log`), 일괄수신 KO/EN·SCMDB 보상215250·실제180000·22 SCU 예약·새로고침·모바일 통과(`/tmp/stam-scmdb-only-batch.log`). 연결 앱 레거시 프로필 제외 포함 관련23 통과(`/tmp/stam-scmdb-only-source-check.log`). 이전 본문 스크롤 브라우저 재검사의 headless 안정성 timeout은 성공으로 적지 않고 최종 CI에서 다시 확인한다.
+- Wiki 자료는 과거 저장 형식 회귀용 `tests/fixtures/legacy-catalogue/`에만 남긴다. 런타임3개 파일과 공개 사이트 묶음에는 포함하지 않는다. 최종 CI·Pages·공개 origin QA 전이며 아직 배포 완료로 보고하지 않는다. 이전 head4f9ffca의 중복 CI는 사용자 지시에 따른 소스 변경으로 취소했다. 해당 로그에서 ubuntu-latest(resolute)의 폰트 패키지 다운로드가 장시간 지연돼 브라우저 CI를 지원되는 ubuntu-24.04로 고정했다.
+
 ## 2026-11-07 — 미션 정보·보상 대조 추가, PR20 배포 준비
 
 - Codex, `feature/delivery-reservations-regional-routing`, PR20에 기존 배송 총량 예약·권역 경로·대기권 추정과 함께 추가한다. 기존 사용자 배포 승인이 이 수정·테스트·커밋·푸시·병합·Pages까지 포함한다. 미추적 `prototypes/`는 보존·제외한다.

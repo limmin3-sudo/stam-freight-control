@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {definitionDraft} from '../mission-catalog.mjs';import {inboxCards,cardDraft,cardReady} from '../integration/inbox-core.mjs';import {LogEvidence} from '../integration/log/state.mjs';
-const load=name=>JSON.parse(fs.readFileSync(new URL('../data/'+name,import.meta.url))),places=load('locations.json').locations,catalog=load('log-mission-index.json'),db=load('hauling-missions.json');
+const load=name=>JSON.parse(fs.readFileSync(new URL((name==='locations.json'?'../data/':'./fixtures/legacy-catalogue/')+name,import.meta.url))),places=load('locations.json').locations,catalog=load('log-mission-index.json'),db=load('hauling-missions.json');
 const accepted={missionId:'33333333-3333-4333-8333-333333333333',definitionId:'6528ac09-f0b3-4f83-a198-72f098754d95',title:'Rookie Hauler, DIRECT Bulk Interstellar Large Haul | Ruin Station > Baijini Point [50/100/200/250/1000 Rep]',acceptanceObservations:[{actor:'self'}],quantityObservations:[],markerObservations:[],status:'acceptance-observed'};
 test('accepted direct 452 SCU haul fills actual corroborated original quotas and route into the original editor',()=>{const card=inboxCards({contracts:[accepted]},places,null,catalog,db).cards[0],draft=cardDraft(card);assert.equal(draft.company,'Red Wind Linehaul');assert.deepEqual(draft.cargo.map(c=>c.scu),[168,168,48,48,20]);assert.equal(draft.cargo.reduce((a,c)=>a+c.scu,0),452);for(const c of draft.cargo){assert.equal(places.find(p=>p.id===c.pickupId).name,'Ruin Station');assert.equal(places.find(p=>p.id===c.dropoffId).name,'Baijini Point');assert.equal(c.boxes.length,0);}assert.equal(draft.id,accepted.missionId);});
 test('unambiguous explicit title route can identify the direct template before a definition marker arrives',()=>{const draft=definitionDraft({...accepted,definitionId:null},places,catalog,db);assert.equal(draft.id,accepted.definitionId);assert.equal(draft.basis,'unique-title-route');assert.equal(draft.rows.length,5);});
@@ -29,7 +29,7 @@ test('definitions without order-pool names still bind exact per-order Pyro marke
  const silicon={...accepted,definitionId:'a74d6099-1212-4078-9dfd-cffc5ef55266',title:'Junior small haul | to Patch City'},pickup={role:'pickup',objectiveId:'pickup_690a1cd3-0dac-4792-99ee-5ee44b68dab3_0',pointId:id('Ashland')},partial=definitionDraft(silicon,places,catalog,db,{markers:[pickup],pickups:[pickup.pointId]});assert.equal(partial.rows[0].pickupId,pickup.pointId);assert.equal(partial.rows[1].pickupId,'');assert.ok(partial.rows.every(r=>r.dropoffId===id('Patch City')));
 });
 
-test('all released catalogue IDs survive unknown-template receipt projection without company or title filtering',()=>{
+test('legacy released catalogue IDs survive unknown-template receipt projection without company or title filtering',()=>{
  const evidence=new LogEvidence(),released=catalog.definitions.filter(d=>d.released&&!d.notForRelease),stamp='<2026-11-05T10:00:00.000Z> [Notice] ';
  for(const [i,d] of released.entries()){
   const id='aaaaaaaa-aaaa-4aaa-8aaa-'+String(i).padStart(12,'0');
