@@ -14,3 +14,5 @@ The private log is not part of the repository or public build. To intentionally 
 Optional capture controls: `STAM_GUIDE_LANG=ko|en`, `STAM_GUIDE_ONLY=name,name`, and `STAM_GUIDE_RESUME=1` (skip previously written JPEG intermediates). Chromium captures are converted to WebP at the end; pre-existing WebP files are not repeatedly recompressed. `STAM_CHROMIUM_PATH` and `STAM_PLAYWRIGHT_MODULE` select installed tools.
 
 New guide slides refer to each photographed state once. Remaining explanations use text and diagrams rather than repeating the same full settings screenshot.
+
+`partner-ko.webp` / `partner-en.webp` now show the approved four-card arrangement: a tutorial-only Flight Director link, the two hauling partners and the preview-only broker. They are synthetic UI captures; choosing the tutorial does not activate a hauling voice.
