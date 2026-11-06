@@ -1,4 +1,5 @@
 import {definitionDraft} from '../mission-catalog.mjs';
+import {deliveryGroups,quantitiesReady,actualQuantity} from '../delivery-totals.mjs';
 // The inbox projects evidence into editable drafts. Receiving never changes planner missions.
 const key=s=>String(s||'').normalize('NFKC').trim().toLowerCase();
 const text=s=>String(s||'').slice(0,240);
@@ -52,12 +53,13 @@ export function cardDraft(card){
 }
 
 // Actual-quantity readiness; upper-bound estimates require a separate opt-in.
-export function cardReady(card,places=[]){const ids=new Set(places.map(p=>p.id));return !!card&&!card.ended&&!card.conflict&&card.rows.length>0&&card.rows.every(r=>!r._scuEstimated&&typeof r.commodity==='string'&&r.commodity.trim()&&Number.isSafeInteger(r.scu)&&r.scu>0&&r.scu<=10000&&ids.has(r.pickupId)&&ids.has(r.dropoffId));}
+export function cardReady(card,places=[]){const ids=new Set(places.map(p=>p.id));return !!card&&!card.ended&&!card.conflict&&card.rows.length>0&&quantitiesReady({cargo:card.rows,_deliveryTotals:card.deliveryTotals})&&card.rows.every(r=>typeof r.commodity==='string'&&r.commodity.trim()&&ids.has(r.pickupId)&&ids.has(r.dropoffId));}
 
 export function cardMissing(card,places=[]){
  const ids=new Set(places.map(p=>p.id)),rows=card?.rows||[],missing=new Set();
  if(!rows.length)return ['commodity','quantity','pickup','dropoff'];
- for(const r of rows){if(!r.commodity?.trim())missing.add('commodity');if(r._scuEstimated||!Number.isSafeInteger(r.scu)||r.scu<=0||r.scu>10000)missing.add('quantity');if(!ids.has(r.pickupId))missing.add('pickup');if(!ids.has(r.dropoffId))missing.add('dropoff');}
+ const reserved=new Set(deliveryGroups({cargo:rows,_deliveryTotals:card?.deliveryTotals}).filter(g=>g.reservation).map(g=>g.dropoffId));
+ for(const r of rows){if(!r.commodity?.trim())missing.add('commodity');if(!actualQuantity(r)&&!reserved.has(r.dropoffId))missing.add('quantity');if(!ids.has(r.pickupId))missing.add('pickup');if(!ids.has(r.dropoffId))missing.add('dropoff');}
  return [...missing];
 }
 
@@ -67,11 +69,12 @@ export function cardRouteReady(card,places=[]){const ids=new Set(places.map(p=>p
 export function upperBoundDraft(draft){const next=structuredClone(draft);for(const r of next.cargo){if(Number.isSafeInteger(r.scu)&&r.scu>0&&!r._scuEstimated)continue;const b=r._quantityBounds,max=b?.unit==='SCU'?b.max:(r.commodity==='CryoPod'||r._cargoShape==='cryopod')&&b?.unit==='items'?b.max:null;if(Number.isSafeInteger(max)&&max>0&&max<=10000){r.scu=max;r._scuEstimated=true;r.boxes=[];}}return next;}
 export function upperBoundReady(card,places=[]){return cardReady({...card,rows:card.rows.map(r=>{if(!r._scuEstimated)return r;const b=r._quantityBounds,valid=(b?.unit==='SCU'||(r.commodity==='CryoPod'||r._cargoShape==='cryopod')&&b?.unit==='items')&&r.scu===b.max;return valid?{...r,_scuEstimated:false}:r;})},places);}
 export function cardCertainty(card){
- if(card.rows.some(r=>r._scuEstimated))return 'upper-bound';
- if(!card.rows.length||card.rows.some(r=>!Number.isSafeInteger(r.scu)||r.scu<=0||r._scuAssumed))return 'unavailable';
+ const deliveries=deliveryGroups({cargo:card.rows,_deliveryTotals:card.deliveryTotals}),reserved=new Set(deliveries.filter(g=>g.reservation).map(g=>g.dropoffId));
+ if(card.rows.some(r=>r._scuEstimated&&!reserved.has(r.dropoffId)))return 'upper-bound';
+ if(!card.rows.length||card.rows.some(r=>!actualQuantity(r)&&!reserved.has(r.dropoffId)))return 'unavailable';
  const validBoxes=(boxes,total)=>boxes?.length&&boxes.every(b=>[1,2,4,8,16,24,32].includes(b.size)&&Number.isSafeInteger(b.count)&&b.count>0)&&boxes.reduce((n,b)=>n+b.size*b.count,0)===total;
- const groups=new Map();for(const row of card.rows){const key=row.pickupId+'|'+row.dropoffId;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
- const confirmed=[...groups.values()].every(rows=>{if(rows.every(r=>validBoxes(r.boxes,r.scu)))return true;const configs=(card.destinationBoxes||[]).filter(c=>c.pickupId===rows[0].pickupId&&c.dropoffId===rows[0].dropoffId);return configs.length===1&&configs[0].origin!=='template'&&validBoxes(configs[0].boxes,rows.reduce((n,r)=>n+r.scu,0));});
+ const groups=new Map();for(const row of card.rows){const key=(reserved.has(row.dropoffId)?'':row.pickupId)+'|'+row.dropoffId;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
+ const confirmed=[...groups.values()].every(rows=>{const pending=reserved.has(rows[0].dropoffId);if(!pending&&rows.every(r=>validBoxes(r.boxes,r.scu)))return true;const configs=(card.destinationBoxes||[]).filter(c=>c.pickupId===(pending?null:rows[0].pickupId)&&c.dropoffId===rows[0].dropoffId),total=pending?deliveries.find(g=>g.dropoffId===rows[0].dropoffId).total:rows.reduce((n,r)=>n+r.scu,0);return configs.length===1&&configs[0].origin!=='template'&&validBoxes(configs[0].boxes,total);});
  return confirmed?'boxes':'quantity';
 }
 
@@ -97,7 +100,7 @@ export class InboxSelection {
  ready(card){return cardReady(card,this.places)||this.useUpperBounds&&upperBoundReady(card,this.places);}
  effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes,deliveryTotals:draft._deliveryTotals};}
  toggle(id,checked){const raw=this.cards.find(c=>c.id===id);if(!raw||!this.ready(this.effective(raw)))return false;if(checked)this.selected.set(id,raw.signature);else this.selected.delete(id);return true;}
- saveReviewed(drafts){for(const d of drafts)if(!this.current(d)||!cardReady({rows:d.cargo},this.places))throw Error('계약 정보가 바뀌었거나 필수 정보가 부족합니다. 수신함에서 다시 확인하십시오.');for(const d of drafts){this.reviewed.set(d.id,structuredClone(d));this.selected.delete(d.id);}}
+ saveReviewed(drafts){for(const d of drafts)if(!this.current(d)||!cardReady({rows:d.cargo,deliveryTotals:d._deliveryTotals},this.places))throw Error('계약 정보가 바뀌었거나 필수 정보가 부족합니다. 수신함에서 다시 확인하십시오.');for(const d of drafts){this.reviewed.set(d.id,structuredClone(d));this.selected.delete(d.id);}}
  saveDeliveryDrafts(drafts){for(const d of drafts){if(!this.current(d)||!d._deliveryTotals?.length)throw Error('stale-delivery-total');for(const t of d._deliveryTotals)withDeliveryTotal(d,t.dropoffId,t.scu);}for(const d of drafts)this.reviewed.set(d.id,structuredClone(d));}
  drafts(){this.sync(this.cards);return [...this.selected.keys()].map(id=>this.draft(this.cards.find(c=>c.id===id)));}
  committed(ids){for(const id of ids)this.reviewed.delete(id);}

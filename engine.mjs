@@ -5,12 +5,14 @@ import {replayManualStops} from './manual-route.mjs';
 import {planActionRoute} from './route-search.mjs';
 import {remainingTravelEstimate} from './route-estimate.mjs';
 import {destinationGroups} from './recipes.mjs';
-import {quantumSeconds,surfaceSeconds,spaceApproachSeconds} from './travel.mjs';
+import {reservationJobs,shipmentBoxes,shipmentReady,transitionBoxes,activeShipmentBoxes,reservationEvent} from './delivery-totals.mjs';
+import {routeRegions,regionStep,transferKind} from './route-regions.mjs';
+import {quantumSeconds,atmosphericLeg,spaceApproachSeconds} from './travel.mjs';
 import {DEFAULT_SHIP,validateShip,capacity,hullKind,restrictsUpright} from './ships.mjs';
 export const CAPACITY=512;
 export const SIZES=[32,24,16,8,4,2,1];
 export const BOX_DIMS={1:[1,1,1],2:[1,1,2],4:[2,1,2],8:[2,2,2],16:[2,2,4],24:[2,2,6],32:[2,2,8]};
-export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
+export const DEFAULTS={quantumSpeed:180000,spool:25,jumpMinutes:8,dockMinutes:3,takeoffMinutes:1,surfaceMinutes:5,surfaceDistanceKm:30,secondsPerBox:25,unknownBox:8,detourFactor:1.15};
 export const COLORS=['#57d9db','#ecb969','#a697f4','#eb8fb1','#8cd6a1','#8dbbfa','#e3dd84','#cda17e'];
 export function assumedBoxes(scu,maxSize=8){const out=[];for(const size of SIZES.filter(s=>s<=maxSize)){while(scu>=size){out.push(size);scu-=size;}}return out;}
 // Unknown layout: the wiki mission's container limit is used as is (largest boxes are the hardest to fit, so the
@@ -128,12 +130,18 @@ export function blockersOf(ship,box,aboard,bounds=shipBounds(ship)){const a=ship
 export function missionName(m){return m?.company||m?.title||'계약';}
 export function makeShipments(missions,locationMap,options={}){
  const shipments=[],warnings=[];const ids=new Set(),ship=validateShip(options.ship||DEFAULT_SHIP);
- for(let mi=0;mi<missions.length;mi++){const original=missions[mi],aggregated=[];for(const group of destinationGroups(original)){const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length&&!group.cargo.some(c=>c._cargoShape==='cryopod')){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(missionName(original)+': 배송 수량을 먼저 입력하세요.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID가 비어 있거나 중복됐습니다.');ids.add(m.id);
-  for(let ci=0;ci<m.cargo.length;ci++){const c=m.cargo[ci],a=locationMap.get(c.pickupId),b=locationMap.get(c.dropoffId);if(!a||!b)throw Error(`${missionName(m)}: 픽업지와 배송지를 목록에서 선택하세요.`);if(c.pickupId===c.dropoffId)throw Error(`${missionName(m)} · ${c.commodity}: 픽업지와 배송지가 같습니다.`);
+ for(let mi=0;mi<missions.length;mi++){const original=missions[mi],reserved=reservationJobs(original),reservedDestinations=new Set(reserved.jobs.map(s=>s.dropoffId)),aggregated=[];for(const group of destinationGroups(original)){if(reservedDestinations.has(group.dropoffId)){aggregated.push(...group.cargo);continue;}const confirmed=original.destinationBoxes?.find(b=>b.pickupId===group.pickupId&&b.dropoffId===group.dropoffId);if(confirmed?.boxes?.length&&!group.cargo.some(c=>c._cargoShape==='cryopod')){if(group.cargo.some(c=>!Number.isInteger(c.scu)||c.scu<=0))throw Error(missionName(original)+': 배송 수량을 먼저 입력하세요.');aggregated.push({commodity:group.cargo.map(c=>c.commodity).join(' / ')+' (배송지 묶음)',scu:group.scu,pickupId:group.pickupId,dropoffId:group.dropoffId,boxes:confirmed.boxes});}else aggregated.push(...group.cargo);}const m={...original,cargo:aggregated};if(!m.id||ids.has(m.id))throw Error('미션 ID가 비어 있거나 중복됐습니다.');ids.add(m.id);
+  for(let ci=0;ci<m.cargo.length;ci++){const c=m.cargo[ci];if(reservedDestinations.has(c.dropoffId))continue;const a=locationMap.get(c.pickupId),b=locationMap.get(c.dropoffId);if(!a||!b)throw Error(`${missionName(m)}: 픽업지와 배송지를 목록에서 선택하세요.`);if(c.pickupId===c.dropoffId)throw Error(`${missionName(m)} · ${c.commodity}: 픽업지와 배송지가 같습니다.`);
    const {boxes,estimated}=boxList(c,options.unknownBox||8);if(estimated)warnings.push(`${missionName(m)} · ${c.commodity}: 상자 구성 미확인, 최대 ${assumedLimit(c,options.unknownBox||8)} SCU 조합으로 가정${c._maxBoxSource==='wiki'?'(미션 데이터의 최대 상자)':''}`);
    let pending=[],batch=0;
    const flush=()=>{if(!pending.length)return;shipments.push({id:`${m.id}:${ci}:${batch++}`,missionId:m.id,commodity:c.commodity,pickupId:c.pickupId,dropoffId:c.dropoffId,boxes:pending,scu:pending.reduce((a,b)=>a+b.size,0),color:COLORS[mi%COLORS.length],estimated});pending=[];};
    for(let bi=0;bi<boxes.length;bi++){const item={size:boxes[bi],...(c._cargoShape==='cryopod'?{_cargoShape:'cryopod'}:{}),missionId:m.id,dropoffId:c.dropoffId,pickupId:c.pickupId,cargoId:ci,boxId:`${m.id}:${ci}:${bi}`,commodity:c.commodity,color:COLORS[mi%COLORS.length]};if(!packBoxes([item],[],ship))throw Error(`${missionName(m)}: ${item.size} SCU 상자는 ${ship.name}의 어느 그리드에도 들어가지 않습니다.`);if(pending.length&&!packBoxes([...pending,item],[],ship))flush();pending.push(item);}flush();
+  }
+  for(const s of reserved.jobs){const r=s.reservation;if(!locationMap.has(s.pickupId)||!locationMap.has(s.dropoffId)||s.pickupId===s.dropoffId)throw Error(`${missionName(m)}: 픽업지와 배송지를 목록에서 확인하세요.`);
+   if(!r.boxes){if(r.rows.some(c=>c._cargoShape==='cryopod')&&!r.rows.every(c=>c._cargoShape==='cryopod'))throw Error(`${missionName(m)}: 냉동포드와 일반 화물의 수량을 나눠 입력하세요. 배송 총량만으로 서로 다른 규격의 배치를 확정할 수 없습니다.`);const saved=original.destinationBoxes?.find(g=>g.pickupId===null&&g.dropoffId===r.dropoffId),limit=Math.max(...r.rows.map(c=>assumedLimit(c,options.unknownBox||8))),pods=r.rows.every(c=>c._cargoShape==='cryopod'),sizes=pods?Array(r.scu).fill(1):saved?.boxes?.length?boxList({scu:r.scu,boxes:saved.boxes}).boxes:assumedBoxes(r.scu,limit);r.boxes=sizes.map((size,index)=>({size,...(pods?{_cargoShape:'cryopod'}:{}),missionId:m.id,dropoffId:r.dropoffId,pickupId:null,cargoId:r.id,boxId:r.id+':box:'+index,commodity:r.commodity,color:COLORS[mi%COLORS.length],_reservation:true}));r.estimated=!saved?.boxes?.length;
+    if(!packBoxes(r.boxes,[],ship))throw Error(`${missionName(m)}: 배송 총량 ${r.scu} SCU를 이 함선에 한 번에 예약할 수 없습니다. 픽업별 실제 수량을 입력하거나 화물 공간을 확인하세요.`);
+    warnings.push(`${missionName(m)} · ${r.commodity}: 배송 총량 ${r.scu} SCU 공간 예약 · 픽업별 수량 미확인`);
+   }shipments.push({...s,color:COLORS[mi%COLORS.length],estimated:r.estimated});
   }
  }
  if(shipments.length>64)throw Error('운송 구간은 한 번에 64개까지 계산할 수 있습니다.');return {shipments,warnings:[...new Set(warnings)]};
@@ -160,9 +168,9 @@ export function navigator(data,settings){gatewayOf.data=data;
   // System changes go through the gateway station next to each jump point (e.g. Pyro Gateway → jump → Stanton Gateway).
   const route=[];for(let i=0;i<raw.length;i++){const id=raw[i],l=byId.get(id),gate=l?.isGateway?gatewayOf(l):null,next=byId.get(raw[i+1]),prev=byId.get(raw[i-1]);
    if(gate&&next&&next.system!==l.system&&route.at(-1)!==gate)route.push(gate);route.push(id);if(gate&&prev&&prev.system!==l.system&&raw[i+1]!==gate)route.push(gate);}
-  const gateways=route.filter(id=>byId.get(id)?.type==='Manmade'&&/Gateway/i.test(byId.get(id).name)).map(id=>byId.get(id).name);const result={gateways,seconds:dist.get(to)+(surface(a)?surfaceSeconds(opt):spaceApproachSeconds(opt))+(surface(b)?surfaceSeconds(opt):spaceApproachSeconds(opt))+opt.dockMinutes*60,meters,nodes:route,jumps};cache.set(key,result);return result;
+  const gateways=route.filter(id=>byId.get(id)?.type==='Manmade'&&/Gateway/i.test(byId.get(id).name)).map(id=>byId.get(id).name);const ascent=surface(a)?atmosphericLeg(opt,'ascent'):null,descent=surface(b)?atmosphericLeg(opt,'descent'):null,departure=ascent?.seconds??spaceApproachSeconds(opt),arrival=descent?.seconds??spaceApproachSeconds(opt),docking=opt.dockMinutes*60;const result={gateways,seconds:dist.get(to)+departure+arrival+docking,meters,nodes:route,jumps,transfer:transferKind(byId,regions,from,to),phases:{departure,transit:dist.get(to),arrival,docking,ascent,descent}};cache.set(key,result);return result;
  }
- return {path,byId};
+ const regions=routeRegions(data);return {path,byId,regions,regionOf:id=>regions.get(id)?.id};
 }
 export function planRoute(data,missions,startId,settings={}){
  const opt={...DEFAULTS,...settings,startId,ship:validateShip(settings.ship||DEFAULT_SHIP)},nav=navigator(data,opt);if(!nav.byId.has(startId))throw Error('출발 위치를 선택하세요.');if(!capacity(opt.ship))throw Error('사용할 화물 그리드를 하나 이상 켜 주세요.');
@@ -175,20 +183,21 @@ export function planRoute(data,missions,startId,settings={}){
  // Resume support: shipments already picked up / delivered, and where the aboard boxes currently sit.
  const resume=settings.resume||null,startStatus=Array(n).fill(0);let startPacking=packBoxes([],[],opt.ship);
  if(resume){const picked=new Set(resume.picked||[]),delivered=new Set(resume.delivered||[]);shipments.forEach((s,i)=>{if(delivered.has(s.id))startStatus[i]=2;else if(picked.has(s.id))startStatus[i]=1;});
-  const aboardIds=new Set(shipments.filter((s,i)=>startStatus[i]===1).flatMap(s=>s.boxes.map(b=>b.boxId))),known=new Map((resume.aboard||[]).map(b=>[b.boxId,b]));
-  const fixed=[...aboardIds].map(id=>known.get(id)).filter(Boolean);startPacking=fixed.length===aboardIds.size?packBoxes([],fixed.map(b=>({...b,...shipments.flatMap(s=>s.boxes).find(x=>x.boxId===b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})),opt.ship):null;
-  if(!startPacking)startPacking=packBoxes(shipments.filter((s,i)=>startStatus[i]===1).flatMap(s=>s.boxes),[],opt.ship);if(!startPacking)throw Error('지금 실린 화물이 이 함선 그리드에 들어가지 않습니다. 함선 설정을 확인하세요.');
+  const allBoxes=[...new Map(shipments.flatMap(shipmentBoxes).map(b=>[b.boxId,b])).values()],aboardIds=new Set(activeShipmentBoxes(shipments,startStatus).map(b=>b.boxId)),known=new Map((resume.aboard||[]).map(b=>[b.boxId,b]));
+  if((resume.aboard||[]).some(b=>(b._reservation||shipments.some(s=>s.reservation&&s.missionId===b.missionId))&&!allBoxes.some(x=>x.boxId===b.boxId&&x.size===b.size)))throw Error('진행 중인 적재를 배송 총량 예약으로 바꾸면 상자 위치가 달라집니다. 현재 운항의 실제 수량·상자 구성을 먼저 확인하세요.');
+  const fixed=[...aboardIds].map(id=>known.get(id)).filter(Boolean);startPacking=fixed.length===aboardIds.size?packBoxes([],fixed.map(b=>({...b,...allBoxes.find(x=>x.boxId===b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})),opt.ship):null;
+  if(!startPacking&&shipments.some((s,i)=>s.reservation&&startStatus[i]===1))throw Error('진행 중인 예약 공간의 위치를 복원하지 못했습니다. 기존 운항 데이터를 확인하세요.');if(!startPacking)startPacking=packBoxes(activeShipmentBoxes(shipments,startStatus),[],opt.ship);if(!startPacking)throw Error('지금 실린 화물이 이 함선 그리드에 들어가지 않습니다. 함선 설정을 확인하세요.');
   if(startStatus.every(x=>x===2))throw Error('남은 운송이 없습니다. 모든 배송을 마쳤습니다.');}
  // The shared stop search looks ahead to the complete route. Validate every proposed
  // pickup against the real grids before using it; aboard boxes remain fixed.
- const initial={status:startStatus,at:startId,cost:0,actions:[],packing:startPacking,meters:0,jumps:0,deferred:0,visited:new Set([startId]),revisits:0};
- function advance(state,i,ship=opt.ship,waypointId=null){if(i===null){const leg=nav.path(state.at,waypointId);return {...state,at:waypointId,cost:state.cost+leg.seconds,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,visited:new Set([...state.visited,waypointId]),revisits:state.revisits+Number(waypointId!==state.at&&state.visited.has(waypointId)),actions:[...state.actions,{type:'waypoint',locationId:waypointId,leg,seconds:leg.seconds,packing:state.packing}]};}const s=shipments[i],st=state.status[i];if(st===2)return null;const status=[...state.status];status[i]=st+1;
-  const packed=st===0?packBoxes(s.boxes.map(b=>({...b,rank:0})),state.packing.boxes,ship):packBoxes([],state.packing.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)),ship);if(!packed)return null;
-  const to=st===0?s.pickupId:s.dropoffId,leg=nav.path(state.at,to);let moves=0;if(st===1){const leaving=new Set(s.boxes.map(b=>b.boxId)),stay=state.packing.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==s.dropoffId);for(const b of state.packing.boxes)if(leaving.has(b.boxId))moves+=blockersOf(opt.ship,b,stay,bounds0).length;}
-  const seconds=leg.seconds+s.boxes.length*opt.secondsPerBox+moves*opt.secondsPerBox*2;
+ const initial={status:startStatus,at:startId,cost:0,actions:[],packing:startPacking,meters:0,jumps:0,deferred:0,visited:new Set([startId]),revisits:0,visitedRegions:new Set([nav.regionOf(startId)]),regionRevisits:0};
+ function advance(state,i,ship=opt.ship,waypointId=null){if(i===null){const leg=nav.path(state.at,waypointId);return {...state,...regionStep(nav,state,waypointId),at:waypointId,cost:state.cost+leg.seconds,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,visited:new Set([...state.visited,waypointId]),revisits:state.revisits+Number(waypointId!==state.at&&state.visited.has(waypointId)),actions:[...state.actions,{type:'waypoint',locationId:waypointId,leg,seconds:leg.seconds,packing:state.packing}]};}const s=shipments[i],st=state.status[i];if(!shipmentReady(shipments,state.status,i))return null;const moving=transitionBoxes(shipments,state.status,i),event=reservationEvent(shipments,state.status,i),status=[...state.status];status[i]=st+1;
+  const packed=st===0?packBoxes(moving.map(b=>({...b,rank:0})),state.packing.boxes,ship):packBoxes([],state.packing.boxes.filter(b=>!moving.some(x=>x.boxId===b.boxId)),ship);if(!packed)return null;
+  const to=st===0?s.pickupId:s.dropoffId,leg=nav.path(state.at,to);let moves=0;if(st===1){const leaving=new Set(moving.map(b=>b.boxId)),stay=state.packing.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==s.dropoffId);for(const b of state.packing.boxes)if(leaving.has(b.boxId))moves+=blockersOf(opt.ship,b,stay,bounds0).length;}
+  const seconds=leg.seconds+moving.length*opt.secondsPerBox+moves*opt.secondsPerBox*2;
   const cost=state.cost+seconds+(opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst?1e6:0);
   const visited=new Set(state.visited);visited.add(to);const revisits=state.revisits+Number(to!==state.at&&state.visited.has(to));
-  return {status,at:to,cost,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,deferred:state.deferred+Number(!!opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst),visited,revisits,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed}]};
+  return {status,...regionStep(nav,state,to),at:to,cost,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,deferred:state.deferred+Number(!!opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst),visited,revisits,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed,...event,boxIds:moving.map(b=>b.boxId)}]};
  }
  const manual=Array.isArray(opt.manualStops),manualBest=manual?replayManualStops(opt.manualStops,shipments,nav,initial,(state,i,id)=>advance(state,i,opt.ship,id)):null;
  const operator=!manual&&opt.routePolicy==='delivery-first';
@@ -214,7 +223,7 @@ export function planRoute(data,missions,startId,settings={}){
     // Finish this stop before leaving: unload, then collect every shipment that fits.
     next.push(...(deliveriesHere.length?deliveriesHere:here.length?here:successors.filter(s=>!canCollectHere||nav.byId.get(s.at).system===system)));}
    const unique=new Map();for(const state of next){state.estimate=score(state)+estimate(state.status,state.at)+remainingWork(state.status);state.estimateMeters=state.meters+estimateMeters(state.status,state.at);}
-   next.sort((a,b)=>a.revisits-b.revisits||a.deferred-b.deferred||a.jumps-b.jumps||a.estimateMeters-b.estimateMeters||a.estimate-b.estimate||compare(a,b));
+   next.sort((a,b)=>a.revisits-b.revisits||a.deferred-b.deferred||a.jumps-b.jumps||(a.regionRevisits||0)-(b.regionRevisits||0)||a.estimate-b.estimate||a.estimateMeters-b.estimateMeters||compare(a,b));
    for(const state of next){const k=state.status.join('')+'|'+state.at+'|'+[...state.visited].sort().join(',')+'|'+state.packing.boxes.map(b=>b.boxId+':'+b.bin+':'+b.cell.join()).sort().join(';');if(!unique.has(k))unique.set(k,state);if(unique.size>=40)break;}
    beam=[...unique.values()];if(!beam.length){if(candidate)break;throw Error('이 상자 구성으로 실을 수 있는 경로를 찾지 못했습니다. 상자 크기를 확인하세요.');}
   }
@@ -227,25 +236,25 @@ export function planRoute(data,missions,startId,settings={}){
  for(const a of deliveries)deliveryStep.set(a.shipmentIndex,stops.indexOf(a.locationId));
  const rankOf=i=>stops.length>1?deliveryStep.get(i)/(stops.length-1):0;let replay=startPacking,replayed=[];
  // Lay out everything as if it were all aboard at once, grouped by destination, and reserve those grids per destination.
- const picked=[...new Set(best.actions.filter(a=>a.type==='pickup').map(a=>a.shipmentIndex))],full=fullLoadLayout(picked.map(i=>({items:shipments[i].boxes,rank:rankOf(i)})),startPacking.boxes,opt.ship),zones=full&&new Map();
+ const picked=[...new Set(best.actions.filter(a=>a.type==='pickup').map(a=>a.shipmentIndex))],layoutSeen=new Set(startPacking.boxes.map(b=>b.boxId)),layoutGroups=picked.map(i=>({items:shipmentBoxes(shipments[i]).filter(b=>{if(layoutSeen.has(b.boxId))return false;layoutSeen.add(b.boxId);return true;}),rank:rankOf(i)})),full=fullLoadLayout(layoutGroups,startPacking.boxes,opt.ship),zones=full&&new Map(),replayStatus=[...startStatus];
  if(full)for(const b of full.boxes)(zones.get(b.dropoffId)||zones.set(b.dropoffId,new Set()).get(b.dropoffId)).add(b.bin);
- for(const a of best.actions){if(a.type==='waypoint'){replayed.push(replay);continue;}const s=shipments[a.shipmentIndex];replay=a.type==='pickup'?packBoxes(s.boxes.map(b=>({...b,rank:rankOf(a.shipmentIndex)})),replay.boxes,opt.ship,{zones}):packBoxes([],replay.boxes.filter(b=>!s.boxes.some(x=>x.boxId===b.boxId)),opt.ship);if(!replay){replayed=null;break;}replayed.push(replay);}
- const blockedCount=packs=>{let total=0,prev=startPacking;best.actions.forEach((a,i)=>{if(a.type==='delivery'){const leaving=new Set(shipments[a.shipmentIndex].boxes.map(b=>b.boxId)),stay=prev.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==shipments[a.shipmentIndex].dropoffId);for(const b of prev.boxes)if(leaving.has(b.boxId))total+=blockersOf(opt.ship,b,stay,bounds0).length;}prev=packs[i];});return total;};
- if(replayed&&blockedCount(replayed)<=blockedCount(best.actions.map(a=>a.packing))){let prev=startPacking;best.actions.forEach((a,i)=>{if(a.type==='waypoint'){a.packing=replayed[i];prev=a.packing;return;}const s=shipments[a.shipmentIndex];let moves=0;if(a.type==='delivery'){const leaving=new Set(s.boxes.map(b=>b.boxId)),stay=prev.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==s.dropoffId);for(const b of prev.boxes)if(leaving.has(b.boxId))moves+=blockersOf(opt.ship,b,stay,bounds0).length;}a.seconds=a.leg.seconds+s.boxes.length*opt.secondsPerBox+moves*opt.secondsPerBox*2;a.packing=replayed[i];prev=a.packing;});}
+ for(const a of best.actions){if(a.type==='waypoint'){replayed.push(replay);continue;}const moving=transitionBoxes(shipments,replayStatus,a.shipmentIndex);replayStatus[a.shipmentIndex]++;replay=a.type==='pickup'?packBoxes(moving.map(b=>({...b,rank:rankOf(a.shipmentIndex)})),replay.boxes,opt.ship,{zones}):packBoxes([],replay.boxes.filter(b=>!moving.some(x=>x.boxId===b.boxId)),opt.ship);if(!replay){replayed=null;break;}replayed.push(replay);}
+ const blockedCount=packs=>{let total=0,prev=startPacking;best.actions.forEach((a,i)=>{if(a.type==='delivery'){const leaving=new Set(a.boxIds||[]),stay=prev.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==shipments[a.shipmentIndex].dropoffId);for(const b of prev.boxes)if(leaving.has(b.boxId))total+=blockersOf(opt.ship,b,stay,bounds0).length;}prev=packs[i];});return total;};
+ if(replayed&&blockedCount(replayed)<=blockedCount(best.actions.map(a=>a.packing))){let prev=startPacking;best.actions.forEach((a,i)=>{if(a.type==='waypoint'){a.packing=replayed[i];prev=a.packing;return;}const s=shipments[a.shipmentIndex];let moves=0;if(a.type==='delivery'){const leaving=new Set(a.boxIds||[]),stay=prev.boxes.filter(b=>!leaving.has(b.boxId)&&b.dropoffId!==s.dropoffId);for(const b of prev.boxes)if(leaving.has(b.boxId))moves+=blockersOf(opt.ship,b,stay,bounds0).length;}a.seconds=a.leg.seconds+(a.boxIds?.length||0)*opt.secondsPerBox+moves*opt.secondsPerBox*2;a.packing=replayed[i];prev=a.packing;});}
  for(const action of best.actions){if(action.shipmentIndex!=null)status[action.shipmentIndex]=action.type==='pickup'?1:2;const packed=action.packing;elapsed+=action.seconds;peak=Math.max(peak,packed.used);const previous=visits.at(-1);
-  const shipment=shipments[action.shipmentIndex],event={...action,missionId:shipment?.missionId||'',scu:shipment?.scu||0,commodity:shipment?.commodity||'경유'};
+  const shipment=shipments[action.shipmentIndex],event={...action,missionId:shipment?.missionId||'',scu:action.scu??shipment?.scu??0,commodity:shipment?.reservation&&action.type==='delivery'?shipment.reservation.commodity:shipment?.commodity||'경유'};
   if(previous?.locationId===action.locationId){previous.events.push(event);previous.elapsed=elapsed;previous.packing=packed;previous.load=packed.used;previous.seconds+=action.seconds;}
   else visits.push({locationId:action.locationId,events:[event],elapsed,seconds:action.seconds,packing:packed,load:packed.used,leg:action.leg});
  }
  for(const v of visits)if(v.events.some(e=>e.type!=='waypoint'))v.events=v.events.filter(e=>e.type!=='waypoint');
  const bounds=shipBounds(opt.ship);
- visits.forEach((v,vi)=>{const before=vi?visits[vi-1].packing:startPacking,leaving=new Set(v.events.filter(e=>e.type==='delivery').flatMap(e=>shipments[e.shipmentIndex].boxes.map(b=>b.boxId)));
+ visits.forEach((v,vi)=>{const before=vi?visits[vi-1].packing:startPacking,leaving=new Set(v.events.filter(e=>e.type==='delivery').flatMap(e=>e.boxIds||[]));
   v.blocked=[];for(const box of before.boxes.filter(b=>leaving.has(b.boxId))){const blockers=blockersOf(opt.ship,box,before.boxes.filter(o=>!leaving.has(o.boxId)),bounds);if(blockers.length)v.blocked.push({boxId:box.boxId,missionId:box.missionId,dropoffId:box.dropoffId,size:box.size,blockers:blockers.map(o=>({boxId:o.boxId,missionId:o.missionId,dropoffId:o.dropoffId,size:o.size}))});}
-  const arriving=new Set(v.events.filter(e=>e.type==='pickup').flatMap(e=>shipments[e.shipmentIndex].boxes.map(b=>b.boxId)));
+  const arriving=new Set(v.events.filter(e=>e.type==='pickup').flatMap(e=>e.boxIds||[]));
   v.loadOrder=v.packing.boxes.filter(b=>arriving.has(b.boxId)).sort((a,b)=>boxDepth(opt.ship,b,bounds)-boxDepth(opt.ship,a,bounds)||a.cell[1]-b.cell[1]).map(b=>b.boxId);
   if(v.blocked.length)warnings.push(`${vi+1}번 거점 하역: 다른 화물 ${new Set(v.blocked.flatMap(x=>x.blockers.map(o=>o.boxId))).size}상자를 먼저 옮겨야 할 수 있습니다 (출입구 쪽 또는 위에 적재됨).`);});
  // In game the contract completes once every delivery is done; returning is optional (settings.includeReturn).
  const returnIds=opt.includeReturn?[...new Set(missions.map(m=>m.returnId).filter(Boolean))]:[];let last=best.at;for(const id of returnIds){if(!nav.byId.has(id))throw Error('복귀 위치를 확인하세요.');const leg=nav.path(last,id);elapsed+=leg.seconds;const event={type:'return',missionId:missions.filter(m=>m.returnId===id).map(m=>m.id).join(', '),scu:0,commodity:'복귀',shipmentId:'return:'+id};visits.push({locationId:id,events:[event],elapsed,seconds:leg.seconds,packing:packBoxes([],[],opt.ship),load:0,leg});last=id;}
- const timing=[];
- return {initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':operator?'오퍼레이터 · 간단한 계약 완료 우선 · 짧은 경유만 추가':usedStopSearch?'행성계 픽업 묶음 · 거점 1회 방문·이동거리 우선 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'재방문 최소화·이동거리 우선·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
+ for(const visit of visits)visit.region=nav.regions.get(visit.locationId);const timing=[];
+ return {regionRevisits:best.regionRevisits||0,initialPacking:startPacking,capacity:capacity(opt.ship),ship:opt.ship,access:shipAccess(opt.ship),visits,shipments,seconds:elapsed,peak,warnings,timing,manual,algorithm:manual?'직접 수정한 방문 순서 · 픽업·배송·적재 검증':operator?'오퍼레이터 · 같은 행성권 픽업 후 배송 완료 우선':usedStopSearch?'행성계 픽업 묶음 · 거점 1회 방문·행성권 재방문 감소·이동 부담·거리 순 · 적재 검증 (전체 제약의 전역 최적 보장 없음)':'거점·행성권 재방문 감소·이동 부담·거리 순·적재 조건을 확인하는 빔 탐색 · 전역 최적 경로 보장 없음',settings:opt};
 }

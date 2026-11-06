@@ -1,5 +1,28 @@
 [
   {
+    "id": "2026-11-06-delivery-total-and-regional-routing",
+    "version": "3.18.0",
+    "date": "2026-11-06 23:29",
+    "title": "배송 총량 예약과 행성권 중심 운항",
+    "changes": [
+      "배송지 총 SCU를 입력하면 미션·배송지별 총량을 한 번만 예약합니다. 여러 픽업의 최대치를 다시 더하지 않으며 계약 확인·상자 요약·운항·3D에 같은 총량을 사용합니다.",
+      "수석 항해사는 거리가 조금 늘어도 행성권 재방문을 먼저 줄이고, 예상 비행·착륙 부담과 거리를 차례로 비교합니다.",
+      "오퍼레이터는 한 행성권에서 가까운 화물을 모은 뒤 배송합니다. 떠난 후 실은 화물의 배송을 마치기 전 다른 권역에서 새로 픽업하지 않습니다.",
+      "지상 출발은 퀀텀 가능 고도까지 상승하고, 도착은 NAV→약10km SCM→최종 저속 접근·착륙으로 나눠 예상합니다. 함선별 상승 목표·순가속을 보정할 수 있으며 실측과 가정을 구분합니다.",
+      "수량 단계·예약 공간·경로 계산 안내를 갱신했습니다. 진행 중 화물의 소유권과 위치를 보존합니다."
+    ],
+    "en": {
+      "title": "Delivery-total reservations and regional routing",
+      "changes": [
+        "Reserve each mission’s confirmed destination total once across all pickups. Review, container summaries, run progress and 3D use the same quantity instead of adding per-pickup upper bounds.",
+        "The senior navigator prioritises fewer planet-region returns, then estimated flight and landing cost, then distance.",
+        "The operator collects within one planet region, then finishes delivering the loaded batch before collecting in another region.",
+        "Estimate climb to quantum altitude, NAV approach, SCM around 10 km and slow final landing separately. Calibrate climb target and net acceleration per ship; assumptions stay labelled.",
+        "Update quantity, reserved-space and routing guidance while preserving aboard ownership and positions."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-wide-partner-portraits",
     "version": "3.17.0",
     "date": "2026-11-06 21:53",

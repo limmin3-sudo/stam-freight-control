@@ -386,3 +386,5 @@ a.main-screen-button{display:inline-flex;align-items:center;justify-content:cent
 
 .quantum-rank-controls{display:grid;grid-template-columns:minmax(100px,150px) minmax(0,1fr);gap:12px;margin:14px 0}.quantum-choices{min-width:0}.quantum-choices label{display:grid;gap:7px;font-size:13px;color:#adc8d3}.quantum-choices select,.quantum-choices input{width:100%;min-width:0;max-width:100%;min-height:42px;padding:10px}.quantum-data-source{margin:10px 0}.performance-panel .aide-drive-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}.performance-panel .aide-drive-presets button{display:grid;gap:5px;padding:12px;min-width:0}.performance-panel .aide-drive-presets small{font-size:11px;color:#9cb6c5}.performance-panel .aide-drive-presets [aria-pressed=true]{border-color:#76d9d7;background:#193e4b}
 @media(max-width:560px){.quantum-rank-controls{grid-template-columns:1fr}.performance-panel .aide-drive-presets button{padding:10px 7px;font-size:12px}}
+
+.stop-region,.stop-flight{color:var(--muted);font-size:10px;line-height:1.7;font-weight:400;white-space:normal}

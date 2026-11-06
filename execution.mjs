@@ -1,7 +1,7 @@
 import {isDeparture,currentPosition} from './route-departure.mjs';
-import {containerText} from './cargo-summary.mjs';
+import {containerText,eventQuantityText,eventContainers,visibleCargoEvents} from './cargo-summary.mjs';
 import {jumpSegments,stepNumbers} from './route-display.mjs';
-import {L} from './i18n.mjs';
+import {L,isEn} from './i18n.mjs';
 // Run progress: the game is not connected, so the captain presses one big button per stop
 // (접수 완료 / 배송 완료 / 점프 완료) and the whole page moves on to the next step. State survives reloads.
 // Each system jump is its own step before the stop it leads to: run.index stays the visit index and run.jump counts
@@ -24,7 +24,7 @@ export function createExecution(root,{onAdvance,onReset,onReplanFrom,colorOf,nam
  const kindOf=v=>{if(isDeparture(v))return 'departure';const t=new Set(v.events.map(e=>e.type));return t.has('pickup')&&t.has('delivery')?'both':t.has('pickup')?'pickup':t.has('delivery')?'delivery':t.has('return')?'return':'waypoint';};
  const BTN={departure:'🚀 출발 완료',jump:'🌀 점프 완료',pickup:'📦 접수 완료',delivery:'✅ 배송 완료',both:'✔ 이 거점 완료',return:'↩ 복귀 완료',waypoint:'◇ 경유 완료'};
  const say=t=>{const el=root.querySelector('.aide-line');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
- function cargoLine(v){if(isDeparture(v))return `<li><b>출발지</b> ${esc(nm(v.locationId))} · ${L('출발하면 출발 완료를 눌러 주세요.','Press Departed when you leave.')}<br>${L('다음 거점까지 이동한 뒤 화물을 접수합니다.','Travel to the next stop to collect cargo.')}</li>`;return v.events.map(e=>{const s=plan.shipments[e.shipmentIndex],boxes=s?.boxes?.length||0;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 적재</b>':e.type==='delivery'?'<b class="delivery">↓ 하역</b>':e.type==='waypoint'?'<b>◇ 경유</b>':'<b>↩ 복귀</b>'} ${e.type==='pickup'&&s?`→ ${esc(nm(s.dropoffId))} · `:''}${esc(e.commodity)} ${e.scu||''}${e.scu?' SCU':''}${boxes?` · ${containerText(s.boxes)}${s.estimated?' · '+esc(containerLabel?.(s)||L('자동 구성','Automatic layout')):''}`:''}</li>`;}).join('');}
+ function cargoLine(v){if(isDeparture(v))return `<li><b>출발지</b> ${esc(nm(v.locationId))} · ${L('출발하면 출발 완료를 눌러 주세요.','Press Departed when you leave.')}<br>${L('다음 거점까지 이동한 뒤 화물을 접수합니다.','Travel to the next stop to collect cargo.')}</li>`;return visibleCargoEvents(v.events).map(e=>{const s=plan.shipments[e.shipmentIndex],containers=eventContainers(e,s),boxes=containers.length;return `<li><span class="dest-dot" style="background:${s?colorOf(s.dropoffId):'#8aa0b2'}"></span>${e.type==='pickup'?'<b class="pickup">↑ 적재</b>':e.type==='delivery'?'<b class="delivery">↓ 하역</b>':e.type==='waypoint'?'<b>◇ 경유</b>':'<b>↩ 복귀</b>'} ${e.type==='pickup'&&s?`→ ${esc(nm(s.dropoffId))} · `:''}${esc(e.commodity)} ${esc(eventQuantityText(e,isEn))}${boxes?` · ${containerText(containers)}${s.estimated?' · '+esc(containerLabel?.(s)||L('자동 구성','Automatic layout')):''}`:''}</li>`;}).join('');}
  const cargoNames=events=>{const names=[...new Set(events.map(e=>e.commodity).filter(Boolean))];return names.slice(0,3).join(', ')+(names.length>3?` 외 ${names.length-3}종`:'');};
  function remainingSeconds(){if(!plan)return 0;const i=Math.min(run.index,plan.visits.length);const done=i?plan.visits[i-1].elapsed:0;return Math.max(0,plan.seconds-done);}
  const segsOf=i=>plan.visits[i]?jumpSegments(plan.visits[i].leg,names):[];
