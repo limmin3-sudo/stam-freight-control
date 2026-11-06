@@ -1,3 +1,11 @@
+## 2026-11-07 — 베타 1.0.0 소개영상 공개·검증 완료
+
+- PR22 https://github.com/limmin3-sudo/stam-freight-control/pull/22 병합3886682c8bd0d3ba698e348b622a1130c433a246. 최종 기능 head eb61bede89bdb6e5d73add07e8e48079e5147677의 push CI42259732680 및 PR CI42259741858 모두 성공(Node222·브라우저11종). 기존 정보실/SCMDB·저장 데이터·네이티브 app.1.3.2를 보존했다.
+- Pages42260879228 재시도2 성공. Deploy 완료2026-11-06T17:36:31Z = **2026-11-07 02:36 KST**. 이 최초 공개 시각으로 베타1.0.0 기록을 정정한다. 최초 시도는 빌드·검사·업로드 성공 후 syncing_files에서10분 timeout이었으며, 동일 커밋 재시도로 공개했다. 이번 후속 커밋은 공개 시각/작업 기록만 정정하며 새 기능 버전을 만들지 않는다.
+- 44초/1080p24/1056프레임 영상32,402,854bytes, SHA256 58b8471b05c1781e5f7db5f04f3de91c9e42b53b04df05a84a1390f69300bab7. 원본720p/편집·자막1080p, 원본 AAC 유지(스트림 해시 동일). 원본 마스터는 제작 폴더에 보관했고 웹용2pass 인코딩만 별도 제공한다. 기존32MiB 캐시 제한·전체 묶음 수용 및 마스터 대비 SSIM0.988253을 확인했다.
+- 실제 공개 HTTPS origin의 영상/무음 미리보기/대표 이미지/제작 메타데이터 SHA를 로컬 및 배포 manifest와 대조했다. KO/EN×1440/390에서44초 실제 재생·30.5초 탐색·닫기, reduced motion, 미션 저장 보존, 베타 기본 표시·알파82개 검색/탐색·동명1.0.0/기존 링크, 가로 넘침 및 JS 오류 없음을 검증했다. TLS 검증 GET relay를 사용했고 반복 GPU draw 제한은 QA에만 적용했다. 실제 사용자 계정 로그인·실게임 운항을 검증했다고 주장하지 않는다.
+- 검증 로그: /tmp/stam-beta-ci-passed.log, /tmp/stam-beta-public-files.log, /tmp/stam-beta-public-browser.log. 공개 사이트 https://limmin3-sudo.github.io/stam-freight-control/ . 후속 기록 커밋의 Pages/공개 SHA까지 확인 후 종료한다.
+
 ## 2026-11-07 — 베타 1.0.0 소개영상 게시 검증 중
 
 - Codex, `feature/intro-film-beta-1`, PR22 https://github.com/limmin3-sudo/stam-freight-control/pull/22 . 사용자 게시/계속 진행 및 알파 보관·베타 전환 승인으로 커밋·푸시·병합·Pages 게시까지 수행한다. 최신 main988027e의 정보실 변경을 병합했고 다른 튜토리얼 브랜치는 보존한다.
