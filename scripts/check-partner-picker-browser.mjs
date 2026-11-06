@@ -6,7 +6,7 @@ import {startLogService} from '../integration/log/live-server.mjs';
 const {chromium}=createRequire(import.meta.url)(process.env.STAM_PLAYWRIGHT_MODULE||'playwright');
 const dir=await mkdtemp(join(tmpdir(),'stam-partners-'));await writeFile(join(dir,'Game.log'),'');
 const service=await startLogService({file:join(dir,'Game.log')});let browser;
-const sizes=[{width:1422,height:1269},{width:1699,height:937},{width:1366,height:768},{width:1280,height:640},{width:820,height:1180},{width:390,height:844},{width:360,height:740},{width:320,height:568}];
+const sizes=[{width:1920,height:1080},{width:1368,height:1222},{width:1422,height:1269},{width:1699,height:937},{width:1366,height:768},{width:1280,height:640},{width:820,height:1180},{width:390,height:844},{width:360,height:740},{width:320,height:568}];
 try{browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
 for(const lang of ['ko','en'])for(const viewport of sizes){
  const page=await browser.newPage({viewport,reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -15,6 +15,14 @@ for(const lang of ['ko','en'])for(const viewport of sizes){
  await page.goto(new URL(`__partners?lang=${lang}`,service.url).href);
  await page.evaluate(async()=>{const {createAssistant}=await import('/assistant.mjs');window.partnerFixture=createAssistant({missions:()=>[],voiceChanged(){},closed(){},showTutorial(){location.href='/tutorial.html'+location.search;}});partnerFixture.open('choose');});
  assert.equal(await page.locator('[data-voice]').first().getAttribute('data-voice'),'tutorial');
+ if(viewport.width>900&&viewport.height>850){
+  const frame=await page.locator('.aide-card').boundingBox();assert.ok(frame.width>=Math.min(1760,viewport.width-48)-2,'Use available horizontal space');
+  await page.locator('.partner-photo').evaluateAll(nodes=>Promise.all(nodes.map(n=>n.decode())));
+  const heads=await page.locator('[data-voice]').evaluateAll(cards=>{const marks={aide:[32,350],standard:[17,250],tutorial:[35,238],broker:[48,270]};return cards.map(card=>{const img=card.querySelector('img'),photo=card.querySelector('.partner-photo-frame').getBoundingClientRect(),box=img.getBoundingClientRect(),[top,bottom]=marks[card.dataset.voice];return {id:card.dataset.voice,head:(bottom-top)/img.naturalHeight*box.height,top:box.y+top/img.naturalHeight*box.height-photo.y,photo:{width:photo.width,height:photo.height},ratio:box.width/box.height,sourceRatio:img.naturalWidth/img.naturalHeight};});});
+  for(const h of heads){assert.ok(h.photo.height<=h.photo.width*1.25+1,'Photo must not grow into a long strip: '+JSON.stringify(h));assert.ok(h.top+h.head<=h.photo.height+1,'Keep the whole head visible: '+JSON.stringify(h));assert.ok(h.top>=0&&h.top<h.photo.width*.08,'Keep full heads at a shared top margin: '+JSON.stringify(h));assert.ok(Math.abs(h.ratio-h.sourceRatio)<.002,'Preserve image proportions');}
+  assert.ok(Math.max(...heads.map(h=>h.head))/Math.min(...heads.map(h=>h.head))<1.06,'Match portrait camera distance: '+JSON.stringify(heads));
+ }
+
  for(const id of ['tutorial','aide','standard','broker']){
   const tab=page.locator(`[data-partner-tab=${id}]`);if(await tab.isVisible())await tab.click();
   const card=page.locator(`[data-voice=${id}]`);await card.waitFor({state:'visible'});await card.locator('img').evaluate(n=>n.decode());

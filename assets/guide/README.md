@@ -16,3 +16,5 @@ Optional capture controls: `STAM_GUIDE_LANG=ko|en`, `STAM_GUIDE_ONLY=name,name`,
 New guide slides refer to each photographed state once. Remaining explanations use text and diagrams rather than repeating the same full settings screenshot.
 
 `partner-ko.webp` / `partner-en.webp` now show the approved four-card arrangement: a tutorial-only Flight Director link, the two hauling partners and the preview-only broker. They are synthetic UI captures; choosing the tutorial does not activate a hauling voice.
+
+The partner captures were refreshed again for 3.17.0 at 1920 × 1080 after widening the preparation frame and normalising the four portraits’ displayed head sizes. Source character images are unchanged; the crop is applied by the card layout.
