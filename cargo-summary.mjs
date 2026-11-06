@@ -14,7 +14,7 @@ export function configurationBasis(cargo=[]){
 }
 export function configurationLabel(config,en=false){
  if(config.basis==='entity')return en?'Cryopod stacking layout':'냉동포드 적재 구성';
- if(!config.estimated)return en?'Saved layout':'저장된 구성';
+ if(!config.estimated)return en?'Confirmed box configuration':'상자 구성 확인';
  const labels={wiki:['위키 기준 자동 구성','Wiki-based layout'],mixed:['일부 규격 미확인 · 임시 구성','Partly unknown · provisional layout'],special:['특수 화물 · 규격 미확인','Special cargo · size unknown'],contract:['계약 규격 기준 자동 구성','Contract-based layout'],default:['상자 규격 미확인 · 임시 구성','Size unknown · provisional layout']};
  return (labels[config.basis]||labels.default)[Number(en)];
 }
