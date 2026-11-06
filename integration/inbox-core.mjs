@@ -75,8 +75,19 @@ export function cardCertainty(card){
  return confirmed?'boxes':'quantity';
 }
 
+export function withDeliveryTotal(draft,dropoffId,scu){
+ const next=structuredClone(draft),rows=next.cargo.filter(r=>r.dropoffId===dropoffId);
+ if(!rows.length||!Number.isSafeInteger(scu)||scu<1||scu>rows.length*10000)throw Error('invalid-delivery-total');
+ const unknown=rows.filter(r=>r._scuEstimated||r._scuAssumed||!Number.isSafeInteger(r.scu)||r.scu<=0),known=rows.filter(r=>!unknown.includes(r)).reduce((n,r)=>n+r.scu,0);
+ if(rows.length===1){rows[0].scu=scu;rows[0]._scuEstimated=false;rows[0]._scuAssumed=false;}
+ else if(unknown.length===1){const remaining=scu-known;if(remaining<1||remaining>10000)throw Error('invalid-delivery-total');unknown[0].scu=remaining;unknown[0]._scuEstimated=false;unknown[0]._scuAssumed=false;}
+ else if(!unknown.length&&scu!==known)throw Error('conflicting-delivery-total');
+ else if(unknown.length>1){const bounded=unknown.every(r=>r._quantityBounds?.unit==='SCU'&&Number.isSafeInteger(r._quantityBounds.max)&&r._quantityBounds.max>0);if(bounded){const min=known+unknown.reduce((n,r)=>n+(r._quantityBounds.min>0?r._quantityBounds.min:1),0),max=known+unknown.reduce((n,r)=>n+r._quantityBounds.max,0);if(scu<min||scu>max){const error=Error('delivery-total-outside-bounds');error.min=min;error.max=max;throw error;}}}
+ next._deliveryTotals=[...(next._deliveryTotals||[]).filter(t=>t.dropoffId!==dropoffId),{dropoffId,scu}];return next;
+}
+
 export class InboxSelection {
- constructor(places,missions=()=>[]){this.places=places;this.missions=missions;this.cards=[];this.useUpperBounds=false;this.selected=new Map();this.reviewed=new Map();}
+ constructor(places,missions=()=>[]){this.places=places;this.missions=missions;this.cards=[];this.useUpperBounds=true;this.selected=new Map();this.reviewed=new Map();}
  sync(cards){this.cards=cards;for(const [id,signature] of this.selected){const raw=cards.find(c=>c.id===id);if(!raw||raw.signature!==signature||!this.ready(this.effective(raw)))this.selected.delete(id);}}
  current(draft){const c=this.cards.find(c=>c.id===draft.id);return !!c&&!c.ended&&!c.conflict&&c.signature===draft._logInbox?.signature;}
  draft(raw,estimate=true){const base=cardDraft(raw),saved=this.reviewed.get(raw.id),reviewed=saved?._logInbox?.signature===raw.signature,prior=this.missions().find(m=>m.id===raw.id);let refreshed=false;const next={...structuredClone(reviewed?saved:prior||base),_logInbox:{...base._logInbox,reviewed}};
@@ -84,9 +95,10 @@ export class InboxSelection {
   if(refreshed)next._logInbox.refreshedEstimate=true;return estimate&&this.useUpperBounds?upperBoundDraft(next):next;
  }
  ready(card){return cardReady(card,this.places)||this.useUpperBounds&&upperBoundReady(card,this.places);}
- effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes};}
+ effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes,deliveryTotals:draft._deliveryTotals};}
  toggle(id,checked){const raw=this.cards.find(c=>c.id===id);if(!raw||!this.ready(this.effective(raw)))return false;if(checked)this.selected.set(id,raw.signature);else this.selected.delete(id);return true;}
  saveReviewed(drafts){for(const d of drafts)if(!this.current(d)||!cardReady({rows:d.cargo},this.places))throw Error('계약 정보가 바뀌었거나 필수 정보가 부족합니다. 수신함에서 다시 확인하십시오.');for(const d of drafts){this.reviewed.set(d.id,structuredClone(d));this.selected.delete(d.id);}}
+ saveDeliveryDrafts(drafts){for(const d of drafts){if(!this.current(d)||!d._deliveryTotals?.length)throw Error('stale-delivery-total');for(const t of d._deliveryTotals)withDeliveryTotal(d,t.dropoffId,t.scu);}for(const d of drafts)this.reviewed.set(d.id,structuredClone(d));}
  drafts(){this.sync(this.cards);return [...this.selected.keys()].map(id=>this.draft(this.cards.find(c=>c.id===id)));}
  committed(ids){for(const id of ids)this.reviewed.delete(id);}
 }

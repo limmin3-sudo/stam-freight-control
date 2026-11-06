@@ -1,7 +1,7 @@
 // Existing navigator/operator IDs remain stable; legacy officers fall back to the navigator.
 import {isEn} from './i18n.mjs';
 const KEY='sfc-voice';
-export const VOICE_PORTRAITS={standard:'assets/partners/navigator.jpg',broker:'assets/partners/broker.jpg',aide:'assets/partners/aide-portrait.webp'};
+export const VOICE_PORTRAITS={standard:'assets/partners/navigator.jpg',broker:'assets/partners/broker-portrait.webp',aide:'assets/partners/aide-portrait.webp'};
 export const VOICE_LIST=isEn?[
  ['aide','Bridge Operator','Finish small, simple contracts one by one, with short stops along the way.'],
  ['standard','Senior Navigator','Collect cargo across contracts and reduce repeat visits.'],
