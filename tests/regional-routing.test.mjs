@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+import {navigator,planRoute} from '../engine.mjs';import {planRoutesOnly} from '../route-only.mjs';
+import {missionSCU} from '../delivery-totals.mjs';import {userDeliveryCase} from './user-delivery-case.mjs';
+const data=JSON.parse(fs.readFileSync(new URL('../data/locations.json',import.meta.url))),id=name=>data.locations.find(l=>l.name===name).id;
+test('nearby stations use an explicitly approximate planet planning region',()=>{const nav=navigator(data,{});assert.equal(nav.regionOf(id('Starlight Service Station')),nav.regionOf(id('The Golden Riviera')));assert.equal(nav.regions.get(id('Starlight Service Station')).basis,'nearby');assert.equal(nav.regions.get(id('The Golden Riviera')).basis,'parent');assert.equal(nav.regionOf(id("Sacren's Plot")),nav.regionOf(id('Ashland')));});
+test('seven entered delivery totals reserve 123 SCU and avoid the extra Bloom return',()=>{
+ const example=userDeliveryCase(data);assert.deepEqual(example.missions.map(missionSCU),[22,13,19,21,16,18,14]);const plan=planRoute(data,example.missions,example.startId,{unknownBox:4,routePolicy:'batch'}),old=planRoute(data,example.missions,example.startId,{unknownBox:4,manualStops:example.oldStops});
+ assert.ok(plan.peak<=123);assert.equal(old.regionRevisits,2);assert.equal(plan.regionRevisits,1);const order=plan.visits.map(v=>v.locationId),star=order.indexOf(id('Starlight Service Station')),riviera=order.indexOf(id('The Golden Riviera')),firstTerminus=Math.min(order.indexOf(id('Last Landings')),order.indexOf(id('Canard View')));assert.ok(star>riviera&&star<firstTerminus);assert.equal(plan.visits.at(-1).load,0);
+ for(const mission of example.missions.filter(m=>m._deliveryTotals)){const delivery=plan.visits.findIndex(v=>v.events.some(e=>e.missionId===mission.id&&e.type==='delivery'));for(const row of mission.cargo)assert.ok(plan.visits.findIndex(v=>v.locationId===row.pickupId)<delivery);}
+ const simple=planRoutesOnly(data,example.missions,example.startId,{routePolicy:'batch'});assert.equal(simple.regionRevisits,1);assert.ok(simple.peak<=123);assert.equal(simple.visits.at(-1).load,0);
+});
+test('operator collects one origin region and delivers its batch before another region pickup',()=>{
+ const make=(id,from,to)=>({id,cargo:[{commodity:id,scu:1,pickupId:from,dropoffId:to,boxes:[{size:1,count:1}]}]}),locations=[{id:'a',name:'A',system:'s',routeRegionId:'local',position:[0,0,0]},{id:'b',name:'B',system:'s',routeRegionId:'other',position:[100000,0,0]},{id:'c',name:'C',system:'s',routeRegionId:'other',position:[90000,100,0]},{id:'d',name:'D',system:'s',routeRegionId:'third',position:[1000000,0,0]}],fixture={locations,jumps:[]},missions=[make('first','a','b'),make('side','c','d')];
+ for(const planner of [planRoute,planRoutesOnly]){const p=planner(fixture,missions,'a',{routePolicy:'delivery-first'}),events=p.visits.flatMap(v=>v.events);assert.ok(events.findIndex(e=>e.missionId==='first'&&e.type==='delivery')<events.findIndex(e=>e.missionId==='side'&&e.type==='pickup'));assert.equal(p.visits.at(-1).load,0);}
+});

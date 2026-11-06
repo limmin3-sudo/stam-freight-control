@@ -1,4 +1,4 @@
-// Recognises the game mission type of a contract from the Star Citizen Wiki hauling mission data
+// Recognises the game mission type of a contract from the configured hauling mission catalogue
 // (data/hauling-missions.json): same contractor, same set of commodities, each SCU within the mission's limit.
 // The match gives the per-commodity maximum container size, which separates mission types that share the same
 // commodities and SCU, and lets the planner assume worst-case (largest) boxes before the freight elevator.
@@ -11,7 +11,7 @@ export function prepareMissionDb(db,ko={}){
  const korean=new Map();for(const [k,v] of Object.entries(ko.commodities||{}))if(!korean.has(norm(v)))korean.set(norm(v),k);
  const companies=new Map(Object.entries(ko.companies||{}).map(([k,v])=>[norm(k),norm(v)]));
  const missions=(db?.missions||[]).map(m=>({...m,giverKey:norm(m.giver),orders:m.orders.map(([name,maxScu,maxBox])=>({key:norm(name),name,maxScu,maxBox}))}));
- return {version:db?.meta?.version||'',missions,commodities,companies,korean};
+ return {sourceName:db?.meta?.sourceName||'Wiki',version:db?.meta?.version||'',missions,commodities,companies,korean};
 }
 const english=(map,name)=>{const k=norm(name);return map.get(k)||k;};
 const sameGiver=(a,b)=>a===b||a.startsWith(b)||b.startsWith(a);
@@ -65,12 +65,12 @@ export function matchMission(m,prepared){
 export function enrichMission(m,prepared,{namesOnly=false,korean=false}={}){
  if(!prepared?.missions?.length)return structuredClone(m);
  const next=structuredClone(m);delete next._wiki;delete next._nameFixes;
- for(const c of next.cargo||[]){if(['wiki','pod-profile'].includes(c._maxBoxSource)){c.maxBoxSize=null;delete c._maxBoxSource;}if(['cryopod','unknown'].includes(c._special))delete c._special;if(c._boxesOrigin==='pod-profile'){c.boxes=[];c._boxesOrigin='unknown';delete c._cargoShape;delete c._entityCount;delete c._entity;}}
+ for(const c of next.cargo||[]){if(['wiki','scmdb','pod-profile'].includes(c._maxBoxSource)){c.maxBoxSize=null;delete c._maxBoxSource;}if(['cryopod','unknown'].includes(c._special))delete c._special;if(c._boxesOrigin==='pod-profile'){c.boxes=[];c._boxesOrigin='unknown';delete c._cargoShape;delete c._entityCount;delete c._entity;}}
  const match=matchMission(next,prepared);if(!match)return next;
  const fixed=[];for(const c of next.cargo){const f=match.fixes[norm(c.commodity)];if(f&&(!korean||f.korean)){const name=korean?f.korean:f.name;fixed.push([c.commodity,name]);c._fixedFrom=c.commodity;c.commodity=name;}}
  if(fixed.length)next._nameFixes=[...new Map(fixed.map(p=>[p.join('>'),p])).values()];
  if(namesOnly)return next;
- next._wiki={id:match.id,title:match.title,giver:match.giver,rank:match.rank,version:match.version,candidates:match.candidates,ambiguous:match.ambiguous};
+ next._wiki={source:prepared.sourceName,id:match.id,title:match.title,giver:match.giver,rank:match.rank,version:match.version,candidates:match.candidates,ambiguous:match.ambiguous};
  for(const c of next.cargo){const limit=match.maxBox[match.commodityKey(c.commodity)];
   const entity=match.entityOrders.find(o=>norm(o.name)===match.commodityKey(c.commodity));
   if(match.commodityKey(c.commodity)==='cryopod'){
@@ -81,6 +81,6 @@ export function enrichMission(m,prepared,{namesOnly=false,korean=false}={}){
    c.boxes=[{size:1,count:c.scu}];c._boxesOrigin='pod-profile';c.maxBoxSize=1;c._maxBoxSource='pod-profile';delete c._special;continue;
   }
   if(limit===-1){c._special='unknown';continue;}
-  if(!c.maxBoxSize&&Number.isFinite(limit)){const size=[...SIZES].reverse().find(s=>s<=limit);if(size){c.maxBoxSize=size;c._maxBoxSource='wiki';}}}
+  if(!c.maxBoxSize&&Number.isFinite(limit)){const size=[...SIZES].reverse().find(s=>s<=limit);if(size){c.maxBoxSize=size;c._maxBoxSource=prepared.sourceName==='SCMDB'?'scmdb':'wiki';}}}
  return next;
 }

@@ -1,3 +1,31 @@
+## 2026-11-07 — 사용자 최종 결정: SCMDB 미션 전용·자동 갱신
+
+- Codex, PR20/`feature/delivery-reservations-regional-routing`. 이전 Wiki 대조·보완 계획은 사용자의 “SCMDB로만” 지시로 대체됐다. 기존 배포 승인은 계속 유효하다. 미추적 `prototypes/`는 보존·제외한다.
+- 미션 정보·보상·수량/상자 규격은 SCMDB만 사용한다. 원문 commit937f668 / LIVE12913470에서 정의2360·안전한 단일 화물 명세864를 생성했다. 정의 UUID 별칭·부모/자식 구분·고정 min/max0 쿼터·실제 objective 인덱스·위치 후보를 연결했다. 직접 입력한 실제 수량/보상과 운항 중 데이터는 보존한다. 기존 연결 앱의 옛 카탈로그 기반 originalManifest는 새 SCMDB 수신에 섞지 않는다. 함선·퀀텀·지도는 별도 Wiki 자료를 유지한다.
+- `scripts/refresh-missions.mjs`는 이제 SCMDB LIVE 전용이다. 기존 매일09:23 KST Pages 작업에 연결했고 같은 commit의 game-versions/LIVE JSON을 조회한다. GitHub blob/바이트 수/버전/규모 검증, PTU 제외, 실패 시 기존3개 파일 보존, SHA256·commit 출처 보관. 실제 SCMDB 요청에서 unchanged/4.10.2-live.12913470 확인(`/tmp/stam-scmdb-live-refresh.log`).
+- Node216 통과(`/tmp/stam-scmdb-only-final-full.log`), 자동 갱신·자료 전용 검증10 통과(`/tmp/stam-scmdb-only-refresh.log`), 일괄수신 KO/EN·SCMDB 보상215250·실제180000·22 SCU 예약·새로고침·모바일 통과(`/tmp/stam-scmdb-only-batch.log`). 연결 앱 레거시 프로필 제외 포함 관련23 통과(`/tmp/stam-scmdb-only-source-check.log`). 이전 본문 스크롤 브라우저 재검사의 headless 안정성 timeout은 성공으로 적지 않고 최종 CI에서 다시 확인한다.
+- Wiki 자료는 과거 저장 형식 회귀용 `tests/fixtures/legacy-catalogue/`에만 남긴다. 런타임3개 파일과 공개 사이트 묶음에는 포함하지 않는다. 최종 CI·Pages·공개 origin QA 전이며 아직 배포 완료로 보고하지 않는다. 이전 head4f9ffca의 중복 CI는 사용자 지시에 따른 소스 변경으로 취소했다. 해당 로그에서 ubuntu-latest(resolute)의 폰트 패키지 다운로드가 장시간 지연돼 브라우저 CI를 지원되는 ubuntu-24.04로 고정했다.
+
+## 2026-11-07 — 미션 정보·보상 대조 추가, PR20 배포 준비
+
+- Codex, `feature/delivery-reservations-regional-routing`, PR20에 기존 배송 총량 예약·권역 경로·대기권 추정과 함께 추가한다. 기존 사용자 배포 승인이 이 수정·테스트·커밋·푸시·병합·Pages까지 포함한다. 미추적 `prototypes/`는 보존·제외한다.
+- 사용자 최신 요청: Wiki와 다른 목록을 정의 UUID로 대조해 동일/누락은 합치고 차이는 별도 보관한다. 공개 SCMDB_DATA commit937f668(4.10.2-live.12913470)에서 예시 정의의 기본 보상215250 확인. 이전 Wiki 원본 CalculatedReward만 보고 자동 금액이 불가능하다고 한 범위를 수정했다. 출처 빌드12881860/12913470 차이를 명시한다.
+- `scripts/reconcile-mission-details.mjs`와 `data/mission-details.json`: 정의3108(양쪽1092/Wiki만748/SCMDB만1268), 같은 필드6606·보완22768·차이2155을 분리했다. source SHA256·commit·Wiki snapshot fingerprint 보존. 부모의 자식 ID만으로 부모 보상을 복사하지 않는다. 모든 수주는 독립적이며 기존 수량/상자 DB·퀀텀 자료는 바꾸지 않는다.
+- 카드·수정·명세 화면에서 유형/내용/랭크/기본 보상/출처와 차이를 펼쳐 본다. `_rewardReference`로 목록 기본 보상을 실제 입력과 분리하고 합계·시간당 수입·완료 기록에 예상임을 표시한다. 수동 실제 보상이 우선한다. 기존 예약22 SCU와 수주별 데이터는 보존한다.
+- 전체 Node214 통과(`/tmp/stam-details-final-full.log`), 참고 화물 규격 대조 후 관련11 통과(`/tmp/stam-details-final-targeted.log`); 1차 전체 Node212 통과(`/tmp/stam-details-full.log`), 확장 일괄수신 브라우저 KO/EN·기본보상215250·출처 차이·실제180000 입력·예약22·새로고침·모바일 통과(`/tmp/stam-details-batch-browser.log`). 카드 저장 후 계획은 별도 체크/버튼이어야 하므로 그 흐름을 테스트한다. 최종 Node/PR exact-head CI·Pages·실제 공개 사이트 검증은 진행 중이며 아직 배포 완료로 보고하지 않는다.
+
+## 2026-11-06 — v3.18 배송 총량 예약·행성권 경로 검증 중
+
+- Codex, `feature/delivery-reservations-regional-routing`, main `efae0a8` 기준. 1차 head `e3cb1a1` push 및 draft PR20(https://github.com/limmin3-sudo/stam-freight-control/pull/20) 생성·연결. 보완 head `ea5848b`까지 push. 보상 기록 표시 추가는 미커밋, 배포 전이다. 사용자 기존 배포 승인이 이번 수정·테스트·푸시·PR·Pages까지 포함한다. 미추적 `prototypes/`는 보존하며 공개하지 않는다.
+- 실제 운항 중이 아닌 임의 계약 시험이며 파트너는 수석 항해사로 확인됐다. 현재 사용자 함선은 확인되지 않아 기본 Hull B/합성 홀드 회귀를 실게임 함선 재현으로 주장하지 않는다.
+- `delivery-totals.mjs`: 계약ID×배송지 실제 총량을 첫 픽업부터 한 번만 예약한다. 모든 픽업 선행 후 한 번에 배송·해제한다. 픽업별 수량은 null로 유지하고 임의 분할하지 않는다. `makeShipments`, 간편 경로, 적재·리플레이·resume·운항·카드 준비 상태·확인창·상자 요약·3D를 연결했다. 22/13/19/21/16/18/14 =123 SCU이며 기존 최대치 합계176과 구분한다. 진행 중 레거시 적재를 새 예약 ID로 조용히 바꾸지 않는다.
+- `route-regions.mjs`: 천체 계층과 가장 가까운 행성 인접권을 구분한다. 수석 항해사는 기존 거점·항성계 왕복 제약 다음 행성권 재방문, 예상 비행·착륙 부담, 거리 순이다. 재현 경로의 권역 복귀2→1, Starlight를 Bloom 출발 전에 배송한다. 필요한 Pyro IV/Pyro V 복귀는 유지한다. 큰 문제의 제한 탐색은 전역 최적을 보장하지 않는다.
+- 오퍼레이터는 한 행성권에서 픽업 후 권역을 떠나면 실은 화물을 모두 배송하고 다음 픽업을 한다. 기존 간단한 계약 완료 우선·짧은 경유 예산을 보존한다. 여러 권역의 미확인 픽업 분배는 항해사 또는 실제 분배 입력을 안내한다.
+- 사용자 추가 운용 기준 반영: 지상 상승→퀀텀→NAV 접근→약10km SCM→최종 저속 착륙. Wiki SCM/NAV/가속 참고값을 기반으로 함선별 상승 목표·순가속 보정. 65% NAV·25% 가속 참고값·기본30km·마지막2km/50m/s는 추정이다. SCU를 질량으로 바꾸지 않고 중력·항력·부스트·실제 적재 질량을 계산했다고 주장하지 않는다. `docs/ATMOSPHERIC-ROUTING.md`에 범위와 외부 StarLane/Cargo Deck/Schaulers 비교를 기록했다. Erkul 데이터는 추가하지 않았다.
+- 검증: 전체 Node205 통과(`/tmp/stam-regional-reward-full.log`), 이전 Node203 통과(`/tmp/stam-regional-final-checks.log`), 추가31 관련 검사 통과(`/tmp/stam-regional-targeted-final.log`). 기본 기존 테스트를 약화하지 않고 거리 우선이던 명시 정책 테스트만 사용자 요청의 비행 비용 우선으로 갱신했다. 새 총량 회귀 KO/EN 통과: 확인123·첫 픽업 예약22·모든 픽업·배송1줄·실제3D·null 수량 재시작·모바일. 기존9종 중 안내/파트너/프레임/퀀텀/그리드/수신 통과, 일괄수신의 총량 적용 전 상태를 적용 후 상태로 잘못 기대한 테스트를 수정 중이다. 새 브라우저 검사는 출발지와 같은 이름의 실제 픽업 행을 구별하도록 수정 중이며, 잘못 출발 행을 선택해 빈 적재를 본 실패를 제품 오류로 오인하지 않는다. 이미지·가이드 원본·네이티브 app.1.3.2는 변경하지 않았다.
+- 보상 추가 요청: 동일 빌드 원본은 CalculatedReward:true이며 금액 계수·반올림까지 확인하지 못했다. `reward-summary.mjs`로 미확인 보상을0원으로 확정하지 않고 확인된 부분 합계·미확인 건수를 표시한다. 선택적 수동 보상 입력과 명시적인0을 구분하고 완료 운항 기록에도 미확인 건수·부분 합계를 유지한다. SCU·STAM 비행시간으로 보상을 지어내지 않는다. `docs/CONTRACT-REWARDS.md` 기록.
+- 남은 일: 브라우저 최종 통과, diff 검토·커밋/PR exact-head CI, main/Pages, 실제 공개 사이트 회귀와 실제 공개 시각 기록. 아직 공개 완료로 보고하지 않는다.
+
 ## 2026-11-06 — v3.17.0 넓은 선택창·초상화 크롭 공개 완료
 
 - Codex. PR19 https://github.com/limmin3-sudo/stam-freight-control/pull/19 병합 `2cc9878dc9dd2a790b072492f559ce1426384867`. 정확한 기능 head `19e6b12e824f996721f0264c251aa627a19a487b`의 PR CI42220389703 성공: Node22 189건 및 배포 묶음의 브라우저9종 통과. Pages42220967630 성공, 첫 공개 시각 2026-11-06 21:53 KST. 후속 기록은 실제 공개 시각 정정이며 추가 기능 버전을 만들지 않는다.

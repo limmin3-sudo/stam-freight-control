@@ -1,48 +1,15 @@
-// Builds data/hauling-missions.json from the Star Citizen Wiki API mission data (datamined game files):
-// every released hauling mission and variant with its cargo orders (commodity, max SCU, max container size).
-// The app uses it to recognise the mission type of a pasted contract and its per-commodity box size limit.
-// Safe for the daily Pages run: on any fetch error, a suspicious drop in size or an unchanged game version it
-// keeps the committed file and exits 0. Usage: node scripts/refresh-missions.mjs [--force]
-import fs from 'node:fs/promises';
-const root=new URL('../',import.meta.url),out=new URL('data/hauling-missions.json',root),API='https://api.star-citizen.wiki/api/missions';
-const force=process.argv.includes('--force');
-let previous=null;try{previous=JSON.parse(await fs.readFile(out,'utf8'));}catch{}
-const keep=reason=>{console.log(`미션 데이터 유지: ${reason}`);process.exit(0);};
-
-async function get(url,tries=4){
- for(let t=1;;t++){try{const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'STAM-Freight-Control'},signal:AbortSignal.timeout(45000)});if(r.ok)return await r.json();if(r.status<500&&r.status!==429)throw Error('HTTP '+r.status);}catch(e){if(t>=tries)throw e;}
-  await new Promise(res=>setTimeout(res,1500*t));}
+// SCMDB-only LIVE mission refresh. Failed validation retains the complete snapshot.
+import {readFile,writeFile,rename,unlink} from 'node:fs/promises';import {createHash} from 'node:crypto';import {pathToFileURL} from 'node:url';import path from 'node:path';import {scmdbCatalog} from './build-scmdb-missions.mjs';
+const repository='https://api.github.com/repos/KrovaxCode/SCMDB_DATA',raw='https://raw.githubusercontent.com/KrovaxCode/SCMDB_DATA/',files=['mission-details.json','log-mission-index.json','hauling-missions.json'];
+export async function refreshScmdb({directory=new URL('../data/',import.meta.url),fetchImpl=fetch,token=process.env.GITHUB_TOKEN}={}){const dir=directory instanceof URL?directory.pathname:directory,old=await Promise.all(files.map(f=>readFile(path.join(dir,f)))),previous=JSON.parse(old[1]);
+ const get=async url=>{const r=await fetchImpl(url,{headers:{Accept:'application/vnd.github+json','User-Agent':'STAM-Freight-Control',...(token&&new URL(url).origin==='https://api.github.com'?{Authorization:'Bearer '+token}:{})},signal:AbortSignal.timeout(45000)});if(!r.ok)throw Error('SCMDB HTTP '+r.status);return r;};
+ const commit=(await(await get(repository+'/commits/main')).json()).sha;if(!/^[a-f0-9]{40}$/.test(commit||''))throw Error('Invalid SCMDB commit');
+ const versions=await(await get(raw+commit+'/data/game-versions.json')).json();if(!Array.isArray(versions))throw Error('Invalid SCMDB versions');const live=versions.filter(v=>/^\d+\.\d+\.\d+-live\.\d+$/i.test(v.version)&&v.file===`merged-${v.version}.json`).sort((a,b)=>Number(b.version.match(/\.(\d+)$/)[1])-Number(a.version.match(/\.(\d+)$/)[1]))[0];if(!live)throw Error('No SCMDB LIVE build');
+ const info=await(await get(repository+'/contents/data/'+live.file+'?ref='+commit)).json();if(!/^[a-f\d]{40}$/.test(info.sha||'')||!Number.isSafeInteger(info.size)||info.size<1000||info.size>32*1024*1024)throw Error('Invalid SCMDB blob metadata');const bytes=Buffer.from(await(await get(raw+commit+'/data/'+live.file)).arrayBuffer());if(bytes.length!==info.size||createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex')!==info.sha)throw Error('SCMDB blob integrity mismatch');
+ const sha256=createHash('sha256').update(bytes).digest('hex'),priorDetails=JSON.parse(old[0]);if(priorDetails.sources?.scmdb?.sha256===sha256)return {status:'unchanged',version:live.version};const source=JSON.parse(bytes);if(source.version!==live.version||!Array.isArray(source.contracts)||!Array.isArray(source.legacyContracts)||!source.resourcePools||!source.locationPools)throw Error('Invalid SCMDB schema');
+ const next=scmdbCatalog(source,{commit,sha256});if(next.catalog.definitions.length<Math.max(100,(previous.definitions?.length||0)*.7))throw Error('SCMDB catalogue unexpectedly shrank');if(next.details.entries.length<next.catalog.definitions.length)throw Error('Incomplete SCMDB details');
+ const values=[next.details,next.catalog,next.missions].map(v=>JSON.stringify(v)+'\n');for(let i=0;i<files.length;i++)await writeFile(path.join(dir,files[i]+'.staged'),values[i]);
+ try{for(const f of files)await rename(path.join(dir,f+'.staged'),path.join(dir,f));}catch(error){for(let i=0;i<files.length;i++)await writeFile(path.join(dir,files[i]),old[i]);throw error;}finally{for(const f of files)await unlink(path.join(dir,f+'.staged')).catch(()=>{});}
+ return {status:'updated',version:source.version,commit,definitions:next.catalog.definitions.length};
 }
-async function pool(items,size,fn){const results=new Array(items.length);let next=0;
- await Promise.all(Array.from({length:size},async()=>{while(next<items.length){const i=next++;results[i]=await fn(items[i]);}}));return results;}
-
-try{
- const list=[];let page=1,last=1;
- do{const json=await get(`${API}?page%5Bsize%5D=100&page%5Bnumber%5D=${page}`);list.push(...json.data);last=json.meta?.last_page||1;page++;}while(page<=last&&page<60);
- const hauling=list.filter(m=>m.has_hauling&&m.released&&!m.not_for_release);
- const version=[...new Set(hauling.map(m=>m.version||m.game_version).filter(Boolean))].sort().at(-1)||'';
- if(!hauling.length)keep('운송 미션 목록이 비어 있음');
- if(!force&&previous?.meta?.version===version&&previous.meta.entityUnits==='CryoPod')keep(`게임 데이터 버전 그대로 (${version})`);
- const ids=[...new Set(hauling.flatMap(m=>[m.uuid,...(m.variants||[]).map(v=>v.uuid)]))];
- const details=await pool(ids,6,async id=>{try{return (await get(`${API}/${id}`)).data;}catch{return null;}});
- const failed=details.filter(d=>!d).length;if(failed>ids.length*0.05)keep(`상세 ${failed}/${ids.length}개 실패`);
- // Cryopods are Entity orders: retain their item count and fetch the item's SCU volume.
- // max_container_size=-1 does not mean that the item has no known volume.
- const entityIds=[...new Set(details.flatMap(d=>(d?.hauling_orders||[]).filter(o=>o.kind==='Entity'&&o.name==='CryoPod').map(o=>o.uuid)))];
- const entities=new Map(await pool(entityIds,4,async id=>{const item=(await get(`https://api.star-citizen.wiki/api/items/${id}`)).data;return [id,item.dimension?.volume_converted_unit==='SCU'?item.dimension.volume_converted:null];}));
- const seen=new Set(),missions=[];
- for(const d of details){if(!d?.hauling_orders?.length)continue;
-  const orders=d.hauling_orders.filter(o=>o?.name).map(o=>[o.name,Number.isFinite(o.max_scu)?o.max_scu:null,Number.isFinite(o.max_container_size)?o.max_container_size:null]);
-  if(!orders.length)continue;
-  const entry={id:d.uuid,title:d.title||'',giver:d.mission_giver||d.faction?.name||'',rank:Number.isInteger(d.rank_index)?d.rank_index:null,orders};
-  const entityOrders=d.hauling_orders.filter(o=>o.kind==='Entity'&&o.name==='CryoPod').map(o=>({name:o.name,uuid:o.uuid,maxAmount:o.max_amount??null,minAmount:o.min_amount??null,reportedVolumeScu:entities.get(o.uuid)??null,source:`https://api.star-citizen.wiki/api/items/${o.uuid}`}));if(entityOrders.length)entry.entityOrders=entityOrders;
-  const key=JSON.stringify([entry.title,entry.giver,entry.rank,[...orders].map(o=>JSON.stringify(o)).sort(),entityOrders]);if(seen.has(key))continue;seen.add(key);missions.push(entry);}
- missions.sort((a,b)=>a.giver.localeCompare(b.giver)||a.title.localeCompare(b.title)||a.id.localeCompare(b.id));
- if(previous?.missions?.length&&missions.length<previous.missions.length*0.6)keep(`새 데이터가 너무 적음 (${missions.length} < ${previous.missions.length})`);
- const meta={version,downloaded:new Date().toISOString().slice(0,10),source:'https://api.star-citizen.wiki/api/missions',entityUnits:'CryoPod',note:'Released hauling missions and variants; orders = [commodity, max SCU, max container size SCU (-1 = special item)]. entityOrders retain cryopod item counts and item volume in SCU.',definitions:hauling.length,variants:ids.length};
- const rule=o=>o.kind==='Or'?{kind:'Or',options:(o.or_options||[]).map(group=>group.map(rule))}:{kind:o.kind??null,name:o.name??null,id:o.uuid??null,minScu:o.min_scu??null,maxScu:o.max_scu??null,minAmount:o.min_amount??null,maxAmount:o.max_amount??null,maxBoxScu:o.max_container_size??null};
- const definitions=details.filter(d=>d?.uuid&&d.hauling_orders?.length).map(d=>({id:d.uuid,title:d.title||'',parents:hauling.filter(m=>m.uuid===d.uuid||(m.variants||[]).some(v=>v.uuid===d.uuid)).map(m=>m.uuid),released:d.released!==false,notForRelease:!!d.not_for_release,rules:{orders:d.hauling_orders.map(rule),locations:Object.entries(d.mission_tokens||{}).filter(([slot,values])=>/\|Address$/.test(slot)&&Array.isArray(values)).map(([slot,candidates])=>({slot,candidates}))}}));
- await fs.writeFile(new URL('data/log-mission-index.json',root),JSON.stringify({schemaVersion:1,source:'https://api.star-citizen.wiki',version,scope:'Public definition bounds and address pools; accepted runtime demand is reviewed separately.',definitions})+'\n');
- await fs.writeFile(out,JSON.stringify({meta,missions})+'\n');
- console.log(JSON.stringify({version,definitions:hauling.length,fetched:ids.length,failed,unique:missions.length}));
-}catch(e){keep('가져오기 실패 · '+e.message);}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{console.log('SCMDB mission refresh:',await refreshScmdb());}catch(error){console.warn('SCMDB mission refresh: keeping last validated snapshot:',error.message);}}

@@ -131,7 +131,7 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
    // that both unloads and loads shows both motions.
    for(const p of options.leaving||[]){if(!allowed(v,p.bin))continue;const g=ship.grids[p.bin],origin=v.cages[p.bin],boxGroup=new THREE.Group();boxGroup.position.copy(origin.position);boxGroup.rotation.copy(origin.rotation);
     const center=new THREE.Vector3(p.cell[0]+p.dims[0]/2-g.w/2,p.cell[1]+p.dims[1]/2-g.h/2,p.cell[2]+p.dims[2]/2-g.l/2),d=p.dims.map(x=>x-.1),geometry=new THREE.BoxGeometry(...d);
-    const mesh=new THREE.Mesh(geometry,new THREE.MeshPhysicalMaterial({map:crateTexture(p.color,p.size),transparent:true,opacity:.8,depthWrite:false,emissive:UNLOAD_GLOW,emissiveIntensity:.6}));mesh.position.copy(center);mesh.userData={box:p,base:center.clone(),leave:true,phase:Math.random()*.25};
+    const material=p.reservation?new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:.12,depthWrite:false}):new THREE.MeshPhysicalMaterial({map:crateTexture(p.color,p.size),transparent:true,opacity:.8,depthWrite:false,emissive:UNLOAD_GLOW,emissiveIntensity:.6});const mesh=new THREE.Mesh(geometry,material);mesh.position.copy(center);mesh.userData={box:p,base:center.clone(),leave:true,phase:Math.random()*.25};
     const edge=new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color:UNLOAD_GLOW,transparent:true}));edge.scale.setScalar(1.02);mesh.add(edge);boxGroup.add(mesh);v.boxes.add(boxGroup);}
    v.loop.invalidate();
   }
