@@ -1,3 +1,20 @@
+## 2026-11-07 — SCMDB 정보실 가독성 개편 중
+
+- Codex, `feature/scmdb-intel-room`, main `ead72b1`에서 시작. 사용자 “정보실도 SCMDB로 업데이트하고 보기 쉽게” 지시. 기존 수정·검증·배포 승인이 계속 유효하다. 미추적 `prototypes/` 보존·제외.
+- 정보실은 이미 공통 SCMDB 자료를 읽었으나 네 회사만 표시하고 보상·본문을 보여주지 않았다. 이제 모든 회사를 포함하며 동일 참고 별칭만 묶는다(수주 데이터는 합치지 않음). 카드에 기본 보상·전체 SCU 범위·최대 상자·명세상 고정/가변·운송 항목 수를 표시한다. 회사/평판/유형/검색/정렬/초기화, 접는 화물 조건·원문·위치 후보·정의 ID, SCMDB 링크, 페이지 스크롤만 사용한다.
+- `intel-model.mjs`, `operations-intel.*`, 새 단위/브라우저 검사. Node221 통과(`/tmp/stam-intel-final-full.log`), 모델/SCMDB fixture12 통과(`/tmp/stam-intel-fixture-check.log`), 정보실 KO/EN·215250/6–30/최대4·필터·상세·모바일·저장 미션 보존 통과(`/tmp/stam-intel-browser.log`). 카드/모바일 이미지를 직접 확인했고 헤더 여백을 줄이고 운송 항목 수를 추가했다. 최종 UI KO/EN·모바일도 통과(`/tmp/stam-intel-final-browser.log`).
+- 자동 갱신을 특정 과거 보상 숫자로 막지 않도록 알려진 보상/쿼터 회귀를 고정 SCMDB fixtures로 분리했다. 공개 최신 자료는 출처·전량 포함·형식을 일반 검증한다. Wiki 병합 CLI를 없애고 SCMDB 필드 helper로 정리했다. fixtures는 공개하지 않는다.
+- v3.18의 실제 최초 공개일2026-11-07 00:50 KST를 기록하고 수량 출처 설명을 SCMDB864/자원1622(모두 고정/상한)/물품443로 갱신한다. 정보실은 공개 후 새 요청의 체감 변경이므로 v3.19.0으로 기록한다. PR21 https://github.com/limmin3-sudo/stam-freight-control/pull/21 생성·연결. head7a0265d의 PR CI42250222716은 Node221/브라우저11종 통과했지만 중복 push CI42250152682는 메인 뒤로가기 후 정적 버튼만 기다려 초기화 전에 정보실 이동을 누르는 race로 timeout이 났다. `.sidebar-log-link` 생성까지 기다려 저장/이동 guard가 준비된 뒤 클릭하도록 검사 대기 조건을 수정한다. 제품 이동 guard는 유지한다. 새 exact-head CI/배포 전이다.
+
+## 2026-11-07 — v3.18.0 SCMDB 전용 자동 갱신·배송 예약 공개
+
+- Codex. PR20 https://github.com/limmin3-sudo/stam-freight-control/pull/20 병합 `ead72b11df8ebb08dc0e79ed578208a66e0780c0`. 기능 head `d97cfd8bdf8cc92db2b598f49be84cf9b977cff5`의 PR CI42245533170·push CI42245527031 모두 성공: Node217·브라우저10종. Pages42246710741 성공, Deploy 완료2026-11-06T15:50:50Z = **2026-11-07 00:50 KST**. 실제 최초 공개 시각으로 릴리스 기록을 바로잡는다.
+- 공개 origin의 버전/새 모듈·3개 미션 파일 manifest hash/SCMDB-only·215250/기존 사진·가이드 원본 hash/연결 앱 app.1.3.2 불변/테스트 fixture 제외를 확인(`/tmp/stam-public-static-first-318.log`). 공개 origin+합성 로컬 연결에서 KO/EN·카드 체크→일괄 계획·기본215250→실제180000·배송 총량22 예약·새로고침·모바일·독립 수주 보존 통과(`/tmp/stam-public-catalogue-318.log`). 공개 origin 7계약123·예약22의 모든 픽업/단일 배송·실제3D·권역 순서·KO/EN·모바일·새로고침도 통과(`/tmp/stam-public-delivery-318.log`).
+- 데이터는 SCMDB만 사용한다. Wiki 미션 보완·옛 연결 앱의 카탈로그 originalManifest를 새 수신에 사용하지 않는다. 매일09:23 KST Pages에서 최신 LIVE를 고정 commit/blob/크기/버전/규모 검증 후 반영한다. PTU 제외, 실패 시 마지막 정상3개 자료 유지. 최초 공개 작업에서도 실제 SCMDB 조회 unchanged/4.10.2-live.12913470 확인. 함선·퀀텀·지도 Wiki 자료는 별도다. 실제 입력과 진행 중 화물의 소유권·위치는 보존한다.
+- 7계약 실제 배송 총량123, 첫 픽업부터 미션×배송지 공간1회 예약, 모든 픽업 방문 후 해제. 항해사는 행성권 재방문→추정 비행/착륙 비용→거리, 오퍼레이터는 한 행성권에서 모으고 떠나면 배송을 먼저 완료한다. 대기권 상승/접근은 함선 참고값과 조정 가능한 가정이며 물리 시뮬레이터가 아니다. 실제 사용자 함선·실게임 운항·실제 계정 로그인은 검증했다고 주장하지 않는다.
+- 로컬 최종 전체 Node217(`/tmp/stam-scmdb-only-release-full.log`), SCMDB source/자동갱신23(`/tmp/stam-scmdb-only-source-check.log`), 일괄수신(`/tmp/stam-scmdb-only-batch.log`), 계획/3D/확대/버전기록 KO·EN·모바일(`/tmp/stam-scmdb-only-briefing.log`) 통과. 초기 headless 스크롤 timeout은 최종 같은 검사 로컬/CI 통과로 재확인했다. 24.04로 고정한 CI가 실제10종 브라우저 통과했다.
+- `tests/fixtures/legacy-catalogue/`는 옛 저장 형식 회귀용이며 공개하지 않는다. 원시 사용자 로그·스크린샷·prototypes는 포함하지 않았다. 미추적 `prototypes/`는 보존한다. 메타데이터 날짜·인계 후속 커밋과 최종 공개 버전 검증이 남아 있다.
+
 ## 2026-11-07 — 사용자 최종 결정: SCMDB 미션 전용·자동 갱신
 
 - Codex, PR20/`feature/delivery-reservations-regional-routing`. 이전 Wiki 대조·보완 계획은 사용자의 “SCMDB로만” 지시로 대체됐다. 기존 배포 승인은 계속 유효하다. 미추적 `prototypes/`는 보존·제외한다.
