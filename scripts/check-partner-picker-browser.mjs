@@ -6,7 +6,7 @@ import {startLogService} from '../integration/log/live-server.mjs';
 const {chromium}=createRequire(import.meta.url)(process.env.STAM_PLAYWRIGHT_MODULE||'playwright');
 const dir=await mkdtemp(join(tmpdir(),'stam-partners-'));await writeFile(join(dir,'Game.log'),'');
 const service=await startLogService({file:join(dir,'Game.log')});let browser;
-const sizes=[{width:1699,height:937},{width:1366,height:768},{width:1280,height:640},{width:820,height:1180},{width:390,height:844},{width:360,height:740},{width:320,height:568}];
+const sizes=[{width:1422,height:1269},{width:1699,height:937},{width:1366,height:768},{width:1280,height:640},{width:820,height:1180},{width:390,height:844},{width:360,height:740},{width:320,height:568}];
 try{browser=await chromium.launch({...(process.env.STAM_CHROMIUM_PATH?{executablePath:process.env.STAM_CHROMIUM_PATH}:{}),headless:true,args:['--no-sandbox']});
 for(const lang of ['ko','en'])for(const viewport of sizes){
  const page=await browser.newPage({viewport,reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));

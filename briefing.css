@@ -105,3 +105,10 @@
  .partner-picker .aide-actions button{min-height:36px;padding:8px 10px;font-size:12px}
 }
 .partner-picker .aide-steps{display:none}
+
+.aide-box-result{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px}.aide-box-result strong{font-size:18px;color:#d6f2f1}.aide-box-result>span{font-size:14px;color:#9fbcc9}.aide-box-result>button{margin-left:auto;min-height:38px;padding:8px 18px}.aide-box-editor[hidden]{display:none}.aide-box-editor{margin-top:16px;padding-top:14px;border-top:1px solid #315163}.aide-box-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:12px}.aide-box-editor .aide-box-basis{margin-top:12px}.aide-box-editor .aide-box-basis summary{cursor:pointer}.aide-box-summaries .aide-box-head{gap:6px}.aide-box-summaries .aide-box-head>b{font-size:18px}.aide-box-summaries .aide-box-head>span{font-size:14px}.aide-box-summaries .aide-box-head>em{font-size:13px}
+
+/* Every preparation stage uses the available viewport height. */
+.aide-overlay .aide-card{height:calc(100dvh - 48px)}
+@media(min-width:901px) and (min-height:1050px){.partner-picker .partner-photo{object-fit:contain;background:#0b1e2b}}
+@media(max-width:560px){.aide-overlay .aide-card{height:calc(100dvh - 24px)}}
