@@ -42,6 +42,7 @@ jobs:
           node scripts/check-inbox-batch-browser.mjs
           node scripts/check-delivery-reservations-browser.mjs
           node scripts/check-briefing-browser.mjs
+          node scripts/check-intel-browser.mjs
           node scripts/check-public-link-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
@@ -52,6 +53,7 @@ jobs:
             /tmp/stam-intro-*.png
             /tmp/stam-inbox-*.png
             /tmp/stam-briefing-*.png
+            /tmp/stam-intel-*.png
             /tmp/stam-public-link-*.png
             /tmp/stam-empty-grids.png
             /tmp/stam-preparation-frame-*.png

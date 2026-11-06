@@ -1,8 +1,29 @@
 [
   {
+    "id": "2026-11-07-scmdb-intelligence-room",
+    "version": "3.19.0",
+    "date": "2026-11-07 01:02",
+    "title": "SCMDB 운송 정보실 한눈에 보기",
+    "changes": [
+      "모든 운송 회사의 SCMDB 유형을 표시하고, 동일한 참고 유형의 정의를 모아서 보여줍니다. 실제 수주한 계약은 합치지 않습니다.",
+      "카드에서 목록 기본 보상·총 SCU 범위·최대 상자 규격을 바로 비교합니다. 가변 수량과 목록의 고정 쿼터를 구분합니다.",
+      "회사·평판·운송 유형·검색·정렬을 제공하고, 화물별 조건·미션 원문·장소 후보는 펼쳐서 확인합니다.",
+      "미션 자료는 SCMDB 전용이며 기존 매일 LIVE 자동 갱신을 함께 반영합니다."
+    ],
+    "en": {
+      "title": "SCMDB hauling intelligence at a glance",
+      "changes": [
+        "Show all SCMDB hauling contractors and group identical reference variants while keeping accepted missions independent.",
+        "Compare catalogue base rewards, total SCU ranges and maximum container limits on cards. Distinguish variable quantities from fixed catalogue quotas.",
+        "Filter by company, rank and mission type; search and sort, then expand cargo conditions, original descriptions and location candidates.",
+        "Use SCMDB-only mission data with the existing daily validated LIVE refresh."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-delivery-total-and-regional-routing",
     "version": "3.18.0",
-    "date": "2026-11-06 23:29",
+    "date": "2026-11-07 00:50",
     "title": "배송 총량 예약과 행성권 중심 운항",
     "changes": [
       "배송지 총 SCU를 입력하면 미션·배송지별 총량을 한 번만 예약합니다. 여러 픽업의 최대치를 다시 더하지 않으며 계약 확인·상자 요약·운항·3D에 같은 총량을 사용합니다.",
