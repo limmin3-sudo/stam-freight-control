@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {prepareMissionDb,matchMission,enrichMission} from '../mission-match.mjs';
 import {boxList} from '../engine.mjs';
-import {fillDestinationRecipes,saveDestinationRecipe,destinationGroups} from '../recipes.mjs';
+import {destinationGroups} from '../recipes.mjs';
 const db={meta:{version:'4.10.2-LIVE.1'},missions:[
  {id:'rw-med',title:'Rookie Hauler Needed for Medium Shipment',giver:'Red Wind Linehaul',rank:1,orders:[['Nitrogen',12,8],['Nitrogen',12,8],['Organics',6,4],['Organics',6,4],['Ranta Dung',7,2],['Ranta Dung',7,2]]},
  {id:'rw-big',title:'Experienced Hauler Needed for Medium Shipment',giver:'Red Wind Linehaul',rank:4,orders:[['Nitrogen',87,32],['Organics',87,32],['Ranta Dung',87,32]]},
@@ -32,14 +32,6 @@ test('a limit read from the contract is kept; a wiki limit plans with its larges
  assert.deepEqual(boxList({scu:32,maxBoxSize:16,_maxBoxSource:'wiki'}).boxes,[16,16]);
  assert.deepEqual(boxList({scu:32,maxBoxSize:16}).boxes,[8,8,8,8]);
  assert.equal(boxList({scu:32,maxBoxSize:8,_maxBoxSource:'wiki',boxes:[{size:16,count:2}]}).estimated,false);
-});
-test('remembered layouts follow the mission type: old saves still apply, but not when a box exceeds the limit',()=>{
- const plain=contract('','',[['Nitrogen',12]]),g=destinationGroups(plain)[0];
- const recipes=saveDestinationRecipe({},plain,g,[{size:8,count:1},{size:4,count:1}],'v');
- const small={...plain,cargo:[{...plain.cargo[0],maxBoxSize:8,_maxBoxSource:'wiki'}]};
- assert.deepEqual(fillDestinationRecipes(recipes,small,'v').destinationBoxes[0].boxes,[{size:8,count:1},{size:4,count:1}]);
- const tiny={...plain,cargo:[{...plain.cargo[0],maxBoxSize:2,_maxBoxSource:'wiki'}]};
- assert.equal(fillDestinationRecipes(recipes,tiny,'v').destinationBoxes.length,0);
 });
 test('the bundled hauling mission data is well formed',()=>{
  const d=JSON.parse(fs.readFileSync(new URL('../data/hauling-missions.json',import.meta.url),'utf8'));

@@ -1,5 +1,26 @@
 [
   {
+    "id": "2026-11-06-contract-batch-and-quantity-basis",
+    "version": "3.15.0",
+    "date": "2026-11-06 19:16",
+    "title": "계약 체크·일괄 경로와 수량 기준 구분",
+    "changes": [
+      "수신 카드를 먼저 체크하고 카드 밖의 버튼으로 여러 계약의 경로를 한 번에 계산합니다. 정보 저장만으로 체크되거나 계획에 추가되지 않습니다.",
+      "상자 구성 확인·총수량 확인·최대치 기준을 구분합니다. 최대치 예상 옵션을 켜면 실제 수량이 없는 계약도 명세 상한만큼 공간을 예약할 수 있습니다.",
+      "수량 미확인 계약의 방문 순서 미리보기와 선택적인 누락 정보 일괄 입력을 제공합니다. 과거 상자 구성을 기억해 다른 계약에 적용하는 기능을 제거했습니다.",
+      "파트너 초상화를 배경 있는 이전 이미지로 분리하고 가슴까지 보이도록 사진 영역을 늘렸습니다. 선택창의 불필요한 스크롤과 깨진 기호를 수정했습니다. 이용안내 전신 이미지는 유지합니다."
+    ],
+    "en": {
+      "title": "Batch contract planning and clear quantity sources",
+      "changes": [
+        "Check received cards first, then plan the selected contracts together with the external button. Saving details does not select or add contracts.",
+        "Distinguish confirmed box configurations, actual total SCU and upper-bound estimates. Opt in to reserve catalogue upper bounds when actual quantities are unknown.",
+        "Preview incomplete contract stops and optionally complete missing inputs together. Remembered box layouts are no longer reused across contracts.",
+        "Restore a separate operator portrait with a background and more room for the chest. Remove unnecessary picker scrollbars and repair the broken list symbol. Guide full-body artwork is preserved."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-bridge-operator-portrait",
     "version": "3.14.1",
     "date": "2026-11-06 18:10",
