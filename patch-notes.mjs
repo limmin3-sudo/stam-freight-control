@@ -1,11 +1,50 @@
 import {isEn,L,languageButton,startTranslation} from './i18n.mjs';
+import {releaseChannel,releaseKey,releaseLabel,requestedRelease} from './release-channel.mjs';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const host=document.getElementById('releases'),nav=document.getElementById('release-nav'),search=document.getElementById('release-search'),count=document.getElementById('release-count');
 let records=[],selected='';
 const copy=r=>isEn?r.en:r;
-function select(version,{focus=false}={}){const index=records.findIndex(r=>r.version===version),r=records[index];if(!r)return;selected=version;const text=copy(r);host.replaceChildren();const meta=el('div',undefined,'release-version');meta.append(el('strong','v'+r.version),el('span',r.date.slice(0,10)));if(index===0)meta.append(el('em',L('최신 버전','Latest release')));host.append(meta,el('h2',text.title));const list=el('ul',undefined,'release-changes');for(const line of text.changes)if(typeof line==='string')list.append(el('li',line));host.append(list);
- const pager=el('div',undefined,'release-pager');for(const [offset,label] of [[-1,L('← 더 최신 버전','← Newer release')],[1,L('이전 버전 →','Older release →')]]){const target=records[index+offset],button=el('button',target?label+' · v'+target.version:label);button.type='button';button.disabled=!target;button.onclick=()=>select(target.version,{focus:true});pager.append(button);}host.append(pager);for(const button of nav.querySelectorAll('button'))button.setAttribute('aria-current',String(button.dataset.version===selected));const url=new URL(location.href);url.searchParams.set('version',selected);history.replaceState(null,'',url);if(focus){host.tabIndex=-1;host.focus({preventScroll:true});host.scrollIntoView({block:'start',behavior:'instant'});}}
-function filter(){const term=search.value.trim().toLocaleLowerCase();nav.replaceChildren();let n=0;for(const r of records){const text=copy(r);if(term&&!['v'+r.version,text.title,...text.changes].join(' ').toLocaleLowerCase().includes(term))continue;n++;const button=el('button');button.type='button';button.dataset.version=r.version;button.setAttribute('aria-current',String(r.version===selected));button.append(el('strong','v'+r.version),el('small',r.date.slice(0,10)));button.title=text.title;button.onclick=()=>select(r.version);nav.append(button);}count.textContent=L(`${n}개 버전`,`${n} releases`);if(!n)nav.append(el('p',L('일치하는 버전이 없습니다.','No matching releases.')));}
-async function load(){try{const response=await fetch(new URL('./data/releases.json',import.meta.url),{cache:'no-store'});if(!response.ok)throw Error();const raw=await response.json();if(!Array.isArray(raw))throw Error();records=raw.filter(r=>/^\d+\.\d+\.\d+$/.test(r?.version)&&typeof r.date==='string'&&typeof copy(r)?.title==='string'&&Array.isArray(copy(r)?.changes));if(!records.length)throw Error();filter();const requested=new URL(location.href).searchParams.get('version');select(records.some(r=>r.version===requested)?requested:records[0].version);}catch{host.replaceChildren(el('p',L('패치노트를 불러오지 못했습니다. 연결을 확인하십시오.','Could not load release notes. Check your connection.')));const retry=el('button',L('다시 불러오기','Retry'));retry.type='button';retry.onclick=load;host.append(retry);}}
-if(isEn){document.title='Release notes · STAM FREIGHT CONTROL';document.querySelector('h1').textContent='Release notes';document.querySelector('.release-lead').textContent='Select a version to explore new features, improvements and fixes.';document.querySelector('label[for=release-search]').textContent='Find a version or change';search.placeholder='Try: 3.9 · contracts · cargo';document.getElementById('return-control').textContent='Main screen';host.textContent='Loading release notes…';nav.setAttribute('aria-label','Select a release');}
+const label=r=>releaseLabel(r,isEn);
+function select(key,{focus=false}={}){
+ const index=records.findIndex(r=>releaseKey(r)===key),r=records[index];if(!r)return;
+ selected=key;const text=copy(r);host.replaceChildren();
+ const meta=el('div',undefined,'release-version');meta.append(el('strong',label(r)),el('span',r.date.slice(0,10)));
+ if(index===0)meta.append(el('em',L('최신 버전','Latest release')));
+ if(releaseChannel(r)==='alpha')meta.append(el('em',L('알파 아카이브','Alpha archive')));
+ host.append(meta,el('h2',text.title));const list=el('ul',undefined,'release-changes');
+ for(const line of text.changes)if(typeof line==='string')list.append(el('li',line));host.append(list);
+ const pager=el('div',undefined,'release-pager');
+ for(const [offset,title] of [[-1,L('← 더 최신 버전','← Newer release')],[1,L('이전 버전 →','Older release →')]]){
+  const target=records[index+offset],button=el('button',target?`${title} · ${label(target)}`:title);
+  button.type='button';button.disabled=!target;button.onclick=()=>select(releaseKey(target),{focus:true});pager.append(button);
+ }
+ host.append(pager);
+ for(const button of nav.querySelectorAll('button'))button.setAttribute('aria-current',String(button.dataset.release===selected));
+ const url=new URL(location.href);url.searchParams.set('version',r.version);url.searchParams.set('channel',releaseChannel(r));history.replaceState(null,'',url);
+ if(focus){host.tabIndex=-1;host.focus({preventScroll:true});host.scrollIntoView({block:'start',behavior:'instant'});}
+}
+function filter(){
+ const term=search.value.trim().toLocaleLowerCase();nav.replaceChildren();let n=0,group='';
+ for(const r of records){
+  const text=copy(r);if(term&&![label(r),r.channel,'v'+r.version,text.title,...text.changes].join(' ').toLocaleLowerCase().includes(term))continue;
+  if(group!==releaseChannel(r)){
+   group=releaseChannel(r);nav.append(el('h2',group==='alpha'?L('알파 아카이브','Alpha archive'):group==='beta'?L('베타','Beta'):L('정식','Release'),'release-channel-heading'));
+  }
+  n++;const button=el('button');button.type='button';button.dataset.release=releaseKey(r);button.dataset.version=r.version;
+  button.setAttribute('aria-current',String(releaseKey(r)===selected));button.append(el('strong',label(r)),el('small',r.date.slice(0,10)));
+  button.title=text.title;button.onclick=()=>select(releaseKey(r));nav.append(button);
+ }
+ count.textContent=L(`${n}개 버전`,`${n} releases`);if(!n)nav.append(el('p',L('일치하는 버전이 없습니다.','No matching releases.')));
+}
+async function load(){try{
+ const response=await fetch(new URL('./data/releases.json',import.meta.url),{cache:'no-store'});if(!response.ok)throw Error();
+ const raw=await response.json();if(!Array.isArray(raw))throw Error();
+ records=raw.filter(r=>/^\d+\.\d+\.\d+$/.test(r?.version)&&['alpha','beta','stable'].includes(releaseChannel(r))&&typeof r.date==='string'&&typeof copy(r)?.title==='string'&&Array.isArray(copy(r)?.changes));
+ if(!records.length)throw Error();filter();const url=new URL(location.href);
+ select(releaseKey(requestedRelease(records,url.searchParams.get('version'),url.searchParams.get('channel'))));
+}catch{
+ host.replaceChildren(el('p',L('패치노트를 불러오지 못했습니다. 연결을 확인하십시오.','Could not load release notes. Check your connection.')));
+ const retry=el('button',L('다시 불러오기','Retry'));retry.type='button';retry.onclick=load;host.append(retry);
+}}
+if(isEn){document.title='Release notes · STAM FREIGHT CONTROL';document.querySelector('h1').textContent='Release notes';document.querySelector('.release-lead').textContent='Explore beta releases and the preserved alpha archive.';document.querySelector('label[for=release-search]').textContent='Find a version or change';search.placeholder='Try: beta · 1.0 · cargo';document.getElementById('return-control').textContent='Main screen';host.textContent='Loading release notes…';nav.setAttribute('aria-label','Select a release');}
 document.querySelector('.topnav').append(languageButton());search.oninput=filter;startTranslation();load();
