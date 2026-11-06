@@ -1,5 +1,24 @@
 [
   {
+    "id": "2026-11-06-wide-partner-portraits",
+    "version": "3.17.0",
+    "date": "2026-11-06 21:46",
+    "title": "넓은 파트너 선택창과 일정한 초상화 구도",
+    "changes": [
+      "준비창의 최대 가로 폭을 1760px로 넓히고 높이를 화면 안에서 최대 1000px로 제한했습니다. 세로로 긴 화면에서도 사진 영역이 끝없이 늘어나지 않습니다.",
+      "디렉터와 브로커의 표시 범위를 크롭하고 네 초상화의 머리 크기와 위쪽 여백을 맞췄습니다. 사진의 원래 비율을 유지합니다.",
+      "높이가 낮은 화면에서는 파트너 탭으로 전환해 사진과 설명·버튼을 함께 볼 수 있습니다. 관련 안내 사진을 갱신했습니다."
+    ],
+    "en": {
+      "title": "Wider partner selection and consistent portrait framing",
+      "changes": [
+        "Expand preparation frames to a maximum width of 1760px and cap their height at 1000px within the viewport. Portrait areas stay bounded on tall displays.",
+        "Crop the director and broker to match the head sizes and top margins of all four portraits while preserving their original proportions.",
+        "Use partner tabs on short displays so portraits, descriptions and actions remain visible. Refresh the related guide captures."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-wiki-drives-and-compact-preparation",
     "version": "3.16.0",
     "date": "2026-11-06 21:30",
