@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import {pathToFileURL} from 'node:url';import path from 'node:path';
-import {scmdbFields,reconcileFields,scmdbDefinitionIds,plain} from './reconcile-mission-details.mjs';
+import {scmdbFields,reconcileFields,scmdbDefinitionIds,plain} from './scmdb-fields.mjs';
 export const SCMDB_COMMIT='937f66810a392aa5682b9615a1afbff20fe96e3f',SCMDB_SHA256='72153c1ba58e497549628f134168c2f2c97b342c76e436292a304407a61a5186';
 const list=x=>Array.isArray(x)?x:[];
 export function scmdbCatalog(source,{commit=SCMDB_COMMIT,sha256=SCMDB_SHA256}={}){const sourceUrl=`https://github.com/KrovaxCode/SCMDB_DATA/blob/${commit}/data/merged-${source.version}.json`,groups=new Map();for(const c of [...source.contracts,...source.legacyContracts])for(const id of scmdbDefinitionIds(c)){if(!groups.has(id))groups.set(id,[]);groups.get(id).push(c);}
