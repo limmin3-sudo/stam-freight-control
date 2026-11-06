@@ -1,3 +1,11 @@
+## 2026-11-07 — 미션 정보·보상 대조 추가, PR20 배포 준비
+
+- Codex, `feature/delivery-reservations-regional-routing`, PR20에 기존 배송 총량 예약·권역 경로·대기권 추정과 함께 추가한다. 기존 사용자 배포 승인이 이 수정·테스트·커밋·푸시·병합·Pages까지 포함한다. 미추적 `prototypes/`는 보존·제외한다.
+- 사용자 최신 요청: Wiki와 다른 목록을 정의 UUID로 대조해 동일/누락은 합치고 차이는 별도 보관한다. 공개 SCMDB_DATA commit937f668(4.10.2-live.12913470)에서 예시 정의의 기본 보상215250 확인. 이전 Wiki 원본 CalculatedReward만 보고 자동 금액이 불가능하다고 한 범위를 수정했다. 출처 빌드12881860/12913470 차이를 명시한다.
+- `scripts/reconcile-mission-details.mjs`와 `data/mission-details.json`: 정의3108(양쪽1092/Wiki만748/SCMDB만1268), 같은 필드6606·보완22768·차이2155을 분리했다. source SHA256·commit·Wiki snapshot fingerprint 보존. 부모의 자식 ID만으로 부모 보상을 복사하지 않는다. 모든 수주는 독립적이며 기존 수량/상자 DB·퀀텀 자료는 바꾸지 않는다.
+- 카드·수정·명세 화면에서 유형/내용/랭크/기본 보상/출처와 차이를 펼쳐 본다. `_rewardReference`로 목록 기본 보상을 실제 입력과 분리하고 합계·시간당 수입·완료 기록에 예상임을 표시한다. 수동 실제 보상이 우선한다. 기존 예약22 SCU와 수주별 데이터는 보존한다.
+- 전체 Node214 통과(`/tmp/stam-details-final-full.log`), 참고 화물 규격 대조 후 관련11 통과(`/tmp/stam-details-final-targeted.log`); 1차 전체 Node212 통과(`/tmp/stam-details-full.log`), 확장 일괄수신 브라우저 KO/EN·기본보상215250·출처 차이·실제180000 입력·예약22·새로고침·모바일 통과(`/tmp/stam-details-batch-browser.log`). 카드 저장 후 계획은 별도 체크/버튼이어야 하므로 그 흐름을 테스트한다. 최종 Node/PR exact-head CI·Pages·실제 공개 사이트 검증은 진행 중이며 아직 배포 완료로 보고하지 않는다.
+
 ## 2026-11-06 — v3.18 배송 총량 예약·행성권 경로 검증 중
 
 - Codex, `feature/delivery-reservations-regional-routing`, main `efae0a8` 기준. 1차 head `e3cb1a1` push 및 draft PR20(https://github.com/limmin3-sudo/stam-freight-control/pull/20) 생성·연결. 보완 head `ea5848b`까지 push. 보상 기록 표시 추가는 미커밋, 배포 전이다. 사용자 기존 배포 승인이 이번 수정·테스트·푸시·PR·Pages까지 포함한다. 미추적 `prototypes/`는 보존하며 공개하지 않는다.

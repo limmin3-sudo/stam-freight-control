@@ -1,3 +1,4 @@
+import {applyContractInfo} from '../contract-info.mjs';
 import {definitionDraft} from '../mission-catalog.mjs';
 import {deliveryGroups,quantitiesReady,actualQuantity} from '../delivery-totals.mjs';
 // The inbox projects evidence into editable drafts. Receiving never changes planner missions.
@@ -41,7 +42,7 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   }}
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
-  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank}:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
+  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
   if(quantityHints.length)card.quantityHints=quantityHints;
   card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints]);unique.set(card.id,card);
  }
@@ -49,7 +50,7 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
 }
 export function cardDraft(card){
  if(!card||card.ended||card.conflict)throw Error('이 계약의 현재 기록을 먼저 확인해 주세요.');
- return {id:card.id,company:card.company||'',title:card.title,reward:0,cargo:card.rows.length?structuredClone(card.rows):[{commodity:'',scu:'',pickupId:'',dropoffId:'',boxes:[]}],_logInbox:{version:1,signature:card.signature,...(card.definition?{definition:card.definition}:{})}};
+ return {id:card.id,company:card.company||'',title:card.title,reward:0,cargo:card.rows.length?structuredClone(card.rows):[{commodity:'',scu:'',pickupId:'',dropoffId:'',boxes:[]}],_logInbox:{version:1,signature:card.signature,...(card.definition?{definition:card.definition}:{}),...(card.observedDefinitionId?{observedDefinitionId:card.observedDefinitionId}:{})}};
 }
 
 // Actual-quantity readiness; upper-bound estimates require a separate opt-in.
@@ -90,15 +91,15 @@ export function withDeliveryTotal(draft,dropoffId,scu){
 }
 
 export class InboxSelection {
- constructor(places,missions=()=>[]){this.places=places;this.missions=missions;this.cards=[];this.useUpperBounds=true;this.selected=new Map();this.reviewed=new Map();}
+ constructor(places,missions=()=>[],details=()=>null){this.details=details;this.places=places;this.missions=missions;this.cards=[];this.useUpperBounds=true;this.selected=new Map();this.reviewed=new Map();}
  sync(cards){this.cards=cards;for(const [id,signature] of this.selected){const raw=cards.find(c=>c.id===id);if(!raw||raw.signature!==signature||!this.ready(this.effective(raw)))this.selected.delete(id);}}
  current(draft){const c=this.cards.find(c=>c.id===draft.id);return !!c&&!c.ended&&!c.conflict&&c.signature===draft._logInbox?.signature;}
  draft(raw,estimate=true){const base=cardDraft(raw),saved=this.reviewed.get(raw.id),reviewed=saved?._logInbox?.signature===raw.signature,prior=this.missions().find(m=>m.id===raw.id);let refreshed=false;const next={...structuredClone(reviewed?saved:prior||base),_logInbox:{...base._logInbox,reviewed}};
   for(const [i,row] of next.cargo.entries())if(row._scuEstimated){const actual=base.cargo[i],matches=actual&&(actual.commodity===row.commodity||actual._catalog?.id&&actual._catalog.id===row._catalog?.id&&actual._catalog.orderIndex===row._catalog.orderIndex)&&actual.pickupId===row.pickupId&&actual.dropoffId===row.dropoffId;if(matches&&Number.isSafeInteger(actual.scu)&&actual.scu>0){next.cargo[i]={...row,...actual};delete next.cargo[i]._scuEstimated;refreshed=true;}else{row.scu='';delete row._scuEstimated;}}
-  if(refreshed)next._logInbox.refreshedEstimate=true;return estimate&&this.useUpperBounds?upperBoundDraft(next):next;
+  if(refreshed)next._logInbox.refreshedEstimate=true;const enriched=applyContractInfo(next,this.details());return estimate&&this.useUpperBounds?upperBoundDraft(enriched):enriched;
  }
  ready(card){return cardReady(card,this.places)||this.useUpperBounds&&upperBoundReady(card,this.places);}
- effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes,deliveryTotals:draft._deliveryTotals};}
+ effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes,deliveryTotals:draft._deliveryTotals,details:draft._definitionDetails,rewardReference:draft._rewardReference,reward:draft.reward,_rewardKnown:draft._rewardKnown,_rewardReference:draft._rewardReference};}
  toggle(id,checked){const raw=this.cards.find(c=>c.id===id);if(!raw||!this.ready(this.effective(raw)))return false;if(checked)this.selected.set(id,raw.signature);else this.selected.delete(id);return true;}
  saveReviewed(drafts){for(const d of drafts)if(!this.current(d)||!cardReady({rows:d.cargo,deliveryTotals:d._deliveryTotals},this.places))throw Error('계약 정보가 바뀌었거나 필수 정보가 부족합니다. 수신함에서 다시 확인하십시오.');for(const d of drafts){this.reviewed.set(d.id,structuredClone(d));this.selected.delete(d.id);}}
  saveDeliveryDrafts(drafts){for(const d of drafts){if(!this.current(d)||!d._deliveryTotals?.length)throw Error('stale-delivery-total');for(const t of d._deliveryTotals)withDeliveryTotal(d,t.dropoffId,t.scu);}for(const d of drafts)this.reviewed.set(d.id,structuredClone(d));}

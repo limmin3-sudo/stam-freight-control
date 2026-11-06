@@ -20,3 +20,5 @@ Policies checked 2026-11-06:
 - https://support.robertsspaceindustries.com/hc/en-us/articles/360006895793-Star-Citizen-Fankit-and-Fandom-FAQ
 
 The final scene artwork is created for this fan tool; source generation files and discarded concepts are not part of the public website bundle.
+
+- SCMDB_DATA by KrovaxCode: public mission catalogue reference fields and base reward values, pinned to commit `937f66810a392aa5682b9615a1afbff20fe96e3f`, build `4.10.2-live.12913470`. https://github.com/KrovaxCode/SCMDB_DATA . Per-field source/version and differing values are retained in `data/mission-details.json`; see `docs/MISSION-DATA-RECONCILIATION.md`. Game content belongs to its respective owners.

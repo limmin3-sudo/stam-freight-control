@@ -10,7 +10,7 @@
       "오퍼레이터는 한 행성권에서 가까운 화물을 모은 뒤 배송합니다. 떠난 후 실은 화물의 배송을 마치기 전 다른 권역에서 새로 픽업하지 않습니다.",
       "지상 출발은 퀀텀 가능 고도까지 상승하고, 도착은 NAV→약10km SCM→최종 저속 접근·착륙으로 나눠 예상합니다. 함선별 상승 목표·순가속을 보정할 수 있으며 실측과 가정을 구분합니다.",
       "수량 단계·예약 공간·경로 계산 안내를 갱신했습니다. 진행 중 화물의 소유권과 위치를 보존합니다.",
-      "보상을 모르는 계약은 0 aUEC로 확정하지 않습니다. 확인된 보상 합계·시간당 수익과 미확인 계약 수를 구분합니다."
+      "정의 ID로 Wiki와 SCMDB의 미션 정보·기본 보상을 대조합니다. 같은 값과 누락 정보는 합치고 차이는 출처별로 보존합니다. 실제 입력 보상이 우선이며 목록 기본 보상 포함 합계는 예상으로 표시합니다."
     ],
     "en": {
       "title": "Delivery-total reservations and regional routing",
@@ -20,7 +20,7 @@
         "The operator collects within one planet region, then finishes delivering the loaded batch before collecting in another region.",
         "Estimate climb to quantum altitude, NAV approach, SCM around 10 km and slow final landing separately. Calibrate climb target and net acceleration per ship; assumptions stay labelled.",
         "Update quantity, reserved-space and routing guidance while preserving aboard ownership and positions.",
-        "Keep unknown rewards distinct from confirmed zero. Label confirmed reward subtotals, hourly estimates and excluded unknown contracts."
+        "Reconcile Wiki and SCMDB mission details and base rewards by definition ID. Merge matching and missing fields, isolate differences, prioritise actual reward input and label totals containing catalogue base rewards as estimates."
       ]
     }
   },
