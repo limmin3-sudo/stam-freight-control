@@ -44,6 +44,7 @@ export const PHRASES={
  '행성권 재방문 최소화 · 이동거리 비교 · 적재 확인':'Fewer planet-region returns · compare distance · packing checked',
  '오퍼레이터는 한 행성권에서 픽업한 뒤 배송합니다. 여러 행성권의 픽업 수량이 미확인인 계약은 수석 항해사를 선택하거나 픽업별 실제 수량을 입력하세요.':'The operator collects within one planet region before delivering. For unknown pickup shares spanning regions, choose the navigator or enter the actual pickup amounts.',
  '이륙 준비 여유 (분)':'Takeoff preparation allowance (min)','하강·착륙 정렬 여유 (분)':'Descent / landing alignment allowance (min)','퀀텀 진입 고도 가정 (km/편도)':'Assumed quantum-entry altitude (km each way)','행성권 재방문 우선 · 비행·착륙 부담 → 거리 · 용량 미반영':'Fewer regional returns · flight / landing cost → distance · capacity ignored','행성권 재방문 우선 · 비행·착륙 부담 → 거리 · 적재 확인':'Fewer regional returns · flight / landing cost → distance · packing checked',
+ '보상 미확인':'Reward unknown','확인된 보상 합계':'Confirmed reward subtotal',
  '예약 공간':'Reserved space','배송 총량 기준':'Delivery-total basis',
 
  '그리드 켜기/끄기':'Enable / disable grids','선택 완료':'Done selecting','사용 안 함':'Disabled','사용 중':'Enabled','적재 중':'Cargo aboard',
