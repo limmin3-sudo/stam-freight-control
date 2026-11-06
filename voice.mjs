@@ -1,7 +1,7 @@
 // Existing navigator/operator IDs remain stable; legacy officers fall back to the navigator.
 import {isEn} from './i18n.mjs';
 const KEY='sfc-voice';
-export const VOICE_PORTRAITS={standard:'assets/partners/navigator.jpg',broker:'assets/partners/broker.jpg',aide:'assets/partners/aide.png'};
+export const VOICE_PORTRAITS={standard:'assets/partners/navigator.jpg',broker:'assets/partners/broker.jpg',aide:'assets/partners/aide-portrait.webp'};
 export const VOICE_LIST=isEn?[
  ['aide','Bridge Operator','Finish small, simple contracts one by one, with short stops along the way.'],
  ['standard','Senior Navigator','Collect cargo across contracts and reduce repeat visits.'],
@@ -78,21 +78,21 @@ EN.aide.profile={headline:'Nearby contracts, one clear delivery at a time!',intr
 EN.broker={role:'Smuggling Broker',welcome:'Looking for a profitable route, Captain?',welcomeSub:'I connect deals out in Pyro. Something different from contract hauling is in the works.',profile:{headline:'The next deal is coming. See you soon.',intro:'Tell me your ship and working capital. I will help figure out what to buy, how much, and where to sell it. The trading network is still being prepared; take a haul with the operator or navigator for now.',points:[['Trades for your ship and budget','Planned: commodities, quantities and purchase costs that fit your hold and funds.'],['From purchase to sale','Planned: buying and selling locations, estimated profit and price timestamps.'],['Trading is coming soon','Trade recommendations are not available yet. Meet me here when preparations are complete.']]}};
 // Intake and container review belong to the partner too, in both languages.
 L.standard.inbox='수신한 계약을 확인하겠습니다.';
-L.standard.inboxSub='정보가 확인된 카드를 누르면 계획에 추가됩니다. 부족한 항목은 게임의 계약 화면과 대조해 보완하십시오.';
+L.standard.inboxSub='계약을 체크한 뒤 한 번에 경로를 계산합니다. 실제 수량·상자 구성·최대치 기준을 구분해 확인하겠습니다.';
 L.aide.inbox='함장님, 들어온 계약부터 챙겨봐요!';
-L.aide.inboxSub='내용이 다 찬 카드는 바로 누르면 돼요! 빠진 수량은 게임에서 확인해 주세요. 계약서 빈칸은 눈치로 채우면 안 되니까요.';
+L.aide.inboxSub='함장님, 할 계약만 체크해요! 경로는 한 번에 짤게요. 수량이 안 보이면 최대치로 자리를 넉넉히 잡을 수도 있어요.';
 EN.standard.inbox='Let us review the received contracts.';
-EN.standard.inboxSub='Complete cards go directly into the plan. Check missing fields against the in-game contract.';
+EN.standard.inboxSub='Check contracts, then plan them together. We distinguish confirmed boxes, actual total SCU and upper-bound estimates.';
 EN.aide.inbox='Captain, let’s pick up those new contracts!';
-EN.aide.inboxSub='Click a complete card and it is in! Check missing amounts in game—guesswork does not belong on the manifest.';
+EN.aide.inboxSub='Captain, check the jobs you want! I’ll plan them together. If quantities are missing, we can reserve space using their upper bounds.';
 L.standard.boxes='상자 구성과 계산 근거를 확인하십시오.';
-L.standard.boxesSub='저장된 구성과 미션의 최대 상자 규격을 대조했습니다. 자동 구성은 예상값이므로 실제 크기·개수와 다른 항목을 수정하십시오.';
+L.standard.boxesSub='이 계약의 직접 입력 구성과 미션의 최대 상자 규격을 대조했습니다. 자동 구성은 예상값이므로 실제 크기·개수와 다른 항목을 수정하십시오.';
 L.aide.boxes='상자는 이렇게 나눠봤어요!';
-L.aide.boxesSub='저장된 구성이나 미션 규격으로 채워뒀어요! 최대 크기로 잡은 예상 구성도 있으니 실제 상자와 비교해 주세요. 합계가 맞아도 상자 모양까지 같진 않거든요.';
+L.aide.boxesSub='이 계약에 입력한 구성이나 미션 규격으로 채워뒀어요! 최대 크기로 잡은 예상 구성도 있으니 실제 상자와 비교해 주세요. 합계가 맞아도 상자 모양까지 같진 않거든요.';
 EN.standard.boxes='Review the container breakdown and its source.';
-EN.standard.boxesSub='I compared saved layouts and mission container limits. Automatic layouts are estimates; correct any differences in actual sizes and counts.';
+EN.standard.boxesSub='I compared this contract’s manual layout and mission container limits. Automatic layouts are estimates; correct any differences in actual sizes and counts.';
 EN.aide.boxes='Here is the container breakdown!';
-EN.aide.boxesSub='I used saved layouts or mission limits to fill this in! Some layouts assume maximum-size crates, so check the real counts too. Equal SCU does not mean equal shapes.';
+EN.aide.boxesSub='I used this contract’s manual layout or mission limits to fill this in! Some layouts assume maximum-size crates, so check the real counts too. Equal SCU does not mean equal shapes.';
 L.aide.welcomeSub='가까운 계약부터 하나씩 끝내봐요! 픽업부터 마지막 배송까지 제가 안내할게요.';
 EN.aide.welcomeSub='Let’s finish nearby contracts one by one! I’ll guide you from pickup to the final delivery.';
 L.aide.start='어디서 출발할까요, 함장님?';

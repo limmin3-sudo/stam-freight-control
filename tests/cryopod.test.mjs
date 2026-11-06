@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {packBoxes,makeShipments} from '../engine.mjs';
 import {groupConfiguration,wikiConfiguration} from '../cargo-summary.mjs';
-import {saveDestinationRecipe,fillDestinationRecipes,useWikiConfiguration,destinationGroups} from '../recipes.mjs';
+import {useWikiConfiguration,destinationGroups} from '../recipes.mjs';
 const ship={id:'test',name:'Test',shareGrids:true,grids:[{name:'Hold',w:1,h:2,l:2,x:0,y:0,z:0,maxBoxSize:2}]};
 const pod=i=>({boxId:'pod'+i,missionId:'pods',dropoffId:'d',size:1,_cargoShape:'cryopod'});
 const crate={boxId:'crate',missionId:'crate',dropoffId:'d',size:2};
@@ -23,9 +23,7 @@ test('four pods remain four owned 1 SCU items, not one 4 SCU crate or four 2 SCU
  const {shipments}=makeShipments([m],new Map([['p',{}],['d',{}]]),{ship});const boxes=shipments.flatMap(s=>s.boxes);assert.equal(boxes.length,4);assert.ok(boxes.every(b=>b.size===1&&b._cargoShape==='cryopod'));assert.equal(new Set(boxes.map(b=>b.boxId)).size,4);
  const layout=groupConfiguration(m,destinationGroups(m)[0]);assert.equal(layout.basis,'entity');assert.deepEqual(layout.boxes,[{size:1,count:4}]);
 });
-test('choosing wiki layout bypasses old recipes for this contract without deleting them',()=>{
- const m={id:'recipe',cargo:[{commodity:'Souvenirs',scu:2,pickupId:'p',dropoffId:'d',maxBoxSize:2,_maxBoxSource:'wiki',boxes:[]}]},g=destinationGroups(m)[0],recipes=saveDestinationRecipe({},m,g,[{size:1,count:2}],'v');
- const saved=fillDestinationRecipes(recipes,m,'v');assert.equal(groupConfiguration(saved,g).estimated,false);
- assert.deepEqual(wikiConfiguration(saved,g).boxes,[{size:2,count:1}]);
- const reset=fillDestinationRecipes(recipes,useWikiConfiguration(saved,g),'v');assert.equal(reset.destinationBoxes.length,0);assert.deepEqual(groupConfiguration(reset,destinationGroups(reset)[0]).boxes,[{size:2,count:1}]);assert.equal(Object.keys(recipes).length,1);assert.equal(fillDestinationRecipes(recipes,m,'v').destinationBoxes.length,1);
+test('choosing wiki layout clears this contract manual layout without changing another contract',()=>{
+ const m={id:'manual',cargo:[{commodity:'Souvenirs',scu:2,pickupId:'p',dropoffId:'d',maxBoxSize:2,_maxBoxSource:'wiki',boxes:[]}],destinationBoxes:[{pickupId:'p',dropoffId:'d',boxes:[{size:1,count:2}],origin:'manual'}]},g=destinationGroups(m)[0],other=structuredClone(m);other.id='other';
+ assert.equal(groupConfiguration(m,g).estimated,false);assert.deepEqual(wikiConfiguration(m,g).boxes,[{size:2,count:1}]);const reset=useWikiConfiguration(m,g);assert.equal(reset.destinationBoxes.length,0);assert.deepEqual(groupConfiguration(reset,destinationGroups(reset)[0]).boxes,[{size:2,count:1}]);assert.equal(m.destinationBoxes.length,1);assert.deepEqual(other.destinationBoxes[0].boxes,[{size:1,count:2}]);
 });
