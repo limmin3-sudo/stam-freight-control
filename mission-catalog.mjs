@@ -10,11 +10,11 @@ export function definitionOrders(definition){return definition?.rules?.orders||[
 export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dropoffs=[],markers=[]}={}){
  const index=catalogIndex(catalog);if(!index)return null;
  const route=routeFromTitle(contract.title,places);let definition=index.get(contract.definitionId),basis='definition-id';
- if(!definition&&route.pickup&&route.dropoff){const title=String(contract.title||''),rank=rankWords.find(w=>new RegExp('\\b'+w+'\\b','i').test(title)),direct=/\bdirect\b/i.test(title),bulk=/\bbulk\b/i.test(title);
+ if(!definition&&catalog.sourceName!=='SCMDB'&&route.pickup&&route.dropoff){const title=String(contract.title||''),rank=rankWords.find(w=>new RegExp('\\b'+w+'\\b','i').test(title)),direct=/\bdirect\b/i.test(title),bulk=/\bbulk\b/i.test(title);
   if(rank&&direct&&bulk){const candidates=[...index.values()].filter(d=>d.released&&!d.notForRelease&&new RegExp('\\b'+rank+'\\b','i').test(d.title)&&/direct.*bulk/i.test(d.title)&&['pickup','dropoff'].every(role=>d.rules?.locations?.filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot)).some(s=>s.candidates.some(name=>catalogPlace(name,places)?.id===route[role].id))));if(candidates.length===1){definition=candidates[0];basis='unique-title-route';}}
  }
- if(!definition?.released||definition.notForRelease)return null;
- const rules=definition.rules,orders=definitionOrders(definition),db=missionDb?.missions||[],meta=db.find(m=>m.id===definition.id)||db.find(m=>definition.parents?.includes(m.id));
+ if(!definition?.released||definition.notForRelease||definition.rules?.sourceConflict)return null;
+ const rules=definition.rules.objectiveIdsFromMarkers?{...definition.rules,haulingObjectives:[...new Set(markers.map(m=>m.objectiveId?.match(/^(?:pickup|dropoff)_([a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12})_\d+$/i)?.[1]).filter(Boolean))]}:definition.rules,orders=definitionOrders(definition),db=missionDb?.missions||[],meta=db.find(m=>m.id===definition.id)||db.find(m=>definition.parents?.includes(m.id));
  const pools=rules.pools||[],poolNames=role=>[...new Set(orders.map(o=>o[role+'Pool']).filter(Boolean))];
  const idsOf=pool=>[...new Set((pool?.candidates||[]).map(p=>places.find(l=>l.uuid===p.id||l.id===p.id)||catalogPlace(p.name,places)).filter(Boolean).map(p=>p.id))];
  const resolve=(role,order)=>{
@@ -33,9 +33,9 @@ export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dr
   const entity=o.kind!=='Resource',min=entity?o.minAmount:o.minScu,max=entity?o.maxAmount:o.maxScu;
   const quantity=entity&&o.name!=='CryoPod'?'':Number.isSafeInteger(o.fixedQuantity)&&o.fixedQuantity>0?o.fixedQuantity:Number.isSafeInteger(min)&&min>0&&min===max?min:'';
   const limit=[1,2,4,8,16,24,32].includes(o.maxBoxScu)?o.maxBoxScu:null;
-  return {commodity:o.name,scu:quantity,pickupId:resolve('pickup',o),dropoffId:resolve('dropoff',o),boxes:[],...(limit?{maxBoxSize:limit,_maxBoxSource:'wiki',_catalog:{id:definition.id,commodity:o.name,maxBoxSize:limit,orderIndex:o.orderIndex,objectives:rules.haulingObjectives||[]}}:{}),_quantityBounds:{min,max,unit:entity?'items':'SCU'},_catalogBasis:o.fixedQuantity?'definition-fixed-quota':'definition-bounds'};
+  return {commodity:o.name,scu:quantity,pickupId:resolve('pickup',o),dropoffId:resolve('dropoff',o),boxes:[],...(limit?{maxBoxSize:limit,_maxBoxSource:o.limitSource||'wiki',_catalog:{source:o.limitSource||'wiki',id:definition.id,commodity:o.name,maxBoxSize:limit,orderIndex:o.orderIndex,objectives:rules.haulingObjectives||[]}}:{}),_quantityBounds:{min,max,unit:entity?'items':'SCU'},_catalogBasis:o.fixedQuantity?'definition-fixed-quota':'definition-bounds'};
  });
- return {id:definition.id,title:definition.title,company:definition.giver||meta?.giver||'',rank:definition.rank??meta?.rank,rows,basis,version:catalog.version,pickupId:resolve('pickup'),dropoffId:resolve('dropoff'),multiplePickups:poolNames('pickup').length>1||pools.filter(p=>/^Location/.test(p.purpose||'')).length>1,multipleDropoffs:poolNames('dropoff').length>1||pools.filter(p=>/^Destination/.test(p.purpose||'')).length>1};
+ return {id:definition.id,title:definition.title,company:definition.giver||meta?.giver||'',rank:definition.rank??meta?.rank,rows,basis,version:definition.quantityVersion||catalog.version,source:definition.rulesSource||'wiki',pickupId:resolve('pickup'),dropoffId:resolve('dropoff'),multiplePickups:poolNames('pickup').length>1||pools.filter(p=>/^Location/.test(p.purpose||'')).length>1,multipleDropoffs:poolNames('dropoff').length>1||pools.filter(p=>/^Destination/.test(p.purpose||'')).length>1};
 }
 // Restore exact definition limits after legacy name/type enrichment. User changes
 // and actual box layouts remain authoritative; the old packer receives its usual
@@ -44,7 +44,7 @@ export function retainCatalogLimits(original,enriched){
  if(!original?._logInbox?.definition)return enriched;
  for(let i=0;i<enriched.cargo.length;i++){const before=original.cargo[i],after=enriched.cargo[i],e=before?._catalog;
   if(!e||e.id!==original._logInbox.definition.id||before.commodity!==e.commodity||before.maxBoxSize!==e.maxBoxSize)continue;
-  after.maxBoxSize=e.maxBoxSize;after._maxBoxSource='wiki';after._catalog={...e};
+  after.maxBoxSize=e.maxBoxSize;after._maxBoxSource=e.source||'wiki';after._catalog={...e};
  }
- const d=original._logInbox.definition;enriched._wiki={id:d.id,title:original.title,giver:original.company,rank:d.rank,version:d.version,candidates:1,ambiguous:false};return enriched;
+ const d=original._logInbox.definition;enriched._wiki={source:d.source==='scmdb'?'SCMDB':'Wiki',id:d.id,title:original.title,giver:original.company,rank:d.rank,version:d.version,candidates:1,ambiguous:false};return enriched;
 }

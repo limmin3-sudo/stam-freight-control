@@ -52,7 +52,7 @@ test('a misread commodity is renamed from the mission data when the other goods 
 
 test('bundled Ling, Dead Saints and Red Wind types expose wiki-based layouts without claiming actual boxes',async()=>{
  const {groupConfiguration,configurationLabel,missionTypeText}=await import('../cargo-summary.mjs');
- const bundled=prepareMissionDb(JSON.parse(fs.readFileSync(new URL('../data/hauling-missions.json',import.meta.url))),{commodities:Object.fromEntries(Object.entries(JSON.parse(fs.readFileSync(new URL('../data/ai-korean.json',import.meta.url))).goods).map(([en,ko])=>[ko,en]))});
+ const bundled=prepareMissionDb(JSON.parse(fs.readFileSync(new URL('./fixtures/legacy-catalogue/hauling-missions.json',import.meta.url))),{commodities:Object.fromEntries(Object.entries(JSON.parse(fs.readFileSync(new URL('./fixtures/legacy-catalogue/ai-korean.json',import.meta.url))).goods).map(([en,ko])=>[ko,en]))});
  const cases=[
   ['링 가문','신입 소량',[['기념품',2],['증류주',1],['가공 식품',4],['스팀',2]],[2,2,1,1]],
   ['DEAD SAINTS','신입 중형',[['레버넌트 나무 꽃가루',16],['네온',8],['레버넌트 나무 꽃가루',16],['SLAM',4],["이'템",4]],[8,2,8,1,2]],

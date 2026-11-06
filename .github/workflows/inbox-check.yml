@@ -8,8 +8,8 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,6 +40,7 @@ jobs:
           node scripts/check-cargo-grids-browser.mjs
           node scripts/check-inbox-browser.mjs
           node scripts/check-inbox-batch-browser.mjs
+          node scripts/check-delivery-reservations-browser.mjs
           node scripts/check-briefing-browser.mjs
           node scripts/check-public-link-browser.mjs
       - uses: actions/upload-artifact@v4
@@ -57,4 +58,5 @@ jobs:
             /tmp/stam-partner-picker-*.png
             /tmp/stam-drive-*.png
             /tmp/stam-box-summary-*.png
+            /tmp/stam-reservation-*.png
           if-no-files-found: ignore

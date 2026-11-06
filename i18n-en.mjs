@@ -2,6 +2,7 @@ import {formalUi} from './ui-register.mjs';
 // English phrases for the Korean interface (i18n.mjs). PATTERNS run first (numbers and names captured), then
 // PHRASES longest first, then POST patterns for bare counters. Keep Korean keys exactly as the app renders them.
 export const PATTERNS=[
+ [/배송 총량 (\d+) SCU 공간 예약 · 픽업별 수량 미확인/,'Delivery total $1 SCU reserved · pickup shares unknown'],
  [/사용 (\d+)\/(\d+)/,'Enabled $1/$2'],
  [/그리드 (\d+)개/,'$1 grids'],[/(\d+)건 · ([\d,]+) SCU/,'$1 · $2 SCU'],
  [/(\d+)번 거점 작업 후 예상/,'expected after stop $1'],[/(\d+)번 거점 작업 전 예상/,'expected before stop $1'],
@@ -38,6 +39,14 @@ POST=[[/(\d[\d,]*)\s*개\b/g,'$1'],[/(\d[\d,]*)개/g,'$1'],[/(\d+)\s*분/g,'$1 m
 PATTERNS.push(...POST.map(([re,to])=>[re,to,'post']));
 
 export const PHRASES={
+ '행성권 안에서 픽업 · 떠난 뒤 배송 우선':'Collect within one region · finish delivery after leaving',
+ '행성권 재방문 최소화 · 이동거리 비교 · 용량 미반영':'Fewer planet-region returns · compare distance · capacity ignored',
+ '행성권 재방문 최소화 · 이동거리 비교 · 적재 확인':'Fewer planet-region returns · compare distance · packing checked',
+ '오퍼레이터는 한 행성권에서 픽업한 뒤 배송합니다. 여러 행성권의 픽업 수량이 미확인인 계약은 수석 항해사를 선택하거나 픽업별 실제 수량을 입력하세요.':'The operator collects within one planet region before delivering. For unknown pickup shares spanning regions, choose the navigator or enter the actual pickup amounts.',
+ '이륙 준비 여유 (분)':'Takeoff preparation allowance (min)','하강·착륙 정렬 여유 (분)':'Descent / landing alignment allowance (min)','퀀텀 진입 고도 가정 (km/편도)':'Assumed quantum-entry altitude (km each way)','행성권 재방문 우선 · 비행·착륙 부담 → 거리 · 용량 미반영':'Fewer regional returns · flight / landing cost → distance · capacity ignored','행성권 재방문 우선 · 비행·착륙 부담 → 거리 · 적재 확인':'Fewer regional returns · flight / landing cost → distance · packing checked',
+ '보상 미확인':'Reward unknown','확인된 보상 합계':'Confirmed reward subtotal',
+ '예약 공간':'Reserved space','배송 총량 기준':'Delivery-total basis',
+
  '그리드 켜기/끄기':'Enable / disable grids','선택 완료':'Done selecting','사용 안 함':'Disabled','사용 중':'Enabled','적재 중':'Cargo aboard',
  '구역을 눌러 사용 여부를 바꾸세요 · 회색은 사용 안 함':'Click a grid to toggle it · grey grids are disabled',
  '이미 화물이 실린 그리드는 끌 수 없습니다. 하역 후 변경해 주세요.':'This grid has cargo aboard. Unload it before disabling the grid.',
