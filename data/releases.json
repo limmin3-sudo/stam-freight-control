@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026-11-07-beta-launch-film",
+    "channel": "beta",
+    "version": "1.0.0",
+    "date": "2026-11-07 01:35",
+    "title": "베타 1.0.0 시작 · 새 소개영상",
+    "changes": [
+      "오리지널 초대형 화물선과 지상기지·우주 비행·웜홀을 담은 44초 소개영상을 공개했습니다. 미션 정리·경로·3D 적재·거점별 작업을 음악과 효과음으로 연결합니다.",
+      "첫 화면의 대표 이미지와 무음 미리보기를 새 영상에 맞췄습니다.",
+      "기존 업데이트 기록은 알파 아카이브로 보존하고, 베타 1.0.0부터 새 버전 기록을 시작합니다. 저장된 미션·설정·운항 진행과 연결 앱은 그대로 유지됩니다."
+    ],
+    "en": {
+      "title": "Beta 1.0.0 launch · New introduction film",
+      "changes": [
+        "A new 44-second introduction follows an original giant freighter through its ground base, orbital flight and a wormhole, introducing contracts, routes, 3D cargo and stop-by-stop work with music and sound design.",
+        "The landing-page poster and silent preview now match the film.",
+        "Previous release notes remain available in the alpha archive; beta starts at 1.0.0. Saved missions, settings, run progress and the companion app are preserved."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-delivery-total-and-regional-routing",
     "version": "3.18.0",
     "date": "2026-11-06 23:29",
@@ -22,7 +42,8 @@
         "Update quantity, reserved-space and routing guidance while preserving aboard ownership and positions.",
         "Use SCMDB only for mission types, descriptions, quantity/container rules and base rewards. Check latest LIVE data daily, retain validated data on failures, prioritise actual reward input and label totals containing catalogue base rewards as estimates."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-wide-partner-portraits",
@@ -41,7 +62,8 @@
         "Crop the director and broker to match the head sizes and top margins of all four portraits while preserving their original proportions.",
         "Use partner tabs on short displays so portraits, descriptions and actions remain visible. Refresh the related guide captures."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-wiki-drives-and-compact-preparation",
@@ -66,7 +88,8 @@
         "Open the guide on Quick start, preserve image proportions and natural maximum size, and refresh affected captures. Use consistent Main screen buttons and show release dates without times.",
         "Add the Flight Director as the leftmost card, linking only to a separate tutorial preview without changing the hauling partner or missions. The tutorial is coming soon. Add background portraits for the director and broker and align the four cards."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-confirmed-group-box-counts",
@@ -83,7 +106,8 @@
         "Complete manual counts by container size now mark the contract as box configuration confirmed when every shipment group is covered and totals match.",
         "Other destinations and historical template layouts do not confirm the configuration. Unknown actual quantities remain upper-bound estimates."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-contract-batch-and-quantity-basis",
@@ -104,7 +128,8 @@
         "Preview incomplete contract stops and optionally complete missing inputs together. Remembered box layouts are no longer reused across contracts.",
         "Restore a separate operator portrait with a background and more room for the chest. Remove unnecessary picker scrollbars and repair the broken list symbol. Guide full-body artwork is preserved."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-bridge-operator-portrait",
@@ -121,7 +146,8 @@
         "The selected bridge operator artwork appears in partner selection, introductions, flight guidance and the guide.",
         "Partner dialogue, routing and cargo planning remain unchanged. No companion update is required."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-guide-reading-voices",
@@ -144,7 +170,8 @@
         "Function-specific captures include loaded cargo, before/after states, anonymised receipts from an actual log, and an illustrative Game.log file browser.",
         "The operator uses friendly, lively guidance and light humour; the navigator uses calm, concise reports across the guide, intake, container review and flight. No companion update is required."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-intro-guide",
@@ -167,7 +194,8 @@
         "Current-interface examples and partner guidance use a consistent slide frame.",
         "Cargo containers use a game-inspired structural frame and inset-panel finish, preserving dimensions, ownership, routes, aboard positions and destination colours."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-06-receipt-types-packing",
@@ -190,7 +218,8 @@
         "Hull B groups fresh cargo by side, fore/aft quarter and touching upper/lower grid pair, preserving saved aboard positions.",
         "Fresh Argo RAFT 2 SCU crates lie flat. Cargo labels spread apart and departure briefings include numbered jump steps."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-05-auto-connect-reset",
@@ -213,7 +242,8 @@
         "The inbox shows connection status, last log read and update times.",
         "Plan reset requires reviewing the scope and final acknowledgement. It clears current contracts, route and run progress while preserving history, account, ships, personal places and settings."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-05-briefing-and-intake",
@@ -246,7 +276,8 @@
         "Mission definition IDs now supply fixed demand, commodities, per-destination objectives and container limits. Without an actual box layout, the original planner uses the definition’s largest containers for its provisional layout.",
         "Empty enabled cargo grids remain visible. Map search accepts English, Korean, partial names and common typos; Korean commodity labels include their English names."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-05-contract-inbox",
@@ -271,7 +302,8 @@
         "Korean mode uses newly authored AI Korean place and commodity labels. English mode retains English names.",
         "The bridge operator has a new straight-bob portrait. The original map, side panels, control mode, cargo view and hauling workflow are retained."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-grid-selection",
@@ -292,7 +324,8 @@
         "Selection mode shows empty and disabled grids for re-enabling. Occupied grids cannot be disabled, and dragging to rotate does not toggle grids.",
         "Fresh Hull B plans traverse physically adjacent block groups before jumping diagonally. Aboard cargo positions are retained."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-hull-b-destination-blocks",
@@ -313,7 +346,8 @@
         "Hull B attachment direction and physical grid frames survive validation. Route search is retained and aboard cargo stays fixed during replanning.",
         "Reopening an active trip restores saved aboard positions and progress before generating a new packing layout. Existing cargo is not overwritten by a new recommendation."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-copy-request-format",
@@ -330,7 +364,8 @@
         "The copied request now specifies a full title, labelled reward and contractor, all objectives and --- separators for every contract.",
         "It requests plain text without Markdown, HTML line breaks or trailing backslashes, and preserves quantities, pickup lines and separate contracts without inferring container sizes. Both copy buttons and languages are updated."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-text-contract-boundaries",
@@ -349,7 +384,8 @@
         "HTML line breaks, Markdown headings and trailing backslashes are normalized. Standalone currency rewards are recognized.",
         "Previously merged saved contracts remain intact. Remove the merged entry and paste the original text again to recreate separate contracts."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-departure-cargo-fixes",
@@ -370,7 +406,8 @@
         "Each cryopod is 1 SCU with a long, half-height shape. Two stacked pods fit a standard 2 SCU envelope. Regular crates cannot rest on odd pod stacks or bridge uneven supports.",
         "The Senior Navigator retains its batch route search. Existing run progress and aboard cargo are preserved."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-partner-routing",
@@ -395,7 +432,8 @@
         "Container layouts are prefilled for review and correction. Assumptions are labelled as estimates; run guidance and visit lists show container sizes and counts.",
         "The wider account panel shows total earnings, flight distance, completed runs/contracts, time and cargo. Reset completed history and totals after confirmation while keeping missions and settings. Older records without distance are excluded from the distance total."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-korean-mission-types",
@@ -418,7 +456,8 @@
         "Feedback · bug report can attach a screenshot (choose a file or paste with Ctrl+V); your screen size is sent too, so layout issues can be fixed for your resolution.",
         "Comm Array names on the map, like Wikelo, only appear when zoomed right in."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-three-languages",
@@ -437,7 +476,8 @@
         "Wikelo trading post names on the map only appear when zoomed right in, unless they are on your route or selected.",
         "Misread goods names are corrected from the game mission data: once the contractor and the other goods settle the mission, the leftover commodity is the real name (e.g. “철소홍” → Nitrogen). Saved contracts are fixed too, and Cargo by contract lists the corrections."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-feedback",
@@ -454,7 +494,8 @@
         "Send ideas or bug reports from the “Feedback · bug report” button under Control mode on the left.",
         "Bug reports can include the version, language, ship, contract count and recent errors (contract contents are not sent). Only the site operator can read them."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-english-and-mission-types",
@@ -474,7 +515,8 @@
         "Paste contracts from an English game client and they are matched to the game mission data (Star Citizen Wiki, 4.10.2) to find the mission type and the largest container per commodity; until you enter the real containers, loading is planned with those largest containers. Mission data refreshes daily.",
         "Mission type matching for the Korean client is coming soon; every other feature works in both languages."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-jump-row",
@@ -491,7 +533,8 @@
         "In the visit order and the Control mode map list, a system jump is its own row with its own number (e.g. stop 9 → 10 system jump → stop 11).",
         "Clicking the jump row selects the stop reached after the jump."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-jump-step",
@@ -510,7 +553,8 @@
         "Visit order, map labels and run progress share the same numbers, jumps included.",
         "Jump steps are purple and survive undo and page reloads."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-version-renumber",
@@ -527,7 +571,8 @@
         "Version numbers now follow how noticeable an update is: big screen overhauls raise the first number, new features or visible changes the middle, small polish the last.",
         "First release is v1.0.0, the control screen overhaul v2.0.0."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-run-transit",
@@ -544,7 +589,8 @@
         "When the next leg has a system jump, run progress (including Control mode) shows “gateway → jump → gateway” and the systems.",
         "The progress dots mark the stop right after a jump."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-history-backfill",
@@ -559,7 +605,8 @@
       "changes": [
         "Changes made before the update history existed were added in time order, from the first release."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-02-release-versions",
@@ -576,7 +623,8 @@
         "Every update has a version number.",
         "Update dates now show the actual release date and time (Korea time)."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-guide-name",
@@ -591,7 +639,8 @@
       "changes": [
         "The top “How to use” menu is now called “Guide”."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-control-mode-guide",
@@ -608,7 +657,8 @@
         "The “Flight mode” button is now “Control mode”, without the symbol; symbols were removed from “Back to main screen” and “Close map” too.",
         "The 7-step guide was rewritten for the current screen."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-return-main",
@@ -623,7 +673,8 @@
       "changes": [
         "The flight mode “To plan screen” button is now “Back to main screen”."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-run-bar-compact",
@@ -640,7 +691,8 @@
         "The progress area in flight mode is more compact, so the map and cargo 3D are larger.",
         "Partners no longer mention contract codes, including lines saved before the update."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-stam-logo",
@@ -657,7 +709,8 @@
         "The placeholder shield logo was replaced with the round STAM fleet logo.",
         "The browser tab icon uses the same logo."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-run-bar-split",
@@ -678,7 +731,8 @@
         "Cargo lines read “↑ Load → destination · goods amount · containers” and “↓ Unload goods amount · containers”.",
         "Partners name goods instead of contract codes."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-run-desk-fit",
@@ -695,7 +749,8 @@
         "The return button sits over the top right of the cargo 3D, and the map and cargo 3D use the freed space.",
         "Map and cargo 3D always have the same height."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-ships-93",
@@ -714,7 +769,8 @@
         "42 small to large ships were added, e.g. Aurora series, Origin 100i/300 series, Cutter, Cutlass Red/Blue, Golem Ox, Vulture, MOLE, Retaliator, Idris-M/P.",
         "Grids and flight performance come from public sources (SuperCargo, Star Citizen Wiki API); the existing 51 ships are unchanged."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-run-desk-split",
@@ -733,7 +789,8 @@
         "“Map only” shows just the map full screen, separate from flight mode; “Close map” returns.",
         "Pressing Space right after entering flight mode completes the stop instead of closing it."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-hull-side-level-priority",
@@ -752,7 +809,8 @@
         "Hull B fills one side (port/starboard) first, and within it one upper/lower block first.",
         "One destination’s cargo is no longer split across port and starboard."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-flight-setup-partner-change",
@@ -771,7 +829,8 @@
         "The partner button at the top right is now “Change partner” and opens partner selection.",
         "Detailed settings such as grids and planning mode open from the ship step."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-flight-mode-account-history",
@@ -792,7 +851,8 @@
         "The run log moved into the login/account window.",
         "Expected reward joined the summary above the map with wider spacing."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-inline-operations",
@@ -815,7 +875,8 @@
         "Panels no longer scroll separately; the page scrolls instead.",
         "Partner call moved to the top right."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-theme-map-fill",
@@ -834,7 +895,8 @@
         "The map fills the full centre width and remaining height.",
         "The map resizes with the window and top menu."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-flight-desk",
@@ -857,7 +919,8 @@
         "Narrow screens rearrange areas without breaking button text.",
         "Existing contracts, ship settings, cargo positions and progress carry over."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "2026-11-01-route-update",
@@ -880,7 +943,8 @@
         "Lagrange station names are shortened on the map; system links are hidden when the route has none.",
         "New version notice, update button and update history."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-load-fx",
@@ -897,7 +961,8 @@
         "The cargo 3D shows each stop’s work: containers loaded glow teal, containers unloaded glow orange.",
         "Cargo 3D zoom and pan are limited."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-no-codes",
@@ -912,7 +977,8 @@
       "changes": [
         "Contract codes were removed from the screen; colours, destinations, goods and amounts are shown instead."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-box-memory",
@@ -927,7 +993,8 @@
       "changes": [
         "Enter just the count per container size; missions with the same goods and amounts are filled in automatically."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-grid-group",
@@ -944,7 +1011,8 @@
         "Cargo for one destination is loaded into neighbouring grids.",
         "Grid labels moved off the containers, with a button to hide them."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-map-only",
@@ -959,7 +1027,8 @@
       "changes": [
         "Hide the panels in the run screen and view only the map."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-cargo-detail",
@@ -974,7 +1043,8 @@
       "changes": [
         "Cargo details show cargo per destination, loading order and cell positions."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-route-edit",
@@ -989,7 +1059,8 @@
       "changes": [
         "Change the visit order by dragging, adding and removing stops."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-pickup-first",
@@ -1004,7 +1075,8 @@
       "changes": [
         "Everything loadable at a stop is picked up before leaving, sharing free grid space."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-station-label",
@@ -1019,7 +1091,8 @@
       "changes": [
         "Station names on the map are smaller."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-batch",
@@ -1036,7 +1109,8 @@
         "Routes collect a system’s pickups before crossing to another system.",
         "Map names are easier to read."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-firebase",
@@ -1051,7 +1125,8 @@
       "changes": [
         "Login is connected to real account storage."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-guide-size",
@@ -1066,7 +1141,8 @@
       "changes": [
         "Guide steps share one window size, with Ctrl+Alt+PrtSc capture tips."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-edit-log",
@@ -1081,7 +1157,8 @@
       "changes": [
         "A note that login is optional, and a change log per account."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-guide",
@@ -1096,7 +1173,8 @@
       "changes": [
         "First-time visitors get a step-by-step guide."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-login",
@@ -1113,7 +1191,8 @@
         "Log in with a username/password or Google to continue on another PC (preparation stage).",
         "A run log records reward and time of finished runs."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-commodity",
@@ -1128,7 +1207,8 @@
       "changes": [
         "Typos in goods names are corrected to the official Korean names."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-assumed",
@@ -1143,7 +1223,8 @@
       "changes": [
         "The guide’s check step shows assumed amounts per pickup."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-ko-patch",
@@ -1156,7 +1237,8 @@
       "changes": [
         "Place names from the Star Citizen Korean user project patch (credited)."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-stacking",
@@ -1171,7 +1253,8 @@
       "changes": [
         "Hull B and Hull C stack outward from the spine; the RAFT hangs from the top."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-multi-pickup",
@@ -1186,7 +1269,8 @@
       "changes": [
         "Contracts that pick up one cargo at several places visit all of them; per-place amounts are marked as assumed."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-run-map",
@@ -1201,7 +1285,8 @@
       "changes": [
         "The separate run screen became flight mode on the full-screen map."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-ko-labels",
@@ -1216,7 +1301,8 @@
       "changes": [
         "Korean names are shown next to English place names; body types were removed from map names."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-partner-ui",
@@ -1233,7 +1319,8 @@
         "Enlarged map shows the visit order and stop cards.",
         "Partner introductions were added; the aide became the “Bridge Operator”; a large partner button was added."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-map-look",
@@ -1250,7 +1337,8 @@
         "New map background; stations use ring-and-tip icons like the game.",
         "Map and cargo views are larger."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-ai-paste",
@@ -1267,7 +1355,8 @@
         "Paste contract text transcribed by the ChatGPT or Claude app to create missions.",
         "Better reading of Korean mission screens."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-rename",
@@ -1282,7 +1371,8 @@
       "changes": [
         "The site moved to stam-freight-control."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-partners",
@@ -1299,7 +1389,8 @@
         "Photos for the three partners.",
         "Map backgrounds per system; ship speed and drive performance applied automatically."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-locations",
@@ -1314,7 +1405,8 @@
       "changes": [
         "Manage your own places, coordinates and aliases; map coordinates are validated and refreshed daily."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-voices",
@@ -1329,7 +1421,8 @@
       "changes": [
         "Choose between the senior navigator, navigation officer and aide voices."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-ships-38",
@@ -1344,7 +1437,8 @@
       "changes": [
         "Search places in Korean; 38 ships added."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-run-mode",
@@ -1361,7 +1455,8 @@
         "Run progress records each stop, with navigator guidance.",
         "Korean place names and screen text tidied."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-stam",
@@ -1376,7 +1471,8 @@
       "changes": [
         "Named STAM FREIGHT CONTROL, with a three-level system map and quantum routes."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-dest-colour",
@@ -1391,7 +1487,8 @@
       "changes": [
         "Cargo is coloured by destination, and cargo unloaded first is loaded where it is easy to reach."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-grid-view",
@@ -1406,7 +1503,8 @@
       "changes": [
         "The cargo view shows only cargo grids instead of inexact ship models."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-map-controls",
@@ -1421,7 +1519,8 @@
       "changes": [
         "Zoom to cursor, fly to places, search, and names by zoom level."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-route-only",
@@ -1438,7 +1537,8 @@
         "A simple route that ignores ship capacity.",
         "16 SCU no-upright rule and a system map."
       ]
-    }
+    },
+    "channel": "alpha"
   },
   {
     "id": "h-first",
@@ -1455,6 +1555,7 @@
         "First version: plan routes and cargo layout from Hull B mission screenshots.",
         "3D loading guide and run progress log."
       ]
-    }
+    },
+    "channel": "alpha"
   }
 ]
