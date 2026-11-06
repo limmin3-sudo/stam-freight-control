@@ -66,7 +66,14 @@ export function cardRouteReady(card,places=[]){const ids=new Set(places.map(p=>p
 // Receipt selection and reviewed inputs are separate from the saved hauling plan.
 export function upperBoundDraft(draft){const next=structuredClone(draft);for(const r of next.cargo){if(Number.isSafeInteger(r.scu)&&r.scu>0&&!r._scuEstimated)continue;const b=r._quantityBounds,max=b?.unit==='SCU'?b.max:(r.commodity==='CryoPod'||r._cargoShape==='cryopod')&&b?.unit==='items'?b.max:null;if(Number.isSafeInteger(max)&&max>0&&max<=10000){r.scu=max;r._scuEstimated=true;r.boxes=[];}}return next;}
 export function upperBoundReady(card,places=[]){return cardReady({...card,rows:card.rows.map(r=>{if(!r._scuEstimated)return r;const b=r._quantityBounds,valid=(b?.unit==='SCU'||(r.commodity==='CryoPod'||r._cargoShape==='cryopod')&&b?.unit==='items')&&r.scu===b.max;return valid?{...r,_scuEstimated:false}:r;})},places);}
-export function cardCertainty(card){if(card.rows.some(r=>r._scuEstimated))return 'upper-bound';if(!card.rows.length||card.rows.some(r=>!Number.isSafeInteger(r.scu)||r.scu<=0||r._scuAssumed))return 'unavailable';return card.rows.length&&card.rows.every(r=>Number.isSafeInteger(r.scu)&&r.scu>0&&r.boxes?.length&&r.boxes.every(b=>Number.isSafeInteger(b.count)&&b.count>0)&&r.boxes.reduce((n,b)=>n+b.size*b.count,0)===r.scu)?'boxes':'quantity';}
+export function cardCertainty(card){
+ if(card.rows.some(r=>r._scuEstimated))return 'upper-bound';
+ if(!card.rows.length||card.rows.some(r=>!Number.isSafeInteger(r.scu)||r.scu<=0||r._scuAssumed))return 'unavailable';
+ const validBoxes=(boxes,total)=>boxes?.length&&boxes.every(b=>[1,2,4,8,16,24,32].includes(b.size)&&Number.isSafeInteger(b.count)&&b.count>0)&&boxes.reduce((n,b)=>n+b.size*b.count,0)===total;
+ const groups=new Map();for(const row of card.rows){const key=row.pickupId+'|'+row.dropoffId;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
+ const confirmed=[...groups.values()].every(rows=>{if(rows.every(r=>validBoxes(r.boxes,r.scu)))return true;const configs=(card.destinationBoxes||[]).filter(c=>c.pickupId===rows[0].pickupId&&c.dropoffId===rows[0].dropoffId);return configs.length===1&&configs[0].origin!=='template'&&validBoxes(configs[0].boxes,rows.reduce((n,r)=>n+r.scu,0));});
+ return confirmed?'boxes':'quantity';
+}
 
 export class InboxSelection {
  constructor(places,missions=()=>[]){this.places=places;this.missions=missions;this.cards=[];this.useUpperBounds=false;this.selected=new Map();this.reviewed=new Map();}
@@ -77,7 +84,7 @@ export class InboxSelection {
   if(refreshed)next._logInbox.refreshedEstimate=true;return estimate&&this.useUpperBounds?upperBoundDraft(next):next;
  }
  ready(card){return cardReady(card,this.places)||this.useUpperBounds&&upperBoundReady(card,this.places);}
- effective(raw){if(raw.ended||raw.conflict)return raw;return {...raw,rows:this.draft(raw).cargo};}
+ effective(raw){if(raw.ended||raw.conflict)return raw;const draft=this.draft(raw);return {...raw,rows:draft.cargo,destinationBoxes:draft.destinationBoxes};}
  toggle(id,checked){const raw=this.cards.find(c=>c.id===id);if(!raw||!this.ready(this.effective(raw)))return false;if(checked)this.selected.set(id,raw.signature);else this.selected.delete(id);return true;}
  saveReviewed(drafts){for(const d of drafts)if(!this.current(d)||!cardReady({rows:d.cargo},this.places))throw Error('계약 정보가 바뀌었거나 필수 정보가 부족합니다. 수신함에서 다시 확인하십시오.');for(const d of drafts){this.reviewed.set(d.id,structuredClone(d));this.selected.delete(d.id);}}
  drafts(){this.sync(this.cards);return [...this.selected.keys()].map(id=>this.draft(this.cards.find(c=>c.id===id)));}
