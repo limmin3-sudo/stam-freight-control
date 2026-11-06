@@ -1,5 +1,22 @@
 [
   {
+    "id": "2026-11-06-bridge-operator-portrait",
+    "version": "3.14.1",
+    "date": "2026-11-06 18:10",
+    "title": "브리지 오퍼레이터 이미지 교체",
+    "changes": [
+      "선택한 브리지 오퍼레이터 이미지를 파트너 선택·소개·운항 화면과 이용안내에 반영했습니다.",
+      "운항 파트너의 말투와 경로·적재 동작은 그대로 사용합니다. 연결 앱 업데이트는 필요하지 않습니다."
+    ],
+    "en": {
+      "title": "Updated bridge operator artwork",
+      "changes": [
+        "The selected bridge operator artwork appears in partner selection, introductions, flight guidance and the guide.",
+        "Partner dialogue, routing and cargo planning remain unchanged. No companion update is required."
+      ]
+    }
+  },
+  {
     "id": "2026-11-06-guide-reading-voices",
     "version": "3.14.0",
     "date": "2026-11-06 14:41",
