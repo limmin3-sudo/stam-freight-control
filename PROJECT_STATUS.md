@@ -1,4 +1,9 @@
-## 2026-11-08 — STAM 함대 공식 한글패치 지명·품목명 적용 (Claude Code, 미배포)
+## 2026-11-08 — 한국어·한영·영어 세 가지 화면 언어 + 함대 한글패치 이름 (Claude Code, `feature/stam-korean-patch`, 미배포)
+
+- 사용자 결정: 한국어 = 지명·품목까지 모두 한국어(함대 공식 한글패치 우선, 없는 이름만 AI), 한영 = 메뉴 한국어·지명/품목 영어, 영어 = 모두 영어. 이전 「모든 언어에서 English - 한국어 병기」·「한국어 품목 English 병기」 결정을 대체한다. `docs/DEVELOPMENT.md`에 규칙 추가.
+- 구현: `i18n.mjs` MODES ko/mix/en, `gameEn = lang!=='ko'`, 상단 버튼 한국어·한/영·English. `aliases.mjs` `placeLabel`(한국어 모드는 한국어만, 그 외 영어만)·`systemLabel/systemTab`(스탠턴·파이로·닉스). `commodity-labels.mjs`·`localization.mjs`(화면 품목명 한국어만, Crusader Mercury Star Runner 보호)·`operations-intel.mjs`·`starmap.mjs`(지도 큰 이름 한국어, 부제의 한국어 덧붙임 제거, 부모·항성계 이름도 모드별)·방문 순서 행성권 이름. 예전 「English - 한국어」 합친 형식과 예전 AI 이름도 검색된다. Firebase 피드백 규칙은 이미 mix 허용.
+- 검증: `npm test` 222개 통과. 세 모드 로컬 브라우저 검사(1536×730): ko는 방문 순서·검색·화물 확인 창에 영어 지명·품목 0개, mix는 메뉴 한국어·이름 영어, en은 모두 영어. briefing 브라우저 검사의 지명 기대값을 모드별 단일 언어로 갱신. 안내 「언어 전환」 슬라이드 문구 갱신.
+
 
 - 사용자 요청: 한국어 지명·품목명을 STAM 함대 공식 한글패치(StarCitizenKoreanPatch-2.5.23-STAM.exe)로 사용. 사용자는 함대원이며 함대 공식 패치라 사용 가능하다고 확인했다.
 - 이력 정리(사용자 승인 「진행해」, 2026-11-08): 이전 한글패치에서 뽑았던 지명·품목 데이터 파일과 추출 스크립트, 그 출처·관련 문서 문장, 알파 업데이트 기록 1.15.1 항목을 Git 이력 전체에서 제거하고 원격 브랜치 22개를 강제 푸시했다. main 최신 트리에서 바뀐 것은 그 업데이트 기록 항목 하나뿐이며 Pages 재배포 성공·공개 version.json(4a0818d) 확인. 모든 커밋 번호가 바뀌었고 문서 속 옛 번호는 새 번호로 치환했다. 태그 9개(app.1.0.0~1.3.2, rebuild.*)는 이 환경에서 태그 푸시·API 쓰기가 막혀 사용자 PC에서 옮겨야 한다. PR 23개의 refs/pull은 옛 커밋을 계속 가리키므로 완전 삭제는 GitHub 지원팀 요청이 필요하다. 재작성 전 전체 백업 번들은 이 세션 scratchpad에만 있다(컨테이너 종료 시 사라짐). 다른 PC·Codex 체크아웃은 새로 받아야 한다.

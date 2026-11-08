@@ -1,5 +1,6 @@
 import AI from './data/ai-korean.json' with {type:'json'};
 import {aiPlace,lexPlace} from './data/ai-korean-lexicon.mjs';
+import {gameEn} from './i18n.mjs';
 // Fleet-patch names first; earlier AI-authored names stay searchable as extra aliases.
 export const KO_NAMES=Object.fromEntries([...Object.keys(AI.places).map(en=>[lexPlace(en).replace(/\s/g,''),en]),...Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en])]);
 Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지':'Last Landings','브리오함선폐기장':"Brio's Breaker Yard",'브레오함선폐기장':"Brio's Breaker Yard",'티사우주공항':'Lorville','티사스페이스포트':'Lorville','teasaspaceport':'Lorville','로빌':'Lorville','로어빌':'Lorville'});
@@ -7,7 +8,12 @@ export const KO_DISPLAY=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en]
 export const KO_TERMS=[['채광 시설','Mining Facility'],['채광 구역','Mining Area'],['보안 초소','Security Post'],['연구 전초기지','Research Outpost'],['구호 대피소','Aid Shelter'],['비상 대피소','Emergency Shelter'],['데이터센터','DataCenter'],['정거장','Station'],['슈빈','Shubin'],['아크코프','ArcCorp']];
 export function translateKoTerms(s){let out=String(s||'');for(const [ko,en]of KO_TERMS)out=out.split(ko).join(' '+en+' ');return out.replace(/\s+/g,' ').trim();}
 export function koName(l){if(!l)return '';return (l.aliases||[]).find(a=>/[가-힣]/.test(a))||extraDisplay[l.name]||aiPlace(l.name);}
-export const placeLabel=l=>{if(!l)return '';const ko=koName(l);return ko&&ko!==l.name?`${l.name} - ${ko}`:l.name;};
+// Korean mode shows the Korean name only; mix and English show the canonical English name only.
+const SYSTEM_KO={stanton:'스탠턴',pyro:'파이로',nyx:'닉스'};
+// Star system names follow the same rule as place names.
+export const systemLabel=s=>gameEn?String(s||'').toUpperCase():SYSTEM_KO[s]||String(s||'').toUpperCase();
+export const systemTab=s=>gameEn?String(s||'').replace(/^./,c=>c.toUpperCase()):SYSTEM_KO[s]||s;
+export const placeLabel=l=>{if(!l)return '';if(gameEn)return l.name;return koName(l)||l.name;};
 export const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
 let extra=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[norm(ko),en])),extraDisplay=AI.places;
 export async function loadAiNames(url='./data/ai-korean.json'){try{const r=await fetch(url);if(r.ok){const j=await r.json();extraDisplay=j.places||{};extra=Object.fromEntries(Object.entries(extraDisplay).map(([en,ko])=>[norm(ko),en]));}}catch{}return Object.keys(extra).length;}
@@ -73,7 +79,7 @@ export function suggestLocations(text,locations,{limit=8}={}){
  for(const [alias,name] of Object.entries({...KO_NAMES,...extra,...Object.fromEntries(Object.entries(KO_DISPLAY).map(([en,ko])=>[ko,en]))})){
   if(!aliases.has(name))aliases.set(name,[]);aliases.get(name).push(norm(alias));}
  const hits=[];
- for(const loc of locations){if(loc.type==='Star')continue;const names=[loc.name,placeLabel(loc),...(loc.aliases||[]),...(aliases.get(loc.name)||[])].map(norm);let score=0;
+ for(const loc of locations){if(loc.type==='Star')continue;const names=[loc.name,placeLabel(loc),`${loc.name} - ${koName(loc)}`,...(loc.aliases||[]),...(aliases.get(loc.name)||[])].map(norm);let score=0;
   for(const name of names){if(name===q)score=Math.max(score,100);else if(name.startsWith(q))score=Math.max(score,80+q.length/name.length);else if(name.includes(q))score=Math.max(score,60+q.length/name.length);}
   if(score)hits.push({loc,score});}
  const seen=new Set(hits.map(h=>h.loc.id));if(/^[a-z0-9]+$/.test(q)&&q.length>=3){const max=q.length>=6?2:1;for(const loc of locations){if(loc.type==='Star'||seen.has(loc.id))continue;const names=[norm(loc.name),...loc.name.toLowerCase().split(/[^a-z0-9]+/).filter(n=>n.length>=4)];const distance=Math.min(...names.filter(n=>Math.abs(n.length-q.length)<=max).map(n=>typoDistance(q,n)));if(distance<=max){hits.push({loc,score:55-distance*3});seen.add(loc.id);}}}if(q.length>=2)for(const h of fuzzyLocations(text,locations,{limit})){if(!seen.has(h.loc.id)){hits.push({loc:h.loc,score:h.score*40});seen.add(h.loc.id);}}

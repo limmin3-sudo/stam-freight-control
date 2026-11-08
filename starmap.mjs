@@ -1,8 +1,8 @@
 import {mapLocationName,activeSystemLinks,stepNumbers,jumpSegments} from './route-display.mjs';
 import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
-import {koName,placeLabel,suggestLocations} from './aliases.mjs';
-import {tr} from './i18n.mjs';
+import {koName,placeLabel,suggestLocations,systemLabel} from './aliases.mjs';
+import {tr,gameEn} from './i18n.mjs';
 import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
 
@@ -122,15 +122,15 @@ export function createStarMap(container,labelContainer,data,onSelect){
  const visitNums=id=>{if(!route)return [];if(stepCache?.route!==route)stepCache={route,steps:stepNumbers(route.visits,byId)};const st=stepCache.steps,out=[];
   route.visits.forEach((v,i)=>{jumpSegments(v.leg,byId).forEach((j,q)=>{if(j.entryId===id)out.push(st.jumps[i][q]);});if(v.locationId===id)out.push(st.stop[i]);});return out;};
  function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
-  const ko=koName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=mapLocationName(l)!==l.name?'':[ko&&ko!==l.name?ko:'',kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?parent.name:''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
-  s=labelSprite((n.length?n.join(',')+' · ':'')+mapLocationName(l),sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
+  const code=mapLocationName(l)!==l.name,shown=code||gameEn?mapLocationName(l):koName(l)||l.name,kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=code?'':[kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?placeLabel(parent):''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
+  s=labelSprite((n.length?n.join(',')+' · ':'')+shown,sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it),glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
  // Rarely visited stops (Wikelo trading posts, comm arrays) only get a name when zoomed right in, unless on the
  // route or selected.
  const MINOR=/^(?:Wikelo|Comm Array)\b/i;
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
  // ---- navigation -------------------------------------------------------------------------------
- function crumbsRender(){const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([system.toUpperCase(),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([c.name.toUpperCase(),()=>focus(c.id)]);}}
+ function crumbsRender(){const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([systemLabel(system),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([c.name.toUpperCase(),()=>focus(c.id)]);}}
   crumbs.replaceChildren(...parts.flatMap(([t,fn],i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.className=i===parts.length-1?'current':'';b.onclick=fn;return i?[Object.assign(document.createElement('span'),{textContent:'›'}),b]:[b];}));}
  function goGalaxy(instant=false){level='galaxy';focusId=null;selected=null;galaxyGroup.visible=true;systemGroup.visible=false;routeGroup.visible=false;clearLabels();backdrop.paint('galaxy');buildGalaxy();
   for(const [sys,p] of Object.entries(GALAXY)){const s=labelSprite(sys.toUpperCase(),tr('항성계 · 더블클릭'),STAR_COLORS[sys],{big:true,glow:true});s.userData.anchor=p;labelGroup.add(s);}
@@ -152,7 +152,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  function pick(e){const r=renderer.domElement.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
   if(level==='galaxy'){let best=null,bd=46;for(const [sys,p] of Object.entries(GALAXY)){const s=screen(p),d=Math.hypot(s.x-x,s.y-y);if(d<bd){bd=d;best=sys;}}return best?{galaxy:best}:null;}
   let best=null,bs=Infinity;for(const it of items){if(!it.shown)continue;const s=it.screen;if(!s?.front)continue;const rad=it.mesh?Math.max(9,it.px||0)+4:isStation(it)?Math.max(24,(it.displayPx||it.px)/2+7):12,d=Math.hypot(s.x-x,s.y-y);if(d<rad){const score=d/rad-(it.mesh?0:.35);if(score<bs){bs=score;best=it;}}}return best;}
- function describe(l){const p=byId.get(l.parentId),n=visitNums(l.id);return `${n.length?n.map(x=>x+'번').join('·')+' 거점 · ':''}${placeLabel(l)} · ${TYPE_KO[l.type]||l.type}${p&&p.type!=='Star'?' · '+p.name:''} · ${l.system.toUpperCase()}`;}
+ function describe(l){const p=byId.get(l.parentId),n=visitNums(l.id);return `${n.length?n.map(x=>x+'번').join('·')+' 거점 · ':''}${placeLabel(l)} · ${TYPE_KO[l.type]||l.type}${p&&p.type!=='Star'?' · '+placeLabel(p):''} · ${systemLabel(l.system)}`;}
  function hover(h,e){hovered=h?.loc||null;renderer.domElement.style.cursor=h?'pointer':'grab';if(!h){tip.hidden=true;return;}tip.textContent=h.galaxy?`${h.galaxy.toUpperCase()} 항성계 · 더블클릭으로 들어가기`:describe(h.loc)+' · 더블클릭으로 이동';tip.hidden=false;const r=wrap.getBoundingClientRect();tip.style.left=(e.clientX-r.left+14)+'px';tip.style.top=(e.clientY-r.top+14)+'px';}
  let down=null,lastMove=0;const el=renderer.domElement;el.style.cursor='grab';
  el.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];el.style.cursor='grabbing';tip.hidden=true;});

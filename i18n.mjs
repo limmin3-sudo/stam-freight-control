@@ -1,14 +1,15 @@
-// Korean/English interface with independently authored game-name labels.
+// Three display modes: ko = Korean interface and Korean game names (fleet patch first, AI fallback);
+// mix = Korean interface with English game names (matches an English game client); en = English throughout.
 import {PHRASES,PATTERNS,HTML} from './i18n-en.mjs';
 const KEY='sfc-lang';
-const MODES=['ko','en'];
+const MODES=['ko','mix','en'];
 function initial(){if(typeof document==='undefined')return 'ko';const requested=new URLSearchParams(location.search).get('lang');if(MODES.includes(requested)){try{localStorage.setItem(KEY,requested);}catch{}return requested;}// tests and scripts run in Korean
  try{const v=localStorage.getItem(KEY);if(MODES.includes(v))return v;if(localStorage.getItem('vh-missions')||localStorage.getItem('sfc-voice'))return 'ko';}catch{}
  return /^ko\b/i.test(navigator.language||'ko')?'ko':'en';}
 export const lang=initial();
 export const isEn=lang==='en';
-// English mode retains canonical English game names.
-export const gameEn=lang==='en';
+// Place, commodity and other game names stay in canonical English in mix and en.
+export const gameEn=lang!=='ko';
 export function setLang(next){if(!MODES.includes(next)||next===lang)return;try{localStorage.setItem(KEY,next);}catch{}const url=new URL(location.href);if(url.searchParams.has('lang'))url.searchParams.set('lang',next);location.assign(url);}
 export const L=(ko,en)=>isEn?en:ko;
 
@@ -49,6 +50,6 @@ export function startTranslation(){
  window.__i18nMissing=missing;
 }
 export function languageButton(){const box=document.createElement('div');box.className='lang-switch';box.dataset.i18nSkip='';box.setAttribute('role','group');box.setAttribute('aria-label','Language / 언어');
- for(const [v,label,title] of [['ko','한국어','한국어 화면'],['en','English','English interface']]){
+ for(const [v,label,title] of [['ko','한국어','한국어 화면 · 지명과 품목도 한국어'],['mix','한/영','한국어 화면 · 지명과 품목은 영어 (영어 게임 화면용)'],['en','English','English interface']]){
   const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-pressed',String(v===lang));b.onclick=()=>setLang(v);box.append(b);}
  return box;}

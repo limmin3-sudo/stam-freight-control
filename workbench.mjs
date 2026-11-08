@@ -5,13 +5,13 @@ import {retainCatalogLimits} from './mission-catalog.mjs';
 import {groupConfiguration,containerText,configurationLabel} from './cargo-summary.mjs';
 import {planningGroups as destinationGroups} from './recipes.mjs';
 import {COLORS,SIZES} from './engine.mjs';
-import {placeLabel} from './aliases.mjs';
+import {placeLabel,systemLabel} from './aliases.mjs';
 import {enrichMission} from './mission-match.mjs';
 import {deliveryGroups,actualQuantity} from './delivery-totals.mjs';
 import {gameEn,isEn} from './i18n.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function createWorkbench(root,{getMissions,locations,version,canEdit,onUpdate,notify,missionDb=()=>null,getUnknownBox=()=>8,contractDetails=()=>null}){
- const byId=new Map(locations.map(l=>[l.id,l])),label=id=>byId.has(id)?placeLabel(byId.get(id))+' · '+byId.get(id).system.toUpperCase():'';
+ const byId=new Map(locations.map(l=>[l.id,l])),label=id=>byId.has(id)?placeLabel(byId.get(id))+' · '+systemLabel(byId.get(id).system):'';
  function find(value){const exact=locations.filter(l=>label(l.id)===value||l.name===value);return exact.length===1?exact[0].id:'';}
  // Container limits come from public definitions; manual layouts belong to this contract only.
  function enrich(m){return applyContractInfo(retainCatalogLimits(m,enrichMission(m,missionDb(),{korean:!gameEn})),contractDetails());}
