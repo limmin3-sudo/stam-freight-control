@@ -1,30 +1,32 @@
 {
-  "edition": "beta-1.1.1",
-  "durationSeconds": 35.5,
+  "edition": "beta-1.1.0",
+  "durationSeconds": 52,
   "typography": "Korean; locally composed",
   "film": {
     "width": 1920,
     "height": 1080,
     "fps": 24,
-    "sourceFootage": "1920x1080; 1.5-second tunnel insert from 1280x720 source",
+    "sourceFootage": "1920x1080; atmospheric vista and 2-second tunnel insert originate at 1280x720",
     "codec": "H.264",
     "audio": "AAC stereo",
-    "webEncoding": "H.264 CRF 21; 6.5 Mbps maximum video bitrate"
+    "webEncoding": "H.264 CRF 21; 4.3 Mbps maximum video bitrate"
   },
-  "content": "Generated megafreighter convoy, wormhole entry and emergence, real STAM interface screenshots using example data; instrumental score and mixed effects",
-  "masterSha256": "eb9f3a7d9f63037f93fc85e63d4109e72b33cf25bec55d4b96bf8a93d1c7ad62",
+  "content": "Atmospheric flyby, medium STAM freighter vertical ascent, planetary vista, quantum arrival, feature typography without website screenshots, wormhole entry/transit/emergence; beta 1.0.0 original instrumental score and effects",
+  "masterSha256": "e0c563027408c5053cadcda3a45895b09b99edfe268278d8f03fe2b8aba7477b",
   "files": {
     "intro.mp4": {
-      "bytes": 24870386,
-      "sha256": "c5e562f7723dd6999d2d7b7f4e04437918a0ec8fd3ab6752c12c7cf9fe1e214a"
+      "bytes": 29846325,
+      "sha256": "faa8c073d63a3dbe492fbc4bdd492bdc36da196595a9e73a97be4bfcb5dbd417"
     },
     "teaser.mp4": {
-      "bytes": 3446429,
-      "sha256": "c70264272723e228b52f1f7cd5fa6aac42c5dcd371077360f2f2d85c9dfcaa0e"
+      "bytes": 735597,
+      "sha256": "460b810af4379dbb4c1ef499775a40b2d069c07c70add004bcd69cf2bb630339"
     },
     "poster.jpg": {
       "bytes": 205045,
       "sha256": "ee057cf0bdc47ea50c8e9b64e290a2cad120538a9d98193ef2579529c75da424"
     }
-  }
+  },
+  "musicSource": "Beta 1.0.0 original score, unchanged tempo",
+  "musicSha256": "e9f295d728bac138e0d53d13d0d013e8a2c8056cd103019467ba3163908bbbc0"
 }

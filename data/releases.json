@@ -1,39 +1,25 @@
 [
   {
-    "id": "2026-11-09-fleet-intro-film",
-    "channel": "beta",
-    "version": "1.1.1",
-    "date": "2026-11-09 01:16",
-    "title": "초대형 함대 소개영상",
-    "changes": [
-      "소개영상을 초대형 화물선 함대와 웜홀 진입·통과·출현을 담은 35.5초 영상으로 교체했습니다.",
-      "실제 STAM 미션·경로·3D 적재 화면을 음악·효과음과 연결하고, 첫 화면 이미지와 무음 미리보기도 함께 바꿨습니다."
-    ],
-    "en": {
-      "title": "Megafreighter fleet introduction film",
-      "changes": [
-        "Replaced the introduction with a 35.5-second megafreighter fleet film featuring wormhole entry, transit and emergence.",
-        "Combined real STAM contract, route and 3D cargo screens with music and effects, and refreshed the hero image and silent preview."
-      ]
-    }
-  },
-  {
-    "id": "2026-11-08-language-modes",
+    "id": "2026-11-09-beta-1-1-0",
     "channel": "beta",
     "version": "1.1.0",
-    "date": "2026-11-08 22:51",
-    "title": "화면 언어 3가지 · 함대 공식 한글 지명",
+    "date": "2026-11-09 02:00",
+    "title": "화면 언어 3가지 · 새 소개영상",
     "changes": [
       "상단에서 한국어 · 한/영 · English 세 가지 화면 언어를 고를 수 있습니다. 한국어는 지명·품목·항성계 이름까지 모두 한국어, 한/영은 메뉴는 한국어이고 지명·품목은 영어(영어 게임 화면용), English는 모두 영어입니다.",
       "한국어 지명과 품목명은 STAM 함대 공식 한글패치의 표기를 따릅니다. 패치에 없는 이름만 기존 번역을 사용합니다.",
-      "「Hurston - 허스턴」처럼 두 언어를 함께 쓰던 표시를 정리했습니다. 검색은 어느 모드에서나 한글·영어·이전 이름으로 할 수 있습니다."
+      "「Hurston - 허스턴」처럼 두 언어를 함께 쓰던 표시를 정리했습니다. 검색은 어느 모드에서나 한글·영어·이전 이름으로 할 수 있습니다.",
+      "소개영상을 함선 측면 비행·중형선 수직 상승·행성 전경·퀀텀 도착·웜홀 통과를 담은 52초 영상으로 교체했습니다. 베타 1.0.0 소개영상의 음악을 사용합니다.",
+      "사이트 화면 캡처 없이 영상과 기능 설명 문구로 구성하고, 무음 미리보기도 함께 바꿨습니다."
     ],
     "en": {
-      "title": "Three display languages · Fleet Korean names",
+      "title": "Three display languages · New introduction film",
       "changes": [
         "Choose 한국어, 한/영 or English in the header. 한국어 shows Korean place, commodity and star-system names, 한/영 keeps Korean menus with English game names for an English game client, and English is fully English.",
         "Korean place and commodity names follow the STAM fleet official Korean patch; names it does not cover keep the earlier translation.",
-        "Labels no longer show both languages side by side. Search still accepts Korean, English and earlier names in every mode."
+        "Labels no longer show both languages side by side. Search still accepts Korean, English and earlier names in every mode.",
+        "Replaced the introduction with a 52-second film featuring a freighter flyby, medium-ship ascent, planetary vista, quantum arrival and wormhole travel, with the original beta 1.0.0 soundtrack.",
+        "The film uses cinematic footage and feature typography without website screenshots. The silent preview is refreshed too."
       ]
     }
   },

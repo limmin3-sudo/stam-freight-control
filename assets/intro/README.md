@@ -1,11 +1,11 @@
-# Introduction film — Beta 1.1.1
+# Introduction film — Beta 1.1.0
 
-The current film is the 35.5-second megafreighter-fleet edition: generated convoy footage, wormhole entry and emergence, a short tunnel insert, real STAM interface screenshots with example data, Korean editorial typography, instrumental music and mixed effects. The freighter visuals are cinematic illustrations; they do not represent a playable ship or in-game flight capture.
+The approved film is the 52-second edition: atmospheric side tracking, medium STAM freighter vertical ascent, a camera-only planetary vista leading directly to quantum arrival, feature typography over moving footage, wormhole entry/transit/emergence and a fleet end card. The falling-looking opening and quantum departure shot are excluded. There are no website screenshots or screenshot panels, so the film remains usable as the interface evolves.
 
-- `intro.mp4`: 1920×1080, 24 fps, H.264 / AAC stereo, fast-start metadata. New source clips are 1080p; the 1.5-second tunnel insert originates at 720p. Web delivery uses CRF 21 with a 6.5 Mbps video ceiling. Every file remains below the companion cache limit of 32 MiB.
-- `poster.jpg`: a clean orbital frame from the new fleet footage.
-- `teaser.mp4`: six-second, 1280×720 silent convoy preview. Existing reduced-motion handling remains in force.
+- `intro.mp4`: 1920×1080, 24 fps, H.264 / AAC stereo, fast-start metadata. Web encoding uses CRF 21 with a 4.3 Mbps video ceiling. The atmospheric vista and 2-second tunnel insert originate at 720p; other source clips and editorial typography are 1080p. Every file remains below the companion cache limit of 32 MiB.
+- `poster.jpg`: a clean orbital frame of the featured fleet.
+- `teaser.mp4`: 3.5-second, 1280×720 silent fleet preview, excluding the rejected opening. Reduced-motion handling is preserved.
 
-The interface inserts show the actual STAM interface with illustrative data. Film assets and audio were generated or locally composed. Source material and editing files remain in the production workspace outside this repository. Hashes and media details are recorded in `production.json`.
+The music is the original score used for the beta 1.0.0 introduction, without a tempo change. Effects were mixed locally. Spacecraft footage is cinematic illustration, not in-game flight capture. Sources and earlier edits are preserved outside this repository; delivery hashes and provenance are in `production.json`.
 
-The old `scripts/render-intro.*`, `scripts/intro/`, and four WebP illustrations belong to the archived alpha interim film and must not overwrite the current edition. Future replacements must update film, poster and silent preview together and stamp a website release. No companion executable update is needed.
+By user request the final film and previously published language changes are combined into one beta 1.1.0 release record; the separate beta 1.1.1 entry is removed. Historical alpha rendering scripts must not overwrite these assets. Future replacements should update film, preview and metadata together and stamp new website asset URLs. The companion executable does not need to change for this film update.
