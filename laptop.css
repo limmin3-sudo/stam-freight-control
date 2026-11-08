@@ -75,3 +75,43 @@
  .intro-copy p{font-size:14px;line-height:1.7}
  .intro-actions{margin-top:16px}
 }
+
+/* Preparation window on short laptop screens (e.g. 1920x1080 at 125% = 1536x~730):
+   same frame, tighter spacing, so each step fits without an inner scrollbar. */
+@media(min-width:901px) and (max-height:850px){
+ .aide-overlay .aide-card{padding:22px 32px 18px}
+ .aide-overlay .aide-top{margin-bottom:10px;gap:14px}
+ .aide-overlay .aide-emblem{width:42px;height:42px;flex-basis:42px}
+ .aide-overlay .aide-stage-label{margin-top:6px}
+ .aide-overlay .aide-title{font-size:28px;line-height:1.35;margin-bottom:8px}
+ .aide-overlay .aide-sub{font-size:16px;line-height:1.6;margin-bottom:14px}
+ .aide-overlay .aide-sub .aide-note{font-size:14px;line-height:1.6}
+ .aide-overlay .aide-body{margin-bottom:12px}
+ .aide-overlay .aide-intro-portrait{width:220px;height:300px;margin-left:28px}
+ .aide-overlay .aide-intro-portrait span{font-size:15px;padding:24px 14px 12px}
+ .aide-overlay .aide-profile{padding:16px 22px}
+ .aide-overlay .aide-profile h3{font-size:21px;line-height:1.45}
+ .aide-overlay .aide-profile-intro{font-size:16px;line-height:1.65;margin:8px 0 6px}
+ .aide-overlay .partner-functions{margin-top:12px;gap:10px}
+ .aide-overlay .partner-functions li{line-height:1.5}
+ .aide-overlay .aide-legs li{padding:9px 16px;font-size:16px}
+ .aide-overlay .aide-legs small{font-size:14px}
+ .aide-overlay .aide-actions{margin-top:10px;padding-top:12px}
+ .aide-overlay .aide-actions button{min-height:44px;padding:9px 20px;font-size:15px}
+}
+
+/* First-visit partner picker: keep all four cards side by side on laptop heights
+   instead of switching to one-card tabs. */
+@media(min-width:1200px) and (min-height:700px) and (max-height:850px){
+ .partner-picker .aide-title{font-size:26px;margin-bottom:6px}
+ .partner-picker .aide-sub{font-size:14px;margin-bottom:12px}
+ .partner-picker .partner-preview-tabs{display:none}
+ .partner-picker .aide-voices{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+ .partner-picker .aide-choose .partner-choice,.partner-picker .aide-choose .partner-choice.is-preview{display:flex;flex-direction:column}
+ .partner-picker .partner-photo-frame{height:clamp(150px,calc(100dvh - 530px),300px);max-height:none;min-height:0;flex:none}
+ .partner-picker .partner-copy{flex:0 0 auto;height:auto;padding:12px 16px;gap:6px;justify-content:flex-start}
+ .partner-picker .aide-choose .partner-copy>b{font-size:18px}
+ .partner-picker .aide-choose .partner-copy>small{font-size:12.5px;line-height:1.5}
+ .partner-picker .partner-capabilities{font-size:12.5px;gap:3px;line-height:1.45}
+ .partner-picker .aide-choose-link{margin-top:6px;padding-top:7px;font-size:13px}
+}
