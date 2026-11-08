@@ -5,7 +5,7 @@
 ## 완료·배포 상태
 
 - 저장소: `limmin3-sudo/stam-freight-control`. 이번 작업 브랜치 `work`, 원격 배포 브랜치 `main`.
-- 제품 버전 **v3.8.0**. 최신 기능 커밋은 Git 이력에서 확인한다. 직전 v3.5.0 출발·포드 수정은 `0aeb7c6`, 파트너 개편은 `78648fe`.
+- 제품 버전 **v3.8.0**. 최신 기능 커밋은 Git 이력에서 확인한다. 직전 v3.5.0 출발·포드 수정은 `a7cf818`, 파트너 개편은 `5f6cd49`.
 - [기능 배포 실행 41441062245](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/41441062245) 성공. [운영 사이트](https://limmin3-sudo.github.io/stam-freight-control/)의 `version.json`과 출발 단계·포드 적재·위키 구성 모듈까지 확인했다.
 - `version.json.version`은 커밋 SHA이고, 표시 버전은 `releases[0].version`이다. 문서 커밋 후 SHA는 바뀔 수 있지만 표시 버전은 최신 `releases[0].version`을 따른다.
 - 이번 마무리는 인계 문서만 수정한다. 최종 문서 커밋·원격 일치·배포는 Git과 Actions에서 확인한다. 후속 기능 작업은 **다음 사용자 요청을 받은 뒤** 진행한다.

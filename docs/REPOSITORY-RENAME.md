@@ -16,7 +16,7 @@ https://github.com/limmin3-sudo/verse-hauler/settings
 ## Claude Code 진행 결과 (2026-10-30)
 
 - 3·4번(링크 변경, 첫 배포 비교 검증 보존)은 준비 완료. 4번은 `.github/pages-baseline/locations.json` 기준 스냅샷과 `refresh-data.mjs --fallback-file`(404일 때만 사용)로 해결했다.
-- 사용자가 GitHub Settings에서 이름을 변경했고 `013c63f`를 새 origin의 main에 푸시했다. Actions 성공과 새 사이트를 확인했다. **변경 완료.**
+- 사용자가 GitHub Settings에서 이름을 변경했고 `4d8bf83`를 새 origin의 main에 푸시했다. Actions 성공과 새 사이트를 확인했다. **변경 완료.**
 - 남은 일: 각 PC 체크아웃의 origin 갱신(2번). 이 Cloud 체크아웃은 갱신했다.
 
 ## 다음 AI의 후속 작업
