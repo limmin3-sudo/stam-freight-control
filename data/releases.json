@@ -1,5 +1,27 @@
 [
   {
+    "id": "2026-11-08-laptop-fit",
+    "channel": "beta",
+    "version": "1.0.1",
+    "date": "2026-11-08 15:35",
+    "title": "노트북 화면 맞춤",
+    "changes": [
+      "노트북 화면(배율 125% 등)에서 왼쪽 메뉴가 스크롤 없이 한 번에 보이도록 상단과 메뉴 간격을 정리했습니다.",
+      "소개 영상이 위아래로 잘리지 않고 화면 안에 전체가 보이도록 고쳤습니다.",
+      "첫 방문 파트너 선택 창은 노트북에서도 네 명을 한 번에 보여 드리고, 운송 준비 창은 모든 단계가 스크롤 없이 표시됩니다.",
+      "수신 계약이 없을 때 「운송 계약 추가」 옆에 빈 칸이 보이던 문제와 관제 모드 버튼에 마우스를 올리면 색이 사라지던 문제를 고쳤습니다."
+    ],
+    "en": {
+      "title": "Laptop screen fit",
+      "changes": [
+        "On laptop screens (such as 125% scaling) the left menu now fits without scrolling, with a slimmer header and tighter spacing.",
+        "The introduction film is no longer cropped at the top and bottom; the whole frame now fits the panel.",
+        "The first-visit partner picker shows all four partners at once on laptops, and every preparation step fits without scrolling.",
+        "Fixed an empty box next to Add contracts when the inbox is empty, and the control mode button losing its colour on hover."
+      ]
+    }
+  },
+  {
     "id": "2026-11-07-beta-launch-film",
     "channel": "beta",
     "version": "1.0.0",
