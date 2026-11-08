@@ -1,5 +1,23 @@
 [
   {
+    "id": "2026-11-09-fleet-intro-film",
+    "channel": "beta",
+    "version": "1.1.1",
+    "date": "2026-11-09 01:15",
+    "title": "초대형 함대 소개영상",
+    "changes": [
+      "소개영상을 초대형 화물선 함대와 웜홀 진입·통과·출현을 담은 35.5초 영상으로 교체했습니다.",
+      "실제 STAM 미션·경로·3D 적재 화면을 음악·효과음과 연결하고, 첫 화면 이미지와 무음 미리보기도 함께 바꿨습니다."
+    ],
+    "en": {
+      "title": "Megafreighter fleet introduction film",
+      "changes": [
+        "Replaced the introduction with a 35.5-second megafreighter fleet film featuring wormhole entry, transit and emergence.",
+        "Combined real STAM contract, route and 3D cargo screens with music and effects, and refreshed the hero image and silent preview."
+      ]
+    }
+  },
+  {
     "id": "2026-11-08-language-modes",
     "channel": "beta",
     "version": "1.1.0",

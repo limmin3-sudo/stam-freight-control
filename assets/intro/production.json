@@ -1,30 +1,30 @@
 {
-  "edition": "beta-1.0.0",
-  "durationSeconds": 44,
-  "originalDesign": true,
+  "edition": "beta-1.1.1",
+  "durationSeconds": 35.5,
   "typography": "Korean; locally composed",
   "film": {
     "width": 1920,
     "height": 1080,
     "fps": 24,
-    "sourceFootage": "1280x720",
+    "sourceFootage": "1920x1080; 1.5-second tunnel insert from 1280x720 source",
     "codec": "H.264",
     "audio": "AAC stereo",
-    "webEncoding": "Two-pass H.264, 5.6 Mbps video, original AAC audio"
+    "webEncoding": "H.264 CRF 21; 6.5 Mbps maximum video bitrate"
   },
-  "masterSha256": "1bb5b87ccd95aacafeca73ecda0ff0eff8f09c9355cd27fa7f193244a5108e03",
+  "content": "Generated megafreighter convoy, wormhole entry and emergence, real STAM interface screenshots using example data; instrumental score and mixed effects",
+  "masterSha256": "eb9f3a7d9f63037f93fc85e63d4109e72b33cf25bec55d4b96bf8a93d1c7ad62",
   "files": {
     "intro.mp4": {
-      "bytes": 32402854,
-      "sha256": "58b8471b05c1781e5f7db5f04f3de91c9e42b53b04df05a84a1390f69300bab7"
+      "bytes": 24870386,
+      "sha256": "c5e562f7723dd6999d2d7b7f4e04437918a0ec8fd3ab6752c12c7cf9fe1e214a"
     },
     "teaser.mp4": {
-      "bytes": 2811908,
-      "sha256": "3c0e12fae379b37f723608ed280c935af00976fde213359e8d7d8db3c6460317"
+      "bytes": 3446429,
+      "sha256": "c70264272723e228b52f1f7cd5fa6aac42c5dcd371077360f2f2d85c9dfcaa0e"
     },
     "poster.jpg": {
-      "bytes": 1046133,
-      "sha256": "093eda10dd06626479bb74e1665aaa745410483cf57f42009fd267d056baa2ae"
+      "bytes": 205045,
+      "sha256": "ee057cf0bdc47ea50c8e9b64e290a2cad120538a9d98193ef2579529c75da424"
     }
   }
 }
