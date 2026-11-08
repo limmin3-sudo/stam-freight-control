@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026-11-08-language-modes",
+    "channel": "beta",
+    "version": "1.1.0",
+    "date": "2026-11-08 22:51",
+    "title": "화면 언어 3가지 · 함대 공식 한글 지명",
+    "changes": [
+      "상단에서 한국어 · 한/영 · English 세 가지 화면 언어를 고를 수 있습니다. 한국어는 지명·품목·항성계 이름까지 모두 한국어, 한/영은 메뉴는 한국어이고 지명·품목은 영어(영어 게임 화면용), English는 모두 영어입니다.",
+      "한국어 지명과 품목명은 STAM 함대 공식 한글패치의 표기를 따릅니다. 패치에 없는 이름만 기존 번역을 사용합니다.",
+      "「Hurston - 허스턴」처럼 두 언어를 함께 쓰던 표시를 정리했습니다. 검색은 어느 모드에서나 한글·영어·이전 이름으로 할 수 있습니다."
+    ],
+    "en": {
+      "title": "Three display languages · Fleet Korean names",
+      "changes": [
+        "Choose 한국어, 한/영 or English in the header. 한국어 shows Korean place, commodity and star-system names, 한/영 keeps Korean menus with English game names for an English game client, and English is fully English.",
+        "Korean place and commodity names follow the STAM fleet official Korean patch; names it does not cover keep the earlier translation.",
+        "Labels no longer show both languages side by side. Search still accepts Korean, English and earlier names in every mode."
+      ]
+    }
+  },
+  {
     "id": "2026-11-08-laptop-fit",
     "channel": "beta",
     "version": "1.0.1",

@@ -1,4 +1,4 @@
-## 2026-11-08 — 한국어·한영·영어 세 가지 화면 언어 + 함대 한글패치 이름 (Claude Code, `feature/stam-korean-patch`, 미배포)
+## 2026-11-08 — 한국어·한영·영어 세 가지 화면 언어 + 함대 한글패치 이름 (Claude Code, 베타 1.1.0 배포)
 
 - 사용자 결정: 한국어 = 지명·품목까지 모두 한국어(함대 공식 한글패치 우선, 없는 이름만 AI), 한영 = 메뉴 한국어·지명/품목 영어, 영어 = 모두 영어. 이전 「모든 언어에서 English - 한국어 병기」·「한국어 품목 English 병기」 결정을 대체한다. `docs/DEVELOPMENT.md`에 규칙 추가.
 - 구현: `i18n.mjs` MODES ko/mix/en, `gameEn = lang!=='ko'`, 상단 버튼 한국어·한/영·English. `aliases.mjs` `placeLabel`(한국어 모드는 한국어만, 그 외 영어만)·`systemLabel/systemTab`(스탠턴·파이로·닉스). `commodity-labels.mjs`·`localization.mjs`(화면 품목명 한국어만, Crusader Mercury Star Runner 보호)·`operations-intel.mjs`·`starmap.mjs`(지도 큰 이름 한국어, 부제의 한국어 덧붙임 제거, 부모·항성계 이름도 모드별)·방문 순서 행성권 이름. 예전 「English - 한국어」 합친 형식과 예전 AI 이름도 검색된다. Firebase 피드백 규칙은 이미 mix 허용.
