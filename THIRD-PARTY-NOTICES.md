@@ -8,7 +8,7 @@ STAM is an unofficial Star Citizen fan tool. Star Citizen and related marks belo
 - The confirmed hauling allocation references in integration/log/manifest.mjs cite their public source URLs and game builds. They do not establish the player's current inventory.
 - Optional browser OCR uses Tesseract.js (Apache-2.0) and its trained language models, fetched only when image recognition is used. https://github.com/naptha/tesseract.js
 - The portable Windows package includes Node.js with its own runtime/LICENSE.
-- Korean display labels in data/ai-korean.json are authored from the English catalogue using data/ai-korean-lexicon.mjs. English canonical IDs and names remain the planning data.
+- Korean place and commodity names come first from the STAM fleet official Korean patch (STAM 함대 공식 한글패치, used with fleet permission). Only the names this tool needs are kept in data/stam-korean.json, joined to the English names through the game's shared localisation keys by scripts/import-stam-korean.mjs; the patch and the English game text are not redistributed. Names the patch does not cover are AI-authored from the English catalogue using data/ai-korean-lexicon.mjs. English canonical IDs and names remain the planning data.
 
 
 ## Introduction film and fan illustrations

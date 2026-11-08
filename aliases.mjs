@@ -1,6 +1,7 @@
 import AI from './data/ai-korean.json' with {type:'json'};
-import {aiPlace} from './data/ai-korean-lexicon.mjs';
-export const KO_NAMES=Object.fromEntries(Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en]));
+import {aiPlace,lexPlace} from './data/ai-korean-lexicon.mjs';
+// Fleet-patch names first; earlier AI-authored names stay searchable as extra aliases.
+export const KO_NAMES=Object.fromEntries([...Object.keys(AI.places).map(en=>[lexPlace(en).replace(/\s/g,''),en]),...Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en])]);
 Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지':'Last Landings','브리오함선폐기장':"Brio's Breaker Yard",'브레오함선폐기장':"Brio's Breaker Yard",'티사우주공항':'Lorville','티사스페이스포트':'Lorville','teasaspaceport':'Lorville','로빌':'Lorville','로어빌':'Lorville'});
 export const KO_DISPLAY=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[en,aiPlace(en)]));
 export const KO_TERMS=[['채광 시설','Mining Facility'],['채광 구역','Mining Area'],['보안 초소','Security Post'],['연구 전초기지','Research Outpost'],['구호 대피소','Aid Shelter'],['비상 대피소','Emergency Shelter'],['데이터센터','DataCenter'],['정거장','Station'],['슈빈','Shubin'],['아크코프','ArcCorp']];

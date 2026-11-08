@@ -1,3 +1,12 @@
+## 2026-11-08 — STAM 함대 공식 한글패치 지명·품목명 적용 (Claude Code, 미배포)
+
+- 사용자는 함대원이며 함대 공식 패치라 사용 가능하다고 확인했다.
+- 과거 Git 이력에는 남아 있으며 이력 재작성(강제 푸시)은 사용자 승인 없이 하지 않는다.
+- 패치 exe는 실행하지 않았다. .NET 설치 프로그램에 들어 있는 번역 JSON(formatVersion 1, build 12913470, 90,946개, complete:false)을 읽기만 했다. 키만 있는 순수 한글이라 공개 datamine(x3nnnonn/StarCitizenDiff, 4.10.0 build 12660092)의 영어 global.ini와 공통 키로 영어 이름에 연결했다. 패치·영어 원문은 저장소에 넣지 않는다(scratchpad에만 존재).
+- `scripts/import-stam-korean.mjs`(exe 또는 ini 입력) → `data/stam-korean.json`: 현재 지명 540/679, 품목 205/220. 지명은 mission_location_* → 정거장/행성 키 우선, 사람 별명·데칼 제외. 품목은 items_commodities_* → mission_item_* 우선. `data/ai-korean-lexicon.mjs`의 `aiPlace/aiGood`가 함대 이름을 먼저 쓰고 없으면 기존 AI 사전(`lexPlace/lexGood`)으로 채운다. CI가 매번 실행하는 `build-ai-korean.mjs`도 같은 함수를 쓰므로 일일 갱신 후에도 유지된다. `aliases.mjs`는 예전 AI 이름도 검색 별칭으로 유지한다.
+- 테스트: 라벨 기대값을 함대 이름으로 갱신(에버러스 하버·슈빈 광산 시설·CRU-L4 섈로 필즈 등)하고 함대 이름 전체 일치·미포함 이름의 AI 대체·예전 이름 검색 검사를 추가. `npm test` 222개 통과. 출처: THIRD-PARTY-NOTICES·README.
+- 남은 점: 패치 자체 번역 중 어색한 항목(예: SLAM → 강력 충돌, WiDoW → 와이드와)도 공식 표기로 그대로 썼다. 계약 입력 예시 문구(선셋 메사)·안내 예시(삼중수소)·안내 캡처 이미지는 예전 표기다. 「올려」 시 releases.json 기록 후 배포.
+
 ## 2026-11-08 — 베타 1.0.1 노트북 화면 맞춤 공개 완료 (Claude Code)
 
 - 브랜치 `fix/laptop-layout`(main e058703 기준). 사용자 보고: 노트북에서 왼쪽 사이드바 스크롤 발생, 소개영상 위아래 잘림, 전체 비율 부자연스러움.
