@@ -1,3 +1,11 @@
+## 2026-11-08 — 노트북 화면 비율 조정 (Claude Code, 미커밋)
+
+- 브랜치 `fix/laptop-layout`(main e058703 기준). 사용자 보고: 노트북에서 왼쪽 사이드바 스크롤 발생, 소개영상 위아래 잘림, 전체 비율 부자연스러움.
+- 원인: 재생창 `video{height:100%}`가 grid 안에서 높이를 못 잡아 16:9 원본 높이로 커지고 `.site-intro{overflow:hidden}`에 잘림(1366×657에서 영상 601px vs 패널 505px, 1920×960도 890 vs 808). 사이드바는 124px 헤더와 이후 추가된 큰 버튼(로그 연결·운송 시작 78px)이 옛 축소 규칙을 덮고, `cargo-controls.css`가 높이 850 이하에서 `overflow-y:auto`를 강제.
+- 새 `laptop.css`(index.html 맨 마지막 로드, 배포 묶음 자동 포함): 재생 영상 `absolute;inset:0;object-fit:contain`(모든 크기). 1200px 이상·높이 1000 이하에서 헤더 84px, 사이드바/소개 여백·글자 축소, 높이 720 이하는 헤더 72px·보조 줄 숨김. 빈 수신함 숫자 배지(`hidden`을 inline-flex가 덮던 빈 네모) 숨김. 관제 모드 버튼 hover 시 전역 `button:hover`가 주황 배경을 지우던 문제 수정. 900~1199px·모바일 규칙은 변경 없음.
+- 검증: Playwright 1280×610·1366×657·1536×750·1920×960에서 사이드바 scrollHeight=clientHeight(스크롤 없음), 영상 상자가 패널 안(contain), 가로 넘침·JS 오류 없음. 390×844 영상도 패널 안. 지도·관제 모드 화면 확인. `npm test` 222개 통과. 실제 사용자 노트북 브라우저는 미확인.
+- 남은 일: 사용자 화면 확인 → 「올려」 시 `data/releases.json` beta 1.0.1 기록(실제 배포 시각) 후 커밋·푸시. Codex PR14 등 다른 브랜치와 겹치는 파일은 index.html 링크 한 줄뿐.
+
 ## 2026-11-07 — 베타 1.0.0 소개영상 공개·검증 완료
 
 - PR22 https://github.com/limmin3-sudo/stam-freight-control/pull/22 병합3886682c8bd0d3ba698e348b622a1130c433a246. 최종 기능 head eb61bede89bdb6e5d73add07e8e48079e5147677의 push CI42259732680 및 PR CI42259741858 모두 성공(Node222·브라우저11종). 기존 정보실/SCMDB·저장 데이터·네이티브 app.1.3.2를 보존했다.

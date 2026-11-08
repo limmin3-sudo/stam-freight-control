@@ -1,0 +1,77 @@
+/* Laptop fit (1200px+ wide, short screens). Loaded last so it settles the
+   earlier sidebar/header/intro rules instead of adding another override layer.
+   Goal: the left sidebar fits without a scrollbar and the intro film is never clipped. */
+
+/* An empty inbox count must not render as an empty square. */
+.inbox-launch-count[hidden]{display:none}
+
+/* The film player letterboxes inside the intro panel at every size. */
+.intro-player video{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:contain;background:#020509}
+.intro-player-close{z-index:3}
+
+/* The generic button:hover background must not wipe the orange run-mode button. */
+.run-mode-btn:not([aria-pressed=true]):hover{background:linear-gradient(135deg,#f0b46e,#e08a3c);color:#1a1006}
+.run-mode-btn[aria-pressed=true]:hover{background:#0f2a3a}
+
+@media(min-width:1200px) and (max-height:1000px){
+ /* Header: same content, less height. */
+ .topbar{min-height:84px;padding:12px 26px;gap:22px}
+ .topbar .brand{gap:14px}
+ .topbar .brand-mark{width:54px!important;height:54px!important}
+ .topbar .brand-name b{font-size:30px}
+ .topbar .brand-name i{height:28px;margin:0 13px}
+ .topbar .brand-title{font-size:20px}
+ .topbar .brand small{margin-top:7px;font-size:9px}
+ .topbar .topnav>button,.topbar .topnav>a{min-height:38px;padding:8px 12px}
+ .topbar .lang-switch button{min-height:36px;padding:7px 11px}
+
+ /* Sidebar: content is sized to fit, so no forced scrollbar. */
+ main>.mission-pane{overflow:hidden;scrollbar-width:none}
+ main>.mission-pane .account-panel{padding:8px 10px;margin-bottom:8px}
+ main>.mission-pane .account-panel .eyebrow,main>.mission-pane .account-panel p{display:none}
+ main>.mission-pane .account-panel .account-btn{min-height:36px;padding:5px 10px}
+ main>.mission-pane .ship-panel{padding:8px 12px;margin-bottom:8px;gap:3px}
+ main>.mission-pane .ship-panel>b{font-size:14px}
+ main>.mission-pane .ship-facts{gap:1px;font-size:11px}
+ main>.mission-pane .ship-facts span:nth-child(n+4){display:none}
+ main>.mission-pane .desk-launchers{gap:7px}
+ main>.mission-pane .desk-launchers button{padding:8px 12px;gap:2px}
+ main>.mission-pane .desk-launchers small{font-size:10px;line-height:1.45}
+ main>.mission-pane .desk-launchers .sidebar-log-link{min-height:0;padding:9px 14px 9px 30px;gap:2px}
+ main>.mission-pane .desk-launchers .sidebar-log-link::before{left:13px;top:17px}
+ main>.mission-pane .desk-launchers .sidebar-log-link b{font-size:15px}
+ main>.mission-pane .desk-launchers #flight-open{min-height:0;padding:11px 14px}
+ main>.mission-pane .desk-launchers #flight-open b{font-size:16px}
+ main>.mission-pane .plan-reset-open{margin-top:8px;padding:6px 10px;min-height:0}
+ main>.mission-pane>.run-mode-btn{margin:8px 0 6px;min-height:38px;font-size:14px}
+ main>.mission-pane .feedback-btn{margin-top:0;padding:6px 10px}
+
+ /* Intro: keep the headline and actions inside a shorter panel. */
+ main>.site-intro{padding:22px 34px;margin:12px}
+ .intro-copy{padding:18px 0}
+ .intro-copy h1{font-size:clamp(38px,min(4.4vw,8.4vh),78px);margin-bottom:18px;line-height:1.15}
+ .intro-copy p{line-height:1.8}
+ .intro-actions{margin-top:22px}
+ .intro-actions button{min-height:44px;padding:11px 20px}
+}
+
+@media(min-width:1200px) and (max-height:720px){
+ .topbar{min-height:72px;padding:9px 24px}
+ .topbar .brand-mark{width:46px!important;height:46px!important}
+ .topbar .brand-name b{font-size:26px}
+ .topbar .brand-title{font-size:18px}
+ .topbar .brand small{display:none}
+
+ main>.mission-pane .ship-facts span:nth-child(n+3){display:none}
+ main>.mission-pane .account-panel .account-btn small{display:none}
+ main>.mission-pane .account-panel .account-btn{min-height:32px}
+ main>.mission-pane .desk-launchers{gap:6px}
+ main>.mission-pane .desk-launchers button:not(#flight-open):not(.sidebar-log-link) small{display:none}
+ main>.mission-pane .desk-launchers .sidebar-log-link small{font-size:10px}
+ main>.mission-pane .desk-launchers #flight-open small{font-size:10px}
+
+ main>.site-intro{padding:18px 30px}
+ .intro-copy{padding:10px 0}
+ .intro-copy p{font-size:14px;line-height:1.7}
+ .intro-actions{margin-top:16px}
+}
