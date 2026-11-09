@@ -10,6 +10,10 @@ export function definitionOrders(definition){return definition?.rules?.orders||[
 export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dropoffs=[],markers=[]}={}){
  const index=catalogIndex(catalog);if(!index)return null;
  const route=routeFromTitle(contract.title,places);let definition=index.get(contract.definitionId),basis='definition-id';
+ if(!definition&&catalog.sourceName==='SCMDB'&&!contract.conflicts?.length){
+  const names=[...new Set((contract.markerObservations||[]).map(m=>m.template).filter(Boolean))];
+  if(names.length===1){const matches=[...index.values()].filter(d=>d.released&&!d.notForRelease&&d.templateNames?.includes(names[0]));if(matches.length===1){definition=matches[0];basis='exact-template-name';}}
+ }
  if(!definition&&catalog.sourceName!=='SCMDB'&&route.pickup&&route.dropoff){const title=String(contract.title||''),rank=rankWords.find(w=>new RegExp('\\b'+w+'\\b','i').test(title)),direct=/\bdirect\b/i.test(title),bulk=/\bbulk\b/i.test(title);
   if(rank&&direct&&bulk){const candidates=[...index.values()].filter(d=>d.released&&!d.notForRelease&&new RegExp('\\b'+rank+'\\b','i').test(d.title)&&/direct.*bulk/i.test(d.title)&&['pickup','dropoff'].every(role=>d.rules?.locations?.filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot)).some(s=>s.candidates.some(name=>catalogPlace(name,places)?.id===route[role].id))));if(candidates.length===1){definition=candidates[0];basis='unique-title-route';}}
  }
@@ -26,6 +30,9 @@ export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dr
   const scoped=markers.filter(m=>m.role===role&&m.pointId).filter(m=>{if(!multi)return true;if(!rules.objectiveOrderIndicesVerified)return false;return (rules.haulingObjectives||[]).some(id=>{const prefix=role+'_'+id+'_';if(!m.objectiveId?.startsWith(prefix))return false;const i=Number(m.objectiveId.slice(prefix.length));return orders.find(o=>o.orderIndex===i)?.[role+'Pool']===name;});});
   const bound=[...new Set(scoped.map(m=>m.pointId))];if(bound.length===1)return bound[0];if(bound.length>1)return '';
   if(!multi){const observed=[...new Set(role==='pickup'?pickups:dropoffs)];if(observed.length===1)return observed[0];if(observed.length>1)return '';if(route[role])return route[role].id;}
+  // An exact SCMDB template alias can describe another region of the same
+  // contract. Its resource rules apply, but its candidate places do not.
+  if(basis==='exact-template-name')return '';
   if(pool){const candidates=idsOf(pool);if(candidates.length===1&&pool.candidates.every(p=>places.some(l=>(l.uuid===p.id||l.id===p.id))||catalogPlace(p.name,places)))return candidates[0];return '';}
   const slots=(rules.locations||[]).filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot));if(slots.length!==1)return '';const candidates=slots[0].candidates.map(name=>catalogPlace(name,places));return candidates.length&&candidates.every(p=>p?.id&&p.id===candidates[0]?.id)?candidates[0].id:'';
  };

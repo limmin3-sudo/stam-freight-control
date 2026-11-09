@@ -1,6 +1,7 @@
 import {applyContractInfo} from '../contract-info.mjs';
 import {definitionDraft} from '../mission-catalog.mjs';
 import {deliveryGroups,quantitiesReady,actualQuantity} from '../delivery-totals.mjs';
+import {deliveryNotice,objectivePlaceLookup} from '../objective-text.mjs';
 // The inbox projects evidence into editable drafts. Receiving never changes planner missions.
 const key=s=>String(s||'').normalize('NFKC').trim().toLowerCase();
 const text=s=>String(s||'').slice(0,240);
@@ -9,10 +10,10 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
  if(snapshot?.identity?.mixedPlayers)return {blocked:true,cards:[]};
  const all=[...(snapshot?.contracts||[]),...(snapshot?.pendingContracts||[])],unique=new Map();
  const placeId=point=>{const found=places.filter(p=>p.id===point?.id||(p.uuid===point?.id&&p.system===point?.system));return found.length===1?found[0].id:'';};
- const byName=name=>{const found=places.filter(p=>key(p.name)===key(name));return found.length===1?found[0].id:'';};
+ const byName=objectivePlaceLookup(places);
  for(const c of all){
   if(!idPattern.test(c.missionId||'')||unique.has(c.missionId)||!(c.acceptanceObservations?.some(e=>e.actor!=='other')||c.participation?.selfJoinObserved))continue;
-  const markerPlaces=(c.markerObservations||[]).map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position)})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
+  const markerPlaces=(c.markerObservations||[]).map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position,{gameBuild:c.gameBuild})})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
   const pickupIds=[...new Set(markerPlaces.filter(m=>m.role==='pickup').map(m=>placeId(m.point)).filter(Boolean))];
   const useOriginal=catalog?.sourceName==='Wiki'&&c.originalManifest?.status==='resolved-original-manifest';
   let rows=[],quantityHints=[];
@@ -22,13 +23,9 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    for(const group of goals.values()){
     if(new Set(group.map(q=>q.total)).size!==1)continue;
     const q=[...group].sort((a,b)=>a.at.localeCompare(b.at)).at(-1);
-    const line=String(q.notification||'').replace(/:\s*$/, '').trim().replace(/^(?:새 목표|새로운 목표|목표 완료):\s*/,'');
-    let m=line.match(/^(?:New Objective:\s*|Objective Complete:\s*)?Deliver\s+\d+\/(\d+)\s*SCU\s+of\s+(.+?)\s+to\s+(.+?)\.?$/i);
-    if(m){const scu=Number(m[1]);if(scu===q.total&&scu>0&&scu<=10000)rows.push({commodity:text(m[2]),scu,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:byName(m[3]),_dropoffText:text(m[3]),boxes:[],_objectiveId:q.objectiveId});continue;}
-    m=line.match(/^(.+?)(?:을\(를\)|을|를)\s*\d+\/(\d+)\s*SCU\s+(.+?)에\s*배송(?:하십시오|하세요)[.!]?$/);
-    if(m&&Number(m[2])===q.total&&q.total>0&&q.total<=10000){rows.push({commodity:text(m[1]),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:byName(m[3]),_dropoffText:text(m[3]),boxes:[],_objectiveId:q.objectiveId});continue;}
-    m=line.match(/^(.+?)에\s*\d+\/(\d+)\s*SCU의\s+(.+?)(?:을\(를\)|을|를)\s*(?:배달|배송)(?:하십시오|하세요)[.!]?$/);
-    if(m&&Number(m[2])===q.total&&q.total>0&&q.total<=10000)rows.push({commodity:text(m[3]),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:byName(m[1]),_dropoffText:text(m[1]),boxes:[],_objectiveId:q.objectiveId});
+    const notice=deliveryNotice(q.notification);if(!notice||notice.scu!==q.total||q.total<=0||q.total>10000)continue;
+    const named=byName(notice.dropoffText),marked=[...new Set(markerPlaces.filter(m=>m.role==='dropoff'&&m.objectiveId===q.objectiveId).map(m=>placeId(m.point)).filter(Boolean))],conflict=marked.length>1||!!(named&&marked.length===1&&named!==marked[0]);
+    rows.push({commodity:text(notice.commodity),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:conflict?'':named||marked[0]||'',_dropoffText:text(notice.dropoffText),boxes:[],_objectiveId:q.objectiveId,...(conflict?{_locationConflict:true}:{})});
    }
   }
   const reference=definitionDraft(c,places,catalog,missionDb,{markers:markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)})),pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
@@ -43,7 +40,7 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   }}
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
-  const card={id:c.missionId,title:text(reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length,rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
+  const card={id:c.missionId,title:text((reference?.basis==='exact-template-name'?c.title:null)||reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length||rows.some(r=>r._locationConflict),rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
   if(quantityHints.length)card.quantityHints=quantityHints;
   card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints]);unique.set(card.id,card);
  }

@@ -1,5 +1,6 @@
 // Public world coordinates -> parent-relative coordinates. This is a coordinate
 // match, not a runtime zone-ID registry, shipment allocation or ship position.
+import {MISSION_LOCATION_ALIASES} from '../../mission-location-aliases.mjs';
 export const LOCATION_SOURCE = 'https://api.star-citizen.wiki/api/locations/positions';
 export const POSITION_EPSILON_METERS = 0.01;
 const uuid = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/;
@@ -39,7 +40,7 @@ export function locationIndex(data) {
       multipleInstances: p.id === null || byId.get(identity(p)).length !== 1});
     indexed++;
   }
-  function match(position) {
+  function match(position,{gameBuild=null}={}) {
     if (!vector(position)) return {status: 'invalid', candidates: []};
     const base = cell(position), matches = [];
     for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
@@ -47,6 +48,12 @@ export function locationIndex(data) {
       for (const p of buckets.get(key) || []) if (near(position, p.position)) matches.push({
         ...p, residualMeters: Math.hypot(...position.map((n, i) => n - p.position[i])),
       });
+    }
+    if(!matches.length&&gameBuild?.status==='known')for(const alias of MISSION_LOCATION_ALIASES){
+      if(alias.build!==gameBuild.value||!near(position,alias.position))continue;
+      const targets=byId.get(`${alias.system}:${alias.targetId}`),target=targets?.length===1?targets[0]:null;
+      if(!target||target.parentId!==alias.parentId)continue;
+      matches.push({id:target.id,name:target.name,system:target.system,parentId:target.parentId,parentName:byId.get(`${target.system}:${target.parentId}`)?.[0]?.name,position:[...alias.position],multipleInstances:false,residualMeters:Math.hypot(...position.map((n,i)=>n-alias.position[i])),basis:'confirmed-mission-terminal',terminalName:alias.name});
     }
     matches.sort((a, b) => identity(a).localeCompare(identity(b)));
     return {status: matches.length === 1 && !matches[0].multipleInstances ? 'coordinate-match'
@@ -70,7 +77,7 @@ export function contractLocations(contract, index) {
     const conflict = contract.definitionObservations.length !== 1 || markers.some(m =>
       m.definitionId !== contract.definitionId || m.role !== first.role || !vector(m.position) ||
       !vector(first.position) || !near(m.position, first.position));
-    const result = conflict ? {status: 'marker-conflict', candidates: []} : index.match(first.position);
+    const result = conflict ? {status: 'marker-conflict', candidates: []} : index.match(first.position,{gameBuild:contract.gameBuild});
     const quantities = contract.quantityObservations.filter(q => q.missionId === contract.missionId && q.objectiveId === objectiveId);
     return {objectiveId, role: first.role, ...result,
       observations: markers.map(m => ({at: m.at, source: m.source})),

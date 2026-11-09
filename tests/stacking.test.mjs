@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_SHIP,withStacking,validateShip} from '../ships.mjs';
+import {DEFAULT_SHIP,withStacking,validateShip,capacity} from '../ships.mjs';
 import {packBoxes,boxDepth,fullLoadLayout,isUpright} from '../engine.mjs';
 import fs from 'node:fs';
 
@@ -30,6 +30,26 @@ test('ship validation retains attachment frames used by route packing and depth 
  const raw={id:'misc-hull-c',name:'Hull C',grids:[{id:'a',name:'A',w:12,h:6,l:8,x:0,y:0,z:0},{id:'b',name:'B',w:12,h:6,l:8,x:14,y:0,z:0}]};
  const hullC=withStacking(raw);assert.deepEqual(validateShip(hullC).grids.map(g=>g._world),hullC.grids.map(g=>g._world));
  assert.throws(()=>validateShip({...original,grids:[{...original.grids[0],_world:{x:0,y:0,w:Infinity,h:2}}]}),/부착 좌표/);
+});
+
+test('Golem OX hangs partial loads from its 64 SCU ceiling, including custom profiles and resumed cargo',()=>{
+ const raw=JSON.parse(fs.readFileSync(new URL('../data/ships.json',import.meta.url))).find(s=>s.id==='drake-golem-ox');
+ const item={boxId:'new',missionId:'new-contract',shipmentId:'new-shipment',dropoffId:'blue',size:1};
+ for(const profile of [raw,{...raw,id:'custom-golem-ox',performanceId:'drake-golem-ox'}]){
+  const ship=validateShip(withStacking(profile)),g=ship.grids[0];
+  assert.equal(capacity(ship),64);assert.deepEqual(g.rotation,[0,0,180]);
+  assert.deepEqual(g._world,{x:raw.grids[0].x,y:raw.grids[0].y,w:4,h:2});
+  assert.deepEqual(withStacking(ship),ship,'reapplying attachment must not flip the grid again');
+  const packed=packBoxes([item],[],ship);assert.ok(packed);assert.equal(packed.used,1);
+  const first=packed.boxes[0];assert.equal(first.cell[1],0);
+  // The scene rotates the local stacking frame around its centre: local y=0
+  // becomes the physical top of the hold, leaving the bottom empty on partial loads.
+  const physicalBottom=g.y+g.h-first.cell[1]-first.dims[1];
+  assert.equal(physicalBottom,g._world.y+1);assert.equal(physicalBottom+first.dims[1],g._world.y+g._world.h);
+  const aboard={...first,boxId:'aboard',missionId:'existing-contract',shipmentId:'existing-shipment',dropoffId:'red'};
+  const continued=packBoxes([item],[aboard],ship);assert.ok(continued);assert.deepEqual(continued.boxes.find(b=>b.boxId==='aboard'),aboard);
+  const full=packBoxes([0,1].map(i=>({...item,boxId:'large-'+i,size:32})),[],ship);assert.ok(full);assert.equal(full.used,64);
+ }
 });
 
 test('the actual RAFT IC 192 keeps all new 2 SCU crates horizontal in a 112 SCU two-destination load',()=>{

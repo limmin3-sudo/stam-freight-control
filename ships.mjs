@@ -1,7 +1,8 @@
 export const DEFAULT_SHIP={id:'misc-hull-b',name:'MISC Hull B',access:'external',layout:'schematic-x',source:'게임 데이터의 16개 구역명·치수 확인, 부착 위치는 개략',grids:Array.from({length:16},(_,i)=>{const side=i<8?'좌측':'우측',s=i%8,front=s<4,top=s%4<2,upper=s%2===1;return {id:'hull-b-'+i,name:`${i<8?'L':'R'}${s+1} · ${front?'전방':'후방'} ${top?'상부':'하부'} ${upper?'위':'아래'}`,w:2,h:2,l:8,x:i<8?-5:3,y:(top?1:-5)+(upper?2:0),z:front?-9:1,maxBoxSize:32,noUpright:[16]};})};
 // How cargo attaches in each hold (user-confirmed 2026-10-30): flat holds stack up from the floor, Hull B and Hull C
-// grids attach to the spine and stack outward, the RAFT hangs cargo from the ceiling down.
-export const STACK_BY_SHIP={'misc-hull-b':'out','misc-hull-c':'out','argo-raft':'down'};
+// grids attach to the spine and stack outward. RAFT and Golem OX hang cargo from the ceiling down
+// (Golem OX attachment confirmed by the user 2026-11-09).
+export const STACK_BY_SHIP={'misc-hull-b':'out','misc-hull-c':'out','argo-raft':'down','drake-golem-ox':'down'};
 // RAFT 2 SCU crates lie flat against the hanging stack. Explicit restrictions
 // on other ships/grids continue to apply; saved aboard coordinates stay fixed.
 export const restrictsUpright=(ship,grid,size)=>!!grid.noUpright?.includes(size)||size===2&&(ship.id==='argo-raft'||ship.performanceId==='argo-raft');

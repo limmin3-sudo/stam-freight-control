@@ -2,7 +2,7 @@ import {isEn} from './i18n.mjs';
 const uuid=/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const referenceUrl=s=>/^https:\/\/github\.com\/KrovaxCode\/SCMDB_DATA\/blob\/[a-f0-9]{40}\/data\/merged-[a-z0-9.-]+\.json$/i.test(s.url||'')?s.url:'https://scmdb.dev/';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function definitionId(m){const id=m._logInbox?.definition?.id||m._logInbox?.observedDefinitionId;return uuid.test(id||'')?id.toLowerCase():null;}
+export function definitionId(m){const log=m._logInbox,id=log?.definition?.basis==='exact-template-name'?log.observedDefinitionId:log?.definition?.id||log?.observedDefinitionId;return uuid.test(id||'')?id.toLowerCase():null;}
 export function contractInfo(catalog,id){if(!uuid.test(id||'')||!catalog?.definitions)return null;const index=catalog.definitions[id.toLowerCase()],entry=catalog.entries?.[index];if(!entry)return null;return {definitionId:id.toLowerCase(),...entry,differences:catalog.differences?.[entry.differenceIndex]||{},sources:catalog.sources};}
 // Only attach reference information. Accepted-instance fields and cargo are never filled from a template.
 export function applyContractInfo(m,catalog){const info=contractInfo(catalog,definitionId(m));if(!info)return m;const reward=info.values.reward,reference=reward&&reward.min===reward.max?{amount:reward.min,currency:'aUEC',basis:'catalogue-base',definitionId:info.definitionId,sources:Object.fromEntries((info.provenance.reward||[]).map(k=>[k,info.sources[k]]))}:null;

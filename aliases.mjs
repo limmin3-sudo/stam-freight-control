@@ -4,6 +4,8 @@ import {gameEn} from './i18n.mjs';
 // Fleet-patch names first; earlier AI-authored names stay searchable as extra aliases.
 export const KO_NAMES=Object.fromEntries([...Object.keys(AI.places).map(en=>[lexPlace(en).replace(/\s/g,''),en]),...Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en])]);
 Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지':'Last Landings','브리오함선폐기장':"Brio's Breaker Yard",'브레오함선폐기장':"Brio's Breaker Yard",'티사우주공항':'Lorville','티사스페이스포트':'Lorville','teasaspaceport':'Lorville','로빌':'Lorville','로어빌':'Lorville'});
+Object.assign(KO_NAMES,{'nbint스페이스포트':'New Babbage','nbintspaceport':'New Babbage','사쿠라선골든로드워크센터':'Sakura Sun Goldenrod Workcenter'});
+Object.assign(KO_NAMES,{'rikermemorialspaceport':'Area18','라이커메모리얼':'Area18','라이커메모리얼스페이스포트':'Area18','라이커메모리얼우주공항':'Area18','newbabbageinterstellarspaceport':'New Babbage'});
 export const KO_DISPLAY=Object.fromEntries(Object.entries(KO_NAMES).map(([ko,en])=>[en,aiPlace(en)]));
 export const KO_TERMS=[['채광 시설','Mining Facility'],['채광 구역','Mining Area'],['보안 초소','Security Post'],['연구 전초기지','Research Outpost'],['구호 대피소','Aid Shelter'],['비상 대피소','Emergency Shelter'],['데이터센터','DataCenter'],['정거장','Station'],['슈빈','Shubin'],['아크코프','ArcCorp']];
 export function translateKoTerms(s){let out=String(s||'');for(const [ko,en]of KO_TERMS)out=out.split(ko).join(' '+en+' ');return out.replace(/\s+/g,' ').trim();}
