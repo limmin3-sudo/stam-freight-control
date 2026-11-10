@@ -1,3 +1,4 @@
+import {createCargoFinish} from './cargo-finish.mjs';
 import {placeCargoLabels} from './cargo-label-layout.mjs';
 import {DEFAULT_SHIP,hullKind} from './ships.mjs';
 import {shipAccess} from './engine.mjs';
@@ -21,7 +22,7 @@ export {setup,clearGroup,line,PALETTE};
 
 // Container texture: destination colour, darker frame, ribs and the SCU size stencilled on the side.
 const crateCache=new Map();let cargoUsers=0;
-function crateTexture(color,size){const key=color+size;if(crateCache.has(key))return crateCache.get(key);const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
+function crateTexture(color,size){const key=color+size;if(crateCache.has(key))return crateCache.get(key);const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.scale(2,2);
  // Painted inset panels, structural rails and legible stencils. Destination colour
  // stays on the body; lighting/selection never replaces it with a white glow.
  g.fillStyle='#1c262c';g.fillRect(0,0,256,256);g.fillStyle=color;g.fillRect(18,18,220,220);
@@ -36,6 +37,8 @@ function crateTexture(color,size){const key=color+size;if(crateCache.has(key))re
  g.fillStyle=color;g.fillRect(42,18,172,7);g.fillRect(19,48,6,156);
  g.strokeStyle='#101a21';g.lineWidth=6;g.strokeRect(18,18,220,220);g.strokeStyle='#7c8b91';g.lineWidth=1;g.strokeRect(8,8,240,240);
  for(const x of [11,245])for(const y of [11,245]){g.fillStyle='#bac7cb';g.beginPath();g.arc(x,y,2.3,0,Math.PI*2);g.fill();}
+ // Small paint wear catches the light without obscuring destination colour.
+ let wear=739;for(let i=0;i<180;i++){wear=(Math.imul(wear,1664525)+1013904223)>>>0;const x=wear%220+18;wear=(Math.imul(wear,1664525)+1013904223)>>>0;const y=wear%220+18;g.fillStyle=i%3?'rgba(5,15,20,.1)':'rgba(208,220,223,.24)';g.fillRect(x,y,1+i%5,.45);}
  g.fillStyle='#14212be8';g.fillRect(28,184,200,40);g.textAlign='left';g.fillStyle='#91aab8';g.font='9px Arial';g.fillText('STAM / CARGO',36,198);
  g.font='bold 19px Arial';g.fillStyle='#f3f6ed';g.textAlign='right';g.fillText(size+' SCU',219,215);
  for(let x=36;x<109;x+=4){g.fillStyle='#b4c5cb';g.fillRect(x,205,x%3?1:2,10);}
@@ -56,6 +59,8 @@ function crateFrame(dx,dy,dz){const key=[dx,dy,dz].join();if(frameCache.has(key)
  const bar=(w,h,l,x,y,z)=>{const g=new THREE.BoxGeometry(w,h,l);g.translate(x,y,z);parts.push(g);};
  for(const sy of [-1,1])for(const sz of [-1,1])bar(dx,t,t,0,sy*(hy-t/2),sz*(hz-t/2));for(const sx of [-1,1])for(const sz of [-1,1])bar(t,dy,t,sx*(hx-t/2),0,sz*(hz-t/2));for(const sx of [-1,1])for(const sy of [-1,1])bar(t,t,dz,sx*(hx-t/2),sy*(hy-t/2),0);
  for(const sx of [-1,1])for(const sy of [-1,1])for(const sz of [-1,1])bar(c,c,c,sx*(hx-c/2+.005),sy*(hy-c/2+.005),sz*(hz-c/2+.005));
+ // Repeating physical ribs retain scale on 8–32 SCU containers.
+ for(let z=-hz+.5;z<hz-.25;z+=.5){for(const sx of [-1,1])bar(.035,Math.max(.1,dy-.17),.028,sx*(hx-.02),0,z);for(const sy of [-1,1])bar(Math.max(.1,dx-.17),.035,.028,0,sy*(hy-.02),z);}
  const g=mergeGeos(parts);g.userData.shared=true;frameCache.set(key,g);return g;}
 let shadowTex=null;function contactShadow(){if(shadowTex)return shadowTex;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),r=g.createRadialGradient(64,64,10,64,64,64);r.addColorStop(0,'rgba(0,0,0,.75)');r.addColorStop(.6,'rgba(0,0,0,.35)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128);shadowTex=new THREE.CanvasTexture(c);return shadowTex;}
 function bracketGeo(w,h,l){const k=Math.min(.6,Math.min(w,h,l)*.3),p=[],hx=w/2,hy=h/2,hz=l/2;for(const sx of [-1,1])for(const sy of [-1,1])for(const sz of [-1,1]){const x=sx*hx,y=sy*hy,z=sz*hz;p.push(x,y,z,x-sx*k,y,z,x,y,z,x,y-sy*k,z,x,y,z,x,y,z-sz*k);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));return g;}
@@ -64,12 +69,12 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
  // Grid-only cargo view (no ship exterior). Every hold, Hull B included, uses one rotatable 3D view with side labels.
  let views=[],layout='',profileKey='',ship=DEFAULT_SHIP,lastBoxes=new Set(),dropStart=0,nameOf=null,missionNameOf=null,selecting=false,lastPacking=null,lastOptions={};
  function viewport(side,title){return `<div class="cargo-viewport" data-side="${side}"><div class="cargo-side-title">${title}</div><div class="cargo-canvas"></div><div class="cargo-zone-labels"></div><div class="cargo-tip" hidden></div><div class="cargo-grid-help">구역을 눌러 사용 여부를 변경하십시오 · 회색은 사용 안 함</div><button type="button" class="cargo-grid-toggle" aria-pressed="false">그리드 켜기/끄기</button><button type="button" class="cargo-label-toggle"></button><div class="cargo-camera-presets" role="group" aria-label="적재 시점"><button type="button" data-view="top">위</button><button type="button" data-view="left">좌현</button><button type="button" data-view="right">우현</button><button type="button" class="cargo-camera-reset">전체</button></div></div>`;}
- function disposeViews(){for(const v of views){v.dead=true;v.loop?.dispose();v.controls.dispose();v.bloom.dispose();v.resizeObserver?.disconnect();clearGroup(v.frame);clearGroup(v.boxes);v.renderer.dispose();v.renderer.forceContextLoss?.();}views=[];}
+ function disposeViews(){for(const v of views){v.dead=true;v.loop?.dispose();v.controls.dispose();v.bloom.dispose();v.finish.dispose();v.resizeObserver?.disconnect();clearGroup(v.frame);clearGroup(v.boxes);v.renderer.dispose();v.renderer.forceContextLoss?.();}views=[];}
  function build(kind){disposeViews();layout=kind;container.innerHTML=kind==='split'?`<div class="cargo-split">${viewport('left','좌현(왼쪽)에서 보기')}${viewport('right','우현(오른쪽)에서 보기')}</div>`:`<div class="cargo-split cargo-single">${viewport('single','화물칸 그리드')}</div>`;
-  views=[...container.querySelectorAll('.cargo-viewport')].map(el=>{const canvas=el.querySelector('.cargo-canvas'),ctx=setup(canvas),frame=new THREE.Group(),boxes=new THREE.Group();ctx.scene.add(frame,boxes);
+  views=[...container.querySelectorAll('.cargo-viewport')].map(el=>{const canvas=el.querySelector('.cargo-canvas'),ctx=setup(canvas),frame=new THREE.Group(),boxes=new THREE.Group();ctx.scene.add(frame,boxes);const finish=createCargoFinish(ctx.renderer);ctx.scene.environment=finish.environment;ctx.scene.environmentIntensity=.65;
    ctx.renderer.toneMapping=THREE.ACESFilmicToneMapping;ctx.renderer.toneMappingExposure=1.05;ctx.scene.traverse(o=>{if(o.isAmbientLight)o.intensity=.4;if(o.isDirectionalLight){o.intensity=2.7;o.color.set(0xffedda);o.position.set(-30,60,40);}});ctx.scene.add(new THREE.HemisphereLight(0xd1e4ef,0x101724,.85));const fill=new THREE.DirectionalLight(0x91b9db,.7);fill.position.set(-25,15,-30);ctx.scene.add(fill);const rim=new THREE.DirectionalLight(0x9cdbef,1.1);rim.position.set(40,25,-50);ctx.scene.add(rim);
    ctx.controls.dampingFactor=.09;ctx.controls.rotateSpeed=.6;ctx.controls.zoomSpeed=.9;ctx.controls.screenSpacePanning=true;
-   ctx.scene.background=new THREE.Color('#06121b');const bloom=createBloom(ctx.renderer,{strength:0});const v={...ctx,el,canvas,frame,boxes,bloom,labels:[],cages:[],side:el.dataset.side,center:new THREE.Vector3(),radius:15,tip:el.querySelector('.cargo-tip')};el.querySelector('.cargo-camera-reset').onclick=()=>home(v);el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>home(v,b.dataset.view));ctx.controls.addEventListener('start',()=>{v.transition=null;});ctx.controls.addEventListener('change',()=>v.loop?.invalidate());el.querySelector('.cargo-grid-toggle').onclick=()=>{selecting=!selecting;update(lastPacking,lastOptions);};
+   ctx.scene.background=new THREE.Color('#06121b');const bloom=createBloom(ctx.renderer,{strength:0});const v={...ctx,finish,el,canvas,frame,boxes,bloom,labels:[],cages:[],side:el.dataset.side,center:new THREE.Vector3(),radius:15,tip:el.querySelector('.cargo-tip')};el.querySelector('.cargo-camera-reset').onclick=()=>home(v);el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>home(v,b.dataset.view));ctx.controls.addEventListener('start',()=>{v.transition=null;});ctx.controls.addEventListener('change',()=>v.loop?.invalidate());el.querySelector('.cargo-grid-toggle').onclick=()=>{selecting=!selecting;update(lastPacking,lastOptions);};
    // Grid name/fill labels can be hidden to see the boxes; remembered per browser.
    const labelBtn=el.querySelector('.cargo-label-toggle'),showLabels=on=>{el.classList.toggle('labels-off',!on);labelBtn.textContent=on?'라벨 숨기기':'라벨 보기';try{localStorage.setItem('vh-cargo-labels',on?'1':'0');}catch{}};
    let labelsOn=true;try{labelsOn=localStorage.getItem('vh-cargo-labels')!=='0';}catch{}showLabels(labelsOn);labelBtn.onclick=()=>showLabels(el.classList.contains('labels-off'));
@@ -111,7 +116,7 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
     addLabel(v,short[i],labelAt,'cargo-zone-label',i);});
    home(v,'orbit',true);}
  }
- const frameMat=new THREE.MeshStandardMaterial({color:0x677781,metalness:.45,roughness:.42});frameMat.userData.shared=true;
+ const frameMat=new THREE.MeshStandardMaterial({color:0x89969c,metalness:.8,roughness:.32});frameMat.userData.shared=true;
  function allowed(v,i){return layout!=='split'||(v.side==='left'?ship.grids[i].x+ship.grids[i].w/2<0:ship.grids[i].x+ship.grids[i].w/2>=0);}
  function update(packing,options={}){if(disposed)return;lastPacking=packing;lastOptions=options;container.classList.toggle('cargo-grid-selecting',selecting);nameOf=options.nameOf||nameOf;missionNameOf=options.missionNameOf||missionNameOf;const next=options.ship||DEFAULT_SHIP,key=JSON.stringify({...next,grids:next.grids.map(({disabled,...g})=>g)});if(key!==profileKey){profileKey=key;model(next);}else ship=next;
   const now=new Set((packing?.boxes||[]).map(b=>b.boxId)),fresh=new Set([...now].filter(id=>!lastBoxes.has(id)));lastBoxes=now;dropStart=performance.now();
@@ -121,7 +126,7 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
    for(const p of packing?.boxes||[]){if(!allowed(v,p.bin))continue;const g=ship.grids[p.bin],muted=options.boxIds?!options.boxIds.includes(p.boxId):options.missionId&&p.missionId!==options.missionId,loading=options.loadIds?.includes(p.boxId),focus=options.boxIds?.includes(p.boxId)||options.focusIds?.includes(p.boxId)||loading;
     const center=new THREE.Vector3(p.cell[0]+p.dims[0]/2-g.w/2,p.cell[1]+p.dims[1]/2-g.h/2,p.cell[2]+p.dims[2]/2-g.l/2),origin=v.cages[p.bin],boxGroup=new THREE.Group();boxGroup.position.copy(origin.position);boxGroup.rotation.copy(origin.rotation);
     const reserved=!!p.reservation;
-    const d=p.dims.map(x=>x-.1),geometry=reserved?new THREE.BoxGeometry(...d):crateBody(...d),tex=reserved?null:crateTexture(p.color,p.size),mat=reserved?new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:muted?.035:.12,depthWrite:false}):new THREE.MeshPhysicalMaterial({map:tex,metalness:.12,roughness:.66,clearcoat:.1,clearcoatRoughness:.55,transparent:!!muted,opacity:muted?.1:1,depthWrite:!muted,emissive:new THREE.Color(p.color),emissiveIntensity:focus?.035:.01});
+    const d=p.dims.map(x=>x-.1),geometry=reserved?new THREE.BoxGeometry(...d):crateBody(...d),tex=reserved?null:crateTexture(p.color,p.size),mat=reserved?new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:muted?.035:.12,depthWrite:false}):new THREE.MeshPhysicalMaterial({map:tex,bumpMap:v.finish.bumpMap,bumpScale:.018,roughnessMap:v.finish.roughnessMap,metalness:.38,roughness:.82,envMapIntensity:.8,clearcoat:.18,clearcoatRoughness:.4,transparent:!!muted,opacity:muted?.1:1,depthWrite:!muted,emissive:new THREE.Color(p.color),emissiveIntensity:focus?.035:.01});
     const mesh=new THREE.Mesh(geometry,mat);mesh.position.copy(center);mesh.userData={box:p,base:center.clone(),drop:fresh.has(p.boxId)&&!muted&&!p.aboard&&!reserved,focus,order:options.order?.get(p.boxId)};boxGroup.add(mesh);
     if(reserved)mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color:p.color,transparent:true,opacity:muted?.15:.85})));
     else if(!muted){mesh.add(new THREE.Mesh(crateFrame(...d.map(x=>x+.02)),frameMat));const sh=new THREE.Mesh(new THREE.PlaneGeometry(d[0]+.5,d[2]+.5),new THREE.MeshBasicMaterial({map:contactShadow(),transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.set(center.x,center.y-p.dims[1]/2+.012,center.z);boxGroup.add(sh);}
@@ -161,7 +166,7 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
    v.bloom.render(v.scene,v.camera);return cameraMoved||v.transition?60:animated?30:0;}
  update(null,{ship:DEFAULT_SHIP,hideEmpty:false});return {update,home(){views.forEach(v=>home(v));},
   dispose(){if(disposed)return;disposed=true;disposeViews();frameMat.dispose();if(--cargoUsers===0){crateCache.forEach(t=>t.dispose());crateCache.clear();frameCache.forEach(g=>g.dispose());frameCache.clear();bodyCache.forEach(g=>g.dispose());bodyCache.clear();shadowTex?.dispose();shadowTex=null;}container.replaceChildren();},
-  _debug:()=>views.map(v=>({loop:v.loop.stats(),post:v.bloom.stats(),camera:v.camera.position.toArray(),grids:v.cages.filter(c=>c.visible).length,boxes:v.boxes.children.length,memory:{...v.renderer.info.memory}}))};
+  _debug:()=>views.map(v=>({loop:v.loop.stats(),post:v.bloom.stats(),finish:!!v.scene.environment,camera:v.camera.position.toArray(),grids:v.cages.filter(c=>c.visible).length,boxes:v.boxes.children.length,memory:{...v.renderer.info.memory}}))};
 }
 
 export {createStarMap} from './starmap.mjs';

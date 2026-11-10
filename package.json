@@ -1,1 +1,16 @@
-{"name":"verse-hauler","version":"0.1.0","private":true,"type":"module","scripts":{"prestart":"node scripts/prepare.mjs","start":"node server/local.mjs","test":"node --test tests/*.test.mjs","refresh-data":"node scripts/refresh-data.mjs"}}
+{
+  "name": "verse-hauler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prestart": "node scripts/prepare.mjs",
+    "start": "node server/local.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "refresh-data": "node scripts/refresh-data.mjs",
+    "dev:control-room": "npm --prefix apps/control-room run dev",
+    "check:control-room": "npm --prefix apps/control-room run check",
+    "build:control-room": "npm --prefix apps/control-room run build",
+    "test:control-room": "npm --prefix apps/control-room test"
+  }
+}

@@ -1,3 +1,5 @@
+import {mountFlightDeck} from './flight-deck.mjs';
+let flightDeck=null;
 import {contractInfoMarkup} from './contract-info.mjs';
 let contractDetails=null;
 import {rewardSummary,hasReward,rewardText} from './reward-summary.mjs';
@@ -57,7 +59,7 @@ function renderCargo(){if(!plan||plan.simple||selectedStop<0)return;const v=plan
 // Left sidebar card under the account box: the ship in use and the plan settings at a glance (opens Flight setup).
 function renderShipPanel(){const box=$('ship-panel-facts');if(!box||!ship)return;$('ship-panel-name').textContent=ship.name;const p=settings.performance||{},start=byId?.get($('start-location')?.value),scu=missions.reduce((a,m)=>a+missionSCU(m),0);
  const rows=[['화물칸',`${capacity(ship)} SCU · 사용 ${ship.grids.filter(g=>!g.disabled).length}/${ship.grids.length}`],['퀀텀',p.drive?.name?`${p.drive.name}${p.drive.size?' (S'+p.drive.size+')':''}`:'평균 속도 직접 입력'],['출발',start?placeLabel(start):'—'],['계획',mode==='simple'?'간편 경로':'상세 적재'],['계약',missions.length?`${missions.length}건 · ${scu} SCU`:'없음']];
- box.innerHTML=rows.map(([k,v])=>`<span><i>${esc(k)}</i>${esc(v)}</span>`).join('');}
+ box.innerHTML=rows.map(([k,v])=>`<span><i>${esc(k)}</i>${esc(v)}</span>`).join('');flightDeck?.refresh();}
 function save(){renderShipPanel();try{localStorage.setItem('vh-missions',JSON.stringify(missions));localStorage.setItem('vh-settings',JSON.stringify(settings));localStorage.setItem('vh-start',$('start-location').value);return true;}catch{notify('브라우저 저장 공간을 쓸 수 없습니다. 이 탭에서는 계속 작업할 수 있습니다.');return false;}}
 function optionMarkup(selected=''){let out='<option value="">위치 선택</option>';for(const sys of ['stanton','pyro','nyx'])out+=`<optgroup label="${systemLabel(sys)}">`+data.locations.filter(l=>l.system===sys&&l.type!=='Star'&&!['Nyx I','Nyx II','Nyx III'].includes(l.name)).sort((a,b)=>a.name.localeCompare(b.name)).map(l=>`<option value="${esc(l.id)}" ${selected===l.id?'selected':''}>${esc(placeLabel(l))}</option>`).join('')+'</optgroup>';return out;}
 function locationText(id){const l=byId?.get(id);return l?placeLabel(l):'위치 확인 필요';}
@@ -68,7 +70,7 @@ function renderMissions(updateWorkbench=true){inbox?.refresh();
  $('missions').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEditor(Number(b.dataset.edit)));$('missions').querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!editable())return;missions.splice(Number(b.dataset.delete),1);renderMissions();replan();save();});
  if(updateWorkbench)workbench?.render();
 }
-function emptyPlan(){execution?.setPlan(null,byId);plan=null;selectedStop=-1;renderMapOverlay();map?.setRoute(null,-1);cargoView?.update(packBoxes([],[],ship),{ship});$('route-distance').textContent='—';$('route-jumps').textContent='항성계 점프 포함';$('eta').textContent='—';$('peak').innerHTML='— <em>/ '+capacity(ship)+' SCU</em>';$('stops').textContent='—';$('reward').textContent='—';$('itinerary').innerHTML='<div class="empty-note">미션과 위치가 확정되면 방문 순서 표시</div>';$('cargo-legend').replaceChildren();$('cargo-table').replaceChildren();$('cargo-instructions').textContent=ship.grids.length+'개 그리드 · '+capacity(ship)+' SCU · 미션별로 나눠 적재';$('warnings').replaceChildren();$('plan-status').textContent='미션을 추가하면 경로가 표시됩니다.';$('cargo-step').textContent='출발 전';}
+function emptyPlan(){execution?.setPlan(null,byId);plan=null;selectedStop=-1;renderMapOverlay();map?.setRoute(null,-1);cargoView?.update(packBoxes([],[],ship),{ship});$('route-distance').textContent='—';$('route-jumps').textContent='항성계 점프 포함';$('eta').textContent='—';$('peak').innerHTML='— <em>/ '+capacity(ship)+' SCU</em>';$('stops').textContent='—';$('reward').textContent='—';$('itinerary').innerHTML='<div class="empty-note">미션과 위치가 확정되면 방문 순서 표시</div>';$('cargo-legend').replaceChildren();$('cargo-table').replaceChildren();$('cargo-instructions').textContent=ship.grids.length+'개 그리드 · '+capacity(ship)+' SCU · 미션별로 나눠 적재';$('warnings').replaceChildren();$('plan-status').textContent='미션을 추가하면 경로가 표시됩니다.';$('cargo-step').textContent='출발 전';flightDeck?.refresh();}
 function replan(){
  settings.routePolicy=routePolicy();
  if(!editable())return;
@@ -118,7 +120,7 @@ function setMapExpanded(on){if(on===!$('run-desk').hidden)return;if(on)setMapSol
  if(plan&&selectedStop>=0)selectStop(selectedStop,false);
  // Leave no focused toggle behind: Space/Enter must complete the stop, not press this button again.
  document.activeElement?.blur?.();}
-function startInlineRun(){if(!plan){notify('미션을 입력하고 경로를 먼저 계산하십시오.',true);return;}execution?.start();$('execution').scrollIntoView({behavior:'smooth',block:'center'});}
+function startInlineRun(){if(!plan){notify('미션을 입력하고 경로를 먼저 계산하십시오.',true);return;}execution?.start();flightDeck?.refresh();$('execution').scrollIntoView({behavior:'smooth',block:'center'});}
 function openMapCargo(){$('map-cargo-host').append($('cargo-view'));$('map-cargo-host').hidden=false;renderMapOverlay();}
 function closeMapCargo(){if($('map-cargo-host').hidden)return;const home=document.querySelector('.cargo-caption').parentNode;home.insertBefore($('cargo-view'),home.querySelector('.cargo-caption'));$('map-cargo-host').hidden=true;renderMapOverlay();}
 // Cargo by destination for one stop: colour + destination + commodity/SCU (mission codes stay internal).
@@ -148,7 +150,7 @@ function renderMapOverlay(){
 function selectStop(i,focus){
  if(!plan)return;selectedStop=i;const v=plan.visits[i],l=byId.get(v.locationId);document.querySelectorAll('[data-stop]').forEach(b=>b.classList.toggle('active',Number(b.dataset.stop)===i));$('cargo-step').textContent=`${i+1}번 거점 작업 후`;
  if(map?.selectedSystem()!==l.system)setSystem(l.system);map?.setRoute(plan,i);if(focus)(map?.focusLeg?map.focusLeg(i):map?.focus(v.locationId));renderMapOverlay();
- if(plan.simple)return;
+ flightDeck?.refresh();if(plan.simple)return;
  const oldFilter=$('cargo-filter').value,beforePacking=i?plan.visits[i-1].packing:(plan.initialPacking||packBoxes([],[],ship));$('cargo-filter').innerHTML='<option value="">전체 화물</option>'+(v.events.some(e=>e.type==='delivery')?'<option value="__unload__">이 거점에서 내릴 상자</option>':'')+[...new Set([...v.packing.boxes,...beforePacking.boxes].map(b=>b.missionId))].map(id=>`<option value="${esc(id)}">${esc(missionLabel(id))}</option>`).join('');if([...$('cargo-filter').options].some(o=>o.value===oldFilter))$('cargo-filter').value=oldFilter;
  // Each stop opens on its own work: pickups show the hold after loading here, delivery-only stops show it before unloading.
  const loads=v.events.some(e=>e.type==='pickup');$('cargo-phase').value=loads?'after':'before';if(loads&&$('cargo-filter').value==='__unload__')$('cargo-filter').value='';renderCargo();
@@ -270,8 +272,9 @@ async function reviewReceived(draft,index){
 function demo(){if(!editable())return;const find=name=>data.locations.find(l=>l.name===name)?.id;missions=[{id:'RW-001',company:'Red Wind',title:'허스턴 일대 운송 예시',reward:21000,cargo:[{commodity:'Construction Materials',scu:96,pickupId:find('Everus Harbor'),dropoffId:find('Seraphim Station'),boxes:[{size:24,count:4}]}]},{id:'CV-002',company:'Covalex',title:'화물 구분 예시',reward:26000,cargo:[{commodity:'Construction Materials',scu:80,pickupId:find('Everus Harbor'),dropoffId:find('Baijini Point'),boxes:[{size:16,count:5}]}]},{id:'DS-003',company:'Dead Saints',title:'파이로 연결 예시',reward:43000,cargo:[{commodity:'Processed Food',scu:64,pickupId:find('Orbituary'),dropoffId:find('Checkmate'),boxes:[{size:32,count:2}]}]}];$('start-location').value=find('Everus Harbor');renderMissions();notify('예시 미션입니다. 스샷을 올리면 실제 미션으로 바뀝니다.');replan();}
 function parseBoxText(t){const parts=String(t||'').split(/[,\s]+/).filter(Boolean),out=[];for(const p of parts){const m=p.match(/^(1|2|4|8|16|24|32)\s*[x×*]\s*(\d+)$/i);if(!m)return null;out.push({size:Number(m[1]),count:Number(m[2])});}return out.length?out:null;}
 function waitDialog(d){return new Promise(r=>{if(!d.open){r();return;}d.addEventListener('close',()=>r(),{once:true});});}
-function refreshAideButton(){$('map-partner-photo').src=VOICE_PORTRAITS[voiceId()];$('map-partner-name').textContent=V().role;}
+function refreshAideButton(){$('map-partner-photo').src=VOICE_PORTRAITS[voiceId()];$('map-partner-name').textContent=V().role;flightDeck?.refresh();}
 function makeAssistant(){return createAssistant({
+ prepareDeck(){flightDeck?.prepare();},
  mountDrivePicker:(host,onChange)=>performancePanel.mountChoices(host,{onChange}),driveSetup:()=>performancePanel.choices(),setDriveSetup:(mode,speed)=>performancePanel.setMode(mode,speed),
  voiceChanged(){settings.routePolicy=routePolicy();execution?.refresh();refreshAideButton();save();if(missions.length)replan();},openFlightSettings(){const d=$('flight-dialog');d.querySelector('.desk-dialog-notice').textContent='';if(!d.open)d.showModal();},closed(){guide?.openOnce();},showGuide(){guide?.open();},showTutorial(){if(beforePageChange()!==false)location.href=isEn?'./tutorial.html?lang=en':'./tutorial.html?lang=ko';},
  mountInbox:(host,onChange)=>inbox.mount(host,{onChange}),reviewReceived,
@@ -324,9 +327,15 @@ const locationManager=createLocationManager(data,{canEdit:()=>{if(busy){notify('
  try{localStorage.setItem('vh-missions','[]');localStorage.setItem('vh-settings',JSON.stringify(nextSettings));execution.reset();}catch(error){for(const [key,value] of previous){try{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);}catch{}}throw Error(isEn?'Could not save the reset. The current plan was preserved.':'초기화를 저장하지 못했습니다. 현재 계획을 유지합니다.');}
  missions=[];settings=nextSettings;emptyPlan();renderMissions();save();notify(isEn?'Current hauling plan reset.':'현재 운송 계획을 초기화했습니다.');
  }});$('plan-reset-open').textContent=isEn?'Reset plan':'계획 초기화';$('plan-reset-open').onclick=()=>planReset.open();
- guide=createGuide($('guide-open'),{beforeNavigate:beforePageChange});mountContextHelp(guide);createFeedback($('feedback-open'),{notify,context:()=>({ship:ship?.name||'',contracts:missions.length,mode,stops:plan?.visits?.length||0})});history=createHistory(null,{notify});createAccount($('account-btn'),{notify,shipName:id=>[...($('ship-select')?.options||[])].find(o=>o.value===id)?.textContent||id,openHistory:()=>history.open(),resetHistory:()=>history.reset()});mountAiLabels(aiNames);inbox=createInbox({places:data.locations,missions:()=>missions,review:reviewReceived,addMany:addReceivedBatch,previewRoute:previewReceivedRoute,notify,contractDetails:()=>contractDetails,missionDb:()=>missionDb});assistant=makeAssistant();$('map-partner').onclick=()=>assistant.open('choose');refreshAideButton();organizeTopnav();
+ guide=createGuide($('guide-open'),{beforeNavigate:beforePageChange});mountContextHelp(guide);createFeedback($('feedback-open'),{notify,context:()=>({ship:ship?.name||'',contracts:missions.length,mode,stops:plan?.visits?.length||0})});history=createHistory(null,{notify});createAccount($('account-btn'),{notify,shipName:id=>[...($('ship-select')?.options||[])].find(o=>o.value===id)?.textContent||id,openHistory:()=>history.open(),resetHistory:()=>history.reset()});mountAiLabels(aiNames);inbox=createInbox({places:data.locations,missions:()=>missions,review:reviewReceived,addMany:async drafts=>{const result=await addReceivedBatch(drafts);if(plan&&$('contracts-dialog').open){$('contracts-dialog').close();flightDeck?.review();}return result;},previewRoute:previewReceivedRoute,notify,contractDetails:()=>contractDetails,missionDb:()=>missionDb});assistant=makeAssistant();$('map-partner').onclick=()=>assistant.open('choose');refreshAideButton();organizeTopnav();
  // Enrich saved contracts without changing their canonical identities.
- try{validateMissions(missions);missions=missions.map(m=>workbench.enrich({...m,cargo:m.cargo.map(c=>MISREADS[c.commodity]?{...c,commodity:MISREADS[c.commodity]}:c)}));save();}catch{missions=[];}renderMissions();setSystem('stanton');syncShip();initialized=true;if(assistant.firstVisit())assistant.open();
+ try{validateMissions(missions);missions=missions.map(m=>workbench.enrich({...m,cargo:m.cargo.map(c=>MISREADS[c.commodity]?{...c,commodity:MISREADS[c.commodity]}:c)}));save();}catch{missions=[];}renderMissions();setSystem('stanton');syncShip();initialized=true;flightDeck=mountFlightDeck({state:deckState,calculate:()=>{replan();save();},startRun:startInlineRun});if(assistant.firstVisit())assistant.open();
+}
+function deckState(){
+ const visit=plan?.visits[selectedStop];
+ return {contracts:missions.length,start:$('start-location').value,active:!!execution?.isActive(),finished:!!$('execution').querySelector('.run-summary'),busy,plan:!!plan,simple:!!plan?.simple,currentIndex:execution?.current()??0,selectedIndex:selectedStop,
+ partnerNote:voiceId()==='aide'?(isEn?'Finish nearby contracts':'가까운 계약부터 차근차근'):(isEn?'Batch pickups and deliveries':'여러 계약을 모아 대량 운송'),
+ selected:visit?{name:locationText(visit.locationId),lines:visibleCargoEvents(visit.events).filter(e=>['pickup','delivery'].includes(e.type)).map(e=>`${e.type==='pickup'?(isEn?'Load':'↑ 싣기'):(isEn?'Unload':'↓ 내리기')} · ${e.commodity} · ${eventQuantityText(e,isEn)}`)}:null};
 }
 function organizeTopnav(){const nav=document.querySelector('.topnav'),more=document.createElement('details');more.className='topnav-more';more.innerHTML=`<summary>${isEn?'Manage':'관리'} <span aria-hidden="true">⌄</span></summary><div class="topnav-more-panel"></div>`;for(const id of ['locations-open','settings-open']){const button=$(id);if(button)more.lastElementChild.append(button);}nav.insertBefore(more,nav.querySelector('.lang-switch'));document.addEventListener('click',e=>{if(!more.contains(e.target))more.open=false;});more.addEventListener('keydown',e=>{if(e.key==='Escape'){more.open=false;more.querySelector('summary').focus();}});}
 function beforePageChange(){if(!initialized)return false;if(busy){notify(isEn?'Wait for contract reading to finish.':'계약 읽기가 끝난 뒤 이동하십시오.',true);return false;}if(document.querySelector('dialog[open]')){notify(isEn?'Save or close the open editor first.':'열린 창의 입력을 저장하거나 닫은 뒤 이동하십시오.',true);return false;}return save();}

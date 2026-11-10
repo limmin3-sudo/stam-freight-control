@@ -57,7 +57,7 @@ float fbm(vec3 p,int o){float a=.5,s=0.,n=0.;for(int i=0;i<9;i++){if(i>=o)break;
 float ridge(vec3 p,int o){float a=.5,s=0.,n=0.;for(int i=0;i<8;i++){if(i>=o)break;float r=1.-abs(2.*vn(p)-1.);s+=a*r*r;n+=a;p=p*2.11+vec3(4.3,1.1,7.7);a*=.5;}return s/n;}`;
 const LOGV='#include <common>\n#include <logdepthbuf_pars_vertex>\n',LOGF='#include <logdepthbuf_pars_fragment>\nuniform mat4 modelMatrix;\n';
 const SPHERE_V=LOGV+`varying vec3 vP;varying vec3 vN;varying vec3 vW;void main(){vP=position;vec4 wp=modelMatrix*vec4(position,1.);vW=wp.xyz;vN=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*wp;\n#include <logdepthbuf_vertex>\n}`;
-function linearStops(look){const st=look.ramp.slice(0,5);while(st.length<5)st.push(st.at(-1));return {c:st.map(([,c])=>new THREE.Color().setRGB(c[0]/255,c[1]/255,c[2]/255,THREE.SRGBColorSpace)),t:st.map(([t])=>t)};}
+function linearStops(look){const st=look.ramp.slice(0,5);while(st.length<5)st.push(st.at(-1));return {c:st.map(([,c])=>new THREE.Color().setRGB(c[0]/255,c[1]/255,c[2]/255)),t:st.map(([t])=>t)};}
 export function planetMaterial(name,type){const look=bodyLook(name,type),stops=linearStops(look),seed=seedOf(name)%997;
  return new THREE.ShaderMaterial({uniforms:{uC:{value:stops.c},uT:{value:stops.t},uKind:{value:KIND[look.kind]??0},uSeed:{value:new THREE.Vector3(seed*.137,seed*.071,seed*.193)},uSun:{value:new THREE.Vector3()},uTime:{value:0},
   uAtmo:{value:new THREE.Color(look.atmo||'#000000')},uAtmoK:{value:look.atmo?(look.atmoStrength||1):0},uLights:{value:new THREE.Color(look.lights||'#ffb46b')},uCity:{value:look.kind==='city'?1:look.cityLights||0},uIce:{value:look.kind==='ice'?1:look.clouds?.25:0},uDetail:{value:1}},
@@ -72,26 +72,32 @@ export function planetMaterial(name,type){const look=bodyLook(name,type),stops=l
   if(uKind==3){float lat=sp.y;float turb=fbm(q*1.3+vec3(uTime*.004,0.,0.),5);float fine=fbm(q*vec3(1.,9.,1.)*1.6+turb*2.,4);float band=.5+.5*sin(lat*15.+turb*5.+sin(lat*4.)*1.7);float storm=smoothstep(.72,.9,fbm(q*3.+vec3(0.,0.,uTime*.003),3));h=band*.72+fine*.22+storm*.15;col=ramp(h);}
   else{h=height(q);
    // bump: perturb the normal with the height gradient
-   vec3 t1=normalize(cross(sp,vec3(0.,1.,.001))),t2=cross(sp,t1);float e=.0035;float hx=height((sp+t1*e)*2.2+uSeed),hy=height((sp+t2*e)*2.2+uSeed);vec3 bn=normalize(sp-(.9+uDetail*.6)*((hx-h)*t1+(hy-h)*t2)/e*.06);N=normalize(mat3(modelMatrix)*bn);
+   vec3 t1=normalize(cross(sp,vec3(0.,1.,.001))),t2=cross(sp,t1);float e=.0035;float hx=height((sp+t1*e)*2.2+uSeed),hy=height((sp+t2*e)*2.2+uSeed);vec3 bn=normalize(sp-(.65+uDetail*.25)*((hx-h)*t1+(hy-h)*t2)/e*.025);N=normalize(mat3(modelMatrix)*bn);
    col=ramp((h-.22)*1.8);
+   // Broad geological regions underneath the fine relief, instead of uniformly mottled colour.
+   float region=fbm(q*.65,4);col*=.82+.26*region;
+   if(uKind==2){float snow=smoothstep(.44,.58,h+abs(sp.y)*.14);vec3 bedrock=mix(vec3(.055,.085,.105),vec3(.22,.29,.29),fbm(q*4.,3));col=mix(bedrock,col,snow);}
+   if(uKind==1){float dunes=.5+.5*sin(q.y*90.+fbm(q*6.,3)*12.);col*=.96+.06*dunes;}
    float lat=abs(sp.y);float cap=smoothstep(.78-uIce*.18,.92-uIce*.12,lat+(fbm(q*4.,3)-.5)*.12);col=mix(col,vec3(.93,.96,1.),cap);if(uKind==2){spec=.35*(1.-cap*.3);}
    if(uKind==5){float crack=smoothstep(.78,.92,ridge(q*5.,4));emis+=vec3(2.6,.75,.18)*crack*(.6+.4*sin(uTime*.6+h*30.));}
    if(uKind==6){col=mix(col,col*vec3(.85,1.05,.8),fbm(q*6.,3));}}
-  float ndl=dot(N,L);float day=smoothstep(-.08,.35,ndl);float diff=max(ndl,0.)*.95+.04;
+  float ndl=dot(N,L);float day=smoothstep(-.08,.35,ndl);float diff=max(ndl,0.)*1.02+.018;
   // terminator warm tint + rim scattering
   float term=smoothstep(.0,.25,ndl)*(1.-smoothstep(.25,.6,ndl));vec3 lit=col*diff+col*uAtmo*term*.25*uAtmoK;
   vec3 R=reflect(-L,N);lit+=vec3(1.)*pow(max(dot(R,V),0.),40.)*spec*day;
   // night side city lights
   if(uCity>0.){float cityN=smoothstep(.58,.66,fbm(q*22.,4))*step(abs(sp.y),.86);float grid=smoothstep(.45,.5,fbm(q*80.,2));emis+=uLights*(cityN*.9+cityN*grid*.8)*2.2*(1.-day)*uCity;}
-  float rim=pow(1.-max(dot(normalize(vN),V),0.),3.);lit+=uAtmo*rim*uAtmoK*1.2*smoothstep(-.25,.4,dot(normalize(vN),L));
+  float rim=pow(1.-max(dot(normalize(vN),V),0.),3.);lit+=uAtmo*rim*uAtmoK*.65*smoothstep(-.25,.4,dot(normalize(vN),L));
   gl_FragColor=vec4(lit+emis,1.);}`});}
 export function cloudMaterial(name,amount=.4){const seed=seedOf(name+'cloud')%991;return new THREE.ShaderMaterial({uniforms:{uSeed:{value:new THREE.Vector3(seed*.11,seed*.07,seed*.05)},uSun:{value:new THREE.Vector3()},uTime:{value:0},uAmount:{value:amount}},transparent:true,depthWrite:false,vertexShader:SPHERE_V,
  fragmentShader:LOGF+`uniform vec3 uSeed;uniform vec3 uSun;uniform float uTime;uniform float uAmount;varying vec3 vP;varying vec3 vN;varying vec3 vW;${NOISE}
- void main(){\n#include <logdepthbuf_fragment>\nvec3 sp=normalize(vP);vec3 q=sp*3.+uSeed+vec3(uTime*.006,0.,uTime*.002);float w=fbm(q*.8,3);float c=fbm(q+vec3(w*1.8),7);float lat=abs(sp.y);c+=.08*sin(sp.y*22.+w*6.);float a=smoothstep(.56-uAmount*.12,.78,c)*(.85+.15*lat);vec3 L=normalize(uSun-vW);float day=smoothstep(-.1,.35,dot(normalize(vN),L));gl_FragColor=vec4(vec3(1.)*(day*1.05+.02),a*uAmount*1.6);}`});}
+ void main(){\n#include <logdepthbuf_fragment>\nvec3 sp=normalize(vP);vec3 q=sp*3.+uSeed+vec3(uTime*.006,0.,uTime*.002);float w=fbm(q*.8,3);float c=fbm(q+vec3(w*1.8),7);float lat=abs(sp.y);c+=.08*sin(sp.y*22.+w*6.);float a=smoothstep(.52-uAmount*.12,.73,c)*(.85+.15*lat);vec3 L=normalize(uSun-vW);float ndl=dot(normalize(vN),L);float day=smoothstep(-.08,.32,ndl);
+ float dense=smoothstep(.52,.72,fbm(q+vec3(w*1.8)+L*.075,4));float relief=.72+.28*(1.-dense);vec3 cloud=mix(vec3(.68,.76,.87),vec3(1.),day)*relief;cloud=mix(cloud,vec3(.92,.67,.46),smoothstep(-.12,.04,ndl)*(1.-smoothstep(.04,.3,ndl))*.45);
+ gl_FragColor=vec4(cloud*(day*.95+.025),min(.92,a*(.5+uAmount)));}`});}
 // Fresnel atmosphere shell: blue-ish/planet tint on the day limb, warm at the terminator.
 export function atmosphereMaterial(color,strength=1){return new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uSun:{value:new THREE.Vector3()},uStrength:{value:strength}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.BackSide,
  vertexShader:SPHERE_V,
- fragmentShader:LOGF+`uniform vec3 uColor;uniform vec3 uSun;uniform float uStrength;varying vec3 vP;varying vec3 vN;varying vec3 vW;void main(){\n#include <logdepthbuf_fragment>\nvec3 V=normalize(cameraPosition-vW),N=-normalize(vN);float f=1.-abs(dot(N,V));float glow=pow(f,1.6)*smoothstep(1.,.55,f);float l=dot(normalize(vW-(modelMatrix*vec4(0.,0.,0.,1.)).xyz),normalize(uSun-vW));float day=smoothstep(-.35,.45,l);float term=smoothstep(-.35,0.,l)*(1.-smoothstep(0.,.35,l));vec3 c=mix(uColor,vec3(1.,.55,.3),term*.6)*(day+term*.4);gl_FragColor=vec4(c*glow*uStrength*1.8,glow*uStrength);}`});}
+ fragmentShader:LOGF+`uniform vec3 uColor;uniform vec3 uSun;uniform float uStrength;varying vec3 vP;varying vec3 vN;varying vec3 vW;void main(){\n#include <logdepthbuf_fragment>\nvec3 V=normalize(cameraPosition-vW),N=-normalize(vN);float f=1.-abs(dot(N,V));float glow=pow(f,3.2)*(1.-smoothstep(.86,1.,f));float l=dot(normalize(vW-(modelMatrix*vec4(0.,0.,0.,1.)).xyz),normalize(uSun-vW));float day=smoothstep(-.35,.45,l);float term=smoothstep(-.35,0.,l)*(1.-smoothstep(0.,.35,l));vec3 c=mix(uColor,vec3(1.,.55,.3),term*.6)*(day+term*.4);gl_FragColor=vec4(c*glow*uStrength*1.25,glow*uStrength);}`});}
 // Warm, bounded radiance preserves granulation after tone mapping instead of clipping to white.
 export function starMaterial(color){return new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uTime:{value:0}},vertexShader:SPHERE_V,
  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;varying vec3 vP;varying vec3 vN;varying vec3 vW;${NOISE}
@@ -105,13 +111,20 @@ export function routeRibbon(points,{color='#5fe6ff',width=5,flow=1,dashed=false}
  const n=points.length,pos=[],prev=[],next=[],side=[],along=[],idx=[];let len=0;const acc=[0];for(let i=1;i<n;i++){len+=points[i].distanceTo(points[i-1]);acc.push(len);}
  for(let i=0;i<n;i++){const p=points[i],a=points[Math.max(0,i-1)],b=points[Math.min(n-1,i+1)];for(const sd of [-1,1]){pos.push(p.x,p.y,p.z);prev.push(a.x,a.y,a.z);next.push(b.x,b.y,b.z);side.push(sd);along.push(acc[i]/Math.max(len,1e-9));}if(i<n-1){const k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2);}}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aPrev',new THREE.Float32BufferAttribute(prev,3));g.setAttribute('aNext',new THREE.Float32BufferAttribute(next,3));g.setAttribute('aSide',new THREE.Float32BufferAttribute(side,1));g.setAttribute('aAlong',new THREE.Float32BufferAttribute(along,1));g.setIndex(idx);
- const m=new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uWidth:{value:width},uRes:{value:new THREE.Vector2(1,1)},uTime:{value:0},uReveal:{value:0},uFlow:{value:flow},uDashed:{value:dashed?1:0},uLen:{value:len},uAlpha:{value:1}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
+ const m=new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uWidth:{value:width},uRes:{value:new THREE.Vector2(1,1)},uTime:{value:0},uReveal:{value:0},uFlow:{value:flow},uMotion:{value:1},uDashed:{value:dashed?1:0},uLen:{value:len},uAlpha:{value:1}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
   vertexShader:LOGV+`attribute vec3 aPrev;attribute vec3 aNext;attribute float aSide;attribute float aAlong;uniform float uWidth;uniform vec2 uRes;varying float vAcross;varying float vAlong;
   void main(){mat4 pv=projectionMatrix*modelViewMatrix;vec4 c=pv*vec4(position,1.),a=pv*vec4(aPrev,1.),b=pv*vec4(aNext,1.);vec2 sc=c.xy/c.w,sa=a.xy/a.w,sb=b.xy/b.w;vec2 d=sb-sa;if(length(d)<1e-6)d=vec2(1.,0.);d=normalize(d*uRes);vec2 nrm=vec2(-d.y,d.x);c.xy+=nrm*aSide*uWidth*2./uRes*c.w;gl_Position=c;vAcross=aSide;vAlong=aAlong;\n#include <logdepthbuf_vertex>\n}`,
-  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;uniform float uReveal;uniform float uFlow;uniform float uDashed;uniform float uLen;uniform float uAlpha;varying float vAcross;varying float vAlong;
-  void main(){\n#include <logdepthbuf_fragment>\nif(vAlong>uReveal)discard;float x=abs(vAcross);float core=1.-smoothstep(.55,1.,x);float halo=0.;float head=smoothstep(uReveal-.04,uReveal,vAlong)*step(uReveal,.999)*2.5;
-  float pulse=pow(.5+.5*sin((vAlong*uLen*3.-uTime*2.2)*6.2831/ max(.15,uLen*.04+.3)),6.)*uFlow;float dash=uDashed>.5?step(.45,fract(vAlong*uLen*2.5-uTime*.6)):1.;
-  float i=core*dash*(.85+pulse*.35)+head*core*.4;gl_FragColor=vec4(mix(uColor,vec3(1.),pulse*.35)*min(i,1.2),clamp(i,0.,1.)*uAlpha);}`});
+  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;uniform float uReveal;uniform float uFlow;uniform float uMotion;uniform float uDashed;uniform float uLen;uniform float uAlpha;varying float vAcross;varying float vAlong;
+  void main(){\n#include <logdepthbuf_fragment>\nif(vAlong>uReveal)discard;float x=abs(vAcross);
+  float edge=1.-smoothstep(.72,1.,x),core=1.-smoothstep(.09,.27,x);
+  float repeats=clamp(uLen*.7,4.,28.);float phase=fract(vAlong*repeats-uTime*.32*uFlow*uMotion);
+  float chevron=(1.-smoothstep(.025,.12,abs(phase-.5+x*.22)))*edge;
+  float pulse=pow(max(0.,1.-abs(phase-.5)*2.),8.);
+  float dash=uDashed>.5?mix(.2,1.,step(.3,fract(vAlong*repeats*2.))):1.;
+  float head=(1.-smoothstep(0.,.025,abs(vAlong-uReveal)))*step(uReveal,.999);
+  float alpha=(core*.6+edge*.11+chevron*.72+head*.6)*dash*uAlpha;
+  vec3 col=mix(uColor,vec3(.92,.98,1.),min(.35,chevron*.25+pulse*.1));
+  gl_FragColor=vec4(col,clamp(alpha,0.,.95));}`});
  const mesh=new THREE.Mesh(g,m);mesh.frustumCulled=false;mesh.renderOrder=4;return mesh;}
 export function glowTexture(color,ring=false){
  const key='g:'+color+ring;if(cache.has(key))return cache.get(key);
@@ -144,7 +157,7 @@ export function iconTexture(kind,color){const key='i:'+kind+color;if(cache.has(k
 export function labelSprite(name,sub,color='#cfe6f2',opts={}){const c=document.createElement('canvas'),g=c.getContext('2d'),title=opts.upper===false?name:name.toUpperCase(),big=opts.font||(opts.big?44:36),subFont=opts.subFont||24;
  g.font=`700 ${big}px "Barlow Condensed","Noto Sans KR",Arial,sans-serif`;const tw=g.measureText(title).width;g.font=`500 ${subFont}px "Noto Sans KR",Arial,sans-serif`;const sw=sub?g.measureText(sub).width:0;
  c.width=Math.ceil(Math.max(tw,sw)+28);c.height=sub?big+subFont+24:big+20;g.textAlign='center';g.textBaseline='top';
- if(opts.backed){g.fillStyle='rgba(3,10,19,.84)';g.beginPath();g.roundRect(1,1,c.width-2,c.height-2,8);g.fill();g.strokeStyle=opts.border||'rgba(154,203,226,.55)';g.lineWidth=1;g.stroke();}
+ if(opts.backed){const glass=g.createLinearGradient(0,0,0,c.height);glass.addColorStop(0,'rgba(18,39,50,.95)');glass.addColorStop(1,'rgba(3,10,19,.9)');g.fillStyle=glass;g.beginPath();g.roundRect(1,1,c.width-2,c.height-2,8);g.fill();g.strokeStyle=opts.border||'rgba(154,203,226,.55)';g.lineWidth=1;g.stroke();g.fillStyle=color;g.fillRect(2,10,3,c.height-20);}
  if(opts.pill){g.fillStyle=opts.pill;const r=c.height/2;g.beginPath();g.roundRect(2,2,c.width-4,c.height-4,r);g.fill();}
  g.font=`700 ${big}px "Barlow Condensed","Noto Sans KR",Arial,sans-serif`;g.shadowColor=opts.pill?'transparent':'rgba(0,0,0,.95)';g.shadowBlur=6;g.fillStyle=opts.ink||(opts.pill?'#14100a':color);g.fillText(title,c.width/2,6);
  

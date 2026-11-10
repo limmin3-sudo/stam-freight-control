@@ -1,0 +1,58 @@
+{
+  "checked_on": "2026-11-10",
+  "status": "downloaded_for_art_review_not_applied_to_app",
+  "files": [
+    {
+      "file": "polyhaven/rubber_tiles/rubber_tiles_diff_2k.jpg",
+      "asset": "rubber_tiles",
+      "author": "Amal Kumar",
+      "role": "Diffuse",
+      "resolution": "2k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rubber_tiles/rubber_tiles_diff_2k.jpg",
+      "page": "https://polyhaven.com/a/rubber_tiles",
+      "license": "CC0-1.0",
+      "license_source": "https://polyhaven.com/license",
+      "bytes": 1685204,
+      "sha256": "a14ed9c9b8235a71ce2d7d0d5d0d949a07b8e895d2b78cb3589a6c755bd95215"
+    },
+    {
+      "file": "polyhaven/rubber_tiles/rubber_tiles_nor_gl_2k.jpg",
+      "asset": "rubber_tiles",
+      "author": "Amal Kumar",
+      "role": "nor_gl",
+      "resolution": "2k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rubber_tiles/rubber_tiles_nor_gl_2k.jpg",
+      "page": "https://polyhaven.com/a/rubber_tiles",
+      "license": "CC0-1.0",
+      "license_source": "https://polyhaven.com/license",
+      "bytes": 2359393,
+      "sha256": "27b1e34b797cf4f8ccbfa8fba1736b0ec6d9e0e14522c095b68fe16d483f2aa5"
+    },
+    {
+      "file": "polyhaven/rubber_tiles/rubber_tiles_rough_2k.jpg",
+      "asset": "rubber_tiles",
+      "author": "Amal Kumar",
+      "role": "Rough",
+      "resolution": "2k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rubber_tiles/rubber_tiles_rough_2k.jpg",
+      "page": "https://polyhaven.com/a/rubber_tiles",
+      "license": "CC0-1.0",
+      "license_source": "https://polyhaven.com/license",
+      "bytes": 2752062,
+      "sha256": "5679ff2440d15093bd60df56460199f3b31cdee14bb7bf1983be3af8b8fa60c2"
+    },
+    {
+      "file": "polyhaven/studio_small_08/studio_small_08_2k.hdr",
+      "asset": "studio_small_08",
+      "author": "Sergej Majboroda",
+      "role": "hdri",
+      "resolution": "2k",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/studio_small_08_2k.hdr",
+      "page": "https://polyhaven.com/a/studio_small_08",
+      "license": "CC0-1.0",
+      "license_source": "https://polyhaven.com/license",
+      "bytes": 5930381,
+      "sha256": "6e677b7421f4a14f0844dece04243c4ab3f4bf1a05bf4bb79e29368b3ecc7746"
+    }
+  ]
+}
