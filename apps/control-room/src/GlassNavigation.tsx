@@ -8,8 +8,9 @@ import './glass-navigation.css';
 const routeStyle = visualConfig.map.route;
 
 // Isolated design interaction: no real contracts, route engine or saved preferences.
-export function GlassNavigation({ locale }: { locale: Locale }) {
-  const [selected, setSelected] = useState<string>('microtech');
+export function GlassNavigation({ locale, calls }: { locale: Locale; calls?:string[] }) {
+  const mapped=calls?.map(id=>destinations.find(p=>p.id===id));
+  const [selected, setSelected] = useState<string>(mapped?.[0]?.id ?? 'microtech');
   const [showRoute, setShowRoute] = useState(false);
   const en = locale === 'en', koreanNames = locale === 'ko';
   const target = destinations.find(item => item.id === selected)!;
@@ -23,7 +24,8 @@ export function GlassNavigation({ locale }: { locale: Locale }) {
         <img src={visualConfig.map.artwork} alt="" draggable={false} />
         <svg className="glass-route-layer" viewBox="0 0 1600 1000" aria-hidden="true">
           <defs><filter id={filterId} x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation={routeStyle.glowBlur} /></filter></defs>
-          {showRoute && <g className="glass-route-preview">
+          {mapped?.every(p=>p!==undefined) && <polyline points={mapped.map(p=>`${p.x*16},${p.y*10}`).join(' ')} fill="none" stroke={routeStyle.color} strokeWidth={3} vectorEffect="non-scaling-stroke"/>}
+          {!calls && showRoute && <g className="glass-route-preview">
             <path d={`M ${origin.x * 16} ${origin.y * 10} L ${target.x * 16} ${target.y * 10}`} stroke={routeStyle.glowColor} strokeWidth={routeStyle.glowWidth} opacity={routeStyle.glowOpacity} filter={`url(#${filterId})`} vectorEffect="non-scaling-stroke" />
             <path d={`M ${origin.x * 16} ${origin.y * 10} L ${target.x * 16} ${target.y * 10}`} stroke={routeStyle.color} strokeWidth={routeStyle.width} vectorEffect="non-scaling-stroke" />
             <circle cx={origin.x * 16} cy={origin.y * 10} r={routeStyle.originRadius} fill={routeStyle.originColor} />
@@ -45,7 +47,7 @@ export function GlassNavigation({ locale }: { locale: Locale }) {
         <span className="glass-body-icon" style={{ '--body-color': item.color } as CSSProperties} aria-hidden="true" /><span><small>0{index + 1}</small><b>{name(item)}</b></span><span className="glass-chevron" aria-hidden="true">›</span>
       </button>)}</div>
       <div className="glass-selected-destination" role="status"><span>{en ? 'SELECTED' : '선택한 목적지'}</span><strong>{name(target)}</strong></div>
-      <button type="button" className="glass-primary" data-action="preview-route" aria-pressed={showRoute} onClick={() => setShowRoute(value => !value)}><InterfaceGlyph kind="map" /><span>{en ? (showRoute ? 'Hide sample route' : 'Show sample route') : (showRoute ? '예시 항로 숨기기' : '예시 항로 보기')}</span><span aria-hidden="true">↗</span></button>
+      {!calls && <button type="button" className="glass-primary" data-action="preview-route" aria-pressed={showRoute} onClick={() => setShowRoute(value => !value)}><InterfaceGlyph kind="map" /><span>{en ? (showRoute ? 'Hide sample route' : 'Show sample route') : (showRoute ? '예시 항로 숨기기' : '예시 항로 보기')}</span><span aria-hidden="true">↗</span></button>}
     </aside>
   </div>;
 }

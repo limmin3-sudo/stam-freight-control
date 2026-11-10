@@ -1,6 +1,6 @@
 import type { Locale, Station } from './navigation';
 
-export const spaceScreens = ['lounge', 'guide', 'information', 'cinema', 'bridge', 'mission', 'map', 'operations'] as const;
+export const spaceScreens = ['lounge', 'guide', 'information', 'cinema', 'service', 'bridge', 'mission', 'map', 'operations'] as const;
 export type SpaceScreen = typeof spaceScreens[number];
 export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale }>;
 

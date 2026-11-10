@@ -1,0 +1,109 @@
+{
+  "method": "Local normalized cross-correlation on small image patches; approximate 2D correspondence, not recovered 3D camera motion.",
+  "tracks": {
+    "gate_left_upper": {
+      "start": [
+        265,
+        196
+      ],
+      "end": [
+        270,
+        194
+      ],
+      "dx": 5,
+      "dy": -2,
+      "patch_ncc": 0.948
+    },
+    "gate_right_upper": {
+      "start": [
+        363,
+        201
+      ],
+      "end": [
+        374,
+        199
+      ],
+      "dx": 11,
+      "dy": -2,
+      "patch_ncc": 0.86
+    },
+    "gate_left_inner": {
+      "start": [
+        299,
+        225
+      ],
+      "end": [
+        306,
+        223
+      ],
+      "dx": 7,
+      "dy": -2,
+      "patch_ncc": 0.68
+    },
+    "gate_right_inner": {
+      "start": [
+        351,
+        225
+      ],
+      "end": [
+        361,
+        223
+      ],
+      "dx": 10,
+      "dy": -2,
+      "patch_ncc": 0.791
+    },
+    "touchscreen_top": {
+      "start": [
+        392,
+        237
+      ],
+      "end": [
+        388,
+        236
+      ],
+      "dx": -4,
+      "dy": -1,
+      "patch_ncc": 0.828
+    },
+    "background_ring": {
+      "start": [
+        480,
+        170
+      ],
+      "end": [
+        501,
+        168
+      ],
+      "dx": 21,
+      "dy": -2,
+      "patch_ncc": 0.837
+    },
+    "right_door_upper": {
+      "start": [
+        776,
+        150
+      ],
+      "end": [
+        806,
+        143
+      ],
+      "dx": 30,
+      "dy": -7,
+      "patch_ncc": 0.886
+    },
+    "reception_monitor": {
+      "start": [
+        185,
+        262
+      ],
+      "end": [
+        218,
+        261
+      ],
+      "dx": 33,
+      "dy": -1,
+      "patch_ncc": 0.909
+    }
+  }
+}

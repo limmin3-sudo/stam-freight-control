@@ -45,11 +45,16 @@ try {
     await page.evaluate(() => document.fonts.ready);
     const before = await page.evaluate(() => ({ ...localStorage }));
     assert.equal(await page.locator('.space-target').count(), 5);
+    assert.equal(await page.locator('.space-standing-director img').count(), 1, 'The director stands separately in front of the desk');
+    assert.equal(await page.locator('[data-person-target=director]').count(), 1, 'The standing director is part of desk selection');
     assert.equal(requests.some(url => /\.mp4|\.glb/.test(url)), false, 'No video or retired 3D downloads on arrival');
-    await page.locator('[data-target=gate]').hover();
-    assert.equal(await page.locator('.space-segments polygon.is-lit').count(), 1);
+    await page.locator('[data-marker=gate]').hover();
+    assert.equal(await page.locator('.space-leaders line.is-lit').count(), 1);
     await page.screenshot({ path: path.join(output, `lounge-${lang}.png`), fullPage: true });
-    await page.locator('[data-target=desk]').focus();
+    await page.locator('.space-preview').hover();
+    await page.waitForSelector('.space-artwork[data-selected="false"]');
+    assert.equal(await page.locator('.space-target.is-lit').count(), 0, 'Leaving a target restores the scene without leaving the artwork');
+    await page.locator('[data-marker=desk]').focus();
     await page.keyboard.press('Enter');
     await page.waitForSelector('[data-screen=guide]');
     assert.equal(await page.locator('#space-title').evaluate(el => el === document.activeElement), true);
@@ -57,13 +62,17 @@ try {
     await page.screenshot({ path: path.join(output, `guide-${lang}.png`), fullPage: true });
     await page.keyboard.press('Escape');
     await page.waitForSelector('[data-screen=lounge]');
-    assert.equal(await page.locator('[data-target=desk]').evaluate(el => el === document.activeElement), true);
-    await page.locator('[data-target=gate]').click();
+    assert.equal(await page.locator('[data-marker=desk]').evaluate(el => el === document.activeElement), true);
+    await page.locator('[data-marker=gate]').click();
     await page.waitForSelector('[data-screen=bridge]');
     await page.locator('.space-background').evaluate(img => img.decode());
+    assert.equal(await page.locator('.space-marker').count(), 3, 'Bridge uses three persistent round controls');
+    assert.equal(await page.locator('.space-bridge-operator img').count(), 1, 'Operator uses a separate high-resolution identity asset');
+    assert.equal(await page.locator('.space-bridge-navigator img').count(), 1);
+    assert.equal(await page.locator('.space-spotlight').count(), 0, 'Bridge selection preserves the existing dark lighting');
     await page.screenshot({ path: path.join(output, `bridge-${lang}.png`), fullPage: true });
     for (const station of ['mission', 'map', 'operations']) {
-      await page.locator(`[data-target=${station}]`).click();
+      await page.locator(`[data-marker=${station}]`).click();
       await page.waitForSelector(`[data-screen=${station}]`);
       assert.equal(await page.locator('#workspace-title').evaluate(el => el === document.activeElement), true);
       if (station === 'map') {
@@ -92,7 +101,7 @@ try {
     assert.equal(await page.locator('video').count(), 0);
     for (const width of [1366, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      for (const screen of ['lounge', 'guide', 'information', 'cinema', 'bridge', 'map', 'mission', 'operations']) {
+      for (const screen of ['lounge', 'guide', 'information', 'cinema', 'service', 'bridge', 'map', 'mission', 'operations']) {
         await page.goto(base + `#/${screen}?lang=${lang}`);
         await page.waitForSelector(`[data-screen=${screen}]`);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${lang}/${width}/${screen} overflow`);
@@ -114,30 +123,30 @@ try {
   const page = await browser.newPage({ viewport: { width: 1536, height: 960 }, reducedMotion: 'no-preference' });
   await page.goto(base + '#/lounge?lang=ko');
   await page.locator('.space-background').evaluate(img => img.decode());
-  await page.locator('[data-target=gate]').click();
+  await page.locator('[data-marker=gate]').click();
   await page.waitForSelector('[data-moving=true]');
   await page.keyboard.press('Escape');
   await page.waitForTimeout(1000);
   assert.ok(page.url().includes('/lounge'), 'Escape cancels deferred navigation');
-  await page.locator('[data-target=desk]').click();
+  await page.locator('[data-marker=desk]').click();
   await page.waitForSelector('[data-moving=true]');
   await page.getByRole('button', { name: '연출 건너뛰기', exact: true }).click();
   await page.waitForSelector('[data-screen=guide]');
   await page.goBack();
   await page.waitForSelector('[data-screen=lounge]');
-  await page.locator('[data-target=gate]').click();
+  await page.locator('[data-marker=gate]').click();
   await page.waitForSelector('[data-moving=true]');
   await page.locator('.space-dock a[href*="information"]').click();
   await page.waitForTimeout(1000);
   assert.ok(page.url().includes('/information'), 'A newer route cancels old transition');
   await page.goto(base + '#/lounge?lang=ko');
   await page.locator('.space-background').evaluate(img => img.decode());
-  await page.locator('[data-target=gate]').click();
+  await page.locator('[data-marker=gate]').click();
   await page.waitForSelector('[data-screen=bridge]');
   await page.locator('.space-settings summary').click();
   await page.getByRole('button', { name: '효과음 꺼짐', exact: true }).click();
   assert.equal(await page.getByRole('button', { name: '효과음 켜짐', exact: true }).getAttribute('aria-pressed'), 'true');
-  await page.locator('[data-target=mission]').hover();
+  await page.locator('[data-marker=mission]').hover();
   await page.getByRole('button', { name: '효과음 켜짐', exact: true }).click();
   await page.close();
   console.log('PASS: 3 languages, 4 viewport widths, lounge/bridge/console navigation, focus/history, interruption/skip, lazy video, sound toggle, storage preservation, unpublished boundary.');

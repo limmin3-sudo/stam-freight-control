@@ -5,6 +5,9 @@ import { parseRoute, routeHash, stationLayout, stations } from './navigation';
 import type { Locale, Route } from './navigation';
 import { InterfaceGlyph, HudFrame } from './InterfaceGlyph';
 import { GlassNavigation } from './GlassNavigation';
+import { MissionConsole, TrialBrief } from './MissionConsole';
+import { useLogReceipts } from './use-log-receipts';
+import { itinerary, readDraft, trialKey } from './mission-trial';
 import stamLogo from '../../../assets/stam-logo-transparent.png';
 import roomImage from './assets/control-room-stanton.png';
 
@@ -15,6 +18,10 @@ export function ControlRoom() {
   const mounted = useRef(false);
   const copy = copyFor(route.locale);
   const isHome = route.screen === 'bridge';
+  const [draft, setDraft] = useState(readDraft);
+  const receipts = useLogReceipts();
+  useEffect(() => { try { sessionStorage.setItem(trialKey, JSON.stringify(draft)); } catch { /* Tab memory still works. */ } }, [draft]);
+  const prepared = draft.reviewed && draft.jobs.length > 0;
 
   useEffect(() => {
     const sync = () => setRoute(parseRoute(location.hash));
@@ -79,11 +86,14 @@ export function ControlRoom() {
       </section> : <section className={`console-workspace workspace-${route.screen}`} aria-labelledby="workspace-title">
         <div className="console-heading"><div><p className="eyebrow">STAM / {route.screen.toUpperCase()}</p><h1 id="workspace-title" ref={heading} tabIndex={-1}>{copy[route.screen]}</h1><p>{copy.descriptions[route.screen]}</p></div><a className="return-link" href={routeHash({ ...route, screen: 'bridge' })}>↖ {copy.back}</a></div>
         <div className="workspace-layout" data-screen={route.screen}>
-          {route.screen === 'map' ? <GlassNavigation locale={route.locale} /> : copy.areas[route.screen].map(([title, description], index) => <article className={`workspace-area area-${index}`} key={title}>
+          {route.screen === 'mission' ? <MissionConsole draft={draft} change={setDraft} locale={route.locale} receipts={receipts}/> : route.screen === 'map' ? <>
+            {prepared && <TrialBrief draft={draft} locale={route.locale}/>}
+            <GlassNavigation locale={route.locale} calls={prepared ? itinerary(draft).map(s=>s.place) : undefined}/>
+          </> : prepared ? <TrialBrief draft={draft} locale={route.locale} operations/> : copy.areas[route.screen].map(([title, description], index) => <article className={`workspace-area area-${index}`} key={title}>
             <span className="area-number">0{index + 1}</span><h2>{title}</h2><p>{description}</p>
           </article>)}
         </div>
-        <p className="preview-notice">{copy.status}</p>
+        <p className="preview-notice">{route.locale==='en'?'Route preview · Stops follow contract order.':'항로 미리보기 · 계약 순서대로 방문합니다.'}</p>
       </section>}
     </main>
 

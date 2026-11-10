@@ -1,0 +1,48 @@
+{
+  "job_id": "12cdab8fc2d9",
+  "status": "done",
+  "generated_video_count": 1,
+  "source_image": "apps/control-room/src/assets/lounge-original.png",
+  "original_size": [
+    1672,
+    941
+  ],
+  "automatic_import_size": [
+    1664,
+    928
+  ],
+  "requested": {
+    "quality": "480p",
+    "seconds": 3,
+    "aspect_ratio": "16:9"
+  },
+  "actual": {
+    "width": 848,
+    "height": 464,
+    "frames": 49,
+    "fps": "16/1",
+    "duration_seconds": 3.0625,
+    "codec": "h264"
+  },
+  "aspect_ratio_note": "MCP has no aspect-ratio/width/height controls. Automatic output 848x464 is not exactly 16:9; no manual settings, postprocessing, or second generation were used.",
+  "model_family": "Wan 2.2 I2V 14B",
+  "actual_model_files": [
+    "DaSiWa_Wan22_I2V_14B_SnatchKiss_v11_HIGH_fp8.safetensors",
+    "DaSiWa_Wan22_I2V_14B_SnatchKiss_v11_LOW_fp8.safetensors"
+  ],
+  "text_encoder": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+  "vae": "wan_2.1_vae.safetensors",
+  "model_evidence": "ComfyUI model-loading log and installed video_i2v configuration",
+  "seed": 1808031362,
+  "seed_mode": "Automatically selected by Gen Studio; MCP has no seed input. Actual seed recorded after completion.",
+  "positive_prompt": "Photorealistic architectural footage of the exact futuristic\nspaceport lounge shown in the input image.\n\nA single continuous shot. The camera makes a short, slow,\nstabilized forward movement toward the EXISTING metallic\nboarding arch slightly left of center, behind the reception\ndesk and to the left of the freestanding tilted touchscreen.\n\nOnly a small approach, not a full journey to the gate.\nStay outside the gate throughout the clip.\n\nPreserve the existing architecture, arch orientation,\nreception desk, touchscreen, plants, railings and daylight.\nObjects remain stationary. Natural parallax comes from\ncamera translation. Maintain a level horizon and fixed\nfocal length. The receptionist remains at the desk.\n\nNo new doorway, no duplicated arch, no moving furniture,\nno structural morphing, no scene change, no spacecraft\ninterior, no space scene, no text overlays.",
+  "submitted_prompt_unchanged": true,
+  "negative_prompt_note": "Gen Studio workflow automatically supplies its built-in WAN_NEGATIVE. No custom negative prompt was submitted.",
+  "end_frame_submitted": false,
+  "model_install_or_update_executed": false,
+  "started_at_kst": null,
+  "finished_at_kst": null,
+  "job_elapsed_seconds": null,
+  "comfyui_execution_seconds_from_log": 39.64,
+  "workspace_result_path": "docs/handoff-media/2026-11-11/20261110-210036-30ff3d.mp4"
+}
