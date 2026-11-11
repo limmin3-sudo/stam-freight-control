@@ -109,6 +109,8 @@ if(options.startWithApproach&&options.motion!==false)playFromStart();else jumpTo
 return {navigate,destroy(){cancelPending();video.pause();idle.pause();returnVideo.pause();}};
 `);
 js+='\n}\n';
+js=js.replace(/root\.addEventListener\('keydown', event => \{([\s\S]*?)\n\}\);/,"const onKeyDown = event => {$1\n};\nroot.addEventListener('keydown', onKeyDown);");
+js=js.replace('destroy(){cancelPending();',"destroy(){root.removeEventListener('keydown', onKeyDown);cancelPending();");
 if(js.includes('document.')||!js.includes('return {navigate,destroy()'))throw Error('Controller extraction failed');
 await fs.writeFile(new URL('guide-desk-controller.mjs',output),js);
 console.log('Guide runtime prepared from approved preview; six source assets copied without changes.');

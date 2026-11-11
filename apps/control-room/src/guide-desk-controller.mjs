@@ -210,12 +210,13 @@ for (const group of ['.actions', '.replies']) {
     buttons.forEach(item => item.classList.toggle('selected', item === button));
   }));
 }
-root.addEventListener('keydown', event => {
+const onKeyDown = event => {
   if (event.key === 'Escape' && stage.dataset.state === 'arrived') {
     event.preventDefault();
     returnToLounge();
   }
-});
+};
+root.addEventListener('keydown', onKeyDown);
 
 async function navigate(screen) {
   if(['playing','ready','returning'].includes(stage.dataset.state)){
@@ -245,7 +246,7 @@ sound.setAttribute('aria-pressed',String(!!options.sound));
 sound.textContent=word(options.sound?'소리 끄기':'소리 켜기');
 showPanels(false);
 if(options.startWithApproach&&options.motion!==false)playFromStart();else jumpToArrival();
-return {navigate,destroy(){cancelPending();video.pause();idle.pause();returnVideo.pause();}};
+return {navigate,destroy(){root.removeEventListener('keydown', onKeyDown);cancelPending();video.pause();idle.pause();returnVideo.pause();}};
 
 
 }
