@@ -1,0 +1,114 @@
+{
+  "dateKst": "2026-11-11",
+  "appChanged": false,
+  "items": [
+    {
+      "file": "edit/01_lounge_fullbody.png",
+      "kind": "active",
+      "sourceRelative": "apps/control-room/src/assets/director-standing.png",
+      "note": "라운지 전신 인물. 실제 투명 PNG. 새 가이드와 같은 얼굴·체형·복장으로.",
+      "bytes": 911121,
+      "sha256": "e1dac0f5be80434e7eacd3db557a9a59942b4fe63035ed2aa49cf1975812ffe5",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA"
+    },
+    {
+      "file": "edit/02_partner_portrait.webp",
+      "kind": "active",
+      "sourceRelative": "assets/partners/director-portrait-approved.webp",
+      "note": "안내데스크 소개·튜토리얼에 공통 사용하는 상반신 초상.",
+      "bytes": 723098,
+      "sha256": "39737bcd53e7c855cdfd4f0840efa7c24db796d8392d48ef0b7b251aea9df6cf",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGB"
+    },
+    {
+      "file": "edit/03_opening_poster.jpg",
+      "kind": "active",
+      "sourceRelative": "apps/control-room/src/assets/director-cleaning-poster.jpg",
+      "note": "라운지 준비 오프닝 영상의 정지 포스터. 청소 자세와 배경을 유지해 인물 교체.",
+      "bytes": 81248,
+      "sha256": "ec3a75dc053a4744d77aea847d9c4e5600a844a8692e0be71a6d4dd6f540fd04",
+      "width": 1280,
+      "height": 720,
+      "mode": "RGB"
+    },
+    {
+      "file": "edit/04_lounge_video_start.png",
+      "kind": "production",
+      "sourceRelative": "docs/cinematics/lounge-guide/lounge-guide-first-frame.png",
+      "note": "라운지 접근 영상의 첫 프레임. 서 있는 가이드만 교체하고 접수 직원·소품·배경 유지.",
+      "bytes": 189192,
+      "sha256": "617c401e5820dc89a3ae974e64c7d1b7bc7900145ccd5f63d1724a5542af3ee1",
+      "width": 1280,
+      "height": 720,
+      "mode": "RGB"
+    },
+    {
+      "file": "edit/05_hologram_preview_background.png",
+      "kind": "preview-only",
+      "sourceRelative": "docs/cinematics/lounge-guide/lounge-guide-end-v1.png",
+      "note": "홀로그램 움직임 미리보기의 인물 포함 배경. 기존 먼 데스크 구도이며 최종 도착 구도는 미확정.",
+      "bytes": 2077930,
+      "sha256": "e4df312f786e80569ace47d1de0460ea110c42a2ed6d5ae81e03193a032b22dc",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB"
+    },
+    {
+      "file": "reference/portrait_larger_source.webp",
+      "kind": "reference",
+      "sourceRelative": "assets/partners/director-portrait-v13.webp",
+      "note": "02의 더 큰 원본. 이 파일로 얼굴을 맞춘 뒤 02 구도로 잘라도 됨.",
+      "bytes": 1393868,
+      "sha256": "6ce376cf26e6ac1facf82c6c6947749a0279ab858a5c9584bd0623b79e338c9c",
+      "width": 1085,
+      "height": 1450,
+      "mode": "RGB"
+    },
+    {
+      "file": "reference/hologram_design_keep.png",
+      "kind": "design-reference",
+      "sourceRelative": "docs/cinematics/lounge-guide/lounge-guide-hologram-ui-v1.png",
+      "note": "승인된 홀로그램 디자인. 글자·테두리·금색 강조와 배치는 변경하지 않음.",
+      "bytes": 2090611,
+      "sha256": "5529bf735d63880c500ebbcb058ab6dc2b2a3e22f339be58b6f952d1d0dd86ed",
+      "width": 1671,
+      "height": 941,
+      "mode": "RGB"
+    },
+    {
+      "file": "reference/lounge_background_keep.png",
+      "kind": "scene-reference",
+      "sourceRelative": "apps/control-room/src/assets/lounge-original-composite.png",
+      "note": "가이드 없는 라운지 원본. 앉아 있는 접수 직원은 가이드와 별도 인물이며 교체하지 않음.",
+      "bytes": 4111428,
+      "sha256": "8defed062ac59586f1fb1c691c7bcaf6630d46763112fd33676bf14c296e747f",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGBA"
+    },
+    {
+      "file": "reference/opening_original_video.mp4",
+      "kind": "video-reference",
+      "sourceRelative": "apps/control-room/src/assets/director-cleaning-intro.mp4",
+      "note": "기존 오프닝 영상. 사진만 바꿔도 영상 속 인물은 바뀌지 않아 별도 재제작 필요.",
+      "bytes": 7020799,
+      "sha256": "9ea1503cf3754317a43218df586fe64cb507f816d3a18c6fb4fa09221c57bb9e"
+    },
+    {
+      "file": "reference/new-guide-shared-image.jpg",
+      "kind": "new-guide-reference",
+      "sourceUrl": "https://grok.com/imagine/post/37e31877-b814-416d-8bf6-e00bf70734f3",
+      "width": 880,
+      "height": 2256,
+      "format": "JPEG",
+      "mode": "RGB",
+      "hasAlpha": false,
+      "note": "체커무늬가 실제 RGB 픽셀로 포함되어 있으며 투명 배경이 아님.",
+      "sha256": "a245ea2547438d5f35164c2ec9add5eda791d04f9f452849566c480c91405727"
+    }
+  ]
+}

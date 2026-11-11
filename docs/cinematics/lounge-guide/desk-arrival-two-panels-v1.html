@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STAM · 데스크 도착과 홀로그램</title>
+<link rel="stylesheet" href="hologram-design-v2.css">
+<style>
+body{background:#061018}
+.toolbar{min-height:68px;height:auto;flex-wrap:wrap;padding:12px 16px;gap:9px}
+.toolbar .status{min-width:135px;text-align:center}
+.stage{width:min(100vw,calc((100dvh - 76px)*16/9));aspect-ratio:16/9;perspective:1600px}
+.scene{object-fit:contain}
+.end-frame{visibility:hidden}
+.stage[data-state="arrived"] .end-frame{visibility:visible}
+.stage[data-state="arrived"] video{visibility:hidden}
+.left{left:2%;top:28%;width:26%;height:62%;transform:perspective(1400px) rotateY(7deg) rotateZ(.5deg)}
+.right{left:30%;right:auto;top:22%;width:25.5%;height:68%;transform:perspective(1400px) rotateY(-7deg) rotateZ(-.5deg)}
+.left .panel-content{inset:5.1% 8.2% 6.2% 9.8%}
+.right .panel-content{inset:6.1% 8.4% 7.4% 8.2%}
+.stage.closed .left{transform:translateX(-125%) perspective(1400px) rotateY(12deg) rotateZ(.5deg)}
+.stage.closed .right{transform:translateX(295%) perspective(1400px) rotateY(-12deg) rotateZ(-.5deg)}
+.ui{transition-duration:640ms;transition-timing-function:cubic-bezier(.18,.74,.22,1)}
+.stage:not(.closed) .right{transition-delay:85ms}
+.stage.closed .ui{transition-duration:440ms;transition-delay:0ms}
+.left .eyebrow{font-size:1.08cqw}
+.left h1{font-size:1.72cqw}
+.left .holo-action{font-size:1.43cqw;padding:.7cqw 1.05cqw;gap:1cqw}
+.guide-header{gap:.9cqw}
+.guide-header h2{font-size:1.77cqw}
+.guide-header small{font-size:.94cqw}
+.guide-header>.icon{width:2.35cqw;height:2.35cqw}
+.greeting{font-size:1.5cqw;line-height:1.6;min-height:8.4cqw}
+.replies .holo-action{font-size:1.2cqw;line-height:1.5;padding:.75cqw .9cqw;gap:.75cqw}
+.replies .icon{width:1.8cqw;height:1.8cqw}
+.holo-action span{min-width:0;overflow-wrap:break-word}
+@media(max-width:650px){
+ .toolbar{min-height:100px;gap:6px}.toolbar button{font-size:11px;padding:7px 9px}.toolbar .status{font-size:11px;min-width:90px}
+ .stage{width:100%;aspect-ratio:16/9}.left{left:1%;top:22%;width:27%;height:72%}.right{left:29%;top:17%;width:27%;height:77%}
+ .left .eyebrow{font-size:1.15cqw}.left h1{font-size:1.8cqw;margin:.9cqw 0 1.4cqw}.left .holo-action{font-size:1.5cqw;min-height:4cqw;padding:.5cqw .7cqw;gap:.7cqw}
+ .icon{width:2.1cqw;height:2.1cqw}.guide-header{gap:.8cqw}.guide-header h2{font-size:1.85cqw}.guide-header small{font-size:1.05cqw}.guide-header>.icon{width:2.4cqw;height:2.4cqw}
+ .right .header-line{margin:1cqw 0 1.4cqw}.greeting{font-size:1.55cqw;min-height:8.2cqw}.dialog-divider{margin:.8cqw 0 1.3cqw}.replies .holo-action{font-size:1.22cqw;min-height:4.1cqw;padding:.6cqw .7cqw;gap:.6cqw}.replies .icon{width:1.8cqw;height:1.8cqw}
+}
+@media(prefers-reduced-motion:reduce){.ui,.stage.closed .ui{transition-duration:1ms!important;transition-delay:0ms!important}}
+</style>
+<svg class="symbols" aria-hidden="true"><defs>
+  <filter id="cyan-glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="gold-glow"><feGaussianBlur stdDeviation="1.3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <symbol id="plane" viewBox="0 0 32 32"><path d="M29 3 18 28l-5-10L3 14 29 3ZM13 18 29 3M10 20l-2 7 7-4"/></symbol>
+  <symbol id="clipboard" viewBox="0 0 32 32"><path d="M11 6H6v23h21V6h-6M12 4h8v6h-8zM14 4a2 2 0 0 1 4 0M10 16l2 2 4-4M10 23l2 2 4-4M20 17h3M20 24h3"/></symbol>
+  <symbol id="box" viewBox="0 0 32 32"><path d="m16 3 13 7v14l-13 7L3 24V10L16 3Zm0 14L3 10m13 7 13-7M16 17v14M9 6l14 8v7M10 14l12-7"/></symbol>
+  <symbol id="chair" viewBox="0 0 32 32"><path d="M8 17V9q0-5 5-5h7q5 0 5 5v8M8 17q-5-4-5 2v7h26v-7q0-6-5-2M8 17v5h16v-5M7 26v4M25 26v4"/></symbol>
+  <symbol id="headset" viewBox="0 0 32 32"><path d="M5 19v-5a11 11 0 0 1 22 0v6M5 15H2v10h6V15H5Zm22 0h3v10h-6V15h3ZM27 25q-1 5-9 5h-3M15 28h4v3h-4z"/></symbol>
+  <symbol id="speech" viewBox="0 0 32 32"><path d="M29 14c0 7-6 11-13 11h-3l-8 4 2-7C-1 15 4 4 16 4c7 0 13 4 13 10Z"/><circle cx="10" cy="14" r=".8"/><circle cx="16" cy="14" r=".8"/><circle cx="22" cy="14" r=".8"/></symbol>
+  <symbol id="frame-shape" viewBox="0 0 460 520"><path class="rim outer" d="M27 7H430L453 31V482L429 510H24L7 491V29Z"/><path class="rim inner" d="M33 17H423L442 37V477L423 499H30L18 484V35Z"/><path class="rim sheen" d="M12 59V30L29 12H135M450 104V482L427 506H337"/><path class="rim inner" d="M3 47V489L23 515H118M40 2H433L459 30V136"/><path class="gold" d="M390 19h34M21 463l11 12m-7-25 12 13M434 479l-13 14"/><path class="hot" d="M8 91V48l22-23M65 510h37M453 420v40"/></symbol>
+  <symbol id="action-shape" viewBox="0 0 400 70"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z" fill="var(--action-fill)" stroke="var(--action-stroke)" stroke-width="var(--action-width)" vector-effect="non-scaling-stroke"/></symbol>
+</defs></svg>
+
+<header class="toolbar" aria-label="연출 미리보기 조작">
+ <button id="replay" type="button">영상부터 다시 보기</button>
+ <button id="arrival" type="button">도착 장면 보기</button>
+ <button id="toggle" type="button" aria-controls="stage" aria-expanded="false" disabled>홀로그램 펼치기</button>
+ <button id="sound" type="button" aria-pressed="false">소리 켜기</button>
+ <span id="status" class="status" aria-live="polite">영상 준비 중</span>
+</header>
+<main class="stage closed" id="stage" data-state="ready" aria-label="데스크 접근 영상과 좌우 홀로그램">
+ <img class="scene end-frame" id="end-frame" src="actual-last-frame.png" alt="선택한 영상의 실제 마지막 프레임">
+ <video class="scene" id="approach" src="selected-approach.mp4" poster="actual-first-frame.png" playsinline muted preload="auto" aria-label="가이드와 안내데스크로 이동하는 영상"></video>
+  <section class="ui panel left" aria-label="기능 메뉴">
+    <svg class="frame" viewBox="0 0 460 520" preserveAspectRatio="none" aria-hidden="true"><use href="#frame-shape"/></svg><div class="floor-light"></div>
+    <div class="panel-content"><p class="eyebrow">STAM / WELCOME</p><div class="header-line"></div><h1>무엇을 도와드릴까요?</h1>
+      <div class="actions">
+        <button class="holo-action selected" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#plane"/></svg><span>첫 운송 시작</span></button>
+        <button class="holo-action" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#clipboard"/></svg><span>운송 절차 안내</span></button>
+        <button class="holo-action" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#box"/></svg><span>함선·화물 정보</span></button>
+        <button class="holo-action" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#chair"/></svg><span>라운지로 돌아가기</span></button>
+      </div>
+    </div>
+  </section>
+  <section class="ui panel right" aria-label="가이드와 대화">
+    <svg class="frame" viewBox="0 0 460 520" preserveAspectRatio="none" aria-hidden="true"><use href="#frame-shape"/></svg><div class="floor-light"></div>
+    <div class="panel-content"><div class="guide-header"><svg class="icon" aria-hidden="true"><use href="#headset"/></svg><div><h2>플라이트 가이드</h2><small>STAM · 안내 데스크</small></div></div><div class="header-line"></div>
+      <p class="greeting" id="greeting" aria-live="polite">STAM에 오신 것을 환영합니다.<br>첫 운송을 함께 준비해 볼까요?</p><div class="dialog-divider"></div>
+      <div class="replies"><button class="holo-action" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#speech"/></svg><span>처음이에요. 안내해 주세요.</span></button><button class="holo-action" type="button"><svg class="action-shape" preserveAspectRatio="none" viewBox="0 0 400 70" aria-hidden="true"><path d="M13 1H386L399 14V56L386 69H13L1 57V14Z"/></svg><svg class="icon" aria-hidden="true"><use href="#speech"/></svg><span>운송 준비부터 시작할게요.</span></button></div>
+    </div>
+  </section>
+
+</main>
+<script src="desk-arrival-preview.js"></script>
+</html>

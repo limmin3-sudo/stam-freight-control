@@ -1,0 +1,16 @@
+{
+  "dateKst": "2026-11-12",
+  "status": "Frame pair and detailed Grok prompt prepared; no return video generated",
+  "start": {"file": "01-return-first-frame-1280x720.png", "source": "Actual last decoded frame 360 of idle B: 10375ec8-fbf7-40e5-a6aa-f51db8a4eac1", "sha256": "36a5dbb427a3c74cb8a36733a4e19fe93c82158ef8aa5e9567a03c25ce3d46f8"},
+  "end": {"file": "02-return-last-frame-1280x720.png", "source": "Actual first decoded frame of approach: efa9879a-816c-40f0-9eab-6ba95de507f0", "sha256": "1bf4c865963d17e73efae7d8ad9e06cadf484f5f687c6956e02929dd2c297691", "copyBytesUnchanged": true},
+  "dimensions": [1280, 720],
+  "generatedOrRedrawnInputImages": false,
+  "durationTargetSeconds": 10,
+  "dialogue": {"startSeconds": 0.5, "endSeconds": 2.1, "text": "편하게 둘러보세요."},
+  "route": "Visitor camera retreats first, guide releases right palm and walks forward normally to original lounge greeting position, stops and clasps hands; camera continues to original wide viewpoint",
+  "notReversePlayback": true,
+  "ui": "No overlays in frames or generated video. Unified panel must slide out separately before return, lounge UI enters separately after arrival.",
+  "integrationNote": "When connecting the result, transition from a resting idle pose, not midway through a grooming gesture. Inspect actual generated opening/ending alignment before runtime handoff.",
+  "prompt": "grok-lounge-return-prompt.txt",
+  "runtimeChanged": false
+}

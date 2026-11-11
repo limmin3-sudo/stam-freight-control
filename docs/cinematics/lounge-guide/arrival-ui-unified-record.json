@@ -1,0 +1,14 @@
+{
+  "dateKst": "2026-11-12",
+  "status": "User approved the unified panel, then requested desk idle video inputs",
+  "supersedes": "arrival-ui-record.json two-panel layout",
+  "url": "http://127.0.0.1:5190/desk-arrival.html",
+  "request": "User found the adjacent two-panel composition awkward and proposed one large panel",
+  "design": "Keep approved cyan translucent glass, layered chamfered rim, gold selection and white line icons; use one wide outer frame with functions on left and dialogue on right",
+  "layout": {"leftPercent": 2, "topPercent": 28, "widthPercent": 52.5, "heightPercent": 61.5, "outerPanels": 1, "bottomBar": false, "guideFaceAndTorsoClear": true},
+  "motion": {"direction": "Whole panel slides from/to the left wall", "entranceMs": 640, "exitMs": 440, "opacity": 1, "afterVideoEndedDelayMs": 200, "reducedMotionSupported": true},
+  "files": {"html": "desk-arrival-preview.html", "generator": "build-arrival-unified.py", "previousHtmlPreserved": "desk-arrival-two-panels-v1.html", "controllerUnchanged": "desk-arrival-preview.js", "proof": "desk-arrival-unified-verified.png"},
+  "validation": ["One .panel and zero .bottom nodes", "Content, function and dialogue columns have no horizontal or vertical overflow", "Guide face and torso visible", "Whole panel close position right=-42.2px, beyond stage left=0; opacity remains 1 and hidden controls inert", "Open/close and 640ms transform verified in browser", "Existing video ended handler and video/frame assets unchanged", "Git diff --check passed"],
+  "runtimeFeatureCodeChanged": false,
+  "commitPushDeploy": false
+}

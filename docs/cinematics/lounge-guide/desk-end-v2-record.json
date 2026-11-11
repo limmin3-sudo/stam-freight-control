@@ -1,0 +1,36 @@
+{
+  "shot": "lounge-to-desk-with-guide",
+  "dateKst": "2026-11-11",
+  "status": "desk-end-frame-v2-for-user-review",
+  "tool": "built-in image_gen",
+  "output": "lounge-guide-desk-end-v2.png",
+  "referenceAssets": [
+    "apps/control-room/src/assets/lounge-original-composite.png",
+    "apps/control-room/src/assets/director-standing.png"
+  ],
+  "userDirection": "Approach the guide; she sweeps her right arm toward the welcome desk in an inviting gesture; visitor and guide walk to the desk, then face one another immediately at the desk.",
+  "proposedBeats": [
+    {
+      "beat": 1,
+      "action": "Visitor approaches the guide from the existing lounge overview. Scene UI slides away toward the nearest walls."
+    },
+    {
+      "beat": 2,
+      "action": "Guide opens her covered anatomical right arm toward the welcome desk, palm welcoming, and turns slightly to lead. Preserve the same arm and uniform throughout."
+    },
+    {
+      "beat": 3,
+      "action": "Guide and first-person camera move a few steps together toward the public-facing front-right desk corner. Show real movement and parallax, not a zoom of the old portrait."
+    },
+    {
+      "beat": 4,
+      "action": "Camera stops at conversational distance; guide turns to face visitor, right forearm settles lightly on the nearby countertop; hold on the new end frame. Approved hologram UI then slides in from nearest walls."
+    }
+  ],
+  "review": "Visual check: foreground countertop is within arm's reach, guide's covered right arm contacts desk, face and uniform retained, new pose and nearer desk view distinct from v1. Desk geometry/background are generated interpretations. End composition awaits user review.",
+  "videoGenerated": false,
+  "runtimeChanged": false,
+  "existingPreviewChanged": false,
+  "hologramDesignBaselineUnchanged": "lounge-guide-hologram-ui-v1.png",
+  "prompt": "Use case: identity-preserve. Asset type: new photographic END KEYFRAME for a first-person lounge-to-welcome-desk approach video, landscape 16:9. Create ONE finished still, no UI.\n\nImage 1 is the existing STAM lounge architecture and exact curved welcome desk. Image 2 is the exact adult Flight Guide identity and uniform. Generate a genuinely NEW camera position at the welcome desk itself. This must clearly feel like arriving at the desk after the guide has accompanied the visitor a few steps there, rather than another portrait standing in the open lobby.\n\nComposition: visitor first-person eye-level view, standing DIRECTLY at the public-facing front-right corner of the curved welcome desk, at natural conversational distance about 1.1–1.4 metres from the guide. The guide is now immediately beside the desk, facing the visitor with warm direct eye contact. Strong close foreground parallax: the polished ivory marble countertop is within arm's reach, visibly broad and detailed in the lower-left foreground, extending diagonally from the bottom-left edge to the guide's right elbow. The desk must be a principal compositional element right next to both people, not a distant background strip. Its counter edge and glowing warm-gold front trim must be clearly visible. Do not create a new desk or put a portable lectern in the lobby.\n\nThe guide stands on the same PUBLIC side of the counter as the visitor at the desk's open right-hand end; she has just finished leading the visitor here and turned back toward the camera. Her covered RIGHT forearm (viewer LEFT) rests lightly and naturally on the adjacent countertop; right hand visible with relaxed anatomically correct fingers, a small welcoming open palm is acceptable. Her left hand is relaxed in front of her waist or naturally at her side. Her pose is clearly different from the reference's clasped-hands stance. She does not lean dramatically, reach at the lens, stand on the furniture or stretch both arms. A relaxed upright professional welcome pose.\n\nIdentity invariants: same face shape, hazel eyes, blonde swept tied-back hairstyle, subtle warm smile, natural skin, exact white short-sleeve uniform shirt with dark epaulettes and gold buttons, small original badge, dark skirt, black fabric covering HER RIGHT ARM ONLY (viewer left), silver watch on her LEFT wrist. Preserve original adult body proportions. Medium shot, head to upper hips, character near centre with head fully visible and natural space above. Guide fills middle third; keep room to the left and right for future separate holographic UI. No UI or holograms in this image.\n\nSpace continuity: this is the same existing sunlit lounge and desk from Image 1, photographed from a distinctly closer and slightly side-on orientation looking along the desk front. Camera has physically moved left toward the counter and turned to face the guide. The original seated brown-haired receptionist remains behind the desk, small, secondary and partly visible toward far viewer-left, not duplicated. Keep the original pale structural materials, glass window mullions, planting, distant spaceport apron and warm daylight; the exact visible background changes through closer-camera parallax and orientation. The immediate desk workspace, monitor backs and receptionist's workplace should make arrival at the desk unambiguous. Do not reproduce the earlier generic central lobby portrait with a small desk far behind. Avoid making the boarding gate the main background feature.\n\nVisual treatment: high quality realistic cinematic spaceport photograph, normal lens about 45–50mm, gentle depth of field, face and near counter details sharp, credible warm side lighting and soft shadows, restrained cyan architectural light. Keep architecture believable, no fantasy redesign.\nAvoid: menus, buttons, dialogue boxes, overlays, subtitles, captions, floating text, watermarks, new people, exaggerated cleavage, extra limbs, extra fingers, warped wrist or hands, black covering swapped to her other arm. This is the calm final conversational hold AFTER the guiding gesture and walk, not a motion montage or multiple frames."
+}

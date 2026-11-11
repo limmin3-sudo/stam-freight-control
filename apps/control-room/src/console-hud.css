@@ -1,0 +1,236 @@
+/* Shared instrument surfaces for mission intake, star navigation and flight control. */
+:is(.control-room.at-display, .space-experience[data-screen="map"]) {
+  --hud-page: #020912;
+  --hud-surface: #04121d;
+  --hud-line: #27758a;
+  --hud-light: #5de9ff;
+  --hud-muted: #9bbdc9;
+  --hud-text: #e3f4f8;
+  --hud-grid: linear-gradient(#2c88a00b 1px,transparent 1px),linear-gradient(90deg,#2c88a00b 1px,transparent 1px);
+  --hud-rim: url("./assets/console-circuit-rim.svg");
+  color: var(--hud-text);
+  background-color: var(--hud-page);
+  font-family: "Pretendard Desk",SUIT,system-ui,sans-serif;
+}
+
+/* The same edge artwork is sliced at each corner to keep the traces crisp at all sizes. */
+.control-room.at-display .console-workspace,
+.control-room.at-display .operations-desk,
+.space-experience[data-screen="map"] .space-main {
+  background: var(--hud-grid),radial-gradient(ellipse at 53% 38%,#062236,#020912 72%);
+  background-size: 24px 24px,24px 24px,auto;
+}
+.control-room.at-display .console-workspace {
+  border: 1px solid #164052;
+  box-shadow: none;
+}
+.control-room.at-display :is(.manifest-inbox,.manifest-summary),
+.control-room.at-display .operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner),
+.space-experience[data-screen="map"] :is(.space-overview,.space-sidebar) {
+  border: 12px solid transparent;
+  border-image: var(--hud-rim) 37 62 33 62 / 15px 30px 14px 30px stretch;
+  background-color: var(--hud-surface);
+  box-shadow: inset 0 0 40px #061c2b;
+  min-width: 0;
+}
+.control-room.at-display .operations-desk :is(.ops-progress,.ops-partner),
+.control-room.at-display :is(.manifest-inbox,.manifest-summary) {
+  background-image: var(--hud-grid),linear-gradient(125deg,#071c2a,#030e19 70%);
+  background-size: 20px 20px,20px 20px,auto;
+}
+.control-room.at-display :is(.room-topbar,.ops-mast),
+.space-experience[data-screen="map"] .space-topbar {
+  background: linear-gradient(90deg,#071a29,#030d18 72%);
+  border-bottom: 1px solid #308ca3;
+}
+.control-room.at-display :is(.console-side-navigation,.console-display-content),
+.space-experience[data-screen="map"] .space-sidebar {
+  scrollbar-color: #206176 #03101a;
+}
+.control-room.at-display :is(.console-heading,.inbox-header,.manifest-summary>.manifest-head,.ops-panel-head,.ops-mast),
+.space-experience[data-screen="map"] .hologram-heading {
+  position: relative;
+  border: 0;
+  border-bottom: 1px solid #286275;
+  background-image: linear-gradient(105deg,#12415a60,#03131f00 68%);
+}
+.control-room.at-display :is(.inbox-header,.manifest-summary>.manifest-head,.ops-mast)::after,
+.space-experience[data-screen="map"] .hologram-heading::after {
+  content: ""; position: absolute; pointer-events:none;
+  bottom:-1px;right:5%;width:min(26%,160px);height:3px;
+  background:repeating-linear-gradient(120deg,#4cd6f2 0 3px,transparent 3px 7px);
+}
+.control-room.at-display :is(.console-heading h1,.ops-mast h1),
+.space-experience[data-screen="map"] .hologram-heading h1 {
+  font-family:"Pretendard Desk",SUIT,sans-serif;
+  font-weight:650;letter-spacing:-.035em;color:#e6fbff;
+}
+.control-room.at-display :is(.manifest-head .interface-glyph,.ops-panel-head .interface-glyph) {
+  color:var(--hud-light);filter:drop-shadow(0 0 5px #28bedd40);
+}
+.control-room.at-display .ops-chart,.control-room.at-display .ops-hold .cargo-stage:not(:fullscreen) {
+  border:1px solid #1c4152;border-radius:2px;
+}
+.control-room.at-display .ops-progress progress::-webkit-progress-value {
+  background:repeating-linear-gradient(90deg,#56e9ff 0 7px,#165065 7px 9px);
+}
+.control-room.at-display .ops-progress .run-readout dl {
+  column-gap:clamp(14px,2.3vw,48px);
+}
+.control-room.at-display .ops-progress .run-readout dd {color:#86efff}
+.control-room.at-display .ops-transmission>small {color:#79e4f4}
+.control-room.at-display .ops-portrait {border-radius:2px;border-color:#398399;background:#06131b;box-shadow:none}
+.control-room.at-display .ops-portrait img {border-radius:0}
+.control-room.at-display .ops-status[data-active=true]::before {background:#6ef2ff;box-shadow:0 0 6px #6ef2ff80}
+
+.console-dial {
+  width:70px;aspect-ratio:1;flex:none;margin-left:auto;position:relative;isolation:isolate;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:50%;color:#bdf7ff;text-align:center;font-family:"Pretendard Desk",SUIT,sans-serif;
+  background:radial-gradient(circle,#06283a 28%,#041520 58%,transparent 59%);
+}
+.console-dial::before,.console-dial::after {
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:50%;
+}
+.console-dial::before {
+  background:repeating-conic-gradient(from -90deg,#4596ab 0 1.5deg,transparent 1.5deg 8deg);
+  mask:radial-gradient(circle,transparent 61%,black 62% 69%,transparent 70%);
+}
+.console-dial::after {
+  inset:6px;border:1px solid #39849c;
+  background:conic-gradient(from -90deg,#51e6ff var(--dial-fill),#114155 var(--dial-fill));
+  mask:radial-gradient(circle,transparent 62%,black 64%);
+}
+.console-dial b {font-size:23px;line-height:1;font-weight:590;font-variant-numeric:tabular-nums}
+.console-dial span {margin-top:3px;font-size:10px;font-weight:550;color:#9cc8d1;line-height:1}
+.control-room.at-display .ops-progress .console-dial {width:53px}
+.ops-progress .console-dial b {font-size:16px}
+.ops-progress .console-dial span {font-size:9px}
+.control-room.at-display .manifest-summary>.manifest-head {padding-bottom:10px;display:flex;align-items:center}
+.control-room.at-display .manifest-summary>.manifest-head h2 {white-space:normal}
+.control-room.at-display .manifest-inbox .receipt-card {
+  border:1px solid #246176;background:linear-gradient(120deg,#082333,#04121f);
+  box-shadow:inset 3px 0 #2588a2;
+}
+.control-room.at-display .manifest-inbox .receipt-card:has(input:checked) {
+  border-color:#dcab60;box-shadow:inset 3px 0 #efb65d;background:linear-gradient(115deg,#30271d,#081722);
+}
+.control-room.at-display .manifest-summary>strong {color:#94f3ff}
+.control-room.at-display .manifest-summary .cargo-cells i[data-on=true] {background:#59eaff}
+.control-room.at-display .manifest .manifest-intake {border-color:#235063}
+.control-room.at-display .manifest :is(input:not([type=checkbox]),textarea,select) {
+  border-color:#275468;background-color:#03111a;color:#e8f7fa;
+}
+.control-room.at-display .manifest button:not(:disabled),
+.space-experience[data-screen="map"] .hologram-panel button {
+  font-family:"Pretendard Desk",SUIT,sans-serif;color:#d4f6ff;
+}
+.control-room.at-display .manifest :is(.receipt-add,.dispatch-launch) {
+  background:#092c3c;border:1px solid #3795aa;color:#c5f6ff;
+}
+.space-experience[data-screen="map"] .space-main {gap:6px}
+.space-experience[data-screen="map"] .space-overview {position:relative}
+.space-experience[data-screen="map"] .hologram-heading {
+  position:absolute;left:18px;right:18px;top:8px;min-height:52px;
+}
+.space-experience[data-screen="map"] .hologram-heading small,
+.space-experience[data-screen="map"] .hologram-sector span,
+.space-experience[data-screen="map"] .hologram-panel>small {color:#75d8ee}
+.space-experience[data-screen="map"] .map-flight-brief,
+.space-experience[data-screen="map"] .hologram-selection {
+  border:1px solid #33778b;border-left:3px solid #62e7ff;background:#051725ed;color:#dff9ff;
+}
+.space-experience[data-screen="map"] .hologram-panel {border-top:1px solid #286275;padding-top:10px}
+.space-experience[data-screen="map"] .hologram-panel :is(button[aria-pressed=true],button[aria-current=step]) {
+  color:#ffd595;border-color:#bf914c;background:#332819;
+}
+/* Fine instrument divisions live at the viewport edge, clear of selectable bodies. */
+.space-experience[data-screen="map"] .hologram-viewport::after,
+.control-room.at-display .ops-chart::after {
+  content:"";position:absolute;inset:2px;pointer-events:none;
+  background:repeating-linear-gradient(90deg,#4ac5df88 0 1px,transparent 1px 12px) center top / 70% 4px no-repeat,
+    repeating-linear-gradient(0deg,#4ac5df80 0 1px,transparent 1px 12px) left center / 4px 64% no-repeat,
+    repeating-linear-gradient(0deg,#4ac5df80 0 1px,transparent 1px 12px) right center / 4px 64% no-repeat;
+}
+@media(max-width:760px) {
+  .control-room.at-display :is(.manifest-inbox,.manifest-summary),
+  .control-room.at-display .operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner),
+  .space-experience[data-screen="map"] :is(.space-overview,.space-sidebar) {
+    border-width:8px;border-image-width:10px 19px;
+  }
+  .console-dial {width:54px}
+  .console-dial b {font-size:18px}
+}
+
+/* Optical keys: native straight edges, a fixed radius and a two-pixel lower facet.
+   Neither the outline nor the face is sampled from a stretched image. */
+.control-room.at-display .operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary),
+.control-room.at-display .manifest :is(.receipt-sources button,.receipt-add,.dispatch-launch),
+:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a,
+.space-experience[data-screen="map"] .hologram-panel :is(.hologram-system-select,.hologram-zoom,.hologram-destinations,.hologram-tools) button,
+.cargo-stage .cargo-view-controls button {
+  --key-rim:#3e8191; --key-glint:#9be1e5; --key-top:#163b4b; --key-foot:#071c29;
+  appearance:none; box-sizing:border-box; border:1px solid var(--key-rim);
+  border-top-color:var(--key-glint); border-radius:5px; border-image:none;
+  clip-path:none; background:
+    radial-gradient(ellipse 65% 52% at var(--reflection-x,24%) 0%,#a8f3ff24,transparent),
+    linear-gradient(180deg,var(--key-top),var(--key-foot));
+  color:#e1f7fa; box-shadow:inset 0 1px #e1fcff14,inset 0 -1px #69bacc33,0 2px 0 #020910,0 3px 0 #315363;
+  font-family:"Pretendard Desk",SUIT,system-ui,sans-serif;font-weight:580;letter-spacing:0;
+  text-shadow:none;transition:box-shadow .12s,background-color .12s;
+}
+:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a[aria-current="page"],
+.control-room.at-display .operations-desk :is(button,a,summary)[data-desk-selected],
+.space-experience[data-screen="map"] .hologram-panel :is(.hologram-system-select,.hologram-destinations,.hologram-tools) button[aria-pressed="true"] {
+  --key-rim:#bd914b;--key-glint:#ffe2a7;--key-top:#534025;--key-foot:#2a1c10;color:#fff1d2;
+}
+.control-room.at-display .operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary):active,
+.cargo-stage .cargo-view-controls button:active {
+  box-shadow:inset 0 1px 4px #0009,0 1px 0 #24424b;
+}
+.control-room.at-display .operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary):focus-visible,
+.cargo-stage .cargo-view-controls button:focus-visible {outline:2px solid #c9faff;outline-offset:1px}
+.cargo-stage {container: cargo-viewport / inline-size}
+.cargo-stage .cargo-view-controls,
+.control-room.at-display .operations-desk .ops-hold .cargo-stage .cargo-view-controls {
+  display:grid;grid-template-columns:repeat(4,minmax(50px,max-content)) 1px repeat(2,36px) max-content;
+  align-items:center;justify-content:center;gap:5px;max-width:calc(100% - 10px);
+  padding:3px 2px 5px;box-sizing:border-box;border:0;border-radius:0;background:none;
+  clip-path:none;box-shadow:none;backdrop-filter:none;
+}
+.cargo-stage .cargo-view-controls>span {margin:0;background:#43707b;height:17px}
+.cargo-stage .cargo-view-controls button,
+.control-room.at-display .operations-desk .cargo-view-controls button {
+  display:inline-flex;align-items:center;justify-content:center;
+  height:36px;min-height:36px;min-width:0;padding:0 10px;line-height:1.1;font-size:13px;
+}
+.cargo-stage .cargo-view-controls button svg {width:16px;height:16px;flex:none}
+@container cargo-viewport (max-width:405px) {
+  .cargo-stage .cargo-view-controls,
+  .control-room.at-display .operations-desk .ops-hold .cargo-stage .cargo-view-controls {
+    gap:3px;grid-template-columns:repeat(4,minmax(33px,max-content)) 1px repeat(2,32px) max-content;
+  }
+  .cargo-stage .cargo-view-controls button,
+  .control-room.at-display .operations-desk .cargo-view-controls button {padding-inline:5px;font-size:12px}
+}
+@container cargo-viewport (max-width:300px) {
+  .cargo-stage .cargo-view-controls,
+  .control-room.at-display .operations-desk .ops-hold .cargo-stage .cargo-view-controls {
+    grid-template-columns:repeat(4,1fr);width:calc(100% - 14px);
+  }
+  .cargo-stage .cargo-view-controls>span {display:none}
+  .cargo-stage .cargo-view-controls>button:last-child {grid-column:span 2}
+  .ops-hold .cargo-stage:not(:fullscreen) .cargo-render-surface {bottom:106px}
+}
+
+/* Remove the scene-navigation bitmap inside instruments only. */
+:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a {
+  border:1px solid var(--key-rim)!important;border-top-color:var(--key-glint)!important;
+  padding-inline:16px;gap:9px;min-height:44px;
+}
+:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a::before {
+  content:"";position:static;inset:auto;flex:none;width:4px;height:12px;border-radius:1px;
+  background:var(--key-rim);filter:none;box-shadow:0 0 5px var(--key-rim);
+}
+.space-experience[data-screen="map"] .hologram-system-select {display:flex;flex-wrap:wrap;gap:5px}
+.space-experience[data-screen="map"] .hologram-system-select button {padding:5px 8px;min-height:32px}

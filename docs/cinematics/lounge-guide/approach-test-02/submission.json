@@ -1,0 +1,20 @@
+{
+  "promptId": "0d7cc2b1-bad5-4f64-8a27-5610900deae0",
+  "status": "cancel-requested-unconfirmed-provider-switched-to-grok",
+  "submittedAtUtc": "2026-11-11T13:16:52.757243+00:00",
+  "fps": 24,
+  "frames": 145,
+  "width": 1280,
+  "height": 720,
+  "models": [
+    "DaSiWa_Wan22_I2V_14B_SnatchKiss_v11_HIGH_fp8.safetensors",
+    "DaSiWa_Wan22_I2V_14B_SnatchKiss_v11_LOW_fp8.safetensors",
+    "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+    "wan_2.1_vae.safetensors"
+  ],
+  "newModelsInstalled": false,
+  "installedSettingsChanged": false,
+  "endFrameSubmitted": false,
+  "source": "../lounge-guide-clean-start-test-02.png",
+  "cancelNote": "Targeted interrupt for own prompt was sent, but HTTP response timed out. No server termination or removal of other jobs. No new local jobs."
+}

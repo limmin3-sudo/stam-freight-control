@@ -53,3 +53,22 @@
 .hologram-label[data-kind=station],.hologram-label[data-kind=lagrange],.hologram-label[data-kind=gateway],.hologram-label[data-kind=relay]{white-space:normal;text-align:left;line-height:1.4}
 
 .hologram-zoom{display:flex;gap:18px;flex-wrap:wrap}.hologram-zoom button{flex:1;white-space:nowrap}
+
+.map-flight-brief {
+ position:absolute; top:96px; left:clamp(14px,2vw,28px); max-width:min(260px,calc(100% - 28px));
+ padding:10px 13px; display:grid; gap:4px; justify-items:start; pointer-events:auto;
+ border-left:2px solid #d7b57a; background:#07131dea; color:#e3eff3;
+}
+.map-flight-brief span,.map-flight-stops span { font:500 11px/1.4 SUIT,sans-serif; color:#a5c4d5; }
+.map-flight-brief button { background:none; border:0; padding:3px 0; text-align:left; cursor:pointer;
+ color:#ecf4f7; font:600 16px/1.4 SUIT,sans-serif; overflow-wrap:anywhere; }
+.map-flight-brief a { color:#f4d29b; padding:7px 0; font-size:13px; }
+.map-flight-stops { padding-left:1.6em; margin:0; color:#c1a276; font-size:12px; }
+.hologram-stations .map-flight-stops button { padding:5px 0; }
+.map-flight-stops strong,.map-flight-stops span { display:block; letter-spacing:0; }
+.map-flight-stops strong { color:#dcecf3; font-size:12px; }
+@media(max-width:600px) {
+ .map-flight-brief { top:74px; padding:6px 9px; }
+ .map-flight-stops { padding-left:1.1em; font-size:10px; }
+ .map-flight-stops strong,.map-flight-stops span { font-size:10px; }
+}

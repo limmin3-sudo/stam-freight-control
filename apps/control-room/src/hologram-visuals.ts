@@ -34,11 +34,24 @@ export function surfaceMaterial(texture:THREE.Texture,name:string){
 }
 
 export function celestialBackdrop(texture:THREE.Texture){
- return new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{uRes:{value:new THREE.Vector2(1,1)},uMap:{value:texture},uTint:{value:new THREE.Vector3(.22,.45,1)}},
- vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy, .999,1.);}',
- fragmentShader:`varying vec2 vUv;uniform vec2 uRes;uniform sampler2D uMap;uniform vec3 uTint;
- void main(){vec2 uv=vUv;float aspect=uRes.x/uRes.y;uv.x=(uv.x-.5)*min(1.,aspect/2.)+.5;uv.y=(uv.y-.5)*min(1.,2./aspect)+.5;
- vec3 source=texture2D(uMap,uv).rgb;float l=max(max(source.r,source.g),source.b);vec3 c=mix(source, l*uTint,.86)*.72+uTint*.003;c*=1.-.25*smoothstep(.25,.75,length(vUv-.5));gl_FragColor=vec4(c,1.);
+ // The source is a flat nebula photograph. Sample three continuous projections.
+ return new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{uMap:{value:texture},uTint:{value:new THREE.Vector3(.22,.45,1)}},
+ vertexShader:`varying vec2 vUv;varying vec3 vSky;
+ void main(){
+   vUv=uv;
+   vec2 viewOffset=position.xy/vec2(projectionMatrix[0][0],projectionMatrix[1][1]);
+   vSky=cameraPosition+vec3(viewOffset,-28.)*mat3(viewMatrix);
+   gl_Position=vec4(position.xy,.999,1.);
+ }`,
+ fragmentShader:`varying vec2 vUv;varying vec3 vSky;uniform sampler2D uMap;uniform vec3 uTint;
+ void main(){
+ vec3 d=normalize(vSky);
+ vec3 weights=pow(abs(d),vec3(5.0));
+ weights/=dot(weights,vec3(1.0));
+ vec3 source=texture2D(uMap,.50+.48*d.yz).rgb*weights.x
+            +texture2D(uMap,.50+.48*d.zx).rgb*weights.y
+            +texture2D(uMap,.50+.48*d.xy).rgb*weights.z;
+ float l=max(max(source.r,source.g),source.b);vec3 c=mix(source, l*uTint,.86)*.72+uTint*.003;c*=1.-.25*smoothstep(.25,.75,length(vUv-.5));gl_FragColor=vec4(c,1.);
  #include <colorspace_fragment>
  }`}));
 }

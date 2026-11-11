@@ -1,0 +1,32 @@
+{
+  "dateKst": "2026-11-11",
+  "status": "cancel-requested-unconfirmed-provider-switched-to-grok",
+  "purpose": "Guide sweeps covered right arm toward desk, escorts visitor all the way to desk, then faces visitor with right palm on countertop. Preserve original furnishings; generate more actual frames.",
+  "provider": "Installed Gen Studio workflow via the same local ComfyUI API",
+  "fpsReason": "Public Gen Studio VideoRequest fixes VIDEO_FPS=16 and exposes no FPS argument. Reuse installed workflow.image_to_video with 145 generated frames and CreateVideo fps=24.",
+  "requested": {
+    "width": 1280,
+    "height": 720,
+    "frames": 145,
+    "fps": 24,
+    "durationSeconds": 6.041666666666667
+  },
+  "source": "../lounge-guide-clean-start-test-02.png",
+  "sourceMethod": "Browser-rendered unchanged lounge-original-composite.png and director-standing.png at existing runtime coordinates; no AI redraw of the background.",
+  "installedApplicationModified": false,
+  "newModelInstalled": false,
+  "externalVideoProviderUsed": false,
+  "endFrameSubmitted": false,
+  "runtimeChanged": false,
+  "reviewChecklist": [
+    "Guide's covered right arm invites toward desk",
+    "Guide walks to desk; camera follows",
+    "Endpoint within arm's reach of counter",
+    "Upright guide, right palm on counter, elbow off",
+    "No added lamp/light pillar/monitor/furniture",
+    "Original desk, two monitors and gate arrangement retained",
+    "Decoded FPS, frame count and unique frames"
+  ],
+  "prompt": "One continuous six-second first-person cinematic shot in the exact supplied sunlit STAM spaceport lounge. The blonde standing Flight Guide in the white uniform is the active guide; the seated brunette receptionist stays seated behind the desk.\n\nChoreography: as the visitor starts moving toward her, the blonde guide makes warm eye contact and smoothly opens her anatomical RIGHT arm, the arm with the black covering, toward the EXISTING welcome desk on her right (viewer left). It is a graceful inviting palm-open sweep: \"this way\". She then turns toward that desk, takes two or three natural steps to its existing right-hand corner, and leads the visitor there. The camera follows her forward and left at walking pace, physically translating rather than zooming. At the desk she turns back to face the visitor, stands upright and gently rests ONLY her RIGHT PALM flat on the countertop, elbow off the desk. End in a close conversational waist-up view of the guide directly beside the desk. Her face and hand are near the camera; the countertop is within arm's reach, less than half a metre from the visitor. The seated receptionist and her two monitors are now nearby to the left, and the existing gate remains immediately behind that desk corner. Pause briefly in this close position. Cover the real distance all the way to the desk; do not stop in the middle of the lobby.\n\nPreserve this SAME exact woman: blonde tied-back hair, white short-sleeve collared uniform, epaulettes, dark skirt, black covering on RIGHT arm only, silver watch on LEFT wrist. She remains the same person throughout. Her gesture is open and professional, not a hug or a reach at the camera. The receptionist does not stand or become the guide.\n\nAll furniture remains stationary in its original place and retains its original shape: original white curved reception desk and its original light strip, original orchid bowl, EXACTLY TWO compact monitors at the original spacing, original glass gate and queue rails, window grid, plants and distant hall. Keep the existing desk's narrow front and curved tip; never reshape it. The workstation has NO LAMP and NO UPRIGHT LIGHT OBJECT between or beside the monitors: do not add one. Do not add any object not present in the first frame. Keep common physical parallax as the camera and guide approach; no object sliding or teleporting. Preserve daylight and natural materials.\n\nSmooth stabilized camera, level horizon, normal lens, no optical zoom, no cuts, no fades, no UI, no text, no inserted objects, no architectural morphing. Natural continuous limb motion and clean hands.",
+  "cancelNote": "Targeted interrupt for own prompt was sent, but HTTP response timed out. No server termination or removal of other jobs. No new local jobs."
+}

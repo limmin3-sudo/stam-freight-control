@@ -2,7 +2,7 @@
   "repository": "limmin3-sudo/stam-freight-control",
   "developmentBranch": "handoff/local-studio-20261110",
   "deploymentBranch": "main",
-  "updated": "2026-11-11",
+  "updated": "2026-11-12",
   "latestRequestMeans": "Fetch the current development branch, preserve local work, read the latest handoff, and open the local preview.",
   "instructions": "AGENTS.md",
   "status": "PROJECT_STATUS.md",
@@ -10,10 +10,15 @@
   "videoProduction": "docs/CONSOLE-TRAVEL-PRODUCTION.md",
   "previewCommand": "npm run dev:control-room",
   "windowsLauncher": "start-control-room-preview.cmd",
-  "previewUrl": "http://127.0.0.1:5173/#/bridge?lang=ko",
-  "videoProvider": "local Gen Studio; verify current capabilities first",
+  "previewUrl": "http://127.0.0.1:5173/#/lounge?lang=ko",
+  "videoProvider": "Grok Imagine; prepare start frames and prompts, review results, edit and connect UI locally. User selected 2026-11-11; supersedes earlier local Gen Studio generation.",
   "runwayEnabled": false,
   "applyArchivedZip": false,
   "autoGenerateVideo": false,
-  "autoPublish": false
+  "autoPublish": false,
+  "releaseChannel": "beta",
+  "releaseVersion": "2.1.0",
+  "integrationCheckout": "stam-freight-control-local-studio-20261110",
+  "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
+  "tomorrow": "Verify real Game.log integration and authenticated cross-device history, then produce remaining scene travel videos."
 }

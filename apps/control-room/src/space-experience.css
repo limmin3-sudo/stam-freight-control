@@ -42,8 +42,17 @@
 /* Original master + localized clean-plate patches + independent people/map/UI. */
 .bridge-background-patches{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .space-person{z-index:1}.space-segments{z-index:3}
-.space-bridge .space-artwork{transition:width .85s cubic-bezier(.22,.7,.28,1),height .85s cubic-bezier(.22,.7,.28,1)}
-.space-bridge .space-background,.space-bridge .bridge-background-patches,.space-bridge .space-person{transition:opacity .7s}
+.entry-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background: #03080d;
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: ease-in-out;
+}
+.entry-fade[data-dark=true] { opacity: 1; pointer-events: auto; }
 .space-experience[data-screen=map] .space-artwork{width:100%;height:calc(100svh - 174px);min-height:540px;aspect-ratio:auto;margin:0;background:radial-gradient(ellipse at 40% 50%,#0d2533,#030b13 70%)}
 .space-experience[data-screen=map] .space-background,.space-experience[data-screen=map] .bridge-background-patches{opacity:0}
 .space-experience[data-screen=map] .space-person,.space-experience[data-screen=map] .space-intro,.space-experience[data-screen=map] .space-labels,.space-experience[data-screen=map] .space-markers,.space-experience[data-screen=map] .space-segments,.space-experience[data-screen=map] .space-leaders,.space-experience[data-screen=map] .space-vignette{visibility:hidden;opacity:0;pointer-events:none}
@@ -53,7 +62,10 @@
 .space-segments{pointer-events:none}.space-segments path{pointer-events:all}.space-markers{z-index:4}
 .space-bridge .space-person{z-index:3}
 .bridge-partners{position:absolute;inset:0;pointer-events:none;z-index:3}
-.space-experience[data-moving=true] .bridge-partners{opacity:0;transition:opacity .3s}
+.bridge-partners { transform-origin: var(--focus-x) var(--focus-y); transition: transform var(--approach-ms) cubic-bezier(.22,.7,.28,1); }
+.space-experience[data-moving=true] .bridge-partners { transform: scale(var(--zoom)); }
+.space-experience[data-moving=false] :is(.space-camera, .bridge-partners) { transition: none; }
+.space-experience[data-moving=true] :is(.bridge-partner-name, .space-leaders) { visibility: hidden; }
 .space-experience[data-screen=map] .bridge-partners{visibility:hidden;opacity:0}
 
 /* Spatial titles share the STANTON chart's light, letter-spaced typography. */
@@ -65,3 +77,7 @@
 .space-intro:after{content:"";display:block;width:126px;height:1px;margin-top:17px;background:linear-gradient(90deg,#b5edff99,#62b6d22b,transparent);box-shadow:0 0 6px #96d8f233}
 .space-lounge .space-intro{padding:20px 26px;background:linear-gradient(100deg,#071c2bd9,#071c2b8c 66%,transparent);border-left:1px solid #bcecff45}
 @media(max-width:760px){.space-intro{padding:0}.space-intro h1{font-size:23px;letter-spacing:.105em;margin:3px 0 5px}.space-intro>p{font-size:7px;margin-bottom:4px}.space-intro>span{font-size:10px}.space-intro:after{margin-top:9px;width:85px}.space-lounge .space-intro{padding:0;background:none;border:0}.space-switch{font-size:10px;gap:8px}}
+
+.space-experience[data-entry=long] .space-transition { position: fixed; z-index: 15; }
+
+.control-mode-link { margin-left: auto; padding: 9px 14px; white-space: nowrap; color: #f3d69a; border: 1px solid #a388534d; }

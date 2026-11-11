@@ -1,0 +1,20 @@
+{
+  "purpose": "Grok replacement end frame; review only, not applied to a video or runtime",
+  "videoPost": "https://grok.com/imagine/post/dd7338ad-b302-4ae8-8b97-b74b79df4196",
+  "guideReferencePost": "https://grok.com/imagine/post/2b0c4f5a-2425-403b-8a55-df23e3f774d9",
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "frames": 145,
+    "fps": 24,
+    "extractedFrame": 144
+  },
+  "generation": "Built-in image_gen; actual final frame edit with new guide identity reference",
+  "finishing": "SAM guide masks only; largest connected component per person, union, 3px expansion and 1.2px seam blur. No background-wide generative replacement.",
+  "backgroundOutsideMaskPixelExact": true,
+  "unchangedPixels": 707420,
+  "totalPixels": 921600,
+  "output": "lounge-desk-endframe-guide-v1-1280x720.png",
+  "sha256": "2048cddc90c1fce3d2b251a75f30f07600ec4feea4702ca8e01c0320ee7c7a50",
+  "limitations": "Image-model guide identity is an approximation. Original video is unchanged; a new generation is required to carry this guide throughout the moving shot."
+}

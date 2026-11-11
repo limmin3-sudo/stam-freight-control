@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STAM · UI 슬라이드 연출</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#06121b;color:#e5faff;font-family:system-ui,'Malgun Gothic',sans-serif}main{max-width:1672px;margin:auto}.controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px;flex-wrap:wrap}button{font:inherit;color:inherit;border:1px solid #84d7e6;background:#12313f;padding:10px 20px;border-radius:4px;cursor:pointer}button:focus-visible{outline:3px solid #ffd482;outline-offset:4px}.controls span{font-size:14px;color:#bad0d9}.stage{position:relative;aspect-ratio:1672/941;overflow:hidden;isolation:isolate;container-type:inline-size}.scene{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ui{position:absolute;transition-property:transform;transition-duration:540ms;transition-timing-function:cubic-bezier(.22,.75,.24,1);will-change:transform}.stage.closed .ui{transition-duration:420ms;pointer-events:none}.panel{padding:1.8cqw;background:linear-gradient(130deg,#0d303fd9,#0b293bc9);border:1px solid #86eaff;color:#e3fbff;box-shadow:inset 0 0 0 5px #71daef15,0 0 12px #4bc7eb33;clip-path:polygon(0 14px,14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));backdrop-filter:blur(4px)}.left{left:4%;top:28%;width:27%;transform:perspective(1000px) rotateY(5deg);transform-origin:left center}.right{right:3%;top:25%;width:28%;transform:perspective(1000px) rotateY(-5deg);transform-origin:right center}.stage.closed .left{transform:translateX(-135%) perspective(1000px) rotateY(12deg)}.stage.closed .right{transform:translateX(135%) perspective(1000px) rotateY(-12deg)}.panel small{display:block;color:#b2dce7;font-size:.85cqw;letter-spacing:.1em}.panel h2{font-size:1.7cqw;margin:.7cqw 0 1.5cqw;font-weight:600}.panel p{font-size:1.4cqw;line-height:1.7;margin:1.7cqw 0}.option{display:block;border:1px solid #8ed8e3a8;margin:.8cqw 0 0;padding:1cqw .9cqw;font-size:1.25cqw;line-height:1.45;background:#a1e9ff08}.option.selected{border-color:#ffd184;color:#ffe1a4;background:#d6a64e12}.divider{height:1px;background:#91d9e766;margin:1.7cqw 0}.name{top:3%;left:40%;width:20%;text-align:center;color:#ffdc96;text-shadow:0 2px 5px #10222e;font-size:1.25cqw;transform:translateY(0)}.stage.closed .name{transform:translateY(-500%)}.bottom{bottom:2%;left:18%;width:64%;display:flex;justify-content:center;gap:.6cqw;transform:translateY(0)}.bottom span{font-size:1.05cqw;flex:1;text-align:center;padding:1cqw .4cqw;border:1px solid #83dceb9c;background:#0b283cdb;white-space:nowrap;box-shadow:inset 0 -2px #7adaec55}.stage.closed .bottom{transform:translateY(230%)}
+@media(max-width:650px){.stage{min-width:0;aspect-ratio:4/5}.scene{object-position:center}.left{left:2%;top:43%;width:38%}.right{right:2%;top:43%;width:38%}.panel{padding:2cqw}.panel small{font-size:1.5cqw}.panel h2{font-size:2.7cqw}.panel p{font-size:2.2cqw}.option{font-size:2.1cqw;padding:1.5cqw 1cqw}.name{font-size:2.5cqw;left:30%;width:40%}.bottom{left:2%;width:96%;bottom:3%}.bottom span{font-size:1.9cqw;padding:2cqw .5cqw}}
+@media(prefers-reduced-motion:reduce){.ui,.stage.closed .ui{transition-duration:1ms}}
+</style>
+<main>
+  <div class="controls"><button id="toggle" type="button" aria-controls="stage" aria-expanded="false">UI 펼치기</button><button id="replay" type="button">다시 보기</button><span id="status" aria-live="polite">벽 쪽에 수납</span></div>
+  <div class="stage closed" id="stage" aria-label="안내 데스크 UI 등장·퇴장 연출 시안">
+    <img class="scene" src="lounge-guide-end-v1.png" alt="밝은 라운지의 플라이트 가이드">
+    <div class="ui name">플라이트 가이드</div>
+    <section class="ui panel left"><small>STAM / WELCOME</small><h2>무엇을 도와드릴까요?</h2><span class="option selected">첫 운송 시작</span><span class="option">운송 절차 안내</span><span class="option">함선·화물 정보</span><span class="option">라운지로 돌아가기</span></section>
+    <section class="ui panel right"><small>STAM · 안내 데스크</small><h2>플라이트 가이드</h2><p>STAM에 오신 것을 환영합니다.<br>첫 운송을 함께 준비해 볼까요?</p><div class="divider"></div><span class="option">처음이에요. 안내해 주세요.</span><span class="option">운송 준비부터 시작할게요.</span></section>
+    <nav class="ui bottom" aria-label="하단 메뉴 시안"><span>라운지</span><span>관제센터</span><span>서비스센터</span><span>정보실</span><span>영상관</span></nav>
+  </div>
+</main>
+<script>
+const stage=document.getElementById('stage'),toggle=document.getElementById('toggle'),status=document.getElementById('status');let opened=false,timers=[];
+function clearTimers(){timers.forEach(clearTimeout);timers=[];}
+function show(value){opened=value;stage.classList.toggle('closed',!value);stage.querySelectorAll('.ui').forEach(el=>{el.inert=!value;el.setAttribute('aria-hidden',String(!value));});toggle.textContent=value?'UI 접기':'UI 펼치기';toggle.setAttribute('aria-expanded',String(value));status.textContent=value?'좌우·위·아래에서 펼쳐짐':'각자 가까운 가장자리로 수납';}
+toggle.addEventListener('click',()=>{clearTimers();show(!opened);});
+document.getElementById('replay').addEventListener('click',()=>{clearTimers();show(false);timers.push(setTimeout(()=>show(true),650));});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){clearTimers();show(false);}});show(false);timers.push(setTimeout(()=>show(true),700));
+</script>
+</html>

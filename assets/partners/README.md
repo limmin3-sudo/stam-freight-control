@@ -1,6 +1,11 @@
+
+## 2026-11-11 Grok guide replacement
+
+The user supplied full-body PNG post 5485f209-92bd-4b7b-a476-f5d291aecde0 and portrait post 1bf69ab2-cfe4-40ac-b396-a79481800c11. Active aliases remain director-standing.png and director-portrait-approved.webp, so existing consumers keep working. The full-body is 880 x 2256; its original RGB pixels are preserved and its white-fringed alpha was refined using BiRefNet. director-standing-grok-mattefix-20261111.png is the active matte version. The portrait is a crop-only lossless WebP, 816 x 1088, from source box [216, 12, 1032, 1100] without resampling or redraw. Versioned copies and guide-grok-20261111.json identify the new sources. The user excluded the opening poster and will rebuild desk-front video/UI backgrounds separately.
+
 # Partner portraits
 
-`director-portrait-approved.webp` is the active user-approved Flight Director portrait (2026-11-11). It is a crop-only, lossless 768×1024 (3:4) derivative of the v13 face-restored image, matching the other partner portraits' upper-body framing and head size. The source v13 remains untouched; all retained crop pixels are unchanged. Tutorial selection/introduction and the lounge welcome-desk view use this asset. The old director-specific 1.3× mobile enlargement and 174% desktop zoom were replaced with normal framing comparable to the operator.
+Previous portrait record (superseded by the Grok replacement below): `director-portrait-approved.webp` is the active user-approved Flight Guide portrait (2026-11-11). It is a crop-only, lossless 768×1024 (3:4) derivative of the v13 face-restored image, matching the other partner portraits' upper-body framing and head size. The source v13 remains untouched; all retained crop pixels are unchanged. Tutorial selection/introduction and the lounge welcome-desk view use this asset. The old director-specific 1.3× mobile enlargement and 174% desktop zoom were replaced with normal framing comparable to the operator.
 
 `director-portrait-v13.webp` is the latest facial-detail restoration preview (2026-11-11), derived from v12 with the same identity, expression and uniform requested unchanged. The irises, lashes, brows and skin detail were clarified. As a generative edit it does not guarantee pixel-identical details elsewhere. Its approved crop is now connected as `director-portrait-approved.webp`; the full-frame source is preserved. The preceding premium-shirt-fabric edit produced no completed image.
 
@@ -28,7 +33,7 @@
 
 `director-portrait-v2.webp` preserves the earlier user-approved seated director with locally composited reference face (2026-11-10). It is no longer the active portrait. The portrait changes above do not replace the guide's full-body operator artwork.
 
-`director-portrait.webp` is retained as the earlier Flight Director source, with a bright flight-academy reception lobby and hands clasped in front. It is no longer the active director portrait.
+`director-portrait.webp` is retained as the earlier Flight Guide source, with a bright flight-academy reception lobby and hands clasped in front. It is no longer the active director portrait.
 
 The local spatial preview now separates scene actors from portrait cards (2026-11-11). Under `apps/control-room/src/assets/`, the active lounge is `lounge-original-composite.png`: the user's exact source `lounge-original.png` with only terminal-removal and seated-employee patches pasted locally. The previous full-frame `lounge-receptionist.png` is inactive. Saved-pixel checks found zero changes outside the two patches and zero changes in seven checked foliage regions. `director-standing.png` remains the independent smiling foreground director at the desk corner. Its face/fabric edit succeeded; the additional requested upper-body enlargement did not produce an image and is not applied. The guide/picker still uses `director-portrait-approved.webp`.
 

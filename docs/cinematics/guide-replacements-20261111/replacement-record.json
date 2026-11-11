@@ -1,0 +1,73 @@
+{
+  "dateKst": "2026-11-11",
+  "fullbodySource": {
+    "post": "https://grok.com/imagine/post/5485f209-92bd-4b7b-a476-f5d291aecde0",
+    "size": [
+      880,
+      2256
+    ],
+    "alphaBbox": [
+      182,
+      21,
+      742,
+      2256
+    ],
+    "bytesUnchanged": true
+  },
+  "portraitSource": {
+    "post": "https://grok.com/imagine/post/1bf69ab2-cfe4-40ac-b396-a79481800c11",
+    "size": [
+      1200,
+      1600
+    ],
+    "cropBox": [
+      216,
+      12,
+      1032,
+      1100
+    ],
+    "outputSize": [
+      816,
+      1088
+    ],
+    "losslessWebp": true,
+    "cropPixelsUnchanged": true
+  },
+  "applied": [
+    {
+      "checkout": "stam-freight-control-latest-20261111",
+      "asset": "apps/control-room/src/assets/director-standing.png",
+      "sha256": "b31b624ce6ded79d6111a1e6418b697b7de9049a04ae8fc6618ec2b94e4110c1"
+    },
+    {
+      "checkout": "stam-freight-control-latest-20261111",
+      "asset": "assets/partners/director-portrait-approved.webp",
+      "sha256": "881f72df2164d810ddea9a9f6af94cd9ef593df19eed4c3b2fb37e2e15416655"
+    },
+    {
+      "checkout": "stam-freight-control-local-studio-20261110",
+      "asset": "apps/control-room/src/assets/director-standing.png",
+      "sha256": "b31b624ce6ded79d6111a1e6418b697b7de9049a04ae8fc6618ec2b94e4110c1"
+    },
+    {
+      "checkout": "stam-freight-control-local-studio-20261110",
+      "asset": "assets/partners/director-portrait-approved.webp",
+      "sha256": "881f72df2164d810ddea9a9f6af94cd9ef593df19eed4c3b2fb37e2e15416655"
+    }
+  ],
+  "otherApplicationCodeChanged": false,
+  "oldAssetsBackedUp": true,
+  "userScopeCorrection": {
+    "item3": "excluded",
+    "items4and5": "rebuild at the desk; old scene not reused"
+  },
+  "validation": {
+    "build": "TypeScript and Vite passed",
+    "browser": "Live 5173 guide portrait and lounge full-body loaded; head crop, transparency, background and return navigation checked",
+    "screenshots": [
+      "guide-portrait-applied.png",
+      "lounge-guide-applied.png"
+    ],
+    "deployment": false
+  }
+}

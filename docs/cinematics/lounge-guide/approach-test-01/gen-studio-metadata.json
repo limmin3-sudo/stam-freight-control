@@ -1,0 +1,27 @@
+{
+  "id": "20261111-220652-ddfddd",
+  "file": "2026-11-11/20261111-220652-ddfddd.mp4",
+  "created_at": 1794402412.8123162,
+  "width": 1280,
+  "height": 720,
+  "media": "video",
+  "root_id": "20261111-220226-26ae52",
+  "kind": "video",
+  "source": "gen-studio",
+  "parent_id": "20261111-220226-26ae52",
+  "prompt": "",
+  "edit_prompt": "A single continuous photorealistic architectural camera shot starting from the EXACT supplied original futuristic spaceport lounge image. The camera physically dollies diagonally forward-left at a gentle walking pace toward the EXISTING white welcome reception desk on the left. Stop immediately in front of that desk's existing right-hand end, on the public side, at standing eye level and conversational distance. Make a moderate but clearly visible approach, not a journey through the gate. Keep the original focal length and a level horizon, with only a small natural pan left to keep the desk workstation in view. Slow down smoothly at the end and hold the final view briefly.\n\nThe architecture and every furnishing remain stationary and unchanged. Preserve the exact shape and length of the curved ivory desk, its front profile and original thin warm light strip. Preserve the seated brunette receptionist at her existing workstation, the existing bowl of white orchids, EXACTLY TWO compact monitors in their original positions, spacing, size and orientation, the silver cyan-glass boarding portal immediately behind the desk's right end, the queue railings, window mullions, planting, central distant hall and original sunlight. As the camera approaches, the desk, seated receptionist, monitors and adjacent portal become closer together through consistent physical parallax; the distant hall changes less. Never stretch or reshape the desk, spread the monitors apart, slide objects, relocate the portal, add lamps or invent furniture. The receptionist remains seated, with only minimal natural motion.\n\nThis is a background continuity test: no standing guide, no new foreground person, no arm gestures, no UI, no text overlays, no subtitles, no logos. No cuts, dissolves, black fades, optical zoom, camera shake, camera roll, teleportation, morphing architecture, duplicated objects or scenery replacement. Do not enter or pass through the gate. End on the same real desk seen from close by.",
+  "final_prompt": "A single continuous photorealistic architectural camera shot starting from the EXACT supplied original futuristic spaceport lounge image. The camera physically dollies diagonally forward-left at a gentle walking pace toward the EXISTING white welcome reception desk on the left. Stop immediately in front of that desk's existing right-hand end, on the public side, at standing eye level and conversational distance. Make a moderate but clearly visible approach, not a journey through the gate. Keep the original focal length and a level horizon, with only a small natural pan left to keep the desk workstation in view. Slow down smoothly at the end and hold the final view briefly.\n\nThe architecture and every furnishing remain stationary and unchanged. Preserve the exact shape and length of the curved ivory desk, its front profile and original thin warm light strip. Preserve the seated brunette receptionist at her existing workstation, the existing bowl of white orchids, EXACTLY TWO compact monitors in their original positions, spacing, size and orientation, the silver cyan-glass boarding portal immediately behind the desk's right end, the queue railings, window mullions, planting, central distant hall and original sunlight. As the camera approaches, the desk, seated receptionist, monitors and adjacent portal become closer together through consistent physical parallax; the distant hall changes less. Never stretch or reshape the desk, spread the monitors apart, slide objects, relocate the portal, add lamps or invent furniture. The receptionist remains seated, with only minimal natural motion.\n\nThis is a background continuity test: no standing guide, no new foreground person, no arm gestures, no UI, no text overlays, no subtitles, no logos. No cuts, dissolves, black fades, optical zoom, camera shake, camera roll, teleportation, morphing architecture, duplicated objects or scenery replacement. Do not enter or pass through the gate. End on the same real desk seen from close by.",
+  "model_id": null,
+  "family": "wan22_i2v",
+  "seed": 1204701975,
+  "label": "영상 5초",
+  "fps": 16,
+  "frames": 81,
+  "duration": 5.06,
+  "edit": {
+    "mode": "video",
+    "seconds": 5,
+    "quality": "720p"
+  }
+}

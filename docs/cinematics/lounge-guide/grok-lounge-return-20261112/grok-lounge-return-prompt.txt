@@ -1,0 +1,121 @@
+Create a photorealistic 10-second first-person RETURN video connecting the supplied START FRAME and END FRAME.
+
+REFERENCE ROLES
+START FRAME: the actual final resting frame of the desk idle video. Begin with the blonde guide beside the reception counter, her anatomical RIGHT palm resting on the countertop.
+END FRAME: the actual opening frame of the earlier lounge approach video. Finish at this exact wide lounge viewpoint, with the same guide standing at her original welcoming position in front of the desk and gate, hands gently clasped.
+
+Create a NEW, naturally performed return movement. Do not reverse or rewind the previous approach footage.
+
+ONE CONTINUOUS SHOT
+10 seconds, real time, landscape 16:9.
+No cuts, dissolves, time skips, speed ramps, sudden pose changes, or final-frame morphing.
+
+IDENTITY AND WORLD CONTINUITY
+The blonde guide remains the same adult woman in both references: identical face, hairstyle, eye colour, body proportions, white uniform, dark epaulettes, necklace, FLIGHT GUIDE badge, black skirt, black heels, and black covering on her anatomical RIGHT arm.
+No mirroring, body reshaping, outfit changes, face swaps, or duplicated limbs.
+
+The brunette receptionist is a separate woman. She remains seated behind the counter, in the same physical chair position.
+Preserve the room's physical arrangement: counter, monitors, orchids, gate, queue barriers, windows, trees, exhibition area, theatre, spacecraft and mountains.
+Changes in apparent size and overlap must result from camera movement and perspective.
+Do not add objects, move furniture, change monitor spacing, or warp the architecture.
+
+CAMERA AND ROUTE
+The camera is the visitor's eye-level viewpoint.
+The visitor's body and hands are not visible.
+Begin near the counter and smoothly retreat along the public-side approach route toward the original lounge viewing position.
+
+Use real backward camera translation, with only gentle horizontal reframing needed to match the END FRAME.
+Keep the guide visible.
+Show coherent parallax and gradual widening of the room.
+No digital zoom-out, room scaling, camera orbit, 180-degree turn, drone rise, or camera movement through furniture.
+Maintain a level horizon and consistent adult eye height.
+Use gently stabilized movement with minimal walking bob.
+
+THE GUIDE'S RETURN
+After a short farewell, the CAMERA starts retreating first.
+The guide then gently lifts her right palm from the counter and walks normally to her original welcoming position shown in the END FRAME.
+She takes a short diagonal path on the visitor side of the counter.
+Her feet move FORWARD in the direction she is facing during the steps.
+She does not walk backward to imitate reversed footage.
+She does not follow the retreating visitor all the way.
+She stops at her original welcoming position, faces the visitor, and clasps her hands in front.
+The camera continues retreating after she stops, naturally increasing the distance.
+
+DETAILED TIMELINE
+
+0.00–0.50 seconds — Begin at the desk.
+Match the START FRAME exactly.
+The guide faces the visitor with a soft smile.
+Right palm lightly on the counter; left arm relaxed.
+Subtle breathing only.
+The camera is still.
+No premature step or hand gesture.
+
+0.50–2.10 seconds — Calm farewell.
+The guide says in Korean:
+“편하게 둘러보세요.”
+
+Use a warm, clear adult female Korean voice, unhurried conversational delivery, and accurate Korean lip synchronization.
+One tiny friendly nod is appropriate.
+No large wave or theatrical gesture.
+Her right palm remains on the counter while she speaks.
+The camera stays settled through the farewell.
+
+2.10–2.60 seconds — Visitor moves first.
+After the line finishes, the CAMERA begins a slow backward movement.
+Only after this movement is visible, the guide gently releases her right palm from the countertop.
+Lower the hand naturally, without dragging it across the surface.
+No abrupt arm drop.
+The guide does not step away before the visitor starts moving.
+
+2.60–5.60 seconds — Natural walk to her welcoming position.
+While the camera smoothly retreats, the guide turns slightly toward the short route to her original lounge position.
+She takes a few modest, forward steps at an easy walking pace.
+Her body and feet face her direction of travel.
+Use believable weight transfer, natural knees and ankles, and restrained arm swing.
+
+Do not make her walk backward, slide across the floor, move on a conveyor-like surface, or rush to keep pace with the camera.
+No repeated looking over the shoulder or twisted neck.
+Keep her visible throughout.
+The counter and gate remain physically fixed.
+
+5.60–6.40 seconds — Guide stops and faces the visitor.
+She arrives at her original welcoming position from the END FRAME.
+Complete the last step, stop naturally, then turn toward the visitor.
+Gently bring her hands together in front, matching the final reference pose.
+Let her weight settle into the reference stance after stopping.
+Do not cross or tangle her legs while walking.
+No sudden pose snap.
+
+6.40–9.20 seconds — Camera completes the retreat.
+The guide stays at that welcoming position.
+She does not continue following the visitor.
+Maintain a relaxed smile and natural gaze toward the camera, with subtle breathing and an ordinary blink.
+The camera keeps retreating gently, progressively revealing the original wide lounge composition.
+Smoothly decelerate as it reaches the END FRAME viewpoint.
+
+9.20–10.00 seconds — Final wide hold.
+Match the END FRAME framing, camera height, guide location, apparent guide size, and full-body pose.
+Keep her whole head and both shoes visible.
+Hands gently clasped in front.
+Hold the wide composition with natural micro-movement.
+No extra wave or dialogue.
+Do not freeze abruptly or morph into a still image.
+
+EXACT AUDIO
+Only the standing blonde guide speaks:
+0.50–2.10 seconds: “편하게 둘러보세요.”
+
+No additional words, English, narration, visitor speech, or receptionist dialogue.
+Do not repeat the line.
+Quiet terminal ambience and subtle footsteps synchronized with the guide's actual steps.
+No loud music or announcements.
+
+NO GENERATED INTERFACE
+The hologram has already slid away before this video begins.
+Do not generate its disappearance inside the video.
+No UI, holograms, labels, floating panels, location markers, subtitles, captions, arrows, buttons or watermark.
+The lounge interface will be added separately after the return video finishes.
+
+HIGHEST PRIORITY
+Short farewell at desk -> camera retreats first -> guide releases right palm -> guide walks normally to her original welcoming position -> guide stops and clasps hands -> camera finishes retreat -> exact wide lounge ending.

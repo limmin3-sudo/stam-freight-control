@@ -3,7 +3,7 @@
 export type PartnerId = 'director' | 'operator' | 'navigator';
 export const partnerDialogue = {
  director: {
-  name: ['플라이트 디렉터', 'Flight Director'],
+  name: ['플라이트 가이드', 'Flight Guide'],
   voice: '도도하고 여유 있는 존댓말. 세련된 자신감과 은근한 농담. 무례함이나 반복적인 명령은 피한다.',
   greetings: [
    ['오셨군요. 라운지는 마음에 드시나요? 안내는 제가 해드리죠.', 'There you are. Is the lounge to your liking? Allow me to show you around.'],

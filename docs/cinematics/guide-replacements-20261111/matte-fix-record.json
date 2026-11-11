@@ -1,0 +1,22 @@
+{
+  "dateKst": "2026-11-11",
+  "tool": "Gen Studio remove_background / BiRefNet",
+  "jobId": "804056b6c59e",
+  "source": "01-grok-fullbody.png",
+  "toolResult": "20261111-233553-104b41",
+  "output": "director-standing-grok-mattefix-20261111.png",
+  "method": "Use tool alpha, constrain it to original alpha; make high-confidence interior opaque. Copy original RGB unchanged.",
+  "rgbPixelsUnchanged": true,
+  "poseProportionsColoursChanged": false,
+  "alphaPixelsChanged": 27760,
+  "appliedTo": [
+    "stam-freight-control-latest-20261111",
+    "stam-freight-control-local-studio-20261110"
+  ],
+  "sha256": "2b2e07e01a35c0c16c62a85d34aa84cfb537577eb869a53fd4fea2b302092ed8",
+  "review": "Final normalized alpha verified on dark background and live lounge at 5173; 880x2256 loaded. Source RGB unchanged.",
+  "proof": [
+    "cutout-final-upper-dark.png",
+    "lounge-mattefix-applied.png"
+  ]
+}

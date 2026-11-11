@@ -1,7 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import {buildRelease} from '../scripts/build-release.mjs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 test('published nested inbox modules version parent imports so cached old catalogues cannot bypass regional fixes',async()=>{
- const dir=await mkdtemp('/tmp/stam-release-imports-'),version='a'.repeat(40);
+ const dir=await mkdtemp(join(tmpdir(),'stam-release-imports-')),version='a'.repeat(40);
  try{
   await mkdir(dir+'/data');await mkdir(dir+'/integration/log',{recursive:true});await writeFile(dir+'/data/releases.json','[]');
   await writeFile(dir+'/integration/inbox-core.mjs',"import {deliveryNotice} from '../objective-text.mjs';import {definitionDraft} from '../mission-catalog.mjs?v=bbbb';");

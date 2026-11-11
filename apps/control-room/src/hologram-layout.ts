@@ -15,7 +15,6 @@ export const bridgePartners={operator:{x:32,y:43,height:43},navigator:{x:68,y:43
 export const bridgePatches=[
  // Only these feathered rectangles use the edited clean plate. The rest of the
  // displayed room still comes from the original master at its original resolution.
- {x:610,y:96,width:466,height:446,radius:64},
  {x:62,y:443,width:135,height:165,radius:18},
  {x:1514,y:442,width:158,height:166,radius:18},
  {x:357,y:445,width:108,height:137,radius:18},

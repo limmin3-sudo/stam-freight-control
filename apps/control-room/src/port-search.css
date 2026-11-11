@@ -1,0 +1,6 @@
+.port-search{position:relative;min-width:0}
+.port-search input{box-sizing:border-box;width:100%;font:inherit;color:#e8f5fb;background:#0b1d28;border:1px solid #45616f;padding:7px 10px}
+.port-search [role=listbox]:not([hidden]){position:relative;z-index:3;display:grid;max-height:205px;overflow:auto;background:#0b1d28;border:1px solid #45616f}
+.port-search [role=option]{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:start;padding:6px 9px;font:inherit;color:#e4f0f4;background:transparent;border:0;cursor:pointer}
+.port-search [role=option]:hover,.port-search [aria-selected=true]{background:#274451}
+.port-search small{font-size:10px;color:#a9c9d6}

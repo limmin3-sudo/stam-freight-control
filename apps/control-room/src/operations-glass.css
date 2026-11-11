@@ -1,0 +1,157 @@
+/* The edge is sliced, so corner hardware stays the same size on every instrument. */
+@font-face {
+  font-family: "Pretendard Desk";
+  src: url("./assets/fonts/PretendardVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+.flight-operations.operations-desk{
+ --desk-font:"Pretendard Desk",SUIT,system-ui,sans-serif;
+ background:linear-gradient(110deg,#04121ce3,#03101bd1 60%,#06151de8),url("./assets/control-room-clean-plate.png") center / cover fixed;
+ padding:clamp(10px,1.2vw,22px);gap:clamp(9px,1vw,18px);--ice:#9ce9fb;--muted:#abc8d0;--ink:#edfaff;--gold:#ffdaa5
+}
+.operations-desk .ops-mast{
+ min-height:42px;padding:0 12px 6px;
+ background:linear-gradient(106deg,#43616c24 12%,transparent 12.2%),linear-gradient(0deg,#32566a24,transparent 50%);
+ border-bottom:1px solid #80abb373;box-shadow:0 2px #07111b,0 3px #7195a526
+}
+.operations-desk .ops-brand b{font:600 21px var(--desk-font);letter-spacing:.22em}
+.operations-desk .ops-mast h1{font:680 clamp(20px,1.55vw,25px)/1.3 var(--desk-font);color:#f5fcff;letter-spacing:-.025em}
+.operations-desk .ops-status{font:550 13px var(--desk-font);color:#cae6e7}
+/* Cut glass is baked with a broad front face and a separately lit lower edge.
+   Slice the perimeter so increasing the instrument width cannot stretch the bevel. */
+.operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner) {
+  border: 15px solid transparent;
+  border-image: url("./assets/ops-glass-panel.png") 46 96 50 78 fill / 20px 34px 23px 29px stretch;
+  background: transparent;
+  box-shadow: none;
+}
+.operations-desk .ops-panel-head {
+  position: relative;
+  min-height: 42px;
+  padding: 6px 16px 10px;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.operations-desk .ops-panel-head::after {
+  content: ""; position: absolute; pointer-events: none;
+  bottom: 0; left: 14px; right: 14px; height: 1px;
+  background: linear-gradient(90deg,#88dfed77, #67adc42d 65%,transparent);
+}
+.operations-desk .ops-chart,
+.operations-desk .ops-hold .cargo-stage:not(:fullscreen) {
+  margin: 2px 5px 5px;
+  border-radius: 7px 13px 9px 12px;
+}
+.operations-desk .ops-hold .cargo-stage:not(:fullscreen) { background: #091824b8; }
+.operations-desk .ops-map-tools { margin-right: 3px; }
+.operations-desk .ops-transmission { padding: 2px 0 8px; }
+.operations-desk .ops-portrait {
+  border-radius: 8px; padding: 3px;
+  border: 1px solid #9ddbe668;
+  background: linear-gradient(135deg,#bdddec40,#071d2b28 64%,#73b8ca77);
+  box-shadow: 0 4px 10px #010b13a6;
+}
+.operations-desk .ops-portrait img { border-radius: 5px; }
+.operations-desk .ops-panel-head h2,.operations-desk .ops-transmission h2{font-family:var(--desk-font);font-weight:660;color:#f4fbff;letter-spacing:-.025em}
+.operations-desk .ops-panel-head h2{font-size:17px}
+.operations-desk .ops-panel-head svg{filter:drop-shadow(0 1px 2px #71e6ff44)}
+.operations-desk .ops-panel-head>span,.operations-desk .ops-load,.operations-desk .run-readout dd{font-family:var(--desk-font);font-variant-numeric:tabular-nums}
+.operations-desk .ops-progress .trial-brief h2{font:670 clamp(22px,1.85vw,30px)/1.32 var(--desk-font);letter-spacing:-.035em}
+.operations-desk .ops-transmission>small,.operations-desk .ops-progress .trial-brief>small{font:560 13px/1.5 var(--desk-font);letter-spacing:0}
+.operations-desk .ops-map .map-route-readout,.operations-desk .ops-box{
+ background:linear-gradient(110deg,#1c3f50db,#102334e6);box-shadow:inset 0 1px #bbf5ff55,2px 3px #050f1bb3;border-left:2px solid #a2dfef
+}
+.operations-desk .ops-progress progress{height:5px;box-shadow:0 1px #accacd2a}
+.operations-desk .ops-progress progress::-webkit-progress-value{background:linear-gradient(#d2faff,#56c0d6 60%,#277e9c)}
+.operations-desk .ops-map-tools:not([open]){padding:0;border:0;background:none}
+.operations-desk .ops-map-tools[open]{background:linear-gradient(130deg,#223b4bf5,#0a1a2af9);border-color:#719aaa;border-radius:3px}
+.operations-desk .ops-map-tools{top:4px;right:7px}
+.operations-desk .ops-phase,.operations-desk .ops-progress .flight-actions,.operations-desk .ops-map .map-crumbs{gap:5px}
+.operations-desk .ops-phase{top:50px}
+.operations-desk .ops-hold .cargo-stage:not(:fullscreen) .cargo-view-controls,.operations-desk .ops-hold .cargo-view-controls{
+ background:linear-gradient(170deg,#6d9aac40,#132c3f99 58%,#54829840);border:1px solid #587986;
+ box-shadow:inset 0 1px #c1efff55,0 2px 0 #05111d;padding:3px;gap:3px;border-radius:4px
+}
+.operations-desk .ops-hold .cargo-stage:not(:fullscreen) .cargo-view-controls {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.operations-desk .ops-map-dock .hologram-panel summary,
+.operations-desk .run-readout summary,
+.operations-desk .flight-route-editor summary { width: fit-content; }
+.operations-desk.operations-desk .cargo-view-controls button{min-width:33px;min-height:30px;padding:4px 9px}
+.operations-desk .ops-map-tools,.operations-desk .ops-phase{z-index:4}
+.operations-desk .ops-map-tools{top:1px}
+.operations-desk .ops-chart .hologram-layer[data-expanded=true] .hologram-viewport{inset:0;width:100%;height:100%;transition:none}
+.operations-desk .ops-chart .hologram-instructions{display:none}
+.operations-desk .ops-map .hologram-label{background:none;border:0;padding:3px 2px;color:#dbf2ff;letter-spacing:0;font:530 12px/1.35 var(--desk-font);text-shadow:0 1px 3px #031322}
+.operations-desk .ops-map .hologram-label[hidden]{display:none}
+.operations-desk .ops-map-tools[open]{width:min(275px,90%);max-height:calc(100% - 6px);box-sizing:border-box;display:flex;flex-direction:column;overflow:auto;z-index:6}
+.operations-desk .ops-map-dock{min-height:0;overflow:auto;padding:4px 2px}
+@media(max-width:570px){.operations-desk.operations-desk .cargo-view-controls button{min-width:25px;padding-inline:5px;font-size:12px}}
+.operations-desk .ops-progress kbd{color:#f8e5b7;border:1px solid #beaa7e88;background:#271e1477}
+.operations-desk.operations-desk :is(button,.ops-return,.ops-empty a,summary):enabled:hover,.operations-desk.operations-desk :is(a,summary):hover{filter:brightness(1.18)}
+.operations-desk.operations-desk :is(button,a,summary,select):focus-visible{outline:2px solid #fff1b4;outline-offset:-4px}
+.operations-desk.operations-desk button:disabled{opacity:.48;cursor:default}
+.operations-desk .ops-map select{font:400 12px var(--desk-font)}
+@media(max-width:570px){
+ .operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner){border-width:9px;border-image-width:13px 21px 15px 18px}
+ .operations-desk .ops-mast{padding-inline:2px}.operations-desk .ops-mast h1{font-size:16px}
+ .operations-desk.operations-desk .cargo-view-controls button{min-width:25px;padding-inline:5px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .operations-desk.operations-desk :is(button,a,summary){transition:none}
+ .operations-desk.operations-desk :is(button:enabled,a,summary):active{transform:none}
+}
+
+/* Reading sizes for the dense instrument overlays and longer partner messages. */
+.operations-desk .ops-transmission p {
+  margin-top: 8px;
+  max-width: 46ch;
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 1.62;
+  letter-spacing: -.012em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.operations-desk .ops-transmission h2 {
+  margin-top: 6px;
+  font-size: clamp(21px, 1.55vw, 26px);
+}
+.operations-desk :is(.ops-panel-head > span, .ops-load, .run-readout dd, .map-route-readout) {
+  font-variant-numeric: tabular-nums;
+}
+.operations-desk .ops-panel-head > span,
+.operations-desk .ops-progress .run-readout dt,
+.operations-desk .ops-map .map-route-readout small {
+  font-size: 12px;
+  font-weight: 550;
+}
+.operations-desk .ops-map-dock :is(button, input, summary, select),
+.operations-desk .cargo-stage :is(.cargo-stage-scale, .cargo-gesture),
+.operations-desk .cargo-spatial-labels span,
+.operations-desk kbd {
+  font-family: var(--desk-font);
+  letter-spacing: 0;
+}
+.operations-desk .cargo-spatial-labels span {
+  font-size: 12px;
+  font-weight: 550;
+  text-shadow: 0 1px 3px #071522;
+  font-variant-numeric: tabular-nums;
+}
+.operations-desk .cargo-spatial-labels .bow,
+.operations-desk .cargo-spatial-labels .stern { font-size: 13px; font-weight: 650; }
+.operations-desk .cargo-spatial-labels .grid-caption { line-height: 1.4; }
+.operations-desk .ops-hold .cargo-stage-scale,
+.operations-desk .ops-hold .cargo-gesture { font-size: 11px; font-weight: 500; }
+@media (max-width: 570px) {
+  .operations-desk .ops-hold .cargo-spatial-labels span { font-size: 11px; }
+  .operations-desk .ops-transmission p { font-size: 14px; }
+}

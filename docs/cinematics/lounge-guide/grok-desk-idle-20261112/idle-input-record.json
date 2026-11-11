@@ -1,0 +1,19 @@
+{
+  "dateKst": "2026-11-12",
+  "status": "Input frame and prompt prepared; no idle video generated yet",
+  "sourceVideoPost": "https://grok.com/imagine/post/efa9879a-816c-40f0-9eab-6ba95de507f0",
+  "frameSource": "../grok-approach-selected-20261112/actual-last-frame.png",
+  "output": "grok-idle-input-1280x720.png",
+  "dimensions": [1280, 720],
+  "sha256": "cd423ccc47ad5be2de288bcc96090585fccb5f26cc8fb6143982e2ab9cf2f91b",
+  "sourceBytesUnchanged": true,
+  "prompt": "grok-desk-idle-prompt.txt",
+  "durationTargetSeconds": 10,
+  "performance": ["Subtle breathing and natural blinks", "One uniform smoothing gesture at left waist using left hand", "One gentle left-hand hair sweep near left temple and ear", "Right palm stays on countertop", "Return to reference resting pose for loop"],
+  "camera": "Locked to actual approach end frame",
+  "overlaysInGeneratedVideo": false,
+  "dialogue": false,
+  "loopSeamVerified": false,
+  "note": "Pose and hair continuity at the loop seam need review after the user supplies the Grok result. Repeated grooming cadence may require editing for a longer waiting sequence.",
+  "runtimeChanged": false
+}

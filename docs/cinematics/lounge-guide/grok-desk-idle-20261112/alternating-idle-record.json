@@ -1,0 +1,54 @@
+{
+  "order": "A -> B -> A -> B (native loop of losslessly joined A+B)",
+  "sourcePosts": [
+    "https://grok.com/imagine/post/0b6e1595-37fa-45ae-93e5-07602b449556",
+    "https://grok.com/imagine/post/10375ec8-fbf7-40e5-a6aa-f51db8a4eac1"
+  ],
+  "sources": [
+    {
+      "file": "desk-idle-grok-original.mp4",
+      "frames": 241,
+      "fps": "24/1",
+      "seconds": 10.041666666666666,
+      "sha256": "7d46133af4a584b498333742d4b6fcc1de7c72e1199b307b971f6f3deabe7784"
+    },
+    {
+      "file": "desk-idle-b-grok-original.mp4",
+      "frames": 361,
+      "fps": "24/1",
+      "seconds": 15.041666666666666,
+      "sha256": "a15a676292fa0adac8fe509ae63601bb435c2e094df8fed346919cdab5a4d081"
+    }
+  ],
+  "output": "desk-idle-ab-alternating.mp4",
+  "frames": 602,
+  "fps": "24/1",
+  "width": 1280,
+  "height": 720,
+  "seconds": 25.083333333333332,
+  "reencoded": false,
+  "audio": "No track in preview assembly; both original source files retain their original audio",
+  "validation": {
+    "decodedFrames": 602,
+    "monotonicFrameTimes": true,
+    "fourBoundaryFramesPixelExact": true,
+    "boundaryFrameIndices": [
+      0,
+      240,
+      241,
+      601
+    ]
+  },
+  "sha256": "03f84aff3592b0bf7f0bbdb7d87c6fb433770658b31a0db896ef68e8a4e60d1f",
+  "browserVerification": {
+    "url": "http://127.0.0.1:5190/desk-arrival.html",
+    "serverPid": 43620,
+    "duration": 25.083333,
+    "initialA": {"time": 0.2654, "paused": false, "loop": true},
+    "returnedAAfterFullCycle": {"time": 8.0594, "playedRange": [0, 25.083333], "paused": false},
+    "observedB": {"time": 20.4345, "paused": false},
+    "panelStayedOpen": true,
+    "proof": "../desk-idle-ab-verified.png",
+    "checks": "Browser A/B playback and wrap; 602 decoded frames; 4 pixel-exact source boundary frames; monotonic timestamps; server syntax and git diff --check"
+  }
+}

@@ -1,4 +1,3 @@
-/* Shared navigation is outside the scene on the left. Footer deliberately empty. */
 .space-experience{height:100svh;min-height:700px}
 .space-experience .space-main,.space-experience[data-screen=map] .space-main{display:grid;grid-template-columns:244px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;min-height:0;flex:1}
 .space-sidebar{grid-column:1;grid-row:1;min-width:0;min-height:0;overflow:auto;padding:24px 16px;background:linear-gradient(100deg,#07101a,#091824);border-right:1px solid #7198ac28;scrollbar-width:thin;scrollbar-color:#547b9144 transparent}
@@ -50,4 +49,81 @@
  .space-sidebar{min-height:0;overflow:auto}
  .space-experience .space-overview{height:100%;align-self:stretch;min-height:0}
  .space-experience[data-screen=map] .space-artwork{height:100%;min-height:0}
+}
+
+/* Room navigation stays in one row. Compact windows reserve space below the scene. */
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-main {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-overview { grid-area: 1 / 1; }
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-sidebar {
+  grid-area: 2 / 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1vw, 16px);
+  overflow: visible;
+  z-index: 6;
+  padding: 6px clamp(8px, 2vw, 32px);
+  border: 0;
+  background: linear-gradient(0deg, #091722f5, #102735ec);
+}
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-sidebar-caption { display: none; }
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-dock {
+  display: grid;
+  --dock-gap: clamp(3px, .6vw, 12px);
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  grid-auto-columns: max(105px, calc((100% - 4 * var(--dock-gap)) / 5));
+  justify-content: start;
+  flex: 1;
+  min-width: 0;
+  max-width: 1180px;
+  gap: var(--dock-gap);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-dock > a {
+  transform: none;
+  box-sizing: border-box;
+  min-width: 0;
+  height: clamp(44px, 4.5vh, 54px);
+  min-height: 0;
+  padding: 7px clamp(12px, 1.1vw, 22px);
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  font-size: clamp(13px, 1vw, 17px);
+}
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-settings {
+  margin: 0;
+  color: #c7e0e9;
+}
+.space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-settings > div {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 196px;
+  padding: 12px;
+  border: 1px solid #6596a9;
+  background: #0a1c28;
+}
+.space-experience[data-entry] .space-sidebar { visibility: hidden; }
+
+@supports (left: anchor(left)) {
+  @media (min-width: 1310px) and (min-height: 950px) {
+    .space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-artwork { anchor-name: --scene-frame; }
+    .space-experience:is([data-screen=lounge], [data-screen=bridge]) .space-sidebar {
+      position: absolute;
+      grid-area: auto;
+      left: anchor(--scene-frame left);
+      bottom: anchor(--scene-frame bottom);
+      width: anchor-size(--scene-frame width);
+      box-sizing: border-box;
+      padding-block: 6px;
+      background: linear-gradient(0deg, #071421cf, #08192376 70%, transparent);
+    }
+  }
 }

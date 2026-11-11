@@ -13,9 +13,9 @@
 .manifest button,.trial-brief a{cursor:pointer;min-height:38px;border:1px solid #46606a;border-radius:4px;background:#142d38;color:#e6f2f5;padding:7px 12px;font:inherit;font-size:13px}
 .manifest button:hover:not(:disabled),.trial-brief a:hover{border-color:#e7c687}
 .manifest-row{padding:12px 0;border-top:1px solid #304955}.manifest-row>div{margin-right:auto;min-width:0;overflow-wrap:anywhere}.manifest-row span,.manifest-row b{display:block}
-.manifest-inbox{border-top:1px solid #46606a;padding-top:18px;margin-top:18px}.manifest-inbox p{margin:8px 0}
+.manifest-inbox{min-width:0}.manifest-inbox p{margin:8px 0}
 .manifest-summary{background:linear-gradient(145deg,#203841,#101e28)}.manifest-summary>span,.manifest-summary dt{color:var(--muted);font-size:13px}
-.manifest-summary strong{display:block;color:#f0d09c;font:500 clamp(26px,3vw,42px) Oxanium,sans-serif;margin:3px 0 16px}.manifest-summary i{font:500 13px Oxanium,sans-serif}
+.manifest-summary>strong{display:block;color:#f0d09c;font:500 clamp(26px,3vw,42px) Oxanium,sans-serif;margin:3px 0 16px}.manifest-summary>strong i{font:500 13px Oxanium,sans-serif}
 .manifest-summary dl{display:grid;grid-template-columns:1fr auto;gap:8px;border-block:1px solid var(--edge);padding:14px 0}.manifest-summary dd{margin:0;text-align:right}
 .manifest .manifest-primary,.trial-brief .manifest-primary{color:#202327;background:#e9c990;border-color:#e9c990;font-weight:700}.manifest-primary{margin-top:6px}.manifest button:disabled{cursor:default;opacity:.45}
 .manifest-editor{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:12px;padding:16px;background:#172f3a}.manifest-editor>div{grid-column:1/-1}
@@ -84,3 +84,23 @@
 .trial-brief li .trial-task{display:block}
 .receipt-sources{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin-bottom:12px}
 .receipt-sources input::file-selector-button{background:#203b48;color:#e4eff2;border:1px solid #426371;padding:5px 10px;margin-right:10px;cursor:pointer}
+
+.manifest-intake{margin:14px 0;border-block:1px solid #34515d;padding:12px 0}.manifest-intake summary{cursor:pointer;color:#c6e0eb}.manifest-intake label{margin:10px 0}.manifest-intake textarea{background:#081821;color:#eff8fa;border:1px solid #34515d;font:inherit;padding:8px;width:100%}
+
+.receipt-card .receipt-correct {position:relative;z-index:1;justify-self:start}
+
+.receipt-tools { display:flex; flex-wrap:wrap; gap:6px; margin-block:12px; }
+.receipt-tools button { padding:6px 10px; }
+.manifest-editor .shipment-ports { grid-column:1/-1; }
+
+.inbox-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+.inbox-header .receipt-actions { margin:0; }
+.manifest button.receipt-add { border-color:#a68b5e; color:#ffe8bd; background:linear-gradient(135deg,#514531,#302d27); }
+.manifest-summary { min-width:0; }
+.manifest-summary .manifest-row { flex-wrap:wrap; }
+.manifest-summary .manifest-config { grid-template-columns:minmax(0,1fr); padding:12px 0; margin:0; border:0; background:none; box-shadow:none; }
+.manifest-summary .manifest-config::before { display:none; }
+.manifest-summary .manifest-editor { grid-template-columns:minmax(0,1fr); }
+.manifest-summary h2:focus-visible { outline:1px solid #b4d9e3; outline-offset:3px; }
+.manifest-inbox .manifest-intake { margin:8px 0; }
+.receipt-import[open] .receipt-sources, .manual-entry[open]>button:first-of-type { margin-top:12px; }

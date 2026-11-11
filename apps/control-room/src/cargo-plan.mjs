@@ -21,8 +21,12 @@ export function manifestCargo(draft,pickup){
   if((job.state&&job.state!=='ready')||!Number.isSafeInteger(row.scu)||row.scu<=0||Object.hasOwn(job.reservations||{},row.to)||row.cargoShape==='unknown'||(row.maxBoxSize!=null&&![1,2,4,8,16,24,32].includes(row.maxBoxSize))||(/cryo[ -]?pods?/i.test(row.cargo[1])&&row.cargoShape!=='cryopod')){
    unresolved.push({missionId:job.id,shipmentId:row.id});continue;
   }
-  const sizes=row.cargoShape==='cryopod'?Array(row.scu).fill(1):assumedBoxes(row.scu,Math.min(8,row.maxBoxSize||8));
-  sizes.forEach((size,i)=>boxes.push({boxId:JSON.stringify([job.id,row.id,i]),missionId:job.id,shipmentId:row.id,dropoffId:row.to,commodity:row.cargo[1],size,color:COLORS[destinations.indexOf(row.to)%COLORS.length],estimated:row.cargoShape!=='cryopod',...(row.cargoShape==='cryopod'?{_cargoShape:'cryopod'}:{})}));
+  const explicit=row.boxes||[];
+  if(explicit.length && (explicit.some(b=>![1,2,4,8,16,24,32].includes(b.size)||!Number.isSafeInteger(b.count)||b.count<1)||explicit.reduce((n,b)=>n+b.size*b.count,0)!==row.scu)){
+   unresolved.push({missionId:job.id,shipmentId:row.id});continue;
+  }
+  const sizes=row.cargoShape==='cryopod'?Array(row.scu).fill(1):explicit.length?explicit.flatMap(b=>Array(b.count).fill(b.size)):assumedBoxes(row.scu,Math.min(8,row.maxBoxSize||8));
+  sizes.forEach((size,i)=>boxes.push({boxId:JSON.stringify([job.id,row.id,i]),missionId:job.id,shipmentId:row.id,dropoffId:row.to,commodity:row.cargo[1],size,color:COLORS[destinations.indexOf(row.to)%COLORS.length],estimated:!explicit.length&&row.cargoShape!=='cryopod',...(row.cargoShape==='cryopod'?{_cargoShape:'cryopod'}:{})}));
  }
  return {boxes,unresolved};
 }

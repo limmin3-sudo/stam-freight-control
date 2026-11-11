@@ -117,5 +117,6 @@ EN.standard.jumpWork=(entry,exit)=>`Enter at ${entry} and exit at ${exit}. Recor
 EN.aide.jumpWork=(entry,exit)=>`In through ${entry}, out through ${exit}! Press Jump complete after crossing. No crates to lift this time!`;
 export function voiceId(){try{const v=localStorage.getItem(KEY);return v==='aide'?'aide':'standard';}catch{return 'standard';}}
 export function setVoice(v){if(!['standard','aide'].includes(v))return;try{localStorage.setItem(KEY,v);}catch{}}
-export const V=(id=voiceId())=>(isEn?EN:L)[id]||(isEn?EN:L).standard;
+export function flightVoice(id,english){const voices=english?EN:L;return voices[id]||voices.standard;}
+export const V=(id=voiceId())=>flightVoice(id,isEn);
 export const routePolicy=()=>voiceId()==='aide'?'delivery-first':'batch';

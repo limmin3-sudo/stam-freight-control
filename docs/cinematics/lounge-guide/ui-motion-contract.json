@@ -1,0 +1,12 @@
+{
+  "confirmedByUser": "2026-11-11",
+  "scope": "All STAM spaces and all scene UI, including bottom bars",
+  "rule": "Enter from the nearest scene wall or viewport edge; exit toward the same wall along the reverse path. No stationary pop-in or pop-out.",
+  "edges": {"left": "left", "right": "right", "bottomBar": "bottom", "topLabels": "top"},
+  "grouping": "Keep each place marker, leader line, name and description together. Keep panel content attached to its panel.",
+  "excludedFromUiTranslation": ["scene photograph", "people", "physical scene objects", "planet hologram"],
+  "lifecycle": "Keep outgoing UI mounted until transform transition completes; disable interaction while closed. Reverse continuously when interrupted.",
+  "initialTimingMs": {"enter": 540, "exit": 420},
+  "accessibility": "Respect reduced-motion preference",
+  "implementationStatus": "Isolated motion preview prepared; application-wide runtime integration pending. Feature checkout unchanged."
+}

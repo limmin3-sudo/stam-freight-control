@@ -1,4 +1,4 @@
-import {historyTotalsMarkup,readHistory} from './history.mjs';
+import {historyTotalsMarkup,readHistory,HISTORY_KEY} from './history.mjs';
 // Optional account login (ID + password or Google) and per-account sync through Firebase.
 // Guests keep using browser storage. Nothing here runs until FIREBASE_CONFIG is filled in.
 import {FIREBASE_CONFIG} from './firebase-config.mjs';
@@ -15,7 +15,8 @@ const device=()=>{const ua=navigator.userAgent||'';const os=/Windows/.test(ua)?'
 // Login is optional. Shown wherever the account is offered.
 const LOGIN_NOTE=`<div class="account-note" data-i18n="login-note"><b>로그인은 선택입니다.</b> 로그인하지 않아도 모든 기능을 그대로 쓸 수 있고, 데이터는 이 브라우저에 저장됩니다.<ul><li>로그인하면 <b>계정별 수정 기록</b>이 남아 언제·어느 기기에서 무엇을 바꿨는지 볼 수 있습니다.</li><li>미션·함선·설정과 <b>운항 기록(누적 수익)</b>을 다른 PC에서도 이어서 봅니다.</li></ul></div>`;
 const HISTORY_LINK='<div class="account-actions"><button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button></div>';
-export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,resetHistory}={}){
+export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,resetHistory,historyContext=false}={}){
+ const loginNote=historyContext?'<p>로그인 없이도 이 브라우저의 완료 운송기록을 볼 수 있습니다. 로그인하면 다른 기기와 기록을 동기화할 수 있습니다.</p>':LOGIN_NOTE;
  let fb=null,user=null,timer=null,paused=false,status='';
  const dialog=document.createElement('dialog');dialog.className='account-dialog';document.body.append(dialog);
  const setButton=()=>{button.innerHTML=user?`<span class="account-dot ${paused?'warn':''}"></span><span><small>${paused?'동기화 멈춤':'동기화됨'}</small><b>${esc(user.label)}</b></span>`:`<span><small>계정</small><b>${FIREBASE_CONFIG?'로그인':'로그인 준비 중'}</b></span>`;button.title=status;};
@@ -55,18 +56,18 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  async function signOutKeepGuest(){try{await tick();}catch{}await fb.signOut(fb.auth);const guest=readJSON(GUEST_BACKUP);applySnapshot(localStorage,guest||{});localStorage.removeItem(GUEST_BACKUP);writeJSON(ACCOUNT_META,null);reload();}
 
  function open(view='login'){
-  if(!FIREBASE_CONFIG){dialog.innerHTML=`<div class="dialog-title"><h2>계정 로그인</h2><button type="button" data-close aria-label="닫기">×</button></div>${LOGIN_NOTE}<section class="account-run-totals">${historyTotalsMarkup()}</section>${HISTORY_LINK}<p>로그인 기능을 준비하고 있습니다. 지금은 이 브라우저에 자동 저장됩니다.</p>`;bind();dialog.showModal();return;}
+  if(!FIREBASE_CONFIG){dialog.innerHTML=`<div class="dialog-title"><h2>계정 로그인</h2><button type="button" data-close aria-label="닫기">×</button></div>${loginNote}<section class="account-run-totals">${historyTotalsMarkup()}</section>${HISTORY_LINK}<p>로그인 기능을 준비하고 있습니다. 지금은 이 브라우저에 자동 저장됩니다.</p>`;bind();dialog.showModal();return;}
   const choices={
    'first-upload':['이 브라우저 데이터를 계정에 저장할까요?','계정에 아직 저장된 데이터가 없습니다. 지금 이 브라우저의 미션·함선·설정·기록을 계정에 올리면 다른 PC에서도 이어서 쓸 수 있습니다.',[['use-local','이 브라우저 데이터 저장','primary'],['start-empty','빈 계정으로 시작','']]],
    'first-conflict':['어느 데이터를 쓸까요?','계정에 저장된 데이터와 이 브라우저의 데이터가 다릅니다. 자동으로 덮어쓰지 않았습니다.',[['use-cloud','계정 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 계정 덮어쓰기',''],['sign-out','취소하고 로그아웃','quiet']]],
    'conflict':['다른 기기에서 더 최근에 저장했습니다','다른 PC에서 저장한 뒤 이 브라우저에서도 바뀐 내용이 있습니다. 어느 쪽을 쓸지 골라 주십시오.',[['use-cloud','다른 기기 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 덮어쓰기',''],['close','나중에','quiet']]]};
   if(choices[view]){const [t,p,bs]=choices[view];dialog.innerHTML=`<div class="dialog-title"><h2>${t}</h2></div><p>${p}</p><div class="account-actions">${bs.map(([a,l,c])=>`<button type="button" class="${c}" data-act="${a}">${l}</button>`).join('')}</div><p class="account-msg" role="status"></p>`;bind();if(!dialog.open)dialog.showModal();return;}
-  if(user){dialog.innerHTML=`<div class="dialog-title"><h2>${esc(user.label)} 님</h2><button type="button" data-close aria-label="닫기">×</button></div><p>${paused?'⚠ '+esc(status||'자동 저장이 멈춰 있습니다.'):'미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.'}</p><div class="account-actions">${paused?'<button type="button" class="primary" data-act="open-conflict">어느 쪽을 쓸지 고르기</button>':''}<button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button><button type="button" data-act="sign-out">로그아웃</button></div><section class="account-run-totals">${historyTotalsMarkup()}</section>
+  if(user){dialog.innerHTML=`<div class="dialog-title"><h2>${esc(user.label)} 님</h2><button type="button" data-close aria-label="닫기">×</button></div><p>${paused?'⚠ '+esc(status||'자동 저장이 멈춰 있습니다.'):historyContext?'완료한 운송기록이 계정에 자동 저장됩니다.':'미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.'}</p><div class="account-actions">${paused?'<button type="button" class="primary" data-act="open-conflict">어느 쪽을 쓸지 고르기</button>':''}<button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button><button type="button" data-act="sign-out">로그아웃</button></div><section class="account-run-totals">${historyTotalsMarkup()}</section>
    <h3 class="account-sub">수정 기록</h3><ol class="change-log"><li class="subtle">불러오는 중…</li></ol><p class="small subtle">이 계정에서 저장된 변경만 표시됩니다. 로그아웃하면 이 브라우저는 로그인 전의 게스트 데이터로 돌아갑니다.</p>`;bind();dialog.showModal();
    load().then(f=>f.getDocs(f.query(f.collection(f.db,'users',user.uid,'changes'),f.orderBy('at','desc'),f.limit(50)))).then(r=>{const ol=dialog.querySelector('.change-log');if(!ol)return;const rows=[];r.forEach(d=>rows.push(d.data()));ol.innerHTML=rows.length?rows.map(x=>`<li><span>${new Date(x.at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${esc(x.device||'')}</span>${(x.items||[]).map(t=>`<div>${esc(t)}</div>`).join('')}</li>`).join(''):'<li class="subtle">아직 수정 기록이 없습니다.</li>';}).catch(e=>{const ol=dialog.querySelector('.change-log');if(ol)ol.innerHTML=`<li class="subtle">${esc(message(e))}</li>`;});return;}
   const signup=view==='signup';
   dialog.innerHTML=`<div class="dialog-title"><h2>${signup?'아이디 만들기':'로그인'}</h2><button type="button" data-close aria-label="닫기">×</button></div>
-   ${LOGIN_NOTE}
+   ${loginNote}
    <section class="account-run-totals">${historyTotalsMarkup()}</section>${HISTORY_LINK}
    <form class="account-form" novalidate><label>아이디<span class="account-row"><input name="id" autocomplete="username" maxlength="20" placeholder="영문 소문자·숫자·_ 3~20자" required>${signup?'<button type="button" data-act="check">중복 확인</button>':''}</span></label>
    <label>비밀번호<input name="pw" type="password" autocomplete="${signup?'new-password':'current-password'}" minlength="6" required></label>${signup?'<label>비밀번호 확인<input name="pw2" type="password" autocomplete="new-password" minlength="6" required></label>':''}
@@ -78,6 +79,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  }
  function refreshTotals(){const target=dialog.querySelector('.account-run-totals');if(target)target.innerHTML=historyTotalsMarkup();const reset=dialog.querySelector('[data-act="reset-history"]');if(reset)reset.disabled=!readHistory().length;}
  window.addEventListener('sfc-history-changed',refreshTotals);
+ window.addEventListener('storage',e=>{if(!e.key||e.key===HISTORY_KEY)refreshTotals();});
  function bind(signup=false){
   refreshTotals();
   const msg=t=>{const m=dialog.querySelector('.account-msg');if(m)m.textContent=t;};
@@ -85,11 +87,11 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
   const act={close:()=>dialog.close(),'to-login':()=>open('login'),'to-signup':()=>open('signup'),'open-conflict':()=>open('conflict'),
    'use-cloud':()=>useCloud().catch(e=>msg(message(e))),'use-local':()=>useLocal().catch(e=>msg(message(e))),'sign-out':()=>signOutKeepGuest().catch(e=>msg(message(e))),
    history:()=>{dialog.close();openHistory?.();},'reset-history':()=>{if(resetHistory?.())refreshTotals();},'start-empty':async()=>{applySnapshot(localStorage,{});writeJSON(ACCOUNT_META,{uid:user.uid,lastSyncedAt:Date.now(),lastSnap:{}});reload();},
-   google:async()=>{try{const f=await load();await f.signInWithPopup(f.auth,new f.GoogleAuthProvider());dialog.close();}catch(e){msg(message(e));}},
+   google:async()=>{try{const f=await observeAuth();await f.signInWithPopup(f.auth,new f.GoogleAuthProvider());dialog.close();}catch(e){msg(message(e));}},
    check:async()=>{const id=dialog.querySelector('[name=id]').value,p=usernameProblem(id);if(p)return msg(p);try{const f=await load();const d=await f.getDoc(f.doc(f.db,'usernames',normalizeUsername(id)));msg(d.exists()?'이미 사용 중인 아이디입니다.':'사용할 수 있는 아이디입니다.');}catch(e){msg(message(e));}}};
   dialog.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act[b.dataset.act]?.());
   dialog.querySelector('form')?.addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target),id=String(f.get('id')||''),pw=String(f.get('pw')||''),p=usernameProblem(id);if(p)return msg(p);if(pw.length<6)return msg('비밀번호는 6자 이상으로 만들어 주십시오.');
-   try{const F=await load(),name=normalizeUsername(id);
+   try{const F=await observeAuth(),name=normalizeUsername(id);
     if(signup){if(pw!==f.get('pw2'))return msg('비밀번호 확인이 맞지 않습니다.');if((await F.getDoc(F.doc(F.db,'usernames',name))).exists())return msg('이미 사용 중인 아이디입니다.');
      const cred=await F.createUserWithEmailAndPassword(F.auth,usernameEmail(name),pw);
      try{await F.runTransaction(F.db,async t=>{const ref=F.doc(F.db,'usernames',name);if((await t.get(ref)).exists())throw Object.assign(new Error('이미 사용 중인 아이디입니다.'),{code:'taken'});t.set(ref,{uid:cred.user.uid});});}
@@ -98,10 +100,22 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
     dialog.close();}catch(err){msg(message(err));}});
  }
 
- button.onclick=()=>open(user?'account':'login');
+ let observing;
+ function observeAuth(){
+  if(!observing)observing=load().then(f=>{
+   f.onAuthStateChanged(f.auth,u=>u?onSignedIn(u):(user=null,setButton()));
+   return f;
+  }).catch(error=>{observing=null;throw error;});
+  return observing;
+ }
+ function resume(){if(FIREBASE_CONFIG)observeAuth().catch(e=>{
+  const text='로그인 연결 실패: '+message(e);
+  const target=dialog.querySelector('.account-msg');
+  if(dialog.open&&target)target.textContent=text;
+  notify(text,true);
+ });}
+ button.onclick=()=>{open(user?'account':'login');resume();};
  setButton();
- // Resume a previous session on load; first-time guests do not download Firebase at all.
- if(FIREBASE_CONFIG&&readJSON(ACCOUNT_META)?.uid)load().then(f=>f.onAuthStateChanged(f.auth,u=>u?onSignedIn(u):(user=null,setButton()))).catch(()=>{});
- else if(FIREBASE_CONFIG){const first=button.onclick;button.onclick=async()=>{button.onclick=first;try{const f=await load();f.onAuthStateChanged(f.auth,u=>u?onSignedIn(u):(user=null,setButton()));}catch(e){notify('로그인 모듈을 불러오지 못했습니다: '+message(e),true);}first();};}
+ if(readJSON(ACCOUNT_META)?.uid)resume();
  return {open,user:()=>user};
 }

@@ -1,0 +1,29 @@
+{
+  "dateKst": "2026-11-12",
+  "post": "https://grok.com/imagine/post/65bb35fe-c0d2-40c8-a548-7f831e47218a",
+  "source": "desk-to-lounge-grok-original.mp4",
+  "sha256": "2a54608aa19c451327039cdc9468fa4d9066ac605cfbe2a331a87355f6d8150c",
+  "video": {"width": 1280, "height": 720, "fps": 24, "frames": 241, "durationSeconds": 10.0416666667, "audioStreams": 1},
+  "sourceReencoded": false,
+  "previewUrl": "http://127.0.0.1:5190/desk-arrival.html",
+  "serverPid": 38408,
+  "trigger": "Unified panel action: 라운지로 돌아가기 (#return-to-lounge)",
+  "sequence": [
+    "Disable panel interaction and slide whole hologram left; keep desk idle visible",
+    "Wait for panel transform transitionend and return video decoded data; computed exit-duration fallback if event is absent",
+    "Pause idle, start return video, use a 180ms reveal over the retained desk view",
+    "On return ended, retain the actual final decoded frame in lounge state; no desk panel reappears"
+  ],
+  "exitMs": 440,
+  "sound": "Return video follows the preview sound toggle; idle remains muted",
+  "navigationGuards": "Sequence tokens cancel pending return on replay/arrival shortcut. Duplicate return clicks blocked by closing-return state and inert panel.",
+  "validation": {
+    "duringClosing": {"state": "closing-return", "returnPaused": true, "returnTime": 0, "idlePaused": false},
+    "afterExit": {"state": "returning", "panelRight": -42.182, "stageLeft": 0, "returnPaused": false, "returnTime": 7.4826, "idlePaused": true},
+    "completed": {"state": "lounge", "returnEnded": true, "returnTime": 10.041667, "loungeImageVisible": true, "panelHidden": true},
+    "reentry": "Arrival shortcut after return restored idle playback and panel; return paused",
+    "checks": "Video decoded 241 frames and sampled across timeline; JS/server syntax; git diff --check"
+  },
+  "proof": "../lounge-return-connected-verified.png",
+  "featureCheckoutOrProductionChanged": false
+}

@@ -1,0 +1,42 @@
+{
+  "dateKst": "2026-11-11",
+  "jobId": "b70368029452",
+  "status": "done-review-not-approved",
+  "purpose": "Original lounge camera-only forward-left approach to welcome desk; no standing guide or UI. Spatial continuity test, not final scene.",
+  "authorization": "User requested the proposed short original-start approach-video test.",
+  "provider": "local Gen Studio",
+  "model": "Wan 2.2 I2V 14B",
+  "requested": {
+    "quality": "720p",
+    "seconds": 5
+  },
+  "source": "apps/control-room/src/assets/lounge-original-composite.png",
+  "endFrameSubmitted": false,
+  "endFrameToolSupport": false,
+  "newModelInstalled": false,
+  "runtimeChanged": false,
+  "prompt": "A single continuous photorealistic architectural camera shot starting from the EXACT supplied original futuristic spaceport lounge image. The camera physically dollies diagonally forward-left at a gentle walking pace toward the EXISTING white welcome reception desk on the left. Stop immediately in front of that desk's existing right-hand end, on the public side, at standing eye level and conversational distance. Make a moderate but clearly visible approach, not a journey through the gate. Keep the original focal length and a level horizon, with only a small natural pan left to keep the desk workstation in view. Slow down smoothly at the end and hold the final view briefly.\n\nThe architecture and every furnishing remain stationary and unchanged. Preserve the exact shape and length of the curved ivory desk, its front profile and original thin warm light strip. Preserve the seated brunette receptionist at her existing workstation, the existing bowl of white orchids, EXACTLY TWO compact monitors in their original positions, spacing, size and orientation, the silver cyan-glass boarding portal immediately behind the desk's right end, the queue railings, window mullions, planting, central distant hall and original sunlight. As the camera approaches, the desk, seated receptionist, monitors and adjacent portal become closer together through consistent physical parallax; the distant hall changes less. Never stretch or reshape the desk, spread the monitors apart, slide objects, relocate the portal, add lamps or invent furniture. The receptionist remains seated, with only minimal natural motion.\n\nThis is a background continuity test: no standing guide, no new foreground person, no arm gestures, no UI, no text overlays, no subtitles, no logos. No cuts, dissolves, black fades, optical zoom, camera shake, camera roll, teleportation, morphing architecture, duplicated objects or scenery replacement. Do not enter or pass through the gate. End on the same real desk seen from close by.",
+  "resultImageId": "20261111-220652-ddfddd",
+  "seed": 1204701975,
+  "actual": {
+    "width": 1280,
+    "height": 720,
+    "frames": 81,
+    "fps": 16,
+    "durationSeconds": 5.0625,
+    "codec": "h264",
+    "meanAbsoluteFirstLastDifference": 55.19707107543945,
+    "differenceNote": "Pixel difference does not establish real camera translation or unchanged geometry."
+  },
+  "output": "lounge-desk-approach-test-01.mp4",
+  "lastFrame": "last-frame.png",
+  "promptSubmittedUnchanged": true,
+  "review": {
+    "observed": "Continuous closer view of the original desk, receptionist and neighboring gate; no standing guide or UI added.",
+    "issues": [
+      "A glowing upright object near the right monitor differs from the original scene and needs rejection/verification.",
+      "Endpoint is still farther from the desk than the intended conversational arrival."
+    ],
+    "verdict": "Experimental approach only. Do not use this last frame as an approved destination background. Unchanged 3D layout has not been verified."
+  }
+}

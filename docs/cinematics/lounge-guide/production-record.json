@@ -1,0 +1,17 @@
+{
+  "shot": "lounge-to-welcome-desk-guide",
+  "dateKst": "2026-11-11",
+  "owner": "Codex cinematics chat",
+  "status": "end-frame-v1-for-user-review",
+  "tool": "built-in image_gen",
+  "output": "lounge-guide-end-v1.png",
+  "referenceAssets": [
+    "apps/control-room/src/assets/lounge-original-composite.png",
+    "apps/control-room/src/assets/director-standing.png"
+  ],
+  "startFrameStatus": "Existing runtime lounge composition available; capture clean artwork with standing guide and without UI before video production.",
+  "endFrameReview": "Guide identity, hair, uniform and covered right arm visually checked. Medium conversational framing with original desk and seated receptionist behind. Generated closer environment is a perspective interpretation, not geometrically verified. User approval pending.",
+  "runtimeChanged": false,
+  "videoGenerated": false,
+  "prompt": "Use case: identity-preserve. Asset type: photorealistic cinematic END KEYFRAME for an existing STAM lounge first-person walking approach video, landscape 16:9. Create ONE finished still image. Image 1 is the exact existing sunlit spaceport lounge and curved welcome desk. Image 2 is the exact adult Flight Guide character identity and uniform, not an additional receptionist. Primary request: the visitor has walked diagonally forward-left from Image 1's camera position to stand conversationally in front of the Flight Guide, who remains standing on the PUBLIC SIDE of the welcome desk near its right-hand corner. Camera eye level with her, natural human conversational distance approximately 1.4 metres, neutral normal lens around 50mm, no tilt or wide-angle distortion. Framing: friendly waist-up/upper-hip medium portrait of the Flight Guide, approximately central, head and shoulders fully visible, some space above her hair, both hands naturally clasped at her lower waist near the bottom edge. She makes warm direct eye contact with a restrained welcoming smile; poised, confident, polite. Preserve the exact face, hazel eyes, blonde swept tied-back hair, realistic skin texture, body proportions, white short sleeve fitted collared uniform shirt, dark epaulettes, gold buttons, small existing badge, dark skirt and the black covering on HER RIGHT arm (viewer left). No change of character. Environment: translate the camera physically closer, never move or rebuild the furniture. A recognizable portion of the same curved ivory/marble welcome desk is visible BEHIND her and to the viewer LEFT with its warm lower trim; the separate brown-haired seated receptionist stays behind that desk, small and secondary, softly out of focus and only partially visible if the tighter framing allows. Tall glass windows on left, warm low sunshine, pale metal window mullions, distant spacecraft apron, planting and the same gate architecture provide clear continuity to Image 1. Use plausible closer-camera parallax; do not simply enlarge and paste Image 1. Keep recognizable architecture and materials. Focus sharply on the guide's eyes; moderate subtle depth of field while keeping the desk/window context recognizable. Preserve the original clean, warmly sunlit photographic science fiction visual style. No added people beyond the existing guide and original seated receptionist. No game UI, speech box, subtitles, labels, buttons, circular interaction markers, overlay graphics, watermarks or new signage. No chair or counter between camera and guide, no giant monitor. This is a concept end frame for approval, not an animation or a collage."
+}

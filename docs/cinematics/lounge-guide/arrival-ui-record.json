@@ -1,0 +1,41 @@
+{
+  "dateKst": "2026-11-12",
+  "scope": "Independent cinematic preview; feature checkout untouched",
+  "url": "http://127.0.0.1:5190/desk-arrival.html",
+  "video": "grok-approach-selected-20261112/lounge-to-desk-grok.mp4",
+  "endFrame": "grok-approach-selected-20261112/actual-last-frame.png",
+  "designReference": "lounge-guide-hologram-ui-v1.png",
+  "implementationBase": "Existing motion-preview-v2.html SVG panels, icon symbols and CSS; extracted into hologram-design-v2.css by build-arrival-preview.py",
+  "layout": {
+    "reason": "Guide stands on the right; user permits covering seated receptionist",
+    "functions": "left 2%, top 28%, width 26%, height 62%",
+    "dialogue": "left 30%, top 22%, width 25.5%, height 68%",
+    "guideFaceAndTorsoClear": true,
+    "bottomBar": false,
+    "nameOverlay": false
+  },
+  "motion": {
+    "afterEndedDelayMs": 200,
+    "entranceMs": 640,
+    "dialogueDelayMs": 85,
+    "exitMs": 440,
+    "functionsDirection": "from and to left screen edge",
+    "dialogueDirection": "from and to right screen edge",
+    "transitionProperty": "transform only; opacity stays 1",
+    "reducedMotion": "1ms transitions with no stagger"
+  },
+  "controls": ["Replay full video", "Jump to arrival", "Slide panels in/out", "Unmute/mute", "Escape to close", "Preview button selection"],
+  "validation": {
+    "videoToPanels": "Two completed 1280x720 playback runs reached ended=true at 10.041667s and automatically opened both panels",
+    "noBottomBar": "DOM count zero",
+    "exit": "Left panel right=21.8, stage left=67.6; right panel left=1265.9, stage right=1212.4. Both fully outside stage with opacity=1.",
+    "entrance": "Observed intermediate panel positions, 640ms transform duration and 85ms dialogue delay",
+    "content": "Font loaded. Both panel-content scrollWidth/clientWidth and scrollHeight/clientHeight equal; no clipped content.",
+    "proof": "desk-arrival-preview-verified.png",
+    "server": "MP4 byte-range response verified: HTTP 206 with 1024 bytes",
+    "checks": "node --check for preview and server; git diff --check",
+    "notCovered": "Desktop cinematic preview only; full app workflow, mobile readability and new voice/audio generation are outside this change"
+  },
+  "runtimeChanged": false,
+  "commitPushDeploy": false
+}

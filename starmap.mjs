@@ -43,7 +43,7 @@ class Rig{
 }
 
 export function createStarMap(container,labelContainer,data,onSelect){
- const {renderer,scene,camera,controls}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
+ const {renderer,scene,camera,controls,resizeObserver}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
  scene.traverse(o=>{if(o.isAmbientLight)o.intensity=0;if(o.isDirectionalLight)o.intensity=0;});
  let quality=QUALITY.high,qualityName='high';try{const q=localStorage.getItem('vh-map-quality');if(QUALITY[q]){quality=QUALITY[q];qualityName=q;}}catch{}
  renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));const bloom=createBloom(renderer,{strength:quality.bloom});
@@ -171,7 +171,7 @@ export function createStarMap(container,labelContainer,data,onSelect){
  el.addEventListener('pointerleave',()=>hover(null));
  el.addEventListener('pointerup',e=>{const moved=down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;el.style.cursor='grab';if(moved)return;const h=pick(e);if(!h||h.galaxy)return;selected=h.loc.id;onSelect(h.loc,describe(h.loc));});
  el.addEventListener('dblclick',e=>{const h=pick(e);if(!h)return;if(h.galaxy){enterSystem(h.galaxy);const st=data.locations.find(l=>l.system===h.galaxy&&l.type==='Star');if(st)onSelect(st,h.galaxy.toUpperCase()+' 항성계');return;}selected=h.loc.id;onSelect(h.loc,describe(h.loc));focus(h.loc.id);});
- wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}});
+ const keys=new AbortController();wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}},{signal:keys.signal});
 
  // ---- frame loop -------------------------------------------------------------------------------
  const tmp=V(),res=new THREE.Vector2();
@@ -206,7 +206,11 @@ export function createStarMap(container,labelContainer,data,onSelect){
   if(legLabel){const [pw,ph]=legLabel.sprite.userData.px;legLabel.sprite.position.copy(legLabel.pos);const scale=Math.min(1,(w-28)/pw);spriteScale(legLabel.sprite,pw*scale,ph*scale);legLabel.sprite.userData.displayPx=[pw*scale,ph*scale];legLabel.sprite.center.set(.5,-.5);legLabel.sprite.visible=(reducedMotion.matches||t>.6)&&screen(legLabel.pos).front;}
   bloom.render(scene,camera);return 60;}
  goGalaxy(true);enterSystem('stanton',true);const renderLoop=observeRenderLoop(el,frame);
- return {setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
+ return {dispose(){
+   renderLoop.dispose();resizeObserver.disconnect();keys.abort();
+   clearLabels();clearGroup(scene);sphereGeo.dispose();bloom.dispose();
+   renderer.dispose();renderer.forceContextLoss();el.remove();tip.remove();crumbs.remove();routeReadout.remove();
+  },setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
   _debug:()=>({renderLoop:renderLoop.stats(),reducedMotion:reducedMotion.matches,post:{bloom:quality.bloom>0},level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeLabelPx:legLabel?.sprite.userData.displayPx||null,routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id)),icon:itemById.get(id)?.icon}))}),

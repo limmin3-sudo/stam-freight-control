@@ -1,0 +1,14 @@
+{
+  "shot": "lounge-guide-desk-end",
+  "dateKst": "2026-11-11",
+  "status": "palm-end-v3-for-user-review",
+  "tool": "built-in image_gen",
+  "input": "lounge-guide-desk-end-v2.png",
+  "output": "lounge-guide-desk-palm-end-v3.png",
+  "userCorrection": "Elbow-rest pose feels arrogant; place palm on the countertop instead.",
+  "review": "Right palm and fingers rest on countertop; elbow/forearm lifted off desk; torso upright; black covering remains on anatomical right arm; left watch, face, desk and scene visually checked. Awaiting user review.",
+  "replacesPoseDirection": "Final video hold should end upright with a light right-palm touch, not elbow or forearm leaning.",
+  "runtimeChanged": false,
+  "videoGenerated": false,
+  "prompt": "Use case: precise-object-edit / identity-preserve. Edit this exact supplied image. Change ONLY the guide's posture and her anatomical RIGHT arm and hand placement (the arm with the black fabric covering, viewer LEFT). Keep the same photographic composition, camera position, desk, countertop height, architecture, lighting, seated receptionist, clothing, hair, face identity and expression.\n\nRequested change: give her an attentive, welcoming professional guide posture. Stand upright with shoulders level and torso vertical, balanced weight, no sideways hip lean and no head tilt increase. Move her RIGHT ELBOW AND FOREARM completely OFF the countertop. Her right upper arm slopes naturally downward beside her torso, her elbow stays visibly suspended in the air, and her forearm extends diagonally downward/left toward the countertop. Place ONLY the RIGHT PALM and fingers gently FLAT on top of the marble counter, palm down, fingers relaxed together pointing naturally diagonally forward-left along the counter. The contact point is on the countertop near her right hip, a small distance to viewer-left of her torso. Show the back of that hand and five anatomically natural fingers from this camera angle; fingertips do not dangle over the front edge. The right elbow must NOT touch the desk and she must NOT support her body weight on her forearm. Do not keep the current bent elbow resting horizontally on the desk. The hand is lightly touching the desk to indicate this welcoming location, not bracing or leaning.\n\nHer anatomical LEFT arm (viewer RIGHT, bare forearm with silver watch) remains relaxed with the hand modestly in front of her waist, as in the source. Preserve original body proportions and uniform. Do not raise the countertop, move the desk, shorten her arm unnaturally, duplicate limbs or change which arm has the black covering. Preserve warm direct eye contact and a natural friendly smile. Medium shot in the exact same landscape 16:9 frame. No UI, labels, subtitles, watermarks or other additions."
+}

@@ -21,7 +21,7 @@ export function OpeningFilm({children}:{children:ReactNode}){
  return <>
   <div className="opening-content" inert={visible} aria-hidden={visible||undefined}>{children}</div>
   {visible&&<section className="opening-film" data-leaving={leaving} aria-label={en?'Welcome to STAM':'STAM에 오신 것을 환영합니다'}>
-   <video ref={video} src={film} poster={poster} autoPlay muted={muted} playsInline preload="auto" onEnded={finish} onError={()=>setFailed(true)} aria-label={en?'The flight director prepares the lounge':'라운지를 준비하는 플라이트 디렉터'}><track kind="captions" src={en?captionsEn:captionsKo} srcLang={en?'en':'ko'} label={en?'English':'한국어'} default /></video>
+   <video ref={video} src={film} poster={poster} autoPlay muted={muted} playsInline preload="auto" onEnded={finish} onError={()=>setFailed(true)} aria-label={en?'The flight guide prepares the lounge':'라운지를 준비하는 플라이트 가이드'}><track kind="captions" src={en?captionsEn:captionsKo} srcLang={en?'en':'ko'} label={en?'English':'한국어'} default /></video>
    <div className="opening-brand"><img src={logo} alt="STAM"/><span>STAM <small>WELCOME ABOARD</small></span></div>
    <div className="opening-caption"><small>BEFORE THE JOURNEY</small><p>{en?'The lounge is almost ready.':'라운지를 준비하고 있습니다.'}</p></div>
    <div className="opening-actions">

@@ -73,9 +73,49 @@ export function parseMissionText(text,locations=[]){
  if(!title)warnings.push('미션 이름을 확인하세요.');if(cargo.some(c=>!c.pickupId||!c.dropoffId))warnings.push('픽업지·배송지를 확인하세요.');if(cargo.some(c=>!c.scu))warnings.push('읽히지 않은 SCU를 입력하세요.');warnings.push('스샷에 없는 상자 크기·개수는 따로 확인하세요.');
  return {missionId,title,company,reward,cargo,returnId,warnings:[...new Set(warnings)],rawText:text};
 }
-let libraryPromise,workerPromise,activeLanguage,activeWorker;
+let libraryPromise,sharedReader,activeLanguage;
 function loadLibrary(){if(globalThis.Tesseract)return Promise.resolve(globalThis.Tesseract);if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=()=>resolve(globalThis.Tesseract);s.onerror=()=>{libraryPromise=null;reject(Error('글자 인식 기능을 불러오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력하세요.'));};document.head.append(s);});return libraryPromise;}
-export async function recognizeImage(image,{language='eng',onProgress=()=>{}}={}){
- const T=await loadLibrary();if(workerPromise&&activeLanguage!==language){await stopOCR();}if(!workerPromise){activeLanguage=language;workerPromise=T.createWorker(language==='eng'?['eng']:['eng','kor'],1,{workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',logger:m=>activeWorker?.progress?.(m),errorHandler:()=>{}}).then(w=>{activeWorker={worker:w,progress:onProgress};return w;});}const w=await workerPromise;activeWorker.progress=onProgress;await w.setParameters({tessedit_pageseg_mode:T.PSM.AUTO,preserve_interword_spaces:'1'});const r=await w.recognize(image);return r.data;
+// Each intake owns its worker so cancelling a batch cannot terminate another reader.
+export function createOCRReader(language) {
+ let workerPromise,closed=false,progress;
+ async function start() {
+  const T=await loadLibrary();
+  if(closed)throw Error('OCR stopped');
+  const worker=await T.createWorker(language==='eng'?['eng']:['eng','kor'],1,{
+   workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
+   corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',
+   logger:event=>progress?.(event),errorHandler:()=>{}
+  });
+  try {
+   await worker.setParameters({tessedit_pageseg_mode:T.PSM.AUTO,preserve_interword_spaces:'1'});
+   return worker;
+  } catch(error){await worker.terminate();throw error;}
+ }
+ return {
+  async read(image,onProgress){
+   if(closed)throw Error('OCR stopped');
+   progress=onProgress;
+   workerPromise??=start().catch(error=>{workerPromise=null;throw error;});
+   const worker=await workerPromise;
+   if(closed)throw Error('OCR stopped');
+   const result=await worker.recognize(image);
+   return result.data;
+  },
+  async close(){
+   if(closed)return;
+   closed=true;
+   try { const worker=await workerPromise; await worker?.terminate(); } catch { /* Worker initialization failed. */ }
+  }
+ };
 }
-export async function stopOCR(){if(workerPromise){try{const w=await workerPromise;await w.terminate();}catch{}}workerPromise=null;activeWorker=null;}
+export async function recognizeImage(image,{language='eng',onProgress}={}){
+ if(sharedReader&&language!==activeLanguage)await stopOCR();
+ activeLanguage=language;
+ sharedReader??=createOCRReader(language);
+ return sharedReader.read(image,onProgress);
+}
+export async function stopOCR(){
+ const reader=sharedReader;
+ sharedReader=null;activeLanguage=null;
+ await reader?.close();
+}

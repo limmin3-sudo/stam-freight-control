@@ -14,15 +14,15 @@ export function markerKind(p:HologramPoint){
  return 'station';
 }
 export function isBody(p:{type:string}){return p.type==='Star'||p.type==='Planet';}
-export function systemPoints(system:SystemId):HologramPoint[]{
- return data.locations.filter(p=>p.id&&p.system===system&&(isBody(p)||p.type.startsWith('Manmade'))).map(p=>({id:system+':'+p.id,name:p.name,type:p.type,parentId:p.parentId?system+':'+p.parentId:null,position:p.position}));
+export function systemPoints(system:SystemId, stops?:readonly {id:string}[]):HologramPoint[]{
+ return data.locations.filter(p=>p.id&&p.system===system&&(isBody(p)||p.type.startsWith('Manmade')||stops?.some(stop=>stop.id===system+':'+p.id))).map(p=>({id:system+':'+p.id,name:p.name,type:p.type,parentId:p.parentId?system+':'+p.parentId:null,position:p.position}));
 }
 export function displayScale(system:SystemId){return system==='stanton'?1e10:Math.max(...systemPoints(system).map(p=>Math.hypot(...p.position)))/4.35;}
 // Pure presentation layout. Lagrange stations orbit the STAR: never snap them to
 // the star's surface. Moon-linked stations retain their source direction relative
 // to the planet, without requiring an invented moon or changing canonical data.
-export function displayPositions(system:SystemId){
- const points=systemPoints(system),scale=displayScale(system),positions=new Map<string,[number,number,number]>();
+export function displayPositions(system:SystemId, stops?:readonly {id:string}[]){
+ const points=systemPoints(system,stops),scale=displayScale(system),positions=new Map<string,[number,number,number]>();
  const raw=(p:{position:number[]}):[number,number,number]=>[p.position[0]!/scale,p.position[2]!/scale,-p.position[1]!/scale];
  const offset=(a:number[],b:number[])=>a.map((v,i)=>v-b[i]!);
  const move=(center:number[],direction:number[],distance:number):[number,number,number]=>{const len=Math.hypot(...direction)||1;return [0,1,2].map(i=>center[i]!+direction[i]!/len*distance) as [number,number,number];};

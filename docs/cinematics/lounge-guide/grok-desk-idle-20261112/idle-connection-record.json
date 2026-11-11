@@ -1,0 +1,30 @@
+{
+  "dateKst": "2026-11-12",
+  "status": "User selected Grok result and requested connection; connected to independent preview",
+  "post": "https://grok.com/imagine/post/0b6e1595-37fa-45ae-93e5-07602b449556",
+  "source": "desk-idle-grok-original.mp4",
+  "sha256": "7d46133af4a584b498333742d4b6fcc1de7c72e1199b307b971f6f3deabe7784",
+  "video": {"width": 1280, "height": 720, "fps": 24, "frames": 241, "durationSeconds": 10.0416666667, "audioStreams": 1},
+  "sourceReencoded": false,
+  "visualReview": "Full-shot samples show left-hand uniform adjustment and hair sweep, right palm stays on desk, and return to resting pose. Natural blinks/breathing are present; no claim of perfectly invariant generated pixels.",
+  "pixelMetrics": {"approachEndToIdleFirstMeanAbsoluteRgbDifference": 1.91, "idleFirstToLastMeanAbsoluteRgbDifference": 2.07, "note": "These are continuity diagnostics, not a guarantee of a perfectly invisible loop seam."},
+  "preview": {
+    "url": "http://127.0.0.1:5190/desk-arrival.html",
+    "flow": "Approach ended -> real final-frame fallback -> muted native idle loop with 180ms initial reveal -> approved unified panel from left",
+    "panelDelayMs": 200,
+    "bottomBar": false,
+    "idleAudio": "Muted during repetition; original audio retained in source file",
+    "serverPid": 25852
+  },
+  "verification": [
+    "Approach ended=true at 10.041667 seconds; idle visible, paused=false, 1280x720, loop=true; unified panel expanded",
+    "Idle played range reached [0, 10.041667] and currentTime wrapped while paused=false",
+    "Panel close/open did not reset or pause the idle",
+    "Replay stopped idle and restarted approach; arrival shortcut resumed idle",
+    "One panel, zero bottom bars",
+    "node --check for controller and server; git diff --check"
+  ],
+  "proof": "../desk-idle-connected-verified.png",
+  "featureCheckoutOrProductionChanged": false,
+  "next": "Prepare lounge return cinematic"
+}

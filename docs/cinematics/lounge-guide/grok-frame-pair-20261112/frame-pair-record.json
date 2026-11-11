@@ -1,0 +1,21 @@
+{
+  "dateKst": "2026-11-12",
+  "approvedGuidePost": "https://grok.com/imagine/post/0b82f884-a909-45f3-aa2f-9f265fd50b7c",
+  "firstFrame": "Built-in image_gen identity/body/uniform edit; SAM guide mask only over unchanged original lounge background. Generated likeness remains a model interpretation.",
+  "lastFrame": "User-selected Grok image; decoded RGB unchanged in native PNG. No guide regeneration.",
+  "nativeDimensions": [
+    1672,
+    941
+  ],
+  "videoDimensions": [
+    1280,
+    720
+  ],
+  "firstFrameBackgroundOutsideMaskPixelExact": true,
+  "runtimeOrVideoChanged": false,
+  "files": {
+    "01-first-frame-1280x720.png": "43bca758cd2cf7ba2da5492d773e00e4d9d0e0a9d3da650207f0e011e86ba101",
+    "02-last-frame-1280x720.png": "bc32a3fc377f079efd32fe5bd671495e269b54acbd5fb26cd2c28a6c443210f2"
+  },
+  "review": "Visual verification of full standing pose, black right-arm covering, clasped hands, feet visible, original room geometry, desk-facing final pose. User review pending."
+}

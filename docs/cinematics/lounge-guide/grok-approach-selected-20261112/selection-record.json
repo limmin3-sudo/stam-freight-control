@@ -1,0 +1,21 @@
+{
+  "dateKst": "2026-11-12",
+  "post": "https://grok.com/imagine/post/efa9879a-816c-40f0-9eab-6ba95de507f0",
+  "status": "User favours this version; retained as the working base for the next UI preview",
+  "file": "lounge-to-desk-grok.mp4",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "frames": 241,
+  "durationSeconds": 10.0416666667,
+  "hasAudioStream": true,
+  "audioDialogueAudited": false,
+  "review": {
+    "method": "Visual samples across the complete shot plus quarter-second opening samples and actual final decoded frame",
+    "positive": ["Black-covered anatomical right arm presents desk", "Walk and turn at the desk", "Final face-to-face pose with right palm on counter", "Actual video end frame available for seamless UI handoff"],
+    "deviation": "The guide also takes steps toward the viewer in the opening 0.5–2.5 seconds, rather than remaining completely stationary. Disclosed to user; do not claim exact compliance with the wait-then-guide instruction.",
+    "next": "Use actual-last-frame.png as the visual handoff for an independent hologram UI preview. Left functions slide from left wall, dialogue from right wall, bottom UI from below; approved design unchanged."
+  },
+  "runtimeChanged": false,
+  "videoGeneratedLocally": false
+}

@@ -7,6 +7,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "node prepare-locations.mjs",
+    "precheck": "node prepare-locations.mjs",
+    "pretest": "node prepare-locations.mjs",
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "check": "tsc --noEmit",
     "build": "npm run check && vite build",

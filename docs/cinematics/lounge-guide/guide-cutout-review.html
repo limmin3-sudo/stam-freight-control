@@ -1,0 +1,10 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>가이드 누끼 경계 검수</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#101820;overflow:hidden}.guide{position:absolute;left:50%;top:0;height:100vh;width:auto;transform:translateX(-50%)}.label{position:absolute;left:20px;top:16px;color:#dfedf0;font:15px sans-serif;z-index:2}.background{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}</style>
+<img id="room" class="background" src="lounge-original-source.png" alt="라운지 원본" hidden><img id="guide" class="guide" alt="누끼 경계 확인"><span class="label" id="label"></span>
+<script>
+const p=new URLSearchParams(location.search),after=p.get('version')==='after',scene=p.has('scene');
+const guide=document.getElementById('guide');guide.src=after?'director-standing-source.png':'guide-original-cutout.png';document.getElementById('label').textContent=after?'수정 누끼':'기존 누끼';
+if(scene){document.getElementById('room').hidden=false;guide.style.height='47.7vh';guide.style.top='42.5vh';guide.style.left='32.9%';}
+if(p.has('upper'))guide.style.height='200vh';
+if(p.has('lower')){guide.style.height='200vh';guide.style.top='-100vh';}
+</script>

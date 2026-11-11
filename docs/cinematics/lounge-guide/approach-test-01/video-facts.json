@@ -1,0 +1,10 @@
+{
+  "width": 1280,
+  "height": 720,
+  "frames": 81,
+  "fps": 16.0,
+  "durationSeconds": 5.0625,
+  "codec": "h264",
+  "meanAbsoluteFirstLastDifference": 55.19707107543945,
+  "differenceNote": "Pixel difference does not establish real camera translation or unchanged geometry."
+}

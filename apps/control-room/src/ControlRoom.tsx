@@ -4,28 +4,26 @@ import { copyFor, screenTitle } from './copy';
 import { parseRoute, routeHash, stationLayout, stations } from './navigation';
 import type { Locale, Route } from './navigation';
 import { InterfaceGlyph, HudFrame } from './InterfaceGlyph';
-import { GlassNavigation } from './GlassNavigation';
+import {ContractBackup} from './ContractBackup';
+import {FlightOperations} from './FlightOperations';
+import type {useFlight} from './use-flight';
 import { CargoPanel } from './CargoPanel';
 import './cargo-workspace.css';
-import { MissionConsole, TrialBrief } from './MissionConsole';
-import { useLogReceipts } from './use-log-receipts';
-import { itinerary, readDraft, trialKey } from './mission-trial';
+import { MissionConsole } from './MissionConsole';
 import stamLogo from '../../../assets/stam-logo-transparent.png';
 import roomImage from './assets/control-room-stanton.png';
 import './console-display.css';
 
-export function ControlRoom() {
+export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
   const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
   const heading = useRef<HTMLHeadingElement>(null);
   const lastStation = useRef(route.screen === 'bridge' ? null : route.screen);
   const mounted = useRef(false);
   const copy = copyFor(route.locale);
   const isHome = route.screen === 'bridge';
-  const [draft, setDraft] = useState(readDraft);
-  const receipts = useLogReceipts();
-  useEffect(() => { try { sessionStorage.setItem(trialKey, JSON.stringify(draft)); } catch { /* Tab memory still works. */ } }, [draft]);
-  const prepared = draft.reviewed && draft.jobs.length > 0;
-
+  const {draft,plan} = flight.session;
+  const receipts = flight.receipts;
+  const controlMode = new URLSearchParams(location.hash.split('?')[1]).get('mode') !== 'workspace';
   useEffect(() => {
     const sync = () => setRoute(parseRoute(location.hash));
     window.addEventListener('hashchange', sync);
@@ -34,7 +32,7 @@ export function ControlRoom() {
 
   useEffect(() => {
     document.documentElement.lang = route.locale === 'en' ? 'en' : 'ko';
-    document.title = `STAM · ${screenTitle(route.screen, copy)} · ${copy.preview}`;
+    document.title = `STAM · ${screenTitle(route.screen, copy)}`;
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isHome && !event.defaultPrevented &&
           !(event.target instanceof Element && event.target.closest('input, select, textarea, [contenteditable], dialog'))) {
@@ -63,11 +61,11 @@ export function ControlRoom() {
       <a className="room-brand" href={routeHash({ ...route, screen: 'bridge' })} aria-label={`STAM · ${copy.home}`}>
         <img className="brand-emblem" src={stamLogo} alt="" width="64" height="64" /><span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
       </a>
-      <a className="console-lounge-link" href={`#/lounge?lang=${route.locale}`}>{route.locale === 'en' ? 'STAM Lounge' : 'STAM 라운지'}</a><div className="header-location"><span>COMMAND BRIDGE</span><i aria-hidden="true" /><span className="preview-badge">{copy.preview}</span></div>
+      <a className="console-lounge-link" href={`#/lounge?lang=${route.locale}`}>{route.locale === 'en' ? 'STAM Lounge' : 'STAM 라운지'}</a><div className="header-location"><span>COMMAND BRIDGE</span><i aria-hidden="true" /></div>
       <label className="language-control"><span>{copy.language}</span><select aria-label={copy.language} value={route.locale} onChange={event => {
         // Locale changes do not create a new navigation step or write legacy preferences.
         const next = { ...route, locale: event.target.value as Locale };
-        history.replaceState(null, '', routeHash(next)); setRoute(next);
+        history.replaceState(null, '', routeHash(next)+(route.screen==='operations'&&!controlMode?'&mode=workspace':'')); setRoute(next);
       }}>
         <option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option>
       </select></label>
@@ -90,12 +88,20 @@ export function ControlRoom() {
         <div className="console-heading"><div><p className="eyebrow">STAM / {route.screen.toUpperCase()}</p><h1 id="workspace-title" ref={heading} tabIndex={-1}>{copy[route.screen]}</h1><p>{copy.descriptions[route.screen]}</p></div><a className="return-link" href={routeHash({ ...route, screen: 'bridge' })}>↖ {copy.back}</a></div>
         <div className="console-display-content" tabIndex={0} role="region" aria-label={copy[route.screen]}>
         <div className="workspace-layout" data-screen={route.screen}>
-          {route.screen === 'mission' ? <MissionConsole draft={draft} change={setDraft} locale={route.locale} receipts={receipts}/> : route.screen === 'map' ? <>
-            {prepared && <TrialBrief draft={draft} locale={route.locale}/>}
-            <GlassNavigation locale={route.locale} calls={prepared ? itinerary(draft).map(s=>s.place) : undefined}/>
-          </> : <><CargoPanel draft={draft} locale={route.locale}/>{prepared && <TrialBrief draft={draft} locale={route.locale} operations/>}</>}
+          {route.screen === 'mission' ?
+            <MissionConsole draft={draft} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
+              onReview={()=>flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});})}/> :
+            <>{!controlMode && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
+              <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}
+          {route.screen==='mission' && <ContractBackup flight={flight} locale={route.locale}/>}
+          {route.screen==='mission' && flight.hasSaved && !flight.active && <button type="button" className="return-link" disabled={flight.busy||flight.blocked} onClick={()=>{
+            if(!draft.jobs.length||window.confirm(route.locale==='en'?'Replace this manifest with the saved flight?':'현재 계약 목록을 이전에 저장한 운항으로 바꿀까요?'))flight.calculate(undefined,false,'saved');
+          }}>{route.locale==='en'?'Load previous flight':'이전 운항 불러오기'}</button>}
+          {flight.error && <p role="alert">{flight.error}</p>}
+          {flight.storageError && <p role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
+          {flight.busy && <p role="status">{route.locale==='en'?'Calculating route…':'항로 계산 중…'}</p>}
+          {route.screen==='mission' && plan && <a className="return-link" href={routeHash({...route,screen:'map'})}>{route.locale==='en'?'View flight route':'계산된 항로 보기'} →</a>}
         </div>
-        <p className="preview-notice">{route.locale==='en'?'Route preview · Stops follow contract order.':'항로 미리보기 · 계약 순서대로 방문합니다.'}</p>
         </div>
       </section>}
     </main>

@@ -16,7 +16,10 @@ export function createBloom(renderer,{strength=.95,threshold=1.0,knee=.6,levels=
  const make=(W,H,samples=0)=>new THREE.WebGLRenderTarget(W,H,{type:THREE.HalfFloatType,samples,depthBuffer:samples>0,colorSpace:THREE.NoColorSpace});
  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());if(size.x===w&&size.y===h)return;w=size.x;h=size.y;sceneRT?.dispose();mips.forEach(m=>{m.a.dispose();m.b.dispose();});sceneRT=make(w,h,4);mips=[];let mw=Math.max(1,w>>1),mh=Math.max(1,h>>1);for(let i=0;i<levels;i++){mips.push({a:make(mw,mh),b:make(mw,mh),w:mw,h:mh});mw=Math.max(1,mw>>1);mh=Math.max(1,mh>>1);}}
  function pass(material,target){quad.material=material;renderer.setRenderTarget(target);renderer.render(quadScene,quadCam);}
- return {strength:v=>comp.uniforms.strength.value=v,render(scene,camera){resize();const tm=renderer.toneMapping;renderer.toneMapping=THREE.NoToneMapping;
+ return {dispose(){
+   sceneRT?.dispose();for(const mip of mips){mip.a.dispose();mip.b.dispose();}
+   for(const material of [bright,copy,blur,comp])material.dispose();quad.geometry.dispose();
+  },strength:v=>comp.uniforms.strength.value=v,render(scene,camera){resize();const tm=renderer.toneMapping;renderer.toneMapping=THREE.NoToneMapping;
    renderer.setRenderTarget(sceneRT);renderer.clear();renderer.render(scene,camera);
    const on=comp.uniforms.strength.value>0;if(on){bright.uniforms.t.value=sceneRT.texture;pass(bright,mips[0].a);}
    if(on)for(let i=0;i<mips.length;i++){const m=mips[i];if(i>0){copy.uniforms.t.value=mips[i-1].a.texture;pass(copy,m.a);}blur.uniforms.t.value=m.a.texture;blur.uniforms.dir.value.set(1/m.w,0);pass(blur,m.b);blur.uniforms.t.value=m.b.texture;blur.uniforms.dir.value.set(0,1/m.h);pass(blur,m.a);}

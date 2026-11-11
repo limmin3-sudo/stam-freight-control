@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="520" viewBox="0 0 760 520" fill="none"><style>.rim{stroke:#a8f4ff;stroke-width:2}.outer{stroke:#66d9ed;stroke-width:3}.inner{stroke:#7ce3ee;opacity:.55}.sheen{stroke:#dcfcff;opacity:.35;stroke-width:4}.gold{stroke:#ffd58a;stroke-width:3}.hot{stroke:#c8fbff;stroke-width:3}</style>
+ <path class="rim outer" d="M27 7H730L753 31V482L729 510H24L7 491V29Z"/>
+ <path class="rim inner" d="M33 17H723L742 37V477L723 499H30L18 484V35Z"/>
+ <path class="rim sheen" d="M12 59V30L29 12H195M750 104V482L727 506H597"/>
+ <path class="rim inner" d="M3 47V489L23 515H178M40 2H733L759 30V136"/>
+ <path class="gold" d="M690 19h34M21 463l11 12m-7-25 12 13M734 479l-13 14"/>
+ <path class="hot" d="M8 91V48l22-23M65 510h37M753 420v40"/>
+</svg>

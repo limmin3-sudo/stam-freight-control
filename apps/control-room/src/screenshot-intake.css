@@ -1,0 +1,29 @@
+.shot-intake { margin-block: 16px; }
+.shot-intake input[hidden] { display: none; }
+.shot-upload { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:14px; border:1px dashed #628392; }
+.shot-upload span, .shot-intake > p { color:#c0d3dc; font-size:.85rem; }
+dialog.shot-review { margin:auto; box-sizing:border-box; width:min(1280px,96vw); max-width:96vw; max-height:92dvh; overflow:auto; padding:clamp(12px,2vw,24px); background:#10232e; color:#e5f4f8; border:1px solid #698995; }
+.shot-review::backdrop { background:#020a12c9; }
+.shot-review header,.shot-list,.shot-original figcaption,.shot-actions { display:flex; align-items:center; gap:8px; }
+.shot-review header h2 { margin:0 auto 0 0; font-size:clamp(1rem,2vw,1.4rem); }
+.shot-list { flex-wrap:wrap; margin-block:16px; }
+.shot-list button { max-width:100%; overflow-wrap:anywhere; }
+.shot-list button[aria-pressed=true] { border-color:#e4ba7c; color:#ffe1a9; }
+.shot-columns { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:start; gap:16px; }
+.shot-original { position:sticky; top:0; min-width:0; margin:0; background:#07121b; border:1px solid #426574; }
+.shot-original figcaption { padding:8px 12px; justify-content:space-between; overflow-wrap:anywhere; }
+.shot-image { max-height:65dvh; overflow:auto; }
+.shot-image img { display:block; width:100%; height:auto; }
+.shot-image[data-zoom=true] img { width:auto; max-width:none; }
+.shot-details { min-width:0; }
+.shot-review .manifest-editor { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.shot-review :is(input,button) { max-width:100%; }
+.shot-review .shot-actions { flex-wrap:wrap; }
+.shot-transcript { margin-block:12px; }
+.shot-transcript pre { max-height:15em; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:760px){
+ .shot-columns { grid-template-columns:minmax(0,1fr); }
+ .shot-original { position:static; }
+ .shot-image { max-height:32dvh; }
+ .shot-review .manifest-editor { grid-template-columns:minmax(0,1fr); }
+}

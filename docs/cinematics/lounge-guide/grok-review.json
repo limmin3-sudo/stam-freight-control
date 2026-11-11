@@ -1,0 +1,17 @@
+{
+  "dateKst": "2026-11-11",
+  "url": "https://grok.com/imagine/post/dd7338ad-b302-4ae8-8b97-b74b79df4196",
+  "providerSelectedByUser": "Grok Imagine",
+  "durationObservedSeconds": 6.041667,
+  "dimensionsObserved": [1280, 720],
+  "fpsVerified": false,
+  "review": {
+    "direction": "Matches the intended guide-led approach more closely than the earlier background-only test.",
+    "observed": ["Covered right arm gestures toward welcome desk near 2.3 seconds", "Guide turns toward the desk", "Close conversational endpoint with right palm on counter near 5.4-6 seconds"],
+    "remainingIssues": ["Guide face, tied hair and uniform badge/details vary from reference", "Receptionist appearance and desk details change", "Unchanged 3D room layout has not been verified"],
+    "finalApproval": false
+  },
+  "referenceFrame": "grok-review-frame.png",
+  "handoffFiles": ["lounge-guide-first-frame.png", "grok-lounge-guide-prompt.txt"],
+  "localVideoGeneration": "No further local video jobs; existing test interruption requested but not confirmed because local API times out."
+}
