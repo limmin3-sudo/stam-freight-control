@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {planetMaterial} from './hologram-materials.mjs';
+import {planetMaterial,bodyLook,routeRibbon} from './hologram-materials.mjs';
 
 // These shaders belong to the shared room/map renderer. No post-process bloom.
 const noise=`
@@ -11,7 +11,7 @@ void main(){vUv=uv;vP=position;vN=normalize(mat3(modelMatrix)*normal);vW=(modelM
 
 export function surfaceMaterial(texture:THREE.Texture,name:string){
  const regions:Record<string,number[]>={Hurston:[0,.5],Crusader:[.5,.5],ArcCorp:[0,0],microTech:[.5,0]};
- const atmos:Record<string,string>={Hurston:'#c9a16d',Crusader:'#bfa6dc',ArcCorp:'#91c7e1',microTech:'#8bd6ff'};
+ const atmos:Record<string,string>={Hurston:'#c9a16d',Crusader:'#f0c9b0',ArcCorp:'#c79b7c',microTech:'#bfe7ff'};
  return new THREE.ShaderMaterial({uniforms:{uMap:{value:texture},uOffset:{value:new THREE.Vector2(regions[name]![0],regions[name]![1])},uAtmo:{value:new THREE.Color(atmos[name])},uCity:{value:name==='ArcCorp'?1:0},uOcean:{value:name==='microTech'?1:0},uGas:{value:name==='Crusader'?1:0}},vertexShader:sphereVertex,
  fragmentShader:`uniform sampler2D uMap;uniform vec2 uOffset;uniform vec3 uAtmo;uniform float uCity,uOcean,uGas;varying vec2 vUv;varying vec3 vN,vW,vP;${noise}
  void main(){
@@ -26,7 +26,7 @@ export function surfaceMaterial(texture:THREE.Texture,name:string){
   color+=vec3(.62,.80,.94)*spec*.45;
   float city=max(0.,albedo.r-albedo.b)*smoothstep(.17,.44,albedo.r);
   color+=vec3(1.,.61,.24)*city*2.4*uCity*(1.-day);
-  color+=uAtmo*rim*(.18+day*.65);
+  color+=uAtmo*rim*(.08+day*.22);
   gl_FragColor=vec4(color,1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -50,4 +50,33 @@ export function navigationPlanetMaterial(name:string,type:string){
  const material=planetMaterial(name,type);
  material.fragmentShader=material.fragmentShader.replace('gl_FragColor=vec4(lit+emis,1.);','lit+=col*(.30+.12*pow(max(dot(N,V),0.),.8));gl_FragColor=vec4(lit+emis,1.);');
  return material;
+}
+
+// Separate optical layers keep source artwork untouched. Width is measured in pixels.
+export function orbitFilament(points:THREE.Vector3[],width:number,opacity:number,color:string,masks:THREE.Vector3[],dpr:number){
+ const line=routeRibbon(points,{width,color,flow:0});
+ const material=line.material as THREE.ShaderMaterial;
+ material.uniforms.uAlpha!.value=opacity;
+ material.uniforms.uBodyMasks={value:masks};material.uniforms.uDpr={value:dpr};
+ material.fragmentShader=`uniform vec3 uColor;uniform float uAlpha,uDpr;uniform vec3 uBodyMasks[8];varying float vAcross;
+ void main(){for(int i=0;i<8;i++){if(distance(gl_FragCoord.xy/uDpr,uBodyMasks[i].xy)<uBodyMasks[i].z)discard;}
+ float glow=exp(-vAcross*vAcross*5.)*(1.-smoothstep(.75,1.,abs(vAcross)));
+ gl_FragColor=vec4(uColor,glow*uAlpha);
+ #include <tonemapping_fragment>
+ #include <colorspace_fragment>
+ }`;
+ return line;
+}
+
+export function planetLimbColor(name:string,type:string){
+ const natural:Record<string,string>={Hurston:'#c9a16d',Crusader:'#f0c9b0',ArcCorp:'#c79b7c',microTech:'#bfe7ff'};
+ return natural[name]||bodyLook(name,type).atmo||'#b4bdc1';
+}
+
+export function stellarRadiance(radius:number){
+ const material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  uniforms:{uSize:{value:radius*3.5}},
+  vertexShader:`uniform float uSize;varying vec2 vUv;void main(){vUv=uv;vec4 c=modelViewMatrix*vec4(0.,0.,0.,1.);c.xy+=position.xy*uSize;gl_Position=projectionMatrix*c;}`,
+  fragmentShader:`varying vec2 vUv;void main(){float d=length(vUv-.5);float ring=exp(-pow((d-.28)/.065,2.));float haze=exp(-d*d*18.);float alpha=(ring*.12+haze*.035)*(1.-smoothstep(.40,.5,d));gl_FragColor=vec4(1.,.49,.12,alpha);}`});
+ return new THREE.Mesh(new THREE.PlaneGeometry(1,1),material);
 }

@@ -4,11 +4,12 @@ import nebulaUrl from './assets/stanton-nebula.png';
 import atlasUrl from './assets/stanton-surface-atlas.png';
 import solarUrl from './assets/stellar-plasma.png';
 import stationUrl from './assets/station-hologram.png';
+import projectionUrl from './assets/table-projection-optical.png';
 import {bodyLook,cloudMaterial,atmosphereMaterial,routeRibbon} from './hologram-materials.mjs';
 import {displayRoute} from './hologram-route';
-import {surfaceMaterial,celestialBackdrop,navigationPlanetMaterial} from './hologram-visuals';
+import {surfaceMaterial,celestialBackdrop,navigationPlanetMaterial,orbitFilament,planetLimbColor,stellarRadiance} from './hologram-visuals';
 import {tableProjection} from './hologram-projection';
-import {hologramFrame,hologramDisplay,type HologramPoint} from './hologram-layout';
+import {hologramFrame,hologramDisplay,stationNames,type HologramPoint} from './hologram-layout';
 import {systemPoints,systemThemes,displayPositions,displayRadius,isBody,markerKind,type SystemId} from './hologram-catalogue';
 
 type Options={expanded:boolean;motion:boolean;selected:string;example:boolean;system:SystemId;orbits:boolean};
@@ -18,7 +19,7 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
  const canvas=renderer.domElement;canvas.dataset.hologram='stanton';canvas.setAttribute('aria-hidden','true');host.prepend(canvas);
  const scene=new THREE.Scene(),world=new THREE.Group(),camera=new THREE.OrthographicCamera(-6,6,3,-3,.01,100);scene.add(world);
- camera.position.set(...hologramFrame.tilt);camera.lookAt(0,0,0);
+ camera.position.set(...hologramFrame.roomTilt);camera.lookAt(0,0,0);
  const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.enablePan=false;controls.minZoom=.7;controls.maxZoom=9;controls.minPolarAngle=.12;controls.maxPolarAngle=Math.PI*.49;controls.enabled=false;
  const geometry=new THREE.SphereGeometry(1,144,96),textures:THREE.Texture[]=[];
  let state:Options={expanded:false,motion:true,selected:'',example:false,system:'stanton',orbits:true};
@@ -30,7 +31,7 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
  const load=(url:string)=>{const t=new THREE.TextureLoader().load(url,()=>{dirty=true;});t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textures.push(t);return t;};
  const atlas=load(atlasUrl),solar=load(solarUrl),stationTexture=load(stationUrl);
  const backdrop=celestialBackdrop(load(nebulaUrl));backdrop.renderOrder=-100;backdrop.frustumCulled=false;backdrop.visible=false;scene.add(backdrop);
- const beam=tableProjection();beam.renderOrder=-90;beam.frustumCulled=false;scene.add(beam);
+ const beam=tableProjection(load(projectionUrl));beam.material.uniforms.uBodyMasks={value:masks};beam.material.uniforms.uDpr={value:renderer.getPixelRatio()};beam.renderOrder=-90;beam.frustumCulled=false;scene.add(beam);
  function disposeWorld(){const geos=new Set<THREE.BufferGeometry>(),mats=new Set<THREE.Material>();world.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.Line){if(o.geometry!==geometry)geos.add(o.geometry);(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>mats.add(m));}else if(o instanceof THREE.Sprite)mats.add(o.material);});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());world.clear();}
  function sphere(radius:number,pos:THREE.Vector3,material:THREE.Material){const mesh=new THREE.Mesh(geometry,material);mesh.scale.setScalar(radius);mesh.position.copy(pos);world.add(mesh);if(material instanceof THREE.ShaderMaterial)materials.push(material);return mesh;}
  function build(system:SystemId){
@@ -46,14 +47,14 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
    if(isStar){
     // A reference-derived stellar VFX sprite at the canonical 3D location. The
     // sphere supplies the pick volume; detailed plasma is view-facing, not a simulated surface.
-    const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:solar,transparent:true,depthWrite:false,toneMapped:false,color:system==='pyro'?'#ffd6a7':'#ffffff'}));sprite.position.copy(position);sprite.scale.setScalar(r*2.56);world.add(sprite);continue;
+    const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:solar,transparent:true,depthWrite:false,toneMapped:false,color:system==='pyro'?'#ffd6a7':'#ffffff'}));sprite.position.copy(position);sprite.scale.setScalar(r*2.56);world.add(sprite);const radiance=stellarRadiance(r);radiance.position.copy(position);world.add(radiance);continue;
    }
-   const look=bodyLook(p.name,p.type);if(look.clouds)sphere(r*1.009,position,cloudMaterial(p.name,look.clouds*.55));if(look.atmo)sphere(r*1.025,position,atmosphereMaterial(look.atmo,(look.atmoStrength??1)*.7));
-   if(points.some(q=>q.id===p.parentId&&q.type==='Star')){const radius=Math.hypot(position.x,position.z);const path=Array.from({length:257},(_,i)=>new THREE.Vector3(Math.cos(i/256*Math.PI*2)*radius,0,Math.sin(i/256*Math.PI*2)*radius));guides.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(path),new THREE.LineBasicMaterial({color:systemThemes[system].color,opacity:.36,transparent:true,depthWrite:false})));}
+   const look=bodyLook(p.name,p.type);if(look.clouds)sphere(r*1.009,position,cloudMaterial(p.name,look.clouds*.55));sphere(r*1.045,position,atmosphereMaterial(planetLimbColor(p.name,p.type),.6));
+   if(points.some(q=>q.id===p.parentId&&q.type==='Star')){const radius=Math.hypot(position.x,position.z);const path=Array.from({length:257},(_,i)=>new THREE.Vector3(Math.cos(i/256*Math.PI*2)*radius,0,Math.sin(i/256*Math.PI*2)*radius));for(const [width,alpha,color] of [[8,.25,'#2bcde9'],[3,.45,'#68e8ff'],[1.2,.97,'#d4fbff']] as const){const ring=orbitFilament(path,width,alpha,color,masks,renderer.getPixelRatio());guides.add(ring);ribbons.push(ring);}}
   }
   for(const p of points.filter(p=>!isBody(p))){
    const glyph=new THREE.Sprite(new THREE.SpriteMaterial({map:stationTexture,transparent:true,depthWrite:false,depthTest:false,toneMapped:false,color:'#d3f4ff',blending:THREE.AdditiveBlending}));
-   glyph.position.copy(positions.get(p.id)!);glyph.userData={id:p.id,kind:markerKind(p)};glyph.renderOrder=5;world.add(glyph);hitTargets.push(glyph);markers.push(glyph);
+   glyph.position.copy(positions.get(p.id)!);glyph.userData={id:p.id,kind:markerKind(p),overview:stationNames.includes(p.name)||p.name==='Grim HEX'||markerKind(p)==='lagrange'};glyph.renderOrder=5;world.add(glyph);hitTargets.push(glyph);markers.push(glyph);
   }
   if(system==='stanton'){
    const a=positions.get(points.find(p=>p.name==='Port Tressler')!.id)!,b=positions.get(points.find(p=>p.name==='Baijini Point')!.id)!;
@@ -73,8 +74,8 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
  const onMove=(e:PointerEvent)=>{if(!state.expanded)return;const r=canvas.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mouse,camera);hovered=ray.intersectObjects(hitTargets.filter(o=>o.visible))[0]?.object.userData.id||'';canvas.style.cursor=hovered?'pointer':'grab';dirty=true;};
  canvas.addEventListener('pointermove',onMove);
  canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointerup',onUp);controls.addEventListener('change',()=>{dirty=true;});controls.addEventListener('start',()=>{flight=null;});
- function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);const aspect=w/h,height=state.expanded?Math.max(hologramFrame.minimumHeight,extent*1.4,Math.max(hologramFrame.width,extent*2.1)/aspect):Math.max(hologramFrame.minimumHeight,hologramFrame.width/aspect);camera.left=-height*aspect/2;camera.right=height*aspect/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();backdrop.material.uniforms.uRes!.value.set(w,h);ribbons.forEach(l=>(l.material as THREE.ShaderMaterial).uniforms.uRes!.value.set(w,h));dirty=true;}
- function home(){flight=null;controls.enableDamping=false;controls.update();controls.target.set(0,0,0);camera.position.set(...hologramFrame.tilt);camera.zoom=state.expanded?hologramDisplay.mapZoom:1;camera.updateProjectionMatrix();controls.update();controls.enableDamping=true;dirty=true;}
+ function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);const aspect=w/h,height=state.expanded?Math.max(hologramFrame.minimumHeight,extent*1.4,Math.max(hologramFrame.width,extent*2.1)/aspect):Math.max(3.6,hologramFrame.width/aspect);camera.left=-height*aspect/2;camera.right=height*aspect/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix();backdrop.material.uniforms.uRes!.value.set(w,h);ribbons.forEach(l=>(l.material as THREE.ShaderMaterial).uniforms.uRes!.value.set(w,h));dirty=true;}
+ function home(){flight=null;controls.enableDamping=false;controls.update();controls.target.set(0,0,0);camera.position.fromArray(state.expanded?hologramFrame.tilt:hologramFrame.roomTilt);camera.zoom=state.expanded?hologramDisplay.mapZoom:1;camera.updateProjectionMatrix();controls.update();controls.enableDamping=true;dirty=true;}
  function zoomBy(factor:number){flight=null;camera.zoom=THREE.MathUtils.clamp(camera.zoom*factor,controls.minZoom,controls.maxZoom);camera.updateProjectionMatrix();controls.update();dirty=true;}
  function focus(id=state.selected){const to=positions.get(id)?.clone();if(!to)return;const body=points.find(p=>p.id===id&&p.type==='Planet');const neighbor=body&&points.find(p=>p.parentId===id&&!isBody(p));if(neighbor)to.lerp(positions.get(neighbor.id)!, .15);flight={from:controls.target.clone(),to,eye:camera.position.clone(),toEye:camera.position.clone().add(to.clone().sub(controls.target)),zoom:camera.zoom,targetZoom:host.clientWidth<600?6:4.5,started:performance.now()};dirty=true;}
  build('stanton');const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);resize();
@@ -83,10 +84,15 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
   if(flight){const f=flight,k=state.motion?Math.min(1,(stamp-f.started)/750):1,e=k*k*(3-2*k);controls.target.lerpVectors(f.from,f.to,e);camera.position.lerpVectors(f.eye,f.toEye,e);camera.zoom=f.zoom+(f.targetZoom-f.zoom)*e;camera.updateProjectionMatrix();dirty=true;if(k===1)flight=null;}
   const changed=controls.update(dt);if(!dirty&&!changed&&!state.motion)return;const time=state.motion?stamp/1000:0;
   for(const m of materials)if(m.uniforms.uTime)m.uniforms.uTime.value=time;beam.material.uniforms.uTime!.value=time;
+  if(!state.expanded){
+   const outerRadius=Math.max(...points.filter(p=>p.type==='Planet'&&points.some(q=>q.id===p.parentId&&q.type==='Star')).map(p=>{const v=positions.get(p.id)!;return Math.hypot(v.x,v.z);}));
+   const c=new THREE.Vector3().project(camera),x=new THREE.Vector3(outerRadius,0,0).project(camera),z=new THREE.Vector3(0,0,outerRadius).project(camera);
+   beam.material.uniforms.uOrbit!.value.set((c.x+1)/2,(c.y+1)/2,Math.abs(x.x-c.x)/2,Math.abs(z.y-c.y)/2);
+  }
   masks.forEach(m=>m.set(-10000,-10000,0));points.filter(isBody).slice(0,8).forEach((p,i)=>{const q=positions.get(p.id)!.clone().project(camera);masks[i]!.set((q.x+1)*host.clientWidth/2,(q.y+1)*host.clientHeight/2,displayRadius(p)*host.clientHeight/(camera.top-camera.bottom)*camera.zoom+2);});
   const pixelWorld=(camera.top-camera.bottom)/camera.zoom/host.clientHeight;
-  for(const marker of markers){const active=marker.userData.id===state.selected||marker.userData.id===hovered;marker.visible=state.expanded&&(marker.userData.kind!=='relay'||camera.zoom>=2||active);marker.scale.setScalar(pixelWorld*(marker.userData.kind==='relay'?hologramDisplay.relayPixels:hologramDisplay.stationPixels)*(active?1.3:1));}
-  canvas.dataset.orbits=String(guides.visible);canvas.dataset.stationCount=String(markers.length);
+  for(const marker of markers){const active=marker.userData.id===state.selected||marker.userData.id===hovered;marker.visible=state.expanded?(marker.userData.kind!=='relay'||camera.zoom>=2||active):marker.userData.overview;marker.scale.setScalar(pixelWorld*(state.expanded?(marker.userData.kind==='relay'?hologramDisplay.relayPixels:hologramDisplay.stationPixels):16)*(state.expanded&&active?1.3:1));}
+  canvas.dataset.orbits=String(guides.visible);canvas.dataset.orbitStyle='luminous-filaments';canvas.dataset.stationCount=String(markers.length);canvas.dataset.visibleStations=String(markers.filter(m=>m.visible).length);canvas.dataset.projection=beam.visible?'orbit-linked':'off';canvas.dataset.visibleLagrange=String(markers.filter(m=>m.visible&&m.userData.kind==='lagrange').length);
   canvas.dataset.focus=state.selected;canvas.dataset.zoom=camera.zoom.toFixed(4);canvas.dataset.view=JSON.stringify([...camera.position.toArray(),...controls.target.toArray()].map(n=>+n.toFixed(4)));
   renderer.render(scene,camera);const occupied:{x:number;y:number;w:number;h:number}[]=[];
   // Labels may not cover a planet or the star, even when a nearby station's
@@ -107,7 +113,7 @@ export function createHologram(host:HTMLElement,labels:Map<string,HTMLElement>,s
  }
  frame=requestAnimationFrame(animate);
  return {focus,home,zoomBy,
-  setState(next:Options){const systemChange=state.system!==next.system,collapse=state.expanded&&!next.expanded,expansionChange=state.expanded!==next.expanded;state=next;if(expansionChange)resize();if(systemChange){build(next.system);home();}else if(collapse){flight={from:controls.target.clone(),to:new THREE.Vector3(),eye:camera.position.clone(),toEye:new THREE.Vector3(...hologramFrame.tilt),zoom:camera.zoom,targetZoom:1,started:performance.now()};}else if(expansionChange){home();}controls.enabled=next.expanded;backdrop.visible=next.expanded;beam.visible=!next.expanded;route.visible=next.example&&next.system==='stanton';guides.visible=next.orbits;dirty=true;},
+  setState(next:Options){const systemChange=state.system!==next.system,collapse=state.expanded&&!next.expanded,expansionChange=state.expanded!==next.expanded;state=next;if(expansionChange)resize();if(systemChange){build(next.system);home();}else if(collapse){flight={from:controls.target.clone(),to:new THREE.Vector3(),eye:camera.position.clone(),toEye:new THREE.Vector3(...hologramFrame.roomTilt),zoom:camera.zoom,targetZoom:1,started:performance.now()};}else if(expansionChange){home();}controls.enabled=next.expanded;backdrop.visible=next.expanded;beam.visible=!next.expanded;route.visible=next.example&&next.system==='stanton';guides.visible=next.orbits;dirty=true;},
   dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(frame);resizeObserver.disconnect();intersection.disconnect();controls.dispose();canvas.removeEventListener('pointerdown',onDown);canvas.removeEventListener('pointerup',onUp);canvas.removeEventListener('pointermove',onMove);disposeWorld();geometry.dispose();backdrop.geometry.dispose();backdrop.material.dispose();beam.geometry.dispose();beam.material.dispose();textures.forEach(t=>t.dispose());renderer.dispose();renderer.forceContextLoss();canvas.remove();}
  };
 }

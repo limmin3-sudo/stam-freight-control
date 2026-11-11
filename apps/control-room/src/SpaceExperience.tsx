@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
+import {PartnerConversation} from './PartnerConversation';
+import {partnerDialogue} from './partner-dialogue';
+import type {PartnerId} from './partner-dialogue';
 import { StantonHologram } from './StantonHologram';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
@@ -18,6 +21,7 @@ import intro from '../../../assets/intro/intro.mp4';
 import poster from '../../../assets/intro/poster.jpg';
 import './space-experience.css';
 import './left-space-navigation.css';
+import './lounge-labels.css';
 
 const names: Record<SpaceScreen, readonly [string, string]> = {
   lounge: ['STAM 라운지', 'STAM Lounge'], bridge: ['STAM 관제센터', 'STAM Control Centre'],
@@ -35,6 +39,8 @@ const appDownload = 'https://github.com/limmin3-sudo/stam-freight-control/releas
 const directorContour = 'M541 400 Q576 393 586 433 L581 473 L602 493 L615 569 L606 642 L596 709 L586 784 L581 847 L544 850 L531 822 L525 745 L516 682 L509 616 L502 549 L512 493 L538 474 L527 441 Z';
 
 export function SpaceExperience() {
+  const [conversation,setConversation]=useState<{partner:PartnerId;variant:number}|null>(null);
+  const greetingVisits=useRef<Record<PartnerId,number>>({director:0,operator:0,navigator:0});
   const [mapDock,setMapDock]=useState<HTMLDivElement|null>(null);
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const [active, setActive] = useState<string | null>(null);
@@ -72,7 +78,7 @@ export function SpaceExperience() {
     const sync = () => {
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
       hoverTimer.current = null; hoveredTarget.current = null;
-      cancel(); setActive(null); setPlaying(false); setMediaError(false);
+      cancel(); setConversation(null); setActive(null); setPlaying(false); setMediaError(false);
       setRoute(parseSpaceRoute(location.hash));
     };
     window.addEventListener('hashchange', sync);
@@ -109,7 +115,7 @@ export function SpaceExperience() {
     if (isOverview && returnTarget.current && configuration.targets.some(target => target.id === returnTarget.current)) {
       document.getElementById(`space-marker-${returnTarget.current}`)?.focus({ preventScroll: true });
     } else heading.current?.focus({ preventScroll: true });
-  }, [route.screen, isOverview, configuration]);
+  }, [route.screen, isOverview, configuration, scene]);
 
   const tone = (confirmed = false) => {
     const ctx = audio.current;
@@ -137,6 +143,11 @@ export function SpaceExperience() {
     returnTarget.current = target.id;
     tone(true);
     if (target.to === 'map' && scene === 'bridge') { location.hash = spaceHash({...route,screen:'map'}); return; }
+    // Console travel will use actual footage. Until that footage is approved,
+    // open the working display directly rather than simulating travel by zooming a still.
+    if (target.to === 'mission' || target.to === 'operations') {
+      location.hash = spaceHash({...route,screen:target.to}); return;
+    }
     if (!motion || !imageReady || imageError) {
       location.hash = spaceHash({ ...route, screen: target.to }); return;
     }
@@ -221,16 +232,25 @@ export function SpaceExperience() {
               {configuration.targets.map(target => <a key={target.id} href={href(target.to)} tabIndex={-1} onClick={event => enter(event, target)} onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget}>
                 <path d={target.contour} fillRule="evenodd" />
               </a>)}
-              {scene === 'lounge' && configuration.targets.filter(target => target.id === 'desk').map(target => <a key="standing-director" href={href('guide')} tabIndex={-1} onClick={event => enter(event, target)} onMouseEnter={() => highlight('desk')} onMouseLeave={leaveTarget}>
-                <path data-person-target="director" d={directorContour} />
-              </a>)}
+
             </svg>
           </div>
           {scene === 'bridge' && <StantonHologram expanded={route.screen === 'map'} motion={motion} locale={route.locale} dockTarget={mapDock}/> }
           {scene === 'bridge' && <div className="bridge-partners">
               <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
               <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>
+              <span className="bridge-partner-name operator-name">{en ? 'Bridge operator' : '브리지 오퍼레이터'}</span>
+              <span className="bridge-partner-name navigator-name">{en ? 'Senior navigator' : '수석 항해사'}</span>
           </div>}
+          {scene === 'lounge' && <span className="director-partner-name">{word(partnerDialogue.director.name)}</span>}
+          {(scene==='lounge'?['director'] as const:['operator','navigator'] as const).map(id=>{
+            const at=id==='director'?{x:32.9,y:42.5,height:47.7}:bridgePartners[id];
+            return <button key={id} type="button" className="partner-hit" data-partner={id}
+              style={{left:`${at.x}%`,top:`${at.y}%`,height:`${at.height}%`}}
+              aria-label={en?`Talk to ${partnerDialogue[id].name[1]}`:`${partnerDialogue[id].name[0]}와 대화`}
+              aria-haspopup="dialog" disabled={!!pending||route.screen==='map'}
+              onClick={event=>{event.currentTarget.focus();cancel();setActive(null);tone(true);setConversation({partner:id,variant:greetingVisits.current[id]++});}}/>;
+          })}
           <div className="space-markers" inert={!!pending}>
             {configuration.targets.map(target => <a key={target.id} id={`space-marker-${target.id}`} className={`space-marker ${active === target.id ? 'is-lit' : ''}`} data-marker={target.id}
               aria-label={`${word(target.label)} · ${word(target.detail)}`} href={href(target.to)} style={{ left: `${target.marker[0]}%`, top: `${target.marker[1]}%` }}
@@ -246,8 +266,8 @@ export function SpaceExperience() {
           <div className="space-vignette" />
           <svg className="space-leaders" viewBox="0 0 1672 941" aria-hidden="true">
             <defs><marker id="space-direction" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M 1 1 L 7 4 L 1 7" /></marker></defs>
-            {configuration.targets.map(target => <line key={target.id} className={active === target.id ? 'is-lit' : ''}
-              x1={target.x * 16.72} y1={target.y * 9.41} x2={target.anchor[0] * 16.72} y2={target.anchor[1] * 9.41} markerEnd="url(#space-direction)" />)}
+            {configuration.targets.map(target => <polyline key={target.id}
+              points={`${target.marker[0]*16.72},${target.marker[1]*9.41} ${target.x*16.72},${(target.marker[1]+4)*9.41} ${target.x*16.72},${(target.y-2)*9.41}`}/>)}
           </svg>
           <div className="space-intro">
             <p>{scene === 'lounge' ? 'PLANETSIDE / ARRIVALS' : 'ORBITAL / COMMAND'}</p>
@@ -255,11 +275,10 @@ export function SpaceExperience() {
             <span>{en ? (scene === 'lounge' ? 'Every journey begins here.' : 'Your next route starts here.') : (scene === 'lounge' ? '다음 항해가 시작되는 곳.' : '항로를 펼치고, 다음 운송을 준비하세요.')}</span>
           </div>
           <div className="space-labels" inert={!!pending}>
-            {configuration.targets.map(target => <a key={target.id} id={`space-link-${target.id}`} className={`space-target ${active === target.id ? 'is-lit' : ''}`} data-target={target.id} tabIndex={-1}
-              aria-label={`${word(target.label)} · ${word(target.detail)}`} href={href(target.to)} style={{ left: `${target.x}%`, top: `${target.y}%` }} onClick={event => enter(event, target)}
-              onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget} onFocus={() => focusTarget(target.id)} onBlur={releaseHighlight}>
+            {configuration.targets.map(target => <div key={target.id} className="space-target" data-target={target.id}
+              style={{ left: `${target.x}%`, top: `${target.y}%` }}>
               <span className="space-target-text"><strong>{word(target.label)}</strong><span>{word(target.detail)}</span></span>
-            </a>)}
+            </div>)}
           </div>
           {imageError && <p className="space-image-error" role="alert">{en ? 'The scene could not load. Use the navigation on the left.' : '전경을 불러오지 못했습니다. 왼쪽 바로가기를 이용해주세요.'}</p>}
         </div>
@@ -310,6 +329,7 @@ export function SpaceExperience() {
       {pending && <div className="space-transition" role="status"><span>{word(pending.label)} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
     </main>
 
+    {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} en={en} onClose={()=>setConversation(null)}/>}
     <footer className="space-footer" aria-hidden="true" />
   </div>;
 }

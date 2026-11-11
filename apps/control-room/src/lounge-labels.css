@@ -1,0 +1,26 @@
+/* Permanent, non-interactive wayfinding; scene-specific sector colours. */
+.space-lounge{--wayfinding-title:#8babc3;--wayfinding-detail:#c3e6f0;--wayfinding-hover:#8babc3;--wayfinding-line:#8babc3;--wayfinding-shadow:0 1px 2px #020b12,0 2px 6px #020b12,0 0 12px #071522,0 0 14px #7abfff42;--wayfinding-detail-shadow:0 1px 2px #020b12,0 2px 5px #020b12,0 0 8px #071522}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-artwork{container-type:inline-size}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-leaders{color:var(--wayfinding-line,#dfbd78);opacity:.75}
+.space-leaders polyline{fill:none;stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target{opacity:1;pointer-events:auto;cursor:default;min-height:48px;width:max-content;max-width:23%;text-decoration:none;color:var(--wayfinding-title,#f2d294);transition:color .16s,text-shadow .16s}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text,:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target.is-lit .space-target-text{display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 2px;background:none;border:0;border-radius:0;box-shadow:none;color:inherit}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text strong{display:block;font-family:Oxanium,SUIT,sans-serif;font-size:clamp(15px,2cqw,26px);font-weight:450;line-height:1.4;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-shadow:var(--wayfinding-shadow,0 1px 1px #503b1c,0 2px 6px #08131ae0,0 0 16px #e8b75a66)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text>span{display:block;position:static;transform:none;opacity:1;padding:0;max-width:210px;white-space:normal;word-break:keep-all;font:450 clamp(10px,1.05cqw,13px)/1.6 SUIT,sans-serif;letter-spacing:.05em;color:var(--wayfinding-detail,#f5e3be);background:none;border:0;border-radius:0;box-shadow:none;text-shadow:var(--wayfinding-detail-shadow,0 1px 4px #07131af2,0 0 10px #211a0dcc);pointer-events:none}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:hover,:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target.is-lit{color:var(--wayfinding-hover,#ffe7b4)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:focus-visible{outline:1px solid #f6d38a;outline-offset:7px;border-radius:0}
+@media(max-width:760px){
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-overview{overflow:auto;justify-content:flex-start}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-artwork{overflow:visible;margin-bottom:285px;flex-shrink:0}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-labels{position:absolute;top:calc(100% + 22px);left:0;right:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 10px;padding:0 14px}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target{position:static;transform:none;max-width:none;width:auto;min-height:52px;justify-content:flex-start;text-align:left}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text{align-items:flex-start;gap:5px}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text strong{font-size:14px;letter-spacing:.09em;white-space:normal;word-break:keep-all}
+ :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text>span{font-size:10px;letter-spacing:.02em}
+ :is(.space-lounge,.space-bridge[data-screen=bridge])[data-moving=true] .space-artwork{overflow:hidden}
+}
+@media(prefers-reduced-motion:reduce){:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target{transition:none}}
+
+.bridge-partner-name{position:absolute;top:87%;transform:translateX(-50%);color:#f2d294;font:450 clamp(12px,1.7cqw,23px)/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.12em;white-space:nowrap;text-shadow:0 2px 6px #06131c,0 0 16px #e8b75a66}
+.operator-name{left:31.5%}.navigator-name{left:68.5%}
+@media(max-width:760px){.space-leaders{display:none}.bridge-partner-name{font-size:9px;letter-spacing:0;top:89%}}

@@ -1,0 +1,14 @@
+.partner-hit{position:absolute;transform:translateX(-50%);aspect-ratio:1/2;padding:0;border:0;background:transparent;z-index:5;cursor:pointer;clip-path:polygon(37% 0,65% 0,70% 15%,85% 32%,80% 63%,70% 100%,28% 100%,22% 64%,14% 31%,32% 14%);pointer-events:auto}
+.partner-hit:hover{background:linear-gradient(90deg,transparent,#bdeaff0b,transparent)}
+.partner-hit:focus-visible{background:#bdeaff22;outline:2px solid #c3e6f0;outline-offset:-3px}
+.director-partner-name{position:absolute;left:32.9%;top:91.2%;transform:translateX(-50%);color:#8babc3;font:450 clamp(12px,1.7cqw,23px)/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.12em;white-space:nowrap;text-shadow:var(--wayfinding-shadow);pointer-events:none;z-index:4}
+[data-screen=map] .partner-hit,[data-moving=true] .partner-hit,[data-moving=true] .director-partner-name{visibility:hidden;pointer-events:none}
+.partner-conversation{width:min(520px,calc(100vw - 36px));box-sizing:border-box;padding:30px;background:linear-gradient(125deg,#102b38f5,#07131cfb);color:#e0eef4;border:1px solid #9ac8d366;box-shadow:0 20px 80px #0008,inset 0 1px #d0f3ff33;font-family:SUIT,sans-serif}
+.partner-conversation::backdrop{background:#02081080;backdrop-filter:blur(3px)}
+.partner-conversation-channel{font:500 10px Oxanium,sans-serif;letter-spacing:.22em;color:#8babc3;margin:0 0 14px}
+.partner-conversation h2{font-size:23px;font-weight:500;letter-spacing:.08em;margin:0 0 25px;color:#d6eaf2}
+#partner-conversation-line{font-size:17px;line-height:1.9;min-height:96px;word-break:keep-all}
+.partner-conversation-note{font-size:12px;color:#a5bac4;line-height:1.6;margin:24px 0}
+.partner-conversation button{float:right;background:transparent;color:#ead3a6;border:0;border-bottom:1px solid #ad926455;padding:10px 0;font:600 14px SUIT,sans-serif;cursor:pointer}
+.partner-conversation button:focus-visible{outline:2px solid #d7bd86;outline-offset:5px}
+@media(max-width:760px){.director-partner-name{font-size:9px;letter-spacing:0}.partner-conversation{padding:24px}.partner-conversation h2{font-size:20px}}

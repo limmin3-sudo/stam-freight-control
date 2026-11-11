@@ -13,7 +13,7 @@ export type Place = string;
 export function placeName(id:Place,language:number) {
   return places[id]?.[language] ?? (language===0?'거점 미확인':'Unknown stop');
 }
-export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number };
+export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number; cargoShape?:string; maxBoxSize?:number };
 export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; reservations?:Record<string,number>;
   state?:'ready'|'incomplete'|'ended'|'conflict'; hints?:{cargo:string;scu:number;place:string;name?:string}[] };
 type Single = Omit<Shipment,'id'> & { id:string; pay:number };

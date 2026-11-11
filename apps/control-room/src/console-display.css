@@ -1,0 +1,111 @@
+/* Approved screen-only artwork: nine-slice keeps the thin bezel at every
+   viewport size. Live content is never scaled or baked into the artwork. */
+.control-room.at-console.at-display {
+  height: 100dvh;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) 30px;
+  overflow: hidden;
+  background: #040b12;
+}
+.at-display > #main-content {
+  display: flex;
+  min-height: 0;
+  padding: 10px 12px 10px 0;
+  overflow: hidden;
+}
+.at-display > .console-side-navigation {
+  min-height: 0;
+  overflow-y: auto;
+}
+.at-display .console-workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 16px solid transparent;
+  border-image: url('./assets/console-screen-only.png') 32 / 16px stretch;
+  background: radial-gradient(ellipse at 50% 0, #0b1e2a, #020b14 72%);
+  isolation: isolate;
+}
+.at-display .console-heading {
+  flex: none;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid #82c9df24;
+}
+.at-display .console-heading h1 {
+  font-family: Oxanium, SUIT, sans-serif;
+  font-size: clamp(22px, 2vw, 30px);
+  letter-spacing: .09em;
+  margin: 4px 0;
+}
+.at-display .console-heading > div > p:last-child { display: none; }
+.at-display .console-display-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #365968 #06121b;
+  padding: 20px 24px;
+}
+.console-display-content:focus-visible {
+  outline: 1px solid #98dced;
+  outline-offset: -3px;
+}
+.at-display .workspace-layout { min-height: 0; }
+.at-display .manifest-config,
+.at-display .manifest-work,
+.at-display .manifest-summary,
+.at-display .trial-brief {
+  background: linear-gradient(135deg, #0d2532b8, #06131de0);
+  box-shadow: inset 0 1px #a4e6f012;
+}
+.at-display .manifest-config { padding: 16px 20px; }
+.at-display .preview-notice { margin-top: 16px; }
+@media (max-width: 1050px) {
+  .at-display .manifest-cols { grid-template-columns: minmax(0, 1fr); }
+  .at-display .console-heading { padding: 12px 16px; }
+  .at-display .console-display-content { padding: 16px; }
+}
+@media (max-width: 760px) {
+  .control-room.at-console.at-display {
+    grid-template-rows: auto auto minmax(0, 1fr) 20px;
+  }
+  .at-display > #main-content { padding: 6px; }
+  .at-display > .console-side-navigation { padding: 6px; overflow: hidden; }
+  .at-display > .console-side-navigation .space-dock {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .at-display > .console-side-navigation .space-dock > a {
+    flex: 0 0 140px;
+    min-height: 52px;
+    padding: 10px 18px;
+    justify-content: center;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .at-display .console-workspace {
+    border-width: 10px;
+    border-image-width: 10px;
+  }
+  .at-display .console-heading {
+    flex-direction: row;
+    gap: 8px;
+    padding: 12px 8px;
+  }
+  .at-display .console-heading h1 { font-size: 21px; letter-spacing: .03em; }
+  .at-display .console-heading .return-link { padding: 10px; font-size: 11px; }
+  .at-display .console-display-content { padding: 12px 8px; }
+  .at-display .manifest-config { padding: 12px; }
+}

@@ -5,6 +5,7 @@ import type { useLogReceipts } from './use-log-receipts';
 import type { Draft, Job, Place, Shipment } from './mission-trial';
 import { HudFrame, InterfaceGlyph } from './InterfaceGlyph';
 import './mission-console.css';
+import {CargoPanel} from './CargoPanel';
 
 type Props = {draft:Draft; locale:Locale; change:(d:Draft)=>void; receipts:ReturnType<typeof useLogReceipts>};
 function JobDetails({job,locale}:{job:Job;locale:Locale}) {
@@ -30,6 +31,7 @@ export function MissionConsole({draft:d,locale,change,receipts}:Props) {
   const t = (ko:string,en:string)=>locale==='en'?en:ko;
   const n = locale==='ko'?0:1;
   const [form,setForm] = useState<Job|null>(null);
+  const [reviewCargo,setReviewCargo]=useState(false);
   const edit = (patch:Partial<Draft>)=>change({...d,...patch,reviewed:false});
   const [sampleMode,setSampleMode]=useState(receipts.phase==='idle');
   const showLog = !sampleMode || receipts.phase!=='idle' && !d.received;
@@ -104,13 +106,15 @@ export function MissionConsole({draft:d,locale,change,receipts}:Props) {
       <dl><dt>{t('총 운송량','Total freight')}</dt><dd>{total} SCU</dd><dt>{t('함선 적재 용량','Ship capacity')}</dt><dd>{ships[d.ship]} SCU</dd></dl>
       <div className="cargo-instrument"><div><span>{t('최대 동시 적재량','Peak cargo load')}</span><b>{peak} / {ships[d.ship]} SCU</b></div><div className="cargo-cells" aria-hidden="true">{Array.from({length:24},(_,i)=><i key={i} data-on={i<Math.ceil(24*peak/ships[d.ship])} data-limit={oversize}/>)}</div></div>
       <p>{oversize?t('한 계약의 화물이 함선 용량을 초과합니다. 함선이나 계약을 변경하세요.','A contract exceeds ship capacity. Change the ship or manifest.'):!d.jobs.length?t('계약을 한 건 이상 담으면 항로를 확인할 수 있습니다.','Add a contract to preview the route.'):t('계약 순서대로 픽업과 배송을 검토합니다.','Review pickups and deliveries in contract order.')}</p>
+      <button className="cargo-review-toggle" aria-expanded={reviewCargo} onClick={()=>setReviewCargo(!reviewCargo)}>{t('출항 전 적재 3D 검토','Review cargo in 3D')}</button>
       <button className="manifest-primary dispatch-launch" disabled={!d.jobs.length||oversize||!!form} onClick={()=>{change({...d,reviewed:true});location.hash='#/map?lang='+locale}}><HudFrame/><InterfaceGlyph kind="map"/><span>{t('예시 항로 검토','Review sample route')}</span><b aria-hidden="true">↗</b></button>
-    </aside></div></div>;
+    </aside></div>{reviewCargo&&<div className="departure-cargo-review"><CargoPanel draft={d} locale={locale}/></div>}</div>;
 }
 
 export function TrialBrief({draft:d,locale,operations=false}:{draft:Draft;locale:Locale;operations?:boolean}) {
   const n=locale==='ko'?0:1, en=locale==='en';
   const stops=itinerary(d);
+  const [cargoOpen,setCargoOpen]=useState(false);
   return <section className="trial-brief"><small>{operations?'OPERATIONS':'DEPARTURE BRIEF'}</small>
     <h2>{operations?(en?'First stop':'첫 거점 작업'):(en?'Planned calls':'이번 운송의 방문 순서')}</h2>
     <ol>{(operations?stops.slice(0,1):stops).map((s,i)=><li key={i}><b>{placeName(s.place,n)}</b>
@@ -118,6 +122,7 @@ export function TrialBrief({draft:d,locale,operations=false}:{draft:Draft;locale
         {load?(en?'Load ':'픽업 '):(en?'Unload ':'배송 ')}{shipment.cargo[n]} {shipment.scu?shipment.scu+' SCU':(en?'· share unknown':'· 분배 미확인')} · {job.title[n]}
         {load?' → ':' ← '}{placeName(load?shipment.to:shipment.from,n)}</span>):<span>{en?'Depart':'출발'}</span>}
       {[...new Set(s.tasks.filter(task=>!task.load&&task.job.reservations?.[s.place]).map(task=>task.job))].map(job=><span key={job.id}>{job.title[n]} · {en?'Delivery total':'배송 총량'} {job.reservations?.[s.place]} SCU</span>)}</li>)}</ol>
+    {!operations&&<><button className="cargo-review-toggle" aria-expanded={cargoOpen} onClick={()=>setCargoOpen(!cargoOpen)}>{en?'Review cargo in 3D':'적재 3D 검토'}</button>{cargoOpen&&<CargoPanel draft={d} locale={locale}/>}</>}
     <div><a href={'#/mission?lang='+locale}>{en?'Edit manifest':'계약 수정'}</a>{!operations&&<a className="manifest-primary" href={'#/operations?lang='+locale}>{en?'Open operations':'운항 관제로'} →</a>}</div>
   </section>;
 }

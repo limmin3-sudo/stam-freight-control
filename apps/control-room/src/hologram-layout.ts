@@ -4,7 +4,7 @@ import data from '../../../data/log-location-index.json' with {type:'json'};
 // identical in the room and expanded view; no oversized planet appears on zoom.
 export const hologramScale={star:.40,Crusader:.196,Hurston:.154,ArcCorp:.161,microTech:.175} as const;
 export const hologramDisplay={mapZoom:1.4,stationPixels:22,relayPixels:14} as const;
-export const hologramFrame={width:11.3,minimumHeight:6.2,tilt:[0,8,10] as const};
+export const hologramFrame={width:11.3,minimumHeight:6.2,tilt:[0,8,10] as const,roomTilt:[0,4.8,13] as const};
 export const hologramBodies=['Stanton','Hurston','Crusader','ArcCorp','microTech'] as const;
 export const stationNames=['Everus Harbor','Seraphim Station','Baijini Point','Port Tressler'];
 export type HologramPoint={id:string;name:string;type:string;parentId:string|null;position:number[]};

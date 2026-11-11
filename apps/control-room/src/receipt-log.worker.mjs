@@ -33,6 +33,7 @@ function receipt(raw) {
     id:raw.id+'-'+i, cargo:[korean.goods[row.commodity]||aiNames.goods?.[row.commodity]||row.commodity,row.commodity],
     from:chartIds.get(row.pickupId)||'',to:chartIds.get(row.dropoffId)||'',
     scu:actualQuantity(row)?row.scu:0,
+    cargoShape:row._cargoShape||row._special,maxBoxSize:row.maxBoxSize,
   }));
   const incomplete=!shipments.length||shipments.some(row=>!row.from||!row.to||!row.cargo[1]||!row.scu&&!reservations[row.to]);
   return {id:raw.id,title:[raw.title,raw.title],shipments,pay:0,rewardUnknown:true,reservations,
