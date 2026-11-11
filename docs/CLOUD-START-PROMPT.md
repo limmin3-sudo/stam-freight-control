@@ -1,14 +1,9 @@
-# Codex Cloud 새 작업에 붙여넣을 내용
+# STAM 새 작업 시작
 
-아래 내용을 저장소 `limmin3-sudo/stam-freight-control`를 선택한 Cloud 작업에서 사용한다. 이 문서는 새 Cloud 작업을 자동으로 만들거나 기존 로컬 대화를 옮기지는 않는다.
+STAM 저장소를 연 로컬 Codex에서는 **“최신으로 받아와”**라고 요청하면 된다. 루트 [AGENTS.md](../AGENTS.md)의 기본 동작과 [STAM_HANDOFF.json](../STAM_HANDOFF.json)에 동기화 대상·읽을 문서·실행 명령을 명시했다.
 
----
+현재 개발 인계 대상은 `handoff/local-studio-20261110`. 이전 안내의 `main` 기본 업데이트와 오래된 테스트 개수는 폐기한다. 로컬 작업을 보존하며 fetch → 대상 브랜치 확인 → 안전한 fast-forward → 최신 인계 읽기 → 미리보기 실행 순서로 진행한다. ZIP 다운로드/적용은 필요 없다.
 
-최신으로 받고 시작해줘. 이 저장소(limmin3-sudo/stam-freight-control)의 STAM FREIGHT CONTROL 개발을 이어서 할 거야.
+새 Cloud 작업은 저장소와 해당 작업 브랜치를 선택한다. 이 문서는 새 작업을 자동 생성하거나 로컬 대화/로그인을 옮기지 않는다. 전혀 다른 프로젝트나 저장소가 없는 빈 채팅에는 이 저장소 지침이 자동 전달되지 않는다.
 
-1. git status, 현재 브랜치, origin/main 최신 이력을 확인하고 미커밋 작업이 있으면 보존해 줘. 깨끗하면 main을 git pull --ff-only로 받아 줘. 예전 커밋으로 되돌리지 마.
-2. AGENTS.md → docs/DEVELOPMENT.md → PROJECT_STATUS.md → README.md 순서로 읽어 줘. 현재 상태의 기준은 PROJECT_STATUS.md야. docs/CLAUDE-HANDOFF.md의 최신 인계도 읽어 줘. docs/CLOUD-HANDOFF.md의 옛 "미구현" 설명(로그인 등)을 현재 상태로 믿고 다시 만들지 마.
-3. node scripts/prepare.mjs → npm test로 확인해 줘(마지막 기록 88개 통과). 결과만 짧게 알려 줘.
-4. 읽은 뒤 지금 상태와 남은 일을 3~5줄로 요약하고, 내 다음 요청을 기다려 줘. 백로그를 마음대로 시작하지 마.
-
-지켜 줘: 대화는 짧은 한국어 반말, 앱 문구는 존댓말. 계약별 화물 소유권 유지, 목적지별 그리드 모으기(gridWalk·fullLoadLayout) 유지, 상자 구성 유형은 품목·수량 조합 기준, 화면에 계약 코드 표시 안 함. Firebase 로그인은 이미 연결·검증 완료(비밀키 없음, 공개 설정만). 작업 끝나면 PROJECT_STATUS.md에 기록하고, 커밋·푸시(main 푸시 = 사이트 배포)는 내가 승인한 범위에서 해 줘.
+동기화 완료 후 브랜치·커밋·미리보기 상태와 남은 작업을 짧게 보고한다. 이후 개발·영상 생성·모델 설치·배포는 사용자 요청 범위에서 진행한다. 영상은 로컬 Gen Studio에서 제작하며 Runway를 사용하지 않는다.

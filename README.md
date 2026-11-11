@@ -1,5 +1,7 @@
 # STAM FREIGHT CONTROL
 
+**로컬에서 “최신으로 받아와”라고 요청할 때:** 개발 인계 대상은 `handoff/local-studio-20261110`이다. [AGENTS.md](AGENTS.md)의 동기화 절차와 [STAM_HANDOFF.json](STAM_HANDOFF.json)을 따른다. 코드를 직접 받아 미리보기를 실행하며 보관 ZIP은 따로 적용하지 않는다. [로컬 인계](docs/LOCAL-CODEX-HANDOFF.md)의 최상단이 현재 기준이다.
+
 Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션별 화물·경로·적재·시간을 정리하는 비공식 팬 도구입니다.
 
 - 사이트: https://limmin3-sudo.github.io/stam-freight-control/

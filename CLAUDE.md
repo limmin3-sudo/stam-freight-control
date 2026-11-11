@@ -1,5 +1,7 @@
 # Claude Code 개발 지침
 
+“최신으로 받아와” 요청은 @AGENTS.md 의 기본 동작과 @STAM_HANDOFF.json 을 따른다. 현재 개발 인계 브랜치는 `handoff/local-studio-20261110`이며 `main`만 받으면 이번 개발 작업이 누락된다. 로컬 인계는 @docs/LOCAL-CODEX-HANDOFF.md 최상단을 우선한다.
+
 작업 시작 시 다음 문서를 읽고 따른다.
 
 - @docs/DEVELOPMENT.md

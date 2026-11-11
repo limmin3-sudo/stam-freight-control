@@ -1,0 +1,19 @@
+{
+  "repository": "limmin3-sudo/stam-freight-control",
+  "developmentBranch": "handoff/local-studio-20261110",
+  "deploymentBranch": "main",
+  "updated": "2026-11-11",
+  "latestRequestMeans": "Fetch the current development branch, preserve local work, read the latest handoff, and open the local preview.",
+  "instructions": "AGENTS.md",
+  "status": "PROJECT_STATUS.md",
+  "handoff": "docs/LOCAL-CODEX-HANDOFF.md",
+  "videoProduction": "docs/CONSOLE-TRAVEL-PRODUCTION.md",
+  "previewCommand": "npm run dev:control-room",
+  "windowsLauncher": "start-control-room-preview.cmd",
+  "previewUrl": "http://127.0.0.1:5173/#/bridge?lang=ko",
+  "videoProvider": "local Gen Studio; verify current capabilities first",
+  "runwayEnabled": false,
+  "applyArchivedZip": false,
+  "autoGenerateVideo": false,
+  "autoPublish": false
+}
