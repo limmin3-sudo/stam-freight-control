@@ -1,0 +1,12 @@
+export type CargoRow = {commodity:string;scu:number|string;pickupId:string;dropoffId:string;boxes:{size:number;count:number}[];[key:string]:unknown};
+export type Mission = {id:string;title:string;reward:number;cargo:CargoRow[];[key:string]:unknown};
+export type Grid = {id:string;name:string;w:number;h:number;l:number;x:number;y:number;z:number;disabled?:boolean;[key:string]:unknown};
+export type Ship = {id:string;name:string;grids:Grid[];[key:string]:unknown};
+export type Box = {boxId:string;missionId:string;commodity:string;dropoffId:string;size:number;bin:number;cell:number[];dims:number[];color:string;_reservation?:boolean;[key:string]:unknown};
+export type Packing = {boxes:Box[];used:number;bins:{used:number}[]};
+export type CargoEvent = {type:string;shipmentId:string;missionId?:string;commodity:string;scu:number;boxIds?:string[];pickupQuantityUnknown?:boolean;reservationContinuation?:boolean;reservationScu?:number};
+export type Jump = {entryId:string;exitId:string;entryName:string;exitName:string};
+export type Visit = {locationId:string;events:CargoEvent[];packing:Packing;load:number;seconds:number;elapsed:number;jumps:Jump[];leg:{nodes:string[];meters:number};blocked:{boxId:string;blockers:{boxId:string}[]}[]};
+export type Point = {id:string;name:string;system:string;type:string;position:number[];parentId?:string};
+export type FlightPlan = {visits:Visit[];initialPacking:Packing;ship:Ship;seconds:number;peak:number;capacity:number;warnings:string[];points:Point[];startId:string;driveName:string|null;policy:string};
+export type Resume = {picked:string[];delivered:string[];aboard:Box[]};

@@ -12,6 +12,8 @@ export default defineConfig({
       this.emitFile({ type: 'asset', fileName: 'font-licenses.txt', source });
     },
   }],
+  resolve: { dedupe: ['three'] },
   base: './',
-  build: { outDir: 'dist', sourcemap: false },
+  // Browser text tracks must remain real VTT files rather than data URIs.
+  build: { outDir: 'dist', sourcemap: false, assetsInlineLimit: filePath => filePath.endsWith('.vtt') ? false : undefined },
 });

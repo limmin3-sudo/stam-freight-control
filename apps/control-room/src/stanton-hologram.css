@@ -1,0 +1,55 @@
+.hologram-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
+.hologram-viewport{position:absolute;left:18%;top:11%;width:64%;height:48%;transition:left .85s cubic-bezier(.22,.7,.28,1),top .85s cubic-bezier(.22,.7,.28,1),width .85s cubic-bezier(.22,.7,.28,1),height .85s cubic-bezier(.22,.7,.28,1)}
+.hologram-viewport canvas{display:block;width:100%;height:100%;touch-action:none}
+.hologram-label{position:absolute;display:block;white-space:nowrap;max-width:190px;padding:7px 2px;background:none;border:0;border-radius:0;box-shadow:none;color:#b5d3e7;font:400 12px/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.16em;cursor:pointer;text-shadow:0 0 9px #9bdcff38,0 1px 6px #000;pointer-events:auto}
+.hologram-label[hidden]{display:none}.hologram-label[data-kind=station],.hologram-label[data-kind=lagrange],.hologram-label[data-kind=gateway],.hologram-label[data-kind=relay]{font-size:10px;color:#8caabf;letter-spacing:.09em}
+.hologram-label[data-kind=Star]{color:#edce91}.hologram-label[data-selected=true]{color:#e6f5ff;text-shadow:0 0 12px #84d2ff99}
+.hologram-label:hover{color:#fff}.hologram-label:focus-visible{outline:1px solid #9ad6ee;outline-offset:4px}
+.hologram-layer[data-expanded=false] .hologram-label{display:none!important}
+.hologram-interface{position:absolute;inset:0;visibility:hidden;opacity:0;transition:opacity .3s}
+.hologram-layer[data-expanded=true] .hologram-viewport{left:0;top:76px;width:100%;height:calc(100% - 112px);pointer-events:auto}
+.hologram-layer[data-expanded=true] .hologram-interface{visibility:visible;opacity:1;transition-delay:.35s}
+.hologram-heading{position:absolute;left:28px;right:28px;top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:auto}
+.hologram-heading small{font:400 8px Oxanium,sans-serif;letter-spacing:.26em;color:#7198b0}.hologram-heading h1{font:350 22px/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.12em;color:#bfd8e6;margin:5px 0;text-shadow:0 0 16px #8fc9ff24}
+.hologram-heading a{font:350 11px SUIT,sans-serif;letter-spacing:.07em;color:#8baabe;padding:12px 0;min-height:40px;text-decoration:none;border:0;background:none}
+.hologram-sector{position:absolute;left:28px;top:112px;display:grid;gap:8px;color:#8babc3;pointer-events:none}.hologram-sector span{font:400 7px Oxanium,sans-serif;letter-spacing:.3em}.hologram-sector strong{font:400 27px Oxanium,sans-serif;letter-spacing:.25em;text-shadow:0 0 14px #7abfff42}
+.hologram-instructions{position:absolute;bottom:14px;left:28px;font:350 10px SUIT,sans-serif;color:#7799af;letter-spacing:.06em}
+.hologram-loading,.hologram-failure{position:absolute;left:50%;top:40%;transform:translateX(-50%);color:#c5e5f1;background:#081925d9;padding:10px 16px;font-size:12px;max-width:75%;text-align:center}
+/* Outside the image: text-led navigation, no rectangular destination cards. */
+.hologram-panel{position:relative;padding:0;width:100%;color:#a4c5d7;pointer-events:auto;background:none;border:0;box-shadow:none}
+.hologram-panel>small{font:400 8px Oxanium,sans-serif;letter-spacing:.2em;color:#5c839b}
+.hologram-panel button{font-family:Oxanium,SUIT,sans-serif;color:#8dacbf;border:0;background:none;cursor:pointer;min-height:38px;padding:8px 0;font-weight:400;letter-spacing:.08em;text-align:left}
+.hologram-panel button:hover,.hologram-panel button[aria-pressed=true]{color:#dcf3ff;text-shadow:0 0 10px #83d3ff55}
+.hologram-panel button:focus-visible{outline:1px solid #9ad6ee;outline-offset:3px}
+.hologram-system-select{display:flex;gap:14px;margin:7px 0 19px;border-bottom:1px solid #9ac4dd18;padding-bottom:6px}.hologram-system-select button{font-size:11px;white-space:nowrap;position:relative}
+.hologram-system-select button[aria-pressed=true]:after{content:"";position:absolute;height:1px;bottom:0;left:0;right:0;background:#bbdef066}
+.hologram-panel .hologram-stellar-focus{display:flex;align-items:center;justify-content:space-between;width:100%;color:#d3b67c;font-size:16px;letter-spacing:.15em;margin:0 0 12px}.hologram-stellar-focus small{font:400 7px Oxanium,sans-serif;color:#7f98aa;letter-spacing:.2em}
+.hologram-destinations{display:grid;gap:2px}.hologram-destinations>button{position:relative;display:block;width:100%;font-size:13px;padding:10px 0 10px 10px;min-height:38px}
+.hologram-destinations>button[aria-pressed=true]:before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:1px;background:#b9e8ff;box-shadow:0 0 6px #99d7ff}
+.hologram-selection{border-top:1px solid #9ac4dd18;margin-top:20px;padding-top:16px}.hologram-selection>small{font-size:8px;letter-spacing:.1em;color:#63869e}.hologram-selection h2{font:350 16px SUIT,sans-serif;letter-spacing:.1em;margin:8px 0;color:#b1d6ea}.hologram-selection button{font-size:11px;line-height:1.6}
+.hologram-tools{display:grid;gap:0;margin-top:18px;padding-top:10px;border-top:1px solid #9ac4dd18}.hologram-tools button{font-size:10px;min-height:34px;letter-spacing:.05em}
+.hologram-scale-note,.hologram-example{font:350 9px/1.8 SUIT,sans-serif;color:#54758c;margin:14px 0 0}.hologram-example{color:#a69878}
+.hologram-layer[data-motion=false] *{transition:none!important}
+@media(max-width:900px){.hologram-system-select{gap:8px}.hologram-system-select button{font-size:10px}}
+@media(max-width:600px){
+ .hologram-heading{left:14px;right:14px;top:16px;align-items:flex-start}.hologram-heading h1{font-size:15px;letter-spacing:.06em}.hologram-heading small{font-size:6px}.hologram-heading a{font-size:9px;padding-top:6px;white-space:nowrap}
+ .hologram-layer[data-expanded=true] .hologram-viewport{top:85px;height:calc(100% - 120px)}
+ .hologram-sector{top:100px;left:14px}.hologram-sector strong{font-size:16px}.hologram-sector span{font-size:5px}
+ .hologram-label{font-size:9px;letter-spacing:.07em;max-width:110px}.hologram-label[data-kind=station],.hologram-label[data-kind=lagrange],.hologram-label[data-kind=gateway],.hologram-label[data-kind=relay]{font-size:8px}
+ .hologram-instructions{left:14px;font-size:8px;right:12px;line-height:1.7}
+ .hologram-panel>small{font-size:6px;letter-spacing:.06em}.hologram-system-select{display:grid;gap:0;margin-bottom:10px}.hologram-system-select button{font-size:10px;min-height:28px}
+ .hologram-panel .hologram-stellar-focus{display:block;font-size:11px;margin-bottom:4px}.hologram-stellar-focus small{display:block;margin-top:6px}
+ .hologram-destinations>button{font-size:10px;min-height:32px;padding-left:5px;letter-spacing:0}.hologram-tools button{font-size:9px;line-height:1.5}.hologram-selection h2{font-size:12px}.hologram-selection button{font-size:9px}.hologram-scale-note,.hologram-example{font-size:8px}
+}
+
+.hologram-stations{margin-top:18px;padding-top:14px;border-top:1px solid #9ac4dd18}
+.hologram-stations>label{display:block;font-size:10px;letter-spacing:.06em;color:#9ebed1;margin-bottom:8px}
+.hologram-stations input{box-sizing:border-box;width:100%;min-width:0;color:#d3e6f2;background:transparent;border:0;border-bottom:1px solid #62849a66;padding:8px 0;font:11px SUIT,sans-serif;outline-offset:3px}
+.hologram-stations details{margin-top:8px}.hologram-stations summary{cursor:pointer;font-size:11px;padding:9px 0;color:#a4c5d7}.hologram-stations summary span{color:#637f92;margin-left:4px;font-size:9px}
+.hologram-stations details button{display:block;width:100%;font-size:10px;line-height:1.5;min-height:34px;overflow-wrap:anywhere}
+.hologram-stations>p{font-size:10px;line-height:1.6}
+.hologram-label[data-kind=lagrange]{color:#c5b897}.hologram-label[data-kind=relay]{color:#7b9aab}
+@media(max-width:600px){.hologram-stations>label,.hologram-stations summary,.hologram-stations input{font-size:9px}.hologram-stations details button{font-size:8px;letter-spacing:0}}
+.hologram-label[data-kind=station],.hologram-label[data-kind=lagrange],.hologram-label[data-kind=gateway],.hologram-label[data-kind=relay]{white-space:normal;text-align:left;line-height:1.4}
+
+.hologram-zoom{display:flex;gap:18px;flex-wrap:wrap}.hologram-zoom button{flex:1;white-space:nowrap}

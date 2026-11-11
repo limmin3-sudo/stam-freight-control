@@ -23,9 +23,9 @@ export const spaceConfig = {
       { id: 'cinema', to: 'cinema', label: ['영상관', 'Cinema'], detail: ['STAM 소개영상', 'Discover STAM'], x: 86, y: 74, focus: [91, 48], anchor: [91.3, 68.1], marker: [91.3, 68.1], contour: sceneContours.cinema },
     ] satisfies SceneTarget[] },
     bridge: { image: bridge, targets: [
-      { id: 'mission', to: 'mission', label: ['미션 콘솔', 'Mission console'], detail: ['함선 · 출발지 · 계약', 'Ship · Departure · Contracts'], x: 26, y: 68, focus: [24, 55], anchor: [25, 52], marker: [24.8, 44.2], contour: sceneContours.mission },
-      { id: 'map', to: 'map', label: ['항로 지도', 'Star map'], detail: ['스탠턴 · 항성계 탐색', 'Stanton · System navigation'], x: 50, y: 80, focus: [50, 42], anchor: [50, 59], marker: [50.2, 70], contour: sceneContours.map },
-      { id: 'operations', to: 'operations', label: ['운항 관제', 'Operations'], detail: ['현재 작업 · 화물 적재', 'Current task · Cargo'], x: 74, y: 68, focus: [76, 55], anchor: [75, 52], marker: [76.1, 45.6], contour: sceneContours.operations },
+      { id: 'mission', to: 'mission', label: ['미션 콘솔', 'Mission console'], detail: ['함선 · 출발지 · 계약', 'Ship · Departure · Contracts'], x: 12, y: 70, focus: [8, 55], anchor: [8, 55], marker: [6.5, 73], contour: sceneContours.mission },
+      { id: 'map', to: 'map', label: ['항로 지도', 'Star map'], detail: ['스탠턴 · 항성계 탐색', 'Stanton · System navigation'], x: 50, y: 80, focus: [50, 33], anchor: [50, 40], marker: [50, 57], contour: sceneContours.map },
+      { id: 'operations', to: 'operations', label: ['운항 관제', 'Operations'], detail: ['현재 작업 · 화물 적재', 'Current task · Cargo'], x: 88, y: 70, focus: [95, 55], anchor: [95, 55], marker: [95.4, 74], contour: sceneContours.operations },
     ] satisfies SceneTarget[] },
   },
 } as const;

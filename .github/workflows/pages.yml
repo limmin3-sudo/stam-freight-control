@@ -35,10 +35,14 @@ jobs:
       - name: Build Korean display labels
         run: node scripts/build-ai-korean.mjs
       - run: npm test
+      - name: Build STAM lounge
+        run: npm ci --prefix apps/control-room && npm run build:control-room && npm run test:control-room
       - name: Assemble public files only
         run: node scripts/build-public.mjs public
       - name: Stamp release version and update history
         run: node scripts/build-release.mjs public
+      - name: Publish lounge entry and preserve existing flight tools
+        run: node scripts/publish-lounge.mjs public apps/control-room/dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

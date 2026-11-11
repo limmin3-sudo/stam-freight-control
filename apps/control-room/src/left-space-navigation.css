@@ -1,0 +1,53 @@
+/* Shared navigation is outside the scene on the left. Footer deliberately empty. */
+.space-experience{height:100svh;min-height:700px}
+.space-experience .space-main,.space-experience[data-screen=map] .space-main{display:grid;grid-template-columns:244px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;min-height:0;flex:1}
+.space-sidebar{grid-column:1;grid-row:1;min-width:0;min-height:0;overflow:auto;padding:24px 16px;background:linear-gradient(100deg,#07101a,#091824);border-right:1px solid #7198ac28;scrollbar-width:thin;scrollbar-color:#547b9144 transparent}
+.space-sidebar-caption{font:500 8px Oxanium,sans-serif;letter-spacing:.3em;color:#6c8b9c;margin:0 12px 18px}
+.space-experience .space-overview,.space-experience .space-room{grid-column:2;grid-row:1;min-width:0;min-height:0}
+.space-experience[data-screen=map] .space-overview{border:0}
+.space-experience .space-footer{height:44px;min-height:44px;flex-shrink:0;padding:0;border-top:1px solid #7198ac1c;background:#060f18;box-shadow:none}
+.space-experience .space-footer:before,.space-experience .space-footer:after{display:none}
+.space-sidebar .space-dock{display:flex;flex-direction:column;gap:8px;transform:none;margin:0;max-width:none;position:static}
+.space-sidebar .space-dock:before{display:none}
+.space-sidebar .space-dock>a{position:relative;display:flex;align-items:center;justify-content:flex-start;min-height:56px;padding:12px 18px 12px 44px;flex:none;border:0!important;clip-path:none;box-shadow:none;background:transparent;color:#d2eaf3;font:650 16px/1.4 SUIT,sans-serif;letter-spacing:.04em;isolation:isolate;text-shadow:0 0 10px #71cbff35;animation:none!important;transition:filter .2s,color .2s,transform .2s}
+.space-sidebar .space-dock>a:after{display:none}
+.space-sidebar .space-dock>a:before{content:"";display:block;position:absolute;inset:0;z-index:0;pointer-events:none;background:transparent url('./assets/hologram-button.png') center/100% 180% no-repeat;transition:filter .2s}
+.space-sidebar .space-dock>a>span{position:relative;z-index:1;word-break:keep-all}
+.space-sidebar .space-dock>a:hover{color:#f0fbff;transform:translateX(2px)}
+.space-sidebar .space-dock>a:hover:before{filter:brightness(1.2)}
+/* Tint the complete glass asset, not just the lettering or a border. */
+.space-sidebar .space-dock>a[aria-current=page]{color:#fff0dc;text-shadow:0 0 8px #ffa74d66;background-color:transparent}
+.space-sidebar .space-dock>a[aria-current=page]:before{filter:sepia(1) saturate(4) hue-rotate(345deg) brightness(1.12) drop-shadow(0 0 6px #ff983c55)}
+.space-sidebar .space-dock>a:focus-visible{outline:1px solid #b5e8ff;outline-offset:-6px}
+.space-sidebar .space-settings{margin:18px 10px 12px;font-size:10px;color:#6f94a7}
+.space-sidebar .space-settings summary{min-height:32px}.space-sidebar .space-settings summary:before{display:none}
+.space-sidebar .space-settings>div{position:static;width:auto;box-shadow:none;padding:12px 0;border:0;border-top:1px solid #9bc6d325;background:transparent}
+.space-sidebar .space-settings button{font-size:10px;background:#19324433;border-color:#8bb8cc33}
+.space-sidebar .space-map-sidebar{position:relative;inset:auto;padding:22px 8px 0;margin-top:18px;background:none;border:0;border-top:1px solid #789fb12b;min-height:0;isolation:auto;overflow:visible}
+.space-sidebar .space-map-sidebar:before,.space-sidebar .space-map-sidebar:after{display:none}
+.space-sidebar .space-map-sidebar[hidden]{display:none}
+.space-room{overflow:auto}
+.space-experience .space-topbar{flex-shrink:0}
+@media(max-width:900px) and (min-width:601px){.space-experience .space-main,.space-experience[data-screen=map] .space-main{grid-template-columns:200px minmax(0,1fr)}.space-sidebar{padding:18px 10px}.space-sidebar .space-dock>a{font-size:15px;padding-left:36px}}
+@media(max-width:600px){
+ .space-experience{height:auto;min-height:100svh}
+ .space-experience .space-main,.space-experience[data-screen=map] .space-main{grid-template-columns:94px minmax(0,1fr);grid-template-rows:auto;overflow:visible}
+ .space-sidebar{padding:18px 5px;overflow:visible}.space-sidebar-caption{font-size:6px;margin:0 2px 12px;letter-spacing:.13em}
+ .space-sidebar .space-dock{gap:6px}.space-sidebar .space-dock>a{padding:8px 7px 8px 17px;min-height:54px;font-size:12px;overflow-wrap:anywhere;letter-spacing:0;white-space:normal;line-height:1.5}
+ .space-sidebar .space-settings{margin:12px 4px;font-size:9px}.space-sidebar .space-map-sidebar{padding:16px 0 0;margin-top:12px}
+ .space-experience .space-overview{align-self:start;min-height:440px}
+ .space-experience .space-artwork{margin-top:100px;overflow:hidden;min-height:200px;aspect-ratio:1672/941}
+ .space-experience[data-screen=map] .space-artwork{margin-top:0;height:600px;min-height:600px}
+ .space-intro{left:12px;max-width:calc(100% - 24px)}.space-intro h1{font-size:17px;letter-spacing:.06em}.space-intro>span{font-size:9px}
+ .space-experience .space-footer{height:28px;min-height:28px}
+ .space-room{padding:18px 12px}
+}
+@media(prefers-reduced-motion:reduce){.space-sidebar .space-dock>a,.space-sidebar .space-dock>a:before{transition:none}}
+@media(min-width:601px){.space-experience[data-screen=map] .space-artwork{height:100%;min-height:0}}
+@media(max-width:600px){
+ .space-experience{height:100svh;min-height:700px}
+ .space-experience .space-main,.space-experience[data-screen=map] .space-main{grid-template-rows:minmax(0,1fr);overflow:hidden;min-height:0}
+ .space-sidebar{min-height:0;overflow:auto}
+ .space-experience .space-overview{height:100%;align-self:stretch;min-height:0}
+ .space-experience[data-screen=map] .space-artwork{height:100%;min-height:0}
+}

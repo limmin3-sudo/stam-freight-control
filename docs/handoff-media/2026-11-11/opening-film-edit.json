@@ -1,0 +1,17 @@
+{
+  "original": "83b3dc43-e046-45ea-a317-7e38df4b77ee",
+  "audioReference": "ad769466-f0c7-4572-b44f-54937d610667",
+  "replacement": {
+    "destinationStart": 3.56,
+    "destinationEnd": 5.3,
+    "sourceStart": 1.96,
+    "sourceEnd": 3.7,
+    "gain": 0.85,
+    "method": "localized mixed-audio segment replacement; preserve original impact and subsequent dialogue"
+  },
+  "fadeOut": {
+    "start": 23.8,
+    "duration": 1.2
+  },
+  "subtitles": "ASR-assisted Korean captions with nonverbal scream annotation"
+}

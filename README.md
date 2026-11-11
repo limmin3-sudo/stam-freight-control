@@ -193,3 +193,10 @@ GitHub는 코드와 개발 문서를 공유합니다. AI 채팅 전체·설치�
 ## 로컬 Codex로 이어받기
 
 2026-11-10 최신 이미지 기반 라운지·관제센터 작업 전달본은 [로컬 인계 문서](docs/LOCAL-CODEX-HANDOFF.md)를 따릅니다. GitHub의 `handoff/local-studio-20261110` 브랜치를 새 폴더에 clone하고 저장소 루트를 로컬 작업으로 열어 `start-control-room-preview.cmd`로 미리보기를 실행합니다. ZIP을 직접 확보한 경우에만 안쪽 `source` 폴더를 사용합니다. 기존 집 PC 작업을 덮어쓰지 않습니다.
+
+
+### 공개 라운지와 기존 운송 도구
+
+공개 첫 화면은 디렉터의 라운지 준비 영상 후 새 STAM 라운지로 이동합니다. 지도·관제센터는 공간 탐색 화면이며, 실제 계약·운항·적재 작업은 상단 **기존 운송 도구**(`flight.html`)에서 계속 사용할 수 있습니다. 기존 Windows 앱의 웹 업데이트는 검증된 운송 화면을 유지합니다.
+
+Pages 빌드 순서: `npm ci --prefix apps/control-room` → `npm run build:control-room` → `node scripts/build-public.mjs public` → `node scripts/build-release.mjs public` → `node scripts/publish-lounge.mjs public apps/control-room/dist`. 마지막 단계는 desktop snapshot을 만든 뒤에 실행합니다. 반복 조립 시 새 출력 폴더를 사용합니다. 로컬 `npm start`는 계속 기존 운송 도구를 제공합니다.

@@ -1,0 +1,443 @@
+diff --git a/apps/control-room/src/MissionConsole.tsx b/apps/control-room/src/MissionConsole.tsx
+index 7dc58cf..dbb2c5f 100644
+--- a/apps/control-room/src/MissionConsole.tsx
++++ b/apps/control-room/src/MissionConsole.tsx
+@@ -1,12 +1,13 @@
+ import { useState } from 'react';
+ import type { Locale } from './navigation';
+-import { itinerary, jobVolume, placeName, samples, ships } from './mission-trial';
++import { jobVolume, placeName, places, samples, ships, shipNames } from './mission-trial';
+ import type { useLogReceipts } from './use-log-receipts';
+-import type { Draft, Job, Place, Shipment } from './mission-trial';
++import type { Draft, Job, Shipment } from './mission-trial';
++import type { useFlight } from './use-flight';
+ import { HudFrame, InterfaceGlyph } from './InterfaceGlyph';
+ import './mission-console.css';
+ 
+-type Props = {draft:Draft; locale:Locale; change:(d:Draft)=>void; receipts:ReturnType<typeof useLogReceipts>};
++type Props={locale:Locale;flight:ReturnType<typeof useFlight>;receipts:ReturnType<typeof useLogReceipts>};
+ function JobDetails({job,locale}:{job:Job;locale:Locale}) {
+   const n=locale==='ko'?0:1;
+   const en=locale==='en';
+@@ -26,98 +27,75 @@ function JobDetails({job,locale}:{job:Job;locale:Locale}) {
+     {Object.entries(job.reservations||{}).map(([id,scu])=><p key={id}>{placeName(id,n)} · {en?'Reserved delivery total':'배송 총량 예약'} {scu} SCU</p>)}
+     {job.hints?.filter(h=>!job.reservations?.[h.place]).map((h,i)=><p key={i}>{en?'Logged delivery goal':'로그 배송 목표'} · {h.cargo} {h.scu} SCU · {h.name||placeName(h.place,n)}</p>)}</details>;
+ }
+-export function MissionConsole({draft:d,locale,change,receipts}:Props) {
+-  const t = (ko:string,en:string)=>locale==='en'?en:ko;
+-  const n = locale==='ko'?0:1;
+-  const [form,setForm] = useState<Job|null>(null);
+-  const edit = (patch:Partial<Draft>)=>change({...d,...patch,reviewed:false});
+-  const [sampleMode,setSampleMode]=useState(receipts.phase==='idle');
+-  const showLog = !sampleMode || receipts.phase!=='idle' && !d.received;
+-  const cards=showLog?receipts.cards:(d.received?samples:[]);
+-  const available = cards.filter(s=>(!s.state||s.state==='ready')&&!d.jobs.some(j=>j.id===s.id));
+-  const [checked,setChecked] = useState<string[]>([]);
+-  const chosen = available.filter(j=>checked.includes(j.id));
+-  const where = (p:Place)=>placeName(p,n);
+-  const relevantPlaces = new Set(['hurston','crusader','arccorp','microtech',d.start]);
+-  for(const job of [...d.jobs,...receipts.cards]) for(const row of job.shipments) {
+-    if(row.from) relevantPlaces.add(row.from);
+-    if(row.to) relevantPlaces.add(row.to);
+-  }
+-  const options = [...relevantPlaces].map(p=><option key={p} value={p}>{where(p)}</option>);
+-  const total = d.jobs.reduce((a,j)=>a+jobVolume(j),0);
+-  const pay = d.jobs.reduce((a,j)=>a+j.pay,0);
+-  const peak = Math.max(0,...d.jobs.map(jobVolume));
+-  const oversize = peak>ships[d.ship];
+-  const newRow = ():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:d.start==='microtech'?'arccorp':'microtech',scu:1});
+-  const updateRow = (id:string,patch:Partial<Shipment>)=>setForm(current=>current && ({
+-    ...current,shipments:current.shipments.map(row=>row.id===id?{...row,...patch}:row)
+-  }));
+-  const invalidRows = form?.shipments.some(row=>row.from===row.to || !row.cargo[n].trim() || row.scu<1);
+-  return <div className="manifest">
+-    <div className="manifest-config">
+-      <label>{t('파트너','Partner')}<select value={d.partner} onChange={e=>edit({partner:e.target.value as Draft['partner']})}><option value="operator">{t('브리지 오퍼레이터','Bridge operator')}</option><option value="navigator">{t('수석 항해사','Senior navigator')}</option></select></label>
+-      <label>{t('함선','Ship')}<select value={d.ship} onChange={e=>edit({ship:e.target.value as Draft['ship']})}>{Object.keys(ships).map(s=><option key={s}>{s}</option>)}</select></label>
+-      <label>{t('출발지','Departure')}<select value={d.start} onChange={e=>edit({start:e.target.value as Place})}>{options}</select></label>
++export function MissionConsole({locale,flight,receipts}:Props){
++ const {draft:d,plan}=flight.session,t=(ko:string,en:string)=>locale==='en'?en:ko,n=locale==='ko'?0:1;
++ const locked=flight.active||flight.busy||flight.blocked;
++ const [source,setSource]=useState<'log'|'sample'>('log'),[checked,setChecked]=useState<string[]>([]),[form,setForm]=useState<Job|null>(null);
++ const cards=source==='log'?receipts.cards:samples;
++ const available=cards.filter(j=>(!j.state||j.state==='ready')&&!d.jobs.some(k=>k.id===j.id));
++ const chosen=available.filter(j=>checked.includes(j.id));
++ const edit=(patch:Partial<Draft>)=>flight.change({...d,...patch,reviewed:false});
++ const newRow=():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:d.start==='microtech'?'arccorp':'microtech',scu:1});
++ const updateRow=(id:string,patch:Partial<Shipment>)=>setForm(f=>f&&({...f,shipments:f.shipments.map(r=>r.id===id?{...r,...patch}:r)}));
++ const invalid=form?.shipments.some(r=>!r.cargo[1].trim()||!r.from||!r.to||r.from===r.to||!Number.isSafeInteger(r.scu)||r.scu<1||r.scu>10000);
++ const options=Object.keys(places).sort((a,b)=>placeName(a,n).localeCompare(placeName(b,n))).map(id=><option key={id} value={id}>{placeName(id,n)}</option>);
++ const pay=d.jobs.filter(j=>!j.rewardUnknown).reduce((sum,j)=>sum+j.pay,0),total=d.jobs.reduce((sum,j)=>sum+jobVolume(j),0);
++ function saveForm(){if(!form||invalid||locked)return;
++  const saved:Job={...form,title:form.title[n].trim()?form.title:form.shipments[0]!.cargo,state:'ready',reservations:undefined,
++   mission:form.mission?{...form.mission,title:form.title[1],reward:form.pay,_deliveryTotals:[],cargo:form.shipments.map((r,i)=>({
++    ...form.mission?.cargo[i],commodity:r.cargo[1],scu:r.scu,pickupId:r.from,dropoffId:r.to,boxes:r.boxes||[],_scuEstimated:false,_scuAssumed:false,
++   }))}:undefined};
++  edit({jobs:d.jobs.some(j=>j.id===saved.id)?d.jobs.map(j=>j.id===saved.id?saved:j):[...d.jobs,saved]});setForm(null);
++ }
++ return <div className="manifest manifest-connected">
++  <div className="workflow-strip"><span data-current="true">01 · {t('계약 준비','Manifest')}</span><span>02 · {t('항로·적재 검토','Route & cargo')}</span><span>03 · {t('출항·운항','Fly & deliver')}</span></div>
++  {flight.active&&<p className="flight-banner">{t('운항 중입니다. 계약과 함선은 잠겨 있으며 새 수신은 아래에 따로 모입니다.','Run in progress. Your manifest and ship are locked; new receipts stay in the inbox.')} <a href={'#/operations?lang='+locale}>{t('운항 이어가기','Continue flight')} →</a></p>}
++  <fieldset disabled={locked} className="manifest-config"><legend>{t('운송 설정','Flight setup')}</legend>
++   <label>{t('파트너','Partner')}<select value={d.partner} onChange={e=>edit({partner:e.target.value as Draft['partner']})}><option value="operator">{t('브리지 오퍼레이터','Bridge operator')}</option><option value="navigator">{t('수석 항해사','Senior navigator')}</option></select></label>
++   <label>{t('함선 · 실제 화물 그리드','Ship · cargo grids')}<select value={d.ship} onChange={e=>edit({ship:e.target.value})}>{Object.entries(shipNames).map(([id,name])=><option key={id} value={id}>{name} · {ships[id]} SCU</option>)}</select></label>
++   <label>{t('출발지','Departure')}<select value={d.start} onChange={e=>edit({start:e.target.value})}>{options}</select></label>
++  </fieldset>
++  <div className="manifest-cols">
++   <section className="manifest-work receipt-work"><small>RECEIVING / 01</small><h2>{t('계약 수신함','Contract inbox')}</h2><p>{t('받은 계약을 확인하고 이번 운송에 담으세요.','Review incoming contracts and choose this flight’s manifest.')}</p>
++    <div className="receipt-sources"><button onClick={()=>{setSource('log');receipts.live==='disconnected'?receipts.connect():receipts.disconnect();}}>{receipts.live==='disconnected'?t('연결 앱 수신 시작','Connect companion'):t('연결 해제','Disconnect')}</button>
++     <span role="status">{t('연결 상태','Connection')}: {({disconnected:t('미연결','Disconnected'),connecting:t('연결 중','Connecting'),offline:t('앱 실행 대기','Waiting for companion'),watching:t('실시간 수신 중','Receiving live'),paused:t('앱 일시정지','Paused'),unsupported:t('로컬 미리보기에서 연결해 주세요','Use the local preview'),error:t('연결 형식 확인 필요','Protocol error')} as Record<string,string>)[receipts.live]||receipts.live}</span>
+     </div>
+-    <div className="manifest-cols"><div className="manifest-work">
+-      <div className="manifest-head"><InterfaceGlyph kind="mission"/><div><small>FLIGHT MANIFEST</small><h2>{t('이번 운송 계약','Flight manifest')} <em>{String(d.jobs.length).padStart(2,'0')}</em></h2></div>
+-      <button onClick={()=>setForm({id:crypto.randomUUID(),title:['',''],shipments:[newRow()],pay:0})}>{t('+ 직접 입력','+ Manual entry')}</button></div>
+-      {!d.jobs.length && <p className="manifest-empty">{t('아직 이번 운송에 담은 계약이 없습니다.','Your manifest is empty.')}<br/>{t('아래 수신함에서 고르거나 직접 입력하세요.','Choose a received contract below or enter one manually.')}</p>}
+-      {d.jobs.map(j=><div key={j.id} className="manifest-row"><div><b>{j.title[n]} · {jobVolume(j)} SCU</b><JobDetails job={j} locale={locale}/></div>{!j.state&&<button onClick={()=>setForm({...j})}>{t('수정','Edit')}</button>}<button onClick={()=>edit({jobs:d.jobs.filter(k=>k.id!==j.id)})}>{t('빼기','Remove')}</button></div>)}
+-      {form && <form className="manifest-editor" onSubmit={e=>{e.preventDefault(); if(invalidRows)return;
+-        const saved={...form,title:form.title[n].trim()?form.title:form.shipments[0]!.cargo};
+-        edit({jobs:d.jobs.some(j=>j.id===form.id)?d.jobs.map(j=>j.id===form.id?saved:j):[...d.jobs,saved]});setForm(null)}}>
+-        <label>{t('계약명','Contract name')}<input autoFocus maxLength={70} value={form.title[n]} onChange={e=>setForm({...form,title:[e.target.value,e.target.value]})}/></label>
+-        <label>{t('보상','Reward')} · aUEC<input required min="0" max="999999999" type="number" value={form.pay} onChange={e=>setForm({...form,pay:Number(e.target.value)})}/></label>
+-        {form.shipments.map((row,i)=><fieldset key={row.id}><legend>{t('운송 항목','Shipment')} {i+1}</legend>
+-          <label>{t('화물명','Cargo')}<input required maxLength={70} value={row.cargo[n]} onChange={e=>updateRow(row.id,{cargo:[e.target.value,e.target.value]})}/></label>
+-          <label>SCU<input required min="1" max="9999" type="number" value={row.scu||''} onChange={e=>updateRow(row.id,{scu:Number(e.target.value)})}/></label>
+-          <label>{t('픽업','Pickup')}<select value={row.from} onChange={e=>updateRow(row.id,{from:e.target.value as Place})}>{options}</select></label>
+-          <label>{t('배송','Delivery')}<select value={row.to} onChange={e=>updateRow(row.id,{to:e.target.value as Place})}>{options}</select></label>
+-          {row.from===row.to&&<span>{t('픽업지와 다른 배송지를 선택하세요.','Choose a different delivery port.')}</span>}
+-          {form.shipments.length>1&&<button type="button" onClick={()=>setForm({...form,shipments:form.shipments.filter(s=>s.id!==row.id)})}>{t('항목 빼기','Remove shipment')}</button>}
+-        </fieldset>)}
+-        <div><button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('+ 운송 항목','+ Shipment')}</button> <button type="submit" disabled={invalidRows}>{t('계약 저장','Save contract')}</button> <button type="button" onClick={()=>setForm(null)}>{t('취소','Cancel')}</button></div>
+-      </form>}
+-      <div className="manifest-inbox"><small>INBOX</small><h3>{t('계약 수신함','Contract inbox')}</h3>
+-      <div className="receipt-sources"><label>{t('게임 로그에서 계약 읽기','Read contracts from game log')}<input type="file" accept=".log" onChange={e=>{
+-        const file=e.target.files?.[0];e.target.value='';if(!file)return;setChecked([]);setSampleMode(false);receipts.read(file);
+-      }}/></label>
+-      {(!d.received || showLog)&&<button onClick={()=>{setSampleMode(true);setChecked([]);if(!d.received)change({...d,received:true});}}>{t(`예시 계약 ${samples.length}건 보기`,`View ${samples.length} sample contracts`)}</button>}
+-      {!showLog&&receipts.phase!=='idle'&&<button onClick={()=>{setChecked([]);setSampleMode(false)}}>{t('읽은 로그 보기','View log receipts')}</button>}</div>
+-      {showLog&&<p role="status">{({idle:'',reading:t('게임 로그를 읽고 있습니다.','Reading game log…'),loaded:t(`로그에서 읽은 계약 ${receipts.cards.length}건`,`${receipts.cards.length} contracts from log`),mixed:t('여러 플레이어의 기록이 섞였습니다. 현재 Game.log를 선택하세요.','Mixed player records. Select your current Game.log.'),error:t('이 로그를 읽을 수 없습니다. 파일을 다시 선택하세요.','Could not read this log. Select the file again.')})[receipts.phase]}</p>}
+-      {cards.length>0&&<><div className="receipt-grid">{cards.map(j=>{
+-        const added=d.jobs.some(job=>job.id===j.id);
+-        const locked=j.state && j.state!=='ready';
+-        const status=added?t('운송에 담김','In manifest'):j.state==='ended'?t('종료된 계약','Ended'):j.state==='conflict'?t('기록 충돌','Conflicting records'):j.state==='incomplete'?t('정보 확인 필요','Incomplete'):t('수신 계약','Received');
+-        const selected=!added && checked.includes(j.id);
+-        return <article className="receipt-card" data-state={added?'added':selected?'checked':'new'} key={j.id}>
+-          <label><span className="receipt-top"><span>{status}</span><input type="checkbox" checked={selected||added} disabled={added||locked} aria-label={j.title[n]+' · '+t('계약 선택','Select contract')} onChange={e=>setChecked(e.target.checked?[...checked,j.id]:checked.filter(id=>id!==j.id))}/></span>
+-          <strong>{j.title[n]}</strong></label><JobDetails job={j} locale={locale}/>
+-          <span className="receipt-bottom"><b>{j.state==='incomplete'?t('상세 확인','See details'):jobVolume(j)+' SCU'}</b><b>{j.rewardUnknown?t('보상 미확인','Reward unknown'):j.pay.toLocaleString()+' aUEC'}</b></span>
+-        </article>;
+-      })}</div>
+-      <div className="receipt-actions"><span aria-live="polite">{t('선택','Selected')} {chosen.length}</span><button disabled={!chosen.length} onClick={()=>{edit({jobs:[...d.jobs,...chosen]});setChecked([])}}>{t('선택한 계약 담기','Add selected contracts')}</button></div></>}</div>
+-    </div><aside className="manifest-summary"><div className="dispatch-band"><small>STAM / DISPATCH</small><span aria-hidden="true">▰ ▰ ▰</span></div><h2>{t('출항 준비','Departure brief')}</h2>
+-      <span>{t('예상 계약 보상','Contract rewards')}</span><strong>{pay.toLocaleString()} <i>aUEC</i></strong>
+-      {d.jobs.some(j=>j.rewardUnknown)&&<p>{t('보상 미확인 계약은 합계에서 제외했습니다.','Contracts with unknown rewards are excluded.')}</p>}
+-      <dl><dt>{t('총 운송량','Total freight')}</dt><dd>{total} SCU</dd><dt>{t('함선 적재 용량','Ship capacity')}</dt><dd>{ships[d.ship]} SCU</dd></dl>
+-      <div className="cargo-instrument"><div><span>{t('최대 동시 적재량','Peak cargo load')}</span><b>{peak} / {ships[d.ship]} SCU</b></div><div className="cargo-cells" aria-hidden="true">{Array.from({length:24},(_,i)=><i key={i} data-on={i<Math.ceil(24*peak/ships[d.ship])} data-limit={oversize}/>)}</div></div>
+-      <p>{oversize?t('한 계약의 화물이 함선 용량을 초과합니다. 함선이나 계약을 변경하세요.','A contract exceeds ship capacity. Change the ship or manifest.'):!d.jobs.length?t('계약을 한 건 이상 담으면 항로를 확인할 수 있습니다.','Add a contract to preview the route.'):t('계약 순서대로 픽업과 배송을 검토합니다.','Review pickups and deliveries in contract order.')}</p>
+-      <button className="manifest-primary dispatch-launch" disabled={!d.jobs.length||oversize||!!form} onClick={()=>{change({...d,reviewed:true});location.hash='#/map?lang='+locale}}><HudFrame/><InterfaceGlyph kind="map"/><span>{t('예시 항로 검토','Review sample route')}</span><b aria-hidden="true">↗</b></button>
+-    </aside></div></div>;
+-}
+-
+-export function TrialBrief({draft:d,locale,operations=false}:{draft:Draft;locale:Locale;operations?:boolean}) {
+-  const n=locale==='ko'?0:1, en=locale==='en';
+-  const stops=itinerary(d);
+-  return <section className="trial-brief"><small>{operations?'OPERATIONS':'DEPARTURE BRIEF'}</small>
+-    <h2>{operations?(en?'First stop':'첫 거점 작업'):(en?'Planned calls':'이번 운송의 방문 순서')}</h2>
+-    <ol>{(operations?stops.slice(0,1):stops).map((s,i)=><li key={i}><b>{placeName(s.place,n)}</b>
+-      {s.tasks.length?s.tasks.map(({load,job,shipment})=><span className="trial-task" key={job.id+':'+shipment.id+':'+load}>
+-        {load?(en?'Load ':'픽업 '):(en?'Unload ':'배송 ')}{shipment.cargo[n]} {shipment.scu?shipment.scu+' SCU':(en?'· share unknown':'· 분배 미확인')} · {job.title[n]}
+-        {load?' → ':' ← '}{placeName(load?shipment.to:shipment.from,n)}</span>):<span>{en?'Depart':'출발'}</span>}
+-      {[...new Set(s.tasks.filter(task=>!task.load&&task.job.reservations?.[s.place]).map(task=>task.job))].map(job=><span key={job.id}>{job.title[n]} · {en?'Delivery total':'배송 총량'} {job.reservations?.[s.place]} SCU</span>)}</li>)}</ol>
+-    <div><a href={'#/mission?lang='+locale}>{en?'Edit manifest':'계약 수정'}</a>{!operations&&<a className="manifest-primary" href={'#/operations?lang='+locale}>{en?'Open operations':'운항 관제로'} →</a>}</div>
+-  </section>;
++    <details className="receipt-import"><summary>{t('로그 파일·직접 입력·예시','Log file, manual entry & samples')}</summary><div className="receipt-sources">
++     <label>{t('Game.log 읽기','Read Game.log')}<input type="file" accept=".log,.txt" onChange={e=>{const f=e.target.files?.[0];e.target.value='';if(f){setSource('log');setChecked([]);receipts.read(f);}}}/></label>
++     <button disabled={locked} onClick={()=>setForm({id:crypto.randomUUID(),title:['',''],shipments:[newRow()],pay:0,rewardUnknown:true})}>{t('계약 직접 입력','Enter contract')}</button>
++     <button onClick={()=>{setSource(source==='sample'?'log':'sample');setChecked([])}}>{source==='sample'?t('수신 로그 보기','View receipts'):t('예시로 시험하기','Try sample contracts')}</button>
++    </div></details>
++    {source==='sample'&&<p className="flight-banner">{t('시험용 계약입니다. 실제 게임 수주와 구분해 주세요.','Sample contracts for testing; not accepted game missions.')}</p>}
++    {source==='log'&&<p role="status">{receipts.phase==='reading'?t('계약을 읽고 있습니다…','Reading receipts…'):receipts.phase==='error'?t('읽기에 실패했습니다. 이전 카드와 계획을 유지합니다.','Read failed. Previous cards and manifest are preserved.'):receipts.phase==='mixed'?t('여러 플레이어의 기록이 섞였습니다. 현재 로그를 선택하세요.','Mixed player records. Choose the current log.'):t(`수신 ${cards.length}건 · 계획에는 직접 담아야 합니다.`,`${cards.length} received · Add contracts explicitly.`)}</p>}
++    <div className="receipt-grid">{cards.map(j=>{const added=d.jobs.some(k=>k.id===j.id),unready=j.state&&j.state!=='ready';return <article key={j.id} className="receipt-card" data-state={added?'added':checked.includes(j.id)?'checked':'new'}>
++     <label><span className="receipt-top"><span>{added?t('담은 계약','In manifest'):j.state==='incomplete'?t('정보 확인 필요','Incomplete'):j.state==='ended'?t('종료된 계약','Ended'):j.state==='conflict'?t('기록 충돌','Conflicting records'):t('선택 가능','Ready')}</span><input type="checkbox" disabled={locked||added||!!unready} checked={added||checked.includes(j.id)} aria-label={j.title[n]} onChange={e=>setChecked(e.target.checked?[...checked,j.id]:checked.filter(id=>id!==j.id))}/></span><strong>{j.title[n]}</strong></label>
++     <JobDetails job={j} locale={locale}/><div className="receipt-bottom"><span>{jobVolume(j)} SCU</span><span>{j.rewardUnknown?t('보상 미확인','Reward unknown'):j.pay.toLocaleString()+' aUEC'}</span></div>
++     {!added&&j.state==='incomplete'&&<button disabled={locked} onClick={()=>setForm(structuredClone({...j,shipments:j.shipments.length?j.shipments:[newRow()]}))}>{t('정보 보완하기','Complete details')}</button>}
++    </article>})}</div>
++    {!cards.length&&<div className="manifest-empty">{t('연결 앱에서 Game.log를 선택하거나 로그 파일을 열어 주세요.','Choose Game.log in the companion or open a log file here.')}</div>}
++    <div className="receipt-actions"><span>{t('선택','Selected')} {chosen.length}</span><button disabled={locked||!chosen.length} onClick={()=>{edit({jobs:[...d.jobs,...structuredClone(chosen)]});setChecked([])}}>{t('선택한 계약 담기','Add selected')} →</button></div>
++   </section>
++   <aside className="manifest-summary"><small>MANIFEST / 02</small><h2>{t('이번 운송','This flight')} <em>{d.jobs.length}</em></h2>
++    {!d.jobs.length&&<p>{t('왼쪽에서 운송할 계약을 골라 주세요.','Choose contracts from the inbox.')}</p>}
++    {d.jobs.map(j=><div className="manifest-row" key={j.id}><div><b>{j.title[n]}</b><span>{jobVolume(j)} SCU</span><JobDetails job={j} locale={locale}/></div><div className="manifest-row-actions"><button disabled={locked} onClick={()=>setForm(structuredClone(j))}>{t('수정','Edit')}</button><button disabled={locked} onClick={()=>edit({jobs:d.jobs.filter(k=>k.id!==j.id)})}>{t('빼기','Remove')}</button></div></div>)}
++    <dl><dt>{t('총 운송량','Total cargo')}</dt><dd>{total} SCU</dd><dt>{t('함선 용량','Ship capacity')}</dt><dd>{ships[d.ship]} SCU</dd><dt>{t('계산된 최대 적재량','Calculated peak load')}</dt><dd>{plan?plan.peak+' SCU':t('항로 계산 후 표시','After calculation')}</dd><dt>{t('확인된 보상','Known rewards')}</dt><dd>{pay.toLocaleString()} aUEC</dd></dl>
++    {d.jobs.some(j=>j.rewardUnknown)&&<p>{t('보상 미확인 계약은 합계에서 제외됩니다.','Unknown rewards are excluded.')}</p>}
++    <p>{t('파트너별 방문 순서와 실제 그리드 적재를 계산합니다. 상자 구성이 없으면 가정을 표시합니다.','Computes partner routing and grid packing. Assumed container sizes are flagged.')}</p>
++    <button className="manifest-primary dispatch-launch" disabled={locked||!d.jobs.length||!!form} onClick={()=>flight.calculate(()=>{location.hash='#/map?lang='+locale})}><HudFrame/><InterfaceGlyph kind="map"/><span>{flight.busy?t('계산 중…','Calculating…'):t('항로·적재 계산','Calculate route & cargo')}</span><b>↗</b></button>
++   </aside>
++  </div>
++  {form&&<form className="manifest-editor" onSubmit={e=>{e.preventDefault();saveForm()}}><h2>{t('계약 상세 입력','Contract details')}</h2><p>{t('픽업별 실제 수량을 입력하세요. 저장하면 이번 운송에 담습니다.','Enter actual per-pickup quantities. Saving adds this contract to the manifest.')}</p>
++   <label>{t('계약명','Title')}<input autoFocus maxLength={100} value={form.title[n]} onChange={e=>setForm({...form,title:[e.target.value,e.target.value]})}/></label>
++   <label>{t('보상 · 비워두면 미확인','Reward · blank if unknown')}<input type="number" min="0" max="999999999" value={form.rewardUnknown?'':form.pay} onChange={e=>setForm({...form,pay:Number(e.target.value),rewardUnknown:e.target.value===''})}/></label>
++   {form.shipments.map((r,i)=><fieldset key={r.id}><legend>{t('운송 항목','Shipment')} {i+1}</legend>
++    <label>{t('화물','Cargo')}<input required value={r.cargo[n]} onChange={e=>updateRow(r.id,{cargo:[e.target.value,e.target.value]})}/></label>
++    <label>SCU<input required type="number" min="1" max="10000" value={r.scu||''} onChange={e=>updateRow(r.id,{scu:Number(e.target.value),boxes:undefined})}/></label>
++    <label>{t('픽업','Pickup')}<select required value={r.from} onChange={e=>updateRow(r.id,{from:e.target.value})}><option value="">{t('선택하세요','Select')}</option>{options}</select></label>
++    <label>{t('배송','Delivery')}<select required value={r.to} onChange={e=>updateRow(r.id,{to:e.target.value})}><option value="">{t('선택하세요','Select')}</option>{options}</select></label>
++    {form.shipments.length>1&&<button type="button" onClick={()=>setForm({...form,shipments:form.shipments.filter(s=>s.id!==r.id)})}>{t('항목 빼기','Remove shipment')}</button>}
++   </fieldset>)}
++   {invalid&&<p>{t('화물명·실제 수량과 서로 다른 픽업·배송지를 확인하세요.','Check cargo, actual quantities and distinct pickup/delivery locations.')}</p>}
++   <div><button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('항목 추가','Add shipment')}</button><button disabled={locked||invalid} type="submit">{t('저장하고 담기','Save to manifest')}</button><button type="button" onClick={()=>setForm(null)}>{t('취소','Cancel')}</button></div>
++  </form>}
++ </div>;
+ }
+diff --git a/apps/control-room/src/mission-trial.ts b/apps/control-room/src/mission-trial.ts
+index deb84f6..6d6dd5f 100644
+--- a/apps/control-room/src/mission-trial.ts
++++ b/apps/control-room/src/mission-trial.ts
+@@ -1,3 +1,5 @@
++import type {Mission} from './flight-types';
++import fleet from '../../../data/ships.json' with {type:'json'};
+ import locationData from '../../../data/log-location-index.json' with {type:'json'};
+ import korean from '../../../data/stam-korean.json' with {type:'json'};
+ type Name = [string,string];
+@@ -13,8 +15,8 @@ export type Place = string;
+ export function placeName(id:Place,language:number) {
+   return places[id]?.[language] ?? (language===0?'거점 미확인':'Unknown stop');
+ }
+-export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number };
+-export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; reservations?:Record<string,number>;
++export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number; boxes?:{size:number;count:number}[] };
++export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; mission?:Mission; reservations?:Record<string,number>;
+   state?:'ready'|'incomplete'|'ended'|'conflict'; hints?:{cargo:string;scu:number;place:string;name?:string}[] };
+ type Single = Omit<Shipment,'id'> & { id:string; pay:number };
+ function singleJob({id,pay,...row}:Single):Job {
+@@ -34,13 +36,16 @@ export const samples: Job[] = [
+     {id:'outpost-3',cargo:['기계 부품','Machine parts'],from:'arccorp',to:'crusader',scu:12},
+   ]},
+ ];
+-export const ships = { 'Cutlass Black':46, 'C2 Hercules':696 };
++export const ships:Record<string,number> = Object.fromEntries(fleet.map(s=>[s.id,s.grids.reduce((n,g)=>n+g.w*g.h*g.l,0)]));
++export const shipNames:Record<string,string> = Object.fromEntries(fleet.map(s=>[s.id,s.name]));
++const oldShips:Record<string,string> = {'Cutlass Black':'drake-cutlass-black','C2 Hercules':'crusader-c2-hercules-starlifter'};
+ export type Draft = { received:boolean; jobs:Job[]; start:Place; ship:keyof typeof ships; partner:'operator'|'navigator'; reviewed:boolean };
+-export const emptyDraft = ():Draft => ({received:false,jobs:[],start:'hurston',ship:'Cutlass Black',partner:'operator',reviewed:false});
++export const emptyDraft = ():Draft => ({received:false,jobs:[],start:'hurston',ship:'drake-cutlass-black',partner:'operator',reviewed:false});
+ export const trialKey = 'stam.mission-console.trial.v1';
+ export function readDraft():Draft {
+   try {
+     const value = JSON.parse(sessionStorage.getItem(trialKey) || 'null');
++    if(value && oldShips[value.ship]) value.ship=oldShips[value.ship];
+     if (value && Object.hasOwn(places,value.start) && Object.hasOwn(ships,value.ship) &&
+       ['operator','navigator'].includes(value.partner) && Array.isArray(value.jobs)) {
+       const jobs:Job[] = value.jobs.map((job:Job|Single)=>'shipments' in job?job:singleJob(job));
+diff --git a/apps/control-room/src/receipt-log.worker.mjs b/apps/control-room/src/receipt-log.worker.mjs
+index 4a13064..c4821d6 100644
+--- a/apps/control-room/src/receipt-log.worker.mjs
++++ b/apps/control-room/src/receipt-log.worker.mjs
+@@ -1,53 +1,19 @@
+-import { LogLines } from '../../../integration/log/lines.mjs';
+-import { LogEvidence } from '../../../integration/log/state.mjs';
+-import { locationIndex } from '../../../integration/log/locations.mjs';
+-import { inboxCards, withDeliveryTotal } from '../../../integration/inbox-core.mjs';
+-import { actualQuantity, deliveryGroups } from '../../../delivery-totals.mjs';
+-import { prepareMissionDb } from '../../../mission-match.mjs';
++import {LogLines} from '../../../integration/log/lines.mjs';
++import {LogEvidence} from '../../../integration/log/state.mjs';
++import {locationIndex} from '../../../integration/log/locations.mjs';
+ import locations from '../../../data/log-location-index.json';
+-import catalog from '../../../data/log-mission-index.json';
+-import hauling from '../../../data/hauling-missions.json';
+-import korean from '../../../data/stam-korean.json';
+-import aiNames from '../../../data/ai-korean.json';
+-
++import {projectSnapshot} from './receipt-projector.mjs';
+ const index=locationIndex(locations);
+-const points=locations.locations.filter(p=>p.id).map(p=>({...p,uuid:p.id,id:p.system+':'+p.id}));
+-const db=prepareMissionDb(hauling,{commodities:Object.fromEntries(Object.entries(aiNames.goods||{}).map(([en,ko])=>[ko,en]))});
+-const cities={Lorville:'hurston',Orison:'crusader',Area18:'arccorp','New Babbage':'microtech'};
+-const chartIds=new Map(points.map(p=>[p.id,p.system==='stanton' && Object.hasOwn(cities,p.name)?cities[p.name]:p.id]));
+-
+-function receipt(raw) {
+-  // A logged goal can cover several pickups. Only accept an unambiguous
+-  // destination total; preserve unknown per-pickup shares as unknown.
+-  let draft={cargo:raw.rows};
+-  for(const group of deliveryGroups(draft)) {
+-    const hints=(raw.quantityHints||[]).filter(h=>h.dropoffId===group.dropoffId);
+-    if(hints.length!==1 || !group.dropoffId || !group.rows.every(r=>r.commodity===hints[0].commodity)) continue;
+-    try { draft=withDeliveryTotal(draft,group.dropoffId,hints[0].scu); } catch { /* Keep unresolved evidence visible. */ }
+-  }
+-  const reservations={};
+-  for(const group of deliveryGroups(draft)) {
+-    if(group.reservation) reservations[chartIds.get(group.dropoffId)]=group.total;
+-  }
+-  const shipments=draft.cargo.map((row,i)=>({
+-    id:raw.id+'-'+i, cargo:[korean.goods[row.commodity]||aiNames.goods?.[row.commodity]||row.commodity,row.commodity],
+-    from:chartIds.get(row.pickupId)||'',to:chartIds.get(row.dropoffId)||'',
+-    scu:actualQuantity(row)?row.scu:0,
+-  }));
+-  const incomplete=!shipments.length||shipments.some(row=>!row.from||!row.to||!row.cargo[1]||!row.scu&&!reservations[row.to]);
+-  return {id:raw.id,title:[raw.title,raw.title],shipments,pay:0,rewardUnknown:true,reservations,
+-    state:raw.conflict?'conflict':raw.ended?'ended':incomplete?'incomplete':'ready',
+-    hints:(raw.quantityHints||[]).map(h=>({cargo:h.commodity,scu:h.scu,place:chartIds.get(h.dropoffId)||'',name:h.dropoffText}))};
+-}
+-self.onmessage=async ({data:file})=>{
++self.onmessage=async ({data})=>{
++  const {id,file,snapshot}=data;
+   try {
++    if(snapshot){self.postMessage({id,...projectSnapshot(snapshot)});return;} 
+     const evidence=new LogEvidence({locations:index});
+     const lines=new LogLines({onLine:(line,lineNumber)=>evidence.ingest(line,{file:'Game.log',line:lineNumber}),onInvalid:code=>evidence.note(code)});
+     for(let offset=0;offset<file.size;offset+=262144) {
+       lines.write(new Uint8Array(await file.slice(offset,offset+262144).arrayBuffer()));
+     }
+     lines.finish();
+-    const result=inboxCards(evidence.snapshot(),points,index,catalog,db);
+-    self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});
+-  } catch { self.postMessage({phase:'error',cards:[]}); }
++    self.postMessage({id,...projectSnapshot(evidence.snapshot())});
++  } catch { self.postMessage({id,phase:'error',cards:[]}); }
+ };
+diff --git a/apps/control-room/src/use-log-receipts.ts b/apps/control-room/src/use-log-receipts.ts
+index dea0f61..53b8571 100644
+--- a/apps/control-room/src/use-log-receipts.ts
++++ b/apps/control-room/src/use-log-receipts.ts
+@@ -1,25 +1,30 @@
+ import { useEffect, useRef, useState } from 'react';
++import { connectCompanion } from './companion-client';
+ import type { Job } from './mission-trial';
+ 
+-type Result = {phase:'loaded'|'mixed'|'error';cards:Job[]};
++type Result = {phase:'loaded'|'mixed'|'error'|'idle'|'reading';cards:Job[]};
++let cached:Result={phase:'idle',cards:[]};
+ export function useLogReceipts() {
+-  const worker=useRef<Worker|null>(null);
+-  const [result,setResult]=useState<{phase:Result['phase']|'idle'|'reading';cards:Job[]}>({phase:'idle',cards:[]});
+-  useEffect(()=>()=>{worker.current?.terminate();worker.current=null;},[]);
+-  function read(file:File) {
+-    worker.current?.terminate();
+-    setResult({phase:'reading',cards:[]});
++  const worker=useRef<Worker|null>(null), serial=useRef(0), disconnect=useRef<(()=>void)|null>(null);
++  const [result,setResult]=useState<Result>(cached);
++  const [live,setLive]=useState('disconnected');
++  function cancel(){serial.current++;worker.current?.terminate();worker.current=null;}
++  function stop(){disconnect.current?.();disconnect.current=null;cancel();setLive('disconnected');}
++  useEffect(()=>()=>{disconnect.current?.();cancel();},[]);
++  function project(payload:{file?:File;snapshot?:unknown}) {
++    cancel();const id=serial.current;
++    setResult(current=>({...current,phase:'reading'}));
+     try {
+-      const next=new Worker(new URL('./receipt-log.worker.mjs',import.meta.url),{type:'module'});
+-      worker.current=next;
+-      const finish=(value:Result)=>{
+-        if(worker.current!==next)return;
+-        next.terminate();worker.current=null;setResult(value);
++      const next=new Worker(new URL('./receipt-log.worker.mjs',import.meta.url),{type:'module'});worker.current=next;
++      const finish=(value:Result)=>{if(serial.current!==id)return;next.terminate();worker.current=null;
++        if(value.phase==='error'){setResult(current=>({...current,phase:'error'}));return;}
++        cached=value;setResult(value);
+       };
+-      next.onmessage=(event:MessageEvent<Result>)=>finish(event.data);
+-      next.onerror=()=>finish({phase:'error',cards:[]});
+-      next.postMessage(file);
+-    } catch { setResult({phase:'error',cards:[]}); }
++      next.onmessage=(event:MessageEvent<Result&{id:number}>)=>{if(event.data.id===id)finish(event.data);};
++      next.onerror=()=>finish({phase:'error',cards:[]});next.postMessage({id,...payload});
++    } catch { setResult(current=>({...current,phase:'error'})); }
+   }
+-  return {...result,read};
++  function connect(){stop();disconnect.current=connectCompanion({status:setLive,snapshot:snapshot=>project({snapshot})});}
++  function read(file:File){stop();project({file});}
++  return {...result,read,live,connect,disconnect:stop};
+ }
+diff --git a/apps/control-room/vite.config.ts b/apps/control-room/vite.config.ts
+index ab6361d..016194c 100644
+--- a/apps/control-room/vite.config.ts
++++ b/apps/control-room/vite.config.ts
+@@ -1,11 +1,12 @@
+ import { defineConfig } from 'vite';
++import {companionProxy} from './companion-proxy.mjs';
+ import react from '@vitejs/plugin-react';
+ import { readFileSync } from 'node:fs';
+ 
+ // Relative assets and hash navigation also work under a GitHub Pages subpath.
+ // This build is deliberately separate from the current Pages publishing pipeline.
+ export default defineConfig({
+-  plugins: [react(), {
++  plugins: [react(), companionProxy(), {
+     name: 'stam-font-licenses',
+     generateBundle() {
+       const source = ['SUIT', 'OXANIUM'].map(name => `${name}\n\n${readFileSync(new URL(`./src/assets/fonts/${name}-LICENSE.txt`, import.meta.url), 'utf8')}`).join('\n\n');
+diff --git a/scene.mjs b/scene.mjs
+index e3d9e39..f91d314 100644
+--- a/scene.mjs
++++ b/scene.mjs
+@@ -64,7 +64,7 @@ function crateFrame(dx,dy,dz){const key=[dx,dy,dz].join();if(frameCache.has(key)
+  const g=mergeGeos(parts);g.userData.shared=true;frameCache.set(key,g);return g;}
+ let shadowTex=null;function contactShadow(){if(shadowTex)return shadowTex;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),r=g.createRadialGradient(64,64,10,64,64,64);r.addColorStop(0,'rgba(0,0,0,.75)');r.addColorStop(.6,'rgba(0,0,0,.35)');r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128);shadowTex=new THREE.CanvasTexture(c);return shadowTex;}
+ function bracketGeo(w,h,l){const k=Math.min(.6,Math.min(w,h,l)*.3),p=[],hx=w/2,hy=h/2,hz=l/2;for(const sx of [-1,1])for(const sy of [-1,1])for(const sz of [-1,1]){const x=sx*hx,y=sy*hy,z=sz*hz;p.push(x,y,z,x-sx*k,y,z,x,y,z,x,y-sy*k,z,x,y,z,x,y,z-sz*k);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));return g;}
+-export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}={}){
++export function createCargoView(container,{onGridToggle,isGridLocked=()=>false,labelStorageKey='vh-cargo-labels'}={}){
+  cargoUsers++;let disposed=false;const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+  // Grid-only cargo view (no ship exterior). Every hold, Hull B included, uses one rotatable 3D view with side labels.
+  let views=[],layout='',profileKey='',ship=DEFAULT_SHIP,lastBoxes=new Set(),dropStart=0,nameOf=null,missionNameOf=null,selecting=false,lastPacking=null,lastOptions={};
+@@ -76,8 +76,8 @@ export function createCargoView(container,{onGridToggle,isGridLocked=()=>false}=
+    ctx.controls.dampingFactor=.09;ctx.controls.rotateSpeed=.6;ctx.controls.zoomSpeed=.9;ctx.controls.screenSpacePanning=true;
+    ctx.scene.background=new THREE.Color('#06121b');const bloom=createBloom(ctx.renderer,{strength:0});const v={...ctx,finish,el,canvas,frame,boxes,bloom,labels:[],cages:[],side:el.dataset.side,center:new THREE.Vector3(),radius:15,tip:el.querySelector('.cargo-tip')};el.querySelector('.cargo-camera-reset').onclick=()=>home(v);el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>home(v,b.dataset.view));ctx.controls.addEventListener('start',()=>{v.transition=null;});ctx.controls.addEventListener('change',()=>v.loop?.invalidate());el.querySelector('.cargo-grid-toggle').onclick=()=>{selecting=!selecting;update(lastPacking,lastOptions);};
+    // Grid name/fill labels can be hidden to see the boxes; remembered per browser.
+-   const labelBtn=el.querySelector('.cargo-label-toggle'),showLabels=on=>{el.classList.toggle('labels-off',!on);labelBtn.textContent=on?'라벨 숨기기':'라벨 보기';try{localStorage.setItem('vh-cargo-labels',on?'1':'0');}catch{}};
+-   let labelsOn=true;try{labelsOn=localStorage.getItem('vh-cargo-labels')!=='0';}catch{}showLabels(labelsOn);labelBtn.onclick=()=>showLabels(el.classList.contains('labels-off'));
++   const labelBtn=el.querySelector('.cargo-label-toggle'),showLabels=on=>{el.classList.toggle('labels-off',!on);labelBtn.textContent=on?'라벨 숨기기':'라벨 보기';try{localStorage.setItem(labelStorageKey,on?'1':'0');}catch{}};
++   let labelsOn=true;try{labelsOn=localStorage.getItem(labelStorageKey)!=='0';}catch{}showLabels(labelsOn);labelBtn.onclick=()=>showLabels(el.classList.contains('labels-off'));
+    let press=null;canvas.addEventListener('pointerdown',e=>{press=[e.clientX,e.clientY];});canvas.addEventListener('pointerup',e=>{if(selecting&&press&&Math.hypot(e.clientX-press[0],e.clientY-press[1])<5)pickGrid(v,e);press=null;});canvas.addEventListener('pointermove',e=>hoverBox(v,e));canvas.addEventListener('pointerleave',()=>{v.tip.hidden=true;v.hoverId=null;v.loop?.invalidate();});v.loop=observeRenderLoop(el,(dt,stamp)=>render(v,dt,stamp));return v;});}
+  function home(v,mode='orbit',instant=false){
+   const dir=mode==='top'?new THREE.Vector3(0,1,.001):mode==='left'?new THREE.Vector3(-1,.2,0):mode==='right'?new THREE.Vector3(1,.2,0):new THREE.Vector3(-.45,.85,.9);
+diff --git a/starmap.mjs b/starmap.mjs
+index 81c2bf1..6d046b8 100644
+--- a/starmap.mjs
++++ b/starmap.mjs
+@@ -2,8 +2,8 @@ import {observeRenderLoop} from './render-loop.mjs';
+ import {mapLocationName,activeSystemLinks,stepNumbers,jumpSegments} from './route-display.mjs';
+ import * as THREE from 'three';
+ import {setup,clearGroup} from './scene.mjs';
+-import {koName,placeLabel,suggestLocations,systemLabel} from './aliases.mjs';
+-import {tr,gameEn,L} from './i18n.mjs';
++import {koName,placeLabel as defaultPlaceLabel,suggestLocations,systemLabel} from './aliases.mjs';
++import {tr,gameEn as defaultGameEn,L as defaultL} from './i18n.mjs';
+ import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite,createBackdrop} from './mapfx.mjs';
+ import {createBloom} from './bloom.mjs';
+ 
+@@ -42,10 +42,10 @@ class Rig{
+   const sp=Math.sin(c.phi);this.camera.position.set(c.x+c.r*sp*Math.sin(c.theta),c.y+c.r*Math.cos(c.phi),c.z+c.r*sp*Math.cos(c.theta));this.camera.lookAt(c.x,c.y,c.z);this.camera.near=Math.max(1e-5,c.r*.001);this.camera.far=30000;this.camera.updateProjectionMatrix();}
+ }
+ 
+-export function createStarMap(container,labelContainer,data,onSelect){
+- const {renderer,scene,camera,controls}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
++export function createStarMap(container,labelContainer,data,onSelect,{placeLabel=defaultPlaceLabel,L=defaultL,gameEn=defaultGameEn,qualityStorageKey='vh-map-quality'}={}){
++ const {renderer,scene,camera,controls,resizeObserver}=setup(container,{logDepth:true,near:1e-4});controls.enabled=false;controls.dispose?.();
+  scene.traverse(o=>{if(o.isAmbientLight)o.intensity=0;if(o.isDirectionalLight)o.intensity=0;});
+- let quality=QUALITY.high,qualityName='high';try{const q=localStorage.getItem('vh-map-quality');if(QUALITY[q]){quality=QUALITY[q];qualityName=q;}}catch{}
++ let quality=QUALITY.high,qualityName='high';try{const q=localStorage.getItem(qualityStorageKey);if(QUALITY[q]){quality=QUALITY[q];qualityName=q;}}catch{}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));const bloom=createBloom(renderer,{strength:quality.bloom});
+  const rig=new Rig(camera,renderer.domElement),backdrop=createBackdrop(scene),reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+  const galaxyGroup=new THREE.Group(),systemGroup=new THREE.Group(),routeGroup=new THREE.Group(),labelGroup=new THREE.Group();scene.add(galaxyGroup,systemGroup,routeGroup,labelGroup);
+@@ -171,7 +171,8 @@ export function createStarMap(container,labelContainer,data,onSelect){
+  el.addEventListener('pointerleave',()=>hover(null));
+  el.addEventListener('pointerup',e=>{const moved=down&&Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;el.style.cursor='grab';if(moved)return;const h=pick(e);if(!h||h.galaxy)return;selected=h.loc.id;onSelect(h.loc,describe(h.loc));});
+  el.addEventListener('dblclick',e=>{const h=pick(e);if(!h)return;if(h.galaxy){enterSystem(h.galaxy);const st=data.locations.find(l=>l.system===h.galaxy&&l.type==='Star');if(st)onSelect(st,h.galaxy.toUpperCase()+' 항성계');return;}selected=h.loc.id;onSelect(h.loc,describe(h.loc));focus(h.loc.id);});
+- wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}});
++ const listenerAbort=new AbortController();
++ wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}},{signal:listenerAbort.signal});
+ 
+  // ---- frame loop -------------------------------------------------------------------------------
+  const tmp=V(),res=new THREE.Vector2();
+@@ -206,9 +207,10 @@ export function createStarMap(container,labelContainer,data,onSelect){
+   if(legLabel){const [pw,ph]=legLabel.sprite.userData.px;legLabel.sprite.position.copy(legLabel.pos);const scale=Math.min(1,(w-28)/pw);spriteScale(legLabel.sprite,pw*scale,ph*scale);legLabel.sprite.userData.displayPx=[pw*scale,ph*scale];legLabel.sprite.center.set(.5,-.5);legLabel.sprite.visible=(reducedMotion.matches||t>.6)&&screen(legLabel.pos).front;}
+   bloom.render(scene,camera);return 60;}
+  goGalaxy(true);enterSystem('stanton',true);const renderLoop=observeRenderLoop(el,frame);
+- return {setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
++ let disposed=false;
++ return {dispose(){if(disposed)return;disposed=true;listenerAbort.abort();renderLoop.dispose();resizeObserver?.disconnect();controls.dispose();clearLabels();clearGroup(scene);bloom.dispose();renderer.dispose();renderer.forceContextLoss?.();renderer.domElement.remove();tip.remove();crumbs.remove();routeReadout.remove();},setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
+   focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
+-  setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
++  setQuality(q){if(!QUALITY[q])return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem(qualityStorageKey,q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
+   _debug:()=>({renderLoop:renderLoop.stats(),reducedMotion:reducedMotion.matches,post:{bloom:quality.bloom>0},level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeLabelPx:legLabel?.sprite.userData.displayPx||null,routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id)),icon:itemById.get(id)?.icon}))}),
+   search:q=>suggestLocations(q,data.locations,{limit:12})};
+ }

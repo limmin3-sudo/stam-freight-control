@@ -38,3 +38,30 @@
 .space-markers{position:absolute;inset:0;pointer-events:none}.space-marker{position:absolute;display:grid;place-items:center;width:44px;height:44px;transform:translate(-50%,-50%);pointer-events:auto;z-index:2;border-radius:50%}.space-marker-glyph{display:block;width:34px;height:34px;overflow:visible;filter:drop-shadow(0 2px 3px #0008);transition:transform .16s}.marker-disc{fill:#19232bd9;stroke:#e8c883;stroke-width:1.5}.marker-inner{fill:none;stroke:#f3d99f;stroke-opacity:.6;stroke-width:.8}.marker-ticks{fill:none;stroke:#ead39b;stroke-width:1.15;stroke-linecap:round;opacity:.85}.marker-core{fill:#ffe5af}.space-marker.is-lit .marker-disc{fill:#5a4a2c;stroke:#ffe6ad}.space-marker.is-lit .space-marker-glyph{transform:scale(1.08)}.space-marker:focus-visible{outline:2px solid #f4dba5;outline-offset:0}[data-moving=true] .space-markers{opacity:0;pointer-events:none}[data-moving=true] .space-marker{pointer-events:none}
 
 @media(max-width:760px){.space-marker-glyph{width:30px;height:30px}}@media(prefers-reduced-motion:reduce){.space-marker-glyph{transition:none}}
+
+/* Original master + localized clean-plate patches + independent people/map/UI. */
+.bridge-background-patches{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.space-person{z-index:1}.space-segments{z-index:3}
+.space-bridge .space-artwork{transition:width .85s cubic-bezier(.22,.7,.28,1),height .85s cubic-bezier(.22,.7,.28,1)}
+.space-bridge .space-background,.space-bridge .bridge-background-patches,.space-bridge .space-person{transition:opacity .7s}
+.space-experience[data-screen=map] .space-artwork{width:100%;height:calc(100svh - 174px);min-height:540px;aspect-ratio:auto;margin:0;background:radial-gradient(ellipse at 40% 50%,#0d2533,#030b13 70%)}
+.space-experience[data-screen=map] .space-background,.space-experience[data-screen=map] .bridge-background-patches{opacity:0}
+.space-experience[data-screen=map] .space-person,.space-experience[data-screen=map] .space-intro,.space-experience[data-screen=map] .space-labels,.space-experience[data-screen=map] .space-markers,.space-experience[data-screen=map] .space-segments,.space-experience[data-screen=map] .space-leaders,.space-experience[data-screen=map] .space-vignette{visibility:hidden;opacity:0;pointer-events:none}
+.space-experience[data-screen=map] .space-scene-note{display:none}
+.space-experience[data-motion=false] .space-artwork,.space-experience[data-motion=false] .space-camera,.space-experience[data-motion=false] .space-person,.space-experience[data-motion=false] .space-background,.space-experience[data-motion=false] .bridge-background-patches{transition:none!important}
+@media(max-width:760px){.space-experience[data-screen=map] .space-artwork{margin-top:0;min-height:640px;height:calc(100svh - 220px)}}
+.space-segments{pointer-events:none}.space-segments path{pointer-events:all}.space-markers{z-index:4}
+.space-bridge .space-person{z-index:3}
+.bridge-partners{position:absolute;inset:0;pointer-events:none;z-index:3}
+.space-experience[data-moving=true] .bridge-partners{opacity:0;transition:opacity .3s}
+.space-experience[data-screen=map] .bridge-partners{visibility:hidden;opacity:0}
+
+/* Spatial titles share the STANTON chart's light, letter-spaced typography. */
+.space-intro{padding:18px 0;background:none;border-radius:0;box-shadow:none;text-shadow:none;isolation:isolate}
+.space-intro>p{font:500 8px/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.28em;color:#83afbf;margin:0 0 10px}
+.space-intro h1{position:relative;font-family:Oxanium,SUIT,sans-serif;font-size:clamp(22px,2.35vw,36px);font-weight:350;letter-spacing:.14em;text-transform:uppercase;color:#c3e6f0;margin:8px 0 13px;line-height:1.4;text-shadow:0 0 15px #89d8f338,0 1px 0 #f1fcff26}
+.space-title-depth{position:absolute;inset:0;transform:translate(1.5px,2px);color:#347a9560;filter:blur(.6px);z-index:-1}
+.space-intro>span{font:350 11px/1.7 SUIT,sans-serif;letter-spacing:.065em;color:#a8c5d1;text-shadow:0 1px 5px #0008}
+.space-intro:after{content:"";display:block;width:126px;height:1px;margin-top:17px;background:linear-gradient(90deg,#b5edff99,#62b6d22b,transparent);box-shadow:0 0 6px #96d8f233}
+.space-lounge .space-intro{padding:20px 26px;background:linear-gradient(100deg,#071c2bd9,#071c2b8c 66%,transparent);border-left:1px solid #bcecff45}
+@media(max-width:760px){.space-intro{padding:0}.space-intro h1{font-size:23px;letter-spacing:.105em;margin:3px 0 5px}.space-intro>p{font-size:7px;margin-bottom:4px}.space-intro>span{font-size:10px}.space-intro:after{margin-top:9px;width:85px}.space-lounge .space-intro{padding:0;background:none;border:0}.space-switch{font-size:10px;gap:8px}}
