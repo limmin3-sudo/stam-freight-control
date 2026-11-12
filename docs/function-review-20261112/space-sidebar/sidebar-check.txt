@@ -1,0 +1,1 @@
+PASS: external 16:9 sidebar, expanding group pushes later headers, collapse/inert, space/child/history/locale navigation, mobile drawer/Escape, reduced motion, storage preservation

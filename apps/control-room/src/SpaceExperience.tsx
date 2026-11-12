@@ -4,6 +4,7 @@ import {PartnerConversation} from './PartnerConversation';
 import {partnerDialogue} from './partner-dialogue';
 import type {PartnerId} from './partner-dialogue';
 import {MapConsole} from './MapConsole';
+import {SpaceNavigation} from './SpaceNavigation';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
 import { ControlRoom } from './ControlRoom';
@@ -160,6 +161,11 @@ export function SpaceExperience() {
       cancel();setConversation(null);
       location.hash=spaceHash({...route,screen:'guide'});return;
     }
+    // Space headers stay mounted while their children expand and push the
+    // following headers down. Scene markers still own cinematic travel.
+    if(!target&&(screen==='lounge'||screen==='bridge')){
+      location.hash=spaceHash({...route,screen});return;
+    }
     if (!motion || (target && (!imageReady || imageError))) {
       location.hash = spaceHash({ ...route, screen }); return;
     }
@@ -205,21 +211,15 @@ export function SpaceExperience() {
   if(route.screen==='map')return <MapConsole flight={flight} locale={route.locale}/>;
   return <>{consoleOpen ? <ControlRoom flight={flight} /> : <div className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
-      event.preventDefault(); document.querySelector<HTMLElement>('.space-dock a,.guide-desk button:not([disabled])')?.focus();
+      event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button[aria-current],.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
     <header className="space-topbar">
       <a className="room-brand" href={href('lounge')} onClick={event=>{if(route.screen==='guide')enter(event,'lounge');}} aria-label={word(names.lounge)}>
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
         <span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
       </a>
-      <nav className="space-switch" aria-label={en ? 'Locations' : '공간 이동'}>
-        <a href={href('lounge')} onClick={event => enter(event, 'lounge')} aria-current={scene === 'lounge' ? 'location' : undefined}>{en ? 'Lounge' : '라운지'}</a>
-        <span aria-hidden="true">/</span>
-        <a href={href('bridge')} onClick={event => enter(event, 'bridge')} aria-current={scene === 'bridge' ? 'location' : undefined}>{word(names.bridge)}</a>
-      </nav>
-      <a className="control-mode-link" href={href('operations')+'&mode=control'}>{en ? 'Control console' : '관제 콘솔'}</a>
       <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
-      <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select value={route.locale} onChange={event => {
+      <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
         cancel();
         const next = { ...route, locale: event.target.value as Locale };
         history.replaceState(null, '', spaceHash(next)); setRoute(next);
@@ -228,6 +228,7 @@ export function SpaceExperience() {
 
     <main className="space-main">
       {isOverview ? <section className="space-overview" aria-labelledby="space-title">
+        <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${spaceConfig.approachMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
           <div className="space-camera">
             <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
@@ -293,11 +294,6 @@ export function SpaceExperience() {
               </g>;
             })}
           </svg>
-          <div className="space-intro">
-            <p>{scene === 'lounge' ? 'PLANETSIDE / ARRIVALS' : 'ORBITAL / COMMAND'}</p>
-            <h1 id="space-title" ref={heading} tabIndex={-1}><span className="space-title-depth" aria-hidden="true">{word(names[scene])}</span><span>{word(names[scene])}</span></h1>
-            <span>{en ? (scene === 'lounge' ? 'Every journey begins here.' : 'Your next route starts here.') : (scene === 'lounge' ? '다음 항해가 시작되는 곳.' : '항로를 펼치고, 다음 운송을 준비하세요.')}</span>
-          </div>
           <div className="space-labels" inert={!!pending}>
             {configuration.targets.map(target => <div key={target.id} className="space-target" data-target={target.id}
               style={{ left: `${target.x}%`, top: `${target.y}%` }}>
@@ -329,11 +325,7 @@ export function SpaceExperience() {
         </div><div className="space-cinema-caption"><span>STAM / FREIGHT CONTROL</span><p>{en ? 'The STAM fleet, beyond the horizon.' : '더 넓은 우주로 향하는 STAM 함대.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
       </section>}
       {route.screen!=='guide' && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
-        <div className="space-sidebar-caption" aria-hidden="true">STAM / ACCESS</div>
-      <nav id="space-navigation" className="space-dock" aria-label={en ? 'Direct access' : '공간 바로가기'}>
-        {(scene === 'lounge' ? ['bridge', 'guide', 'service', 'information', 'cinema'] as const : ['lounge', 'mission', 'map', 'operations'] as const).map(screen => <a key={screen} href={href(screen)} aria-current={route.screen === screen ? 'page' : undefined}
-          onClick={event => enter(event, screen)}><span>{word(names[screen])}</span></a>)}
-      </nav>
+        <SpaceNavigation screen={route.screen} locale={route.locale} pending={!!pending} href={href} onNavigate={enter}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {
           if (sound) { setSound(false); return; }

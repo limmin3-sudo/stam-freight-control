@@ -1,0 +1,4 @@
+PASS: natural 23.833s gate approach → exit/landing → boarding playback, audio controls, destination and flight preservation
+PASS: cancel, Escape, skip, shortcut and external navigation clean up playback
+PASS: load failure fallback, 390px controls, English and reduced-motion bypass
+PASS: autoplay retry, no page errors, stored flight unchanged

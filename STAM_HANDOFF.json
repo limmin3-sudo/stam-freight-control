@@ -11,13 +11,13 @@
   "previewCommand": "npm run dev:control-room",
   "windowsLauncher": "start-control-room-preview.cmd",
   "previewUrl": "http://127.0.0.1:5173/#/lounge?lang=ko",
-  "videoProvider": "Grok Imagine; prepare start frames and prompts, review results, edit and connect UI locally. User selected 2026-11-11; supersedes earlier local Gen Studio generation.",
+  "videoProvider": "Grok Imagine; prepare frames/prompts, review results, edit and connect approved media in a separate cinematic cloud branch.",
   "runwayEnabled": false,
   "applyArchivedZip": false,
   "autoGenerateVideo": false,
   "autoPublish": false,
   "releaseChannel": "beta",
-  "releaseVersion": "2.4.0",
+  "releaseVersion": "2.5.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
   "tomorrow": "Functional work and integration continue in Cloud. Preserve screenshot OCR with human review. Verify real Game.log, account/device sync and GPU behavior when those environments are available. Cinematic local sends branch/commit for unfinished takeoff, final audio and console transitions. Fetch development handoff when switching locations; deployment is not required for sync.",
@@ -28,6 +28,7 @@
   "functionWorkCommit": "de2042f3920e77aab43618786682a366489710fb",
   "functionWorkIntegrated": true,
   "functionOwner": "cloud",
-  "cinematicOwner": "local",
-  "integrationOwner": "function-cloud"
+  "cinematicOwner": "cloud",
+  "integrationOwner": "function-cloud",
+  "activeFunctionBranch": "feature/space-sidebar-20261112"
 }

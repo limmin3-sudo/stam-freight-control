@@ -13,7 +13,7 @@ export function OpeningFilm({children}:{children:ReactNode}){
  const video=useRef<HTMLVideoElement>(null),skip=useRef<HTMLButtonElement>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null);
  const en=new URLSearchParams(location.hash.split('?')[1]||location.search).get('lang')==='en';
  const finish=useCallback(()=>{if(timer.current)return;try{sessionStorage.setItem(openingSeenKey,'1');}catch{}video.current?.pause();setLeaving(true);
-  timer.current=setTimeout(()=>{setVisible(false);setLeaving(false);timer.current=null;requestAnimationFrame(()=>document.querySelector<HTMLElement>('.space-switch a[aria-current]')?.focus({preventScroll:true}));},matchMedia('(prefers-reduced-motion: reduce)').matches?0:650);
+  timer.current=setTimeout(()=>{setVisible(false);setLeaving(false);timer.current=null;requestAnimationFrame(()=>Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button[aria-current]')).find(element=>element.getClientRects().length)?.focus({preventScroll:true}));},matchMedia('(prefers-reduced-motion: reduce)').matches?0:650);
  },[]);
  useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current);},[]);
  useEffect(()=>{if(!visible)return;skip.current?.focus({preventScroll:true});void video.current?.play().catch(()=>setBlocked(true));const escape=(e:KeyboardEvent)=>{if(e.key==='Escape')finish();};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);},[visible,finish]);

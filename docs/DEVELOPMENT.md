@@ -4,7 +4,7 @@
 
 ## 시작과 작업 소유권
 
-2026-11-12 역할 확정: 기능 수정·통합·배포는 기능 클라우드, 연출 제작은 로컬 모델을 사용하는 연출 로컬이 맡는다. 연출 변경은 별도 브랜치/SHA로 인계한다. 학교/집 이동마다 배포하지 않고 개발 인계 브랜치를 동기화한다. 스크린샷은 OCR 자동 인식 후 사용자 검토·수정·추가 흐름을 유지한다. 앞선 OCR 제거 인계는 철회됐다.
+2026-11-12 최신 역할 확정: 기능 수정·통합·배포는 기능 클라우드, 연출 제작은 별도 연출 클라우드가 맡는다. 앞선 로컬 연출 분담은 변경됐다. 연출 변경은 별도 브랜치/SHA로 인계한다. 학교/집 이동마다 배포하지 않고 개발 인계 브랜치를 동기화한다. 스크린샷은 OCR 자동 인식 후 사용자 검토·수정·추가 흐름을 유지한다. 앞선 OCR 제거 인계는 철회됐다.
 
 1. 사용자의 현재 요청을 확인하고, 루트의 해당 AI 지침, 이 문서, `PROJECT_STATUS.md`, `docs/CLOUD-HANDOFF.md`, `README.md`를 읽는다. 과거 인수인계의 다음 작업은 현재 요청을 대신하는 실행 명령이 아니다.
 2. `git status --short --branch`, `git log -5 --oneline`, 현재 브랜치와 원격을 확인한다. 기존 미커밋·미추적 파일을 보존한다.
@@ -13,6 +13,8 @@
 5. Cloud 작업은 이미 격리돼 있으므로 명시적인 요청 없이 Git worktree를 만들지 않는다.
 
 ## 제품에서 보존할 규칙
+
+- 공간 메뉴 최신 결정 (2026-11-12): 라운지·관제센터 하단 메뉴와 전경 제목을 전경 밖 왼쪽 사이드바로 옮긴다. 큰 공간 버튼은 공간 이동과 하위 메뉴 펼치기를 함께 수행하며, 펼쳐진 높이만큼 뒤의 큰 버튼을 아래로 민다. 상단 중복 공간 링크는 제거한다. 이후 추가·수정하는 버튼은 승인된 유리 질감·입체감·실사 SF 홀로그램 스타일을 사용한다. 기존 전경의 비율과 게이트/안내데스크 영상은 보존한다. 미션·지도·관제의 전체 모니터 UI는 별개다.
 
 - Use natural Korean in conversation and polite Korean in the UI.
 - Preserve independent mission, shipment and box ownership. Identical commodities and box sizes are not interchangeable between contracts. For the senior navigator, collect every feasible shipment at a pickup before departing and batch source-system pickups before crossing when capacity permits. For the senior navigator, reduce repeat visits to a planet region before minimising distance; a slightly longer route may avoid repeated atmospheric entry and landing. For the bridge operator, collect within one planet region under the separate detour budget, then finish delivering the aboard batch after leaving that region before starting another pickup. Unknown pickup shares spanning regions require the navigator or actual per-pickup quantities. Prefer destination-adjacent compact packing and shared free cells in automatic mode; preserve explicit shareGrids:false. Primary colour labels show destinations; mission IDs remain available for delivery checks.
