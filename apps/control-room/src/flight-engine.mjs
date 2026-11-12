@@ -3,12 +3,13 @@ import {planRoute,planRoutesOnly} from '../../../route-departure.mjs';
 import {containerText,eventContainers} from '../../../cargo-summary.mjs';
 import {jumpSegments} from '../../../route-display.mjs';
 import {DEFAULT_SHIP,validateShip,withStacking,selectShipGrids} from '../../../ships.mjs';
-import {quantitiesReady,actualQuantity} from '../../../delivery-totals.mjs';
+import {actualQuantity} from '../../../delivery-totals.mjs';
 import {resolveQuantumDrive} from '../../../quantum.mjs';
 import locations from '../../../data/locations.json' with {type:'json'};
 import fleet from '../../../data/ships.json' with {type:'json'};
 import quantum from '../../../data/quantum-drives.json' with {type:'json'};
 import performance from '../../../data/ship-performance.json' with {type:'json'};
+import {quantityPlan} from './mission-quantities.mjs';
 
 const byId=new Map(locations.locations.map(p=>[p.id,p]));
 const cities={hurston:'Lorville',crusader:'Orison',arccorp:'Area18',microtech:'New Babbage'};
@@ -19,15 +20,17 @@ export function missionFor(job){
    cargo:job.shipments.map(row=>({commodity:row.cargo[1],scu:row.scu||null,pickupId:canonicalPlace(row.from),dropoffId:canonicalPlace(row.to),boxes:row.boxes||[],_cargoShape:row.cargoShape,maxBoxSize:row.maxBoxSize})),
    _deliveryTotals:Object.entries(job.reservations||{}).map(([id,scu])=>({dropoffId:canonicalPlace(id),scu}))};
   mission.id=job.id;
+  mission.title??=job.title[1];mission.reward??=job.pay;
   return mission;
 }
 export function missionsFor(draft, simple = false){
  return draft.jobs.map(job=>{
-  if(job.state&&job.state!=='ready'&&!(simple&&job.state==='incomplete'))throw Error('정보가 미확인되거나 종료된 계약입니다. 수신함에서 확인해 주세요.');
-  const mission=missionFor(job);
+  if(job.state==='ended'||job.state==='conflict')throw Error('종료되었거나 기록이 충돌한 계약입니다. 수신함에서 확인해 주세요.');
+  const quantity=quantityPlan(missionFor(job),draft.allowUpperBounds!==false);
+  const mission=simple?missionFor(job):quantity.mission;
   if(simple)for(const row of mission.cargo){if(!actualQuantity(row))row.scu=null;}
   if(!mission.cargo.length || mission.cargo.some(row=>!byId.has(row.pickupId)||!byId.has(row.dropoffId)))throw Error('계약의 픽업지와 배송지를 확인하세요.');
-  if(!simple && (!quantitiesReady(mission)||mission.cargo.some(r=>!actualQuantity(r)&&!mission._deliveryTotals?.some(t=>t.dropoffId===r.dropoffId))))throw Error('실제 수량 또는 확인된 배송 총량이 필요합니다.');
+  if(!simple && !quantity.ready)throw Error('실제 수량·배송 총량 또는 확인된 최대 수량이 필요합니다.');
   return mission;
  });
 }

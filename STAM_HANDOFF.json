@@ -17,14 +17,14 @@
   "autoGenerateVideo": false,
   "autoPublish": false,
   "releaseChannel": "beta",
-  "releaseVersion": "2.2.0",
+  "releaseVersion": "2.3.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Read docs/LOCAL-FUNCTION-HANDOFF.md. Compare the separate function work branch on a local integration branch; preserve shuttle travel and restore the bridge overview hologram before the mission-map-operations acceptance checks. No main deployment authorized by the handoff request.",
+  "tomorrow": "Continue flight operations layout, OCR removal and quantity reconciliation. For cinematics continue takeoff, final travel audio and remaining console transitions.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/LOCAL-FUNCTION-HANDOFF.md",
   "functionWorkBranch": "handoff/function-ui-20261112",
   "functionWorkCommit": "de2042f3920e77aab43618786682a366489710fb",
-  "functionWorkIntegrated": false
+  "functionWorkIntegrated": true
 }

@@ -155,13 +155,13 @@ export function iconTexture(kind,color){const key='i:'+kind+color;if(cache.has(k
 
 // Two-line label (NAME + subtitle) drawn on a canvas; used as a screen-sized sprite pinned to its object.
 export function labelSprite(name,sub,color='#cfe6f2',opts={}){const c=document.createElement('canvas'),g=c.getContext('2d'),title=opts.upper===false?name:name.toUpperCase(),big=opts.font||(opts.big?44:36),subFont=opts.subFont||24;
- g.font=`700 ${big}px "Barlow Condensed","Noto Sans KR",Arial,sans-serif`;const tw=g.measureText(title).width;g.font=`500 ${subFont}px "Noto Sans KR",Arial,sans-serif`;const sw=sub?g.measureText(sub).width:0;
+ g.font=`700 ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;const tw=g.measureText(title).width;g.font=`500 ${subFont}px ${opts.fontFamily||'"Noto Sans KR",Arial,sans-serif'}`;const sw=sub?g.measureText(sub).width:0;
  c.width=Math.ceil(Math.max(tw,sw)+28);c.height=sub?big+subFont+24:big+20;g.textAlign='center';g.textBaseline='top';
  if(opts.backed){const glass=g.createLinearGradient(0,0,0,c.height);glass.addColorStop(0,'rgba(18,39,50,.95)');glass.addColorStop(1,'rgba(3,10,19,.9)');g.fillStyle=glass;g.beginPath();g.roundRect(1,1,c.width-2,c.height-2,8);g.fill();g.strokeStyle=opts.border||'rgba(154,203,226,.55)';g.lineWidth=1;g.stroke();g.fillStyle=color;g.fillRect(2,10,3,c.height-20);}
  if(opts.pill){g.fillStyle=opts.pill;const r=c.height/2;g.beginPath();g.roundRect(2,2,c.width-4,c.height-4,r);g.fill();}
- g.font=`700 ${big}px "Barlow Condensed","Noto Sans KR",Arial,sans-serif`;g.shadowColor=opts.pill?'transparent':'rgba(0,0,0,.95)';g.shadowBlur=6;g.fillStyle=opts.ink||(opts.pill?'#14100a':color);g.fillText(title,c.width/2,6);
+ g.font=`700 ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;g.shadowColor=opts.pill?'transparent':'rgba(0,0,0,.95)';g.shadowBlur=6;g.fillStyle=opts.ink||(opts.pill?'#14100a':color);g.fillText(title,c.width/2,6);
  
- if(sub){g.shadowColor='rgba(0,0,0,.9)';g.shadowBlur=4;g.font=`500 ${subFont}px "Noto Sans KR",Arial,sans-serif`;g.fillStyle=opts.ink||(opts.pill?'#14100a':opts.backed?'#dcecf5':'rgba(205,225,236,.92)');g.fillText(sub,c.width/2,big+10);}
+ if(sub){g.shadowColor='rgba(0,0,0,.9)';g.shadowBlur=4;g.font=`500 ${subFont}px ${opts.fontFamily||'"Noto Sans KR",Arial,sans-serif'}`;g.fillStyle=opts.ink||(opts.pill?'#14100a':opts.backed?'#dcecf5':'rgba(205,225,236,.92)');g.fillText(sub,c.width/2,big+10);}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;
  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false,depthWrite:false,sizeAttenuation:false}));s.renderOrder=20;s.userData.px=[c.width/2,c.height/2];return s;}
 

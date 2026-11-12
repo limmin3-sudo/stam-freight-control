@@ -17,7 +17,7 @@ export function CargoViewport({ship,packing,locale,selected,onSelect}:{ship:Carg
  const en=locale==='en';const t=(ko:string,eng:string)=>en?eng:ko;
  useEffect(()=>{
   let stopped=false;
-  void import('./cargo-scene').then(({createCargoScene})=>{
+  void Promise.all([import('./cargo-scene'),document.fonts.load('600 14px SUIT')]).then(([{createCargoScene}])=>{
    if(stopped||!host.current)return;
    try{const s=createCargoScene(host.current,id=>current.current.onSelect(id),()=>setFailed(true));scene.current=s;const p=current.current;s.update(p.ship,p.packing,p.locale==='en');s.select(p.selected);setReady(true);}
    catch{setFailed(true);}

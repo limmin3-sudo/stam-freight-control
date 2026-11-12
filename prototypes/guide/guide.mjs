@@ -1,0 +1,5 @@
+import {L,languageButton} from '../../i18n.mjs';
+// Content is intentionally empty until the user's Claude discussion is complete.
+const slides=[];let at=0;document.querySelector('.topnav').append(languageButton());
+function render(){const host=document.querySelector('.guide-slide');host.replaceChildren();if(!slides.length){host.textContent=L('상세 내용 확정 후 슬라이드를 연결합니다.','Slides will be connected after the content is approved.');}else{const slide=slides[at],title=document.createElement('h2'),body=document.createElement('p');title.textContent=L(slide.ko.title,slide.en.title);body.textContent=L(slide.ko.body,slide.en.body);host.append(title,body);}document.querySelector('[data-progress]').textContent=slides.length?`${at+1} / ${slides.length}`:'— / —';document.querySelector('[data-prev]').disabled=at===0;document.querySelector('[data-next]').disabled=!slides.length||at===slides.length-1;}
+document.querySelector('[data-prev]').onclick=()=>{at=Math.max(0,at-1);render();};document.querySelector('[data-next]').onclick=()=>{at=Math.min(slides.length-1,at+1);render();};render();
