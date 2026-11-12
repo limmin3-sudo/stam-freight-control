@@ -4,7 +4,7 @@
 
 Star Citizen의 여러 운송 미션을 스크린샷으로 입력하고, 미션별 화물·경로·적재·시간을 정리하는 비공식 팬 도구입니다.
 
-beta 2.1.0은 새 공간 화면에 실제 미션·항로·운항 관제와 서비스센터를 연결하고, 안내데스크 접근·대기·복귀와 통합 홀로그램을 제공합니다. 다음 작업과 검증 범위는 [최신 인계](docs/LOCAL-CODEX-HANDOFF.md)를 따릅니다.
+beta 2.2.0은 기존 미션·항로·운항 관제와 안내데스크 기능을 유지하면서, 라운지 탑승 게이트의 셔틀 탑승 영상과 관제센터 이동을 연결합니다. 다음 작업과 검증 범위는 [최신 인계](docs/LOCAL-CODEX-HANDOFF.md)를 따릅니다.
 
 - 사이트: https://limmin3-sudo.github.io/stam-freight-control/
 - 소스: https://github.com/limmin3-sudo/stam-freight-control

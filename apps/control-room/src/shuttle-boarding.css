@@ -1,0 +1,12 @@
+.shuttle-boarding{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#000;color:#e8f5f6;font-family:SUIT,sans-serif;overflow:hidden}
+.shuttle-boarding::backdrop{background:#000}
+.shuttle-boarding video{display:block;width:100%;height:100%;object-fit:contain}
+.shuttle-boarding header{position:absolute;top:max(20px,env(safe-area-inset-top));left:clamp(16px,3vw,48px);pointer-events:none;text-shadow:0 2px 8px #000}
+.shuttle-boarding header span{font-size:10px;letter-spacing:.2em;color:#b7d9e2}.shuttle-boarding h2{font-size:18px;font-weight:600;margin:8px 0}
+.shuttle-boarding nav{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;justify-content:center;gap:10px;flex-wrap:wrap;width:max-content;max-width:calc(100% - 24px);padding:12px;background:linear-gradient(135deg,#133640eb,#071a22ef);border:1px solid #87cbd075;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);animation:shuttle-controls-in .54s ease-out both}
+.shuttle-boarding button{font:600 13px SUIT,sans-serif;min-height:44px;padding:10px 16px;border:1px solid #86c4d06b;background:linear-gradient(150deg,#285461b8,#0b222cbf);color:inherit;cursor:pointer;border-radius:4px}
+.shuttle-boarding button:hover,.shuttle-boarding button[aria-pressed=true]{border-color:#e2bc73;color:#ffe2a8}.shuttle-boarding button:focus-visible{outline:2px solid #efffff;outline-offset:3px}
+.shuttle-playback-message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:calc(100% - 40px);width:460px;box-sizing:border-box;background:#071a22ed;border:1px solid #87cbd075;padding:20px;line-height:1.7;text-align:center}
+@keyframes shuttle-controls-in{from{opacity:0;transform:translate(-50%,100px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(max-width:600px){.shuttle-boarding header span{font-size:9px}.shuttle-boarding h2{font-size:15px}.shuttle-boarding nav{gap:6px;padding:8px}.shuttle-boarding button{font-size:12px;padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){.shuttle-boarding nav{animation:none}}

@@ -17,8 +17,10 @@
   "autoGenerateVideo": false,
   "autoPublish": false,
   "releaseChannel": "beta",
-  "releaseVersion": "2.1.0",
+  "releaseVersion": "2.2.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Verify real Game.log integration and authenticated cross-device history, then produce remaining scene travel videos."
+  "tomorrow": "Continue in functional and cinematic local chats. Approved shuttle boarding is connected; takeoff video and final engine/takeoff/landing sound remain unfinished. Preserve existing direct travel and flight state.",
+  "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
+  "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx"
 }

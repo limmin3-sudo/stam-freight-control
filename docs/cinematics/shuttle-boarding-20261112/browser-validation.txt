@@ -1,0 +1,4 @@
+PASS: natural 9.208s playback, inline audio controls, destination and flight preservation
+PASS: cancel, Escape, skip, shortcut and external navigation clean up playback
+PASS: load failure fallback, 390px controls, English and reduced-motion bypass
+PASS: autoplay retry, no page errors, stored flight unchanged

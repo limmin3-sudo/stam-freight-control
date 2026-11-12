@@ -1,0 +1,35 @@
+{
+  "sourcePost": "https://grok.com/imagine/post/bda90fef-759b-4dc3-9f06-27f14e91537c",
+  "sourceSha256": "e972065ad8207862bdd880a269792e2d04a662166c0507a03ca3cc5374f90e9d",
+  "approvedCloudSha256": "0fa6303edf2bd0f17439a089464b4ffc2fda4d6f0602ba2419f6f046274338f2",
+  "approvedCloudFileAccessible": false,
+  "method": "Reproduced from the public original under user-provided edit specification. Encoding bytes differ from the inaccessible approved cloud file.",
+  "asset": "apps/control-room/src/assets/travel/shuttle-boarding.mp4",
+  "sha256": "83fca6a81da6ff121262f7f65c6ce3cd64e60cb6686cad65468887a7cdea7904",
+  "bytes": 7171615,
+  "video": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "frames": 221,
+    "durationSeconds": 9.208333333333334
+  },
+  "edit": {
+    "frontFrames": [
+      0,
+      138
+    ],
+    "fadeOutSeconds": [
+      5.416666666666667,
+      0.3333333333333333
+    ],
+    "blackFrames": 4,
+    "tailStartsAtFrame": 162,
+    "fadeInSeconds": 0.25,
+    "audioCrossfadeSeconds": 0.25,
+    "speed": 1
+  },
+  "audio": "Original dialogue and ambience retained; no new engine, takeoff or landing sounds. Tail source 6.75s aligns with output 5.916667s.",
+  "rebuild": "python3 scripts/rebuild-shuttle-boarding.py",
+  "ffmpegVersion": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers"
+}

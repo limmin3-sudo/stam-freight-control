@@ -10,6 +10,7 @@ import { ControlRoom } from './ControlRoom';
 import {ServiceAccountHistory} from './ServiceAccountHistory';
 import {useFlight} from './use-flight';
 import {GuideDesk,guideLoungeFrame,guideReturnFrame} from './GuideDesk';
+import {ShuttleBoarding} from './ShuttleBoarding';
 import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
@@ -37,7 +38,7 @@ const publicSite = 'https://limmin3-sudo.github.io/stam-freight-control/';
 const flightSite = new URL('flight.html', import.meta.env.DEV ? publicSite : location.href).href;
 const revealMs = 180;
 const longEntryMs = 1400;
-type Entry = { screen: SpaceScreen; kind: 'short' | 'long'; target?: SceneTarget };
+type Entry = { screen: SpaceScreen; kind: 'short' | 'long' | 'boarding'; target?: SceneTarget };
 const appDownload = 'https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.3.2';
 // Full-body director in front of the desk: keep selection/approach tied to her,
 // rather than to the separate receptionist seated in the background.
@@ -164,6 +165,9 @@ export function SpaceExperience() {
       location.hash = spaceHash({ ...route, screen }); return;
     }
     destination.current = screen;
+    if(route.screen==='lounge'&&screen==='bridge'&&target?.id==='gate'){
+      setConversation(null);setPending({screen,kind:'boarding',target});setActive(null);return;
+    }
     setPending({ screen, kind: target ? 'long' : 'short', target: target ?? configuration.targets.find(place => place.to === screen) });
     setActive(target?.id ?? null);
     timer.current = setTimeout(() => {
@@ -346,7 +350,8 @@ export function SpaceExperience() {
     {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} en={en} onClose={()=>setConversation(null)}/>}
     {route.screen!=='guide' && <footer className="space-footer" aria-hidden="true" />}
   </div>}
-    <div aria-hidden="true" className="entry-fade" data-dark={!!pending}
+    {pending?.kind==='boarding'&&<ShuttleBoarding en={en} sound={sound} volume={volume} onSound={setSound} onComplete={finish} onCancel={cancel}/>}
+    <div aria-hidden="true" className="entry-fade" data-dark={!!pending&&pending.kind!=='boarding'}
       style={{ transitionDuration: `${!motion ? 0 : pending ? (pending.kind === 'long' ? longEntryMs : spaceConfig.approachMs) : revealMs}ms` }} />
   </>;
 }
