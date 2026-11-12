@@ -29,5 +29,8 @@
   "functionWorkIntegrated": true,
   "functionOwner": "cloud",
   "cinematicOwner": "local",
-  "integrationOwner": "function-cloud"
+  "integrationOwner": "function-cloud",
+  "cinematicWorkBranch": "cinematic/approved-hologram-restoration-20261112",
+  "cinematicWorkHandoff": "docs/CINEMATIC-FUNCTION-HANDOFF-20261112.md",
+  "cinematicWorkStatus": "Generated unified glass assets and provenance handoff only; assets not wired into runtime; rejected runtime prototypes archived. Function owner integrates after new deployment baseline. Do not overwrite SpaceExperience.tsx."
 }
