@@ -20,7 +20,7 @@
   "releaseVersion": "2.2.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Read docs/LOCAL-FUNCTION-HANDOFF.md. Compare the separate function work branch on a local integration branch; preserve shuttle travel and restore the bridge overview hologram before the mission-map-operations acceptance checks. No main deployment authorized by the handoff request.",
+  "tomorrow": "Read docs/LOCAL-FUNCTION-HANDOFF.md including the bridge correction in section 3. Compare the separate function branch on a local integration branch; preserve shuttle travel and validate mission-map-operations. Do not blindly restore StantonHologram on the bridge: the original rendered only on the map route. Compare bridge scenery with cinematic local approved references. No main deployment authorized.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/LOCAL-FUNCTION-HANDOFF.md",
