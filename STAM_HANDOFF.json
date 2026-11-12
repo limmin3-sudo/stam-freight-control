@@ -20,7 +20,11 @@
   "releaseVersion": "2.2.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Continue in functional and cinematic local chats. Approved shuttle boarding is connected; takeoff video and final engine/takeoff/landing sound remain unfinished. Preserve existing direct travel and flight state.",
+  "tomorrow": "Read docs/LOCAL-FUNCTION-HANDOFF.md. Compare the separate function work branch on a local integration branch; preserve shuttle travel and restore the bridge overview hologram before the mission-map-operations acceptance checks. No main deployment authorized by the handoff request.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
-  "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx"
+  "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
+  "functionHandoff": "docs/LOCAL-FUNCTION-HANDOFF.md",
+  "functionWorkBranch": "handoff/function-ui-20261112",
+  "functionWorkCommit": "de2042f3920e77aab43618786682a366489710fb",
+  "functionWorkIntegrated": false
 }
