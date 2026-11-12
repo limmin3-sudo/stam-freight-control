@@ -1,0 +1,34 @@
+[
+  {
+    "id": "qa-pooled",
+    "title": "배송 총량 검증 (합성 계약)",
+    "cargo": [
+      {
+        "commodity": "Ore",
+        "pickupId": "stanton:f1759f46-e3c0-4dc1-94bc-c94488b58913",
+        "dropoffId": "stanton:c6535844-c615-494e-9dc1-c2d0c6e7190a",
+        "scu": null,
+        "boxes": [],
+        "maxBoxSize": 4,
+        "_quantityBounds": {
+          "unit": "SCU",
+          "min": 1,
+          "max": 16
+        }
+      },
+      {
+        "commodity": "Ore",
+        "pickupId": "stanton:122e8057-831d-4517-a23b-0eb8382b90a2",
+        "dropoffId": "stanton:c6535844-c615-494e-9dc1-c2d0c6e7190a",
+        "scu": null,
+        "boxes": [],
+        "maxBoxSize": 4,
+        "_quantityBounds": {
+          "unit": "SCU",
+          "min": 1,
+          "max": 16
+        }
+      }
+    ]
+  }
+]

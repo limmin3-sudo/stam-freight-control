@@ -37,7 +37,7 @@ export function StantonHologram({embedded=false,expanded,motion,locale,dockTarge
  const en=locale==='en',t=(ko:string,english:string)=>en?english:ko;
  const name=(p:HologramPoint)=>locale==='ko'?localNames[p.name]||translated[p.name]||p.name:p.name;
  const systemName=locale==='ko'?theme.ko:theme.name;
- useEffect(()=>{if(!expanded)return;let cancelled=false;const element=host.current!;setReady(false);setFailure(false);
+ useEffect(()=>{let cancelled=false;const element=host.current!;setReady(false);setFailure(false);
   void import('./hologram-scene').then(({createHologram})=>{if(cancelled)return;try{view.current=createHologram(element,labels.current,id=>{setSelected(id);view.current?.focus(id);});view.current.setState(options.current);setReady(true);}catch{setFailure(true);}}).catch(()=>{if(!cancelled)setFailure(true);});
   return()=>{cancelled=true;view.current?.dispose();view.current=null;};
  },[expanded]);
@@ -65,7 +65,11 @@ export function StantonHologram({embedded=false,expanded,motion,locale,dockTarge
  const chosen=points.find(p=>p.id===selected),star=points.find(p=>p.type==='Star');
  const parents=points.filter(p=>p.type==='Planet'),stations=points.filter(p=>!isBody(p));
  const groups=[['lagrange',t('라그랑주 정거장','Lagrange stations')],['station',t('정거장','Stations')],['gateway',t('게이트웨이','Gateways')],['relay',t('통신 시설','Comm arrays')]] as const;
- if(!expanded)return null;
+ if (!expanded) {
+   return <div className="hologram-layer" data-expanded="false" data-ready={ready} aria-hidden="true">
+     <div className="hologram-viewport" ref={host}/>
+   </div>;
+ }
  return <div className="hologram-layer" data-expanded={expanded} data-motion={motion} data-ready={ready} data-system={activeSystem}>
   <div ref={host} className="hologram-viewport" aria-label={t(`${systemName} 입체지도`,`${systemName} 3D star map`)}>
    {points.map(p=><button key={p.id} ref={el=>{if(el)labels.current.set(p.id,el);else labels.current.delete(p.id);}} hidden className="hologram-label" data-kind={isBody(p)?p.type:markerKind(p)} title={name(p)} data-full-name={name(p)} tabIndex={expanded?0:-1} aria-pressed={selected===p.id} onClick={()=>choose(p.id)}>{name(p)}</button>)}

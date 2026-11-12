@@ -4,6 +4,7 @@ import {PartnerConversation} from './PartnerConversation';
 import {partnerDialogue} from './partner-dialogue';
 import type {PartnerId} from './partner-dialogue';
 import { StantonHologram } from './StantonHologram';
+import {MapConsole} from './MapConsole';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
 import { ControlRoom } from './ControlRoom';
@@ -48,7 +49,6 @@ export function SpaceExperience() {
   const flight = useFlight();
   const [conversation,setConversation]=useState<{partner:PartnerId;variant:number}|null>(null);
   const greetingVisits=useRef<Record<PartnerId,number>>({director:0,operator:0,navigator:0});
-  const [mapDock,setMapDock]=useState<HTMLDivElement|null>(null);
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const [returnedLounge,setReturnedLounge]=useState<string|null>(null);
   const guideController=useRef<GuideDeskHandle|null>(null);
@@ -113,7 +113,7 @@ export function SpaceExperience() {
       if (event.target instanceof Element && event.target.closest('select, input, textarea, video')) return;
       if(route.screen==='guide'){event.preventDefault();guideController.current?.navigate('lounge');return;}
       if (destination.current) { cancel(); return; }
-      if (route.screen === 'map') { location.hash = spaceHash({...route,screen:'bridge'});return; }
+      if (route.screen === 'map') return; // The chart owns Escape for hierarchical navigation.
       if (!isOverview) location.hash = spaceHash({ ...route, screen: scene });
     };
     window.addEventListener('keydown', escape);
@@ -124,7 +124,7 @@ export function SpaceExperience() {
     if (previousScreen.current === route.screen) return;
     previousScreen.current = route.screen;
     if (route.screen === 'map') {
-      document.querySelector<HTMLElement>('.hologram-heading h1')?.focus({ preventScroll: true });
+      document.getElementById('chart-title')?.focus({ preventScroll: true });
     } else if (isOverview && returnTarget.current && configuration.targets.some(target => target.id === returnTarget.current)) {
       document.getElementById(`space-marker-${returnTarget.current}`)?.focus({ preventScroll: true });
     } else heading.current?.focus({ preventScroll: true });
@@ -203,6 +203,7 @@ export function SpaceExperience() {
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
   const approaching = pending?.kind === 'short' && route.screen === scene;
+  if(route.screen==='map')return <MapConsole flight={flight} locale={route.locale}/>;
   return <>{consoleOpen ? <ControlRoom flight={flight} /> : <div className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); document.querySelector<HTMLElement>('.space-dock a,.guide-desk button:not([disabled])')?.focus();
@@ -233,6 +234,7 @@ export function SpaceExperience() {
             <img key={scene} className="space-background" src={scene==='lounge'?(returnedLounge??guideLoungeFrame):configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
             {scene === 'bridge' && <svg className="bridge-background-patches" viewBox="0 0 1672 941" aria-hidden="true">
               <defs><filter id="bridge-patch-feather"><feGaussianBlur stdDeviation="5" /></filter><mask id="bridge-patch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941">
+                <rect className="table-globe-mask" x="610" y="96" width="466" height="446" rx="64" fill="white" filter="url(#bridge-patch-feather)"/>
                 {bridgePatches.map((p,i)=><rect key={i} x={p.x} y={p.y} width={p.width} height={p.height} rx={p.radius} fill="white" filter="url(#bridge-patch-feather)"/>)}
               </mask></defs><image href={cleanPlate} width="1672" height="941" mask="url(#bridge-patch-mask)"/>
             </svg>}
@@ -254,7 +256,7 @@ export function SpaceExperience() {
 
             </svg>
           </div>
-          {scene === 'bridge' && <StantonHologram plan={flight.session.plan} expanded={route.screen === 'map'} motion={motion} locale={route.locale} dockTarget={mapDock}/> }
+          {route.screen === 'bridge' && <StantonHologram plan={flight.session.plan} expanded={false} motion={motion} locale={route.locale} dockTarget={null}/>}
           {scene === 'bridge' && <div className="bridge-partners">
               <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
               <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>
@@ -342,7 +344,6 @@ export function SpaceExperience() {
         <label>{en ? 'Volume' : '음량'}<input aria-label={en ? 'Effect volume' : '효과음 크기'} type="range" min="0" max="50" value={volume} onChange={event => setVolume(Number(event.target.value))} /></label>
         <button aria-pressed={motion} onClick={() => { setMotion(!motion); cancel(); }}>{en ? `Transitions ${motion ? 'on' : 'off'}` : `이동 연출 ${motion ? '켜짐' : '꺼짐'}`}</button>
       </div></details>
-        <div className="space-map-sidebar" ref={setMapDock} hidden={route.screen!=='map'} />
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
     </main>

@@ -1,0 +1,98 @@
+{
+  "source": "Generated with image_gen for STAM on 2026-11-12",
+  "projection": "Equirectangular; shaders blend longitude joins and fade sky poles; PNG sources remain unmodified in the source archive",
+  "accuracy": "Artistic visual approximations, not game-extracted surface maps; no gameplay coordinate changes",
+  "assets": [
+    {
+      "file": "hurston.png",
+      "description": "Industrial ochre desert world; muted polluted seas",
+      "width": 1774,
+      "height": 887,
+      "bytes": 3125570,
+      "sha256": "b1c959adb4581044c156fab758b30923f7d884dc0986d6666ccdbc8479ad8327",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "microtech.png",
+      "description": "Snow and ice continents with cold oceans and green temperate belts",
+      "width": 1774,
+      "height": 887,
+      "bytes": 3334241,
+      "sha256": "05a06fe17931e3f609fca9e73164f439e41b9624fa6f06099104212223de3fb2",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "arccorp.png",
+      "description": "Dense urban surface, daytime diffuse color",
+      "width": 1774,
+      "height": 887,
+      "bytes": 4232556,
+      "sha256": "a0a5ff8de44d83190a980481327eded48f0a3e0b69935a33cad8fa25fd08bac8",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "crusader.png",
+      "description": "Ivory peach gas bands",
+      "width": 1774,
+      "height": 887,
+      "bytes": 2371397,
+      "sha256": "65d46693a66bbe15b93955c29ac301ed8bb072de66fc19489146b4b780fdd840",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "rock.png",
+      "description": "Shared airless rocky body detail; tinted and offset per body",
+      "width": 1774,
+      "height": 887,
+      "bytes": 3237361,
+      "sha256": "9f38697ccff0cf29a11383c62684d4e54b96adbc6f78271caebe90d37b1e911e",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "plasma.png",
+      "description": "Stellar emission surface",
+      "width": 1774,
+      "height": 887,
+      "bytes": 3353479,
+      "sha256": "fff3b5c7ea50a145afa5228ccabbec271a2af9479db159b9963df1ea494da303",
+      "colorSpace": "sRGB",
+      "status": "Rejected by user; preserved source, not used at runtime"
+    },
+    {
+      "file": "clouds.png",
+      "description": "Linear grayscale cloud coverage mask",
+      "width": 1774,
+      "height": 887,
+      "bytes": 2025105,
+      "sha256": "15a36d9e8666b0b1112631c8a7db4c691a00c4668641106cefa7e770ddd2834b",
+      "colorSpace": "linear data"
+    },
+    {
+      "file": "sky-stanton.png",
+      "description": "Midnight blue and sapphire dust panorama; star-free nebula, stars rendered separately",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1644520,
+      "sha256": "f3d9411983d62589248a9e16cf12aa7125c0a5c463bdd76da310659b25d2d5a9",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "sky-pyro.png",
+      "description": "Amber and copper dust panorama; star-free nebula, stars rendered separately",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1618982,
+      "sha256": "e28101a6d486c021f94df7d51a33893ce7c3e1980ca8d626c15ec5493385dac0",
+      "colorSpace": "sRGB"
+    },
+    {
+      "file": "sky-nyx.png",
+      "description": "Teal and jade dust panorama; star-free nebula, stars rendered separately",
+      "width": 1774,
+      "height": 887,
+      "bytes": 1591890,
+      "sha256": "d0373fe2b38f842f535eb284f7df54209f6c17d2375d0af38fe8042ae4e951e5",
+      "colorSpace": "sRGB"
+    }
+  ]
+}

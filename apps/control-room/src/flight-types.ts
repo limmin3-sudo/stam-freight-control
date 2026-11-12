@@ -1,4 +1,4 @@
-export type CargoRow = {commodity:string;scu:number|string;pickupId:string;dropoffId:string;boxes:{size:number;count:number}[];[key:string]:unknown};
+export type CargoRow = {commodity:string;scu:number|string|null;pickupId:string;dropoffId:string;boxes?:{size:number;count:number}[];[key:string]:unknown};
 export type Mission = {id:string;title:string;reward:number;cargo:CargoRow[];[key:string]:unknown};
 export type Grid = {id:string;name:string;w:number;h:number;l:number;x:number;y:number;z:number;rotation:number[];disabled?:boolean;[key:string]:unknown};
 export type Ship = {id:string;name:string;grids:Grid[];[key:string]:unknown};

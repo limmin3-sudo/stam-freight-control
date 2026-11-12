@@ -54,7 +54,7 @@ export function useLogReceipts() {
   }
   const cards=result.cards.map(raw=>{
     const corrected=corrections[raw.id];
-    return raw.state==='incomplete' && corrected?.signature && corrected.signature===raw.signature ? corrected : raw;
+    return (raw.state==='incomplete'||raw.state==='ready') && corrected?.signature && corrected.signature===raw.signature ? corrected : raw;
   });
   return {...result,cards,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker};
 }
