@@ -72,7 +72,3 @@
  .map-flight-stops { padding-left:1.1em; font-size:10px; }
  .map-flight-stops strong,.map-flight-stops span { font-size:10px; }
 }
-
-/* Keep the photographed globe as a fallback until the live projection is ready. */
-.table-globe-mask { opacity: 0; }
-.space-artwork:has(.hologram-layer[data-expanded="false"][data-ready="true"]) .table-globe-mask { opacity: 1; }

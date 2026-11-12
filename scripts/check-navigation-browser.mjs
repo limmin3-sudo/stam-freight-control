@@ -71,13 +71,11 @@ try{
  const loaded=(await saved(page)).run;
  assert(loaded.aboard.length>0,'pickup loads real boxes');
  await page.goto(base+'#/bridge?lang=ko');
- const table=page.locator('.hologram-layer[data-expanded=false] canvas[data-projection="orbit-linked"]');
- await table.waitFor();
- assert.equal(await page.locator('.table-globe-mask').evaluate(el=>getComputedStyle(el).opacity),'1');
+ await page.waitForFunction(()=>document.querySelector('.space-background')?.naturalWidth>0);
+ assert.equal(await page.locator('.table-globe-mask, .space-artwork .hologram-layer').count(),0,'keep the photographed blue globe visible');
  await page.screenshot({path:output+'/bridge-table.png'});
  await page.locator('#space-marker-map').click();
  await page.waitForSelector('.navigation-chart[data-ready=true]');
- assert.equal(await table.count(),0);
  await page.reload();
  await page.waitForSelector('.navigation-chart[data-ready=true]');
  assert.deepEqual((await saved(page)).run,loaded);

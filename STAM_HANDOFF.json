@@ -20,7 +20,7 @@
   "releaseVersion": "2.3.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Continue flight operations layout, OCR removal and quantity reconciliation. For cinematics continue takeoff, final travel audio and remaining console transitions.",
+  "tomorrow": "See the bridge scenery correction in docs/LOCAL-FUNCTION-HANDOFF.md section 3. Continue flight operations layout, OCR removal and quantity reconciliation. Cinematics pending: takeoff, final travel audio and remaining console transitions.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/LOCAL-FUNCTION-HANDOFF.md",

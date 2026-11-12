@@ -3,7 +3,6 @@ import type { CSSProperties, MouseEvent } from 'react';
 import {PartnerConversation} from './PartnerConversation';
 import {partnerDialogue} from './partner-dialogue';
 import type {PartnerId} from './partner-dialogue';
-import { StantonHologram } from './StantonHologram';
 import {MapConsole} from './MapConsole';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
@@ -234,7 +233,6 @@ export function SpaceExperience() {
             <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
             {scene === 'bridge' && <svg className="bridge-background-patches" viewBox="0 0 1672 941" aria-hidden="true">
               <defs><filter id="bridge-patch-feather"><feGaussianBlur stdDeviation="5" /></filter><mask id="bridge-patch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941">
-                <rect className="table-globe-mask" x="610" y="96" width="466" height="446" rx="64" fill="white" filter="url(#bridge-patch-feather)"/>
                 {bridgePatches.map((p,i)=><rect key={i} x={p.x} y={p.y} width={p.width} height={p.height} rx={p.radius} fill="white" filter="url(#bridge-patch-feather)"/>)}
               </mask></defs><image href={cleanPlate} width="1672" height="941" mask="url(#bridge-patch-mask)"/>
             </svg>}
@@ -257,7 +255,6 @@ export function SpaceExperience() {
 
             </svg>
           </div>
-          {route.screen === 'bridge' && <StantonHologram plan={flight.session.plan} expanded={false} motion={motion} locale={route.locale} dockTarget={null}/>}
           {scene === 'bridge' && <div className="bridge-partners">
               <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
               <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>
