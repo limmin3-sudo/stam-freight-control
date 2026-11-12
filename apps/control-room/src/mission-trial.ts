@@ -19,6 +19,7 @@ export function placeName(id:Place,language:number) {
 }
 export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number; cargoShape?:string; maxBoxSize?:number; boxes?:{size:number;count:number}[] };
 export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; signature?:string; reviewedReceipt?:boolean; reservations?:Record<string,number>;
+  mission?:Partial<import('./flight-types').Mission>&Pick<import('./flight-types').Mission,'cargo'>;
   state?:'ready'|'incomplete'|'ended'|'conflict'; hints?:{cargo:string;scu:number;place:string;name?:string}[] };
 export function routeReady(job:Job) {
   return job.state!=='ended' && job.state!=='conflict' && job.shipments.length>0 &&
@@ -47,7 +48,7 @@ export const shipIdFor=(name:string)=>shipAliases[name]||name;
 const shipOptions=fleet.map(s=>({id:Object.keys(shipAliases).find(key=>shipAliases[key]===s.id)||s.id,name:s.name,scu:s.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)}));
 export const ships:Record<string,number>=Object.fromEntries(shipOptions.map(s=>[s.id,s.scu]));
 export const shipName=(id:string)=>shipOptions.find(s=>s.id===id)?.name||id;
-export type Draft = { received:boolean; jobs:Job[]; start:Place; ship:keyof typeof ships; partner:'operator'|'navigator'; reviewed:boolean; customShip?:import('./cargo-plan.mjs').CargoShip };
+export type Draft = { received:boolean; jobs:Job[]; start:Place; ship:keyof typeof ships; partner:'operator'|'navigator'; reviewed:boolean; allowUpperBounds?:boolean; customShip?:import('./cargo-plan.mjs').CargoShip };
 export const emptyDraft = ():Draft => ({received:false,jobs:[],start:'hurston',ship:'Cutlass Black',partner:'operator',reviewed:false});
 export const trialKey = 'stam.mission-console.trial.v1';
 export function readDraft():Draft {

@@ -5,7 +5,7 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import type {CargoShip,Packing} from './cargo-plan.mjs';
 import {cargoWorldCenter} from './cargo-plan.mjs';
-import {paintedCargoSurface,cargoMicrosurface,hologramField,hologramWall,hologramBrackets} from './cargo-look';
+import {paintedCargoSurface,cargoIdentification,cargoMicrosurface,hologramField,hologramWall,hologramBrackets} from './cargo-look';
 
 export type CargoCamera='orbit'|'top'|'port'|'starboard';
 type Marker={node:HTMLElement;position:THREE.Vector3};
@@ -19,7 +19,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const labels=document.createElement('div');labels.className='cargo-spatial-labels';host.append(labels);
  const camera=new THREE.PerspectiveCamera(35,1,.1,2000);
  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.12;
- controls.maxPolarAngle=Math.PI*.91;controls.zoomSpeed=.8;controls.rotateSpeed=.65;
+ controls.mouseButtons.MIDDLE=THREE.MOUSE.PAN;controls.maxPolarAngle=Math.PI*.91;controls.zoomSpeed=.8;controls.rotateSpeed=.65;
  const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);
  scene.environment=environment.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
  scene.add(new THREE.HemisphereLight(0xd6edff,0x263946,.85));
@@ -31,7 +31,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const textureCache=new Map<string,THREE.CanvasTexture>();
  const markers:Marker[]=[];const selectable:THREE.Object3D[]=[];const objects=new Map<string,THREE.Group>();
  const center=new THREE.Vector3();let radius=10,frame=0,dead=false,visible=true,selected:string|null=null,dirty=true;
- let hover:string|null=null;let transition:{from:THREE.Vector3;target:THREE.Vector3;to:THREE.Vector3;start:number}|null=null;
+ let gridShape='';let hover:string|null=null;let transition:{from:THREE.Vector3;target:THREE.Vector3;to:THREE.Vector3;start:number}|null=null;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const mesh=(geo:THREE.BufferGeometry,mat:THREE.Material,parent:THREE.Object3D)=>{const m=new THREE.Mesh(geo,mat);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
  const mat=(id:string,make:()=>THREE.Material)=>{if(!materialCache.has(id))materialCache.set(id,make());return materialCache.get(id)!;};
@@ -40,9 +40,9 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const silver=mat('silver',()=>new THREE.MeshStandardMaterial({color:0x89999f,metalness:.92,roughness:.3}));
  const dark=mat('rubber',()=>new THREE.MeshStandardMaterial({color:0x15222c,metalness:.2,roughness:.65}));
  const micro=cargoMicrosurface();textureCache.set('micro',micro);
- function texture(color:string,size:number){
-  const id=color+size;if(!textureCache.has(id)){
-   const t=paintedCargoSurface(color,size);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textureCache.set(id,t);
+ function texture(color:string){
+  const id=color;if(!textureCache.has(id)){
+   const t=paintedCargoSurface(color);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textureCache.set(id,t);
   }return textureCache.get(id)!;
  }
  function bodyGeometry(d:number[]){return cached('body'+d.join(','),()=>{
@@ -55,7 +55,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    else uv.setXY(i,p.getX(i)/w+.5,p.getY(i)/h+.5);
   }return g;
  });}
- function structure(d:number[],kind:'rails'|'corners'|'ribs'){
+ function structure(d:number[],kind:'rails'|'corners'|'ribs'|'locks'){
   return cached(kind+d.join(','),()=>{
    const [w,h,l]=d as [number,number,number],parts:THREE.BufferGeometry[]=[];
    const bar=(a:number,b:number,c:number,x:number,y:number,z:number)=>{const g=new THREE.BoxGeometry(a,b,c).toNonIndexed();g.translate(x,y,z);parts.push(g);};
@@ -67,15 +67,41 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
     for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1]){
      bar(.17,.14,.17,x*(w/2-.08),y*(h/2-.065),z*(l/2-.08));
     }
+   }else if(kind==='locks'){
+    // Recessed end doors: split seal, locking rods and short cam handles.
+    // Every fitting stays inside the packer's box envelope.
+    for(const side of [-1,1]){
+     for(const x of [-1,1]){
+      bar(.035,h-.27,.035,x*w*.22,0,side*(l/2-.024));
+      for(const y of [-1,1]){
+       bar(.105,.085,.045,x*w*.22,y*(h/2-.14),side*(l/2-.025));
+      }
+      bar(.14,.035,.055,x*w*.22,-h*.13,side*(l/2-.03));
+     }
+    }
    }else{
     for(let z=-l/2+.45;z<l/2-.3;z+=1.5){
-     for(const x of [-1,1])bar(.055,Math.max(.1,h-.18),.06,x*(w/2-.015),0,z);
-     for(const y of [-1,1])bar(Math.max(.1,w-.18),.055,.06,0,y*(h/2-.015),z);
+     for(const x of [-1,1])bar(.055,Math.max(.1,h-.18),.06,x*(w/2-.03),0,z);
+     for(const y of [-1,1])bar(Math.max(.1,w-.18),.055,.06,0,y*(h/2-.03),z);
     }
+    for(const side of [-1,1])bar(.022,h-.16,.015,0,0,side*(l/2-.052));
     if(!parts.length)bar(.1,.1,.1,0,0,0);
    }
    const g=mergeGeometries(parts)!;parts.forEach(p=>p.dispose());return g;
   });
+ }
+ function identification(d:number[],size:number,parent:THREE.Group){
+  const [w,h,l]=d as [number,number,number];
+  const material=mat('plate:'+size,()=>{
+   const map=cargoIdentification(size);map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textureCache.set('plate:'+size,map);
+   return new THREE.MeshStandardMaterial({map,metalness:.25,roughness:.55});
+  });
+  const width=Math.min(.76,w*.65,l*.65,h*.85),height=width/2;
+  const geometry=cached('plate:'+width,()=>new THREE.PlaneGeometry(width,height));
+  for(const side of [-1,1]){
+   const end=mesh(geometry,material,parent);end.rotation.y=side===1?0:Math.PI;end.position.set(0,h*.21,side*(l/2-.059));
+   const flank=mesh(geometry,material,parent);flank.rotation.y=side*Math.PI/2;flank.position.set(side*(w/2-.059),-h*.25,l*.19);
+  }
  }
  function marker(text:string,position:THREE.Vector3,kind=''){
   const node=document.createElement('span');node.className=kind;node.textContent=text;labels.append(node);markers.push({node,position});
@@ -85,12 +111,14 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
   root.clear();selectable.length=0;objects.clear();markers.length=0;labels.replaceChildren();
  }
  function update(ship:CargoShip,packing:Packing|null,en:boolean){
+  const nextShape=JSON.stringify([ship.id,ship.grids.map(g=>[g.x,g.y,g.z,g.w,g.h,g.l,g.rotation])]);
+  const refit=gridShape!==nextShape;gridShape=nextShape;
   resetContent();
   const bounds=new THREE.Box3();
   for(const [index,g] of ship.grids.entries()){
    const obj=new THREE.Group();obj.position.set(g.x+g.w/2,g.y+g.h/2,g.z+g.l/2);obj.rotation.set(...(g.rotation.map(a=>a*Math.PI/180) as [number,number,number]));root.add(obj);
    const shape=new THREE.BoxGeometry(g.w,g.h,g.l);
-   const cage=new THREE.LineSegments(new THREE.EdgesGeometry(shape),new THREE.LineBasicMaterial({color:g.disabled?0x7c8a91:0x8de7fb,transparent:true,opacity:g.disabled?.3:.95}));shape.dispose();obj.add(cage);
+   const cage=new THREE.LineSegments(new THREE.EdgesGeometry(shape),new THREE.LineBasicMaterial({color:g.disabled?0x7c8a91:0x9dbfd0,transparent:true,opacity:g.disabled?.3:.52}));shape.dispose();obj.add(cage);
    if(!g.disabled){
     obj.add(hologramBrackets(g.w,g.h,g.l));
     // The twelve rails describe the real packing volume, including its ceiling.
@@ -99,15 +127,16 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
     for(const x of [-1,1])for(const z of [-1,1])rail(new THREE.Vector3(x*g.w/2,-g.h/2,z*g.l/2),new THREE.Vector3(x*g.w/2,g.h/2,z*g.l/2));
     for(const y of [-1,1])for(const z of [-1,1])rail(new THREE.Vector3(-g.w/2,y*g.h/2,z*g.l/2),new THREE.Vector3(g.w/2,y*g.h/2,z*g.l/2));
     for(const x of [-1,1])for(const y of [-1,1])rail(new THREE.Vector3(x*g.w/2,y*g.h/2,-g.l/2),new THREE.Vector3(x*g.w/2,y*g.h/2,g.l/2));
-    obj.add(new THREE.Mesh(mergeGeometries(railParts)!,new THREE.MeshBasicMaterial({color:0x8cecff,toneMapped:false})));railParts.forEach(p=>p.dispose());
+    obj.add(new THREE.Mesh(mergeGeometries(railParts)!,new THREE.MeshBasicMaterial({color:0x8cbacc,transparent:true,opacity:.52,toneMapped:false})));railParts.forEach(p=>p.dispose());
     obj.add(new THREE.Mesh(mergeGeometries(baseParts)!,new THREE.MeshBasicMaterial({color:0xbda16b,transparent:true,opacity:.7})));baseParts.forEach(p=>p.dispose());
-    const hidden=new THREE.LineSegments(cage.geometry.clone(),new THREE.LineDashedMaterial({color:0x7bd9f3,transparent:true,opacity:.22,depthTest:false,depthWrite:false,dashSize:.16,gapSize:.14}));hidden.computeLineDistances();hidden.renderOrder=4;obj.add(hidden);
+    const hidden=new THREE.LineSegments(cage.geometry.clone(),new THREE.LineDashedMaterial({color:0x7bd9f3,transparent:true,opacity:.09,depthTest:false,depthWrite:false,dashSize:.16,gapSize:.14}));hidden.computeLineDistances();hidden.renderOrder=4;obj.add(hidden);
     const ticks:number[]=[];
     for(let y=1;y<g.h;y++)for(const x of [-1,1])ticks.push(x*g.w/2,y-g.h/2,-g.l/2,x*g.w/2,y-g.h/2,g.l/2);
     for(let x=1;x<g.w;x++)ticks.push(x-g.w/2,g.h/2,-g.l/2,x-g.w/2,g.h/2,g.l/2);
     for(let z=1;z<g.l;z++)ticks.push(-g.w/2,g.h/2,z-g.l/2,g.w/2,g.h/2,z-g.l/2);
-    const tickGeo=new THREE.BufferGeometry();tickGeo.setAttribute('position',new THREE.Float32BufferAttribute(ticks,3));obj.add(new THREE.LineSegments(tickGeo,new THREE.LineBasicMaterial({color:0x58bbdb,transparent:true,opacity:.3,depthWrite:false})));
+    const tickGeo=new THREE.BufferGeometry();tickGeo.setAttribute('position',new THREE.Float32BufferAttribute(ticks,3));obj.add(new THREE.LineSegments(tickGeo,new THREE.LineBasicMaterial({color:0x58bbdb,transparent:true,opacity:.12,depthWrite:false})));
 
+    const attachment=new THREE.Mesh(new THREE.PlaneGeometry(g.w,g.l),new THREE.MeshStandardMaterial({color:0x3b3425,metalness:.52,roughness:.64,transparent:true,opacity:.55,side:THREE.DoubleSide}));attachment.rotation.x=-Math.PI/2;attachment.position.y=-g.h/2;attachment.receiveShadow=true;obj.add(attachment);
     const field=new THREE.Mesh(new THREE.PlaneGeometry(g.w,g.l),hologramField(g.w,g.l));field.rotation.x=-Math.PI/2;field.position.y=-g.h/2+.015;obj.add(field);
     const wall=new THREE.Mesh(new THREE.BoxGeometry(g.w,g.h,g.l),hologramWall());obj.add(wall);
     // Luminous anchoring perimeter belongs to the actual attachment face.
@@ -142,10 +171,14 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    const group=new THREE.Group();group.position.fromArray(cargoWorldCenter(g,b));group.rotation.set(...(g.rotation.map(a=>a*Math.PI/180) as [number,number,number]));
    const container=new THREE.Group();group.add(container);root.add(group);
    const d=b.dims.map(x=>Math.max(.12,x-.07));
-   const painted=mat(`paint:${b.color}:${b.size}`,()=>new THREE.MeshPhysicalMaterial({map:texture(b.color,b.size),metalness:.28,roughness:.72,roughnessMap:micro,bumpMap:micro,bumpScale:.009,clearcoat:.08,clearcoatRoughness:.48}));
-   const shell=mesh(bodyGeometry(d),painted,container);shell.userData.boxId=b.boxId;selectable.push(shell);
-   mesh(structure(d,'rails'),metal,container);mesh(structure(d,'ribs'),dark,container);mesh(structure(d,'corners'),silver,container);
-   const edges=new THREE.LineSegments(new THREE.EdgesGeometry(shell.geometry,30),new THREE.LineBasicMaterial({color:0xffb658,depthTest:false,transparent:true,opacity:.85}));edges.name='selection';edges.visible=false;edges.scale.setScalar(1.008);edges.renderOrder=10;container.add(edges);
+   const painted=mat(`paint:${b.color}`,()=>new THREE.MeshPhysicalMaterial({map:texture(b.color),metalness:.38,roughness:.68,roughnessMap:micro,bumpMap:micro,bumpScale:.006,clearcoat:.08,clearcoatRoughness:.48}));
+   // The painted body is recessed behind the frame; previously the full-size
+   // shell swallowed the rails, flattening both silhouettes and contact shadows.
+   mesh(bodyGeometry(d.map(v=>v-.12)),painted,container);
+   mesh(structure(d,'rails'),metal,container);mesh(structure(d,'ribs'),dark,container);mesh(structure(d,'corners'),silver,container);mesh(structure(d,'locks'),silver,container);
+   identification(d,b.size,container);
+   for(const child of container.children)child.userData.boxId=b.boxId;
+   const edges=new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeometry(d),30),new THREE.LineBasicMaterial({color:0xffb658,depthTest:false,transparent:true,opacity:.85}));edges.name='selection';edges.visible=false;edges.scale.setScalar(1.008);edges.renderOrder=10;container.add(edges);
    objects.set(b.boxId,container);
   }
   // Reuse draw calls across crates. Geometry detail does not multiply draw calls
@@ -164,7 +197,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    batch.matrices.forEach((matrix,i)=>instances.setMatrixAt(i,matrix));instances.instanceMatrix.needsUpdate=true;instances.castShadow=true;instances.receiveShadow=true;
    instances.userData.boxIds=batch.ids;root.add(instances);if(batch.ids.some(Boolean))selectable.push(instances);
   }
-  select(selected);home('orbit',true);host.dataset.grids=String(ship.grids.length);host.dataset.boxes=String(packing?.boxes.length||0);host.dataset.ready='true';invalidate();
+  select(selected);if(refit)home('orbit',true);host.dataset.grids=String(ship.grids.length);host.dataset.boxes=String(packing?.boxes.length||0);host.dataset.ready='true';invalidate();
  }
  function select(id:string|null){selected=id;objects.forEach((o,key)=>{const outline=o.getObjectByName('selection')!;outline.visible=key===selected||key===hover;});invalidate();}
  function home(mode:CargoCamera='orbit',instant=false){
@@ -179,7 +212,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  function render(now:number){frame=0;if(dead||!visible||document.hidden)return;
   const moving=!!transition;if(transition){const t=THREE.MathUtils.clamp((now-transition.start)/450,0,1),s=t*t*(3-2*t);camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.target,center,s);if(t===1)transition=null;}
   const changed=controls.update();const off=controls.target.clone().sub(center);if(off.length()>radius){const correction=off.setLength(off.length()-radius);controls.target.sub(correction);camera.position.sub(correction);}
-  if(dirty||changed||moving){renderer.render(scene,camera);dirty=false;const w=host.clientWidth,h=host.clientHeight;for(const mark of markers){const p=mark.position.clone().project(camera);mark.node.hidden=p.z>1||p.z< -1||Math.abs(p.x)>.95||Math.abs(p.y)>.9;const half=mark.node.offsetWidth/2+8;const x=THREE.MathUtils.clamp((p.x*.5+.5)*w,half,w-half);mark.node.style.transform=`translate(${x}px,${(-p.y*.5+.5)*h}px) translate(-50%,-50%)`;}}
+  if(dirty||changed||moving){host.dataset.view=JSON.stringify([...camera.position.toArray(),...controls.target.toArray()].map(n=>+n.toFixed(4)));renderer.render(scene,camera);dirty=false;const w=host.clientWidth,h=host.clientHeight;for(const mark of markers){const p=mark.position.clone().project(camera);mark.node.hidden=p.z>1||p.z< -1||Math.abs(p.x)>.95||Math.abs(p.y)>.9;const half=mark.node.offsetWidth/2+8;const x=THREE.MathUtils.clamp((p.x*.5+.5)*w,half,w-half);mark.node.style.transform=`translate(${x}px,${(-p.y*.5+.5)*h}px) translate(-50%,-50%)`;}}
   if(changed||transition)invalidate();
  }
  function invalidate(){dirty=true;if(!frame&&!dead&&visible&&!document.hidden)frame=requestAnimationFrame(render);}
@@ -190,7 +223,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  controls.addEventListener('change',invalidate);controls.addEventListener('start',()=>{transition=null;});
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down:number[]|null=null;
  function hit(e:PointerEvent){const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);const h=ray.intersectObjects(selectable,false)[0];return h?.instanceId!==undefined?h.object.userData.boxIds[h.instanceId] as string:undefined;}
- const pointerDown=(e:PointerEvent)=>{down=[e.clientX,e.clientY];};
+ const pointerDown=(e:PointerEvent)=>{down=e.isPrimary&&e.button===0&&!e.shiftKey&&!e.ctrlKey?[e.clientX,e.clientY]:null;};
  const pointerUp=(e:PointerEvent)=>{if(down&&Math.hypot(e.clientX-down[0]!,e.clientY-down[1]!)<5)onSelect(hit(e)||null);down=null;};
  const pointerMove=(e:PointerEvent)=>{const next=hit(e)||null;if(next!==hover){hover=next;renderer.domElement.style.cursor=hover?'pointer':'grab';select(selected);}};
  const pointerLeave=()=>{hover=null;down=null;select(selected);};

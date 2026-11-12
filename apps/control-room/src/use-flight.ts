@@ -3,6 +3,8 @@ import {useLogReceipts} from './use-log-receipts';
 import {updateFlightHistory} from './flight-history.mjs';
 import {readCargoPreferences} from './cargo-plan.mjs';
 import {readDraft,routeReady,shipIdFor} from './mission-trial';
+import {missionFor} from './flight-engine.mjs';
+import {quantityPlan} from './mission-quantities.mjs';
 import type {Draft,Job} from './mission-trial';
 import type {FlightPlan} from './flight-types';
 import {adoptReplan,blankRun,completeStep,contextOf,decodeSession,fingerprint,pauseRun,sessionKey,startRun,undoStep} from './flight-session';
@@ -40,7 +42,7 @@ export function useFlight(){
  function calculate(onReady?:()=>void,replan=false,source?:'saved'|'defer',manualStops?:string[],from?:string){
   if(worker.current||blocked||active&&!replan)return;
   const prior=current.current,stamp=fingerprint(prior.draft);
-  if(!replan && source!=='saved' && prior.draft.jobs.some(j=>j.signature && receipts.cards.some(c=>c.id===j.id && ((c.state!=='ready' && !(prior.draft.partner==='operator' && routeReady(c)) && !(j.reviewedReceipt && c.state==='incomplete'))||c.signature!==j.signature)))){
+  if(!replan && source!=='saved' && prior.draft.jobs.some(j=>j.signature && receipts.cards.some(c=>c.id===j.id && ((c.state!=='ready' && !(prior.draft.partner==='operator' && routeReady(c)) && !(c.state==='incomplete' && (j.reviewedReceipt || quantityPlan(missionFor(j),prior.draft.allowUpperBounds!==false).ready)))||c.signature!==j.signature)))){
     setError('수신한 계약의 내용이 바뀌었습니다. 해당 카드를 빼고 수신함에서 다시 확인하세요.');return;
   }
   setBusy(true);setError('');

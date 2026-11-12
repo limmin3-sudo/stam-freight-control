@@ -13,6 +13,7 @@ import { MissionConsole } from './MissionConsole';
 import stamLogo from '../../../assets/stam-logo-transparent.png';
 import roomImage from './assets/control-room-stanton.png';
 import './console-display.css';
+import './mission-screen.css';
 
 export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
   const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
@@ -21,6 +22,7 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
   const mounted = useRef(false);
   const copy = copyFor(route.locale);
   const isHome = route.screen === 'bridge';
+  const missionScreen=route.screen==='mission';
   const {draft,plan} = flight.session;
   const receipts = flight.receipts;
   const controlMode = new URLSearchParams(location.hash.split('?')[1]).get('mode') !== 'workspace';
@@ -53,7 +55,7 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
     }
   }, [route.screen]);
 
-  return <div className={`control-room ${isHome ? 'at-bridge' : 'at-console'} ${route.screen === 'mission' || route.screen === 'operations' ? 'at-display' : ''}`}>
+  return <div className={`control-room ${missionScreen?'monitor-ui':''} ${isHome ? 'at-bridge' : 'at-console'} ${route.screen === 'operations' ? 'at-display' : ''}`}>
     <a href="#station-navigation" className="skip-link" onClick={event => {
       event.preventDefault(); document.getElementById('nav-mission')?.focus();
     }}>{copy.skip}</a>
@@ -85,12 +87,12 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
         </div>
         <div className="bridge-bottom"><span className="scene-caption" aria-hidden="true">STAM / ORBITAL FREIGHT DIVISION</span><p>{copy.status}</p></div>
       </section> : <section className={`console-workspace workspace-${route.screen}`} aria-labelledby="workspace-title">
-        <div className="console-heading"><div><p className="eyebrow">STAM / {route.screen.toUpperCase()}</p><h1 id="workspace-title" ref={heading} tabIndex={-1}>{copy[route.screen]}</h1><p>{copy.descriptions[route.screen]}</p></div><a className="return-link" href={routeHash({ ...route, screen: 'bridge' })}>↖ {copy.back}</a></div>
+        <div className="console-heading">{missionScreen&&<nav className="monitor-navigation" aria-label={copy.navigate}><a href={routeHash({...route,screen:'mission'})} aria-current="page">{copy.mission}</a><a href={routeHash({...route,screen:'map'})}>{route.locale==='en'?'Navigation hologram':'항법 홀로그램'}</a><a href={routeHash({...route,screen:'operations'})}>{copy.operations}</a><label>{copy.language}<select value={route.locale} onChange={e=>{const next={...route,locale:e.target.value as Locale};history.replaceState(null,'',routeHash(next));setRoute(next);}}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label></nav>}<div><p className="eyebrow">STAM / {route.screen.toUpperCase()}</p><h1 id="workspace-title" ref={heading} tabIndex={-1}>{copy[route.screen]}</h1><p>{copy.descriptions[route.screen]}</p></div><a className="return-link" href={routeHash({ ...route, screen: 'bridge' })}>↖ {copy.back}</a></div>
         <div className="console-display-content" tabIndex={0} role="region" aria-label={copy[route.screen]}>
         <div className="workspace-layout" data-screen={route.screen}>
           {route.screen === 'mission' ?
             <MissionConsole draft={draft} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
-              onReview={()=>flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});})}/> :
+              onReview={next=>{if(next)flight.change(next);flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});});}}/> :
             <>{!controlMode && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
               <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}
           {route.screen==='mission' && <ContractBackup flight={flight} locale={route.locale}/>}

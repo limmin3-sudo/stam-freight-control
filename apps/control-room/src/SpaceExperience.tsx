@@ -3,7 +3,7 @@ import type { CSSProperties, MouseEvent } from 'react';
 import {PartnerConversation} from './PartnerConversation';
 import {partnerDialogue} from './partner-dialogue';
 import type {PartnerId} from './partner-dialogue';
-import { StantonHologram } from './StantonHologram';
+import {MapConsole} from './MapConsole';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
 import { ControlRoom } from './ControlRoom';
@@ -47,7 +47,6 @@ export function SpaceExperience() {
   const flight = useFlight();
   const [conversation,setConversation]=useState<{partner:PartnerId;variant:number}|null>(null);
   const greetingVisits=useRef<Record<PartnerId,number>>({director:0,operator:0,navigator:0});
-  const [mapDock,setMapDock]=useState<HTMLDivElement|null>(null);
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const [returnedLounge,setReturnedLounge]=useState<string|null>(null);
   const guideController=useRef<GuideDeskHandle|null>(null);
@@ -112,7 +111,7 @@ export function SpaceExperience() {
       if (event.target instanceof Element && event.target.closest('select, input, textarea, video')) return;
       if(route.screen==='guide'){event.preventDefault();guideController.current?.navigate('lounge');return;}
       if (destination.current) { cancel(); return; }
-      if (route.screen === 'map') { location.hash = spaceHash({...route,screen:'bridge'});return; }
+      if (route.screen === 'map') return; // The chart owns Escape for hierarchical navigation.
       if (!isOverview) location.hash = spaceHash({ ...route, screen: scene });
     };
     window.addEventListener('keydown', escape);
@@ -199,6 +198,7 @@ export function SpaceExperience() {
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
   const approaching = pending?.kind === 'short' && route.screen === scene;
+  if(route.screen==='map')return <MapConsole flight={flight} locale={route.locale}/>;
   return <>{consoleOpen ? <ControlRoom flight={flight} /> : <div className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); document.querySelector<HTMLElement>('.space-dock a,.guide-desk button:not([disabled])')?.focus();
@@ -250,7 +250,6 @@ export function SpaceExperience() {
 
             </svg>
           </div>
-          {scene === 'bridge' && <StantonHologram plan={flight.session.plan} expanded={route.screen === 'map'} motion={motion} locale={route.locale} dockTarget={mapDock}/> }
           {scene === 'bridge' && <div className="bridge-partners">
               <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
               <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>
@@ -338,7 +337,6 @@ export function SpaceExperience() {
         <label>{en ? 'Volume' : '음량'}<input aria-label={en ? 'Effect volume' : '효과음 크기'} type="range" min="0" max="50" value={volume} onChange={event => setVolume(Number(event.target.value))} /></label>
         <button aria-pressed={motion} onClick={() => { setMotion(!motion); cancel(); }}>{en ? `Transitions ${motion ? 'on' : 'off'}` : `이동 연출 ${motion ? '켜짐' : '꺼짐'}`}</button>
       </div></details>
-        <div className="space-map-sidebar" ref={setMapDock} hidden={route.screen!=='map'} />
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
     </main>
