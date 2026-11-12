@@ -1,0 +1,19 @@
+Create one continuous 6-second photorealistic cinematic video, landscape 16:9, with synchronized Korean dialogue and audio.
+
+FRAME REFERENCES
+Use 01-lounge-start.png as the exact starting composition. Use 02-desk-end-edited.png as the final composition and identity reference. These are the same adult Flight Guide and the same STAM lounge, viewed from two camera positions. Preserve her recognizable face, tied-back blonde hair, white short-sleeved uniform with gold buttons and dark shoulder epaulettes, black skirt, black sleeve on HER RIGHT arm, and wristwatch on her left wrist. Keep the seated brunette receptionist as a separate person.
+
+MOVEMENT AND TIMING
+0.0–1.5 s: Begin with the supplied wide lounge frame. The guide makes eye contact, smiles subtly, and gestures toward the reception counter with her black-sleeved RIGHT arm as she begins her welcome.
+1.5–4.8 s: She turns and takes a few natural steps toward the nearby reception counter, accompanying the viewer. The camera smoothly travels forward and slightly left toward the desk at human eye level, with real perspective and parallax. She briefly looks back toward the viewer as she speaks. Maintain continuous believable movement and consistent identity; do not use a static digital zoom or morph between the pictures.
+4.8–6.0 s: Arrive at the final reference framing: the guide stands upright in the right foreground facing the viewer, her right palm resting lightly and flat on the counter, her left hand near her skirt. She does not lean her elbow or forearm on the desk. Finish the line by approximately 5.4 s, then settle into a gentle closed-mouth smile and hold the final composition without a cut or fade.
+
+SPEECH — SAY EXACTLY THIS IN KOREAN, ONCE
+“스탐에 오신 걸 환영해요. 이쪽에서 안내해 드릴게요.”
+Pronounce STAM as “스탐”. Speak naturally at a comfortable pace, with the first sentence during the welcome and the second during the walk. Synchronize her lip movements to the Korean speech. Only the foreground blonde guide speaks.
+
+VOICE
+A clearly adult, approximately 20-year-old Korean woman's voice: youthful, beautiful, clear, soft, lightly bright, and warm, with a refined, slightly poised personality. Natural Korean intonation and light vocal resonance. Avoid a deep, husky, heavy or mature announcer voice, exaggerated customer-service delivery, squeaky childlike voice, or artificial anime voice. Do not speed up or pitch-shift the audio unnaturally. Speech should be clear above subtle lounge ambience and quiet footsteps; no music or other voices.
+
+VISUAL CONTINUITY
+Preserve the lounge architecture, marble counter, two monitors, seated receptionist, windows, plants, adjacent boarding gate and daylight. Their apparent position should change only through camera movement. Maintain detailed skin, fabric, hair and physically plausible shadows and reflections. Keep her face sharp during motion. No new lamps, furniture, people, floating menus, holographic UI, captions, subtitles, logos or overlay text. No cuts, teleportation, body deformation, sliding feet, duplicated limbs or identity changes. The final frame must remain clean for live interface overlays added later.

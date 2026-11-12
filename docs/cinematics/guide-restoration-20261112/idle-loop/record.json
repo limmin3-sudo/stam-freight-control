@@ -1,0 +1,12 @@
+{
+  "post": "https://grok.com/imagine/post/c6a50df1-cadc-4633-baa2-d2e4e4911612",
+  "file": "original.mp4",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "durationSeconds": 15.041667,
+  "audioStreamPresent": true,
+  "loopSeamReviewed": false,
+  "runtimeConnected": true,
+  "reason": "Latest clarification: replace the old waiting loop and play the new one underneath the hologram panels. High-resolution still is fallback."
+}

@@ -1,0 +1,13 @@
+{
+  "post": "https://grok.com/imagine/post/c2ec2462-58cf-4a3b-b983-d5a4e956372f",
+  "file": "original.mp4",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "frames": 145,
+  "durationSeconds": 6.041667,
+  "audio": "original AAC preserved; spoken words not independently transcribed",
+  "review": "Sampled entire shot and final frame; final framing close to 02-desk-end-edited.png but not pixel identical",
+  "runtime": "Approach active. Menus use 1672x941 original edited PNG, NOT decoded 720p frame. Idle and old return disabled.",
+  "reencoded": false
+}
