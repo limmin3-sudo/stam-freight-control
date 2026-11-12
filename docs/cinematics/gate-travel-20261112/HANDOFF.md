@@ -33,6 +33,10 @@
 - ffprobe로 572프레임/23.833초 확인, 전체 영상 디코딩 오류 없음. 원본 음향을 유지했으며 최종 음향 제작·청음 승인은 별도다.
 - [데스크톱 접근](review/boarding-desktop.png), [게이트 밖](review/gate-exit-desktop.png), [셔틀 착륙](review/shuttle-landing-desktop.png), [탑승](review/shuttle-boarding-desktop.png), [모바일 접근](review/boarding-mobile.png), [모바일 탑승](review/shuttle-boarding-mobile.png).
 
+## 기존 CI 실패 인계
+
+PR 검사 [43192053804](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43192053804)는 구형 화면의 `check-intro-guide-browser.mjs:21`에서 `Math.abs(map.y-route.y)<2`로 실패했다. 기준 `397f19a`의 [43189683334](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43189683334)도 같은 위치·조건으로 실패했다. 관련 구형 화면/검사 파일은 이번 변경에 포함되지 않는다. 이후 순차 CI 브라우저 검사는 실행되지 않았으며 전체 CI 통과로 보고하지 않는다. 새 라운지 게이트 검사는 별도로 통과했다. 이 기존 정렬 문제는 기능 담당에게 인계한다.
+
 ## 다음 담당자
 
 로컬에서는 미커밋 작업을 보존한 뒤 `git fetch origin`하고 `handoff/local-studio-20261110`의 최신 통합 커밋을 대조한다. 깨끗하고 분기가 없는 작업본에서만 ff-only로 받는다. 이번 연출 브랜치를 이미 포함한 통합본에 다시 cherry-pick하지 않는다. 변경 전체 덮어쓰기, 강제 reset, 이전 폐기 Git 이력 혼합 금지.
