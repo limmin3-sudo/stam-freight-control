@@ -1,0 +1,34 @@
+{
+  "baseline": "397f19aa418581bbb48be635c676604cd77461c5",
+  "sources": {
+    "approach": {
+      "post": "https://grok.com/imagine/post/d6e3405e-c32a-4036-9927-78d599afdcc9",
+      "sha256": "9157ec1f89bb7d3bb4a067d7e64c7f43000af1c2f1975a572b240273a1fe1335"
+    },
+    "landing": {
+      "post": "https://grok.com/imagine/post/5db0bbea-2b9b-4903-9732-44848db9414a",
+      "sha256": "5105485cb788b719cffdf6113fbc745c6bcc9d86fdc6367f7d07694489b51b2e"
+    }
+  },
+  "boardingSha256": "83fca6a81da6ff121262f7f65c6ce3cd64e60cb6686cad65468887a7cdea7904",
+  "asset": "apps/control-room/src/assets/travel/lounge-to-shuttle-boarding.mp4",
+  "sha256": "b4364d6541bb65894ba5668721708182dc0631288b8c3b8f5e63562f3fadc382",
+  "bytes": 22905558,
+  "frames": [
+    111,
+    240,
+    221
+  ],
+  "fps": 24,
+  "durationSeconds": 23.833333333333336,
+  "segmentStartSeconds": [
+    0,
+    4.625,
+    14.625
+  ],
+  "approachEdit": "Use frames 0..114; final-second 1.0x to 1.35x ramp. Preserve spoken audio speed/pitch.",
+  "landingEdit": "Drop duplicate first frame; retain frames 1..240 at 1x.",
+  "boardingEdit": "All 221 frames of the existing deployed approved cut, at 1x. Original asset untouched.",
+  "audio": "Original audio, exact segment durations, 60ms boundary fades; no final sound design added.",
+  "status": "User subsequently authorized integration and deployment; see HANDOFF.md and Git history."
+}
