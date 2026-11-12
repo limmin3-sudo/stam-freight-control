@@ -1,3 +1,4 @@
+import {chooseInitialPartner} from './browser-partner-choice.mjs';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
@@ -11,7 +12,7 @@ const saved=page=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:.5,reducedMotion:'reduce'});await page.addInitScript(()=>localStorage.setItem('vh-map-quality','normal'));
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&/THREE|Shader|WebGL|Navigation chart failed/.test(m.text()))errors.push(m.text());});
- await page.goto(base+'#/mission?lang=ko');await page.getByRole('button',{name:'예시 계약 보기',exact:true}).click();
+ await page.goto(base+'#/mission?lang=ko');await chooseInitialPartner(page);await page.getByRole('button',{name:'예시 계약 보기',exact:true}).click();
  await page.locator('.receipt-card').first().getByRole('checkbox').check();await page.locator('.receipt-card').nth(1).getByRole('checkbox').check();await page.getByLabel('운항 파트너',{exact:true}).selectOption('navigator');await page.locator('.dispatch-launch').click();
  await page.waitForSelector('.navigation-chart[data-ready=true]');await settled(page);console.log('map ready');
  const state=await saved(page);assert.equal(await page.locator('.chart-stop-select').count(),state.plan.visits.length);

@@ -1,0 +1,19 @@
+{"text":"Mission ID: OCR-FINAL-KO\n\n54: 73,500 aUEC\n\n) 0/22 SCU 에어리어 18에 배송하십시오.\n\n=\n=]\n\n알루미늄을(\n\n뉴 배비지에서\n","korFirst":"Mission ID: OCR-FINAL-KO\n\n54: 73,500 aUEC\n\n) 0/22 SCU 에어리어 18에 배송하십시오.\n\n=\n=]\n\n알루미늄을(\n\n뉴 배비지에서\n","block":"미션명: 신입 화물 운송\n\nMission ID: OCR-FINAL-KO\n\n54: 73,500 aUEC\n\n알루미늄을(를) 0/22 SCU 에어리어 18에 배송하십시오.\n로빌에서 알루미늄을(를) 접수하십시오.\n\n뉴 배비지에서 알루미늄을(를) 접수하십시오.\n","jobs":[{"id":"OCR-FINAL-KO","title":["—","—"],"pay":73500,"rewardUnknown":false,"reservations":{},"shipments":[{"id":"OCR-FINAL-KO-0","cargo":["",""],"from":"","to":"stanton:c6535844-c615-494e-9dc1-c2d0c6e7190a","scu":22,"maxBoxSize":null}]}]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+undefined !== 22
+
+    at file:///tmp/stam-ocr-korean-compare.mjs:27:212 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 22,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

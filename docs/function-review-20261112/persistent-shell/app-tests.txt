@@ -1,0 +1,32 @@
+
+> verse-hauler@0.1.0 test:control-room
+> npm --prefix apps/control-room test
+
+
+> @stam/control-room@0.0.0 pretest
+> node prepare-locations.mjs
+
+
+> @stam/control-room@0.0.0 test
+> node --experimental-strip-types --test tests/*.test.ts
+
+✔ tests/bridge-asset.test.ts (1068.346307ms)
+✔ tests/bridge-layout.test.ts (362.010749ms)
+✔ tests/cargo-plan.test.ts (330.828597ms)
+✔ tests/flight-integration.test.ts (800.406258ms)
+✔ tests/hologram-catalogue.test.ts (414.155071ms)
+✔ tests/hologram-layout.test.ts (420.544111ms)
+✔ tests/hologram-route.test.ts (435.459889ms)
+✔ tests/mission-screen.test.ts (555.322228ms)
+✔ tests/mission-trial.test.ts (265.687715ms)
+✔ tests/navigation.test.ts (217.393539ms)
+✔ tests/opening-policy.test.ts (291.730282ms)
+✔ tests/space-navigation.test.ts (294.789103ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5497.691807

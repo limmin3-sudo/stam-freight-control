@@ -1,0 +1,1 @@
+PASS: information/service/cinema share Barlow 500 + fixed accordion sidebar/header; reference links, account/history dialogs, click-only video playback/cleanup, KO/mix/EN mobile overflow

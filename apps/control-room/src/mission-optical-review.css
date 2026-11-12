@@ -1,0 +1,126 @@
+/* These textures contain materials only. All text, inputs and actions remain live. */
+.control-room.monitor-ui[data-mission-material=projection],.control-room.monitor-ui[data-mission-material=chip]{--body-font:SUIT,sans-serif;--light:#e0f6fb;--cyan:#a0eaf7;--accent:#f3cc91;--muted:#9db9c6;--line:#8fdef12e}
+.control-room.monitor-ui[data-mission-material=projection]{--panel:url('./assets/material-review/projection-panel.png');--primary:url('./assets/material-review/projection-action.png');background:radial-gradient(ellipse at 50% 55%,#143c4a77,transparent 62%),radial-gradient(ellipse at 20% 0,#1e526155,transparent 65%),#030b13}
+.control-room.monitor-ui[data-mission-material=chip]{--panel:url('./assets/material-review/chip-panel.png');--primary:url('./assets/material-review/chip-action.png');background:#050e18 url('./assets/material-review/circuit-board.svg') center/cover fixed}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .console-heading{padding-top:10px;padding-bottom:15px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .console-heading h1{font-size:30px;font-weight:340;letter-spacing:.12em;text-shadow:0 0 19px #a2e6f929}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .console-heading>.monitor-navigation{margin-bottom:8px;border-bottom-color:#91d8ef35;gap:18px;min-height:52px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .monitor-navigation a{font-size:14px;font-weight:350;letter-spacing:.18em;padding:13px 22px;color:#9fbeca}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .console-heading .eyebrow{font-size:10px;font-weight:350;letter-spacing:.27em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(.mission-preflight,.mission-intake,.manifest-summary,.receipt-card){border-image-source:var(--panel);border-image-slice:155 135 155 135 fill;border-image-width:32px;border-width:16px;background:none;box-shadow:none;padding:24px 26px;filter:drop-shadow(0 8px 12px #0006)}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-screen{gap:20px 24px;grid-template-columns:minmax(0,1fr) 380px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-preflight{padding:11px 20px;border-width:10px;border-image-width:23px;border-image-slice:155 135 155 135 fill;gap:5px 24px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-intake{padding:21px 26px 14px;position:relative;isolation:isolate;min-height:290px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading{margin-bottom:15px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading h2{font-size:22px;letter-spacing:.04em;font-weight:380}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(.mission-stage-heading small,.manifest-head small,.manifest-summary>small){font-size:10px;font-weight:350;letter-spacing:.25em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(.mission-partner-note,.mission-source>p,.mission-stage-heading>p,.quantity-guide,.mission-summary-note){font-weight:350;font-size:12px;letter-spacing:.025em;line-height:1.75;color:var(--muted)}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(input:not([type=checkbox]),select,textarea){background:linear-gradient(115deg,#06131ca8,#16324062);border-color:#80cad850;color:#def5fa;font-size:15px;font-weight:350;letter-spacing:.04em;min-height:40px;box-shadow:inset 0 1px 6px #0006,inset 0 -1px #a2efff20}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) label{font-weight:350;letter-spacing:.035em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) button,.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .console-heading>.return-link{border-image:none;border:1px solid #8bdcf071;background:linear-gradient(160deg,#a4f0ff16,#12344340 40%,#04131d90);min-height:43px;padding:10px 17px;box-shadow:inset 0 1px #d2faff47,inset 0 -2px #8be8ff20,0 5px 9px #0005;border-radius:4px 10px 4px 10px;font-size:13px;font-weight:350;letter-spacing:.045em;color:#d9f6fd}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) button:hover:not(:disabled){background:linear-gradient(160deg,#a4f0ff29,#12344360 40%,#04131d90);box-shadow:inset 0 1px #d2faff70,0 0 12px #8cdfff29}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source h3{font-size:16px;font-weight:400;letter-spacing:.1em;color:#c8f4ff}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card{border-width:9px;border-image-width:16px;padding:16px 18px;min-height:234px;gap:11px;filter:drop-shadow(0 6px 6px #0006)}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card[data-state=checked]{border-image-width:18px;background:none;box-shadow:0 0 13px #82dcf51c}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card[data-state=checked]:after{background:#f0c47c;height:1px;box-shadow:0 0 8px #f0bb79;width:35%}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card strong{font-size:17px;font-weight:380;letter-spacing:.055em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card .receipt-route{font-size:14px;letter-spacing:.04em;font-weight:350}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-correct{font-size:12px;border:0;border-bottom:1px solid #9cd8e64d;border-radius:0;padding:5px 6px;min-height:32px;box-shadow:none;background:none}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary{padding:29px 25px;border-width:17px;border-image-width:36px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary h2{font-size:25px;font-weight:340;letter-spacing:.12em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .selection-count{font-family:SUIT,sans-serif;font-weight:300;font-size:68px;text-shadow:0 0 12px #9eeaff33;margin-top:10px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary .manifest-row{gap:10px;padding:11px 0}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-row b{font-size:14px;font-weight:350;letter-spacing:.04em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-row span{font-size:14px;color:#a3cdda}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-row button{font-size:17px;min-height:29px;width:29px;border-radius:50%;padding:1px;border:1px solid #abe8f560;background:radial-gradient(circle at 20% 15%,#b4ebff22,#04131d99);box-shadow:inset 0 1px #d3faff6e,0 3px 5px #0006}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary dl{margin-top:21px;gap:12px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary dt{font-size:12px;font-weight:350}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary dd{font-size:18px;font-weight:350;color:#c2f2ff;letter-spacing:.045em}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .dispatch-launch{border-image:none;border:0;background:none;box-shadow:none!important;min-height:86px;padding:20px 22px;margin-top:18px;gap:12px;font-size:15px;font-weight:350;letter-spacing:.045em;color:#ffe0a3}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .dispatch-launch:before{display:block;content:'';position:absolute;inset:-7px -13px;z-index:-1;pointer-events:none;background:var(--primary) center/100% 135% no-repeat;filter:drop-shadow(0 7px 7px #0008)}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .dispatch-launch:hover:not(:disabled){background:none;box-shadow:none}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .dispatch-launch .interface-glyph{width:26px;height:26px;filter:drop-shadow(0 0 5px #c8f7ff77)}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .cargo-review-toggle{margin-top:12px;font-weight:350;color:#bfe8f4}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .certainty{background:linear-gradient(90deg,#7ce8fa0e,transparent);border-block:1px solid #84d6e82b;font-size:11px;font-weight:350;letter-spacing:.035em}
+.control-room.monitor-ui[data-mission-material=projection] .mission-intake{min-height:360px}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source-grid{display:flex;flex-direction:column;gap:10px;width:47%;position:relative;z-index:1}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source{padding:0;border:0;display:flex;flex-direction:column;gap:3px}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source>p{display:none}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source h3{font-size:12px;color:#97c9d8;margin:0;letter-spacing:.1em}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source .source-actions{gap:8px;flex-wrap:wrap}
+.control-room.monitor-ui[data-mission-material=projection] .shot-upload>span{display:none}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source-footer{position:relative;z-index:1;margin-top:14px}
+.control-room.monitor-ui[data-mission-material=projection] .mission-source-footer p{font-size:10px;max-width:65%}
+.control-room.monitor-ui[data-mission-material=projection] .mission-stage-heading>p{max-width:320px;font-size:10px}
+.mission-optical-instrument{position:absolute;right:6%;top:66px;width:290px;height:290px;pointer-events:none;opacity:.85;z-index:0}
+.optical-orbit{position:absolute;inset:0;border:1px solid #84d6e957;border-radius:50%;box-shadow:0 0 25px #42d1ec22,inset 0 0 20px #7cddf21a;background:radial-gradient(ellipse at 50% 85%,#9ee7ef1d,transparent 62%);overflow:hidden}
+.orbit-fine{position:absolute;inset:8px;border:1px solid #9ed6df55;border-radius:50%}.orbit-ticks{position:absolute;inset:20px;border:1px dashed #91d3e259;border-radius:50%}.orbit-segment{position:absolute;inset:3px;border-radius:50%;border-top:3px solid #aff5ff99;border-right:2px solid #e1c19b66;filter:drop-shadow(0 0 3px #a1f0ff77);transform:rotate(20deg)}
+.optical-planet{position:absolute;width:270px;height:270px;left:8px;top:143px;border-radius:50%;background-position:60% 45%;background-size:190% 110%;box-shadow:0 -4px 8px #a4f0ffbb,0 -8px 20px #79d9ff5e;filter:brightness(.7) saturate(.6)}
+.optical-planet:after{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at 30% -5%,transparent 12%,#031322a8 75%,#01070ce8)}
+.optical-orbit svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 3px #a8f5ff77)}
+/* Rigid chips have a visible material base; projection stays open and layered. */
+.control-room.monitor-ui[data-mission-material=chip] :is(.mission-preflight,.mission-intake,.manifest-summary,.receipt-card){border-image-slice:175 160 145 160 fill;border-image-width:34px;filter:drop-shadow(0 7px 5px #000b)}
+.control-room.monitor-ui[data-mission-material=chip] .mission-preflight{border-image-width:26px}
+.control-room.monitor-ui[data-mission-material=chip] .receipt-card{border-image-width:23px;padding:20px 19px 14px}
+.control-room.monitor-ui[data-mission-material=chip] .receipt-card[data-state=checked]{box-shadow:inset 0 0 0 1px #e2ae6155,0 0 15px #f2aa4f12}
+.control-room.monitor-ui[data-mission-material=chip] .receipt-card[data-state=checked]:after{height:2px;box-shadow:0 0 8px #ffa333;width:60%}
+.control-room.monitor-ui[data-mission-material=chip] .mission-toolbar button[aria-pressed=true]{color:#ffce8b;border-color:#e6ac6066}
+.control-room.monitor-ui[data-mission-material=chip] .monitor-navigation a{border:1px solid #87cddd4a;background:linear-gradient(#6cb8db15,#071621);box-shadow:inset 0 1px #c4f5ff29;margin-block:3px;border-radius:3px 8px 3px 8px;padding:12px 23px}
+.control-room.monitor-ui[data-mission-material=chip] .monitor-navigation a[aria-current=page]{border-color:#a3e7fa9e;background:linear-gradient(160deg,#64d5f044,#0c3c55);box-shadow:inset 0 -2px #7ce7ff,0 2px 6px #0007;color:#effcff}
+@media(max-width:1250px){.mission-optical-instrument{width:210px;height:210px;right:24px;top:125px}.optical-planet{width:210px;height:210px;top:105px;left:0}.control-room.monitor-ui[data-mission-material=projection] .mission-source-grid{width:58%}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-screen{grid-template-columns:minmax(0,1fr) 300px}.control-room.monitor-ui[data-mission-material=chip] .mission-source-grid{display:grid;grid-template-columns:1fr;gap:12px}.control-room.monitor-ui[data-mission-material=chip] .mission-source>p{margin-bottom:4px}}
+@media(max-width:760px){.mission-optical-instrument{display:none}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-screen{display:block}.control-room.monitor-ui[data-mission-material=projection] .mission-source-grid{width:100%}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-intake{min-height:0;padding:21px 17px}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary{padding:25px 21px;border-width:12px}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-preflight{padding:12px}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .monitor-navigation a{padding:9px 10px;font-size:11px;letter-spacing:.04em}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading>p{text-align:left;max-width:none}.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .source-actions{flex-wrap:wrap}}
+/* Secondary controls are lower-profile skins; only dispatch uses the warm action asset. */
+.control-room.monitor-ui[data-mission-material=chip] :is(.source-actions button,.shot-upload button,.mission-toolbar button,.cargo-review-toggle),
+.control-room.monitor-ui[data-mission-material=chip] .monitor-navigation a{border:9px solid transparent;border-image-source:var(--panel);border-image-slice:175 160 145 160 fill;border-image-width:13px;background:none;border-radius:0;box-shadow:0 5px 7px #0009;padding:4px 12px;min-height:45px}
+.control-room.monitor-ui[data-mission-material=chip] .monitor-navigation a[aria-current=page]{background:none;box-shadow:0 0 13px #79e7ff24;filter:brightness(1.3)}
+.control-room.monitor-ui[data-mission-material=projection] :is(.source-actions button,.shot-upload button,.mission-toolbar button,.cargo-review-toggle){border:7px solid transparent;border-image-source:var(--panel);border-image-slice:155 135 155 135 fill;border-image-width:9px;background:none;border-radius:0;box-shadow:0 4px 8px #0005;padding:5px 13px;min-height:43px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-footer button{border:0;border-bottom:1px solid #b3e8f747;border-image:none;border-radius:0;min-height:30px;background:none;box-shadow:none;font-size:11px;padding:4px 7px}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .receipt-card{outline:0}
+.control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading>p{word-break:keep-all}
+@media(min-width:1251px){.mission-optical-instrument{width:310px;height:310px;right:8%;top:61px}}
+
+@font-face{font-family:RobotoAirReview;src:url('./assets/fonts/RobotoCondensed-Variable.ttf');font-weight:100 900;font-display:swap}
+@font-face{font-family:BarlowAirReview;src:url('./assets/fonts/Barlow-Light.ttf');font-weight:300;font-display:swap}
+@font-face{font-family:BarlowSemiReview;src:url('./assets/fonts/BarlowSemiCondensed-Light.ttf');font-weight:300;font-display:swap}
+.control-room.monitor-ui[data-mission-typeface=air]{--body-font:RobotoAirReview,SUIT,sans-serif}
+.control-room.monitor-ui[data-mission-typeface=grotesk]{--body-font:BarlowAirReview,SUIT,sans-serif}
+.control-room.monitor-ui[data-mission-typeface=semi]{--body-font:BarlowSemiReview,SUIT,sans-serif}
+.control-room[data-mission-typeface] .selection-count{font-family:var(--body-font)}
+
+/* User selected specimen 02 and requested a heavier real font weight. */
+@font-face{font-family:BarlowAirReview;src:url('./assets/fonts/Barlow-Medium.ttf');font-weight:500;font-display:swap}
+.space-experience .control-room.monitor-ui[data-mission-typeface=grotesk] :is(button,input,select,textarea,h1,h2,h3,small,strong,b,span,dt,dd,p,a,label),
+.space-experience .control-room.monitor-ui[data-mission-typeface=grotesk] .selection-count{font-weight:500;font-synthesis:none}
+
+/* Even optical rails replace baked-in hotspots, without changing box geometry. */
+.control-room.monitor-ui[data-mission-material=projection]{--panel:url('./assets/material-review/projection-even-frame.svg')}
+.control-room.monitor-ui[data-mission-material=projection] :is(.mission-preflight,.mission-intake,.manifest-summary,.receipt-card){border-image-slice:28 fill;border-image-width:19px;background:linear-gradient(#06131b80,#06131b80),url('./assets/material-review/projection-panel.png') center/140% 180% no-repeat;background-clip:padding-box;filter:drop-shadow(0 6px 9px #0005)}
+.control-room.monitor-ui[data-mission-material=projection] .mission-preflight{border-image-width:15px}
+.control-room.monitor-ui[data-mission-material=projection] .receipt-card,
+.control-room.monitor-ui[data-mission-material=projection] .receipt-card[data-state=checked]{border-image-width:14px;box-shadow:none}
+.control-room.monitor-ui[data-mission-material=projection] .receipt-card[data-state=checked]:after{box-shadow:none;background:#d9bb83;height:1px}
+.control-room.monitor-ui[data-mission-material=projection] :is(.source-actions button,.shot-upload button,.mission-toolbar button,.cargo-review-toggle){border-image-slice:28 fill;border-image-width:10px}
+
+/* Intake is a toolbar above the contracts, not a decorative hero panel. */
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-intake{min-height:0;padding:12px 18px 6px;border-width:10px}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading{display:flex;margin-bottom:10px;gap:12px}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading>div{display:flex;align-items:center;flex-wrap:wrap;gap:4px 14px}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading h2{font-size:18px;margin:0;letter-spacing:.025em}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading>p{font-size:10px;max-width:300px;margin:0;text-align:right}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-grid{display:grid;grid-template-columns:1.1fr .9fr 1.1fr;gap:12px;width:100%}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source{display:block;padding:0 10px 0 0;border:0;border-right:1px solid var(--line)}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source:last-child{border:0;padding:0}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source h3{font-size:11px;letter-spacing:.045em;margin:0 0 5px;color:var(--muted)}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(.mission-source>p,.shot-upload>span){display:none}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .source-actions{gap:6px;flex-wrap:wrap}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) :is(.source-actions button,.shot-upload button){padding:4px 9px;min-height:40px;font-size:12px;letter-spacing:.015em}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-footer{margin-top:8px;padding-top:4px}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-footer p{font-size:10px;max-width:70%}
+.space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-footer button{min-height:26px;padding:3px 6px;font-size:10px}
+@media(max-width:760px){
+ .space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-grid{grid-template-columns:1fr}
+ .space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source{border:0;padding:0}
+ .space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading{display:block}
+ .space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-stage-heading>p{text-align:left;margin-top:4px}
+ .space-experience .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-source-footer p{max-width:100%}
+}

@@ -1,12 +1,13 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import type {Job,Shipment} from './mission-trial';
+import {routeReady} from './mission-trial';
 import type {Locale} from './navigation';
 import type {OCRReader} from './contract-intake.mjs';
-import {ContractFields,invalidCargo} from './ContractFields';
+import {ContractFields,DeliveryTotalFields,invalidCargo} from './ContractFields';
 import './screenshot-intake.css';
 
 type Photo={id:string;file:File;state:'queued'|'review'|'failed';text:string;error:string;jobs:Job[]};
-type Props={locale:Locale;locked:boolean;simple:boolean;jobs:Job[];onAdd:(job:Job)=>void};
+type Props={locale:Locale;locked:boolean;simple:boolean;jobs:Job[];onAdd:(job:Job)=>void;onRouteOnly?:(job:Job)=>void};
 const blankRow=():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:'',to:'',scu:0});
 const blankContract=():Job=>({id:crypto.randomUUID(),title:['',''],pay:0,rewardUnknown:true,shipments:[blankRow()]});
 
@@ -25,7 +26,7 @@ function Original({file,en}:{file:File;en:boolean}){
   </figure>;
 }
 
-export function ScreenshotIntake({locale,locked,simple,jobs,onAdd}:Props){
+export function ScreenshotIntake({locale,locked,simple,jobs,onAdd,onRouteOnly}:Props){
   const en=locale==='en';
   const t=(ko:string,english:string)=>en?english:ko;
   const [photos,setPhotos]=useState<Photo[]>([]);
@@ -112,7 +113,7 @@ export function ScreenshotIntake({locale,locked,simple,jobs,onAdd}:Props){
   function remove(id:string){setPhotos(current=>current.filter(photo=>photo.id!==id));}
   const form=active?.jobs[0];
   const duplicate=form && jobs.some(job=>job.id===form.id);
-  const quantityOptional=()=>simple;
+  const quantityOptional=(row:Shipment)=>simple || !!form?.reservations?.[row.to];
   function changeForm(job:Job){if(active)update(active.id,{jobs:[job,...active.jobs.slice(1)]});}
   function advance(){
     if(!active)return;
@@ -151,10 +152,12 @@ export function ScreenshotIntake({locale,locked,simple,jobs,onAdd}:Props){
               advance();
             }}>
               <ContractFields form={form} setForm={changeForm} locale={locale} quantityOptional={quantityOptional} autoFocus={false}/>
+              <DeliveryTotalFields form={form} setForm={changeForm} locale={locale}/>
               <div><button type="button" onClick={()=>changeForm({...form,shipments:[...form.shipments,blankRow()]})}>{t('+ 운송 항목','+ Shipment')}</button></div>
               {duplicate&&<p role="status">{t('같은 계약 번호가 이미 운송 목록에 있어요.','This contract ID is already in the manifest.')}</p>}
               <div className="shot-actions">
                 <button className="manifest-primary" disabled={locked || !!duplicate || invalidCargo(form,locale==='ko'?0:1,quantityOptional)}>{t('확인한 계약 담기','Add reviewed contract')}</button>
+                {!simple&&onRouteOnly&&routeReady(form)&&form.shipments.some(row=>!row.scu&&!form.reservations?.[row.to])&&<button type="button" disabled={locked||!!duplicate} onClick={()=>onRouteOnly(form)}>{t('총 SCU 입력 없이 경로만 계속','Continue route without total SCU')}</button>}
                 <button type="button" onClick={advance}>{t('이 계약 건너뛰기','Skip contract')}</button>
               </div>
             </form>:<div className="shot-read-state">

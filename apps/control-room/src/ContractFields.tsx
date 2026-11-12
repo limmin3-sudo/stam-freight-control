@@ -16,7 +16,23 @@ export function BoxInputs({boxes=[],onChange}:{boxes?:BoxCounts;onChange:(boxes:
 
 const boxTotal=(row:Shipment)=>(row.boxes||[]).reduce((sum,b)=>sum+b.size*b.count,0);
 export function invalidCargo(form:Job, n:0|1, quantityOptional:(row:Shipment)=>boolean){
-  return !form.shipments.length || form.shipments.some(row=>!places[row.from] || !places[row.to] || row.from===row.to || !row.cargo[n].trim() || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
+  return !form.shipments.length || Object.entries(form.reservations||{}).some(([place,total])=>{
+    const rows=form.shipments.filter(row=>row.to===place);
+    const known=rows.reduce((sum,row)=>sum+row.scu,0),unknown=rows.filter(row=>!row.scu).length;
+    return !rows.length || !Number.isSafeInteger(total) || total<1 || (unknown?total<known+unknown:total!==known);
+  }) || form.shipments.some(row=>!places[row.from] || !places[row.to] || row.from===row.to || !row.cargo[n].trim() || !Number.isSafeInteger(row.scu) || row.scu<0 || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
+}
+
+export function DeliveryTotalFields({form,setForm,locale}:Pick<Props,'form'|'setForm'|'locale'>){
+  const en=locale==='en';
+  const destinations=[...new Set(form.shipments.map(row=>row.to).filter(Boolean))].filter(place=>Object.hasOwn(form.reservations||{},place)||form.shipments.filter(row=>row.to===place).length>1);
+  return <>{destinations.map(place=><label key={place}>{placeName(place,en?1:0)} · {en?'Delivery total':'배송 총량'} SCU
+    <input type="number" min="1" step="1" value={form.reservations?.[place]??''} onChange={event=>{
+      const totals={...form.reservations};if(event.target.value)totals[place]=Number(event.target.value);else delete totals[place];
+      setForm({...form,reservations:totals});
+    }}/>
+    <small>{en?'Pickup shares remain unknown. This total is reserved once.':'픽업별 수량은 미확인으로 두고, 이 총량을 한 번만 예약합니다.'}</small>
+  </label>)}</>;
 }
 
 type Props={form:Job;locale:Locale;setForm:(job:Job)=>void;quantityOptional:(row:Shipment)=>boolean;cargoOnly?:boolean;autoFocus?:boolean};

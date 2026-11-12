@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+  <defs>
+    <linearGradient id="glass" x2="0" y2="1">
+      <stop stop-color="#143646" stop-opacity=".76"/>
+      <stop offset=".4" stop-color="#081d2c" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#0a2330" stop-opacity=".82"/>
+    </linearGradient>
+    <linearGradient id="bevel" x2="0" y2="1">
+      <stop stop-color="#b8e5ec" stop-opacity=".6"/>
+      <stop offset=".28" stop-color="#498d9e" stop-opacity=".4"/>
+      <stop offset=".7" stop-color="#1e4b5e" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#82c5d4" stop-opacity=".5"/>
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+  </defs>
+  <!-- Constant perimeter radiance: no isolated flares or stretched highlights. -->
+  <rect x="7" y="9" width="306" height="226" rx="15" fill="#010811" fill-opacity=".8"/>
+  <rect x="6" y="6" width="308" height="228" rx="15" fill="url(#glass)" stroke="#315869" stroke-width="2"/>
+  <rect x="9" y="9" width="302" height="222" rx="12" fill="none" stroke="url(#bevel)" stroke-width="4"/>
+  <rect x="7" y="7" width="306" height="226" rx="14" fill="none" stroke="#76d8e8" stroke-opacity=".32" stroke-width="2" filter="url(#glow)"/>
+  <rect x="7" y="7" width="306" height="226" rx="14" fill="none" stroke="#9ce2ec" stroke-opacity=".7" stroke-width=".9"/>
+  <rect x="12" y="12" width="296" height="216" rx="9" fill="none" stroke="#a3d8e2" stroke-opacity=".23" stroke-width=".7"/>
+  <rect x="15" y="15" width="290" height="210" rx="7" fill="none" stroke="#020d18" stroke-opacity=".6" stroke-width="1"/>
+</svg>

@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), {
     name: 'stam-font-licenses',
     generateBundle() {
-      const source = ['SUIT', 'OXANIUM', 'Pretendard'].map(name => `${name}\n\n${readFileSync(new URL(`./src/assets/fonts/${name}-LICENSE.txt`, import.meta.url), 'utf8')}`).join('\n\n');
+      const source = ['SUIT', 'OXANIUM', 'Pretendard', 'BARLOW', 'BARLOWSEMI', 'ROBOTOCONDENSED'].map(name => `${name}\n\n${readFileSync(new URL(`./src/assets/fonts/${name}-LICENSE.txt`, import.meta.url), 'utf8')}`).join('\n\n');
       this.emitFile({ type: 'asset', fileName: 'font-licenses.txt', source });
     },
   }],

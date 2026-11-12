@@ -1,0 +1,75 @@
+
+> verse-hauler@0.1.0 test:control-room
+> npm --prefix apps/control-room test
+
+
+> @stam/control-room@0.0.0 pretest
+> node prepare-locations.mjs
+
+
+> @stam/control-room@0.0.0 test
+> node --experimental-strip-types --test tests/*.test.ts
+
+✔ authored bridge keeps console anchors, bezels and chair geometry within the approved footprint (504.147412ms)
+✔ docking faces each monitor squarely and fits the bezel across work-area aspect ratios (1.959218ms)
+✔ rear guard hides the seated head from the entrance while leaving the front approach open (0.524957ms)
+✔ all console routes end at the occupied eye position with a clear hardware approach (8.812557ms)
+✔ navigation route circles to the far side rather than crossing through the map (19.667231ms)
+✔ map monitor attaches to the far table rim with its screen facing outward and operator facing inward (0.191027ms)
+✔ free exploration is bounded and a cross-room command routes around furniture (54.401472ms)
+✔ free camera can leave a transferred seat but cannot walk into a seated operator (0.544483ms)
+✔ estimated cargo retains independent contract, shipment and box identity without changing input (4.869125ms)
+✔ unknown shares and conflicted receipts are excluded, never turned into confirmed boxes (1.221412ms)
+✔ disabled grids and aboard coordinates survive the presentation adapter (58.815047ms)
+✔ downward and outward attachment transforms preserve physical grid centres and direction (1.643085ms)
+✔ cryopods remain 1 SCU with half-height footprints and cannot prop an ordinary crate on an odd pod (0.705444ms)
+✔ confirmed cryopod profiles and SCMDB size limits survive manifest conversion (0.544334ms)
+✔ an odd half-height pod cannot support ordinary crates (0.697257ms)
+✔ Korean OCR keeps one delivery reservation across unknown pickup shares (270.338922ms)
+✔ English text retains known delivery total without inventing pickup quantities (28.321682ms)
+✔ a missing or partially unread delivery quantity is never filled from another objective (20.30433ms)
+✔ new console keeps contract-owned boxes at their actual cells across pickup, replan, delivery and undo (118.246102ms)
+✔ previous control mode save imports its timer, current stop, independent contracts and exact box placement (70.25455ms)
+✔ partner selects the original route-only or cargo planner and preserves independent progress (39.531733ms)
+✔ same-destination receipt total preserves unknown pickup shares and rejects stale evidence (56.875727ms)
+✔ contract backups accept the original mission array and skip duplicates without changing existing contracts (7.430269ms)
+✔ step timings exclude pauses, survive replanning and undo only the reverted step (5.356295ms)
+✔ editing a ready receipt replaces only the affected packing group in the planner and backup (23.193069ms)
+✔ pre-departure edits to shared delivery containers keep pickup shares unknown (49.282272ms)
+✔ system switching preserves sourced coordinates and system-scoped identities (18.059794ms)
+✔ latest palette keeps Stanton blue, Pyro amber and Nyx teal (0.539987ms)
+✔ every sourced station is retained, including Lagrange facilities and moon-linked stations (44.696712ms)
+✔ Lagrange stations retain stellar orbits, while orbital facilities clear exaggerated planet surfaces (22.685088ms)
+✔ readable shared map scale keeps the sun larger than every world without dominating the system (32.770784ms)
+✔ station and planet identities retain canonical coordinates, independent of readable glyph sizes (0.922157ms)
+✔ central partner layout preserves a clear corridor and background patches stay bounded (0.722932ms)
+✔ overview frame contains every planet including the outer world in the wide bridge viewport (8.774677ms)
+✔ display routes stay straight when clear and bend outside an obstructing world (5.792467ms)
+✔ unresolvable visual segments fail closed rather than cutting through an object (0.703228ms)
+✔ catalogue maxima are optional estimates, never actual pickup quantities (115.89085ms)
+✔ entered total replaces the ceiling once, preserves pickups and independent missions (121.337923ms)
+✔ unknown ceiling blocks navigator but operator stays route-only with unknown load (55.819201ms)
+✔ partial delivery corrections retain other unknown destinations and reject invalid or stale edits (1.36447ms)
+✔ split deliveries retain contract ownership, quantities and unload destinations (6.719497ms)
+✔ every console and display language survives reloadable hash navigation (4.150934ms)
+✔ unknown routes and malformed languages fall back without navigation outside the bridge (0.793453ms)
+✔ opening film is once per tab visit and never blocks a map or flight deep link (1.17919ms)
+✔ new arrivals enter the lounge; old console deep links and all languages survive reload (5.545141ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10268.912766
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

@@ -1,0 +1,79 @@
+/* Three explicitly requested DEV-only reviews. No default theme or sidebar changes. */
+@font-face{font-family:NoctisReview;src:url('./assets/fonts/PretendardVariable.woff2');font-weight:100 900;font-display:swap}
+.control-room.monitor-ui[data-mission-material]{--panel:url('./assets/material-review/lumen-panel.svg');--button:url('./assets/material-review/lumen-button.svg');--primary:url('./assets/material-review/lumen-primary.svg');--cyan:#b4f1ff;--light:#d5f7ff;--accent:#eed29d;--line:#a9e9fb38;--body-font:SUIT,sans-serif;--muted:#91b4c7;background:radial-gradient(ellipse at 20% -20%,#3d7e9350,transparent 55%),radial-gradient(ellipse at 95% 85%,#1d51612b,transparent 60%),#040f18}
+.control-room.monitor-ui[data-mission-material=noctis]{--panel:url('./assets/material-review/noctis-panel.svg');--button:url('./assets/material-review/noctis-button.svg');--primary:url('./assets/material-review/noctis-primary.svg');--body-font:NoctisReview,sans-serif;--cyan:#a5dbe9;--light:#e6f1f7;--accent:#e0d8c4;--line:#b7cfdd30;--muted:#a1b2c0;background:radial-gradient(ellipse at 50% -30%,#35435265,transparent 70%),#080d15}
+.control-room.monitor-ui[data-mission-material=hybrid]{--panel:url('./assets/material-review/hybrid-panel.svg');--button:url('./assets/material-review/hybrid-button.svg');--primary:url('./assets/material-review/hybrid-primary.svg');--cyan:#a7e4f2;--light:#e0f6fd;--accent:#e5c994;background:radial-gradient(ellipse at 10% -15%,#3e6f7b48,transparent 60%),#070f18}
+.control-room.monitor-ui[data-mission-material] :is(button,input,select,textarea,h1,h2,h3,small,strong,b,span,dt,dd,p,a,label){font-family:var(--body-font);font-variant-numeric:tabular-nums}
+.control-room.monitor-ui[data-mission-material] .console-heading{padding-bottom:16px}
+.control-room.monitor-ui[data-mission-material] .console-heading>.monitor-navigation{min-height:60px;gap:12px;position:relative;background:none}
+.control-room.monitor-ui[data-mission-material] .monitor-navigation a{font-size:13px;letter-spacing:.02em;padding:16px 22px;border:0;color:#92aebf}
+.control-room.monitor-ui[data-mission-material] .monitor-navigation a[aria-current=page]{color:var(--light);background:linear-gradient(0deg,#a8edff13,transparent);text-shadow:0 0 15px #91defd66;box-shadow:inset 0 -1px var(--cyan)}
+.control-room.monitor-ui[data-mission-material] .console-heading h1{font-size:30px;font-weight:480;letter-spacing:.04em;color:var(--light);text-shadow:1px 2px #1f566b55,0 0 20px #8cdeff1c}
+.control-room.monitor-ui[data-mission-material] .console-heading .eyebrow{letter-spacing:.28em;color:var(--cyan)}
+.control-room.monitor-ui[data-mission-material] .console-display-content{padding-bottom:40px}
+.control-room.monitor-ui[data-mission-material] .mission-screen{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px 24px;align-items:start}
+.control-room.monitor-ui[data-mission-material] .manifest-cols{display:contents}
+.control-room.monitor-ui[data-mission-material] .mission-preflight{grid-column:1/-1;grid-row:1;margin:0;padding:17px 24px 15px;gap:7px 24px}
+.control-room.monitor-ui[data-mission-material] .mission-intake{grid-column:1;grid-row:2;margin:0;padding:21px 25px 16px}
+.control-room.monitor-ui[data-mission-material] .manifest-inbox{grid-column:1;grid-row:3}
+.control-room.monitor-ui[data-mission-material] .manifest-summary{grid-column:2;grid-row:2/span 2;top:0;padding:27px 27px 24px}
+.control-room.monitor-ui[data-mission-material] .mission-contract-editor{grid-column:1;grid-row:3}
+.control-room.monitor-ui[data-mission-material] .mission-screen:has(.mission-contract-editor) .manifest-inbox{grid-row:4}
+.control-room.monitor-ui[data-mission-material] .mission-screen:has(.mission-contract-editor) .manifest-summary{grid-row:2/span 3}
+.control-room.monitor-ui[data-mission-material] :is(.mission-preflight,.mission-intake,.manifest-summary,.receipt-card){border:12px solid transparent;border-image-source:var(--panel);border-image-slice:28 fill;border-image-width:15px;border-image-repeat:stretch;background:none;border-radius:0;box-shadow:0 16px 30px #0006;isolation:isolate}
+.control-room.monitor-ui[data-mission-material] .mission-preflight{border-width:9px;border-image-width:12px}
+.control-room.monitor-ui[data-mission-material] .mission-stage-heading{align-items:center;gap:12px;margin-bottom:17px}
+.control-room.monitor-ui[data-mission-material] .mission-stage-heading h2{font-size:20px;font-weight:500;color:var(--light)}
+.control-room.monitor-ui[data-mission-material] .mission-stage-heading p{max-width:260px;text-align:right;font-size:11px;color:var(--muted)}
+.control-room.monitor-ui[data-mission-material] .mission-source-grid{gap:20px}
+.control-room.monitor-ui[data-mission-material] .mission-source{padding-right:16px;border-color:var(--line)}
+.control-room.monitor-ui[data-mission-material] .mission-source:last-child{padding-right:0}
+.control-room.monitor-ui[data-mission-material] .mission-source h3{color:#d9f0fa;font-size:15px;font-weight:500;letter-spacing:.02em}
+.control-room.monitor-ui[data-mission-material] .mission-source>p{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.control-room.monitor-ui[data-mission-material] .source-actions{gap:6px 12px}
+.control-room.monitor-ui[data-mission-material] .mission-source-footer{margin-top:12px;padding-top:10px;border-color:var(--line)}
+.control-room.monitor-ui[data-mission-material] .mission-source-footer p{font-size:10px;max-width:65%;color:var(--muted)}
+.control-room.monitor-ui[data-mission-material] .manifest-head small,.control-room.monitor-ui[data-mission-material] .mission-stage-heading small,.control-room.monitor-ui[data-mission-material] .manifest-summary>small{color:var(--cyan);font-size:9px;letter-spacing:.22em}
+.control-room.monitor-ui[data-mission-material] .manifest-head h2{color:#e0f2fc;font-size:20px;font-weight:500}
+.control-room.monitor-ui[data-mission-material] .receipt-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.control-room.monitor-ui[data-mission-material] .receipt-card{padding:17px 17px 14px;gap:12px;border-width:8px;border-image-width:10px;box-shadow:0 12px 25px #0006;min-height:240px}
+.control-room.monitor-ui[data-mission-material] .receipt-card[data-state=checked]{border-image-width:12px;background:none;box-shadow:0 0 18px #76d9ef15,0 15px 25px #0007}
+.control-room.monitor-ui[data-mission-material] .receipt-card[data-state=checked]:after{content:'';position:absolute;top:-4px;left:22px;width:42%;height:1px;background:var(--cyan);box-shadow:0 0 7px 1px #8adfff88;pointer-events:none}
+.control-room.monitor-ui[data-mission-material] .receipt-top{font-size:10px;color:var(--cyan);margin-bottom:8px}
+.control-room.monitor-ui[data-mission-material] .receipt-card strong{font-size:16px;font-weight:500}
+.control-room.monitor-ui[data-mission-material] .receipt-card input[type=checkbox]{appearance:none;display:grid;place-content:center;width:18px;height:18px;border:1px solid #a9deec80;border-radius:3px;background:linear-gradient(#9ad7e321,#071621);color:#d9f8ff;box-shadow:inset 0 1px #d5faff33;cursor:pointer}
+.control-room.monitor-ui[data-mission-material] .receipt-card input[type=checkbox]:checked:after{content:'✓';font-size:13px;line-height:1}
+.control-room.monitor-ui[data-mission-material] .receipt-card input[type=checkbox]:checked{box-shadow:0 0 9px #8edfff22,inset 0 1px #eaffff77;border-color:var(--cyan)}
+.control-room.monitor-ui[data-mission-material] .certainty{border-block:1px solid #9ad6e926;background:linear-gradient(90deg,#9ee7f412,transparent);border-radius:0;color:#a2d8e4;font-size:10px}
+.control-room.monitor-ui[data-mission-material] .certainty[data-certainty=upper-bound]{border-color:#e8c99144;color:#f0d5a6}
+.control-room.monitor-ui[data-mission-material] :is(input:not([type=checkbox]),select,textarea){background:linear-gradient(145deg,#010810d9,#0e2431b3);border:1px solid #7094a44a;border-radius:3px;color:#ddedf8;min-height:40px;padding:9px 12px;box-shadow:inset 0 3px 8px #0009,inset 0 -1px #a0d9ec16}
+.control-room.monitor-ui[data-mission-material] button,.control-room.monitor-ui[data-mission-material] .console-heading>.return-link{position:relative;isolation:isolate;border:8px solid transparent;border-image-source:var(--button);border-image-slice:18 fill;border-image-width:10px;border-radius:0;background:none;box-shadow:0 6px 10px #0005;clip-path:none;color:#d7edf7;min-height:45px;padding:5px 13px;font-size:12px;font-weight:450;line-height:1.45;letter-spacing:.015em;cursor:pointer;white-space:normal;transition:filter .2s,transform .2s;text-shadow:0 1px 2px #010a11}
+.control-room.monitor-ui[data-mission-material] button:before,.control-room.monitor-ui[data-mission-material] button:after,.control-room.monitor-ui[data-mission-material] .console-heading>.return-link:before,.control-room.monitor-ui[data-mission-material] .console-heading>.return-link:after{display:none}
+.control-room.monitor-ui[data-mission-material] button:hover:not(:disabled){background:none;filter:brightness(1.18);box-shadow:0 6px 12px #0007}
+.control-room.monitor-ui[data-mission-material] button:active:not(:disabled){transform:translateY(1px)}
+.control-room.monitor-ui[data-mission-material] button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.control-room.monitor-ui[data-mission-material] button:disabled{opacity:.38;cursor:default}
+.control-room.monitor-ui[data-mission-material] .receipt-correct,.control-room.monitor-ui[data-mission-material] .mission-source-footer button{border-width:5px;border-image-width:6px;box-shadow:none;font-size:11px;min-height:36px;padding:5px 10px}
+.control-room.monitor-ui[data-mission-material] button[aria-pressed=true]{color:var(--accent);background:none}
+.control-room.monitor-ui[data-mission-material] .dispatch-launch{border-image-source:var(--primary);border-image-slice:18 fill;border-image-width:14px;border-width:11px;min-height:82px;gap:13px;margin-top:23px;padding:8px 17px;background:none;color:var(--accent);box-shadow:0 10px 17px #0009!important;font-size:15px;font-weight:500;letter-spacing:.025em}
+.control-room.monitor-ui[data-mission-material] .dispatch-launch .interface-glyph{width:28px;height:28px;color:var(--cyan);filter:drop-shadow(0 0 6px #b3e8ff55)}
+.control-room.monitor-ui[data-mission-material] .dispatch-launch:disabled{opacity:.4}
+.control-room.monitor-ui[data-mission-material] .selection-count{font-size:64px;font-weight:300;color:var(--light);text-shadow:0 0 16px #87d9ef20;margin-top:12px}
+.control-room.monitor-ui[data-mission-material] .selected-contracts{margin-top:20px}
+.control-room.monitor-ui[data-mission-material] .manifest-summary h2{font-size:24px;letter-spacing:.04em;font-weight:400;color:var(--light);margin-top:12px}
+.control-room.monitor-ui[data-mission-material] .manifest-row{border-color:var(--line)}
+.control-room.monitor-ui[data-mission-material] .manifest-row button{border:1px solid #abcbd140;border-image:none;border-radius:50%;height:29px;min-height:29px;width:29px;padding:2px;font-size:17px;background:radial-gradient(circle at 25% 15%,#a1cedb33,#091a25);box-shadow:inset 0 1px #daefff55,0 3px 6px #0007}
+.control-room.monitor-ui[data-mission-material] .manifest-summary dl{margin-top:23px;border-color:var(--line)}
+.control-room.monitor-ui[data-mission-material] .manifest-summary dd{color:var(--cyan);font-size:15px;font-weight:450}
+.control-room.monitor-ui[data-mission-material] .manifest-summary dt,.control-room.monitor-ui[data-mission-material] .mission-summary-note{color:var(--muted)}
+.control-room.monitor-ui[data-mission-material] .mission-summary-note{font-size:11px;line-height:1.8}
+.control-room.monitor-ui[data-mission-material] .quantity-guide{color:var(--muted);margin:10px 0 15px}
+.control-room.monitor-ui[data-mission-material] .mission-toolbar{gap:11px}
+.control-room.monitor-ui[data-mission-material=noctis] .receipt-card[data-state=checked]:after{height:2px;box-shadow:0 0 5px #b4eaff55}
+.control-room.monitor-ui[data-mission-material=noctis] .mission-intake{box-shadow:0 18px 45px #0009}
+.control-room.monitor-ui[data-mission-material=hybrid] .manifest-summary{border-image-source:url('./assets/material-review/noctis-panel.svg')}
+.control-room.monitor-ui[data-mission-material] .manifest-summary .cargo-review-toggle{margin-top:15px}
+.control-room.monitor-ui[data-mission-material] .manifest-intake summary{color:#8faab9}
+@media(max-width:1250px){.control-room.monitor-ui[data-mission-material] .mission-screen{grid-template-columns:minmax(0,1fr) 300px;gap:18px}.control-room.monitor-ui[data-mission-material] .receipt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.control-room.monitor-ui[data-mission-material] .mission-source-grid{grid-template-columns:1fr;gap:16px}.control-room.monitor-ui[data-mission-material] .mission-source{border:0;border-bottom:1px solid var(--line);padding:0 0 10px}.control-room.monitor-ui[data-mission-material] .mission-stage-heading{display:block}.control-room.monitor-ui[data-mission-material] .mission-stage-heading p{text-align:left;margin-top:10px;max-width:none}}
+@media(max-width:760px){.control-room.monitor-ui[data-mission-material] .mission-screen{display:block}.control-room.monitor-ui[data-mission-material] :is(.mission-preflight,.mission-intake,.manifest-inbox,.manifest-summary){margin-bottom:22px}.control-room.monitor-ui[data-mission-material] .receipt-grid{grid-template-columns:1fr}.control-room.monitor-ui[data-mission-material] .manifest-summary{position:static}.control-room.monitor-ui[data-mission-material] .mission-source-footer p{max-width:100%}.control-room.monitor-ui[data-mission-material] .mission-preflight{padding:13px}.control-room.monitor-ui[data-mission-material] .mission-intake{padding:18px}.control-room.monitor-ui[data-mission-material] .monitor-navigation a{padding:9px 8px;font-size:11px}}
+.control-room.monitor-ui[data-mission-material] .dispatch-launch span{word-break:keep-all}

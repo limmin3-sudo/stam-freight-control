@@ -62,7 +62,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     (cargoPhase==='before' ? plan.visits[run.index-1]?.packing || plan.initialPacking : visit.packing) : null;
   const selectedBox=(projected?.boxes || boxes).find(box=>box.boxId===selected);
   const selectedContract=draft.jobs.find(job=>job.id===selectedBox?.missionId);
-  const simple=plan ? plan.mode==='simple' : draft.partner==='operator';
+  const simple=draft.partner==='operator' || plan?.mode==='simple';
   const voice=flightVoice(simple?'aide':'standard',en);
   const used=simple?(run?.loadScu??0):boxes.reduce((n,b)=>n+b.size,0);
   const packing={boxes,used,capacity:plan?.capacity||0,bins:ship.grids.map((_,i)=>({used:boxes.reduce((n,b)=>n+(b.bin===i?b.size:0),0)}))};
@@ -121,14 +121,14 @@ export function FlightOperations({flight, locale, controlMode}:{
     {controlMode&&flight.storageError&&<p className="ops-notice" role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
     {controlMode&&flight.busy&&<p className="ops-notice" role="status">{t('항로 계산 중…','Calculating route…')}</p>}
     {(!plan||!run)?<div className="trial-brief ops-empty"><h2>{t('계약을 선택해 주세요','Choose a contract')}</h2><a href={'#/mission?lang='+locale}>{t('미션 콘솔에서 계약 선택','Select contracts in the mission console')} →</a></div>:
-    <div className="trial-brief"><small>{simple?t('간편 경로','Route only'):t('상세 적재','Cargo planning')} · {used} SCU{boxes.some(b=>b._reservation) && t(' 예약 포함',' incl. reservations')}{simple && draft.jobs.some(j=>j.shipments.some(r=>!r.scu&&!j.reservations?.[r.to])) && t(' 확인분',' confirmed')}</small>
+    <div className="trial-brief"><small>{simple?t('오퍼레이터 · 경로 안내','Operator · Route guidance'):<>{t('상세 적재','Cargo planning')} · {used} SCU{boxes.some(b=>b._reservation) && t(' 예약 포함',' incl. reservations')}</>}</small>
       <p className="ops-position">{t('현재 위치','Current position')} · {where(run.positionId)}</p>
       <h2>{run.finished?t('운송 완료','Haul complete'):jump?jump.entryName+' → '+jump.exitName:visit?where(visit.locationId):''}</h2>
       {cargoLines}
       {controlMode && totalSteps>0 && <progress value={completedSteps} max={totalSteps} aria-label={t('운항 진행','Flight progress')}/>}
       {visit&&<p className="flight-next">{t('다음','Next')} · {nextStepName(plan,run,where)??t('이 단계에서 운송 완료','Haul complete after this step')}</p>}
-      {controlMode&&<div className="ops-cargo-summary"><span>{ship.name}{!simple&&plan.capacity!=null&&` · ${used} / ${plan.capacity} SCU`}</span>
-        {simple?<small>{t('적재는 직접 관리합니다.','Manage cargo yourself.')}</small>:<button type="button" onClick={()=>{setCargoPhase('aboard');select(null);setCargoOpen(true);}}>{t('적재 3D 보기','View cargo in 3D')}</button>}
+      {controlMode&&!simple&&<div className="ops-cargo-summary"><span>{ship.name}{plan.capacity!=null&&` · ${used} / ${plan.capacity} SCU`}</span>
+        <button type="button" onClick={()=>{setCargoPhase('aboard');select(null);setCargoOpen(true);}}>{t('적재 3D 보기','View cargo in 3D')}</button>
       </div>}
       <div className="flight-actions">
         {!run.started && <button className="manifest-primary" disabled={flight.busy||flight.blocked} onClick={()=>flight.progress('start')}>{t('운항 시작','Start run')}</button>}

@@ -1,0 +1,3 @@
+PASS lumen: select, calculate, map, return, mobile, sidebar excluded
+PASS noctis: select, calculate, map, return, mobile, sidebar excluded
+PASS hybrid: select, calculate, map, return, mobile, sidebar excluded

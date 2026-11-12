@@ -1,0 +1,31 @@
+Wiki supplement: 50/1072
+Wiki supplement: 100/1072
+Wiki supplement: 150/1072
+Wiki supplement: 200/1072
+Wiki supplement: 250/1072
+Wiki supplement: 300/1072
+Wiki supplement: 350/1072
+Wiki supplement: 400/1072
+Wiki supplement: 450/1072
+Wiki supplement: 500/1072
+Wiki supplement: 550/1072
+Wiki supplement: 600/1072
+Wiki supplement: 650/1072
+Wiki supplement: 700/1072
+Wiki supplement: 750/1072
+Wiki supplement: 800/1072
+Wiki supplement: 850/1072
+Wiki supplement: 900/1072
+Wiki supplement: 950/1072
+Wiki supplement: 1000/1072
+Wiki supplement: 1050/1072
+Wiki supplement: 1072/1072
+{
+  status: 'updated',
+  version: '4.10.2-LIVE.12881860',
+  definitions: 3458,
+  haulingDefinitions: 1396,
+  ambiguousDefinitions: 1,
+  wikiOnlyDefinitions: 1098,
+  wikiFilledFields: 10304
+}

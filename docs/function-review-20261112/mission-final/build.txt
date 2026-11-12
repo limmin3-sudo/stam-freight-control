@@ -1,0 +1,123 @@
+
+> verse-hauler@0.1.0 build:control-room
+> npm --prefix apps/control-room run build
+
+
+> @stam/control-room@0.0.0 build
+> npm run check && vite build
+
+
+> @stam/control-room@0.0.0 precheck
+> node prepare-locations.mjs
+
+
+> @stam/control-room@0.0.0 check
+> tsc --noEmit
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+vite v8.3.7 building client environment for production...
+transforming...
+✓ 187 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/director-cleaning-en-qsjLCtom.vtt                     0.23 kB
+dist/assets/director-cleaning-ko-B_kLEF7B.vtt                     0.24 kB
+dist/index.html                                                   0.95 kB │ gzip:   0.44 kB
+dist/assets/oxanium-latin-600-DW9ldEDP.woff2                      8.94 kB
+dist/assets/oxanium-latin-500-tnlOn7Ka.woff2                      9.04 kB
+dist/font-licenses.txt                                           26.40 kB │ gzip:   2.41 kB
+dist/assets/navigator-CbsXxdDA.jpg                               48.41 kB
+dist/assets/director-cleaning-poster-CDj02fCj.jpg                81.24 kB
+dist/assets/ops-glass-panel-QE0sf66q.png                         96.07 kB
+dist/assets/Barlow-Light-_Y4DMglb.ttf                           103.13 kB
+dist/assets/Barlow-Medium-BYD2zMwq.ttf                          103.53 kB
+dist/assets/BarlowSemiCondensed-Light-DlBmAB_v.ttf              104.70 kB
+dist/assets/aide-portrait-DyzT-gED.webp                         123.87 kB
+dist/assets/poster-B7f9VAoS.jpg                                 205.04 kB
+dist/assets/RobotoCondensed-Variable-BR5DqaBH.ttf               371.61 kB
+dist/assets/SUIT-Variable-CYARWZDy.woff2                        625.75 kB
+dist/assets/flight.worker-zQ4pevPx.js                           665.98 kB
+dist/assets/director-standing-Btp0vtpP.png                      911.12 kB
+dist/assets/operator-identity-v2-xrCNCeVz.png                   967.40 kB
+dist/assets/projection-action-S6OSpMkg.png                      983.35 kB
+dist/assets/navigator-standing-Dhx7T3rm.png                   1,120.44 kB
+dist/assets/console-screen-only-B4HyzLtE.png                  1,166.45 kB
+dist/assets/bridge-CE6VT3Je.png                               1,333.46 kB
+dist/assets/chip-action-0PPKJKdU.png                          1,362.91 kB
+dist/assets/map-BhCOxbGS.png                                  1,414.17 kB
+dist/assets/hologram-button-Db-_TCG0.png                      1,415.39 kB
+dist/assets/projection-panel-L_t6UUxO.png                     1,441.72 kB
+dist/assets/sky-nyx-BXay-ybW.png                              1,591.89 kB
+dist/assets/sky-pyro-DeH0efQy.png                             1,618.98 kB
+dist/assets/sky-stanton-MS6jZDWs.png                          1,644.52 kB
+dist/assets/chip-panel-CqR7oTmI.png                           1,702.04 kB
+dist/assets/mission-C85ALrmR.png                              1,737.65 kB
+dist/assets/stam-logo-transparent-BVPCJr04.png                1,784.81 kB
+dist/assets/glass-stanton-CgUc1ZbP.png                        1,893.71 kB
+dist/assets/operations-Dmu9lQVC.png                           2,019.30 kB
+dist/assets/clouds-DrNPfDHh.png                               2,025.10 kB
+dist/assets/desk-end-712gEoKs.png                             2,025.81 kB
+dist/assets/PretendardVariable-CJuje-Rk.woff2                 2,057.68 kB
+dist/assets/control-room-clean-plate-SyAom4do.png             2,140.85 kB
+dist/assets/stellar-plasma-k0-eEUjp.png                       2,220.29 kB
+dist/assets/control-room-empty-seats-reference-BVLSXgsm.png   2,239.73 kB
+dist/assets/control-room-stanton-Dp_Qmsfa.png                 2,276.31 kB
+dist/assets/crusader-CBhKGYLC.png                             2,371.39 kB
+dist/assets/lounge-start-CgRC2tza.png                         2,376.63 kB
+dist/assets/hurston-C3ooUoVQ.png                              3,125.57 kB
+dist/assets/rock-Bq-bMpcv.png                                 3,237.36 kB
+dist/assets/microtech-BSGKE5lt.png                            3,334.24 kB
+dist/assets/idle-ab-D5XXO4si.mp4                              3,883.50 kB
+dist/assets/lounge-original-composite-DdpOGJ23.png            4,111.42 kB
+dist/assets/receipt-log.worker-CUEh27J3.js                    4,179.81 kB
+dist/assets/arccorp-DTHsCJIx.png                              4,232.55 kB
+dist/assets/approach-XD3VQca4.mp4                             5,515.54 kB
+dist/assets/return-DZHr3tIK.mp4                               5,696.33 kB
+dist/assets/director-cleaning-intro-C2RMapel.mp4              7,020.79 kB
+dist/assets/lounge-to-shuttle-boarding-szim7kS8.mp4          22,905.55 kB
+dist/assets/intro-B04mGOcw.mp4                               29,846.32 kB
+dist/assets/index-rlXNZI8D.css                                  252.87 kB │ gzip:  47.29 kB
+dist/assets/contract-backup-CfNgce06.js                           1.72 kB │ gzip:   0.97 kB
+dist/assets/OperationsMap-C9kPPTxp.js                             1.79 kB │ gzip:   0.86 kB
+dist/assets/inbox-core-DIWoPjhV.js                                3.98 kB │ gzip:   1.52 kB
+dist/assets/engine-DTxkK6pA.js                                   10.63 kB │ gzip:   4.81 kB
+dist/assets/contract-intake-Lt3cws63.js                          10.69 kB │ gzip:   4.95 kB
+dist/assets/CargoWorkspace-xB61BcGs.js                           12.12 kB │ gzip:   4.85 kB
+dist/assets/mapfx-CR7L0niu.js                                    20.60 kB │ gzip:   7.67 kB
+dist/assets/stam-korean-tAjEDIx6.js                              33.72 kB │ gzip:  12.58 kB
+dist/assets/cargo-scene-BA58V75d.js                              43.88 kB │ gzip:  13.56 kB
+dist/assets/starmap-B83mA_bh.js                                  50.78 kB │ gzip:  17.32 kB
+dist/assets/aliases-BnNXutTn.js                                 130.57 kB │ gzip:  49.34 kB
+dist/assets/three.core-Dr-LhSNB.js                              222.76 kB │ gzip:  61.24 kB
+dist/assets/three.module-DI1OOtc1.js                            318.49 kB │ gzip:  75.75 kB
+dist/assets/index-Dc5eJYKH.js                                 1,081.32 kB │ gzip: 278.89 kB
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 4.19s
+[33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 3.3s of this 4.1s build (79%).
+The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - plugin vite:worker-import-meta-url transform (63%, 2.6s, 2 calls)
+Additional callback time came from the callbacks below and from callbacks under 1s.
+2 callbacks are listed without a time. Their calls overlapped, so the time inside one call includes work from other calls. To find their cost, profile the build with `node --cpu-prof`:
+  - plugin vite:asset load (39 calls)
+  - plugin vite:css transform (24 calls)
+See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

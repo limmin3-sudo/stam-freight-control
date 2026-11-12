@@ -1,6 +1,6 @@
 import {matchLocation,translateKoTerms,norm,jamo} from './aliases.mjs';
 const normalize=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
-const clean=s=>s.replace(/\b5CU\b/gi,'SCU').replace(/(\d+\s*\/\s*\d+)\s*504\b/g,'$1 SCU').replace(/[“”]/g,'"').replace(/[’]/g,"'");
+const clean=s=>s.replace(/\bArea\s*[lI]8\b/gi,'Area18').replace(/\b5CU\b/gi,'SCU').replace(/(\d+\s*\/\s*\d+)\s*504\b/g,'$1 SCU').replace(/[“”]/g,'"').replace(/[’]/g,"'");
 export const normalizeMissionText=text=>String(text||'').replace(/&#(?:x0*a|0*10);/gi,'\n').replace(/&#(?:x0*d|0*13);/gi,'\r').replace(/&nbsp;/gi,' ').replace(/\\[ \t]*(?=\r?\n|$)/g,'').replace(/^\s*#{1,6}[ \t]+/gm,'');
 const missionHeading=line=>!/^\s*\[/.test(line)&&!/SCU|하십시오/i.test(line)&&/(?:미션명|Title|Contract Name)\s*[:：]|(?:운송|배송|수송)\s*[-–]|계약자\s*필요|Cargo\s+(?:Haul|Run)|\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(line);
 // A copied batch can have headings and blank lines instead of the suggested ---.
@@ -53,14 +53,15 @@ export function parseMissionText(text,locations=[]){
   if(host&&body(host)&&words.length){const hits=locations.filter(l=>l.parentId===host.id&&!body(l)&&words.every(w=>norm(l.name).includes(w)));if(hits.length===1)return hits[0].id;}
   return fallback?.id||'';
  }
- const koreanCargo=[],fixedNames=new Set(),unknownNames=new Set();let returnId='';
+ const koreanCargo=[],koreanTotals=new Map(),fixedNames=new Set(),unknownNames=new Set();let returnId='';
  for(let i=0;i<lines.length;i++){const line=lines[i],block=lines.slice(i,i+3).join(' ');if(/복귀|return to/i.test(line)){returnId=locationIn(line)||returnId;continue;}if(!/SCU/i.test(line))continue;const d=block.match(/(.+?)\s*(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\s+(.+?)\s*(?:에|으로)\s*배송/i);if(!d)continue;const rawCommodity=d[1].replace(/^[^\p{L}]+/u,'').replace(/(?:[을를]\s*\([을를]\)|\([을를]\)|[을를])\s*$/u,'').trim();const official=officialCommodity(rawCommodity),commodity=official.name;if(official.status==='fixed')fixedNames.add(`${rawCommodity}→${commodity}`);if(official.status==='unknown')unknownNames.add(rawCommodity);const pj=[i+1,i+2,i+3,i+4].find(j=>/에서/.test(lines[j]||'')&&/접수|수령|수집/.test((lines[j]||'')+' '+(lines[j+1]||''))&&!/SCU/i.test(lines[j]||'')),pickup=pj===undefined?'':lines[pj];const nextDrop=lines.findIndex((l,j)=>j>i&&/SCU/i.test(l)&&/배송/.test(l+' '+(lines[j+1]||''))),extra=lines.slice(i+1,nextDrop<0?lines.length:nextDrop).filter((l,k,a)=>/에서/.test(l)&&/접수|수령|수집/.test(l+' '+(a[k+1]||''))&&!/SCU/i.test(l)).slice(1);
  // The game can list several pickups for one delivered amount without saying how much comes from each:
  // visit every pickup, split the amount evenly as a marked assumption and ask the user to correct it.
  const total=Number(d[2].replaceAll(',','')),pickups=[pickup,...extra].filter(Boolean),n=Math.max(1,pickups.length),dropoffId=locationIn(d[3]);
+ if(dropoffId)koreanTotals.set(dropoffId,(koreanTotals.get(dropoffId)||0)+total);
  if(n>1)warnings.push(`${commodity}: 픽업지가 ${n}곳(${pickups.map(l=>l.split('에서')[0].trim()).join(', ')})입니다. 곳별 수량이 화면에 없어 ${total} SCU를 나눠 두었습니다. 실제 수량으로 수정해 주세요.`);
  (pickups.length?pickups:['']).forEach((p,k)=>koreanCargo.push({commodity,scu:Math.floor(total/n)+(k<total%n?1:0),pickupId:p?locationIn(p.split('에서')[0]):'',dropoffId,maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown',...(n>1?{_scuAssumed:true,_pickupText:p.split('에서')[0].trim()}:{})}));}
- if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 품목 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,cargo:koreanCargo,returnId,warnings,rawText:text};}
+ if(koreanCargo.length){if(fixedNames.size)warnings.push(`품목명을 게임 품목 표기로 고쳤습니다: ${[...fixedNames].join(', ')}.`);if(unknownNames.size)warnings.push(`공식 품목 목록에 없는 이름입니다: ${[...unknownNames].join(', ')}. 게임 화면과 같은지 확인해 주세요.`);if(!title)warnings.push('사진에 미션 이름이 없으면 처음 한 번 입력하세요.');warnings.push('배송 SCU를 읽었습니다. 실제 상자 구성은 따로 확인하세요.');return {missionId,title,company,reward,rewardKnown:!!rewardMatch,cargo:koreanCargo,_deliveryTotals:[...koreanTotals].map(([dropoffId,scu])=>({dropoffId,scu})),returnId,warnings,rawText:text};}
  const action=/^(?:[•*\-\s\d.)]*)(Collect|Pick\s*up|Deliver|수령|수집|배송|배달|납품)\b/i,starts=[];lines.forEach((line,i)=>{const m=line.match(action);if(m)starts.push({index:i,type:/deliver|배송|배달|납품/i.test(m[1])?'delivery':'pickup'});});
  const objectives=starts.map((a,i)=>{const block=lines.slice(a.index,Math.min(starts[i+1]?.index??lines.length,a.index+6)).join(' '),quantity=block.match(/(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\b/i);const scu=quantity?Number(quantity[1].replaceAll(',','')):null;let commodity=(block.match(/SCU\s+(?:of\s+)?(.+?)\s+(?:from|to|at)\s+/i)||[])[1]||'';if(!commodity)commodity=(block.match(/(?:collect|pick\s*up|deliver)\s+(.+?)\s+(?:from|to)\s+/i)||[])[1]||'';commodity=commodity.replace(/^\d+\s*\/\s*\d+\s*/,'').trim();if(commodity.length>100)commodity='';return {type:a.type,scu,commodity,locationId:locationIn(block),block};}).filter(o=>o.scu!==null||o.locationId);
  const pickups=objectives.filter(o=>o.type==='pickup'),deliveries=objectives.filter(o=>o.type==='delivery');let cargo=[];
@@ -71,9 +72,18 @@ export function parseMissionText(text,locations=[]){
  else cargo=(deliveries.length?deliveries:pickups).map(o=>o.type==='pickup'?record(o,null):record(null,o));
  if(!cargo.length){cargo=[{commodity:'',scu:null,pickupId:'',dropoffId:'',maxBoxSize:maxBox,boxes:[],_boxesOrigin:'unknown'}];warnings.push('운송 목표를 확실히 읽지 못했습니다. 원문을 보며 빈 항목을 채우세요.');}
  if(!title)warnings.push('미션 이름을 확인하세요.');if(cargo.some(c=>!c.pickupId||!c.dropoffId))warnings.push('픽업지·배송지를 확인하세요.');if(cargo.some(c=>!c.scu))warnings.push('읽히지 않은 SCU를 입력하세요.');warnings.push('스샷에 없는 상자 크기·개수는 따로 확인하세요.');
- return {missionId,title,company,reward,cargo,returnId,warnings:[...new Set(warnings)],rawText:text};
+ const totals=new Map();
+ for(const d of deliveries){if(!d.locationId)continue;const prior=totals.get(d.locationId)||{scu:0,complete:true};prior.scu+=d.scu||0;prior.complete&&=Number.isSafeInteger(d.scu)&&d.scu>0;totals.set(d.locationId,prior);}
+ return {missionId,title,company,reward,rewardKnown:!!rewardMatch,cargo,_deliveryTotals:[...totals].filter(([,value])=>value.complete).map(([dropoffId,{scu}])=>({dropoffId,scu})),returnId,warnings:[...new Set(warnings)],rawText:text};
 }
 let libraryPromise,sharedReader,activeLanguage;
+// Some Korean contract layouts are fragmented by automatic page segmentation.
+// Compare parsed contract evidence, rather than accepting a longer noisy transcript.
+function contractEvidence(text){
+ const parsed=parseMissionText(text||'');
+ return (parsed.title?2:0)+(parsed.missionId?1:0)+(parsed.rewardKnown?1:0)+
+  parsed.cargo.reduce((score,row)=>score+(row.commodity?3:0)+(Number.isSafeInteger(row.scu)&&row.scu>0?2:0)+(row._pickupText?1:0),0);
+}
 function loadLibrary(){if(globalThis.Tesseract)return Promise.resolve(globalThis.Tesseract);if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=()=>resolve(globalThis.Tesseract);s.onerror=()=>{libraryPromise=null;reject(Error('글자 인식 기능을 불러오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력하세요.'));};document.head.append(s);});return libraryPromise;}
 // Each intake owns its worker so cancelling a batch cannot terminate another reader.
 export function createOCRReader(language) {
@@ -98,7 +108,15 @@ export function createOCRReader(language) {
    workerPromise??=start().catch(error=>{workerPromise=null;throw error;});
    const worker=await workerPromise;
    if(closed)throw Error('OCR stopped');
-   const result=await worker.recognize(image);
+   let result=await worker.recognize(image);
+   if(language!=='eng'&&!closed){
+    try{
+     await worker.setParameters({tessedit_pageseg_mode:globalThis.Tesseract.PSM.SINGLE_BLOCK});
+     const block=await worker.recognize(image);
+     if(contractEvidence(block.data.text)>contractEvidence(result.data.text))result=block;
+    }catch(error){if(closed)throw error;/* Keep the successful automatic read if the alternate pass fails. */}
+    finally{if(!closed)await worker.setParameters({tessedit_pageseg_mode:globalThis.Tesseract.PSM.AUTO});}
+   }
    return result.data;
   },
   async close(){

@@ -28,7 +28,7 @@ jobs:
       - run: node scripts/ensure-three.mjs
       - name: Refresh and validate map against current deployment
         run: node scripts/refresh-data.mjs --previous-url https://limmin3-sudo.github.io/stam-freight-control/data/locations.json --fallback-file .github/pages-baseline/locations.json
-      - name: Refresh SCMDB LIVE missions (keep last validated snapshot on failure)
+      - name: Refresh SCMDB and Wiki mission supplement (keep validated snapshots on failure)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/refresh-missions.mjs

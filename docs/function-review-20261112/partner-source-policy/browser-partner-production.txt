@@ -1,0 +1,1 @@
+PASS first partner selection; unknown total auto-switches to route-only operator; no cargo/3D in default or legacy workspace; active run survives reload; known pooled 22 SCU retains navigator and cargo 3D

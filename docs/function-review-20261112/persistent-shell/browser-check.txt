@@ -1,0 +1,1 @@
+PASS: fixed shared header/sidebar DOM and geometry through mission → map → operations; content-only scroll, map drag, departure, shared language, running-state preservation, reload, mobile menu and overflow

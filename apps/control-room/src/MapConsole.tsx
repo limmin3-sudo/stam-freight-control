@@ -23,8 +23,8 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
  const href=(screen:string)=>`#/${screen}?lang=${locale}`;
  const selection=visit?.packing.boxes.find(b=>b.boxId===box);
  const cargoName=(name:string)=>locale==='ko'?flight.session.draft.jobs.flatMap(j=>j.shipments).find(s=>s.cargo[1]===name)?.cargo[0]||name:name;
- return <main className="map-monitor">
-  <nav inert={cargo} className="chart-navigation" aria-label={t('콘솔 이동','Console navigation')}><a href={href('mission')}>{t('미션 콘솔','Mission console')}</a><a href={href('map')} aria-current="page">{t('입체 항로지도','3D navigation')}</a><a href={href('operations')}>{t('관제 콘솔','Control console')}</a><a className="chart-return" href={href('bridge')}>↖ {t('관제실로','Bridge')}</a><select aria-label={t('표시 언어','Display language')} value={locale} onChange={e=>{window.location.hash=`#/map?lang=${e.target.value}`;}}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></nav>
+ return <section className="map-monitor" aria-labelledby="chart-title">
+  <nav inert={cargo} className="chart-navigation" aria-label={t('콘솔 이동','Console navigation')}><a href={href('mission')}>{t('미션 콘솔','Mission console')}</a><a href={href('map')} aria-current="page">{t('입체 항로지도','3D navigation')}</a><a href={href('operations')}>{t('관제 콘솔','Control console')}</a><select aria-label={t('표시 언어','Display language')} value={locale} onChange={e=>{window.location.hash=`#/map?lang=${e.target.value}`;}}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></nav>
   <div className="chart-layout" inert={cargo}>
    <section className="chart-space" aria-labelledby="chart-title">
     <header className="chart-title"><div><small>STAM / STELLAR CARTOGRAPHY</small><h1 id="chart-title" tabIndex={-1}>{t('입체 항로지도','3D navigation')}</h1></div><span><i/>{t('항법 홀로그램','NAVIGATION HOLOGRAM')}</span></header>
@@ -56,5 +56,5 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
    <Suspense fallback={<p>3D…</p>}><CargoViewport ship={plan.ship as CargoShip} packing={{...visit.packing,capacity:plan.capacity||0,used:visit.load} as Packing} locale={locale} selected={box} onSelect={setBox}/></Suspense>
    <p className="chart-cargo-caption">{selection?`${selection.size} SCU · ${where(selection.dropoffId)} · ${cargoName(selection.commodity)} · ${selection.missionId} · ${quantityBasis(flight.session.draft.jobs.find(job=>job.id===selection.missionId),locale)}`:t('상자를 선택하면 배송지와 소속 계약을 확인합니다. 운항 진행을 바꾸지 않는 계획 미리보기입니다.','Select a crate for destination and contract. This planned preview does not change flight progress.')}</p>
   </dialog>}
- </main>;
+ </section>;
 }

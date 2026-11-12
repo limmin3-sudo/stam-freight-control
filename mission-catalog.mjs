@@ -12,7 +12,7 @@ export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dr
  const route=routeFromTitle(contract.title,places);let definition=index.get(contract.definitionId),basis='definition-id';
  if(!definition&&catalog.sourceName==='SCMDB'&&!contract.conflicts?.length){
   const names=[...new Set((contract.markerObservations||[]).map(m=>m.template).filter(Boolean))];
-  if(names.length===1){const matches=[...index.values()].filter(d=>d.released&&!d.notForRelease&&d.templateNames?.includes(names[0]));if(matches.length===1){definition=matches[0];basis='exact-template-name';}}
+  if(names.length===1){const all=[...index.values()].filter(d=>d.released&&!d.notForRelease&&d.templateNames?.includes(names[0])),primary=all.filter(d=>d.rulesSource==='scmdb'),matches=primary.length?primary:all;if(matches.length===1){definition=matches[0];basis='exact-template-name';}}
  }
  if(!definition&&catalog.sourceName!=='SCMDB'&&route.pickup&&route.dropoff){const title=String(contract.title||''),rank=rankWords.find(w=>new RegExp('\\b'+w+'\\b','i').test(title)),direct=/\bdirect\b/i.test(title),bulk=/\bbulk\b/i.test(title);
   if(rank&&direct&&bulk){const candidates=[...index.values()].filter(d=>d.released&&!d.notForRelease&&new RegExp('\\b'+rank+'\\b','i').test(d.title)&&/direct.*bulk/i.test(d.title)&&['pickup','dropoff'].every(role=>d.rules?.locations?.filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot)).some(s=>s.candidates.some(name=>catalogPlace(name,places)?.id===route[role].id))));if(candidates.length===1){definition=candidates[0];basis='unique-title-route';}}

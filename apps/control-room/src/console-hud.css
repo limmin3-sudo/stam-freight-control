@@ -1,5 +1,5 @@
 /* Shared instrument surfaces for mission intake, star navigation and flight control. */
-:is(.control-room.at-display, .space-experience[data-screen="map"]) {
+:is(.control-room.at-display, .space-experience[data-screen="map"]:not([data-console-shell=true])) {
   --hud-page: #020912;
   --hud-surface: #04121d;
   --hud-line: #27758a;
@@ -16,7 +16,7 @@
 /* The same edge artwork is sliced at each corner to keep the traces crisp at all sizes. */
 .control-room.at-display .console-workspace,
 .control-room.at-display .operations-desk,
-.space-experience[data-screen="map"] .space-main {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .space-main {
   background: var(--hud-grid),radial-gradient(ellipse at 53% 38%,#062236,#020912 72%);
   background-size: 24px 24px,24px 24px,auto;
 }
@@ -26,7 +26,7 @@
 }
 .control-room.at-display :is(.manifest-inbox,.manifest-summary),
 .control-room.at-display .operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner),
-.space-experience[data-screen="map"] :is(.space-overview,.space-sidebar) {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) :is(.space-overview,.space-sidebar) {
   border: 12px solid transparent;
   border-image: var(--hud-rim) 37 62 33 62 / 15px 30px 14px 30px stretch;
   background-color: var(--hud-surface);
@@ -39,29 +39,29 @@
   background-size: 20px 20px,20px 20px,auto;
 }
 .control-room.at-display :is(.room-topbar,.ops-mast),
-.space-experience[data-screen="map"] .space-topbar {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .space-topbar {
   background: linear-gradient(90deg,#071a29,#030d18 72%);
   border-bottom: 1px solid #308ca3;
 }
 .control-room.at-display :is(.console-side-navigation,.console-display-content),
-.space-experience[data-screen="map"] .space-sidebar {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .space-sidebar {
   scrollbar-color: #206176 #03101a;
 }
 .control-room.at-display :is(.console-heading,.inbox-header,.manifest-summary>.manifest-head,.ops-panel-head,.ops-mast),
-.space-experience[data-screen="map"] .hologram-heading {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-heading {
   position: relative;
   border: 0;
   border-bottom: 1px solid #286275;
   background-image: linear-gradient(105deg,#12415a60,#03131f00 68%);
 }
 .control-room.at-display :is(.inbox-header,.manifest-summary>.manifest-head,.ops-mast)::after,
-.space-experience[data-screen="map"] .hologram-heading::after {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-heading::after {
   content: ""; position: absolute; pointer-events:none;
   bottom:-1px;right:5%;width:min(26%,160px);height:3px;
   background:repeating-linear-gradient(120deg,#4cd6f2 0 3px,transparent 3px 7px);
 }
 .control-room.at-display :is(.console-heading h1,.ops-mast h1),
-.space-experience[data-screen="map"] .hologram-heading h1 {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-heading h1 {
   font-family:"Pretendard Desk",SUIT,sans-serif;
   font-weight:650;letter-spacing:-.035em;color:#e6fbff;
 }
@@ -122,30 +122,30 @@
   border-color:#275468;background-color:#03111a;color:#e8f7fa;
 }
 .control-room.at-display .manifest button:not(:disabled),
-.space-experience[data-screen="map"] .hologram-panel button {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel button {
   font-family:"Pretendard Desk",SUIT,sans-serif;color:#d4f6ff;
 }
 .control-room.at-display .manifest :is(.receipt-add,.dispatch-launch) {
   background:#092c3c;border:1px solid #3795aa;color:#c5f6ff;
 }
-.space-experience[data-screen="map"] .space-main {gap:6px}
-.space-experience[data-screen="map"] .space-overview {position:relative}
-.space-experience[data-screen="map"] .hologram-heading {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .space-main {gap:6px}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .space-overview {position:relative}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-heading {
   position:absolute;left:18px;right:18px;top:8px;min-height:52px;
 }
-.space-experience[data-screen="map"] .hologram-heading small,
-.space-experience[data-screen="map"] .hologram-sector span,
-.space-experience[data-screen="map"] .hologram-panel>small {color:#75d8ee}
-.space-experience[data-screen="map"] .map-flight-brief,
-.space-experience[data-screen="map"] .hologram-selection {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-heading small,
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-sector span,
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel>small {color:#75d8ee}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .map-flight-brief,
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-selection {
   border:1px solid #33778b;border-left:3px solid #62e7ff;background:#051725ed;color:#dff9ff;
 }
-.space-experience[data-screen="map"] .hologram-panel {border-top:1px solid #286275;padding-top:10px}
-.space-experience[data-screen="map"] .hologram-panel :is(button[aria-pressed=true],button[aria-current=step]) {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel {border-top:1px solid #286275;padding-top:10px}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel :is(button[aria-pressed=true],button[aria-current=step]) {
   color:#ffd595;border-color:#bf914c;background:#332819;
 }
 /* Fine instrument divisions live at the viewport edge, clear of selectable bodies. */
-.space-experience[data-screen="map"] .hologram-viewport::after,
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-viewport::after,
 .control-room.at-display .ops-chart::after {
   content:"";position:absolute;inset:2px;pointer-events:none;
   background:repeating-linear-gradient(90deg,#4ac5df88 0 1px,transparent 1px 12px) center top / 70% 4px no-repeat,
@@ -155,7 +155,7 @@
 @media(max-width:760px) {
   .control-room.at-display :is(.manifest-inbox,.manifest-summary),
   .control-room.at-display .operations-desk :is(.ops-map,.ops-hold,.ops-progress,.ops-partner),
-  .space-experience[data-screen="map"] :is(.space-overview,.space-sidebar) {
+  .space-experience[data-screen="map"]:not([data-console-shell=true]) :is(.space-overview,.space-sidebar) {
     border-width:8px;border-image-width:10px 19px;
   }
   .console-dial {width:54px}
@@ -166,8 +166,8 @@
    Neither the outline nor the face is sampled from a stretched image. */
 .control-room.at-display .operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary),
 .control-room.at-display .manifest :is(.receipt-sources button,.receipt-add,.dispatch-launch),
-:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a,
-.space-experience[data-screen="map"] .hologram-panel :is(.hologram-system-select,.hologram-zoom,.hologram-destinations,.hologram-tools) button,
+:is(.control-room.at-display,.space-experience[data-screen="map"]:not([data-console-shell=true])) .space-sidebar .space-dock>a,
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel :is(.hologram-system-select,.hologram-zoom,.hologram-destinations,.hologram-tools) button,
 .cargo-stage .cargo-view-controls button {
   --key-rim:#3e8191; --key-glint:#9be1e5; --key-top:#163b4b; --key-foot:#071c29;
   appearance:none; box-sizing:border-box; border:1px solid var(--key-rim);
@@ -179,9 +179,9 @@
   font-family:"Pretendard Desk",SUIT,system-ui,sans-serif;font-weight:580;letter-spacing:0;
   text-shadow:none;transition:box-shadow .12s,background-color .12s;
 }
-:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a[aria-current="page"],
+:is(.control-room.at-display,.space-experience[data-screen="map"]:not([data-console-shell=true])) .space-sidebar .space-dock>a[aria-current="page"],
 .control-room.at-display .operations-desk :is(button,a,summary)[data-desk-selected],
-.space-experience[data-screen="map"] .hologram-panel :is(.hologram-system-select,.hologram-destinations,.hologram-tools) button[aria-pressed="true"] {
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-panel :is(.hologram-system-select,.hologram-destinations,.hologram-tools) button[aria-pressed="true"] {
   --key-rim:#bd914b;--key-glint:#ffe2a7;--key-top:#534025;--key-foot:#2a1c10;color:#fff1d2;
 }
 .control-room.at-display .operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary):active,
@@ -224,13 +224,13 @@
 }
 
 /* Remove the scene-navigation bitmap inside instruments only. */
-:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a {
+:is(.control-room.at-display,.space-experience[data-screen="map"]:not([data-console-shell=true])) .space-sidebar .space-dock>a {
   border:1px solid var(--key-rim)!important;border-top-color:var(--key-glint)!important;
   padding-inline:16px;gap:9px;min-height:44px;
 }
-:is(.control-room.at-display,.space-experience[data-screen="map"]) .space-sidebar .space-dock>a::before {
+:is(.control-room.at-display,.space-experience[data-screen="map"]:not([data-console-shell=true])) .space-sidebar .space-dock>a::before {
   content:"";position:static;inset:auto;flex:none;width:4px;height:12px;border-radius:1px;
   background:var(--key-rim);filter:none;box-shadow:0 0 5px var(--key-rim);
 }
-.space-experience[data-screen="map"] .hologram-system-select {display:flex;flex-wrap:wrap;gap:5px}
-.space-experience[data-screen="map"] .hologram-system-select button {padding:5px 8px;min-height:32px}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-system-select {display:flex;flex-wrap:wrap;gap:5px}
+.space-experience[data-screen="map"]:not([data-console-shell=true]) .hologram-system-select button {padding:5px 8px;min-height:32px}

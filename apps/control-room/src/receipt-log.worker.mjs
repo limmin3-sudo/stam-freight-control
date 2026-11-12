@@ -9,6 +9,8 @@ import catalog from '../../../data/log-mission-index.json';
 import hauling from '../../../data/hauling-missions.json';
 import korean from '../../../data/stam-korean.json';
 import aiNames from '../../../data/ai-korean.json';
+import details from '../../../data/mission-details.json';
+import {contractInfo} from '../../../contract-info.mjs';
 
 const index=locationIndex(locations);
 const points=locations.locations.filter(p=>p.id).map(p=>({...p,uuid:p.id,id:p.system+':'+p.id}));
@@ -36,7 +38,8 @@ function receipt(raw) {
     cargoShape:row._cargoShape||row._special,maxBoxSize:row.maxBoxSize,boxes:row.boxes,
   }));
   const incomplete=!shipments.length||shipments.some(row=>!row.from||!row.to||!row.cargo[1]||!row.scu&&!reservations[row.to]);
-  return {id:raw.id,title:[raw.title,raw.title],shipments,pay:raw.reward||0,rewardUnknown:!raw._rewardKnown,reservations,
+  const referenceInfo=contractInfo(details,raw.definition?.id||raw.observedDefinitionId);
+  return {id:raw.id,title:[raw.title,raw.title],shipments,pay:raw.reward||0,rewardUnknown:!raw._rewardKnown,reservations,referenceInfo:referenceInfo||undefined,
     signature:raw.signature,mission:{...draft,id:raw.id,title:raw.title,reward:raw.reward||0,_rewardKnown:!!raw._rewardKnown,destinationBoxes:raw.destinationBoxes},
     state:raw.conflict?'conflict':raw.ended?'ended':incomplete?'incomplete':'ready',
     hints:(raw.quantityHints||[]).map(h=>({cargo:h.commodity,scu:h.scu,place:chartIds.get(h.dropoffId)||'',name:h.dropoffText}))};

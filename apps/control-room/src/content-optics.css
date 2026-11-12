@@ -1,0 +1,85 @@
+/* Interior rooms share mission typography/materials. Approved global navigation is excluded. */
+.space-experience .space-room{
+ --content-font:BarlowAirReview,SUIT,sans-serif;
+ --content-frame:url('./assets/material-review/projection-even-frame.svg');
+ font-family:var(--content-font);font-weight:500;font-synthesis:none;
+ padding:30px clamp(22px,3vw,62px) 40px;
+ background:radial-gradient(ellipse at 20% 0,#2d6d7826,transparent 65%),#050e18;
+}
+.space-experience .space-room :is(h1,h2,h3,p,small,strong,b,span,a,button,input,select,label,summary){font-family:var(--content-font);font-weight:500;font-synthesis:none}
+.space-experience .space-room-background{opacity:.1;filter:blur(8px);transform:none}
+.space-experience .space-room:after{background:linear-gradient(120deg,#061320de,#0716239c)}
+.space-experience .space-room-heading{display:block;max-width:1280px;margin:0 auto 28px;padding-bottom:22px;border-bottom:1px solid #8ac7da24}
+.space-experience .space-room-heading p{font-size:10px;letter-spacing:.24em;color:#94c5d5}
+.space-experience .space-room-heading h1{font-size:30px;letter-spacing:.06em;margin:8px 0 0;color:#dff6fd;text-shadow:0 0 22px #8acfe927}
+.space-experience .space-room button:not(.space-play){
+ border:7px solid transparent;border-image:var(--content-frame) 28 fill / 11px stretch;
+ border-radius:0;background:none;min-height:44px;padding:5px 13px;color:#d7f2fc;
+ font-size:13px;letter-spacing:.025em;text-decoration:none;
+ box-shadow:0 5px 10px #0005;cursor:pointer;transition:filter .18s,transform .18s;
+}
+.space-experience .space-room button:not(.space-play):hover:not(:disabled){filter:brightness(1.18);transform:translateY(-1px)}
+.space-experience .space-room :is(button,a):focus-visible{outline:2px solid #c8f4ff;outline-offset:3px}
+.space-experience .space-room .space-information{max-width:1280px;width:100%;margin:0 auto;gap:20px;align-items:stretch;grid-template-columns:repeat(3,minmax(0,1fr))}
+.space-experience .space-information>p{font-size:15px;line-height:1.8;max-width:78ch;color:#a8c7d5;margin:0 0 10px}
+.space-experience .space-information>a,
+.space-experience .space-service .service-record{
+ position:relative;isolation:isolate;border:13px solid transparent;
+ border-image:var(--content-frame) 28 fill / 20px stretch;background:none;border-radius:0;
+ padding:25px 24px 20px;min-height:285px;gap:14px;box-shadow:0 12px 25px #0005;
+ color:#e0f5fb;text-decoration:none;transition:filter .2s,transform .2s;
+}
+.space-experience .space-information>a:hover{filter:brightness(1.12);transform:translateY(-3px)}
+.space-experience .space-information h2{font-size:23px;letter-spacing:.025em;line-height:1.4;margin:0}
+.space-experience .space-information a>p,.space-experience .service-record>p{font-size:14px;line-height:1.8;color:#a6c4d3;margin:0}
+.space-experience .room-card-symbol{display:flex;align-items:center;gap:12px;color:#9bdce9;margin-bottom:8px}
+.space-experience .room-card-symbol .interface-glyph{width:40px;height:40px;flex:none;filter:drop-shadow(0 0 5px #9de4ee33)}
+.space-experience .room-card-symbol small{font-size:10px;letter-spacing:.2em;color:#8abfcd}
+.space-experience .space-information a>span{align-self:flex-start;display:inline-flex;align-items:center;gap:15px;margin-top:auto;min-height:42px;padding:9px 0 3px;border-bottom:1px solid #dbba795c;font-size:14px;color:#f0d4a0}
+.space-experience .space-room .space-information.space-service{grid-template-columns:repeat(6,minmax(0,1fr))}
+.space-experience .space-service .service-record{grid-column:span 3;min-height:210px;gap:14px;align-items:flex-start}
+.space-experience .space-service>a{grid-column:span 2;min-height:260px}
+.space-experience .service-record>h2:before{content:'PERSONAL / SERVICES';display:block;font-size:9px;letter-spacing:.22em;color:#8abfcd;margin-bottom:12px}
+.space-experience .service-latest strong{font-size:17px;color:#dbf4fa}
+.space-experience .service-latest p{font-size:13px;line-height:1.7;color:#a6c4d3}
+.space-experience .space-cinema{max-width:1280px;width:100%;margin:0 auto}
+.space-experience .space-screen{border:10px solid transparent;border-image:var(--content-frame) 28 fill / 16px stretch;box-shadow:0 15px 40px #0008;max-height:calc(100svh - 265px);width:auto;max-width:100%;aspect-ratio:16/9;background:#01060c}
+.space-experience .space-play{font-family:var(--content-font);overflow:hidden}
+.space-experience .space-play>img{opacity:.76}
+.space-experience .space-play>span{font-size:18px;letter-spacing:.07em;background:linear-gradient(transparent,#03121b66)}
+.space-experience .space-play b{width:90px;height:76px;border:10px solid transparent;border-image:var(--content-frame) 28 fill / 16px stretch;border-radius:0;background:none;box-shadow:0 12px 24px #0008;color:#e6faff;font-size:36px;backdrop-filter:none}
+.space-experience .space-cinema-caption{align-items:center;margin-top:22px;padding:14px 18px;border-top:1px solid #9ed5e52b;border-bottom:1px solid #9ed5e515}
+.space-experience .space-cinema-caption>span{font-size:10px;letter-spacing:.22em;color:#9bcedd}
+.space-experience .space-cinema-caption p{font-size:14px;color:#a6c4d3;margin:0}
+/* These legacy controls open native dialogs under body, outside the room subtree. */
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog){font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none;border:12px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 19px stretch;background:#071520;box-shadow:0 20px 80px #000b}
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) :is(button,input,select,h2,h3,summary){font-family:inherit;font-weight:500}
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) button{border:7px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 11px stretch;background:none;padding:5px 10px;color:#dff6fd;min-height:40px}
+@media(max-width:1150px){
+ .space-experience .space-room .space-information,.space-experience .space-room .space-information.space-service{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .space-experience .space-service .service-record,.space-experience .space-service>a{grid-column:auto}
+ .space-experience .space-information>a{min-height:235px;padding:20px 18px}
+}
+@media(max-width:760px){
+ .space-experience .space-room{padding:22px 16px 30px}
+ .space-experience .space-room-heading{gap:12px;align-items:flex-start;margin-bottom:22px;padding-bottom:16px}
+ .space-experience .space-room-heading h1{font-size:25px}
+ .space-experience .space-room-heading p{font-size:8px}
+ .space-experience .space-room .space-information,.space-experience .space-room .space-information.space-service{grid-template-columns:1fr;gap:14px}
+ .space-experience .space-information>a,.space-experience .space-service .service-record{min-height:210px;padding:18px}
+ .space-experience .space-screen{width:100%;max-height:none}
+ .space-experience .space-play b{width:68px;height:58px;font-size:27px}
+ .space-experience .space-play>span{font-size:14px;gap:10px}
+ .space-experience .space-cinema-caption{align-items:flex-start;gap:8px;padding-inline:4px}
+}
+@media(prefers-reduced-motion:reduce){.space-experience .space-information>a,.space-experience .space-room button{transition:none}}
+.partner-choice-intro,.partner-choice-note{max-width:920px;margin:0 auto 20px;color:#aac8d5;line-height:1.8}
+.partner-options{max-width:920px;margin:0 auto 20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.space-experience .space-room .partner-options>button{padding:0;text-align:left;overflow:hidden;border-width:12px;border-image-width:18px;display:flex;flex-direction:column}
+.partner-options>button>img{width:100%;height:auto;aspect-ratio:3/4;object-fit:contain;object-position:center top;display:block;flex-shrink:0;background:#06131c}
+.partner-options>button>div{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.partner-options small{font-size:10px;letter-spacing:.18em;color:#8dd2df}
+.partner-options h2{font-size:24px;line-height:1.4;margin:0}
+.partner-options p{font-size:15px;line-height:1.8;margin:0;color:#adc9d7}
+.partner-options span{font-size:14px;color:#f1d49d;margin-top:auto;padding-top:10px}
+@media(max-width:760px){.partner-options{grid-template-columns:1fr;gap:16px;max-width:440px}.partner-options>button>div{padding:16px}}

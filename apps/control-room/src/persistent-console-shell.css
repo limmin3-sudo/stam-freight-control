@@ -1,0 +1,57 @@
+/* Common masthead + approved room sidebar survive console changes. */
+.space-experience[data-console-shell=true]>.space-main{background:#040d17;overflow:hidden}
+.persistent-console-content{grid-area:1 / 2;min-width:0;min-height:0;position:relative;overflow:hidden;isolation:isolate;container-type:inline-size}
+.space-experience[data-console-shell=true] .persistent-console-content>.control-room{height:100%;min-height:0;max-height:100%;width:100%;display:block;overflow:hidden}
+.persistent-console-content>.control-room>:is(.room-topbar,.console-side-navigation,.station-navigation,.console-empty-footer,.skip-link){display:none}
+.space-experience[data-console-shell=true] .persistent-console-content>.control-room>#main-content{height:100%;min-height:0;width:100%;display:flex;padding:0;overflow:hidden}
+.space-experience[data-console-shell=true] .control-room .console-workspace{height:100%;min-height:0;width:100%;max-width:none;display:flex;flex-direction:column;margin:0;padding:0;border:0;border-image:none}
+.space-experience[data-console-shell=true] .control-room .console-heading{flex:none;padding:22px 28px 18px;grid-template-columns:1fr;margin:0}
+.space-experience[data-console-shell=true] .control-room .console-heading>.monitor-navigation{display:none}
+.space-experience[data-console-shell=true] .control-room .console-display-content{flex:1;min-height:0;width:100%;overflow:auto;padding:0 28px 28px;scrollbar-gutter:stable}
+.space-experience[data-console-shell=true] .control-room .workspace-layout{min-height:0}
+.space-experience[data-console-shell=true] .map-monitor{height:100%;min-height:0;max-height:100%;width:100%}
+.space-experience[data-console-shell=true] .chart-navigation{display:none}
+.space-experience[data-console-shell=true] .chart-layout{min-height:0;flex:1}
+.space-experience[data-console-shell=true] .chart-layout{grid-template-columns:minmax(0,1fr) 330px}
+.space-experience[data-console-shell=true] .ops-navigation{display:none}
+.space-experience[data-console-shell=true] .control-room:has(.operations-desk) .console-heading{display:none}
+.space-experience[data-console-shell=true] .control-room:has(.operations-desk) .console-display-content{padding:0;overflow:auto}
+.space-experience[data-console-shell=true] .control-room:has(.operations-desk) .workspace-layout{height:100%}
+.space-experience[data-console-shell=true] .flight-operations.operations-desk{height:100%;min-height:0}
+/* Themes size themselves to the actual content space left by fixed navigation. */
+@container(max-width:1550px){
+ .control-room.monitor-ui[data-mission-material] .mission-screen{grid-template-columns:minmax(0,1fr) 320px;gap:18px}
+ .control-room.monitor-ui[data-mission-material] .receipt-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .manifest-summary{padding:24px 20px;border-width:13px}
+ .control-room.monitor-ui:is([data-mission-material=projection],[data-mission-material=chip]) .mission-intake{padding-inline:21px}
+ .control-room.monitor-ui[data-mission-material=chip] .mission-source-grid{grid-template-columns:1fr;gap:12px}
+ .control-room.monitor-ui[data-mission-material=chip] .mission-source{padding:0;border:0}
+ .control-room.monitor-ui[data-mission-material=chip] .mission-source>p{margin-bottom:5px}
+ .control-room.monitor-ui[data-mission-material=chip] .mission-stage-heading{display:block}
+ .control-room.monitor-ui[data-mission-material=chip] .mission-stage-heading>p{text-align:left;max-width:none;margin-top:5px}
+ .mission-optical-instrument{width:235px;height:235px;right:22px;top:110px}
+ .optical-planet{width:235px;height:235px;top:120px;left:0}
+ .control-room.monitor-ui[data-mission-material=projection] .mission-source-grid{width:57%}
+}
+@media(max-width:1100px) and (min-width:761px){
+ .space-experience[data-console-shell=true] .chart-layout{grid-template-columns:minmax(0,1fr) 260px;padding:10px;gap:10px}
+ .space-experience[data-console-shell=true] .control-room .console-heading{padding:18px}
+ .space-experience[data-console-shell=true] .control-room .console-display-content{padding-inline:18px}
+ .space-experience[data-console-shell=true] .flight-operations.operations-desk{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 350px auto;grid-template-areas:'mast' 'progress' 'map' 'partner';height:auto;min-height:100%}
+}
+@container(max-width:1000px){
+ .control-room.monitor-ui[data-mission-material] .mission-screen{display:block}
+ .control-room.monitor-ui[data-mission-material] :is(.mission-preflight,.mission-intake,.manifest-inbox,.manifest-summary){margin-bottom:20px}
+ .control-room.monitor-ui[data-mission-material] .manifest-summary{position:static}
+}
+@media(max-width:760px){
+ .persistent-console-content{grid-area:2 / 1}
+ .space-experience[data-console-shell=true] .control-room .console-heading{padding:18px 16px 15px}
+ .space-experience[data-console-shell=true] .control-room .console-display-content{padding:0 16px 25px}
+ .space-experience[data-console-shell=true] .chart-layout{display:flex;flex-direction:column;overflow:visible;min-height:0;flex:none}
+ .space-experience[data-console-shell=true] .map-monitor{overflow:auto}
+ .space-experience[data-console-shell=true] .chart-space{height:58svh;min-height:360px}
+ .space-experience[data-console-shell=true] .chart-itinerary{overflow:visible}
+ .space-experience[data-console-shell=true] .flight-operations.operations-desk{height:auto;min-height:100%}
+ .mission-optical-instrument{display:none}
+}
