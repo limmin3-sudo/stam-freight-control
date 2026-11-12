@@ -24,17 +24,32 @@ try{
  const enter=async()=>{await page.waitForFunction(()=>{const image=document.querySelector('.space-background');return image?.complete&&image.naturalWidth>0;});await gate().click();await page.waitForSelector('.shuttle-boarding[open]');};
  await enter();let video=page.locator('.shuttle-boarding video');
  await page.waitForFunction(()=>{const v=document.querySelector('.shuttle-boarding video');return v?.currentTime>.4&&!v.paused;});
- assert(Math.abs(await video.evaluate(v=>v.duration)-9.208333)<.03);
+ assert(Math.abs(await video.evaluate(v=>v.duration)-23.833333)<.03);
+ assert.match(await video.evaluate(v=>v.currentSrc),/lounge-to-shuttle-boarding/);
  assert(await video.evaluate(v=>v.playsInline&&v.muted));
  await page.getByRole('button',{name:'소리 꺼짐',exact:true}).click();assert.equal(await video.evaluate(v=>v.muted),false);
  assert.equal(await video.evaluate(v=>v.volume),.2);
  await page.screenshot({path:output+'/boarding-desktop.png'});
+ // Follow real playback across both restored segments and into boarding.
+ // The old 9.2s boarding duration must not send us to bridge mid-journey.
+ for(const [time,name] of [[7,'gate-exit'],[12,'shuttle-landing'],[16,'shuttle-boarding']]){
+  await page.waitForFunction(t=>document.querySelector('.shuttle-boarding video')?.currentTime>=t,time,{timeout:15000});
+  assert.match(page.url(),/#\/lounge/);assert.equal(await page.locator('.shuttle-boarding[open]').count(),1);
+  await page.screenshot({path:output+'/'+name+'-desktop.png'});
+ }
  // Wait for the actual ended event; never synthesize it for the natural path.
  await page.waitForFunction(()=>location.hash.includes('/bridge?'),{},{timeout:30000});assert.equal(await page.locator('.shuttle-boarding').count(),0);
- assert.equal(await page.evaluate(key=>localStorage.getItem(key),key),saved);console.log('PASS: natural 9.208s playback, inline audio controls, destination and flight preservation');
+ assert.equal(await page.evaluate(key=>localStorage.getItem(key),key),saved);console.log('PASS: natural 23.833s gate approach → exit/landing → boarding playback, audio controls, destination and flight preservation');
  await page.evaluate(()=>location.hash='#/lounge?lang=ko');await enter();
  await page.getByRole('button',{name:'취소',exact:true}).click();assert.match(page.url(),/#\/lounge/);assert.equal(await page.locator('.shuttle-boarding').count(),0);
  await enter();await page.keyboard.press('Escape');assert.equal(await page.locator('.shuttle-boarding').count(),0);assert.match(page.url(),/#\/lounge/);
+ // Cancel remains usable in both restored travel and the original boarding tail.
+ for(const time of [7,17]){
+  await enter();await page.waitForFunction(()=>document.querySelector('.shuttle-boarding video')?.readyState>=2);
+  await page.locator('.shuttle-boarding video').evaluate((v,t)=>{v.currentTime=t;},time);
+  await page.getByRole('button',{name:'취소',exact:true}).click();assert.match(page.url(),/#\/lounge/);
+  assert.equal(await page.locator('.shuttle-boarding').count(),0);
+ }
  await enter();await page.getByRole('button',{name:'관제센터로 바로 이동',exact:true}).click();await page.waitForURL(/#\/bridge/);
  await page.evaluate(()=>location.hash='#/lounge?lang=ko');await page.locator('.space-dock a[href*="/bridge"]').click();await page.waitForURL(/#\/bridge/);assert.equal(await page.locator('.shuttle-boarding').count(),0);
  await page.evaluate(()=>location.hash='#/lounge?lang=ko');await enter();await page.evaluate(()=>location.hash='#/information?lang=ko');await page.waitForSelector('[data-screen=information]');assert.equal(await page.locator('.shuttle-boarding').count(),0);
@@ -47,7 +62,11 @@ try{
  await mobile.waitForFunction(()=>document.querySelector('.shuttle-boarding video')?.currentTime>.3);
  assert(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  for(const r of await mobile.locator('.shuttle-boarding button').evaluateAll(ns=>ns.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,right:r.right,bottom:r.bottom,h:r.height};})))assert(r.x>=0&&r.right<=390&&r.bottom<=844&&r.h>=44);
- await mobile.screenshot({path:output+'/boarding-mobile.png'});await mobile.getByRole('button',{name:'Cancel',exact:true}).click();
+ await mobile.screenshot({path:output+'/boarding-mobile.png'});
+ await mobile.locator('.shuttle-boarding video').evaluate(v=>{v.currentTime=16;});
+ await mobile.waitForFunction(()=>{const v=document.querySelector('.shuttle-boarding video');return v&&!v.seeking&&v.currentTime>=16;});
+ await mobile.screenshot({path:output+'/shuttle-boarding-mobile.png'});
+ await mobile.getByRole('button',{name:'Cancel',exact:true}).click();
  await mobile.emulateMedia({reducedMotion:'reduce'});await mobile.locator('#space-marker-gate').click();await mobile.waitForURL(/#\/bridge/);assert.equal(await mobile.locator('.shuttle-boarding').count(),0);
  console.log('PASS: load failure fallback, 390px controls, English and reduced-motion bypass');
  // Browser autoplay refusal exposes a working user-gesture retry.

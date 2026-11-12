@@ -1,8 +1,9 @@
 import {useEffect,useRef,useState} from 'react';
-import boarding from './assets/travel/shuttle-boarding.mp4';
+import boarding from './assets/travel/lounge-to-shuttle-boarding.mp4';
 import './shuttle-boarding.css';
 
-// Only the approved boarding segment. No takeoff/landing placeholder follows it.
+// Approved lounge → gate → arriving shuttle → boarding, in one continuous asset.
+// The existing destination callbacks remain unchanged; no unfinished takeoff follows.
 export function ShuttleBoarding({en,sound,volume,onSound,onComplete,onCancel}:{
  en:boolean;sound:boolean;volume:number;onSound:(enabled:boolean)=>void;onComplete:()=>void;onCancel:()=>void;
 }){
@@ -24,11 +25,11 @@ export function ShuttleBoarding({en,sound,volume,onSound,onComplete,onCancel}:{
   };
  },[]);
  useEffect(()=>{if(video.current){video.current.muted=!sound;video.current.volume=Math.max(0,Math.min(1,volume/100));}},[sound,volume]);
- return <dialog ref={dialog} className="shuttle-boarding" aria-label={en?'Shuttle boarding':'셔틀 탑승'} onCancel={event=>{event.preventDefault();event.stopPropagation();onCancel();}}>
+ return <dialog ref={dialog} className="shuttle-boarding" aria-label={en?'Gate travel and shuttle boarding':'게이트 이동과 셔틀 탑승'} onCancel={event=>{event.preventDefault();event.stopPropagation();onCancel();}}>
   <video ref={video} src={boarding} autoPlay playsInline muted={!sound} preload="auto"
-   aria-label={en?'Approved shuttle boarding film':'셔틀 탑승 영상'}
+   aria-label={en?'Approved gate travel and shuttle boarding film':'게이트 이동 및 셔틀 탑승 영상'}
    onEnded={complete} onError={()=>setFailed(true)} onPlaying={()=>{setBlocked(false);setSlow(false);}}/>
-  <header><span>STAM / SHUTTLE BOARDING</span><h2>{en?'Boarding the shuttle':'셔틀에 탑승합니다'}</h2></header>
+  <header><span>STAM / GATE TRANSFER</span><h2>{en?'To the gate and shuttle':'게이트를 거쳐 셔틀로 이동합니다'}</h2></header>
   {(blocked||failed||slow)&&<p className="shuttle-playback-message" role="status">{failed
    ?(en?'The video could not load. You can continue to the control centre.':'영상을 불러오지 못했습니다. 관제센터로 바로 이동할 수 있습니다.')
    :blocked?(en?'Press Play to start the video.':'재생 버튼을 눌러 영상을 시작하세요.')
