@@ -17,14 +17,17 @@
   "autoGenerateVideo": false,
   "autoPublish": false,
   "releaseChannel": "beta",
-  "releaseVersion": "2.3.0",
+  "releaseVersion": "2.4.0",
   "integrationCheckout": "stam-freight-control-local-studio-20261110",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "See the bridge scenery correction in docs/LOCAL-FUNCTION-HANDOFF.md section 3. Continue flight operations layout, OCR removal and quantity reconciliation. Cinematics pending: takeoff, final travel audio and remaining console transitions.",
+  "tomorrow": "Functional work and integration continue in Cloud. Preserve screenshot OCR with human review. Verify real Game.log, account/device sync and GPU behavior when those environments are available. Cinematic local sends branch/commit for unfinished takeoff, final audio and console transitions. Fetch development handoff when switching locations; deployment is not required for sync.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/LOCAL-FUNCTION-HANDOFF.md",
   "functionWorkBranch": "handoff/function-ui-20261112",
   "functionWorkCommit": "de2042f3920e77aab43618786682a366489710fb",
-  "functionWorkIntegrated": true
+  "functionWorkIntegrated": true,
+  "functionOwner": "cloud",
+  "cinematicOwner": "local",
+  "integrationOwner": "function-cloud"
 }

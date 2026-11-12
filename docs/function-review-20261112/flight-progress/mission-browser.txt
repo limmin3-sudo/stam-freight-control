@@ -1,0 +1,2 @@
+PASS: card selection, route-only operator, navigator cargo, same-plan navigation/reload, viewport fill, KO/mix/EN desktop/mobile, ceiling toggle, 32→22 reservation with both pickups retained, invalid edit preservation and active-run lock.
+Screenshots: /tmp/stam-followup-mission

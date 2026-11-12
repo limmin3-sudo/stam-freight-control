@@ -99,9 +99,9 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
           {route.screen==='mission' && flight.hasSaved && !flight.active && <button type="button" className="return-link" disabled={flight.busy||flight.blocked} onClick={()=>{
             if(!draft.jobs.length||window.confirm(route.locale==='en'?'Replace this manifest with the saved flight?':'현재 계약 목록을 이전에 저장한 운항으로 바꿀까요?'))flight.calculate(undefined,false,'saved');
           }}>{route.locale==='en'?'Load previous flight':'이전 운항 불러오기'}</button>}
-          {flight.error && <p role="alert">{flight.error}</p>}
-          {flight.storageError && <p role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
-          {flight.busy && <p role="status">{route.locale==='en'?'Calculating route…':'항로 계산 중…'}</p>}
+          {(route.screen!=='operations'||!controlMode) && flight.error && <p role="alert">{flight.error}</p>}
+          {(route.screen!=='operations'||!controlMode) && flight.storageError && <p role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
+          {(route.screen!=='operations'||!controlMode) && flight.busy && <p role="status">{route.locale==='en'?'Calculating route…':'항로 계산 중…'}</p>}
           {route.screen==='mission' && plan && <a className="return-link" href={routeHash({...route,screen:'map'})}>{route.locale==='en'?'View flight route':'계산된 항로 보기'} →</a>}
         </div>
         </div>

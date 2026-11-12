@@ -1,0 +1,1 @@
+PASS: upper-bound labels change to confirmed delivery total across map/operations; 22 SCU reserved once, pickup shares remain unknown

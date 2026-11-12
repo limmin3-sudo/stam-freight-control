@@ -1,0 +1,86 @@
+/* Flight controls lead; cargo is an optional inspection, never the default desk. */
+.flight-operations.operations-desk {
+  grid-template-columns:minmax(0,1.35fr) minmax(380px,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:'mast mast' 'map progress' 'partner progress';
+}
+.operations-desk :is(button,input,select,textarea,h1,h2,h3,summary) { font-family:var(--desk-font); }
+.operations-desk .ops-mast { flex-wrap:wrap; }
+.ops-navigation { display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px; }
+.ops-navigation a,.ops-navigation select {
+  display:inline-flex;align-items:center;min-height:36px;box-sizing:border-box;padding:7px 12px;
+  color:var(--ink);background:linear-gradient(125deg,#35566980,#102431ba);border:1px solid #8cb8c657;
+  border-radius:7px;box-shadow:inset 0 1px #c5f0ff24,0 3px 6px #0003;text-decoration:none;font-size:13px;
+}
+.operations-desk .ops-progress { padding-bottom:10px; }
+.operations-desk .ops-progress .trial-brief { display:flex;flex-direction:column;gap:12px;padding:16px 20px; }
+.operations-desk .ops-progress .trial-brief h2 { font-size:clamp(24px,2.1vw,34px); }
+.operations-desk .ops-progress .flight-next { font-size:14px;line-height:1.6; }
+.operations-desk .ops-progress progress { order:1;flex:none;margin:0 0 4px;height:5px; }
+.operations-desk .ops-progress .trial-brief>.flight-actions {
+  order:2;display:flex;align-self:stretch;align-items:center;justify-content:flex-start;max-width:none;gap:9px;
+}
+.operations-desk .ops-progress .flight-actions .manifest-primary { min-height:48px;padding:12px 20px;font-size:16px; }
+.operations-desk .ops-progress .flight-actions>button:not(.manifest-primary) { min-height:38px; }
+.ops-cargo-summary { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:13px; }
+.ops-cargo-summary button { min-height:38px;padding:8px 14px;border-radius:6px;border:1px solid #95c8d36b;background:#26465572;color:var(--ink);cursor:pointer; }
+.ops-cargo-summary small { font-size:13px; }
+.ops-tasks { order:3;list-style:none;margin:3px 0 0;padding:14px 0 0;border-top:1px solid #74b4c444; }
+.ops-tasks li>b { font-size:12px;color:var(--muted); }
+.ops-tasks .trial-task { display:block;margin-top:12px;padding:2px 0 2px 12px;border-left:2px solid var(--gold);line-height:1.65;font-size:15px;overflow-wrap:anywhere; }
+.ops-tasks .trial-task small { display:block;font-size:12px;color:var(--muted); }
+.ops-progress .trial-brief>details { order:4; }
+.ops-itinerary,.ops-record { margin:8px 20px 16px;border-top:1px solid #80b0c03b;padding-top:12px; }
+.ops-itinerary summary,.ops-record summary { padding:6px 0;font-size:14px; }
+.ops-itinerary ol { list-style:none;padding:0;margin:12px 0 0; }
+.ops-itinerary li { display:flex;gap:12px;padding:12px 8px;border-bottom:1px solid #82b0bf26; }
+.ops-itinerary li[aria-current=step] { background:linear-gradient(100deg,#4c92a530,transparent);box-shadow:inset 2px 0 var(--gold); }
+.ops-itinerary li[data-done=true] { color:#93b7bc; }
+.ops-stop-number { display:flex;flex:none;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid #75b2c064;border-radius:50%;color:var(--ice);font-variant-numeric:tabular-nums; }
+.ops-itinerary b { font-size:14px;overflow-wrap:anywhere; }
+.ops-itinerary small { display:block;margin-top:4px;color:var(--muted);font-size:12px; }
+.operations-desk .ops-record .run-readout { padding:10px 0; }
+.operations-desk .ops-partner { max-height:190px;align-items:center;padding:12px 18px; }
+.operations-desk .ops-portrait { width:60px; }
+.operations-desk .ops-transmission h2 { font-size:18px;margin:4px 0; }
+.operations-desk .ops-transmission p { max-width:none;font-size:14px;margin:0; }
+.ops-cargo-dialog {
+  box-sizing:border-box;width:min(1280px,96vw);height:min(900px,92dvh);max-width:96vw;max-height:92dvh;margin:auto;
+  padding:18px;border:1px solid #8abacbcc;border-radius:12px;color:var(--ink);background:linear-gradient(125deg,#183344,#071721 70%);
+  box-shadow:inset 0 1px #e2faff57,0 18px 70px #000a;overflow:hidden;
+}
+.ops-cargo-dialog[open] { display:flex;flex-direction:column;gap:12px; }
+.ops-cargo-dialog::backdrop { background:#020910d9;backdrop-filter:blur(6px); }
+.ops-cargo-dialog>header { display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none; }
+.ops-cargo-dialog h2 { margin:3px 0 0;font-size:22px; }
+.ops-cargo-dialog>header button { min-height:40px;padding:8px 16px;border:1px solid #99cbd36b;background:#244553;color:var(--ink);border-radius:6px;cursor:pointer; }
+.operations-desk .ops-cargo-dialog .ops-hold { flex:1;border:0;border-image:none;background:none; }
+.operations-desk .ops-cargo-dialog .ops-phase { position:static;flex:none;flex-wrap:wrap;margin-bottom:8px; }
+.ops-cargo-note { flex:none;margin:0 0 10px;color:var(--muted);font-size:13px;line-height:1.5; }
+.operations-desk .ops-cargo-dialog .cargo-stage { min-height:200px; }
+.ops-cargo-dialog .ops-box { bottom:85px; }
+.operations-desk .ops-notice { margin:12px 20px;padding:12px;border:1px solid #e4bd7a80;color:#ffe0ac;overflow-wrap:anywhere; }
+@media(max-width:1100px) and (min-width:901px) {
+  .ops-navigation { width:100%;justify-content:flex-start; }
+  .flight-operations.operations-desk { grid-template-columns:minmax(0,1fr) minmax(360px,1fr); }
+}
+@media(max-width:900px) {
+  .flight-operations.operations-desk { height:auto;min-height:100%;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(320px,45vh) auto;grid-template-areas:'mast' 'progress' 'map' 'partner'; }
+  .operations-desk .ops-progress { overflow:visible; }
+  .ops-navigation { width:100%;justify-content:flex-start; }
+  .operations-desk .ops-partner { max-height:none; }
+}
+@media(max-width:570px) {
+  .operations-desk .ops-progress .trial-brief { padding:12px; }
+  .ops-itinerary,.ops-record { margin-inline:12px; }
+  .ops-navigation a,.ops-navigation select { font-size:12px;padding:6px 9px; }
+  .ops-cargo-dialog { padding:12px; }
+  .operations-desk .ops-cargo-dialog .cargo-stage { min-height:160px; }
+}
+
+.ops-position { margin:0;color:var(--muted);font-size:13px;line-height:1.5; }
+/* Override the older workspace grid inside the progress brief. */
+.at-console .workspace-operations .operations-desk .ops-progress .trial-brief { display:flex;flex-direction:column; }
+.at-console .workspace-operations .operations-desk .ops-tasks { padding-left:0;counter-reset:none; }
+.at-console .workspace-operations .operations-desk .ops-tasks li { display:block;padding:0;border:0; }
+.at-console .workspace-operations .operations-desk .ops-tasks li::before { display:none; }

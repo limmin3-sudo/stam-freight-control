@@ -1,13 +1,6 @@
 /* The edge is sliced, so corner hardware stays the same size on every instrument. */
-@font-face {
-  font-family: "Pretendard Desk";
-  src: url("./assets/fonts/PretendardVariable.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-}
 .flight-operations.operations-desk{
- --desk-font:"Pretendard Desk",SUIT,system-ui,sans-serif;
+ --desk-font:SUIT,system-ui,sans-serif;
  background:linear-gradient(110deg,#04121ce3,#03101bd1 60%,#06151de8),url("./assets/control-room-clean-plate.png") center / cover fixed;
  padding:clamp(10px,1.2vw,22px);gap:clamp(9px,1vw,18px);--ice:#9ce9fb;--muted:#abc8d0;--ink:#edfaff;--gold:#ffdaa5
 }

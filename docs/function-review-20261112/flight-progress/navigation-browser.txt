@@ -1,0 +1,8 @@
+map ready
+orbit done
+pan done
+shift pan done
+legacy camera gestures pass
+systems, moon focus, route framing, cargo ownership, preview isolation, locale, mobile and shared operations map pass
+PASS: bridge table to standalone chart, navigation/reload with cargo, delivery and undo
+PASS: 3D navigation + cargo regression checks. Screenshots: /tmp/stam-followup-navigation

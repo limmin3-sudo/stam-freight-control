@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {quantityBasis} from '../src/quantity-basis.ts';
 import {quantityPlan} from '../src/mission-quantities.mjs';
 import {missionFor,canonicalPlace,calculateFlight} from '../src/flight-engine.mjs';
 import {reviewReceipt} from '../src/receipt-edit.mjs';
@@ -15,6 +16,7 @@ test('catalogue maxima are optional estimates, never actual pickup quantities',(
  const job=pooled(),before=structuredClone(job),raw=missionFor(job);
  assert.equal(quantityPlan(raw,false).ready,false);
  const result=quantityPlan(raw);
+ assert.equal(quantityBasis(job,'en'),'Upper bound · Actual quantity unknown');
  assert.equal(result.ready,true);assert.equal(result.scu,32);assert.equal(result.certainty,'upper-bound');
  assert.ok(result.mission.cargo.every(r=>r._scuEstimated===true));assert.deepEqual(job,before);
  const plan=calculateFlight({...emptyDraft(),partner:'navigator',jobs:[job]});
@@ -26,6 +28,7 @@ test('entered total replaces the ceiling once, preserves pickups and independent
  const fixed=reviewReceipt(job,{...job,reservations:{[to]:22}});
  assert.equal(quantityPlan(missionFor(fixed)).certainty,'quantity');
  assert.equal(quantityPlan(missionFor(fixed)).scu,22);
+ assert.equal(quantityBasis(fixed,'en'),'Known total · Estimated boxes');
  assert.deepEqual(fixed.shipments.map(r=>r.scu),[0,0]);
  const second=reviewReceipt(pooled('other'),{...pooled('other'),reservations:{[to]:18}});
  const plan=calculateFlight({...emptyDraft(),ship:'C2 Hercules',partner:'navigator',jobs:[fixed,second]});

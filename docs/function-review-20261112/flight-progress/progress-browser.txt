@@ -1,0 +1,3 @@
+PASS: progress-first desktop
+PASS: cargo modal and keyboard isolation
+PASS: flight-first layout, optional recorded/planned cargo, keyboard isolation, locale, reload/undo, mobile and route-only operator

@@ -1,3 +1,4 @@
+import {quantityBasis} from './quantity-basis';
 import {lazy,Suspense,useState} from 'react';
 import type {useFlight} from './use-flight';
 import type {Locale} from './navigation';
@@ -43,7 +44,7 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
     </section>}
     <ol className="chart-stops">{plan?.visits.map((v,index)=><li key={index} data-active={selected===index}>
      <button className="chart-stop-select" aria-pressed={selected===index} onClick={()=>go(index)}><span className="chart-stop-number">{String(index+1).padStart(2,'0')}</span><span><strong>{where(v.locationId)}</strong><small>{index===0?t('출발','Departure'):v.leg.meters>=1e9?`${(v.leg.meters/1e9).toFixed(1)} Gm`:`${Math.round(v.leg.meters/1000).toLocaleString()} km`}{run?.started&&index<run.index?' · '+t('완료','Complete'):''}</small></span></button>
-     <ul className="chart-stop-events">{v.events.filter(e=>e.type!=='departure').map((event,i)=><li key={i} data-kind={event.type}><span>{event.type==='pickup'?'↑':'↓'}</span><div>{event.type==='pickup'?t('픽업','Pickup'):t('배송','Delivery')} · {cargoName(event.commodity)}<small>{event.reservationContinuation||event.reservationScu?t('배송 총량으로 공간 예약','Space reserved by delivery total'):event.pickupQuantityUnknown||plan.mode==='simple'&&!event.scu?t('수량 미확인','Quantity unknown'):`${event.scu} SCU`}{event.estimatedBoxes?' · '+t('상자 예상','Estimated boxes'):''}</small>{event.type==='pickup'&&event.deliveryId&&<small>→ {where(event.deliveryId)}</small>}</div></li>)}</ul>
+     <ul className="chart-stop-events">{v.events.filter(e=>e.type!=='departure').map((event,i)=><li key={i} data-kind={event.type}><span>{event.type==='pickup'?'↑':'↓'}</span><div>{event.type==='pickup'?t('픽업','Pickup'):t('배송','Delivery')} · {cargoName(event.commodity)}<small>{event.reservationContinuation||event.reservationScu?t('배송 총량으로 공간 예약','Space reserved by delivery total'):event.pickupQuantityUnknown||plan.mode==='simple'&&!event.scu?t('수량 미확인','Quantity unknown'):`${event.scu} SCU`}{event.estimatedBoxes?' · '+t('상자 예상','Estimated boxes'):''}</small><small>{t('계약','Contract')} · {quantityBasis(flight.session.draft.jobs.find(job=>job.id===event.missionId),locale)}</small>{event.type==='pickup'&&event.deliveryId&&<small>→ {where(event.deliveryId)}</small>}</div></li>)}</ul>
      {!!v.jumps.length&&<p className="chart-jumps">{v.jumps.map(j=>`${where(j.entryId)} → ${where(j.exitId)}`).join(' / ')}</p>}
      {plan.mode!=='simple'&&<div className="chart-load"><span>{t('작업 후','After stop')} <b>{v.load} SCU</b></span><meter min={0} max={Math.max(1,plan.capacity||0)} value={v.load}/>{selected===index&&<button onClick={()=>{setCargo(true);setBox(null);}}>{t('적재 3D 보기','Inspect cargo 3D')} ↗</button>}</div>}
     </li>)}</ol>
@@ -53,7 +54,7 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
   {cargo&&plan&&visit&&plan.mode!=='simple'&&<dialog ref={node=>{if(node&&!node.open)node.showModal();}} className="chart-cargo-overlay" role="dialog" aria-modal="true" aria-label={t('거점 작업 후 적재','Cargo after this stop')} onCancel={e=>{e.preventDefault();setCargo(false);}} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setCargo(false);}}}>
    <header><div><small>CARGO / HOLOGRAPHIC INSPECTION</small><h2>{where(visit.locationId)} · {t('작업 후 예상 배치','Planned load after stop')}</h2></div><button autoFocus onClick={()=>setCargo(false)}>{t('닫기','Close')} ×</button></header>
    <Suspense fallback={<p>3D…</p>}><CargoViewport ship={plan.ship as CargoShip} packing={{...visit.packing,capacity:plan.capacity||0,used:visit.load} as Packing} locale={locale} selected={box} onSelect={setBox}/></Suspense>
-   <p className="chart-cargo-caption">{selection?`${selection.size} SCU · ${where(selection.dropoffId)} · ${selection.commodity} · ${selection.missionId}`:t('상자를 선택하면 배송지와 소속 계약을 확인합니다. 운항 진행을 바꾸지 않는 계획 미리보기입니다.','Select a crate for destination and contract. This planned preview does not change flight progress.')}</p>
+   <p className="chart-cargo-caption">{selection?`${selection.size} SCU · ${where(selection.dropoffId)} · ${cargoName(selection.commodity)} · ${selection.missionId} · ${quantityBasis(flight.session.draft.jobs.find(job=>job.id===selection.missionId),locale)}`:t('상자를 선택하면 배송지와 소속 계약을 확인합니다. 운항 진행을 바꾸지 않는 계획 미리보기입니다.','Select a crate for destination and contract. This planned preview does not change flight progress.')}</p>
   </dialog>}
  </main>;
 }
