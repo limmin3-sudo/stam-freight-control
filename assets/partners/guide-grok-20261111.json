@@ -20,5 +20,7 @@
   "fullbodyAlphaRefined": true,
   "fullbodyRGBUnchanged": true,
   "matteTool": "BiRefNet",
-  "fullbodyVersion": "director-standing-grok-mattefix-20261111.png"
+  "fullbodyVersion": "director-standing-grok-mattefix-20261111.png",
+  "status": "superseded-2026-11-12-original-guide-restored",
+  "restorationRecord": "docs/cinematics/guide-restoration-20261112/README.md"
 }

@@ -1,0 +1,14 @@
+{
+  "post": "https://grok.com/imagine/post/51daf2fd-c1d4-49ce-8a04-0ab48c3ef93a",
+  "file": "original.mp4",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "frames": 145,
+  "durationSeconds": 6.041667,
+  "hasAudio": true,
+  "audioDialogueAudited": false,
+  "runtimeConnected": true,
+  "endBackground": "Original 1672x941 lounge with restored guide; decoded video frame used only for review",
+  "reencoded": false
+}

@@ -1,0 +1,12 @@
+Create a 15-second photorealistic silent idle loop, landscape 16:9, preferably 1080p. Use the supplied desk image as the exact initial composition and final loop target. Preserve the same adult blonde Flight Guide, face, tied hair, white gold-button uniform, black skirt, black sleeve on HER RIGHT arm, left wristwatch, lighting, counter and room. Locked camera; no zoom, movement or cuts.
+
+0–3s: relaxed original pose, subtle breathing, soft closed-mouth expression, a natural blink; right palm rests lightly on the counter.
+3–6s: use her LEFT hand to gently tuck a loose strand behind her left ear, then lower it. Keep the hairstyle and hair tie unchanged. Small natural glance, then look back at the visitor.
+6–8s: quiet pause, subtle head adjustment, occasional natural blink.
+8–11s: use her LEFT hand to briefly smooth a small fabric crease near the collarbone and upper button placket. One short professional uniform-adjusting gesture, touching clothing only. Keep all buttons closed and neckline unchanged. Do not tug the shirt open or downward, exaggerate body movement or focus on the chest.
+11–13s: return the left hand to its original resting position, make a tiny comfortable posture adjustment without stepping or leaning toward the camera.
+13–15s: settle into the exact starting hand positions, head angle and closed-mouth expression. Match the starting pose and lighting for looping.
+
+Keep gestures restrained and separated by pauses. Anatomically correct fingers and stable contact with the counter. No speaking, lip movements suggesting speech, waving, walking, exaggerated swaying, bouncing or rhythmic blinking. The receptionist remains quiet with minimal movement; no background events that would visibly jump at the loop boundary. Detailed skin, hair and fabric, stable identity. No fade, reversed footage, dissolve, UI, captions, added objects or audio.
+
+Production note: the live menu will remain on the high-resolution still per the user's latest instruction; this loop is an optional separate asset and must not automatically replace the menu background.

@@ -11,7 +11,6 @@ import desk from './assets/guide/desk-end.png';
 import lounge from './assets/guide/lounge-start.png';
 import returnEnd from './assets/guide/lounge-return.png';
 import './guide-desk.css';
-export {lounge as guideLoungeFrame,returnEnd as guideReturnFrame};
 export type GuideDeskHandle={navigate(screen:SpaceScreen):void};
 const english:Record<string,string>={
  '플라이트 가이드':'Flight Guide','STAM · 안내 데스크':'STAM · Welcome desk','무엇을 도와드릴까요?':'How can I help?',
@@ -31,6 +30,8 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
  useImperativeHandle(ref,()=>({navigate(screen){void api.current?.navigate(screen);}}),[]);
  useLayoutEffect(()=>{
   const root=host.current;if(!root)return;
+  // Approved approach flows into the new idle loop under live panels.
+  // High-resolution PNGs remain fallback and the lounge destination background.
   let html=template;
   for(const [token,url] of Object.entries({'__APPROACH__':approach,'__IDLE__':idle,'__RETURN__':returning,'__LOUNGE__':lounge,'__DESK__':desk,'__RETURN_END__':returnEnd}))html=html.replaceAll(token,url);
   root.innerHTML=html;

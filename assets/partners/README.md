@@ -1,3 +1,7 @@
+## 2026-11-12 active identity — original guide restored
+
+The user explicitly restored the original blonde guide, superseding the Grok identity below. Active full-body and portrait aliases were restored from the pre-replacement backup. Historical versioned images and videos are preserved. See `docs/cinematics/guide-restoration-20261112/README.md` for restored assets, edited desk frame and six-second Korean-speaking approach prompt.
+
 
 ## 2026-11-11 Grok guide replacement
 

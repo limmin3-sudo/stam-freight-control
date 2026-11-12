@@ -9,7 +9,7 @@ import cleanPlate from './assets/control-room-clean-plate.png';
 import { ControlRoom } from './ControlRoom';
 import {ServiceAccountHistory} from './ServiceAccountHistory';
 import {useFlight} from './use-flight';
-import {GuideDesk,guideLoungeFrame,guideReturnFrame} from './GuideDesk';
+import {GuideDesk} from './GuideDesk';
 import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
@@ -17,6 +17,7 @@ import { isStation, parentSpace, parseSpaceRoute, spaceHash } from './space-navi
 import type { SpaceScreen } from './space-navigation';
 import type { Locale } from './navigation';
 import logo from '../../../assets/stam-logo-transparent.png';
+import standingDirector from './assets/director-standing.png';
 import bridgeOperator from './assets/operator-identity-v2.png';
 import bridgeNavigator from './assets/navigator-standing.png';
 import intro from '../../../assets/intro/intro.mp4';
@@ -49,7 +50,6 @@ export function SpaceExperience() {
   const greetingVisits=useRef<Record<PartnerId,number>>({director:0,operator:0,navigator:0});
   const [mapDock,setMapDock]=useState<HTMLDivElement|null>(null);
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
-  const [returnedLounge,setReturnedLounge]=useState<string|null>(null);
   const guideController=useRef<GuideDeskHandle|null>(null);
   const guideApproach=useRef(true);
   const [active, setActive] = useState<string | null>(null);
@@ -226,12 +226,13 @@ export function SpaceExperience() {
       {isOverview ? <section className="space-overview" aria-labelledby="space-title">
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${spaceConfig.approachMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
           <div className="space-camera">
-            <img key={scene} className="space-background" src={scene==='lounge'?(returnedLounge??guideLoungeFrame):configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
+            <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
             {scene === 'bridge' && <svg className="bridge-background-patches" viewBox="0 0 1672 941" aria-hidden="true">
               <defs><filter id="bridge-patch-feather"><feGaussianBlur stdDeviation="5" /></filter><mask id="bridge-patch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941">
                 {bridgePatches.map((p,i)=><rect key={i} x={p.x} y={p.y} width={p.width} height={p.height} rx={p.radius} fill="white" filter="url(#bridge-patch-feather)"/>)}
               </mask></defs><image href={cleanPlate} width="1672" height="941" mask="url(#bridge-patch-mask)"/>
             </svg>}
+            {scene === 'lounge' && <div className="space-person space-standing-director" aria-hidden="true"><img src={standingDirector} alt="" width="887" height="1774" /></div>}
             {scene === 'lounge' && <svg className="space-spotlight" viewBox="0 0 1672 941" aria-hidden="true">
               <defs>
                 <filter id="space-block-feather" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
@@ -305,7 +306,7 @@ export function SpaceExperience() {
         <div className="space-scene-note"><span>{scene === 'lounge' ? 'STAM / WELCOME ABOARD' : 'STAM / ORBITAL FREIGHT DIVISION'}</span><p>{en ? 'Select a location, or use the shortcuts.' : '공간 속 대상을 선택하거나 바로가기를 이용하세요.'}</p></div>
       </section> : route.screen==='guide' ? <GuideDesk ref={guideController} locale={route.locale} startWithApproach={guideApproach.current} motion={motion} sound={sound}
         onNavigate={screen=>{location.hash=spaceHash({...route,screen});}}
-        onLounge={()=>{setReturnedLounge(guideReturnFrame);location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title">
+        onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title">
         <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
         <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{word(names[route.screen])}</h1></div><a className="return-link" href={href('lounge')}>↖ {en ? 'Return to lounge' : '라운지로'}</a></header>
         {route.screen === 'service' && <div className="space-information space-service">

@@ -5,12 +5,12 @@ const output = new URL('../src/', import.meta.url);
 const media = new URL('assets/guide/', output);
 await fs.mkdir(media, {recursive:true});
 const assets = {
- 'approach.mp4':'grok-approach-selected-20261112/lounge-to-desk-grok.mp4',
- 'idle-ab.mp4':'grok-desk-idle-20261112/desk-idle-ab-alternating.mp4',
- 'return.mp4':'grok-lounge-return-20261112/desk-to-lounge-grok-original.mp4',
- 'lounge-start.png':'grok-approach-selected-20261112/actual-first-frame.png',
- 'desk-end.png':'grok-approach-selected-20261112/actual-last-frame.png',
- 'lounge-return.png':'grok-lounge-return-20261112/return-actual-last.png',
+ 'approach.mp4':'../guide-restoration-20261112/approved-approach/original.mp4',
+ 'idle-ab.mp4':'../guide-restoration-20261112/idle-loop/original.mp4',
+ 'return.mp4':'../guide-restoration-20261112/approved-return/original.mp4',
+ 'lounge-start.png':'../guide-restoration-20261112/01-lounge-start.png',
+ 'desk-end.png':'../guide-restoration-20261112/02-desk-end-edited.png',
+ 'lounge-return.png':'../guide-restoration-20261112/01-lounge-start.png',
 };
 for(const [name,path] of Object.entries(assets)) await fs.copyFile(new URL(path,source),new URL(name,media));
 const html=await fs.readFile(new URL('desk-arrival-preview.html',source),'utf8');
@@ -21,6 +21,7 @@ let markup=symbols+html.slice(html.indexOf('<main '),html.indexOf('</main>')+7);
 const widePaths=markup.match(/<symbol id="wide-frame-shape"[^>]*>([\s\S]*?)<\/symbol>/)?.[1];
 if(!widePaths)throw Error('Missing approved frame');
 markup=markup.replace(/<use href="#wide-frame-shape"\s*\/>/,widePaths);
+markup=markup.replace('선택한 영상의 실제 마지막 프레임','고해상도 안내데스크 사진');
 markup=markup.replace('</main>',`<div class="guide-media-controls"><button id="sound" type="button" aria-pressed="false">소리 켜기</button><button id="skip" class="guide-skip" type="button">이동 건너뛰기</button><button id="toggle" type="button" aria-expanded="false" aria-controls="stage" disabled>홀로그램 펼치기</button></div><span id="status" class="guide-status" aria-live="polite"></span></main>`);
 for(const [from,to] of Object.entries({'selected-approach.mp4':'__APPROACH__','selected-idle.mp4':'__IDLE__','selected-return.mp4':'__RETURN__','actual-first-frame.png':'__LOUNGE__','actual-last-frame.png':'__DESK__','return-last-frame.png':'__RETURN_END__'})) markup=markup.replaceAll(from,to);
 await fs.writeFile(new URL('guide-desk-template.html',output),markup);
