@@ -1,0 +1,49 @@
+{
+  "tool": "image_gen",
+  "reference": "docs/cinematics/lounge-guide/lounge-guide-hologram-ui-v1.png",
+  "status": "new generated asset layers; not restored original, not yet applied to runtime",
+  "layers": [
+    {
+      "asset": "unified-glass-surface.png",
+      "size": [
+        1561,
+        1007
+      ],
+      "centerRGBA": [
+        1,
+        37,
+        51,
+        253
+      ],
+      "displayOpacity": 0.2,
+      "sha256": "9f4372ebc6c927b4c4e78978f42905075f62cc768b9c1bf41f6aba50fe4649ee"
+    },
+    {
+      "asset": "unified-glass-rim.png",
+      "size": [
+        1562,
+        1007
+      ],
+      "centerRGBA": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "displayOpacity": 1,
+      "sha256": "21d1747bbc9b6315801682ec690ae38bef894bfaf4bd3f6e746c82222ced96e3"
+    }
+  ],
+  "runtimeChanged": false,
+  "userVisualApproval": false,
+  "resize": {
+    "preserveAspectRatio": true,
+    "independentWidthHeight": "Use nine-slice/corner-preserving layout; not implemented or tested yet"
+  },
+  "notes": [
+    "Surface raw center alpha is 253/255; render opacity 0.2 is a proposed composite setting, not baked alpha.",
+    "Rim center alpha is 0. Keep rim brightness independent of surface opacity.",
+    "Layer widths differ by one pixel (1561 vs 1562); align their rendered bounds.",
+    "Do not identify these generated assets as recovered original materials."
+  ]
+}

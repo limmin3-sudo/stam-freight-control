@@ -1,3 +1,9 @@
+## 2026-11-12 연출 마감 — 생성 자산·조사·반려 시안 인계
+
+- 별도 브랜치 `cinematic/approved-hologram-restoration-20261112`, 시작 기준 `737b957`. 새 image_gen 큰 단일 홀로그램의 유리 면/테두리 PNG를 보존했다. 호박빛 포인트 포함. 원본 복구가 아니라 새 생성 자산이며, 사용자 시각 승인·실제 앱 연결은 미완료다.
+- 반려된 CSS/재구성 실행 코드는 `docs/cinematics/approved-hologram-restoration-20261112/rejected-runtime/`에 격리했다. 실제 GuideDesk/PartnerConversation은 시작 기준과 같고 기존 영상·기능을 보존한다. 상세: [기능 담당 인계](docs/CINEMATIC-FUNCTION-HANDOFF-20261112.md).
+- main/공통 개발 인계 직접 반영 금지. 기능 담당이 통합·검증·배포하고 새 기준 SHA를 전달한다. SpaceExperience.tsx 미변경. 2.5D 관제센터 인물 클릭 방식의 파트너 선택은 후속 연출로 남긴다.
+
 ## 2026-11-12 연출 클라우드 — beta 2.5.0 게이트 이동 누락 복원
 
 - 기준 `397f19a`, 작업 브랜치 `cinematic/gate-travel-sequence-20261112`. 배포본은 게이트 클릭 시 탑승 9.208초만 재생하여 확정된 게이트 접근과 셔틀 도착·착륙이 빠졌다. 세 구간을 23.833초 한 파일로 연결하고 기존 완료·취소·소리·바로가기·운항 상태를 유지했다.

@@ -1,0 +1,14 @@
+{
+  "reference": "docs/cinematics/lounge-guide/lounge-guide-hologram-ui-v1.png",
+  "extracted": "docs/cinematics/approved-hologram-restoration-20261112/panels-extracted-reference.png",
+  "sha256": "0e4d459a75e21df135588fd3c87e795497f4949fa722933c0497cd66f34f4e18",
+  "method": "image_gen background removal from approved reference; not a lossless pixel crop",
+  "dimensions": [
+    1670,
+    941
+  ],
+  "purpose": "Perspective/material/lettering review, not runtime deployment",
+  "perspective": "Keep distinct left and right foreshortening and apparent scale; do not mirror or force identical rectangles",
+  "runtimeChanged": false,
+  "exactSourcePreview": "index.html uses unchanged approved PNG; viewport screenshot matched source pixels"
+}
