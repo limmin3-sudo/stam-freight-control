@@ -16,6 +16,8 @@ import {useFlight} from './use-flight';
 import {GuideDesk} from './GuideDesk';
 import {ShuttleBoarding} from './ShuttleBoarding';
 import {ConsoleArrival} from './ConsoleArrival';
+import {PilotDesk,type PilotAction} from './PilotDesk';
+import {PilotTopbar} from './PilotTopbar';
 import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
@@ -35,9 +37,9 @@ import './content-optics.css';
 import './console-arrival.css';
 
 const names: Record<SpaceScreen, readonly [string, string]> = {
-  lounge: ['STAM 라운지', 'STAM Lounge'], bridge: ['STAM 관제센터', 'STAM Control Centre'],
-  guide: ['안내 데스크', 'Welcome desk'], information: ['정보실', 'Information'],
-  cinema: ['영상관', 'Cinema'], service: ['서비스센터', 'Service centre'], mission: ['미션 콘솔', 'Mission console'],
+  lounge: ['SPACEPORT LOUNGE', 'SPACEPORT LOUNGE'], bridge: ['CONTROL CENTER', 'CONTROL CENTER'],
+  guide: ['안내 데스크', 'Welcome desk'], information: ['아카이브', 'Archive'],
+  cinema: ['시네마', 'Cinema'], service: ['서비스센터', 'Service centre'], mission: ['미션 콘솔', 'Mission console'],
   map: ['항로 지도', 'Star map'], operations: ['관제 콘솔', 'Control console'],
 };
 // Read-only public resources. This preview never imports the legacy app's DOM
@@ -61,6 +63,7 @@ export function SpaceExperience() {
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const guideController=useRef<GuideDeskHandle|null>(null);
   const guideApproach=useRef(true);
+  const [pilotAction,setPilotAction]=useState<PilotAction|null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [pending, setPending] = useState<Entry | null>(null);
   const [powerOn, setPowerOn] = useState(false);
@@ -180,6 +183,13 @@ export function SpaceExperience() {
     } else heading.current?.focus({ preventScroll: true });
   }, [route.screen, isOverview, configuration, scene]);
 
+  useEffect(()=>{
+    if(!pilotAction||route.screen!=='mission')return;
+    const selectors:Record<PilotAction,string>={ship:'.mission-preflight select[aria-label="함선"],.mission-preflight select[aria-label="Ship"]',partner:'.mission-preflight select[aria-label="운항 파트너"],.mission-preflight select[aria-label="Flight partner"]',missions:'.mission-intake',log:'.receipt-import button'};
+    const focus=()=>{const node=document.querySelector<HTMLElement>(selectors[pilotAction]);if(!node)return;node.tabIndex=node.tabIndex<0?-1:node.tabIndex;node.scrollIntoView({block:'center'});node.focus({preventScroll:true});setPilotAction(null);};
+    focus();const observer=new MutationObserver(focus);observer.observe(document.querySelector('.space-main')!,{childList:true,subtree:true});return()=>observer.disconnect();
+  },[pilotAction,route.screen,route.locale]);
+
   const tone = (confirmed = false) => {
     const ctx = audio.current;
     if (!sound || !ctx || ctx.state !== 'running' || performance.now() - lastTone.current < 140) return;
@@ -266,6 +276,7 @@ export function SpaceExperience() {
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
         <span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
       </a>
+      <PilotTopbar receipts={flight.receipts} en={en} onLog={event=>{setPilotAction('log');enter(event,'mission');}}/>
       <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
       <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
         cancel();
@@ -381,6 +392,7 @@ export function SpaceExperience() {
         </div><div className="space-cinema-caption"><span>STAM / FREIGHT CONTROL</span><p>{en ? 'The STAM fleet, beyond the horizon.' : '더 넓은 우주로 향하는 STAM 함대.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
       </section>}
       {route.screen!=='guide' && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
+        <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
         <SpaceNavigation screen={route.screen} locale={route.locale} pending={!!pending} href={href} onNavigate={enter}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {

@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "ko: fixed English brands/localized Archive & Cinema, real ship/partner/mission count, hover without menu movement, click pin/collapse, storage unchanged",
+    "mix: fixed English brands/localized Archive & Cinema, real ship/partner/mission count, hover without menu movement, click pin/collapse, storage unchanged",
+    "en: fixed English brands/localized Archive & Cinema, real ship/partner/mission count, hover without menu movement, click pin/collapse, storage unchanged",
+    "Topbar login opens existing account dialog; Escape leaves space unchanged",
+    "Active flight change action reaches existing locked controls without bypass",
+    "Reset cancellation preserves all state; accepted reset clears only run/plan and keeps contracts/ship/partner",
+    "Partner change focuses existing unlocked preparation selector",
+    "Service account management reuses same account controller",
+    "390px touch-style toggle, horizontal topbar states, no page overflow",
+    "Topbar distinguishes one-time file read from watching and stopped watch (synthetic file + mocked file picker)"
+  ],
+  "errors": [],
+  "fixture": "generated with existing calculateFlight + blankRun/startRun; no user data"
+}

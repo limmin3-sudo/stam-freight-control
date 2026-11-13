@@ -1,16 +1,13 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 import type {Locale} from './navigation';
 import {HISTORY_KEY, readHistory, serviceControls} from './service-account.mjs';
 import './service-account.css';
 
 export function ServiceAccountHistory({locale}: {locale: Locale}) {
   const en = locale === 'en';
-  const host = useRef<HTMLDivElement>(null);
   const [records, setRecords] = useState(() => readHistory());
   const [message, setMessage] = useState('');
   useEffect(() => {
-    const {accountButton} = serviceControls();
-    host.current?.append(accountButton);
     const refresh = () => setRecords(readHistory());
     const storage = (event: StorageEvent) => {
       if (!event.key || event.key === HISTORY_KEY) refresh();
@@ -21,7 +18,6 @@ export function ServiceAccountHistory({locale}: {locale: Locale}) {
     window.addEventListener('stam-account-message', announce);
     refresh();
     return () => {
-      accountButton.remove();
       window.removeEventListener('storage', storage);
       window.removeEventListener('sfc-history-changed', refresh);
       window.removeEventListener('stam-account-message', announce);
@@ -32,7 +28,7 @@ export function ServiceAccountHistory({locale}: {locale: Locale}) {
     <section className="service-record">
       <h2>{en ? 'Account' : '계정'}</h2>
       <p>{en ? 'Sign in to sync completed runs across devices.' : '로그인하면 다른 기기에서도 완료한 운송기록을 확인할 수 있어요.'}</p>
-      <div ref={host} className="service-account-control" />
+      <div className="service-account-control"><button type="button" onClick={()=>serviceControls().accountButton.click()}>{en?'Manage account':'계정 관리'}</button></div>
       {message && <p role="status">{message}</p>}
     </section>
     <section className="service-record" aria-live="polite">
