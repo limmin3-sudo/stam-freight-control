@@ -7,12 +7,12 @@ const W=1672,H=941,aspect=W/H,fov=42,tan=Math.tan(THREE.MathUtils.degToRad(fov/2
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,t)=>{const p=clamp((t-a)/(b-a));return p*p*(3-2*p);};
 let renderer,scenes,cameras,targets,blendScene,blendCamera,blendMaterial;
-let guideMesh,ready=false,time=0,playing=false,raf=0,last=0,voice=false,spoken=-1;
+let guideMesh,leadingGuide,entranceGuide,ready=false,time=0,playing=false,raf=0,last=0,voice=false,spoken=-1;
 let frameSamples=[],lastRender=0,draws=0,quality=1,minimumQuality=1,slowFrames=0;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lines=[
  {at:.1,until:3.6,text:'셔틀 출발 전에 잠깐 둘러볼까요? 먼저 시네마로 가시죠.'},
- {at:4,until:8.4,text:'오른쪽에 보이는 곳이 시네마예요. 이쪽으로 오세요.'},
+ {at:4,until:8.4,text:'이쪽이에요. 제가 앞에서 안내해 드릴게요. 먼저 시네마부터 보시죠.'},
  {at:10.9,until:16.1,text:'이곳에서는 준비된 영상을 감상하실 수 있어요. 둘러보실 시간은 나중에 드릴게요. 지금은 셔틀 시간에 맞춰 움직이시죠.'},
 ];
 const phase=t=>t<.02?'ready':t<2?'departing':t<8.6?'travelling':t<10.7?'approaching':t<11.1?'ignition':'cinema';
@@ -48,12 +48,28 @@ function relief(scene,texture,far,near,horizon){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setIndex(indices);
  const mesh=new THREE.Mesh(geometry,photoMaterial(texture));mesh.frustumCulled=false;scene.add(mesh);return mesh;
 }
+// Full-body cards keep the source aspect ratio and a fixed world-space foot
+// contact. The camera follows them; the planted poses are not slid over the floor.
+function guideAhead(scene,texture,x,footY,pixelHeight,far,near,horizon){
+ const depth=far-(far-near)*smooth(horizon,1,footY/H),foot=projectPoint(x,footY,depth);
+ const height=pixelHeight/H*2*depth*tan,width=height*texture.image.width/texture.image.height;
+ const material=new THREE.MeshBasicMaterial({map:texture,transparent:true,alphaTest:.02,depthWrite:false});
+ const mesh=new THREE.Mesh(new THREE.PlaneGeometry(width,height),material);
+ mesh.position.copy(foot);mesh.position.y+=height/2;mesh.renderOrder=3;scene.add(mesh);
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=64;const ctx=canvas.getContext('2d');
+ const gradient=ctx.createRadialGradient(32,32,2,32,32,32);gradient.addColorStop(0,'rgba(0,0,0,.4)');gradient.addColorStop(.45,'rgba(0,0,0,.17)');gradient.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gradient;ctx.fillRect(0,0,64,64);
+ const shadow=new THREE.Mesh(new THREE.PlaneGeometry(height*.38,height*.16),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(canvas),transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+ shadow.position.copy(foot);shadow.position.y-=.005;shadow.rotation.x=-Math.PI/2;shadow.renderOrder=2;scene.add(shadow);
+ return {mesh,shadow,foot,pixelHeight,sourceAspect:texture.image.width/texture.image.height};
+}
 function makeCamera(){const c=new THREE.PerspectiveCamera(fov,aspect,.05,100);c.position.set(0,0,0);c.lookAt(0,0,-12);return c;}
 
 async function init(){
  try{
   const loader=new THREE.TextureLoader();
-  const urls=['./assets/desk-clean.png','./assets/guide-cutout.png',root+'lounge-original.png','./assets/cinema-approach.png'];
+  // Use the current app's composite: archival lounge-original.png still has
+  // the discarded central terminal and must never be used for this scene.
+  const urls=['./assets/desk-clean.png','./assets/guide-cutout.png',root+'lounge-original-composite.png','./assets/cinema-approach.png','./assets/guide-leading.png','./assets/guide-entrance.png'];
   const textures=await Promise.all(urls.map(url=>loader.loadAsync(url)));
   textures.forEach(texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;});
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -66,6 +82,8 @@ async function init(){
   guideMesh=plane(scenes[0],textures[1],4.6);
   relief(scenes[1],textures[2],15,6,.54);
   relief(scenes[2],textures[3],14,7,.70);
+  leadingGuide=guideAhead(scenes[1],textures[4],1260,720,330,15,6,.54);
+  entranceGuide=guideAhead(scenes[2],textures[5],1125,823,450,14,7,.70);
   targets=scenes.map(()=>new THREE.WebGLRenderTarget(16,16,{depthBuffer:true}));
   blendScene=new THREE.Scene();blendCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   blendMaterial=new THREE.ShaderMaterial({uniforms:{a:{value:targets[0].texture},b:{value:targets[1].texture},c:{value:targets[2].texture},ab:{value:0},bc:{value:0}},vertexShader:'varying vec2 uv0;void main(){uv0=uv;gl_Position=vec4(position.xy,0.,1.);}',fragmentShader:'uniform sampler2D a;uniform sampler2D b;uniform sampler2D c;uniform float ab;uniform float bc;varying vec2 uv0;void main(){gl_FragColor=mix(mix(texture2D(a,uv0),texture2D(b,uv0),ab),texture2D(c,uv0),bc);\n#include <colorspace_fragment>\n}'});
@@ -93,6 +111,7 @@ function world(t){
  // Inspectable evidence: front/back camera projection is calculated separately.
  const g=projectPoint(1100,360,4.6).project(cameras[0]);const bg=projectPoint(1100,360,14).project(cameras[0]);
  window.__tour.parallax={guideX:g.x,backgroundX:bg.x,delta:g.x-bg.x};
+ window.__tour.guideAssets={leading:leadingGuide.sourceAspect,entrance:entranceGuide.sourceAspect,leadingRenderedAspect:leadingGuide.mesh.geometry.parameters.width/leadingGuide.mesh.geometry.parameters.height,entranceRenderedAspect:entranceGuide.mesh.geometry.parameters.width/entranceGuide.mesh.geometry.parameters.height,leadingWorldPosition:leadingGuide.mesh.position.toArray(),entranceWorldPosition:entranceGuide.mesh.position.toArray()};
 }
 function describe(t){
  const current=lines.findIndex(line=>t>=line.at&&t<line.until);
@@ -107,8 +126,13 @@ function render(t){
  const close=smooth(.65,1.45,time);$('desk-panel').style.transform=`translateX(${-115*close}%)`;$('desk-panel').style.opacity=1-close;
  $('desk-panel').inert=time>.65;
  $('scene-heading').style.opacity=1-smooth(.15,.8,time);
- $('destination').style.opacity=smooth(4,4.7,time)*(1-smooth(7.6,8.2,time));
- $('destination').style.left=`${87-10*smooth(4,8,time)}%`;
+ $('destination').style.opacity=smooth(3.9,4.5,time)*(1-smooth(9.9,10.2,time));
+ const wideMark=projectPoint(1510,470,15).project(cameras[1]),nearMark=projectPoint(1390,320,14).project(cameras[2]),mix=smooth(7.4,8.5,time);
+ $('destination').style.left=`${clamp(THREE.MathUtils.lerp((wideMark.x+1)*50,(nearMark.x+1)*50,mix),45,94)}%`;
+ const markerTop=clamp(THREE.MathUtils.lerp((1-wideMark.y)*50,(1-nearMark.y)*50,mix),18,63);
+ $('destination').style.top=`${markerTop}%`;
+ if(viewer.clientWidth<=760){const anchorY=markerTop/100*viewer.clientWidth/aspect;$('destination').style.setProperty('--label-top',`${Math.max(8,anchorY-92)-anchorY}px`);}else $('destination').style.removeProperty('--label-top');
+ window.__tour.guideStage=time<3?'desk':time<7.9?'ahead':time<11.1?'entrance':'screen';
  const dark=smooth(10.15,10.65,time);$('blackout').style.opacity=dark;
  $('standby').style.opacity=smooth(10.45,10.7,time)*(1-smooth(10.92,11.15,time));
  const live=smooth(10.95,11.2,time);$('live-cinema').style.opacity=live;
@@ -134,6 +158,6 @@ $('voice').addEventListener('click',()=>{if(!('speechSynthesis'in window)){$('st
 $('next-stop').addEventListener('click',()=>{$('arrival-note').hidden=false;$('arrival-note').textContent='시네마 소개는 여기까지예요. 다음은 아카이브로 안내해 드릴게요. (이번 시안은 여기서 끝납니다.)';});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing){pause();$('status').textContent='창을 벗어나 안내를 일시정지했습니다';}});
 window.addEventListener('keydown',event=>{if(event.target.closest('input,button,iframe'))return;if(event.code==='Space'){event.preventDefault();playing?pause():play();}if(event.key==='Escape'){if(playing)pause();$('arrival-note').hidden=true;}});
-window.addEventListener('pagehide',()=>{pause();targets?.forEach(target=>target.dispose());scenes?.forEach(scene=>scene.traverse(object=>{object.geometry?.dispose();if(object.material){object.material.uniforms?.map?.value.dispose();object.material.dispose();}}));renderer?.dispose();});
+window.addEventListener('pagehide',()=>{pause();targets?.forEach(target=>target.dispose());scenes?.forEach(scene=>scene.traverse(object=>{object.geometry?.dispose();if(object.material){object.material.uniforms?.map?.value.dispose();object.material.map?.dispose();object.material.dispose();}}));renderer?.dispose();});
 window.__tour={ready:false,time:0,phase:'loading',draws:0,seek,play,pause,metrics:()=>({draws,frameSamples,playing,minimumQuality,webgl:!!renderer,videoElements:document.querySelectorAll('video').length})};
 init();

@@ -5,16 +5,21 @@ const {chromium}=await import(process.env.STAM_PLAYWRIGHT_MODULE||'playwright-co
 const out=fileURLToPath(new URL('./',import.meta.url));
 const browser=await chromium.launch({executablePath:process.env.STAM_CHROMIUM||'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
 const url=process.env.STAM_PREVIEW_URL||'http://127.0.0.1:5196/';
-const errors=[],badResponses=[],checks=[];
+const errors=[],badResponses=[],checks=[],deprecatedRequests=[];let approvedBackgroundLoaded=false;
 try{
  const ctx=await browser.newContext({viewport:{width:1280,height:980},recordVideo:{dir:'/tmp/stam-tour-recording',size:{width:1280,height:980}}});
- const page=await ctx.newPage();page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)badResponses.push(response.url()+' '+response.status());});
+ const page=await ctx.newPage();page.on('request',req=>{if(/\/lounge-original\.png(?:$|\?)/.test(req.url()))deprecatedRequests.push(req.url());if(req.url().endsWith('/lounge-original-composite.png'))approvedBackgroundLoaded=true;});page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)badResponses.push(response.url()+' '+response.status());});
  await page.goto(url,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.__tour?.ready);await page.evaluate(()=>document.fonts.ready);
  assert.equal(await page.locator('#world canvas').count(),1);assert.equal(await page.locator('.viewer>video').count(),0);
  await page.screenshot({path:out+'desktop-start.png'});
  await page.evaluate(()=>window.__tour.seek(2.1));assert.ok(Math.abs(await page.evaluate(()=>window.__tour.parallax.delta))>.015);checks.push('Separate guide/background projections produce measurable parallax; transition uses WebGL, no travel video');
- await page.evaluate(()=>window.__tour.seek(5.7));await page.locator('#viewer').screenshot({path:out+'lounge-travel.png'});
- await page.evaluate(()=>window.__tour.seek(9.4));await page.locator('#viewer').screenshot({path:out+'cinema-approach.png'});
+ await page.evaluate(()=>window.__tour.seek(5.7));
+ const ahead=await page.evaluate(()=>({stage:window.__tour.guideStage,...window.__tour.guideAssets}));assert.equal(ahead.stage,'ahead');assert.ok(Math.abs(ahead.leading-ahead.leadingRenderedAspect)<.00001);assert.ok(Math.abs(ahead.entrance-ahead.entranceRenderedAspect)<.00001);
+ assert.ok(Number.parseFloat(await page.locator('.destination strong').evaluate(n=>getComputedStyle(n).fontSize))>=30);
+ await page.locator('#viewer').screenshot({path:out+'lounge-travel.png'});
+ await page.evaluate(()=>window.__tour.seek(6.7));assert.deepEqual(await page.evaluate(()=>window.__tour.guideAssets.leadingWorldPosition),ahead.leadingWorldPosition);
+ checks.push('Ahead and entrance guide assets retain source aspect; planted world-space foot position stays fixed; desktop cinema label is at least 30px and follows entrance');
+ await page.evaluate(()=>window.__tour.seek(9.4));assert.equal(await page.evaluate(()=>window.__tour.guideStage),'entrance');await page.locator('#viewer').screenshot({path:out+'cinema-approach.png'});
  await page.evaluate(()=>window.__tour.seek(14));const live=page.frameLocator('#live-cinema');await live.locator('.space-cinema').waitFor();
  assert.equal(await live.locator('.space-topbar').count(),1);assert.equal(await live.locator('.space-sidebar').count(),1);assert.equal(await live.locator('.space-play').count(),1);
  await page.screenshot({path:out+'desktop-cinema.png'});checks.push('Arrival mounts the existing built cinema page, preserves actual controls/chrome and continues guide caption');
@@ -25,10 +30,10 @@ try{
  const metrics=await page.evaluate(()=>window.__tour.metrics());const samples=metrics.frameSamples.filter(ms=>ms>0).sort((a,b)=>a-b);const median=samples[Math.floor(samples.length/2)];
  checks.push('Real-time animation reaches the cinema and stops at 16s without browser errors');
  await page.setViewportSize({width:390,height:844});await page.locator('#replay').click();await page.screenshot({path:out+'mobile-start.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
- await page.locator('#skip').click();await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.ok((await page.locator('#viewer').boundingBox()).height>=430);await page.screenshot({path:out+'mobile-cinema.png',fullPage:true});checks.push('390px layout has no horizontal overflow; caption is outside the travel view and actual menu gets a usable portrait height');
+ await page.evaluate(()=>window.__tour.seek(5.7));assert.ok(Number.parseFloat(await page.locator('.destination strong').evaluate(n=>getComputedStyle(n).fontSize))>=22);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:out+'mobile-travel.png',fullPage:true});await page.locator('#skip').click();await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.ok((await page.locator('#viewer').boundingBox()).height>=430);await page.screenshot({path:out+'mobile-cinema.png',fullPage:true});checks.push('390px layout has no horizontal overflow; caption is outside the travel view and actual menu gets a usable portrait height');
  await page.emulateMedia({reducedMotion:'reduce'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>window.__tour.ready);await page.locator('#play').click();assert.ok(await page.evaluate(()=>window.__tour.time)>=11.3);checks.push('Reduced-motion preference skips camera travel');
- assert.deepEqual(errors,[]);assert.deepEqual(badResponses,[]);
- const result={checks,errors,badResponses,softwareBrowser:{medianFrameIntervalMs:Math.round(median*10)/10,approxMedianFps:Math.round(1000/median),minimumMovingRenderScale:metrics.minimumQuality,note:'Headless Chromium/SwiftShader, screen recording enabled; not a hardware FPS guarantee'},nativeTravelVideoElements:0};
+ assert.deepEqual(errors,[]);assert.deepEqual(badResponses,[]);assert.deepEqual(deprecatedRequests,[]);assert.equal(approvedBackgroundLoaded,true);checks.push('Current approved terminal-free lounge composite loaded; discarded original background is never requested');
+ const result={checks,errors,badResponses,deprecatedRequests,approvedBackgroundLoaded,softwareBrowser:{medianFrameIntervalMs:Math.round(median*10)/10,approxMedianFps:Math.round(1000/median),minimumMovingRenderScale:metrics.minimumQuality,note:'Headless Chromium/SwiftShader, screen recording enabled; not a hardware FPS guarantee'},nativeTravelVideoElements:0};
  await writeFile(out+'checks.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));
  const video=page.video();await ctx.close();await video.saveAs('/tmp/stam-tour-full-check.webm');
 }finally{await browser.close();}

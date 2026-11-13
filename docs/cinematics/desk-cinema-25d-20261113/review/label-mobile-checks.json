@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "time": 5.7,
+      "labelInsideStage": true,
+      "fontSize": "22px"
+    },
+    {
+      "time": 9.4,
+      "labelInsideStage": true,
+      "fontSize": "22px"
+    }
+  ],
+  "errors": []
+}

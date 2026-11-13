@@ -1,14 +1,18 @@
 {
   "checks": [
     "Separate guide/background projections produce measurable parallax; transition uses WebGL, no travel video",
+    "Ahead and entrance guide assets retain source aspect; planted world-space foot position stays fixed; desktop cinema label is at least 30px and follows entrance",
     "Arrival mounts the existing built cinema page, preserves actual controls/chrome and continues guide caption",
     "Start/pause/resume state, scrub/replay and arrival skip work; next-stop does not pretend the rest of the tour is implemented",
     "Real-time animation reaches the cinema and stops at 16s without browser errors",
     "390px layout has no horizontal overflow; caption is outside the travel view and actual menu gets a usable portrait height",
-    "Reduced-motion preference skips camera travel"
+    "Reduced-motion preference skips camera travel",
+    "Current approved terminal-free lounge composite loaded; discarded original background is never requested"
   ],
   "errors": [],
   "badResponses": [],
+  "deprecatedRequests": [],
+  "approvedBackgroundLoaded": true,
   "softwareBrowser": {
     "medianFrameIntervalMs": 50,
     "approxMedianFps": 20,
