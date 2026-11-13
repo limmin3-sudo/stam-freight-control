@@ -1,0 +1,10 @@
+{
+  "build": "passed (existing large chunk warning)",
+  "appTestFiles": 15,
+  "appFailed": 0,
+  "rootTests": 238,
+  "rootFailed": 0,
+  "rootSocketRetry": "sandbox: two local-server test files failed; identical full command outside sandbox passed",
+  "browser": "production preview Chromium; ko/mix/en; desktop 1366x768 and mobile 390x844",
+  "integrationOfPR28And29": "not performed; function owner must integrate and verify"
+}
