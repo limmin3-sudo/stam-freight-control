@@ -33,6 +33,17 @@
 
 **SpaceExperience.tsx 전체를 예전 파일로 덮어쓰지 않는다.** 기능 쪽 고정 상단바/사이드바/파트너 선택/하위 페이지/계약·운항 연결을 유지하고 투어 관련 추가 부분만 반영한다. 화면 ID는 기존 `cinema`/`information`/`service`/`lounge`를 유지했다. 공용 테마가 바뀌어도 새 PNG와 장소 소개 대사를 재제작할 필요는 없다.
 
+### #31과의 공유 파일 대조
+
+`git merge-tree`로 #31 HEAD `6fc12a9`와 실제 연결 커밋 `2bd2142`를 작업본 변경 없이 대조했다. 충돌 파일은 `PROJECT_STATUS.md`와 `SpaceExperience.tsx`다. 공유 소스의4개 충돌 지점에 대해 **양쪽 변경을 보존한 추가 패치**를 `integration/pr31-tour-hooks.patch`로 저장했고 #31 트리에 `git apply --cached --check`를 통과했다. [대조 기록](integration/merge-check.json).
+
+- hash 동기화에서는 Archive 펄스 정리와 투어 기대 목적지 처리를 둘 다 둔다.
+- Escape effect 의존성에는 기존 `motion`과 새 `tour`를 둘 다 둔다.
+- 일반 `enter`에서는 투어 종료를 먼저 처리한 뒤 기존 Archive 하위 메뉴 분기를 보존한다.
+- 기존 `href(screen, view?)`를 보존하고 투어의 close/navigate/start만 추가한다.
+
+패치는 #31의 정확한 공유 파일 기준이다. 현재 기능 쪽 파일이 더 바뀌었다면 먼저 `git apply --check`로 대조하고 위4개 원칙으로 병합한다. 전체 파일 교체용 자료가 아니다. 상태 문서는 양쪽 최신 항목을 모두 보존한다. 이 대조는 기능 브랜치를 실제로 합치거나 통합 후 브라우저 검증한 것과 구분한다.
+
 새 자산은 `docs/cinematics/lounge-tour-20261114/assets/`, 데스크/시네마 근접 자산은 #32 폴더를 정적 import한다. 빌드 후 네트워크 요청은 `assets/*-hash.png`이며 `/docs`·`/apps` 개발 경로가 아니다. PNG를 앱 자산 폴더로 옮기면 import만 함께 수정한다.
 
 ## 검증 / 남은 사항

@@ -4,6 +4,8 @@
 
 브랜치 `cinematic/lounge-tour-20261114` / [PR #34](https://github.com/limmin3-sudo/stam-freight-control/pull/34). #32 `b0d8bdb` 위의 후속이다. main/공통 인계 병합·배포는 기능 담당이 한다. [인계](HANDOFF.md).
 
+#31과 겹치는 `SpaceExperience.tsx`의4개 지점을 대조해 양쪽 변경을 보존한 [통합 지원 패치](integration/pr31-tour-hooks.patch)와 [기록](integration/merge-check.json)도 포함했다. 최신 기능 파일에 바로 덮어쓰지 않고 인계의 병합 지침을 따른다.
+
 ## 실제 앱에서 확인
 
 ```sh
