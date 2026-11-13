@@ -15,6 +15,7 @@ import {ServiceAccountHistory} from './ServiceAccountHistory';
 import {useFlight} from './use-flight';
 import {GuideDesk} from './GuideDesk';
 import {ShuttleBoarding} from './ShuttleBoarding';
+import {ConsoleArrival} from './ConsoleArrival';
 import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
@@ -31,6 +32,7 @@ import './space-experience.css';
 import './left-space-navigation.css';
 import './lounge-labels.css';
 import './content-optics.css';
+import './console-arrival.css';
 
 const names: Record<SpaceScreen, readonly [string, string]> = {
   lounge: ['STAM 라운지', 'STAM Lounge'], bridge: ['STAM 관제센터', 'STAM Control Centre'],
@@ -43,7 +45,9 @@ const names: Record<SpaceScreen, readonly [string, string]> = {
 const publicSite = 'https://limmin3-sudo.github.io/stam-freight-control/';
 const flightSite = new URL('flight.html', import.meta.env.DEV ? publicSite : location.href).href;
 const revealMs = 180;
-const longEntryMs = 1400;
+// Keep the previous 850ms approach + 180ms reveal budget, with a brief ignition.
+const departureMs = Math.round(spaceConfig.approachMs * .82);
+const ignitionMs = spaceConfig.approachMs + revealMs - departureMs;
 type Entry = { screen: SpaceScreen; kind: 'short' | 'long' | 'boarding'; target?: SceneTarget };
 const appDownload = 'https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.3.2';
 // Full-body director in front of the desk: keep selection/approach tied to her,
@@ -59,6 +63,9 @@ export function SpaceExperience() {
   const guideApproach=useRef(true);
   const [active, setActive] = useState<string | null>(null);
   const [pending, setPending] = useState<Entry | null>(null);
+  const [powerOn, setPowerOn] = useState(false);
+  const arrivalDestination = useRef<SpaceScreen | null>(null);
+  const ignitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sound, setSound] = useState(false);
   const [motion, setMotion] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [volume, setVolume] = useState(20);
@@ -85,15 +92,22 @@ export function SpaceExperience() {
   const cancel = useCallback(() => {
     if (timer.current !== null) clearTimeout(timer.current);
     timer.current = null; destination.current = null; setPending(null);
+    if (ignitionTimer.current !== null) clearTimeout(ignitionTimer.current);
+    ignitionTimer.current = null; arrivalDestination.current = null; setPowerOn(false);
     if (!hoveredTarget.current) setActive(null);
   }, []);
 
   useEffect(() => {
     const sync = () => {
+      const next = parseSpaceRoute(location.hash);
+      const ignite = arrivalDestination.current === next.screen;
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
       hoverTimer.current = null; hoveredTarget.current = null;
       cancel(); setConversation(null); setActive(null); setPlaying(false); setMediaError(false);
-      setRoute(parseSpaceRoute(location.hash));
+      setRoute(next);
+      if (ignite) {
+        setPowerOn(true);
+      }
     };
     window.addEventListener('hashchange', sync);
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -104,8 +118,39 @@ export function SpaceExperience() {
       media.removeEventListener('change', motionChanged);
       if (timer.current !== null) clearTimeout(timer.current);
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
+      if (ignitionTimer.current !== null) clearTimeout(ignitionTimer.current);
     };
   }, [cancel]);
+
+  useEffect(() => {
+    if (!powerOn) return;
+    // Start the short visible hold after the real destination has committed,
+    // so a cold console mount cannot consume the entire logo/ignition interval.
+    const frame = requestAnimationFrame(() => {
+      ignitionTimer.current = setTimeout(() => { ignitionTimer.current = null; setPowerOn(false); }, ignitionMs);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      if (ignitionTimer.current !== null) clearTimeout(ignitionTimer.current);
+      ignitionTimer.current = null;
+    };
+  }, [powerOn]);
+
+  useEffect(() => {
+    const ctx = audio.current;
+    if (!powerOn || !sound || !ctx || ctx.state !== 'running') return;
+    const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .11), ctx.sampleRate);
+    const samples = noise.getChannelData(0);
+    for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
+    const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+    source.buffer = noise; filter.type = 'bandpass'; filter.frequency.value = 2400; filter.Q.value = .7;
+    const at = ctx.currentTime + .08;
+    gain.gain.setValueAtTime(0, at); gain.gain.linearRampToValueAtTime(volume / 100 * .25, at + .006);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + .11);
+    source.connect(filter); filter.connect(gain); gain.connect(ctx.destination); source.start(at);
+    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
+    return () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
+  }, [powerOn, sound, volume]);
 
   useEffect(() => () => { void audio.current?.close().catch(() => {}); audio.current = null; }, []);
   useEffect(() => { setImageReady(false); setImageError(false); }, [scene]);
@@ -166,28 +211,22 @@ export function SpaceExperience() {
       cancel();setConversation(null);
       location.hash=spaceHash({...route,screen:'guide'});return;
     }
-    // Space headers stay mounted while their children expand and push the
-    // following headers down. Scene markers still own cinematic travel.
-    if(!target&&(screen==='lounge'||screen==='bridge'||isStation(screen))){
-      location.hash=spaceHash({...route,screen});return;
-    }
     if (!motion || (target && (!imageReady || imageError))) {
       location.hash = spaceHash({ ...route, screen }); return;
     }
     destination.current = screen;
-    if(route.screen==='lounge'&&screen==='bridge'&&target?.id==='gate'){
-      setConversation(null);setPending({screen,kind:'boarding',target});setActive(null);return;
-    }
-    // Direct lounge room visits use the existing brief camera zoom. Guided
-    // tutorial videos remain a separate cinematic path.
-    const loungeRoom = route.screen === 'lounge' && ['service', 'information', 'cinema'].includes(screen);
-    const kind = target && !loungeRoom ? 'long' : 'short';
-    setPending({ screen, kind, target: target ?? configuration.targets.find(place => place.to === screen) });
+    // Normal sidebar, scene and text visits share one camera/ignition sequence.
+    // Guided desk travel above keeps its approved tutorial video.
+    setConversation(null);
+    setPending({ screen, kind: 'short', target: target ?? configuration.targets.find(place => place.to === screen) });
     setActive(target?.id ?? null);
     timer.current = setTimeout(() => {
       timer.current = null;
-      if (destination.current) location.hash = spaceHash({ ...route, screen: destination.current });
-    }, kind === 'long' ? longEntryMs : spaceConfig.approachMs);
+      if (destination.current) {
+        arrivalDestination.current = destination.current;
+        location.hash = spaceHash({ ...route, screen: destination.current });
+      }
+    }, departureMs);
   };
   const stopHoverTimer = () => {
     if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
@@ -217,7 +256,7 @@ export function SpaceExperience() {
   const choosePartner=!flight.blocked&&(consoleOpen||route.screen==='bridge')&&needsPartnerChoice(flight.session);
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
-  const approaching = pending?.kind === 'short' && route.screen === scene;
+  const approaching = pending?.kind === 'short';
   return <><div data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button[aria-current],.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
@@ -241,7 +280,7 @@ export function SpaceExperience() {
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title">
         <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
-        <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${spaceConfig.approachMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
+        <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
           <div className="space-camera">
             <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
             {scene === 'bridge' && <svg className="bridge-background-patches" viewBox="0 0 1672 941" aria-hidden="true">
@@ -353,13 +392,12 @@ export function SpaceExperience() {
       </div></details>
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
+      <ConsoleArrival departing={approaching} powerOn={powerOn} departureMs={departureMs} ignitionMs={ignitionMs}/>
     </main>
 
     {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} en={en} onClose={()=>setConversation(null)}/>}
     {route.screen!=='guide' && <footer className="space-footer" aria-hidden="true" />}
   </div>
     {pending?.kind==='boarding'&&<ShuttleBoarding en={en} sound={sound} volume={volume} onSound={setSound} onComplete={finish} onCancel={cancel}/>}
-    <div aria-hidden="true" className="entry-fade" data-dark={!!pending&&pending.kind!=='boarding'}
-      style={{ transitionDuration: `${!motion ? 0 : pending ? (pending.kind === 'long' ? longEntryMs : spaceConfig.approachMs) : revealMs}ms` }} />
   </>;
 }

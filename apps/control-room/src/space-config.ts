@@ -12,7 +12,7 @@ export type SceneTarget = {
 };
 export const spaceConfig = {
   approachMs: 850,
-  approachScale: 1.55,
+  approachScale: 5.2,
   // Travel video is being made separately. No paid service or placeholder video.
   scenes: {
     lounge: { image: lounge, targets: [
