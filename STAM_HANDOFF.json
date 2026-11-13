@@ -2,7 +2,7 @@
   "repository": "limmin3-sudo/stam-freight-control",
   "developmentBranch": "handoff/local-studio-20261110",
   "deploymentBranch": "main",
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "latestRequestMeans": "Fetch the current development branch, preserve local work, read the latest handoff, and open the local preview.",
   "instructions": "AGENTS.md",
   "status": "PROJECT_STATUS.md",
@@ -17,17 +17,21 @@
   "autoGenerateVideo": false,
   "autoPublish": false,
   "releaseChannel": "beta",
-  "releaseVersion": "2.6.0",
+  "releaseVersion": "2.7.0",
   "integrationCheckout": "stam-freight-control-fresh-20261108",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Continue functional work: navigation map, operations layout, then cargo 3D. Cinematic work is active on a separate branch; integrate its explicit branch/SHA after review. Final partner choice clicks actual people in the 2.5D control centre; portrait cards are temporary. Preserve the fixed header/sidebar and existing cinematics.",
+  "tomorrow": "Continue partner selection in the 2.5D scene and the dedicated full tutorial/shuttle flow. Map surface detail/high-resolution source work remains optional follow-up. Preserve navigator always-visible map/cargo, operator route-only controls, fixed global navigation and approved cinematic runtime.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/FUNCTION-CINEMATIC-HANDOFF-20261112.md",
-  "functionWorkBranch": "feature/mission-intake-flow-20261112",
+  "functionWorkBranch": "feature/navigation-console-20261113",
   "functionWorkIntegrated": true,
   "functionOwner": "cloud",
   "cinematicOwner": "cloud",
   "integrationOwner": "function-cloud",
-  "activeFunctionBranch": "handoff/local-studio-20261110"
+  "activeFunctionBranch": "handoff/local-studio-20261110",
+  "cinematicIntegrated": [
+    "2484135b54af34c17a3126f50e1b0bbe6be1ec55",
+    "741ca01b62380043d2f7b0aa5183907a148ede87"
+  ]
 }

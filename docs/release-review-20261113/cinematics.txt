@@ -1,0 +1,3 @@
+PASS arrivals/sound
+PASS guide approach/idle/dialogue
+PASS cinematic integration: arrivals, sound, gate, partner, guide videos, dialogue, locales/mobile/reduced motion
