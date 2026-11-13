@@ -1,4 +1,4 @@
-/* One normal travel: deep push → black → logo + one 150ms ignition → live UI.
+/* One normal travel: deep push → black → logo + one 250ms ignition → live UI.
    Shares the previous ~1.03s total budget and leaves the fixed app chrome visible. */
 .space-experience[data-entry=short] .space-sidebar{transform:none;opacity:1;pointer-events:auto}
 .space-experience[data-entry=short] .space-camera,
@@ -25,9 +25,9 @@
 .console-arrival[data-state=ignite]{visibility:visible;pointer-events:auto;animation:stam-live-reveal var(--ignition-ms) linear both}
 .console-arrival[data-state=return]{visibility:visible;pointer-events:auto;animation:stam-return-reveal 697ms linear both}
 .console-arrival[data-state=ignite] .console-arrival-logo{opacity:1;animation:stam-logo-contact var(--ignition-ms) linear both}
-.console-arrival[data-state=ignite] .console-arrival-plasma{object-fit:fill;mix-blend-mode:screen;animation:stam-contact-arc 150ms 80ms linear both}
+.console-arrival[data-state=ignite] .console-arrival-plasma{object-fit:fill;mix-blend-mode:screen;animation:stam-contact-arc 250ms 80ms linear both}
 .console-arrival-scan{position:absolute;left:0;right:0;top:15%;height:2px;opacity:0;background:#c5faff;box-shadow:0 0 12px 2px #70e3ff,0 0 40px 10px #28bfd566}
-.console-arrival[data-state=ignite] .console-arrival-scan{animation:stam-contact-scan 150ms 80ms ease-out both}
+.console-arrival[data-state=ignite] .console-arrival-scan{animation:stam-contact-scan 250ms 80ms ease-out both}
 @keyframes stam-live-reveal{0%,48%{opacity:1}100%{opacity:0}}
 @keyframes stam-logo-contact{0%,22%{opacity:1;transform:none;filter:none}28%{opacity:.72;transform:translateX(-2px)}34%{opacity:1;transform:translateX(1px);filter:brightness(1.12)}40%{opacity:.82;transform:none}52%{opacity:1;filter:none}100%{opacity:0;transform:scale(1.015)}}
 @keyframes stam-contact-arc{0%{opacity:0;transform:scaleX(.97)}18%{opacity:.88}42%{opacity:.3;transform:translateX(2px)}62%{opacity:.68}100%{opacity:0;transform:scaleX(1.03)}}

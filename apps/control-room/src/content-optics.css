@@ -38,7 +38,7 @@
 .space-experience .space-information a>span{align-self:flex-start;display:inline-flex;align-items:center;gap:15px;margin-top:auto;min-height:42px;padding:9px 0 3px;border-bottom:1px solid #dbba795c;font-size:14px;color:#f0d4a0}
 .space-experience .space-room .space-information.space-service{grid-template-columns:repeat(6,minmax(0,1fr))}
 .space-experience .space-service .service-record{grid-column:span 3;min-height:210px;gap:14px;align-items:flex-start}
-.space-experience .space-service>a{grid-column:span 2;min-height:260px}
+.space-experience .space-service>a{grid-column:span 3;min-height:260px}
 .space-experience .service-record>h2:before{content:'PERSONAL / SERVICES';display:block;font-size:9px;letter-spacing:.22em;color:#8abfcd;margin-bottom:12px}
 .space-experience .service-latest strong{font-size:17px;color:#dbf4fa}
 .space-experience .service-latest p{font-size:13px;line-height:1.7;color:#a6c4d3}

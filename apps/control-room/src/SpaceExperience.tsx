@@ -143,15 +143,20 @@ export function SpaceExperience() {
 
   useEffect(() => {
     const ctx = audio.current;
+<<<<<<< HEAD
     if (!powerOn || arrivalView?.returning || !sound || !ctx || ctx.state !== 'running') return;
     const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .11), ctx.sampleRate);
+=======
+    if (!powerOn || !sound || !ctx || ctx.state !== 'running') return;
+    const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .25), ctx.sampleRate);
+>>>>>>> 0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
     source.buffer = noise; filter.type = 'bandpass'; filter.frequency.value = 2400; filter.Q.value = .7;
     const at = ctx.currentTime + .08;
     gain.gain.setValueAtTime(0, at); gain.gain.linearRampToValueAtTime(volume / 100 * .25, at + .006);
-    gain.gain.exponentialRampToValueAtTime(.0001, at + .11);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + .25);
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination); source.start(at);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
     return () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
@@ -273,4 +278,145 @@ export function SpaceExperience() {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button[aria-current],.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
     <header className="space-topbar">
+<<<<<<< HEAD
       <a className="room-brand" href={href('lounge')} onClick={event=>enter(event,'lounge')} aria-label={`STAM FREIGHT DIVISION · ${word(names.lounge)}`}>
+=======
+      <a className="room-brand" href={href('lounge')} onClick={event=>{if(route.screen==='guide')enter(event,'lounge');}} aria-label={word(names.lounge)}>
+        <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
+        <span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
+      </a>
+      <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
+      <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
+        cancel();
+        const next = { ...route, locale: event.target.value as Locale };
+        const query=new URLSearchParams(location.hash.split('?')[1]);query.set('lang',next.locale);
+        history.replaceState(null, '', `#/${next.screen}?${query}`);setRoute(next);window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label>
+    </header>
+
+    <main className="space-main">
+      {choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
+        {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
+      </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title">
+        <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
+        <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
+          <div className="space-camera">
+            <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
+            {scene === 'bridge' && <svg className="bridge-background-patches" viewBox="0 0 1672 941" aria-hidden="true">
+              <defs><filter id="bridge-patch-feather"><feGaussianBlur stdDeviation="5" /></filter><mask id="bridge-patch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941">
+                {bridgePatches.map((p,i)=><rect key={i} x={p.x} y={p.y} width={p.width} height={p.height} rx={p.radius} fill="white" filter="url(#bridge-patch-feather)"/>)}
+              </mask></defs><image href={cleanPlate} width="1672" height="941" mask="url(#bridge-patch-mask)"/>
+            </svg>}
+            {scene === 'lounge' && <div className="space-person space-standing-director" aria-hidden="true"><img src={standingDirector} alt="" width="887" height="1774" /></div>}
+            {scene === 'lounge' && <svg className="space-spotlight" viewBox="0 0 1672 941" aria-hidden="true">
+              <defs>
+                <filter id="space-block-feather" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" /></filter>
+                <mask id="space-block-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941">
+                  <rect width="1672" height="941" fill="white" />
+                  {selectedTarget && <path className="space-selected-region" d={selectedTarget.contour} fill="black" fillRule="evenodd" filter="url(#space-block-feather)" />}
+                  {selectedTarget?.id === 'desk' && <path d={directorContour} fill="black" filter="url(#space-block-feather)" />}
+                </mask>
+              </defs>
+              <rect className="space-surround-shade" width="1672" height="941" mask="url(#space-block-mask)" />
+            </svg>}
+            <svg className="space-segments" viewBox="0 0 1672 941" aria-hidden="true">
+              {configuration.targets.map(target => <a key={target.id} href={href(target.to)} tabIndex={-1} onClick={event => enter(event, target.to, target)} onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget}>
+                <path d={target.contour} fillRule="evenodd" />
+              </a>)}
+
+            </svg>
+          </div>
+          {scene === 'bridge' && <div className="bridge-partners">
+              <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
+              <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>
+              <span className="bridge-partner-name operator-name">{en ? 'Bridge operator' : '브리지 오퍼레이터'}</span>
+              <span className="bridge-partner-name navigator-name">{en ? 'Senior navigator' : '수석 항해사'}</span>
+          </div>}
+          {scene === 'lounge' && <span className="director-partner-name">{word(partnerDialogue.director.name)}</span>}
+          {(scene==='lounge'?['director'] as const:['operator','navigator'] as const).map(id=>{
+            const at=id==='director'?{x:32.9,y:42.5,height:47.7}:bridgePartners[id];
+            return <button key={id} type="button" className="partner-hit" data-partner={id}
+              style={{left:`${at.x}%`,top:`${at.y}%`,height:`${at.height}%`}}
+              aria-label={en?`Talk to ${partnerDialogue[id].name[1]}`:`${partnerDialogue[id].name[0]}와 대화`}
+              aria-haspopup={id==='director'?undefined:'dialog'} disabled={!!pending||route.screen==='map'}
+              onClick={event=>{if(id==='director'){enter(event,'guide',configuration.targets.find(target=>target.id==='desk'));return;}event.currentTarget.focus();cancel();setActive(null);tone(true);setConversation({partner:id,variant:greetingVisits.current[id]++});}}/>;
+          })}
+          <div className="space-markers" inert={!!pending}>
+            {configuration.targets.map(target => <a key={target.id} id={`space-marker-${target.id}`} className={`space-marker ${active === target.id ? 'is-lit' : ''}`} data-marker={target.id}
+              aria-label={`${word(target.label)} · ${word(target.detail)}`} href={href(target.to)} style={{ left: `${target.marker[0]}%`, top: `${target.marker[1]}%` }}
+              onClick={event => enter(event, target.to, target)} onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget} onFocus={() => focusTarget(target.id)} onBlur={releaseHighlight}>
+              <svg className="space-marker-glyph" viewBox="0 0 40 40" aria-hidden="true">
+                <circle className="marker-disc" cx="20" cy="20" r="15.5" />
+                <circle className="marker-inner" cx="20" cy="20" r="10.5" />
+                <path className="marker-ticks" d="M20 1v4M39 20h-4M20 39v-4M1 20h4" />
+                <circle className="marker-core" cx="20" cy="20" r="3" />
+              </svg>
+            </a>)}
+          </div>
+          <div className="space-vignette" />
+          <svg className="space-leaders" viewBox="0 0 1672 941" aria-hidden="true">
+            <defs><marker id="space-direction" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M 1 1 L 7 4 L 1 7" /></marker></defs>
+            {configuration.targets.map(target => {
+              const points = `${target.marker[0]*16.72},${target.marker[1]*9.41} ${target.x*16.72},${(target.marker[1]+4)*9.41} ${target.x*16.72},${(target.y-2)*9.41}`;
+              return <g key={target.id}>
+                <polyline className="leader-underlay" points={points} />
+                <polyline points={points} />
+              </g>;
+            })}
+          </svg>
+          <div className="space-labels" inert={!!pending}>
+            {configuration.targets.map(target => <a key={target.id} className={`space-target ${active === target.id ? 'is-lit' : ''}`} data-target={target.id}
+              href={href(target.to)} style={{ left: `${target.x}%`, top: `${target.y}%` }}
+              onClick={event => enter(event, target.to, target)} onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget} onFocus={() => focusTarget(target.id)} onBlur={releaseHighlight}>
+              <span className="space-target-text"><strong>{word(target.label)}</strong><span>{word(target.detail)}</span></span>
+            </a>)}
+          </div>
+          {imageError && <p className="space-image-error" role="alert">{en ? 'The scene could not load. Use the shortcuts.' : '전경을 불러오지 못했습니다. 바로가기를 이용해주세요.'}</p>}
+        </div>
+        <div className="space-scene-note"><span>{scene === 'lounge' ? 'STAM / WELCOME ABOARD' : 'STAM / ORBITAL FREIGHT DIVISION'}</span><p>{en ? 'Select a location, or use the shortcuts.' : '공간 속 대상을 선택하거나 바로가기를 이용하세요.'}</p></div>
+      </section> : route.screen==='guide' ? <GuideDesk ref={guideController} locale={route.locale} startWithApproach={guideApproach.current} motion={motion} sound={sound}
+        onNavigate={screen=>{location.hash=spaceHash({...route,screen});}}
+        onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title">
+        <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
+        <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{word(names[route.screen])}</h1></div></header>
+        {route.screen === 'service' && <div className="space-information space-service">
+          <ServiceAccountHistory locale={route.locale} />
+          {[
+            [en ? 'Feedback & bug reports' : '피드백 · 오류 신고', en ? 'Use Feedback on STAM to send suggestions or report a problem.' : 'STAM의 피드백·오류 신고 메뉴에서 의견과 문제를 접수합니다.', flightSite],
+            [en ? 'Release history' : '업데이트 기록', en ? 'Browse the changes in each STAM release.' : 'STAM의 버전별 변경 내용을 확인합니다.', `${publicSite}patch-notes.html`],
+          ].map(([title, description, link],index) => <a key={title} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={(['mission','map'] as const)[index]!}/><small>{['FEEDBACK','RELEASES'][index]}</small></div><h2>{title}</h2><p>{description}</p><span>{en ? 'Open STAM' : 'STAM에서 열기'} ↗</span></a>)}
+        </div>}
+        {route.screen === 'information' && <div className="space-information room-reference-library">
+          <p>{en ? 'Prepare your next run. Browse mission conditions, cargo rules and source data.' : '다음 운송을 준비하세요. 미션 조건과 화물 적재 규칙, 자료 출처를 한곳에서 확인합니다.'}</p>
+          {[
+            [en?'Mission catalogue':'미션 자료',en?'Compare mission rewards and cargo conditions. SCMDB comes first; Wiki fills missing information.':'SCMDB를 우선하고, 부족한 정보는 위키로 보충한 미션 자료입니다.',`${publicSite}operations-intel.html`,'mission','MISSION ARCHIVE'],
+            [en?'Freight manual':'운송 이용안내',en?'Check ship preparation, contract intake, routes and cargo rules.':'함선 준비부터 계약 입력·항로 계산·화물 적재까지 확인합니다.',`${publicSite}guide.html`,'operations','FLIGHT MANUAL'],
+            [en?'SCMDB source':'SCMDB 원본 자료',en?'Visit the source database for ships, missions and game data.':'함선·미션·게임 데이터의 원본 출처를 확인합니다.','https://scmdb.dev/','map','SOURCE DATABASE'],
+          ].map(([title,description,link,icon,code])=><a key={code} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} ↗</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
+        </div>}
+        {route.screen === 'cinema' && <div className="space-cinema"><div className="space-screen">
+          {playing ? <video controls autoPlay playsInline preload="metadata" src={intro} poster={poster} aria-label={en ? 'STAM introduction' : 'STAM 소개영상'} onError={() => setMediaError(true)} /> : <button className="space-play" onClick={() => setPlaying(true)} aria-label={en ? 'Play STAM introduction' : 'STAM 소개영상 재생'}><img src={poster} alt=""/><span><b aria-hidden="true">▷</b>{en ? 'Play introduction' : '소개영상 재생'}</span></button>}
+        </div><div className="space-cinema-caption"><span>STAM / FREIGHT CONTROL</span><p>{en ? 'The STAM fleet, beyond the horizon.' : '더 넓은 우주로 향하는 STAM 함대.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
+      </section>}
+      {route.screen!=='guide' && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
+        <SpaceNavigation screen={route.screen} locale={route.locale} pending={!!pending} href={href} onNavigate={enter}/>
+      <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
+        <button aria-pressed={sound} onClick={async () => {
+          if (sound) { setSound(false); return; }
+          try { audio.current ??= new AudioContext(); await audio.current.resume(); setSound(audio.current.state === 'running'); } catch { setSound(false); }
+        }}>{en ? `Sound ${sound ? 'on' : 'off'}` : `효과음 ${sound ? '켜짐' : '꺼짐'}`}</button>
+        <label>{en ? 'Volume' : '음량'}<input aria-label={en ? 'Effect volume' : '효과음 크기'} type="range" min="0" max="50" value={volume} onChange={event => setVolume(Number(event.target.value))} /></label>
+        <button aria-pressed={motion} onClick={() => { setMotion(!motion); cancel(); }}>{en ? `Transitions ${motion ? 'on' : 'off'}` : `이동 연출 ${motion ? '켜짐' : '꺼짐'}`}</button>
+      </div></details>
+      </aside>}
+      {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
+      <ConsoleArrival departing={approaching} powerOn={powerOn} departureMs={departureMs} ignitionMs={ignitionMs}/>
+    </main>
+
+    {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} en={en} onClose={()=>setConversation(null)}/>}
+    {route.screen!=='guide' && <footer className="space-footer" aria-hidden="true" />}
+  </div>
+    {pending?.kind==='boarding'&&<ShuttleBoarding en={en} sound={sound} volume={volume} onSound={setSound} onComplete={finish} onCancel={cancel}/>}
+  </>;
+}
+>>>>>>> 0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1
