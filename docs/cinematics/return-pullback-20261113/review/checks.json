@@ -1,0 +1,84 @@
+{
+  "checks": [
+    {
+      "name": "information-sidebar",
+      "from": "information",
+      "to": "lounge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 39
+    },
+    {
+      "name": "service-logo",
+      "from": "service",
+      "to": "lounge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 44
+    },
+    {
+      "name": "cinema-Escape",
+      "from": "cinema",
+      "to": "lounge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 44
+    },
+    {
+      "name": "mission-sidebar",
+      "from": "mission",
+      "to": "bridge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 38
+    },
+    {
+      "name": "map-sidebar",
+      "from": "map",
+      "to": "bridge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 44
+    },
+    {
+      "name": "operations-sidebar",
+      "from": "operations",
+      "to": "bridge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 46
+    },
+    {
+      "name": "bridge-to-lounge",
+      "from": "bridge",
+      "to": "lounge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 44
+    },
+    {
+      "name": "forward entry keeps deep push and STAM ignition"
+    },
+    {
+      "name": "cancelled pullback never navigates later"
+    },
+    {
+      "name": "new move interrupts return reveal without stale timer"
+    },
+    {
+      "name": "mobile-logo",
+      "from": "information",
+      "to": "lounge",
+      "firstScale": 5.2,
+      "lastScale": 1,
+      "frames": 45
+    },
+    {
+      "name": "reduced motion bypasses both phases"
+    }
+  ],
+  "errors": [],
+  "budgetMs": 1030,
+  "returnDepartureMs": 333,
+  "returnRevealMs": 697
+}
