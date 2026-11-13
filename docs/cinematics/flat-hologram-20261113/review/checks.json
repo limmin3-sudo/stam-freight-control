@@ -1,0 +1,14 @@
+{
+  "base": "http://127.0.0.1:5185/",
+  "checks": [
+    "ko/1366: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "mix/1366: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "en/1366: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "ko/390: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "mix/390: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "en/390: front-facing frame and content, no overflow, live dialogue, amber face, idle and storage preserved",
+    "hide/show inert, translation-only exit, information/mission actions, approved return video → lounge",
+    "operator/navigator shared straight glass; Escape closes only dialog"
+  ],
+  "errors": []
+}

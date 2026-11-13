@@ -11,6 +11,8 @@ import desk from './assets/guide/desk-end.png';
 import lounge from './assets/guide/lounge-start.png';
 import returnEnd from './assets/guide/lounge-return.png';
 import './guide-desk.css';
+import './hologram-glass.css';
+import {mountGuideRasterSkin} from './guide-raster-skin';
 export type GuideDeskHandle={navigate(screen:SpaceScreen):void};
 const english:Record<string,string>={
  '플라이트 가이드':'Flight Guide','STAM · 안내 데스크':'STAM · Welcome desk','무엇을 도와드릴까요?':'How can I help?',
@@ -35,13 +37,17 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
   let html=template;
   for(const [token,url] of Object.entries({'__APPROACH__':approach,'__IDLE__':idle,'__RETURN__':returning,'__LOUNGE__':lounge,'__DESK__':desk,'__RETURN_END__':returnEnd}))html=html.replaceAll(token,url);
   root.innerHTML=html;
+  // Keep the original single-panel DOM and controller hooks; only its skin changes.
+  const panel=root.querySelector<HTMLElement>('.unified');
+  if(panel){panel.classList.add('asset-hologram');panel.dataset.glassPanel='unified';}
   const translate=(text:string)=>props.locale==='en'?english[text]??text:text;
   if(props.locale==='en'){
    root.querySelectorAll<HTMLElement>('span,h2,h3,small,button').forEach(node=>{if(!node.children.length)node.textContent=translate(node.textContent?.trim()??'');});
    const greeting=root.querySelector('#greeting');if(greeting)greeting.innerHTML='Welcome to STAM.<br>Shall we prepare your first haul?';
   }
+  const removeSkin=mountGuideRasterSkin(root,props.locale!=='en');
   api.current=mountGuideDesk(root,{...props,translate,onNavigate:screen=>callbacks.current.onNavigate(screen),onLounge:()=>callbacks.current.onLounge()});
-  return()=>{api.current?.destroy();api.current=null;root.replaceChildren();};
+  return()=>{removeSkin();api.current?.destroy();api.current=null;root.replaceChildren();};
  },[props.locale,props.startWithApproach,props.motion]);
- return <div className="guide-desk" ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>;
+ return <div className="guide-desk" data-material="generated-glass" ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>;
 });

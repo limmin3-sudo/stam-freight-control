@@ -1,0 +1,26 @@
+{
+  "source": "docs/cinematics/flat-hologram-20261113/source.png",
+  "sourceSha256": "463494f08b6a56c61c568ba6b14890fa061da95420238c2e3b8a567b1657545e",
+  "method": "Existing generated artwork, separately rectified rim; native horizontal content crops; same optical alpha/gamma as reviewed composition. No new image generation.",
+  "layout": "one front-facing panel; zero CSS rotation, skew or perspective; translateX only for entry/exit",
+  "staticKoreanCopy": "Raster letterforms/icons from source.png; underlying live accessible text preserved.",
+  "dynamicCopy": "Existing SUIT for changing dialogue, English, and partner names; no claim to the unknown original typeface.",
+  "notPixelIdenticalToOriginalReference": true,
+  "files": {
+    "button-amber.png": "15e0af39c61043bc283e25f2a288ffb364f37d70dd80e9c84c8fcf30b79c6822",
+    "button-teal.png": "fe908e549c3ea0eb2a0a7a9fa8ace62dae926940ed23eeafd809339abedb3404",
+    "divider.png": "a041770d1290625eeb888c64d1f0dbe982d785dfc2197fae23cf2cfd3fb1826f",
+    "face.png": "77389050473029dfe2e797ab42cde92ffa265c1178fbe5dac946b14c147e6068",
+    "frame.png": "9573bc006e08bb79d11045f726aaa99d87bab65cd9118bf30bf5e161277d6162",
+    "greeting.png": "302e9f608e08610a5a7f907f6b26b551a8ffa3df41d70c96983117780c22d5e8",
+    "heading.png": "028e07ac011f45495e4ae5e9a8b6d8f4f43dcde4cd4f8ec6a5dd046f5a213e7c",
+    "label-0.png": "1d68bf9875448d557859174fdc812cd1f7e5018c606e072f95d00f2a10513507",
+    "label-1.png": "90950512b82686d301ae7168dc544e7ae9d4f1daacd7a56aa361726bf3244116",
+    "label-2.png": "6d6afa9679e6b67f2c1d9a042a568b2a922e098a18b0d56c00b51a4820f8b3bc",
+    "label-3.png": "1a40546da6ed4dcff69c725d017c71758e6b9c3b2096c5b6ab19d1200f052d78",
+    "label-4.png": "201134563b156999d9f09dec8e3bd4849f9e062f229a9618a20e4956c35af936",
+    "label-5.png": "9cc8074fe8cf235b450935d1736bcbff10a9581facf4ded6828d25e69ac3894a",
+    "question.png": "36aaea10ad1e2196e1b5c925bf8a2814e6e4f04f68f0222f68e39ad32ee72031",
+    "welcome.png": "fa4a1b4c995883c53d82302a19043cc373e648ae115726d7f7257bfb314cb580"
+  }
+}
