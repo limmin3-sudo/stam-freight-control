@@ -1,0 +1,114 @@
+/* Existing generated glass artwork, rectified into a front-facing shell.
+   Face transmission is baked into PNG alpha. Corners use nine-slice sizing. */
+:is(.guide-desk .asset-hologram,.partner-conversation.asset-hologram)[data-glass-panel]{
+ --glass-amber:#ffc16b;
+ color:#f1fbff;font-family:SUIT,system-ui,sans-serif;
+ text-shadow:0 1px 3px #06212ed9;
+ transform-style:flat;
+}
+:is(.guide-desk .asset-hologram,.partner-conversation.asset-hologram)[data-glass-panel]::before,
+:is(.guide-desk .asset-hologram,.partner-conversation.asset-hologram)[data-glass-panel]::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ border:0;box-shadow:none;backdrop-filter:none;mix-blend-mode:normal;
+ filter:none;transform:none;opacity:1;
+}
+:is(.guide-desk .asset-hologram,.partner-conversation.asset-hologram)[data-glass-panel]::before{
+ inset:2px;background:url('./assets/hologram/flat/face.png') center/100% 100%;
+ clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 24px,100% calc(100% - 24px),calc(100% - 24px) 100%,24px 100%,0 calc(100% - 24px),0 24px);z-index:0;
+}
+:is(.guide-desk .asset-hologram,.partner-conversation.asset-hologram)[data-glass-panel]::after{
+ background:none;clip-path:none;z-index:1;
+ border:28px solid transparent;
+ border-image:url('./assets/hologram/flat/frame.png') 90 / 28px stretch;
+}
+.guide-desk[data-material=generated-glass] .stage{perspective:none}
+/* Scope layout/type to the desk; the fixed application navigation is untouched. */
+.guide-desk[data-material=generated-glass] .unified{
+ left:2%;top:28%;width:54%;height:62%;
+ transform:none;transform-origin:center;transform-style:flat;
+}
+.guide-desk[data-material=generated-glass] .unified>.frame,
+.guide-desk[data-material=generated-glass] .unified>.floor-light{display:none}
+.guide-desk[data-material=generated-glass] .unified .unified-content{inset:8.5% 6% 9%;z-index:2;transform:none}
+.guide-desk[data-material=generated-glass] .unified .unified-header{gap:1cqw}
+.guide-desk[data-material=generated-glass] .unified .unified-header h2{font-size:1.9cqw;font-weight:600;letter-spacing:0}
+.guide-desk[data-material=generated-glass] .unified .unified-header small{font-size:1cqw}
+.guide-desk[data-material=generated-glass] .unified .unified-context{font-size:.9cqw;letter-spacing:.03em;margin-right:.5cqw;align-self:flex-end;padding-top:0}
+.guide-desk[data-material=generated-glass] .unified .unified-line{margin:1.1cqw 0 1.25cqw}
+.guide-desk[data-material=generated-glass] .unified .unified-line::after,
+.guide-desk[data-material=generated-glass] .unified .dialog-divider::after{
+ background:var(--glass-amber);box-shadow:0 0 5px #ffb55080;
+}
+.guide-desk[data-material=generated-glass] .unified .unified-body{grid-template-columns:44% minmax(0,1fr);gap:1.8cqw}
+.guide-desk[data-material=generated-glass] .unified .unified-functions h3{font-size:1.5cqw;font-weight:600;letter-spacing:0;white-space:normal;margin-bottom:1.05cqw}
+.guide-desk[data-material=generated-glass] .unified .holo-action{
+ min-height:3.9cqw;padding:.7cqw .85cqw;gap:.85cqw;font-size:1.35cqw;
+ font-weight:550;letter-spacing:0;line-height:1.35;
+}
+.guide-desk[data-material=generated-glass] .unified .icon{width:1.95cqw;height:1.95cqw}
+.guide-desk[data-material=generated-glass] .unified .unified-header>.icon{width:2.7cqw;height:2.7cqw}
+.guide-desk[data-material=generated-glass] .unified .greeting{font-size:1.5cqw;line-height:1.55;font-weight:550;letter-spacing:0;min-height:7.8cqw}
+.guide-desk[data-material=generated-glass] .unified .dialog-divider{margin:1cqw 0 1.25cqw}
+.guide-desk[data-material=generated-glass] .unified .replies .holo-action{font-size:1.2cqw;min-height:4.2cqw;padding:.7cqw .75cqw}
+.guide-desk[data-material=generated-glass] .unified .replies .icon{width:1.8cqw;height:1.8cqw}
+/* Live controls retain their handlers and labels; only the skin is raster. */
+.guide-desk[data-material=generated-glass] .unified .holo-action,
+.partner-conversation.asset-hologram[data-glass-panel] button{
+ background:transparent url('./assets/hologram/flat/button-teal.png') center/100% 100%;
+ border:0;border-radius:0;box-shadow:none;transform:none;
+}
+.guide-desk[data-material=generated-glass] .unified .action-shape{display:none}
+.guide-desk[data-material=generated-glass] .unified .holo-action.selected{
+ background-image:url('./assets/hologram/flat/button-amber.png');color:#fff1d5;
+}
+.guide-desk[data-material=generated-glass] .unified .holo-action:hover{filter:brightness(1.12)}
+.guide-desk[data-material=generated-glass] .unified .unified-line::after{transform:none}
+/* Korean source lettering is preserved as ink-only assets, not stretched text.
+   Accessible text stays in the DOM. Changing dialogue returns to live type. */
+.guide-desk .raster-ink{position:relative}
+.guide-desk .raster-ink>.raster-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:left center;pointer-events:none}
+.guide-desk .raster-ink>:not(.raster-image){opacity:0}
+.guide-desk .unified-header.raster-ink>.raster-image{width:55%}
+.guide-desk .unified-header.raster-ink>.unified-context{opacity:1}
+.guide-desk .raster-ink.raster-copy{color:transparent;text-shadow:none}
+.guide-desk .raster-greeting{color:transparent!important;text-shadow:none!important;background:var(--greeting-ink) left top/100% auto no-repeat}
+.guide-desk[data-material=generated-glass] .stage.closed .unified{transform:translateX(-115%)}
+
+.partner-conversation.asset-hologram[data-glass-panel]{
+ --glass-detail:.38px;
+ background:transparent;border:0;box-shadow:none;isolation:isolate;
+ padding:48px 42px 38px;overflow:visible;
+}
+.partner-conversation.asset-hologram[data-glass-panel]>*{position:relative;z-index:2}
+.partner-conversation.asset-hologram[data-glass-panel]::backdrop{background:#020b143b;backdrop-filter:blur(2px)}
+.partner-conversation.asset-hologram[data-glass-panel] h2{font-weight:600;letter-spacing:0}
+.partner-conversation.asset-hologram[data-glass-panel] button{min-height:48px;padding:12px 24px;color:#f1fbff}
+
+/* A single continuous panel with stacked contents on small screens.
+   The image corners retain their proportions while the middle strips extend. */
+@media(max-width:900px){
+ .guide-desk[data-material=generated-glass] .stage{width:100%;aspect-ratio:auto;padding-top:min(112vw,580px);padding-bottom:18px}
+ .guide-desk[data-material=generated-glass] .scene{height:min(112vw,580px);object-fit:cover;object-position:70% center}
+ .guide-desk[data-material=generated-glass] .unified{position:relative;left:auto;top:auto;width:98%;height:auto;margin:0 auto;transform:none;--glass-detail:.34px}
+ .guide-desk[data-material=generated-glass] .unified .unified-content{position:relative;inset:auto;padding:42px 28px 38px;transform:none}
+ .guide-desk[data-material=generated-glass] .unified .unified-header{gap:12px}
+ .guide-desk .unified-header.raster-ink>.raster-image{width:90%}
+ .guide-desk[data-material=generated-glass] .unified .unified-header h2{font-size:22px}
+ .guide-desk[data-material=generated-glass] .unified .unified-header small{font-size:12px}
+ .guide-desk[data-material=generated-glass] .unified .unified-context{display:none}
+ .guide-desk[data-material=generated-glass] .unified .unified-header>.icon{width:30px;height:30px}
+ .guide-desk[data-material=generated-glass] .unified .unified-line{margin:18px 0 22px}
+ .guide-desk[data-material=generated-glass] .unified .unified-body{grid-template-columns:minmax(0,1fr);gap:28px}
+ .guide-desk[data-material=generated-glass] .unified .unified-dialogue::before{display:none}
+ .guide-desk[data-material=generated-glass] .unified .unified-functions h3{font-size:19px;margin-bottom:16px}
+ .guide-desk[data-material=generated-glass] .unified .actions{gap:12px}
+ .guide-desk[data-material=generated-glass] .unified .holo-action{font-size:16px;min-height:50px;padding:12px;gap:12px}
+ .guide-desk[data-material=generated-glass] .unified .icon{width:24px;height:24px}
+ .guide-desk[data-material=generated-glass] .unified .greeting{font-size:18px;min-height:0}
+ .guide-desk[data-material=generated-glass] .unified .dialog-divider{margin:18px 0}
+ .guide-desk[data-material=generated-glass] .unified .replies{gap:12px}
+ .guide-desk[data-material=generated-glass] .unified .replies .holo-action{font-size:15px;min-height:52px;padding:12px;gap:12px}
+ .guide-desk[data-material=generated-glass] .unified .replies .icon{width:22px;height:22px}
+ .guide-desk[data-material=generated-glass] .stage.closed .unified{transform:translateX(-120%)}
+ .partner-conversation.asset-hologram[data-glass-panel]{--glass-detail:.3px;padding:40px 30px 32px}
+}
