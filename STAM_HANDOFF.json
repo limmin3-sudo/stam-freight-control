@@ -29,15 +29,35 @@
   "functionOwner": "cloud",
   "cinematicOwner": "cloud",
   "integrationOwner": "function-cloud",
-  "activeFunctionBranch": "feature/graphics-functional-audit-20261113",
+  "activeFunctionBranch": "integration/freight-division-20261113",
   "cinematicIntegrated": [
     "2484135b54af34c17a3126f50e1b0bbe6be1ec55",
-    "741ca01b62380043d2f7b0aa5183907a148ede87"
+    "741ca01b62380043d2f7b0aa5183907a148ede87",
+    "e78971e355af574eb873a548fc417abfe8a47a6a",
+    "0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1",
+    "053963d715f168cffd3d2356bac044da206d8376",
+    "6fc12a96559a65100d8b8f925075c582e99713e7"
   ],
   "functionReview": "docs/FUNCTION-AUDIT-20261113.md",
-  "functionReviewIntegrated": false,
-  "functionReviewStatus": "validated-uncommitted-unpublished",
+  "functionReviewIntegrated": true,
+  "functionReviewStatus": "validated-integrated-local-unpublished",
   "flightBackupReview": "docs/FLIGHT-BACKUP-20261113.md",
-  "flightBackupStatus": "validated-uncommitted-unpublished",
-  "nextFunctionWork": "Archive data/search/filter integration coordinated with cinematic archive theme (PR #29/#30 shared files); map/cargo detail later. Direct custom grid editor UI excluded by user; existing customShip restore compatibility retained. Native log companion redesign remains deferred."
+  "flightBackupStatus": "validated-integrated-local-unpublished",
+  "nextFunctionWork": "Archive per-field source/difference details and transport guide content. Facility 3D hub is a plan, separate from the star map. Preserve current journeys and flight state. Native log companion redesign deferred; direct custom grid editor UI excluded; existing customShip restore compatible.",
+  "integrationReview": "docs/FUNCTION-CINEMATIC-INTEGRATION-20261113.md",
+  "integrationBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "functionPreservationCommit": "342a5fa",
+  "integrationPublication": "local branch only; not pushed, not merged into main/shared handoff, not deployed",
+  "functionReviewIntegrationTarget": "integration/freight-division-20261113",
+  "cinematicIntegratedScope": "#26/#27 public; #28/#29/#30/#31 only in the local integration branch",
+  "brand": "STAM FREIGHT DIVISION",
+  "brandHierarchy": "STAM fleet prominent; FREIGHT DIVISION beneath as subdivision",
+  "integrationValidation": {
+    "rootTests": 238,
+    "appTests": 58,
+    "build": "pass",
+    "browser": "pass",
+    "privateLogFiles": 37,
+    "evidence": "docs/function-review-20261113/integration/README.md"
+  }
 }

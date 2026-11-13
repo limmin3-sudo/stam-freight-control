@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": [
+    "brand and browser title",
+    "overview defers 4 catalogue downloads",
+    "hover preserves menu position; Escape stays in room",
+    "operator summary omits SCU",
+    "header/service account singleton",
+    "active flight change lock",
+    "reset cancel preserves plan; confirmed reset keeps contracts/ship/partner and clears review flag",
+    "archive child loads data and retains source comparison access",
+    "390px English no overflow",
+    "flight data unchanged by archive"
+  ],
+  "pageErrors": []
+}

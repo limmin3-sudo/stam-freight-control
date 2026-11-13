@@ -230,9 +230,6 @@ export function SpaceExperience() {
     if(motion){setArchivePulse(value=>value+1);archivePulseTimer.current=setTimeout(()=>{archivePulseTimer.current=null;setArchivePulse(0);},250);}else setArchivePulse(0);
     location.hash=spaceHash({...route,screen:'information',view});
   }
-  useEffect(()=>{
-    if(route.screen==='information')void import('./mission-archive-data.mjs').then(module=>module.loadMissionArchive()).catch(()=>{});
-  },[route.screen]);
   const enter = (event: MouseEvent, screen: SpaceScreen, target?: SceneTarget,view?:ArchiveView) => {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();

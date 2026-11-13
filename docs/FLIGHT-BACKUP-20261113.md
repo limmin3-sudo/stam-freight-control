@@ -1,6 +1,6 @@
 # 전체 운항 백업·복원 — 2026-11-13 검토본
 
-브랜치 `feature/graphics-functional-audit-20261113`, 공개 기준 beta 2.7.0 `fa647d0a6077c200897eb1a43e4b4bb5f2242eec`. 이번 구현은 미커밋·미배포이며 공개 버전의 완료로 보지 않는다.
+브랜치 `feature/graphics-functional-audit-20261113`, 공개 기준 beta 2.7.0 `fa647d0a6077c200897eb1a43e4b4bb5f2242eec`. 기능 보존 `342a5fa`에 커밋했고 현재 `integration/freight-division-20261113`에서 연출과 통합했다. 아직 미배포이며 공개 버전의 완료로 보지 않는다.
 
 ## 사용 방법
 

@@ -1,0 +1,32 @@
+{
+  "errors": [],
+  "states": [
+    "idle",
+    "depart",
+    "ignite",
+    "idle",
+    "depart",
+    "ignite",
+    "idle",
+    "depart",
+    "return",
+    "idle",
+    "depart",
+    "ignite",
+    "idle",
+    "depart",
+    "return",
+    "idle"
+  ],
+  "passed": [
+    "zoom/black/logo/ignition",
+    "default mute and single enabled sound",
+    "label and sidebar navigation",
+    "ordinary gate",
+    "partner Escape",
+    "guide approach/idle/return",
+    "front-facing panel/dialogue",
+    "ko/mix/en mobile",
+    "reduced motion"
+  ]
+}

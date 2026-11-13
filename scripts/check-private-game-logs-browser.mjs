@@ -49,6 +49,7 @@ try{
  await p.locator('.receipt-import input[type=file]').setInputFiles({name:'private-replay.log',mimeType:'text/plain',buffer:Buffer.from(readyInput.raw)});
  await p.waitForFunction(()=>document.querySelector('.mission-source-footer [role=status]')?.textContent.includes('수신 계약'));
  assert.equal((await saved()).draft.jobs.length,0,'receiving must never automatically accept or select missions');
+ assert.equal(await p.locator('.pilot-log').getAttribute('data-log-state'),'file');
  const card=readyInput.cards.find(c=>c.state==='ready');
  const boxes=p.locator('.receipt-card input[type=checkbox]');
  // Other ended receipts are hidden by default; compare against the active receipt order.
@@ -73,13 +74,14 @@ try{
   await q.goto(base+'#/mission?lang=ko');await chooseInitialPartner(q,'navigator');await q.getByRole('button',{name:'Game.log 자동 수신',exact:true}).click();
   await q.waitForFunction(n=>document.querySelector('.mission-source-footer [role=status]')?.textContent.includes(`수신 계약 ${n}건`),endedInput.before);
   assert.equal((await q.evaluate(key=>JSON.parse(localStorage.getItem(key)),key)).draft.jobs.length,0);
+  assert.equal(await q.locator('.pilot-log').getAttribute('data-log-state'),'live');
   await q.evaluate(raw=>{window.__privateReplay.raw=raw;window.__privateReplay.stamp++;},endedInput.raw);
   await q.waitForSelector('.receipt-manage');await q.locator('.receipt-manage summary').click();await q.getByRole('button',{name:/^종료된 계약 보기/}).waitFor();
   const count=await q.locator('.receipt-card').count(),calls=await q.evaluate(()=>window.__privateReplay.calls);
   await q.evaluate(()=>window.__privateReplay.stamp++);await q.waitForFunction(old=>window.__privateReplay.calls>old,calls);await q.waitForTimeout(250);
   assert.equal(await q.locator('.receipt-card').count(),count,'unchanged bytes must not duplicate receipts');
   await q.getByRole('button',{name:'자동 수신 중지',exact:true}).click();const stopped=await q.evaluate(()=>window.__privateReplay.calls);await q.waitForTimeout(2300);
-  assert.equal(await q.evaluate(()=>window.__privateReplay.calls),stopped,'stopping must stop file polling');polling={append:true,duplicateSafe:true,endedObserved:true,stopped:true};await q.close();
+  assert.equal(await q.evaluate(()=>window.__privateReplay.calls),stopped,'stopping must stop file polling');assert.equal(await q.locator('.pilot-log').getAttribute('data-log-state'),'file');polling={append:true,duplicateSafe:true,endedObserved:true,stopped:true};await q.close();
  }
  assert.deepEqual(errors,[]);await writeFile(out+'/private-log-summary.json',JSON.stringify({files:summary,workflow,polling},null,2));
  console.log('PASS private saved-log replay',JSON.stringify({files:summary.length,workflow,polling}));

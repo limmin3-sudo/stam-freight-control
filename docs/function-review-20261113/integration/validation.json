@@ -1,0 +1,21 @@
+{
+  "rootTests": {
+    "pass": 238,
+    "fail": 0
+  },
+  "appTests": {
+    "pass": 58,
+    "fail": 0
+  },
+  "typeScript": "PASS",
+  "viteBuild": "PASS",
+  "productionPreview": "http://127.0.0.1:5188/",
+  "privateReplayServer": "http://127.0.0.1:5186/",
+  "deployment": "NOT PERFORMED",
+  "incoming": [
+    "e78971e355af574eb873a548fc417abfe8a47a6a",
+    "0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1",
+    "053963d715f168cffd3d2356bac044da206d8376",
+    "6fc12a96559a65100d8b8f925075c582e99713e7"
+  ]
+}

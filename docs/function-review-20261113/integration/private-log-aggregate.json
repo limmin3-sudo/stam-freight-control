@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "files": 37,
+  "observationsIncludingDuplicateFiles": {
+    "cards": 378,
+    "ready": 7,
+    "incomplete": 58,
+    "ended": 312,
+    "conflict": 1
+  },
+  "workflow": {
+    "contracts": 1,
+    "shipments": 4,
+    "visits": 6,
+    "actions": 7,
+    "finished": true,
+    "boxesRemaining": 0
+  },
+  "polling": {
+    "append": true,
+    "duplicateSafe": true,
+    "endedObserved": true,
+    "stopped": true
+  },
+  "topbarStates": [
+    "file after one-time import",
+    "live while watching",
+    "file after stopping"
+  ],
+  "privacy": "No raw log, private file names, account/player information or received instance IDs included."
+}

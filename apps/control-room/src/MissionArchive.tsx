@@ -43,6 +43,6 @@ export default function MissionArchive({locale}:{locale:Locale}){
    </details>
   </article>)}</div>
   {rows.length>shown&&<button type="button" className="archive-more" onClick={()=>setShown(value=>value+24)}>{t('24개 유형 더 보기','Show 24 more types')}</button>}
-  <footer className="archive-sources">{t('원본 출처','Original sources')} · <a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB ↗</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></footer>
+  <footer className="archive-sources"><a href={`https://limmin3-sudo.github.io/stam-freight-control/operations-intel.html?lang=${en?'en':'ko'}`} target="_blank" rel="noopener noreferrer">{t('상세 출처·서로 다른 값 대조','Detailed sources and differing values')} ↗</a> · {t('원본 출처','Original sources')} · <a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB ↗</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></footer>
  </div>;
 }

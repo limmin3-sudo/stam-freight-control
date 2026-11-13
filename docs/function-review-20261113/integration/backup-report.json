@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "checks": [
+    "download",
+    "preview/cancel",
+    "exact cargo restore",
+    "reload",
+    "previous-flight recovery",
+    "undo stays paused",
+    "invalid JSON and cells",
+    "stale preview and cross-tab update",
+    "both storage failure points",
+    "operator has no cargo",
+    "mobile English and Escape",
+    "corrupt local save recovery"
+  ],
+  "pageErrors": []
+}

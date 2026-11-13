@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Native same-tab route; 250ms content-only pulse; fixed chrome/FLIGHT CONSOLE; child menu; 1274 types/1396 definitions; paging/search/empty/reset/company/reward parity/details; reload/history/Escape; flight storage unchanged",
+    "mix: subpage/locale round-trip and English fixed brands; English game commodities",
+    "en: subpage/locale round-trip and English fixed brands; English game commodities",
+    "390px: no page overflow; nested menu available; child selection closes mobile drawer",
+    "Reduced motion skips body pulse"
+  ],
+  "errors": []
+}
