@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "1366/ko: service has account/history + two support cards, one guide entry in information, no overflow or flight-state change",
+    "1366/en: service has account/history + two support cards, one guide entry in information, no overflow or flight-state change",
+    "390/ko: service has account/history + two support cards, one guide entry in information, no overflow or flight-state change",
+    "390/en: service has account/history + two support cards, one guide entry in information, no overflow or flight-state change"
+  ],
+  "errors": []
+}

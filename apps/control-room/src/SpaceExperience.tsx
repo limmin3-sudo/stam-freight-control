@@ -139,14 +139,14 @@ export function SpaceExperience() {
   useEffect(() => {
     const ctx = audio.current;
     if (!powerOn || !sound || !ctx || ctx.state !== 'running') return;
-    const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .11), ctx.sampleRate);
+    const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .25), ctx.sampleRate);
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
     source.buffer = noise; filter.type = 'bandpass'; filter.frequency.value = 2400; filter.Q.value = .7;
     const at = ctx.currentTime + .08;
     gain.gain.setValueAtTime(0, at); gain.gain.linearRampToValueAtTime(volume / 100 * .25, at + .006);
-    gain.gain.exponentialRampToValueAtTime(.0001, at + .11);
+    gain.gain.exponentialRampToValueAtTime(.0001, at + .25);
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination); source.start(at);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
     return () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
@@ -365,8 +365,7 @@ export function SpaceExperience() {
           {[
             [en ? 'Feedback & bug reports' : '피드백 · 오류 신고', en ? 'Use Feedback on STAM to send suggestions or report a problem.' : 'STAM의 피드백·오류 신고 메뉴에서 의견과 문제를 접수합니다.', flightSite],
             [en ? 'Release history' : '업데이트 기록', en ? 'Browse the changes in each STAM release.' : 'STAM의 버전별 변경 내용을 확인합니다.', `${publicSite}patch-notes.html`],
-            [en ? 'User guide' : '이용안내', en ? 'Read the full guide and find help for each feature.' : '기능별 설명과 전체 이용안내를 확인합니다.', `${publicSite}guide.html`],
-          ].map(([title, description, link],index) => <a key={title} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={(['mission','map','operations'] as const)[index]!}/><small>{['FEEDBACK','RELEASES','FLIGHT MANUAL'][index]}</small></div><h2>{title}</h2><p>{description}</p><span>{en ? 'Open STAM' : 'STAM에서 열기'} ↗</span></a>)}
+          ].map(([title, description, link],index) => <a key={title} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={(['mission','map'] as const)[index]!}/><small>{['FEEDBACK','RELEASES'][index]}</small></div><h2>{title}</h2><p>{description}</p><span>{en ? 'Open STAM' : 'STAM에서 열기'} ↗</span></a>)}
         </div>}
         {route.screen === 'information' && <div className="space-information room-reference-library">
           <p>{en ? 'Prepare your next run. Browse mission conditions, cargo rules and source data.' : '다음 운송을 준비하세요. 미션 조건과 화물 적재 규칙, 자료 출처를 한곳에서 확인합니다.'}</p>

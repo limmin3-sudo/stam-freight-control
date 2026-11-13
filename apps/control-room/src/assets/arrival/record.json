@@ -3,9 +3,9 @@
   "timingMs": {
     "departure": 697,
     "arrival": 333,
-    "plasma": 150,
+    "plasma": 250,
     "total": 1030,
-    "audioNoise": 110
+    "audioNoise": 250
   },
   "assets": [
     {
