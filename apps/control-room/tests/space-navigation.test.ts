@@ -13,3 +13,13 @@ test('new arrivals enter the lounge; old console deep links and all languages su
   assert.equal(parentSpace('cinema'), 'lounge');
   assert.equal(parentSpace('map'), 'bridge');
 });
+
+test('Archive mission subpage preserves locale and rejects unrelated room views',()=>{
+ for(const locale of ['ko','mix','en'] as const){
+  const route={screen:'information' as const,locale,view:'missions' as const};
+  assert.deepEqual(parseSpaceRoute(spaceHash(route)),route);
+ }
+ assert.deepEqual(parseSpaceRoute('#/service?lang=ko&view=missions'),{screen:'service',locale:'ko'});
+ assert.deepEqual(parseSpaceRoute('#/information?lang=en&view=unknown'),{screen:'information',locale:'en'});
+ assert.equal(spaceHash({screen:'lounge',locale:'ko',view:'missions'}),'#/lounge?lang=ko');
+});
