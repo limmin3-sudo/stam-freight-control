@@ -1,0 +1,39 @@
+/* Only the dedicated tutorial. Existing navigation, room themes and guide
+   controls retain their selectors and appearance. */
+.lounge-tour-entry,.lounge-tour-controls button,.lounge-tour-caption button{font-family:Barlow,SUIT,sans-serif;font-weight:500;color:#eefaff;cursor:pointer;border:0;background:url('./assets/hologram/flat/button-teal.png') center/100% 100%;min-height:44px;padding:12px 24px;text-align:left;isolation:isolate}
+.lounge-tour-entry:hover,.lounge-tour-controls button:hover,.lounge-tour-caption button:hover{background-image:url('./assets/hologram/flat/button-amber.png');color:#ffe6ac}
+.lounge-tour-entry{position:absolute;right:3%;bottom:3%;z-index:8;font-size:14px;background-image:url('./assets/hologram/flat/button-amber.png');max-width:90%}
+.lounge-tour :is(button):focus-visible,.lounge-tour-entry:focus-visible{outline:2px solid #ffe0a5;outline-offset:4px}
+.space-experience .lounge-tour{grid-area:1 / 2;position:relative;z-index:3;min-width:0;min-height:0;pointer-events:none;isolation:isolate;overflow:hidden;container-type:size;font-family:Barlow,SUIT,sans-serif;color:#e7f5fa}
+.lounge-tour-stage,.lounge-tour-loading,.lounge-tour-blackout,.lounge-tour-standby,.lounge-tour-plasma{position:absolute;inset:0}
+.lounge-tour-stage{background:#07111a;pointer-events:auto}
+.lounge-tour-photo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100%,calc(100cqh * 1672 / 941));aspect-ratio:1672/941;overflow:hidden}
+.lounge-tour-world,.lounge-tour-world canvas,.lounge-tour-fallback{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lounge-tour-fallback{background-size:cover;background-position:center}
+.lounge-tour-fallback img{position:absolute;right:14%;bottom:6%;height:65%;width:auto;max-width:45%;object-fit:contain}
+.lounge-tour-destination{position:absolute;left:65%;top:20%;display:flex;flex-direction:column;gap:6px;color:#fff0c6;text-shadow:0 2px 3px #05101c,0 0 9px #05101c,0 0 20px #05101c;max-width:40%}
+.lounge-tour-destination strong{font:650 clamp(24px,3cqw,44px)/1.2 SUIT,sans-serif;letter-spacing:.025em}
+.lounge-tour-destination small{font:500 clamp(9px,.9cqw,13px) Barlow,SUIT,sans-serif;letter-spacing:.15em}
+.lounge-tour-destination>span{font-size:clamp(11px,1.15cqw,17px);color:#ecf5fa}
+.lounge-tour-blackout{background:#030a10;opacity:0;z-index:3}
+.lounge-tour-standby{background:#030a10;z-index:4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px}
+.lounge-tour-standby img{width:15%;max-width:160px}.lounge-tour-standby span{font:500 12px Barlow,SUIT,sans-serif;letter-spacing:.25em;color:#b6d9e6}
+.lounge-tour-plasma{z-index:5;opacity:0;background:url('./assets/arrival/ignition-plasma.png') center/cover;mix-blend-mode:screen}
+.lounge-tour-loading{display:grid;place-content:center;background:#08141e;z-index:6;color:#a8cddc;font-size:14px}
+.lounge-tour-controls{position:absolute;top:14px;right:18px;z-index:10;display:flex;gap:8px;pointer-events:auto}
+.lounge-tour-controls button{font-size:12px;min-height:38px;padding:10px 18px}.lounge-tour-controls button:disabled{opacity:.5;cursor:default}
+.lounge-tour-caption{position:absolute;left:3%;bottom:3%;width:65%;padding:20px 27px;pointer-events:auto;isolation:isolate;z-index:9;color:#effaff;text-shadow:0 1px 3px #031723;animation:lounge-tour-caption-in .54s cubic-bezier(.22,.7,.28,1)}
+.lounge-tour-caption:before{content:'';position:absolute;inset:2px;z-index:-2;background:#08243090 url('./assets/hologram/flat/face.png') center/100% 100%;clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px),0 18px)}
+.lounge-tour-caption:after{content:'';position:absolute;inset:0;z-index:-1;border:22px solid transparent;border-image:url('./assets/hologram/flat/frame.png') 90 / 22px stretch;pointer-events:none}
+.lounge-tour-caption header{display:flex;justify-content:space-between;gap:15px;color:#ffdfab;font:500 12px Barlow,SUIT,sans-serif;letter-spacing:.13em}
+.lounge-tour-caption header small{color:#b6d4df;letter-spacing:0}
+.lounge-tour-caption p{font:500 clamp(14px,1.5cqw,21px)/1.65 SUIT,sans-serif;margin:12px 0;word-break:keep-all}
+.lounge-tour-caption button{font-size:14px;max-width:360px;width:100%;padding:11px 23px}.lounge-tour-caption button>span{float:right}
+.lounge-tour-portrait{position:absolute;right:1%;bottom:-3%;height:46%;width:28%;overflow:hidden;z-index:8;filter:drop-shadow(0 4px 12px #0008);animation:lounge-tour-portrait-in .54s cubic-bezier(.22,.7,.28,1)}
+.lounge-tour-portrait img{position:absolute;width:100%;height:auto;top:0;left:0}
+.lounge-tour [hidden]{display:none!important}
+@keyframes lounge-tour-caption-in{from{transform:translateY(140%)}to{transform:translateY(0)}}
+@keyframes lounge-tour-portrait-in{from{transform:translateX(110%)}to{transform:translateX(0)}}
+@media(max-width:760px){.space-experience .lounge-tour{grid-area:2 / 1}.lounge-tour-entry{font-size:12px;padding:12px 20px;bottom:2%;right:2%}.lounge-tour-photo{width:100%;top:32%}.lounge-tour-controls{top:8px;right:8px;gap:4px}.lounge-tour-controls button{font-size:11px;padding:9px 13px;min-height:38px}.lounge-tour-caption{left:2%;bottom:12px;width:96%;padding:17px 20px}.lounge-tour-caption p{font-size:14px;line-height:1.6}.lounge-tour-caption header{font-size:10px}.lounge-tour-caption button{font-size:13px}.lounge-tour-portrait{right:0;bottom:165px;width:34%;height:31%}.lounge-tour-destination strong{font-size:24px}.lounge-tour-destination small{font-size:8px}.lounge-tour-destination>span{font-size:11px}.lounge-tour-loading{padding:18px;text-align:center}}
+@media(prefers-reduced-motion:reduce){.lounge-tour *{animation:none!important}}
+.space-experience[data-motion=false] .lounge-tour *{animation:none!important}

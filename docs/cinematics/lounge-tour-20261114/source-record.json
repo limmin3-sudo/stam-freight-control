@@ -1,5 +1,5 @@
 {
-  "kind": "Standalone 2.5D lounge-tour review; no production integration",
+  "kind": "Photographic 2.5D guide assets, native React lounge tour, and preserved standalone review",
   "base": "b0d8bdb4c676942de820e237c746bf5f3b5e6ea1",
   "mainAtStart": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
   "branch": "cinematic/lounge-tour-20261114",
@@ -105,5 +105,12 @@
     "Rejected candidates preserved in generated_images, not copied into this branch.",
     "Two attempted gate-pose generations returned no usable image; no missing sixth asset is claimed.",
     "Five newly generated poses are used; existing source images remain unmodified."
-  ]
+  ],
+  "runtime": {
+    "entry": "apps/control-room/src/LoungeTour.tsx",
+    "trigger": "Existing guide page: dedicated lounge-tour button",
+    "renderer": "apps/control-room/src/lounge-tour-renderer.ts",
+    "bundle": "Vite lazy chunk and hashed PNGs, no product iframe",
+    "deployment": "Separate branch for function owner integration; no main/handoff merge or deployment"
+  }
 }
