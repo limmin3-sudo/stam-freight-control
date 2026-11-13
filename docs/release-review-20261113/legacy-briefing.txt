@@ -1,0 +1,3 @@
+Briefing: checking manifest
+Briefing: checking planned cargo
+PASS: enlarged partner/preparation cards; first-use-only automatic guide; preserved manual re-entry; highlighted masthead/sidebar log/download; Korean/English typo search with paired names; received 452 SCU manifest prefilled and saved; original planner + new cargo renderer/phase controls/expanded view; same-tab versioned notes + back preserves missions; company/rank information; English/mobile; no JS/HTTP errors.

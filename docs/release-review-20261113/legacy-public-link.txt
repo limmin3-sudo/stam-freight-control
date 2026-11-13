@@ -1,0 +1,245 @@
+PASS: existing public tabs opened before the companion connect automatically without token links, reload or another site window; existing missions preserved.
+STAM
+FREIGHT
+CONTROL
+STAM 함대 화물 관제 · STAR CITIZEN
+운송 정보실
+도움말
+한국어
+한/영
+English
+로그인
+FLIGHT PREPARATION
+운송 준비
+
+위에서부터 준비하고 경로를 확인하세요.
+
+01 / 함선 · 출발지
+MISC Hull B
+512 SCU · 사용 16/16
+에버러스 하버
+02 / 운송 파트너
+수석 항해사
+여러 계약을 모아 대량 운송
+›
+03 / 계약 선택
+계획에 2건 · 확인·수정
+
+계약을 바꿨다면 경로를 다시 확인하세요.
+
+경로 계산
+로그 연결됨
+설정 · 데이터 관리
+STAM / FREIGHT CONTROL · BETA 1.0.0
+YOUR NEXT HAUL STARTS HERE
+PLAN THE HAUL. COMMAND THE ROUTE.
+복잡한 미션도
+한 번에.
+
+받은 미션을 모아 경로를 짜고, 적재 계획까지 함께 세웁니다.
+
+▶ 소개 영상
+01 / CONTRACTS
+받은 미션을 정리하고
+02 / ROUTE
+함선에 맞춰 경로를 짜고
+03 / CARGO
+적재까지 3D로 확인합니다
+운항 지도 보기 ↓
+항성계 지도
+이동거리
+248 Gm
+예상시간
+63–103분
+최대적재
+452 / 512 SCU
+방문
+5곳
+예상 수익
+510,500
+aUEC · 목록 기본 보상 기준 예상
+스탠턴
+파이로
+닉스
+운항 시작
+전체 보기
+보기 설정
+드래그 회전 · 휠 확대 · 우클릭/Shift+드래그 이동 · 더블클릭: 들어가기/이동 · Esc 한 단계 위로 · F 선택 위치
+479개 좌표
+STARMAP
+›
+스탠턴
+선택 구간 · 01 / 05
+에버러스 하버→에버러스 하버
+
+1 km · 예상 1분
+
+04 / CARGO ORGANIZATION
+MISC Hull B 적재 배치
+3D 크게 보기
+1번 거점 작업 전 예상
+
+표시 중인 거점: 에버러스 하버
+
+표시 시점
+거점 작업 전
+거점 작업 후
+미션만 보기
+전체 화물
+화물칸 그리드
+중심축
+▲ 앞 (기수)
+뒤 (후미)
+위
+좌현
+우현
+L1
+0/32
+L2
+0/32
+L3
+0/32
+L4
+0/32
+L5
+0/32
+L6
+0/32
+L7
+0/32
+L8
+0/32
+R1
+0/32
+R2
+0/32
+R3
+0/32
+R4
+0/32
+R5
+0/32
+R6
+0/32
+R7
+0/32
+R8
+0/32
+그리드 켜기/끄기
+라벨 숨기기
+위
+좌현
+우현
+전체
+화물 그리드만 표시 · 주황 화살표 = 기수 방향 · 드래그로 돌려 좌현·우현을 확인 · 그리드 위치는 그리드 수정에서 변경
+빈 화물칸
+이 시점 화물칸 비어 있음
+상자 목록 · 상세 · 메모
+선택한 거점 · 작업 미리보기
+에버러스 하버
+
+이 거점에서는 화물 작업이 없습니다.
+
+03 / STOP BY STOP
+방문 순서
+경로 수정
+1
+에버러스 하버
+출발지 · 누적 0분
+출발 에버러스 하버
+작업 후 0 SCU · 0상자
+2
+에버러스 하버
+이 구간 약 1분 · 누적 0분
+3
+세라핌 정거장
+이 구간 약 8분 · 32 Gm · 누적 8분
+4
+항성계 점프
+STANTON → PYRO
+5
+루인 정거장
+이 구간 약 36분 · 116 Gm · 누적 44분
+6
+항성계 점프
+PYRO → STANTON
+7
+바이지니 포인트
+이 구간 약 35분 · 99 Gm · 누적 79분
+계산 기준 · 데이터 출처
+
+This is an unofficial Star Citizen fan site, not affiliated with the Cloud Imperium group of companies. All content on this site not authored by its host or users are property of their respective owners.
+
+INTRO FILM · MADE BY THE COMMUNITY
+Official Star Citizen website ↗
+UNOFFICIAL FAN TOOL
+Star Citizen 및 관련 자산의 권리는 Cloud Imperium Games에 있습니다.
+기본 OCR·경로·적재 계산은 브라우저에서 처리
+운송 계약
+×
+받은 계약
+계획에 담은 계약 (2)
+받은 미션 2
+Preserved contract
+수정 ×
+Preserved contract · 1 SCU상자 구성 확인
+
+에버러스 하버 → 세라핌 정거장
+
+Red Wind Linehaul
+수정 ×
+Red Wind Linehaul · 452 SCU총수량 확인 · 상자 배치 예상
+
+루인 정거장 → 바이지니 포인트
+루인 정거장 → 바이지니 포인트
+루인 정거장 → 바이지니 포인트
+루인 정거장 → 바이지니 포인트
+루인 정거장 → 바이지니 포인트
+
+위키 기준 자동 구성
+품목 · 수량 · 상자 구성 확인
+경로 확인하기
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 45000ms exceeded.
+Call log:
+[2m  - waiting for locator('#contracts-dialog .inbox-plan')[22m
+[2m    - locator resolved to <button type="button" class="primary inbox-plan">선택한 계약으로 경로 짜기</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    18 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not visible[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at /workspace/stam-freight-control-fresh-20261108/scripts/check-public-link-browser.mjs:27:904 {
+  log: [
+    "  - waiting for locator('#contracts-dialog .inbox-plan')",
+    '    - locator resolved to <button type="button" class="primary inbox-plan">선택한 계약으로 경로 짜기</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    18 × waiting for element to be visible, enabled and stable',
+    '       - element is not visible',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

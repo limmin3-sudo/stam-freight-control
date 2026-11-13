@@ -1,0 +1,9 @@
+BROWSER Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID
+opened original deck
+intro closed
+inbox received
+inbox visible
+cancelled draft
+explicit save verified
+BROWSER Failed to load resource: net::ERR_CERT_AUTHORITY_INVALID
+PASS: original deck; two received instance cards; no automatic insertion; cancel preserves plan; details save does not plan; check then batch plans once; later log cannot replace edits; original route integration; no departure reconfirmation; current contract dialog and supplementary screenshot/text; explicit batch planning enables run; mobile; English; approved portrait; no JS/HTTP errors.

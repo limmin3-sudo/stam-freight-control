@@ -1,0 +1,3 @@
+Delivery UI ko
+Delivery UI en
+PASS: KO/EN actual seven-contract review totals 123 SCU; destination22 reserved once through both pickups and one delivery; no invented pickup amounts; compact box summary, reservation 3D, nearby regional order, reload and mobile preservation.
