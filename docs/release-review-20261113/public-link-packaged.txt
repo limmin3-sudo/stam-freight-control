@@ -1,0 +1,3 @@
+PASS: existing public tabs opened before the companion connect automatically without token links, reload or another site window; existing missions preserved.
+PASS: existing public tab + live appended accepted definition → whole-card checkbox then external batch plan/452 SCU → no editor or duplicate → details later → original route and cargo view; original manual mission preserved.
+PASS: both tabs recover after companion restart/token rotation and receive the new snapshot at the same revision; authenticated reads, public-account origin and data preservation retained. No actual user account sign-in was attempted.
