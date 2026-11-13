@@ -1,5 +1,5 @@
 import {useEffect, useState, type MouseEvent} from 'react';
-import {parentSpace, type SpaceScreen} from './space-navigation';
+import {parentSpace, type SpaceScreen,type ArchiveView} from './space-navigation';
 import type {Locale} from './navigation';
 
 // Space membership is separate from navigation/rendering so new activities can
@@ -13,15 +13,16 @@ const groups = [
     links:[['mission','미션 콘솔','Mission console'],['map','항로 지도','Star map'],['operations','관제 콘솔','Control console']]},
 ] as const;
 
-export function SpaceNavigation({screen,locale,pending,href,onNavigate}:{
+export function SpaceNavigation({screen,locale,pending,view,href,onNavigate}:{
   screen:SpaceScreen;locale:Locale;pending:boolean;
-  href:(screen:SpaceScreen)=>string;
-  onNavigate:(event:MouseEvent,screen:SpaceScreen)=>void;
+  view?:ArchiveView;
+  href:(screen:SpaceScreen,view?:ArchiveView)=>string;
+  onNavigate:(event:MouseEvent,screen:SpaceScreen,view?:ArchiveView)=>void;
 }) {
   const scene=parentSpace(screen), en=locale==='en';
   const [expanded,setExpanded]=useState<string|null>(scene);
   const [mobileOpen,setMobileOpen]=useState(false);
-  useEffect(()=>{setExpanded(scene);setMobileOpen(false);},[scene,screen]);
+  useEffect(()=>{setExpanded(scene);setMobileOpen(false);},[scene,screen,view]);
   useEffect(()=>{
     if(!mobileOpen)return;
     const close=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();setMobileOpen(false);document.querySelector<HTMLButtonElement>('.space-menu-toggle')?.focus();}};
@@ -52,8 +53,14 @@ export function SpaceNavigation({screen,locale,pending,href,onNavigate}:{
             <div className="space-group-content">
               <p className="space-group-description"><small>{group.code}</small>{group.description[en?1:0]}</p>
               <div className="space-nav-links">
-                {group.links.map(([target,ko,english],index)=><a key={target} href={href(target)} aria-current={screen===target?'page':undefined}
-                  onClick={event=>onNavigate(event,target)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{en?english:ko}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>)}
+                {group.links.map(([target,ko,english],index)=><div className="space-room-link" key={target}>
+                  <a href={href(target)} aria-current={screen===target&&!view?'page':undefined}
+                    aria-expanded={target==='information'?screen==='information':undefined} aria-controls={target==='information'?'archive-subnavigation':undefined}
+                    onClick={event=>onNavigate(event,target)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{en?english:ko}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>
+                  {target==='information'&&<div className="archive-subnavigation" data-open={screen==='information'} inert={screen!=='information'} aria-hidden={screen!=='information'} id="archive-subnavigation"><div>
+                    <a href={href('information','missions')} aria-current={view==='missions'?'page':undefined} onClick={event=>onNavigate(event,'information','missions')}>{en?'Mission catalogue':'미션 자료'}</a>
+                  </div></div>}
+                </div>)}
               </div>
             </div>
           </div>

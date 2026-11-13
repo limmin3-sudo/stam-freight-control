@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
 import {PartnerConversation} from './PartnerConversation';
 import {partnerDialogue} from './partner-dialogue';
@@ -23,7 +23,9 @@ import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
 import { isStation, parentSpace, parseSpaceRoute, spaceHash } from './space-navigation';
-import type { SpaceScreen } from './space-navigation';
+import type { SpaceScreen,ArchiveView } from './space-navigation';
+import {ArchiveBoundary} from './ArchiveBoundary';
+import archivePlasma from './assets/arrival/ignition-plasma.png';
 import type { Locale } from './navigation';
 import logo from '../../../assets/stam-logo-transparent.png';
 import standingDirector from './assets/director-standing.png';
@@ -35,6 +37,8 @@ import './space-experience.css';
 import './left-space-navigation.css';
 import './lounge-labels.css';
 import './content-optics.css';
+import './mission-archive.css';
+const MissionArchive=lazy(()=>import('./MissionArchive'));
 import './console-arrival.css';
 
 const names: Record<SpaceScreen, readonly [string, string]> = {
@@ -65,6 +69,8 @@ export function SpaceExperience() {
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const guideController=useRef<GuideDeskHandle|null>(null);
   const guideApproach=useRef(true);
+  const [archivePulse,setArchivePulse]=useState(0);
+  const archivePulseTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const [pilotAction,setPilotAction]=useState<PilotAction|null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [pending, setPending] = useState<Entry | null>(null);
@@ -85,7 +91,7 @@ export function SpaceExperience() {
   const destination = useRef<SpaceScreen | null>(null);
   const audio = useRef<AudioContext | null>(null);
   const lastTone = useRef(0);
-  const previousScreen = useRef(route.screen);
+  const previousScreen = useRef(route.screen+(route.view??''));
   const returnTarget = useRef<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const en = route.locale === 'en';
@@ -106,6 +112,7 @@ export function SpaceExperience() {
   useEffect(() => {
     const sync = () => {
       const next = parseSpaceRoute(location.hash);
+      if(next.screen!=='information'){setArchivePulse(0);if(archivePulseTimer.current!==null)clearTimeout(archivePulseTimer.current);}
       const arrival = arrivalDestination.current;
       const ignite = arrival?.screen === next.screen;
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
@@ -127,6 +134,7 @@ export function SpaceExperience() {
       if (timer.current !== null) clearTimeout(timer.current);
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
       if (ignitionTimer.current !== null) clearTimeout(ignitionTimer.current);
+      if (archivePulseTimer.current !== null) clearTimeout(archivePulseTimer.current);
     };
   }, [cancel]);
 
@@ -146,19 +154,19 @@ export function SpaceExperience() {
 
   useEffect(() => {
     const ctx = audio.current;
-    if (!powerOn || arrivalView?.returning || !sound || !ctx || ctx.state !== 'running') return;
+    if (!((powerOn&&!arrivalView?.returning)||archivePulse) || !sound || !ctx || ctx.state !== 'running') return;
     const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .25), ctx.sampleRate);
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
     source.buffer = noise; filter.type = 'bandpass'; filter.frequency.value = 2400; filter.Q.value = .7;
-    const at = ctx.currentTime + .08;
+    const at = ctx.currentTime + (archivePulse?0:.08);
     gain.gain.setValueAtTime(0, at); gain.gain.linearRampToValueAtTime(volume / 100 * .25, at + .006);
     gain.gain.exponentialRampToValueAtTime(.0001, at + .25);
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination); source.start(at);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
     return () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
-  }, [powerOn, arrivalView?.returning, sound, volume]);
+  }, [powerOn, archivePulse, arrivalView?.returning, sound, volume]);
 
   useEffect(() => () => { void audio.current?.close().catch(() => {}); audio.current = null; }, []);
   useEffect(() => { setImageReady(false); setImageError(false); }, [scene]);
@@ -171,6 +179,7 @@ export function SpaceExperience() {
       if (event.target instanceof Element && event.target.closest('select, input, textarea, video, [contenteditable]')) return;
       if(route.screen==='guide'){event.preventDefault();guideController.current?.navigate('lounge');return;}
       if (destination.current) { cancel(); return; }
+      if(route.screen==='information'&&route.view==='missions'){event.preventDefault();openArchive();return;}
       if (route.screen === 'map') return; // The chart owns Escape for hierarchical navigation.
       if (!isOverview) beginTravel(scene);
     };
@@ -179,14 +188,16 @@ export function SpaceExperience() {
   }, [route, cancel, en, scene, isOverview, motion, sound, volume]);
 
   useLayoutEffect(() => {
-    if (previousScreen.current === route.screen) return;
-    previousScreen.current = route.screen;
+    const key=route.screen+(route.view??'');
+    if (previousScreen.current === key) return;
+    previousScreen.current = key;
+    if(route.screen==='information')document.querySelector('.room-information')?.scrollTo({top:0});
     if (route.screen === 'map') {
       document.getElementById('chart-title')?.focus({ preventScroll: true });
     } else if (isOverview && returnTarget.current && configuration.targets.some(target => target.id === returnTarget.current)) {
       document.getElementById(`space-marker-${returnTarget.current}`)?.focus({ preventScroll: true });
     } else heading.current?.focus({ preventScroll: true });
-  }, [route.screen, isOverview, configuration, scene]);
+  }, [route.screen, route.view, isOverview, configuration, scene]);
 
   useEffect(()=>{
     if(!pilotAction||route.screen!=='mission')return;
@@ -214,12 +225,24 @@ export function SpaceExperience() {
     cancel();
     if (next) location.hash = spaceHash({ ...route, screen: next });
   };
-  const enter = (event: MouseEvent, screen: SpaceScreen, target?: SceneTarget) => {
+  function openArchive(view?:ArchiveView){
+    if(archivePulseTimer.current!==null)clearTimeout(archivePulseTimer.current);
+    if(motion){setArchivePulse(value=>value+1);archivePulseTimer.current=setTimeout(()=>{archivePulseTimer.current=null;setArchivePulse(0);},250);}else setArchivePulse(0);
+    location.hash=spaceHash({...route,screen:'information',view});
+  }
+  useEffect(()=>{
+    if(route.screen==='information')void import('./mission-archive-data.mjs').then(module=>module.loadMissionArchive()).catch(()=>{});
+  },[route.screen]);
+  const enter = (event: MouseEvent, screen: SpaceScreen, target?: SceneTarget,view?:ArchiveView) => {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    beginTravel(screen,target);
+    if(screen==='information'&&route.screen==='information'){
+      if(route.view===view)return;
+      openArchive(view);return;
+    }
+    beginTravel(screen,target,view);
   };
-  function beginTravel(screen:SpaceScreen,target?:SceneTarget) {
+  function beginTravel(screen:SpaceScreen,target?:SceneTarget,view?:ArchiveView) {
     if(route.screen==='guide'){guideController.current?.navigate(screen);return;}
     if (destination.current || route.screen === screen) return;
     cancel();
@@ -231,7 +254,7 @@ export function SpaceExperience() {
       location.hash=spaceHash({...route,screen:'guide'});return;
     }
     if (!motion || (target && (!imageReady || imageError))) {
-      location.hash = spaceHash({ ...route, screen }); return;
+      location.hash = spaceHash({ ...route, screen, view }); return;
     }
     destination.current = screen;
     const returning = isReturnTravel(route.screen,screen);
@@ -245,7 +268,7 @@ export function SpaceExperience() {
       timer.current = null;
       if (destination.current) {
         arrivalDestination.current = {screen:destination.current,returning,focus:returnPlace?.focus??[50,50]};
-        location.hash = spaceHash({ ...route, screen: destination.current });
+        location.hash = spaceHash({ ...route, screen: destination.current, view });
       }
     }, returning?ignitionMs:departureMs);
   }
@@ -269,7 +292,7 @@ export function SpaceExperience() {
   };
   const leaveTarget = () => { hoveredTarget.current = null; releaseHighlight(); };
   const focusTarget = (id: string) => { setActive(id); tone(); releaseHighlight(); };
-  const href = (screen: SpaceScreen) => spaceHash({ ...route, screen });
+  const href = (screen: SpaceScreen,view?:ArchiveView) => spaceHash({ ...route, screen,view });
 
   // Existing console preview stays reachable by deep links and browser history.
   // It owns no production contract state. Room-sized 3D experiments are retired.
@@ -381,7 +404,7 @@ export function SpaceExperience() {
         onNavigate={screen=>{location.hash=spaceHash({...route,screen});}}
         onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title">
         <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
-        <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{word(names[route.screen])}</h1></div></header>
+        <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{route.view==='missions'?(en?'Mission catalogue':'미션 자료'):word(names[route.screen])}</h1></div></header>
         {route.screen === 'service' && <div className="space-information space-service">
           <ServiceAccountHistory locale={route.locale} />
           {[
@@ -389,21 +412,22 @@ export function SpaceExperience() {
             [en ? 'Release history' : '업데이트 기록', en ? 'Browse the changes in each STAM release.' : 'STAM의 버전별 변경 내용을 확인합니다.', `${publicSite}patch-notes.html`],
           ].map(([title, description, link],index) => <a key={title} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={(['mission','map'] as const)[index]!}/><small>{['FEEDBACK','RELEASES'][index]}</small></div><h2>{title}</h2><p>{description}</p><span>{en ? 'Open STAM' : 'STAM에서 열기'} ↗</span></a>)}
         </div>}
-        {route.screen === 'information' && <div className="space-information room-reference-library">
+        {route.screen === 'information' && route.view!=='missions' && <div className="space-information room-reference-library">
           <p>{en ? 'Prepare your next run. Browse mission conditions, cargo rules and source data.' : '다음 운송을 준비하세요. 미션 조건과 화물 적재 규칙, 자료 출처를 한곳에서 확인합니다.'}</p>
           {[
-            [en?'Mission catalogue':'미션 자료',en?'Compare mission rewards and cargo conditions. SCMDB comes first; Wiki fills missing information.':'SCMDB를 우선하고, 부족한 정보는 위키로 보충한 미션 자료입니다.',`${publicSite}operations-intel.html`,'mission','MISSION ARCHIVE'],
+            [en?'Mission catalogue':'미션 자료',en?'Compare mission rewards and cargo conditions. SCMDB comes first; Wiki fills missing information.':'SCMDB를 우선하고, 부족한 정보는 위키로 보충한 미션 자료입니다.',href('information','missions'),'mission','MISSION ARCHIVE'],
             [en?'Freight manual':'운송 이용안내',en?'Check ship preparation, contract intake, routes and cargo rules.':'함선 준비부터 계약 입력·항로 계산·화물 적재까지 확인합니다.',`${publicSite}guide.html`,'operations','FLIGHT MANUAL'],
             [en?'SCMDB source':'SCMDB 원본 자료',en?'Visit the source database for ships, missions and game data.':'함선·미션·게임 데이터의 원본 출처를 확인합니다.','https://scmdb.dev/','map','SOURCE DATABASE'],
-          ].map(([title,description,link,icon,code])=><a key={code} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} ↗</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
+          ].map(([title,description,link,icon,code])=><a key={code} href={link} target={code==='MISSION ARCHIVE'?undefined:'_blank'} rel={code==='MISSION ARCHIVE'?undefined:'noopener noreferrer'} onClick={code==='MISSION ARCHIVE'?event=>enter(event,'information',undefined,'missions'):undefined}><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} {code==='MISSION ARCHIVE'?'→':'↗'}</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
         </div>}
+        {route.screen==='information'&&route.view==='missions'&&<ArchiveBoundary en={en}><Suspense fallback={<p className="archive-load-state" role="status">{en?'Loading mission reference…':'미션 자료를 불러오고 있습니다.'}</p>}><MissionArchive locale={route.locale}/></Suspense></ArchiveBoundary>}
         {route.screen === 'cinema' && <div className="space-cinema"><div className="space-screen">
           {playing ? <video controls autoPlay playsInline preload="metadata" src={intro} poster={poster} aria-label={en ? 'STAM introduction' : 'STAM 소개영상'} onError={() => setMediaError(true)} /> : <button className="space-play" onClick={() => setPlaying(true)} aria-label={en ? 'Play STAM introduction' : 'STAM 소개영상 재생'}><img src={poster} alt=""/><span><b aria-hidden="true">▷</b>{en ? 'Play introduction' : '소개영상 재생'}</span></button>}
         </div><div className="space-cinema-caption"><span>STAM / FREIGHT DIVISION</span><p>{en ? 'Freight operations, with the STAM fleet.' : 'STAM 함대와 함께하는 운송.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
       </section>}
       {route.screen!=='guide' && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
-        <SpaceNavigation screen={route.screen} locale={route.locale} pending={!!pending} href={href} onNavigate={enter}/>
+        <SpaceNavigation screen={route.screen} locale={route.locale} view={route.view} pending={!!pending} href={href} onNavigate={(event,screen,view)=>enter(event,screen,undefined,view)}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {
           if (sound) { setSound(false); return; }
@@ -414,6 +438,7 @@ export function SpaceExperience() {
       </div></details>
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
+      {!!archivePulse&&<div key={archivePulse} className="archive-view-pulse" aria-hidden="true"><img src={archivePlasma} alt=""/></div>}
       <ConsoleArrival departing={approaching} powerOn={powerOn} returning={!!(pending?.returning||arrivalView?.returning)} departureMs={departureMs} ignitionMs={ignitionMs}/>
     </main>
 

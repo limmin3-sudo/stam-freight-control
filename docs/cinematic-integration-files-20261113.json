@@ -1,0 +1,123 @@
+{
+  "observedRemoteBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "latestBranch": "cinematic/archive-subpage-20261113",
+  "latestPr": 31,
+  "recommendedOrder": [
+    28,
+    29,
+    30,
+    31
+  ],
+  "includes": {
+    "31": [
+      30
+    ]
+  },
+  "notIncludedIn31": [
+    28,
+    29
+  ],
+  "entries": [
+    {
+      "pr": 28,
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/pull/28",
+      "branch": "cinematic/return-pullback-20261113",
+      "implementationSha": "e78971e355af574eb873a548fc417abfe8a47a6a",
+      "diffBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+      "files": [
+        "PROJECT_STATUS.md",
+        "apps/control-room/src/ConsoleArrival.tsx",
+        "apps/control-room/src/SpaceExperience.tsx",
+        "apps/control-room/src/console-arrival.css",
+        "apps/control-room/src/travel-direction.ts",
+        "apps/control-room/tests/travel-direction.test.ts",
+        "docs/cinematics/return-pullback-20261113/README.md",
+        "docs/cinematics/return-pullback-20261113/review/checks.json",
+        "docs/cinematics/return-pullback-20261113/review/lounge-mobile.png",
+        "docs/cinematics/return-pullback-20261113/review/lounge-pullback.png",
+        "docs/cinematics/return-pullback-20261113/review/return-travel.webm"
+      ]
+    },
+    {
+      "pr": 29,
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/pull/29",
+      "branch": "cinematic/guide-library-20261113",
+      "implementationSha": "0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1",
+      "diffBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+      "files": [
+        "PROJECT_STATUS.md",
+        "apps/control-room/src/SpaceExperience.tsx",
+        "apps/control-room/src/assets/arrival/record.json",
+        "apps/control-room/src/console-arrival.css",
+        "apps/control-room/src/content-optics.css",
+        "apps/control-room/src/space-config.ts",
+        "docs/cinematics/common-arrival-20261113/README.md",
+        "docs/design-review-20261113/guide-library/README.md",
+        "docs/design-review-20261113/guide-library/audio-250ms.json",
+        "docs/design-review-20261113/guide-library/checks.json",
+        "docs/design-review-20261113/guide-library/information-1366.png",
+        "docs/design-review-20261113/guide-library/information-390.png",
+        "docs/design-review-20261113/guide-library/service-1366.png",
+        "docs/design-review-20261113/guide-library/service-390.png"
+      ]
+    },
+    {
+      "pr": 30,
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/pull/30",
+      "branch": "cinematic/pilot-desk-20261113",
+      "implementationSha": "053963d715f168cffd3d2356bac044da206d8376",
+      "diffBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+      "files": [
+        "PROJECT_STATUS.md",
+        "apps/control-room/src/PilotDesk.tsx",
+        "apps/control-room/src/PilotTopbar.tsx",
+        "apps/control-room/src/ServiceAccountHistory.tsx",
+        "apps/control-room/src/SpaceExperience.tsx",
+        "apps/control-room/src/SpaceNavigation.tsx",
+        "apps/control-room/src/pilot-desk.css",
+        "apps/control-room/src/space-config.ts",
+        "docs/cinematics/pilot-console-20261113/README.md",
+        "docs/cinematics/pilot-console-20261113/review/checks.json",
+        "docs/cinematics/pilot-console-20261113/review/desktop-hover.png",
+        "docs/cinematics/pilot-console-20261113/review/desktop-summary.png",
+        "docs/cinematics/pilot-console-20261113/review/mobile-open.png",
+        "docs/cinematics/pilot-console-20261113/review/mobile-summary.png"
+      ]
+    },
+    {
+      "pr": 31,
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/pull/31",
+      "branch": "cinematic/archive-subpage-20261113",
+      "implementationSha": "ca452e670310c460f6b61a695c8d0841d2c335c0",
+      "diffBase": "053963d715f168cffd3d2356bac044da206d8376",
+      "files": [
+        "PROJECT_STATUS.md",
+        "apps/control-room/src/ArchiveBoundary.tsx",
+        "apps/control-room/src/MissionArchive.tsx",
+        "apps/control-room/src/SpaceExperience.tsx",
+        "apps/control-room/src/SpaceNavigation.tsx",
+        "apps/control-room/src/mission-archive-data.d.mts",
+        "apps/control-room/src/mission-archive-data.mjs",
+        "apps/control-room/src/mission-archive.css",
+        "apps/control-room/src/space-navigation.ts",
+        "apps/control-room/tests/mission-archive.test.ts",
+        "apps/control-room/tests/space-navigation.test.ts",
+        "docs/cinematics/archive-subpage-20261113/README.md",
+        "docs/cinematics/archive-subpage-20261113/review/archive-navigation.webm",
+        "docs/cinematics/archive-subpage-20261113/review/checks.json",
+        "docs/cinematics/archive-subpage-20261113/review/failure-retry.json",
+        "docs/cinematics/archive-subpage-20261113/review/mission-details.png",
+        "docs/cinematics/archive-subpage-20261113/review/missions-desktop.png",
+        "docs/cinematics/archive-subpage-20261113/review/missions-mobile.png",
+        "docs/cinematics/archive-subpage-20261113/review/submenu-mobile.png",
+        "docs/cinematics/archive-subpage-20261113/review/verification.json",
+        "docs/cinematics/archive-subpage-20261113/review/verify-browser.mjs"
+      ]
+    }
+  ],
+  "handoffOnlyFiles": [
+    "docs/CINEMATIC-INTEGRATION-HANDOFF-20261113.md",
+    "docs/cinematic-integration-files-20261113.json"
+  ],
+  "finalDocumentationHead": "Pinned as full SHA in PR31 body and handoff comment; implementation SHA is separately recorded."
+}
