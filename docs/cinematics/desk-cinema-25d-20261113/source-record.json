@@ -68,7 +68,7 @@
     "apps/control-room/src/assets/fonts/SUIT-Variable.woff2"
   ],
   "limitations": [
-    "Guide uses three static RGBA poses at fixed world locations, including ahead/rear and entrance gesture. No continuous walking cycle or lip animation.",
+    "Default preview uses three static RGBA poses. Experimental skeletal walking is opt-in via ?walk=1; see walk-study/source-record.json.",
     "Generated clean/near plates and cutout are derivatives; not exact recovered camera geometry or original segmentation pixels.",
     "Desk/lounge/cinema views are joined with short dissolves, not one physically continuous camera traversal.",
     "Optional speech uses an installed browser Korean voice, not an approved character performance.",
@@ -107,5 +107,6 @@
     "browser-realtime-original.webm": "Prior first trial with obsolete central terminal; not current preview",
     "browser-realtime-leading-guide.webm": "Intermediate guide trial with obsolete central terminal; not current preview"
   },
-  "currentRecording": "review/desk-to-cinema-preview.mp4 (approved terminal-free lounge composite)"
+  "currentRecording": "review/desk-to-cinema-preview.mp4 (approved terminal-free lounge composite)",
+  "experimentalWalkStudy": "walk-study/source-record.json"
 }

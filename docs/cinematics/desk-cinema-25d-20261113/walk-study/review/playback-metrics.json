@@ -1,0 +1,7 @@
+{
+  "medianFrameMs": 33.3,
+  "approxMedianFps": 30,
+  "environment": "Headless Chromium/SwiftShader with screen recording; hardware performance not measured",
+  "durationPerWalk": 2.04,
+  "steps": 3
+}

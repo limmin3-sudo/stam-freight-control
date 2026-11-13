@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "Joint animation advances and pauses/resumes; three-step motion ends with both feet planted; no character video or sprite-frame sequence",
+    "Walk uses approved terminal-free lounge and original approved portrait source",
+    "Loop respects pause/reset; mobile review has no horizontal overflow",
+    "Reduced-motion preference leaves study in the approved static pose",
+    "Optional tour mode moves the articulated guide before the existing cinema entrance/real-screen sequence",
+    "Default accepted static tour remains available and does not load the walk rig"
+  ],
+  "errors": [],
+  "badResponses": []
+}

@@ -22,3 +22,5 @@
 .destination em{display:block;font:500 clamp(11px,1.05cqw,17px)/1.5 SUIT,sans-serif;color:#edf5f7;letter-spacing:.02em;margin-top:5px;font-style:normal}
 .target-ring{width:clamp(20px,2.25cqw,36px);border-color:#fff0b6;border-width:2px;box-shadow:0 0 0 4px #08151b8c,0 0 0 5px #f1d69a50,0 0 18px #ffdc9a5e}
 @media(max-width:760px){.destination>div{right:-2px;top:var(--label-top,-70px);width:140px}.destination strong{font-size:22px}.destination em{font-size:10px;margin-top:2px}.destination small{font-size:7px;margin-bottom:2px}.target-ring{width:18px}}
+
+.walk-study-link{display:inline-block;padding:9px 13px;border:1px solid #dbbd7b65;color:#f3d69d;text-decoration:none;font-size:12px;white-space:nowrap}.walk-study-link:hover{color:#fff0ca;border-color:#e4c68c}
