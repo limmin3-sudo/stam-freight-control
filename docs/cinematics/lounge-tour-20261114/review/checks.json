@@ -1,0 +1,90 @@
+{
+  "checks": [
+    "Start and pause work; pause freezes the timeline.",
+    "Direct arrival skip waits for the real cinema DOM and does not stay on a frozen standby image.",
+    "Cinema → Archive → Service Center → Gate advances in order. The gate stops before boarding; existing shuttle playback is not started.",
+    "All five new transparent guide assets load and retain their source aspect ratio. Travel has no video element. This is not a likeness or walking-quality guarantee.",
+    "Using the real sidebar exits the preview overlay and preserves normal app navigation/chrome.",
+    "All four stops work at 390px without page horizontal overflow; captions remain readable outside the small photographic view.",
+    "Reduced-motion skips camera travel and disables the plasma flash.",
+    "Continuous real-time playback reaches all four destinations and finishes at the gate.",
+    "No page errors, failed HTTP responses or discarded kiosk-background requests in tested flow."
+  ],
+  "errors": [],
+  "badResponses": [],
+  "discarded": [],
+  "newAssets": [
+    "guide-escort.png",
+    "guide-cinema.png",
+    "guide-archive.png",
+    "guide-service.png",
+    "guide-waiting.png"
+  ],
+  "sourceAspects": {
+    "escort": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        3.2799073163989263,
+        -2.2143335626413037,
+        -9.710541174943952
+      ]
+    },
+    "cinema": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        3.253396858364117,
+        -2.2213641285292733,
+        -9.404882845144282
+      ]
+    },
+    "archive": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        2.2525840013927887,
+        -2.2212981124845554,
+        -8.521541997410402
+      ]
+    },
+    "service": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        1.2583893508766868,
+        -2.2213641285292733,
+        -9.404882845144282
+      ]
+    },
+    "waiting": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        -0.4944327469395182,
+        -2.2086831261311364,
+        -7.973992783448786
+      ]
+    },
+    "cinema-near": {
+      "source": 0.5,
+      "rendered": 0.5,
+      "foot": [
+        1.8018245403619557,
+        -2.1977271642823157,
+        -7.641820961254027
+      ]
+    }
+  },
+  "softwareBrowser": {
+    "medianTimelineCallbackIntervalMs": 16.69999999999709,
+    "approxMedianTimelineHz": 60,
+    "note": "Headless Chromium with SwiftShader and recording. Timeline callbacks include menu holds; not measured moving-render FPS or a hardware FPS guarantee"
+  },
+  "continuousRecording": "lounge-tour-realtime-original.webm",
+  "menuSeen": [
+    "cinema",
+    "information",
+    "service"
+  ]
+}
