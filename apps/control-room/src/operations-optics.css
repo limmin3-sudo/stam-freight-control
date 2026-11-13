@@ -1,0 +1,171 @@
+/* Content-only optics: the approved global header and sidebar stay unchanged. */
+.control-room.at-display .flight-operations.operations-desk {
+  --desk-font: BarlowAirReview, SUIT, sans-serif;
+  grid-template-rows: minmax(0,1fr) auto;
+  grid-template-areas: 'map progress' 'partner progress';
+  --gold: #f2cd88;
+  --ice: #aedee6;
+  --muted: #a6c1cd;
+  --ink: #e6f4f7;
+  font-family: var(--desk-font);
+  font-weight: 500;
+  font-synthesis: none;
+  background: radial-gradient(ellipse at 25% 0%, #15344380, transparent 65%), #050e16;
+}
+.control-room.at-display .flight-operations.operations-desk :is(button,input,select,textarea,h1,h2,h3,b,strong,small,summary,a,p,span,dt,dd,kbd,output,.console-dial) {
+  font-family: var(--desk-font);
+  font-weight: 500;
+}
+.control-room.at-display .flight-operations.operations-desk :is(.ops-map,.ops-progress,.ops-partner,.ops-live-cargo) {
+  border: 8px solid transparent;
+  border-image: url('./assets/material-review/projection-even-frame.svg') 28 / 13px stretch;
+  border-radius: 12px;
+  background: linear-gradient(125deg, #102b37d9, #07151fef 72%);
+  box-shadow: 0 10px 24px #0005, inset 0 0 30px #71c9dd08;
+  scrollbar-width: thin;
+  scrollbar-color: #416375 transparent;
+}
+.control-room.at-display .flight-operations.operations-desk .ops-status { color: #ead2a8; }
+.control-room.at-display .flight-operations.operations-desk .ops-status[data-active=true]::before { background: var(--gold); box-shadow: 0 0 8px #f2cd8840; }
+.control-room.at-display .flight-operations.operations-desk .ops-panel-head {
+  min-height: 58px;
+  padding: 9px 16px;
+  border: 0;
+  background: none;
+}
+.control-room.at-display .flight-operations.operations-desk .ops-panel-head h2 { font-size: 18px; letter-spacing: .04em; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress .ops-panel-head .interface-glyph { color: var(--gold); filter: none; }
+.control-room.at-display .flight-operations.operations-desk .ops-chart { border: 0; border-radius: 6px; margin: 4px 5px 5px; }
+.control-room.at-display .flight-operations.operations-desk .ops-chart::after { display: none; }
+
+/* Fixed optical edges, no pointer-following glint or sticky last-click highlight. */
+.control-room.at-display .flight-operations.operations-desk :is(button:not(.hologram-label),.ops-return,.ops-empty a,summary) {
+  border: 5px solid transparent;
+  border-image: url('./assets/material-review/projection-even-frame.svg') 28 fill / 8px stretch;
+  border-radius: 7px;
+  background: linear-gradient(125deg, #163745e8, #07151ff5);
+  color: #daeff4;
+  box-shadow: 0 3px 8px #0005, inset 0 1px #d6f6ff20;
+  padding: 7px 11px;
+  letter-spacing: .015em;
+  text-shadow: none;
+  transition: background-color .15s, box-shadow .15s;
+}
+.control-room.at-display .flight-operations.operations-desk :is(button:enabled,a,summary):hover { filter: brightness(1.1); }
+.control-room.at-display .flight-operations.operations-desk :is(button,a,summary,input,select):focus-visible { outline: 2px solid #f2cd88; outline-offset: 2px; }
+.control-room.at-display .flight-operations.operations-desk :is(.manifest-primary,button[aria-pressed=true],.map-crumbs .current) {
+  border: 1px solid #d6b579;
+  border-top-color: #ffe5b1;
+  border-image: none;
+  padding: 11px 15px;
+  background: linear-gradient(135deg, #59462bd9, #15252eef);
+  color: #ffe1a8;
+  box-shadow: inset 0 1px #fff1d33d, inset 0 -2px #a9824138, 0 3px 9px #0006, 0 0 14px #e9b95e12;
+}
+.control-room.at-display .flight-operations.operations-desk .flight-actions .manifest-primary { min-height: 48px; padding: 12px 20px; font-size: 16px; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress .trial-brief h2 { color: #f3dbb0; font-size: clamp(24px,2vw,32px); letter-spacing: 0; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress .trial-brief { gap: 13px; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress progress { border-radius: 3px; overflow: hidden; background: #27404b; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress progress::-webkit-progress-value { background: linear-gradient(90deg, #b58b45, #f4d69c); }
+.control-room.at-display .flight-operations.operations-desk .ops-progress progress::-moz-progress-bar { background: linear-gradient(90deg, #b58b45, #f4d69c); }
+.control-room.at-display .flight-operations.operations-desk .console-dial { width: 64px; color: #f4dbaf; }
+.control-room.at-display .flight-operations.operations-desk .console-dial::after { border-color: #a78c58; background: conic-gradient(from -90deg, #f2cd88 var(--dial-fill), #253a42 var(--dial-fill)); }
+.control-room.at-display .flight-operations.operations-desk .console-dial b { font-size: 22px; }
+.control-room.at-display .flight-operations.operations-desk .console-dial span { font-size: 10px; line-height: 1.3; margin-top: 2px; }
+.control-room.at-display .flight-operations.operations-desk .ops-tasks { padding-top: 16px; }
+.control-room.at-display .flight-operations.operations-desk .ops-tasks .trial-task { font-size: 15px; }
+.control-room.at-display .flight-operations.operations-desk .ops-tasks small { font-size: 13px; line-height: 1.65; }
+.control-room.at-display .flight-operations.operations-desk .ops-itinerary li { border-radius: 7px; padding: 12px; }
+.control-room.at-display .flight-operations.operations-desk .ops-itinerary li[aria-current=step] {
+  background: linear-gradient(110deg, #50402766, #15303b66);
+  box-shadow: inset 2px 0 #edc780;
+  color: #f5dcaf;
+}
+.control-room.at-display .flight-operations.operations-desk .ops-itinerary li[aria-current=step] .ops-stop-number { color: #f7d799; border-color: #d4b474a1; }
+.control-room.at-display .flight-operations.operations-desk .ops-stop-number { width: 30px; height: 30px; font-size: 17px; }
+.control-room.at-display .flight-operations.operations-desk .ops-itinerary b { font-size: 15px; }
+.control-room.at-display .flight-operations.operations-desk .ops-itinerary small { font-size: 12px; }
+.control-room.at-display .flight-operations.operations-desk :is(.ops-itinerary,.ops-record,.flight-route-editor)>summary {
+  border: 0;
+  border-image: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding: 7px 0;
+  font-size: 14px;
+}
+.control-room.at-display .flight-operations.operations-desk .run-readout dd { font-size: 21px; color: #ecd3a5; }
+.control-room.at-display .flight-operations.operations-desk .run-readout dt { font-size: 12px; }
+.control-room.at-display .flight-operations.operations-desk .ops-map .map-route-readout { background: #0b1e2aeb; border-left-color: var(--gold); box-shadow: 0 3px 12px #0006; }
+.control-room.at-display .flight-operations.operations-desk .ops-portrait { border: 1px solid #8bbfc568; border-radius: 6px; width: 70px; background: #091a24; }
+.control-room.at-display .flight-operations.operations-desk .ops-portrait img { object-fit: contain; border-radius: 4px; }
+.control-room.at-display .flight-operations.operations-desk .ops-transmission h2 { font-size: 19px; letter-spacing: .02em; }
+.control-room.at-display .flight-operations.operations-desk .ops-transmission p { font-size: 14px; line-height: 1.7; }
+@media(max-width:570px) {
+  .control-room.at-display .flight-operations.operations-desk .ops-status { font-size: 11px; }
+  .control-room.at-display .flight-operations.operations-desk .ops-panel-head { padding-inline: 10px; }
+  .control-room.at-display .flight-operations.operations-desk .ops-progress .trial-brief { padding: 12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .control-room.at-display .flight-operations.operations-desk :is(button,a,summary) { transition: none; }
+}
+
+/* The navigator keeps both live instruments visible; the operator has no cargo pane. */
+.control-room.at-display .flight-operations.operations-desk.has-cargo {
+  min-height: 620px;
+  grid-template-columns: minmax(0,1.3fr) minmax(0,1fr);
+  grid-template-rows: minmax(280px,1fr) clamp(240px,22vh,420px);
+  grid-template-areas: 'map hold' 'progress partner';
+}
+.operations-desk .ops-accessible-heading {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.control-room.at-display .flight-operations.operations-desk .ops-progress .ops-panel-head { gap: 10px; flex-wrap: wrap; }
+.control-room.at-display .flight-operations.operations-desk .ops-progress .ops-status { font-size: 12px; overflow: visible; }
+.control-room.at-display .flight-operations.operations-desk .ops-live-cargo .ops-panel-head { min-height: 46px; flex-wrap: wrap; padding-block: 5px; gap: 10px; }
+.control-room.at-display .flight-operations.operations-desk .ops-live-cargo .ops-return { font-size: 12px; padding: 5px 10px; }
+.operations-desk .ops-cargo-toolbar { flex: none; padding: 4px 12px; }
+.control-room.at-display .flight-operations.operations-desk .ops-live-cargo .ops-phase { position: static; flex-wrap: wrap; gap: 7px; }
+.control-room.at-display .flight-operations.operations-desk .ops-live-cargo .ops-phase button { font-size: 12px; padding: 6px 10px; }
+.operations-desk .ops-live-cargo .ops-cargo-note { margin: 7px 0 0; font-size: 12px; }
+.control-room.at-display .flight-operations.operations-desk .ops-live-cargo .cargo-stage { flex: 1; min-height: 180px; }
+@media(max-width:1100px) {
+  .control-room.at-display .flight-operations.operations-desk.has-cargo,
+  .control-room.at-display .flight-operations.operations-desk:not(.has-cargo) {
+    height: auto; min-height: 100%; grid-template-columns: minmax(0,1fr);
+  }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo {
+    grid-template-rows: auto auto 350px 420px;
+    grid-template-areas: 'progress' 'partner' 'map' 'hold';
+  }
+  .control-room.at-display .flight-operations.operations-desk:not(.has-cargo) {
+    grid-template-rows: auto 350px auto;
+    grid-template-areas: 'progress' 'map' 'partner';
+  }
+  .control-room.at-display .flight-operations.operations-desk .ops-progress { overflow: visible; }
+}
+
+/* Match the legacy run-desk proportions: 1.3:1 instruments, compact work bar below. */
+.control-room.at-display .flight-operations.operations-desk.has-cargo .ops-partner { max-height: none; align-items: flex-start; }
+.control-room.at-display .flight-operations.operations-desk.has-cargo .ops-partner .ops-tasks { margin-top: 10px; padding-top: 10px; }
+.control-room.at-display .flight-operations.operations-desk.has-cargo .ops-partner .ops-tasks .trial-task { margin-top: 8px; font-size: 14px; }
+@media(min-width:1101px) {
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .ops-panel-head { min-height: 40px; padding-block: 3px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .console-dial { width: 42px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .console-dial b { font-size: 17px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .console-dial span { display: none; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .trial-brief {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.85fr);
+    gap: 6px 16px; padding: 10px 16px;
+  }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .trial-brief>small { display: none; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-position { grid-column: 1; grid-row: 1; font-size: 12px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .trial-brief h2 { grid-column: 1; grid-row: 2; font-size: 23px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .flight-next { grid-column: 1; grid-row: 3; font-size: 13px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .flight-actions { grid-column: 2; grid-row: 1 / 4; gap: 6px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress progress { grid-column: 1 / -1; grid-row: 4; margin: 3px 0; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-progress .flight-actions .manifest-primary { min-height: 42px; padding: 9px 14px; font-size: 15px; }
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-itinerary,
+  .control-room.at-display .flight-operations.operations-desk.has-cargo .ops-record { margin-block: 3px; padding-top: 3px; }
+}

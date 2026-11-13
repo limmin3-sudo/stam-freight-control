@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {chooseInitialPartner} from './browser-partner-choice.mjs';
 import {mkdir} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(pathToFileURL(process.env.STAM_PLAYWRIGHT_MODULE||'/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs'));
@@ -6,18 +7,20 @@ const output=process.env.STAM_QA_OUTPUT||'/tmp/stam-cargo-review';await mkdir(ou
 const browser=await chromium.launch({executablePath:process.env.STAM_CHROMIUM||'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
 const errors=[];
 try{
- const page=await browser.newPage({viewport:{width:1600,height:1000},deviceScaleFactor:1,reducedMotion:'reduce'});
+ const page=await browser.newPage({viewport:{width:1920,height:1080},deviceScaleFactor:1,reducedMotion:'reduce'});
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&/THREE|Shader|WebGL/.test(m.text()))errors.push(m.text());});
  await page.addInitScript(()=>localStorage.setItem('vh-map-quality','normal'));
  await page.goto((process.env.STAM_MISSION_URL||'http://127.0.0.1:5182/')+'#/mission?lang=ko');
+ await chooseInitialPartner(page,'navigator');
  await page.getByRole('button',{name:'예시 계약 보기',exact:true}).click();
  await page.locator('.receipt-card').first().getByRole('checkbox').check();await page.locator('.receipt-card').nth(1).getByRole('checkbox').check();
- await page.getByLabel('운항 파트너',{exact:true}).selectOption('navigator');await page.locator('.dispatch-launch').click();
+ await page.locator('.dispatch-launch').click();
  await page.waitForSelector('.navigation-chart[data-ready=true]');
  await page.locator('.chart-stop-select').nth(1).click();
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('stam.control-room.flight.v1')));
  await page.getByRole('button',{name:'적재 3D 보기'}).click();
  const host=page.locator('.cargo-render-surface');await page.waitForSelector('.cargo-render-surface[data-ready=true]');
+ assert.match(await page.locator('.cargo-stage .cargo-stage-scale').evaluate(el=>getComputedStyle(el).fontFamily),/BarlowAirReview/);
  await page.waitForFunction(()=>document.querySelector('.cargo-render-surface')?.dataset.view);
  assert.equal(Number(await host.getAttribute('data-boxes')),state.plan.visits[1].packing.boxes.length);
  const box=await host.boundingBox();let picked=false;
@@ -27,6 +30,7 @@ try{
  }
  assert(picked,'3D crate selects real ownership');
  await page.getByRole('dialog').getByRole('button',{name:'위',exact:true}).click();
+ assert.equal(await page.getByRole('dialog').getByRole('button',{name:'위',exact:true}).getAttribute('aria-pressed'),'true');
  await page.getByRole('dialog').getByRole('button',{name:'전체',exact:true}).click();
  await page.mouse.move(20,20);await page.waitForTimeout(800);await page.screenshot({path:output+'/cargo-hold.png'});console.log('Captured real app cargo dialog');
  const before=await host.getAttribute('data-view');await page.getByRole('button',{name:'위',exact:true}).click();
@@ -50,7 +54,10 @@ try{
    if(snapshot!==JSON.stringify({ship,packing}))throw Error(id+': packing mutated');
    if(+host.dataset.boxes!==packing.boxes.length)throw Error(id+': lost crates');
    const disabled=cargoShip(id,[ship.grids[0].id]),next=cargoPacking(disabled,demoCargo());view.update(disabled,next,false);
+   if(+host.dataset.grids!==ship.grids.length-1||host.querySelectorAll('.grid-caption').length!==ship.grids.length-1)throw Error(id+': disabled grid still drawn');
    if(next?.boxes.some(b=>b.bin===0))throw Error(id+': disabled grid packed');
+   view.update(ship,packing,false);if(+host.dataset.grids!==ship.grids.length)throw Error(id+': enabled empty grid missing');
+   const allOff=cargoShip(id,ship.grids.map(g=>g.id));view.update(allOff,null,false);if(host.dataset.view?.includes('null'))throw Error(id+': all-disabled camera invalid');
    view.update(ship,packing,false);checks.push(id);
   }}finally{view.dispose();host.remove();}return checks;
  });

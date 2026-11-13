@@ -6,16 +6,16 @@ import locations from '../../../data/locations.json';
 import {chartAppearance} from './chart-appearance';
 
 export type ChartCommand={serial:number;kind:'focus'|'leg'|'home'|'top'|'galaxy'|'system'|'zoom';id?:string;value?:number};
-export function NavigationChart({locale,plan,index=0,command,orbits=true,quality='high',onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;onSelect?:(point:Point)=>void}){
+export function NavigationChart({locale,plan,index=0,command,orbits=true,quality='high',look='physical',onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void}){
  const host=useRef<HTMLDivElement>(null),map=useRef<StarMap|null>(null),latest=useRef({plan,index,onSelect,orbits,quality});latest.current={plan,index,onSelect,orbits,quality};
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);
  useEffect(()=>{
   let cancelled=false,appearance:ReturnType<typeof chartAppearance>|undefined;
   setReady(false);setFailed(false);
-  void Promise.all([import('../../../starmap.mjs'),document.fonts.load('600 14px SUIT')]).then(([{createStarMap}])=>{
+  void Promise.all([import('../../../starmap.mjs'),Promise.all([document.fonts.load('500 14px SUIT'),document.fonts.load('500 14px BarlowAirReview')])]).then(([{createStarMap}])=>{
    if(cancelled||!host.current)return;
    try{
-    appearance=chartAppearance(locale);
+    appearance=chartAppearance(locale,look);
     const view=createStarMap(host.current,null,locations,p=>latest.current.onSelect?.(p),appearance);map.current=view;
     view.setRoute(latest.current.plan,latest.current.index);view.setOrbits(latest.current.orbits);view.setQuality(latest.current.quality);
     const start=latest.current.plan?.startId.split(':')[0];if(start)view.setSystem(start);
@@ -23,7 +23,7 @@ export function NavigationChart({locale,plan,index=0,command,orbits=true,quality
    }catch(error){console.error('Navigation chart failed',error);setFailed(true);}
   }).catch(()=>{if(!cancelled)setFailed(true);});
   return()=>{cancelled=true;map.current?.dispose();map.current=null;appearance?.dispose();};
- },[locale]);
+ },[locale,look]);
  useEffect(()=>{map.current?.setRoute(plan,index);},[plan,index]);
  useEffect(()=>{map.current?.setOrbits(orbits);},[orbits]);
  useEffect(()=>{map.current?.setQuality(quality);try{localStorage.setItem('vh-map-quality',quality);}catch{}},[quality]);

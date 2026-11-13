@@ -9,7 +9,7 @@ import {paintedCargoSurface,cargoIdentification,cargoMicrosurface,hologramField,
 
 export type CargoCamera='orbit'|'top'|'port'|'starboard';
 type Marker={node:HTMLElement;position:THREE.Vector3};
-export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>void,onFailure:()=>void){
+export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>void,onFailure:()=>void,onCameraChange:(mode:CargoCamera|null)=>void=()=>{}){
  const scene=new THREE.Scene();scene.background=new THREE.Color('#020611');
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -111,11 +111,12 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
   root.clear();selectable.length=0;objects.clear();markers.length=0;labels.replaceChildren();
  }
  function update(ship:CargoShip,packing:Packing|null,en:boolean){
-  const nextShape=JSON.stringify([ship.id,ship.grids.map(g=>[g.x,g.y,g.z,g.w,g.h,g.l,g.rotation])]);
+  const nextShape=JSON.stringify([ship.id,ship.grids.map(g=>[g.x,g.y,g.z,g.w,g.h,g.l,g.rotation,g.disabled])]);
   const refit=gridShape!==nextShape;gridShape=nextShape;
   resetContent();
   const bounds=new THREE.Box3();
   for(const [index,g] of ship.grids.entries()){
+   if(g.disabled)continue;
    const obj=new THREE.Group();obj.position.set(g.x+g.w/2,g.y+g.h/2,g.z+g.l/2);obj.rotation.set(...(g.rotation.map(a=>a*Math.PI/180) as [number,number,number]));root.add(obj);
    const shape=new THREE.BoxGeometry(g.w,g.h,g.l);
    const cage=new THREE.LineSegments(new THREE.EdgesGeometry(shape),new THREE.LineBasicMaterial({color:g.disabled?0x7c8a91:0x9dbfd0,transparent:true,opacity:g.disabled?.3:.52}));shape.dispose();obj.add(cage);
@@ -147,6 +148,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    const name=ship.grids.length===1?(en?'HOLD':'화물칸'):`${en?'GRID':'구역'} ${String(index+1).padStart(2,'0')}`;
    marker(`${name}  ·  ${g.disabled?'OFF':`${used} / ${g.w*g.h*g.l} SCU`}${ship.grids.length>4?'':`\n${g.w} × ${g.l} × ${g.h} ${en?'cells':'셀'}`}`,obj.localToWorld(new THREE.Vector3(0,g.h/2+.35,0)),g.disabled?'grid-caption disabled':'grid-caption');
   }
+  if(bounds.isEmpty())bounds.set(new THREE.Vector3(-1,-1,-1),new THREE.Vector3(1,1,1));
   bounds.getCenter(center);const size=bounds.getSize(new THREE.Vector3());radius=Math.max(3,size.length()*.55);
   scene.fog=new THREE.FogExp2(0x020611,.006/radius*10);
   // Only ship-defined attachment grids are rendered. There is no room-wide floor.
@@ -197,10 +199,11 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    batch.matrices.forEach((matrix,i)=>instances.setMatrixAt(i,matrix));instances.instanceMatrix.needsUpdate=true;instances.castShadow=true;instances.receiveShadow=true;
    instances.userData.boxIds=batch.ids;root.add(instances);if(batch.ids.some(Boolean))selectable.push(instances);
   }
-  select(selected);if(refit)home('orbit',true);host.dataset.grids=String(ship.grids.length);host.dataset.boxes=String(packing?.boxes.length||0);host.dataset.ready='true';invalidate();
+  select(selected);if(refit)home('orbit',true);host.dataset.grids=String(ship.grids.filter(g=>!g.disabled).length);host.dataset.boxes=String(packing?.boxes.length||0);host.dataset.ready='true';invalidate();
  }
  function select(id:string|null){selected=id;objects.forEach((o,key)=>{const outline=o.getObjectByName('selection')!;outline.visible=key===selected||key===hover;});invalidate();}
  function home(mode:CargoCamera='orbit',instant=false){
+  onCameraChange(mode);
   controls.enableDamping=false;controls.update();controls.enableDamping=true;
   const dir=mode==='top'?new THREE.Vector3(0,1,.001):mode==='port'?new THREE.Vector3(-1,.2,.001):mode==='starboard'?new THREE.Vector3(1,.2,.001):new THREE.Vector3(-.9,.85,1.15);
   const distance=radius*3.5/Math.min(1,camera.aspect);const to=center.clone().add(dir.normalize().multiplyScalar(distance));controls.minDistance=radius*.55;controls.maxDistance=distance*2.5;
@@ -208,11 +211,28 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
   else transition={from:camera.position.clone(),target:controls.target.clone(),to,start:performance.now()};
   invalidate();
  }
- function zoom(amount:number){transition=null;const d=camera.position.clone().sub(controls.target);d.setLength(THREE.MathUtils.clamp(d.length()*amount,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(d);invalidate();}
+ function zoom(amount:number){onCameraChange(null);transition=null;const d=camera.position.clone().sub(controls.target);d.setLength(THREE.MathUtils.clamp(d.length()*amount,controls.minDistance,controls.maxDistance));camera.position.copy(controls.target).add(d);invalidate();}
  function render(now:number){frame=0;if(dead||!visible||document.hidden)return;
   const moving=!!transition;if(transition){const t=THREE.MathUtils.clamp((now-transition.start)/450,0,1),s=t*t*(3-2*t);camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.target,center,s);if(t===1)transition=null;}
   const changed=controls.update();const off=controls.target.clone().sub(center);if(off.length()>radius){const correction=off.setLength(off.length()-radius);controls.target.sub(correction);camera.position.sub(correction);}
-  if(dirty||changed||moving){host.dataset.view=JSON.stringify([...camera.position.toArray(),...controls.target.toArray()].map(n=>+n.toFixed(4)));renderer.render(scene,camera);dirty=false;const w=host.clientWidth,h=host.clientHeight;for(const mark of markers){const p=mark.position.clone().project(camera);mark.node.hidden=p.z>1||p.z< -1||Math.abs(p.x)>.95||Math.abs(p.y)>.9;const half=mark.node.offsetWidth/2+8;const x=THREE.MathUtils.clamp((p.x*.5+.5)*w,half,w-half);mark.node.style.transform=`translate(${x}px,${(-p.y*.5+.5)*h}px) translate(-50%,-50%)`;}}
+  if(dirty||changed||moving){host.dataset.view=JSON.stringify([...camera.position.toArray(),...controls.target.toArray()].map(n=>+n.toFixed(4)));renderer.render(scene,camera);dirty=false;const w=host.clientWidth,h=host.clientHeight;
+   const occupied:{x:number;y:number;w:number;h:number}[]=[];
+   for(const mark of [...markers].sort((a,b)=>Number(b.node.classList.contains('orientation'))-Number(a.node.classList.contains('orientation')))){
+    const p=mark.position.clone().project(camera);
+    mark.node.hidden=p.z>1||p.z< -1||Math.abs(p.x)>.95||Math.abs(p.y)>.9;
+    if(mark.node.hidden)continue;
+    const mw=mark.node.offsetWidth,mh=mark.node.offsetHeight;
+    const x=THREE.MathUtils.clamp((p.x*.5+.5)*w,mw/2+8,Math.max(mw/2+8,w-mw/2-8));
+    const anchor=(-p.y*.5+.5)*h;
+    let placed=false;
+    for(const offset of [0,22,-22,44,-44,66,-66]){
+     const y=anchor+offset,rect={x:x-mw/2,y:y-mh/2,w:mw,h:mh};
+     if(rect.y<8||rect.y+mh>h-14||occupied.some(r=>rect.x<r.x+r.w+6&&rect.x+mw+6>r.x&&rect.y<r.y+r.h+4&&rect.y+mh+4>r.y))continue;
+     mark.node.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`;occupied.push(rect);placed=true;break;
+    }
+    mark.node.hidden=!placed;
+   }
+  }
   if(changed||transition)invalidate();
  }
  function invalidate(){dirty=true;if(!frame&&!dead&&visible&&!document.hidden)frame=requestAnimationFrame(render);}
@@ -220,7 +240,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);
  const observer=new IntersectionObserver(entries=>{visible=!!entries[0]?.isIntersecting;if(visible)invalidate();});observer.observe(host);
  const visibility=()=>{if(!document.hidden)invalidate();};document.addEventListener('visibilitychange',visibility);
- controls.addEventListener('change',invalidate);controls.addEventListener('start',()=>{transition=null;});
+ controls.addEventListener('change',invalidate);controls.addEventListener('start',()=>{transition=null;onCameraChange(null);});
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down:number[]|null=null;
  function hit(e:PointerEvent){const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);const h=ray.intersectObjects(selectable,false)[0];return h?.instanceId!==undefined?h.object.userData.boxIds[h.instanceId] as string:undefined;}
  const pointerDown=(e:PointerEvent)=>{down=e.isPrimary&&e.button===0&&!e.shiftKey&&!e.ctrlKey?[e.clientX,e.clientY]:null;};

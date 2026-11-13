@@ -28,9 +28,9 @@ export function cargoIdentification(size:number){
  const cv=document.createElement('canvas');cv.width=512;cv.height=256;const c=cv.getContext('2d')!;
  c.fillStyle='#14232b';c.fillRect(0,0,512,256);
  c.strokeStyle='#819298';c.lineWidth=4;c.strokeRect(6,6,500,244);
- c.fillStyle='#b9c9cd';c.font='600 24px SUIT, sans-serif';c.fillText('STAM  /  FREIGHT',30,47);
- c.fillStyle='#f0f4ec';c.font='700 86px SUIT, sans-serif';c.fillText(`${size} SCU`,27,148);
- c.fillStyle='#98abb2';c.font='500 19px SUIT, sans-serif';c.fillText('CARGO CONTAINER',30,188);
+ c.fillStyle='#b9c9cd';c.font='500 24px BarlowAirReview, SUIT, sans-serif';c.fillText('STAM  /  FREIGHT',30,47);
+ c.fillStyle='#f0f4ec';c.font='500 86px BarlowAirReview, SUIT, sans-serif';c.fillText(`${size} SCU`,27,148);
+ c.fillStyle='#98abb2';c.font='500 19px BarlowAirReview, SUIT, sans-serif';c.fillText('CARGO CONTAINER',30,188);
  for(let x=31;x<480;x+=7)c.fillRect(x,209,1+(x%3),17);
  const map=new THREE.CanvasTexture(cv);map.colorSpace=THREE.SRGBColorSpace;return map;
 }

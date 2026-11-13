@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(pathToFileURL(process.env.STAM_PLAYWRIGHT_MODULE||'/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs'));
-const base=process.env.STAM_MISSION_URL||'http://127.0.0.1:5182/';
+const base=process.env.STAM_MISSION_URL||'http://127.0.0.1:5186/';
 const output=process.env.STAM_QA_OUTPUT||'/tmp/stam-navigation-qa';await mkdir(output,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.STAM_CHROMIUM||'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
 const key='stam.control-room.flight.v1',errors=[];
@@ -17,7 +17,7 @@ try{
  await page.waitForSelector('.navigation-chart[data-ready=true]');await settled(page);console.log('map ready');
  const state=await saved(page);assert.equal(await page.locator('.chart-stop-select').count(),state.plan.visits.length);
  const boxes=await page.locator('.chart-space,.chart-itinerary').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,right:r.right};}));assert(boxes[0].right<=boxes[1].x,'map is left, itinerary right');
- await page.screenshot({path:output+'/map-overview.png'});
+ await page.screenshot({path:output+'/map-overview.png'});assert.equal(await page.locator('.chart-stop-details:visible').count(),1);assert.equal(await page.locator('.chart-route-summary').count(),1);
  const canvas=page.locator('.navigation-chart canvas');const view=async()=>JSON.parse(await canvas.getAttribute('data-view'));
  if(!process.env.STAM_SKIP_GESTURES){
  const rect=await canvas.boundingBox(),x=rect.x+rect.width*.4,y=rect.y+rect.height*.45;
@@ -41,6 +41,7 @@ try{
  await page.getByRole('button',{name:'닉스',exact:true}).click();await page.waitForSelector('.navigation-chart canvas[data-system=nyx]');await settled(page);assert.equal(await canvas.getAttribute('data-system'),'nyx');
  await page.locator('.chart-stop-select').nth(1).click();await page.waitForSelector('.navigation-chart canvas[data-system=stanton]');await settled(page);assert.equal(await canvas.getAttribute('data-system'),'stanton','route selection returns to correct system');assert.equal(await page.locator('.chart-selected strong').innerText(),await page.locator('.chart-stop-select strong').nth(1).innerText());
  await page.getByRole('button',{name:'거점 검색 · 항성계 탐색'}).click();await page.screenshot({path:output+'/map-stop.png'});
+ assert.equal(await page.locator('.chart-stop-details:visible').count(),1);assert.equal(await page.locator('.chart-stop-select').nth(1).getAttribute('aria-expanded'),'true');
  const expected=state.plan.visits[1].packing.boxes.length;
  await page.getByRole('button',{name:'적재 3D 보기'}).click();await page.waitForSelector('.cargo-render-surface[data-ready=true]');const cargo=page.locator('.cargo-render-surface');assert.equal(Number(await cargo.getAttribute('data-boxes')),expected);
  await page.getByRole('button',{name:'위',exact:true}).click();await page.waitForTimeout(750);await page.getByRole('button',{name:'전체',exact:true}).click();await page.waitForTimeout(750);
@@ -50,9 +51,9 @@ try{
  assert(picked,'rendered crate selects a real box');await page.screenshot({path:output+'/cargo-3d.png'});
  assert.deepEqual((await saved(page)).run,state.run,'cargo preview does not change run');await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
  // Change presentation locale without losing the plan.
- for(const locale of ['en','mix','ko']){await page.locator('.chart-navigation select').selectOption(locale);await page.waitForSelector('.navigation-chart[data-ready=true]');assert.deepEqual((await saved(page)).plan,state.plan);}
+ for(const locale of ['en','mix','ko']){await page.locator('.space-language select').selectOption(locale);await page.waitForSelector('.navigation-chart[data-ready=true]');assert.deepEqual((await saved(page)).plan,state.plan);}
  await page.setViewportSize({width:390,height:844});await page.waitForTimeout(500);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile does not overflow horizontally');await page.screenshot({path:output+'/map-mobile.png'});
- await page.setViewportSize({width:1440,height:900});await page.locator('.chart-navigation a').first().click();await page.waitForSelector('.mission-screen');assert.equal(await page.locator('.receipt-select input:checked').count(),2);
+ await page.setViewportSize({width:1440,height:900});await page.locator('.space-nav-links a[href*="mission"]').click();await page.waitForSelector('.mission-screen');assert.equal(await page.locator('.receipt-select input:checked').count(),2);
  await page.evaluate(()=>location.hash='#/operations?lang=ko');await page.waitForSelector('.ops-map .navigation-chart[data-ready=true]');assert.deepEqual((await saved(page)).plan,state.plan);
  console.log('systems, moon focus, route framing, cargo ownership, preview isolation, locale, mobile and shared operations map pass');
  // Updating the cargo for the same grid retains the user's camera (regression).
@@ -66,7 +67,7 @@ try{
  },key);
  // Exercise the physical table and independent map against a real, in-progress haul.
  await page.getByRole('button',{name:'운항 시작',exact:true}).click();
- const complete=page.locator('.flight-actions button.manifest-primary');
+ const complete=page.locator('.ops-progress .flight-actions button.manifest-primary');
  await complete.click();
  await complete.click();
  const loaded=(await saved(page)).run;

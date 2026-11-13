@@ -107,14 +107,14 @@ export function starCoronaMaterial(color){return new THREE.ShaderMaterial({unifo
  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;varying vec3 vP;varying vec3 vN;varying vec3 vW;${NOISE}
  void main(){\n#include <logdepthbuf_fragment>\nfloat edge=1.-abs(dot(normalize(vN),normalize(cameraPosition-vW)));float band=pow(edge,7.);float curl=.7+.3*fbm(normalize(vP)*12.+vec3(uTime*.012),3);gl_FragColor=vec4(uColor*vec3(.9,.7,.45),band*curl*.28);}`});}
 // Route ribbon: screen-space width, glowing core, flowing energy, reveal animation (Star Citizen-style quantum line).
-export function routeRibbon(points,{color='#5fe6ff',width=5,flow=1,dashed=false}={}){
+export function routeRibbon(points,{color='#5fe6ff',width=5,flow=1,dashed=false,optical=false}={}){
  const n=points.length,pos=[],prev=[],next=[],side=[],along=[],idx=[];let len=0;const acc=[0];for(let i=1;i<n;i++){len+=points[i].distanceTo(points[i-1]);acc.push(len);}
  for(let i=0;i<n;i++){const p=points[i],a=points[Math.max(0,i-1)],b=points[Math.min(n-1,i+1)];for(const sd of [-1,1]){pos.push(p.x,p.y,p.z);prev.push(a.x,a.y,a.z);next.push(b.x,b.y,b.z);side.push(sd);along.push(acc[i]/Math.max(len,1e-9));}if(i<n-1){const k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2);}}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aPrev',new THREE.Float32BufferAttribute(prev,3));g.setAttribute('aNext',new THREE.Float32BufferAttribute(next,3));g.setAttribute('aSide',new THREE.Float32BufferAttribute(side,1));g.setAttribute('aAlong',new THREE.Float32BufferAttribute(along,1));g.setIndex(idx);
- const m=new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uWidth:{value:width},uRes:{value:new THREE.Vector2(1,1)},uTime:{value:0},uReveal:{value:0},uFlow:{value:flow},uMotion:{value:1},uDashed:{value:dashed?1:0},uLen:{value:len},uAlpha:{value:1}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
+ const m=new THREE.ShaderMaterial({uniforms:{uColor:{value:new THREE.Color(color)},uWidth:{value:width},uRes:{value:new THREE.Vector2(1,1)},uTime:{value:0},uReveal:{value:0},uFlow:{value:flow},uMotion:{value:1},uDashed:{value:dashed?1:0},uLen:{value:len},uAlpha:{value:1},uOptical:{value:optical?1:0}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
   vertexShader:LOGV+`attribute vec3 aPrev;attribute vec3 aNext;attribute float aSide;attribute float aAlong;uniform float uWidth;uniform vec2 uRes;varying float vAcross;varying float vAlong;
   void main(){mat4 pv=projectionMatrix*modelViewMatrix;vec4 c=pv*vec4(position,1.),a=pv*vec4(aPrev,1.),b=pv*vec4(aNext,1.);vec2 sc=c.xy/c.w,sa=a.xy/a.w,sb=b.xy/b.w;vec2 d=sb-sa;if(length(d)<1e-6)d=vec2(1.,0.);d=normalize(d*uRes);vec2 nrm=vec2(-d.y,d.x);c.xy+=nrm*aSide*uWidth*2./uRes*c.w;gl_Position=c;vAcross=aSide;vAlong=aAlong;\n#include <logdepthbuf_vertex>\n}`,
-  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;uniform float uReveal;uniform float uFlow;uniform float uMotion;uniform float uDashed;uniform float uLen;uniform float uAlpha;varying float vAcross;varying float vAlong;
+  fragmentShader:LOGF+`uniform vec3 uColor;uniform float uTime;uniform float uReveal;uniform float uFlow;uniform float uMotion;uniform float uDashed;uniform float uLen;uniform float uAlpha;uniform float uOptical;varying float vAcross;varying float vAlong;
   void main(){\n#include <logdepthbuf_fragment>\nif(vAlong>uReveal)discard;float x=abs(vAcross);
   float edge=1.-smoothstep(.72,1.,x),core=1.-smoothstep(.09,.27,x);
   float repeats=clamp(uLen*.7,4.,28.);float phase=fract(vAlong*repeats-uTime*.32*uFlow*uMotion);
@@ -124,6 +124,14 @@ export function routeRibbon(points,{color='#5fe6ff',width=5,flow=1,dashed=false}
   float head=(1.-smoothstep(0.,.025,abs(vAlong-uReveal)))*step(uReveal,.999);
   float alpha=(core*.6+edge*.11+chevron*.72+head*.6)*dash*uAlpha;
   vec3 col=mix(uColor,vec3(.92,.98,1.),min(.35,chevron*.25+pulse*.1));
+  if(uOptical>.5){
+   // A continuous projected filament with sparse travelling light, not a braided cable.
+   float filament=1.-smoothstep(.14,.52,x),halo=exp(-x*x*5.);
+   float signal=pow(max(0.,1.-abs(fract(vAlong*3.-uTime*.12*uFlow*uMotion)-.5)*2.),18.);
+   float localDash=uDashed>.5?mix(.32,1.,smoothstep(.22,.32,fract(vAlong*repeats))):1.;
+   alpha=(filament*.62+halo*.16+signal*filament*.2)*localDash*uAlpha;
+   col=mix(uColor,vec3(.92,.98,1.),signal*.28);
+  }
   gl_FragColor=vec4(col,clamp(alpha,0.,.95));}`});
  const mesh=new THREE.Mesh(g,m);mesh.frustumCulled=false;mesh.renderOrder=4;return mesh;}
 export function glowTexture(color,ring=false){
@@ -155,11 +163,11 @@ export function iconTexture(kind,color){const key='i:'+kind+color;if(cache.has(k
 
 // Two-line label (NAME + subtitle) drawn on a canvas; used as a screen-sized sprite pinned to its object.
 export function labelSprite(name,sub,color='#cfe6f2',opts={}){const c=document.createElement('canvas'),g=c.getContext('2d'),title=opts.upper===false?name:name.toUpperCase(),big=opts.font||(opts.big?44:36),subFont=opts.subFont||24;
- g.font=`700 ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;const tw=g.measureText(title).width;g.font=`500 ${subFont}px ${opts.fontFamily||'"Noto Sans KR",Arial,sans-serif'}`;const sw=sub?g.measureText(sub).width:0;
+ g.font=`${opts.fontWeight||700} ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;const tw=g.measureText(title).width;g.font=`500 ${subFont}px ${opts.fontFamily||'"Noto Sans KR",Arial,sans-serif'}`;const sw=sub?g.measureText(sub).width:0;
  c.width=Math.ceil(Math.max(tw,sw)+28);c.height=sub?big+subFont+24:big+20;g.textAlign='center';g.textBaseline='top';
  if(opts.backed){const glass=g.createLinearGradient(0,0,0,c.height);glass.addColorStop(0,'rgba(18,39,50,.95)');glass.addColorStop(1,'rgba(3,10,19,.9)');g.fillStyle=glass;g.beginPath();g.roundRect(1,1,c.width-2,c.height-2,8);g.fill();g.strokeStyle=opts.border||'rgba(154,203,226,.55)';g.lineWidth=1;g.stroke();g.fillStyle=color;g.fillRect(2,10,3,c.height-20);}
  if(opts.pill){g.fillStyle=opts.pill;const r=c.height/2;g.beginPath();g.roundRect(2,2,c.width-4,c.height-4,r);g.fill();}
- g.font=`700 ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;g.shadowColor=opts.pill?'transparent':'rgba(0,0,0,.95)';g.shadowBlur=6;g.fillStyle=opts.ink||(opts.pill?'#14100a':color);g.fillText(title,c.width/2,6);
+ g.font=`${opts.fontWeight||700} ${big}px ${opts.fontFamily||'"Barlow Condensed","Noto Sans KR",Arial,sans-serif'}`;g.shadowColor=opts.pill?'transparent':'rgba(0,0,0,.95)';g.shadowBlur=6;g.fillStyle=opts.ink||(opts.pill?'#14100a':color);g.fillText(title,c.width/2,6);
  
  if(sub){g.shadowColor='rgba(0,0,0,.9)';g.shadowBlur=4;g.font=`500 ${subFont}px ${opts.fontFamily||'"Noto Sans KR",Arial,sans-serif'}`;g.fillStyle=opts.ink||(opts.pill?'#14100a':opts.backed?'#dcecf5':'rgba(205,225,236,.92)');g.fillText(sub,c.width/2,big+10);}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.minFilter=THREE.LinearFilter;

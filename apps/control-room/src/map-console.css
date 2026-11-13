@@ -15,3 +15,75 @@
 
 .chart-cargo-overlay{width:90vw;height:90dvh;max-width:none;max-height:none;margin:0;color:#dfedf4}.chart-cargo-overlay::backdrop{background:#02080eb8;backdrop-filter:blur(5px)}
 @media(max-width:620px){.chart-cargo-overlay{width:calc(100vw - 24px);height:calc(100dvh - 24px)}}
+
+/* The chart shares the approved console typography and quiet optical material. */
+.map-monitor{font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none}
+.map-monitor :is(button,input,select,a,h1,h2,h3){font-family:inherit}
+.map-monitor [hidden]{display:none!important}
+.space-experience[data-console-shell=true] .map-monitor .chart-layout{grid-template-columns:minmax(0,1fr) clamp(310px,25vw,390px);gap:20px;padding:20px}
+.map-monitor .chart-space{border:8px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 / 13px stretch;box-shadow:0 12px 28px #0006,inset 0 0 35px #59c9e20b;border-radius:12px}
+.map-monitor :is(.chart-view-tools button,.chart-explore-toggle,.chart-current-stop,.chart-selected button,.chart-systems button,.chart-load button,.map-crumbs button){border:5px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 8px stretch;background:linear-gradient(125deg,#163745cf,#07151ef5);box-shadow:0 3px 8px #0006,inset 0 1px #d6f6ff24;border-radius:7px;min-height:34px;padding:5px 10px}
+.map-monitor :is(button,a):hover{filter:brightness(1.14)}
+.map-monitor .chart-title{top:22px;left:24px;right:24px}
+.map-monitor .chart-title h1{font-weight:500;font-size:26px;letter-spacing:.04em;text-shadow:0 2px 9px #000}
+.map-monitor .chart-title small{font-size:10px}
+.map-monitor .map-crumbs{top:100px}
+.map-monitor .chart-itinerary{padding:0;overflow:hidden;min-width:0}
+.map-monitor .chart-itinerary>header{flex:none;padding:4px 0 16px}
+.map-monitor .chart-itinerary h2{font-weight:500;font-size:27px}
+.map-monitor .chart-itinerary h2 span{font-size:23px;color:#b7e6ed}
+.map-monitor .chart-route-summary{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#aac6d4;border-block:1px solid #81c8da2b;padding:12px 0;margin-top:14px}
+.map-monitor .chart-route-summary b{font-size:18px;font-weight:500;color:#e7f7fb;padding-left:5px}
+.map-monitor .chart-current-stop{margin-top:12px;width:100%;font-size:12px;text-align:left;color:#ecd1a3}
+.map-monitor .chart-explore{flex:none;padding:12px 2px;max-height:38%;overflow:auto}
+.map-monitor .chart-stops{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;display:block;margin:14px -7px 0 0;padding-right:7px;scrollbar-width:thin}
+.map-monitor .chart-stops>li{margin-bottom:10px;padding:14px;border:1px solid #77b4c53b;border-radius:10px;background:linear-gradient(120deg,#17333e70,#081620b3);box-shadow:inset 0 1px #d6f6ff12;position:relative}
+.map-monitor .chart-stops>li[data-active=true]{border-color:#9ad8e0b0;background:linear-gradient(120deg,#214552aa,#0b202dd9);box-shadow:inset 3px 0 #8cd4e4,inset 0 1px #d6f6ff32,0 4px 14px #0003}
+.map-monitor .chart-stops>li[data-current=true] .chart-stop-number{border-color:#e5bf7e;color:#f2d39b}
+.map-monitor .chart-stops>li[data-complete=true]:not([data-active=true]){opacity:.65}
+.map-monitor .chart-stop-select{align-items:center;min-height:40px}
+.map-monitor .chart-stop-select strong{font-size:16px;font-weight:500;line-height:1.45}
+.map-monitor .chart-stop-number{font-size:18px;width:34px;height:34px}
+.map-monitor .chart-stop-select small{font-size:12px;line-height:1.5}
+.map-monitor .chart-stop-counts{display:flex;gap:16px;margin:9px 0 0 46px;color:#a3cbd8;font-size:12px}
+.map-monitor .chart-stop-arrival{margin:13px 0 5px 46px;font-size:11px;color:#e0c79d}
+.map-monitor .chart-stop-events{padding-left:46px;gap:14px}
+.map-monitor .chart-stop-events li{font-size:13px}
+.map-monitor .chart-stop-events small{font-size:11px;line-height:1.6;color:#9dbbc8}
+.map-monitor .chart-load{margin-left:46px;font-size:12px}
+.map-monitor .chart-itinerary footer{flex:none;margin:0;position:static;padding:14px 0 0;background:none}
+.map-monitor .chart-itinerary footer p{margin:0 0 10px;padding:0;color:#aac3cf}
+.map-monitor .chart-primary{border:7px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 11px stretch;background:linear-gradient(130deg,#3b382ccc,#14222bed);color:#f1d5a4;font-size:14px;padding:10px;box-shadow:0 6px 12px #0005}
+.map-monitor .chart-view-tools{left:18px;right:18px;gap:8px;flex-wrap:wrap;bottom:48px}
+.map-monitor .chart-view-tools button{font-size:12px}
+.map-monitor .chart-help{font-size:11px;left:18px;line-height:1.6;color:#a0bccb;text-shadow:0 2px 4px #000}
+.map-monitor .chart-selected{border:6px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 9px stretch;border-radius:8px;bottom:105px;background:#091c29ec;max-width:260px;padding:12px 16px;box-shadow:0 6px 18px #0007}
+@media(max-width:1200px) and (min-width:761px){
+ .space-experience[data-console-shell=true] .map-monitor .chart-layout{grid-template-columns:minmax(0,1fr) 300px;padding:12px;gap:12px}
+ .map-monitor .chart-title>span{display:none}
+ .map-monitor .chart-title{left:16px;top:18px}
+ .map-monitor .chart-title h1{font-size:22px}
+ .map-monitor .map-crumbs{left:16px;top:90px}
+ .map-monitor .chart-view-tools{gap:4px;left:10px;right:10px;bottom:63px}
+ .map-monitor .chart-view-tools button{padding:5px;font-size:11px}
+ .map-monitor .chart-selected{bottom:155px;right:12px}
+}
+@media(max-width:760px){
+ .space-experience[data-console-shell=true] .map-monitor .chart-layout{padding:12px;gap:20px}
+ .map-monitor .chart-title>span{display:none}
+ .map-monitor .chart-itinerary{overflow:visible}
+ .map-monitor .chart-stops{overflow:visible;margin-right:0;padding-right:0;flex:none}
+ .map-monitor .chart-explore{max-height:none;overflow:visible}
+ .map-monitor .chart-view-tools{gap:4px;left:8px;right:8px;bottom:62px}
+ .map-monitor .chart-view-tools button{padding:4px 6px;font-size:11px}
+ .map-monitor .chart-help{left:10px;right:10px;font-size:10px}
+ .map-monitor .chart-selected{bottom:112px;right:10px;max-width:220px;padding:8px 12px}
+}
+
+/* Stable warm projection marks selection; the approved global sidebar is untouched. */
+.map-monitor .chart-stops>li[data-active=true]{border-color:#e4c384a6;background:linear-gradient(120deg,#3a352375,#102632d9);box-shadow:inset 3px 0 #e9c482,inset 0 1px #fff0cd28,0 0 14px #e4b7570c}
+.map-monitor .chart-stops>li[data-active=true] .chart-stop-number{color:#ffe0a2;border-color:#e4c38480;text-shadow:0 0 8px #f1c96838}
+.map-monitor .chart-stops>li[data-active=true] .chart-stop-select strong{color:#f4dbb0}
+.map-monitor .map-crumbs .current{border-image:none;border:1px solid #dbb87088;padding:9px 14px;background:linear-gradient(145deg,#44392388,#162530e8);color:#f5d79b;box-shadow:inset 0 1px #fff2cf33,0 0 10px #edbf5818}
+.map-monitor .chart-selected strong{color:#f5d79b;text-shadow:0 0 10px #eab95322}
+.map-monitor .chart-selected{box-shadow:inset 0 0 0 1px #ddb86f55,0 6px 18px #0007}

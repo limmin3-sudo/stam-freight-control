@@ -1,0 +1,21 @@
+/* Shared cargo instruments, including the always-visible navigator pane. */
+.cargo-workspace.cargo-workspace,.cargo-stage.cargo-stage {
+ font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none;
+}
+.cargo-workspace.cargo-workspace :is(button,input,select,h2,h3,strong,small,span,dt,dd,p),
+.cargo-stage.cargo-stage :is(button,h3,small,span,p){font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500}
+.cargo-workspace.cargo-workspace :is(select,.cargo-selection){background:linear-gradient(125deg,#102b37bb,#07151fdd);border:1px solid #81bbc13d;border-radius:8px;color:#dceef4}
+.cargo-workspace.cargo-workspace .cargo-selection{padding:14px}
+.cargo-workspace.cargo-workspace .cargo-capacity strong{font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;color:#efd2a0}
+.cargo-workspace.cargo-workspace :is(button,.cargo-source-badge){border:5px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 8px stretch;border-radius:7px;background:linear-gradient(125deg,#163745df,#07151ff2);color:#dceff4;box-shadow:0 3px 8px #0005,inset 0 1px #d6f6ff20}
+.cargo-workspace.cargo-workspace button[aria-pressed=true]{border:1px solid #d6b579;border-image:none;padding:10px 13px;color:#ffe1a8;background:linear-gradient(135deg,#59462bd9,#15252eef);box-shadow:inset 0 1px #fff1d333,0 0 12px #e9b95e12}
+.cargo-workspace.cargo-workspace :is(button,select):focus-visible,.cargo-stage.cargo-stage button:focus-visible{outline:2px solid #f2cd88;outline-offset:2px}
+.cargo-stage.cargo-stage .cargo-spatial-labels span{font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;letter-spacing:0;text-shadow:0 2px 5px #020b12}
+.cargo-stage.cargo-stage .cargo-spatial-labels .grid-caption{font-size:12px;line-height:1.5;border-color:#9cbec83b;background:#081824d9;box-shadow:inset 0 1px #ddfaff12}
+.cargo-stage.cargo-stage .cargo-spatial-labels .orientation{font-size:13px}
+.cargo-stage.cargo-stage .cargo-spatial-labels :is(.bow,.stern,.access){color:#f2d49b}
+.cargo-stage.cargo-stage .cargo-view-controls button{font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500}
+.cargo-stage.cargo-stage .cargo-view-controls button[aria-pressed=true]{border:1px solid #c9a96d;border-image:none;color:#ffe1a8;background:linear-gradient(130deg,#4c3d27e6,#172630);box-shadow:inset 0 1px #ffecc733}
+.cargo-stage.cargo-stage .cargo-stage-scale{font-family:BarlowAirReview,SUIT,sans-serif;font-size:11px;letter-spacing:.03em}
+.cargo-stage.cargo-stage .cargo-gesture{font-size:11px}
+@media(max-width:650px){.cargo-stage.cargo-stage .cargo-spatial-labels .grid-caption{font-size:10px}.cargo-stage.cargo-stage .cargo-spatial-labels .orientation{font-size:11px}}

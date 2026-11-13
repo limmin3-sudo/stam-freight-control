@@ -6,6 +6,7 @@ import {cargoShips,cargoShip,cargoPacking,demoCargo,manifestCargo,capacity,readC
 import type {CargoShip,Packing} from './cargo-plan.mjs';
 import type {CargoCamera,createCargoScene} from './cargo-scene';
 import './cargo-workspace.css';
+import './cargo-optics.css';
 
 type Scene=ReturnType<typeof createCargoScene>;
 // Shared by departure review and operations. No app bootstrap, progress writes,
@@ -13,13 +14,14 @@ type Scene=ReturnType<typeof createCargoScene>;
 export function CargoViewport({ship,packing,locale,selected,onSelect}:{ship:CargoShip;packing:Packing|null;locale:Locale;selected:string|null;onSelect:(id:string|null)=>void}){
  const host=useRef<HTMLDivElement>(null),stage=useRef<HTMLDivElement>(null),scene=useRef<Scene|null>(null);
  const current=useRef({ship,packing,locale,selected,onSelect});current.current={ship,packing,locale,selected,onSelect};
+ const [camera,setCamera]=useState<CargoCamera|null>('orbit');
  const [failed,setFailed]=useState(false),[ready,setReady]=useState(false),[full,setFull]=useState(false),[fullError,setFullError]=useState(false);
  const en=locale==='en';const t=(ko:string,eng:string)=>en?eng:ko;
  useEffect(()=>{
   let stopped=false;
-  void Promise.all([import('./cargo-scene'),document.fonts.load('600 14px SUIT')]).then(([{createCargoScene}])=>{
+  void Promise.all([import('./cargo-scene'),Promise.all([document.fonts.load('500 14px BarlowAirReview'),document.fonts.load('500 14px SUIT')])]).then(([{createCargoScene}])=>{
    if(stopped||!host.current)return;
-   try{const s=createCargoScene(host.current,id=>current.current.onSelect(id),()=>setFailed(true));scene.current=s;const p=current.current;s.update(p.ship,p.packing,p.locale==='en');s.select(p.selected);setReady(true);}
+   try{const s=createCargoScene(host.current,id=>current.current.onSelect(id),()=>setFailed(true),setCamera);scene.current=s;const p=current.current;s.update(p.ship,p.packing,p.locale==='en');s.select(p.selected);setReady(true);}
    catch{setFailed(true);}
   }).catch(()=>{if(!stopped)setFailed(true);});
   return ()=>{stopped=true;scene.current?.dispose();scene.current=null;};
@@ -35,7 +37,7 @@ export function CargoViewport({ship,packing,locale,selected,onSelect}:{ship:Carg
   {failed&&<p className="cargo-render-message" role="alert">{t('3D 화면을 표시할 수 없습니다. 화물 목록은 계속 확인할 수 있습니다.','3D view is unavailable. The cargo list remains accessible.')}</p>}
   <div className="cargo-stage-scale">1 CELL / 1.25 m<span>{t('그리드 치수 기준 · 함선 외형 생략','Grid dimensions · Ship exterior omitted')}</span></div>
   <div className="cargo-view-controls" aria-label={t('적재 시점','Cargo camera')}>
-   {(['orbit','top','port','starboard'] as CargoCamera[]).map((mode,i)=><button key={mode} disabled={!ready||failed} onClick={()=>scene.current?.home(mode)}>{[t('전체','Reset'),t('위','Top'),t('좌현','Port'),t('우현','Starboard')][i]}</button>)}
+   {(['orbit','top','port','starboard'] as CargoCamera[]).map((mode,i)=><button key={mode} aria-pressed={camera===mode} disabled={!ready||failed} onClick={()=>scene.current?.home(mode)}>{[t('전체','Reset'),t('위','Top'),t('좌현','Port'),t('우현','Starboard')][i]}</button>)}
    <span/><button disabled={!ready||failed} aria-label={t('확대','Zoom in')} onClick={()=>scene.current?.zoom(.8)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M8 3v10" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></button><button disabled={!ready||failed} aria-label={t('축소','Zoom out')} onClick={()=>scene.current?.zoom(1.25)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></button>
    <button onClick={()=>void fullscreen()}>{full?t('접기','Exit fullscreen'):t('크게 보기','Fullscreen')}</button>
   </div>

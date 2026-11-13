@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {setup,clearGroup} from './scene.mjs';
 import {koName,placeLabel as legacyPlaceLabel,suggestLocations,systemLabel as legacySystemLabel} from './aliases.mjs';
 import {tr as legacyTr,gameEn as legacyGameEn,L as legacyL} from './i18n.mjs';
-import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon,glowSprite,iconTexture,labelSprite as baseLabelSprite,createBackdrop} from './mapfx.mjs';
+import {STAR_COLORS,bodyLook,planetMaterial,cloudMaterial,atmosphereMaterial,starMaterial,starCoronaMaterial,routeRibbon as baseRouteRibbon,glowSprite,iconTexture,labelSprite as baseLabelSprite,createBackdrop} from './mapfx.mjs';
 import {createBloom} from './bloom.mjs';
 
 // Star map with three levels (STARMAP › system › body). Directions and order are real; bodies are drawn
@@ -45,7 +45,9 @@ class Rig{
 export function createStarMap(container,labelContainer,data,onSelect,appearance={}){
  // Optional presentation adapters leave the original camera, hierarchy and route logic intact.
  const L=appearance.text||legacyL,tr=appearance.translate||legacyTr,gameEn=appearance.gameEn??legacyGameEn;
- const labelSprite=(name,sub,color,options={})=>baseLabelSprite(name,sub,color,{...options,fontFamily:appearance.fontFamily,font:options.font||(appearance.compact?(options.big?34:30):undefined),subFont:options.subFont||(appearance.compact?20:undefined)});
+ const labelSprite=(name,sub,color,options={})=>baseLabelSprite(name,sub,color,{...options,fontFamily:appearance.fontFamily,fontWeight:appearance.fontWeight,font:options.font||(appearance.compact?(options.big?34:30):undefined),subFont:options.subFont||(appearance.compact?20:undefined)});
+ const routeRibbon=(points,opts)=>baseRouteRibbon(points,{...opts,...appearance.routeStyle,width:(opts.width||5)*(appearance.routeStyle?.widthScale||1)});
+ const markerTexture=appearance.marker||iconTexture;
  const displayName=appearance.name||((l)=>gameEn?l.name:koName(l)||l.name);
  const placeLabel=appearance.name||legacyPlaceLabel;
  const systemLabel=appearance.systemName||legacySystemLabel;
@@ -111,10 +113,12 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
     if(look.clouds){const c=new THREE.Mesh(sphereGeo,(appearance.cloud||cloudMaterial)(l.name,look.clouds));c.scale.setScalar(appearance.cloud?1.006:1.012);c.userData.shaderDrift=!!appearance.cloud;m.add(c);v.clouds=c;}
     if(look.atmo){const a=new THREE.Mesh(sphereGeo,(appearance.atmosphere||atmosphereMaterial)(look.atmo,look.atmoStrength||1));a.scale.setScalar(appearance.atmosphere?1.016:1.025);m.add(a);v.atmo=a;}
     it={...v,mesh:m,minPx:l.type==='Planet'?6:3};}
-   else{const [color,px]=ICON[v.icon];const s=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture(v.icon,color),transparent:true,depthWrite:false,sizeAttenuation:false}));s.position.copy(v.pos);s.renderOrder=6;systemGroup.add(s);it={...v,sprite:s,px};}
+   else{const [color,px]=ICON[v.icon];const s=new THREE.Sprite(new THREE.SpriteMaterial({map:markerTexture(v.icon,color),transparent:true,depthWrite:false,sizeAttenuation:false}));s.position.copy(v.pos);s.renderOrder=6;systemGroup.add(s);it={...v,sprite:s,px};}
    items.push(it);itemById.set(l.id,it);}
   buildRoute();}
- function addRing(c,r,y,color,op){const pts=[];for(let a=0;a<=256;a++)pts.push(V(c.x+Math.cos(a/256*Math.PI*2)*r,y,c.z+Math.sin(a/256*Math.PI*2)*r));const ring=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false}));ring.userData.orbit=true;ring.visible=orbits;systemGroup.add(ring);}
+ function addRing(c,r,y,color,op){const pts=[];for(let a=0;a<=256;a++)pts.push(V(c.x+Math.cos(a/256*Math.PI*2)*r,y,c.z+Math.sin(a/256*Math.PI*2)*r));const ring=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:appearance.orbitStyle?.color||color,transparent:true,opacity:appearance.orbitStyle?op*.65:op,depthWrite:false}));ring.userData.orbit=true;ring.visible=orbits;systemGroup.add(ring);
+  if(appearance.orbitStyle?.ticks){const ticks=[];for(let i=0;i<48;i++){const a=i*Math.PI/24,d=r*(i%4===0?.006:.0025);ticks.push(V(c.x+Math.cos(a)*(r-d),y,c.z+Math.sin(a)*(r-d)),V(c.x+Math.cos(a)*(r+d),y,c.z+Math.sin(a)*(r+d)));}const marks=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(ticks),new THREE.LineBasicMaterial({color:appearance.orbitStyle.color,transparent:true,opacity:op*.8,depthWrite:false}));marks.userData.orbit=true;marks.visible=orbits;systemGroup.add(marks);}
+ }
  const rootBody=id=>{let l=byId.get(id);while(l&&l.type!=='Planet'){const p=byId.get(l.parentId);if(!p||p.type==='Star'||p.type==='Manmade')return null;l=p;}return l?.id||null;};
  // Quantum travel is a straight line; it bends once beside a star/planet/moon only if the line would pass through it.
  function avoidBodies(from,to,depth=0){if(depth>3)return [from,to];const ab=to.clone().sub(from),L2=Math.max(ab.lengthSq(),1e-12);let worst=null,worstDepth=0;
@@ -127,9 +131,9 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
   route.visits.forEach((v,i)=>{const ids=v.leg.nodes,active=i===activeIndex;for(let j=1;j<ids.length;j++){const a=byId.get(ids[j-1]),b=byId.get(ids[j]);if(a?.system!==system||b?.system!==system)continue;const from=posOf(a.id),to=posOf(b.id);if(!from||!to||from.distanceTo(to)<1e-6)continue;
    const hop=rootBody(a.id)&&rootBody(a.id)===rootBody(b.id),len=from.distanceTo(to),path=avoidBodies(from,to),curve=new THREE.CurvePath();for(let k=1;k<path.length;k++)curve.add(new THREE.LineCurve3(path[k-1],path[k]));
    const pts=[];for(let k=1;k<path.length;k++){const n=Math.max(8,Math.ceil(path[k-1].distanceTo(path[k])/Math.max(len,1e-6)*120));for(let q=k===1?0:1;q<=n;q++)pts.push(path[k-1].clone().lerp(path[k],q/n));}
-   const rb=routeRibbon(pts,{color:active?'#ffb35c':hop?'#ffd75e':'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
+   const rb=routeRibbon(pts,{color:active?(appearance.selectionColor||'#ffb35c'):hop?(appearance.selectionColor?'#91c5ce':'#ffd75e'):'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
    if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(appearance.compact?fmtDist(v.leg.meters):tr(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분`),v.leg.jumps?tr((v.leg.gateways||[]).join(' → ')+' 경유'):'','#f5deac',{pill:'#0b1929',ink:'#f5deac',backed:true,border:'#d7b67b',font:52,subFont:26,upper:false});lab.visible=false;labelGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
-   const p=posOf(v.locationId);if(p&&byId.get(v.locationId)?.system===system){const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:iconTexture('waypoint',i===activeIndex?'#ffb35c':'#64dfe2'),transparent:true,depthWrite:false,sizeAttenuation:false}));ring.position.copy(p);ring.renderOrder=7;routeGroup.add(ring);markers.push({sprite:ring,i,active:i===activeIndex});}});
+   const p=posOf(v.locationId);if(p&&byId.get(v.locationId)?.system===system){const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:markerTexture('waypoint',i===activeIndex?(appearance.selectionColor||'#ffb35c'):'#64dfe2'),transparent:true,depthWrite:false,sizeAttenuation:false}));ring.position.copy(p);ring.renderOrder=7;routeGroup.add(ring);markers.push({sprite:ring,i,active:i===activeIndex});}});
   revealStart=time;}
 
  // ---- labels -----------------------------------------------------------------------------------
@@ -138,9 +142,9 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
  let stepCache=null;
  const visitNums=id=>{if(!route)return [];if(appearance.compact)return route.visits.flatMap((v,i)=>v.locationId===id?[i+1]:[]);if(stepCache?.route!==route)stepCache={route,steps:stepNumbers(route.visits,byId)};const st=stepCache.steps,out=[];
   route.visits.forEach((v,i)=>{jumpSegments(v.leg,byId).forEach((j,q)=>{if(j.entryId===id)out.push(st.jumps[i][q]);});if(v.locationId===id)out.push(st.stop[i]);});return out;};
- function labelFor(it){let s=labels.get(it.loc.id);if(s)return s;const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
-  const code=mapLocationName(l)!==l.name,shown=code?mapLocationName(l):displayName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=code?'':[kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?placeLabel(parent):''].filter(Boolean).join(' · ');const color=onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
-  s=labelSprite((n.length?n.join(',')+' · ':'')+shown,sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:isStation(it)||onRoute,glow:true});s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
+ function labelFor(it){const highlighted=!!appearance.selectionColor&&it.loc.id===selected;let s=labels.get(it.loc.id);if(s&&s.userData.highlighted===highlighted)return s;if(s){labelGroup.remove(s);s.material.map.dispose();s.material.dispose();labels.delete(it.loc.id);}const l=it.loc,n=visitNums(l.id),parent=byId.get(l.parentId),onRoute=n.length>0;
+  const code=mapLocationName(l)!==l.name,shown=code?mapLocationName(l):displayName(l),kind=['Star','Planet','Moon'].includes(l.type)?'':tr(TYPE_KO[l.type]||''),sub=code?'':[kind,parent&&parent.type!=='Star'&&parent.type!=='Manmade'?placeLabel(parent):''].filter(Boolean).join(' · ');const color=highlighted?appearance.selectionColor:onRoute?'#64dfe2':l.type==='Star'?'#ffe2a8':l.type==='Planet'?'#e6f1f8':l.type==='Moon'?'#bcd3e0':ICON[it.icon]?.[0]||'#cfe6f2';
+  s=labelSprite((n.length?n.join(',')+' · ':'')+shown,sub,color,{big:l.type==='Planet'||l.type==='Star'||isStation(it),backed:false,glow:true});s.userData.highlighted=highlighted;s.visible=false;labelGroup.add(s);labels.set(l.id,s);return s;}
  // Rarely visited stops (Wikelo trading posts, comm arrays) only get a name when zoomed right in, unless on the
  // route or selected.
  const MINOR=/^(?:Wikelo|Comm Array)\b/i;
@@ -160,7 +164,7 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
   else if(v.parent){focusId=v.parent;const P=layout.get(v.parent),dir=v.pos.clone().sub(P.pos).normalize();focusR=P.r*(v.surface?2.2:2.7);rig.set(rig.aim(v.pos,focusR,dir.add(V(0,.35,0))),instant);}
   else{focusId=null;focusR=3;rig.set(rig.aim(v.pos,3,V(Math.sin(rig.goal.theta),.7,Math.cos(rig.goal.theta))),instant);}
   crumbsRender();}
- function frameLeg(i){const v=route?.visits[i];if(!v)return;const sys=byId.get(v.locationId)?.system;if(sys!==system||level!=='system')enterSystem(sys,true);const pts=v.leg.nodes.filter(id=>byId.get(id)?.system===sys).map(posOf).filter(Boolean);if(pts.length<2||pts.every(p=>p.distanceTo(pts[0])<1e-5)){focus(v.locationId);return;}
+ function frameLeg(i){const v=route?.visits[i];if(!v)return;const sys=byId.get(v.locationId)?.system;if(sys!==system||level!=='system')enterSystem(sys,true);selected=v.locationId;const pts=v.leg.nodes.filter(id=>byId.get(id)?.system===sys).map(posOf).filter(Boolean);if(pts.length<2||pts.every(p=>p.distanceTo(pts[0])<1e-5)){focus(v.locationId);return;}
   const box=new THREE.Box3().setFromPoints(pts),c=box.getCenter(V()),span=box.getSize(V()).length();focusId=null;rig.set(rig.aim(c,Math.max(span*1.35,2.4),V(Math.sin(rig.goal.theta),.85,Math.cos(rig.goal.theta))));crumbsRender();}
 
  // ---- picking & pointer UI ---------------------------------------------------------------------
@@ -177,7 +181,7 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
  el.addEventListener('pointerleave',()=>hover(null));
  el.addEventListener('pointerup',e=>{const moved=!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5;down=null;el.style.cursor='grab';if(moved)return;const h=pick(e);if(!h||h.galaxy)return;selected=h.loc.id;onSelect(h.loc,describe(h.loc));});
  el.addEventListener('dblclick',e=>{const h=pick(e);if(!h)return;if(h.galaxy){enterSystem(h.galaxy);const st=data.locations.find(l=>l.system===h.galaxy&&l.type==='Star');if(st)onSelect(st,h.galaxy.toUpperCase()+' 항성계');return;}selected=h.loc.id;onSelect(h.loc,describe(h.loc));focus(h.loc.id);});
- const keys=new AbortController();wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}},{signal:keys.signal});
+ const keys=new AbortController();if(!wrap.hasAttribute('tabindex'))wrap.tabIndex=-1;wrap.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;if(e.key==='Escape'){if(level==='system'&&focusId){const p=byId.get(focusId);p&&p.type==='Moon'?focus(p.parentId):home();}else if(level==='system')goGalaxy();e.preventDefault();}else if((e.key==='f'||e.key==='F')&&selected){focus(selected);e.preventDefault();}},{signal:keys.signal});
 
  // ---- frame loop -------------------------------------------------------------------------------
  const tmp=V(),res=new THREE.Vector2();let cameraStamp=performance.now();
@@ -185,9 +189,9 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=reducedMotion.matches?0:time;if(u.uMotion)u.uMotion.value=reducedMotion.matches?0:1;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
   if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return 60;}
-  if(focusId&&rig.cur.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
+  if(focusId&&rig.goal.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
   const camPos=camera.position;
-  for(const it of items)if(it.mesh){const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(!reducedMotion.matches){if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds&&!it.clouds.userData.shaderDrift)it.clouds.rotation.y+=dt*.004;}}
+  for(const it of items)if(it.mesh){it.mesh.traverse(o=>{const u=o.material?.uniforms;if(u?.uHighlight)u.uHighlight.value=it.loc.id===selected?1:0;});const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(!reducedMotion.matches){if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds&&!it.clouds.userData.shaderDrift)it.clouds.rotation.y+=dt*.004;}}
   for(const it of items){const s=screen(it.pos);it.screen=s;let show=s.front;const par=it.parent?itemById.get(it.parent):null;
    if(show&&par){const ps=par.screen||screen(par.pos),sep=Math.hypot(s.x-ps.x,s.y-ps.y);if(it.surface){show=it.normal.dot(tmp.copy(camPos).sub(it.pos))>0&&par.px>26;}else if(it.mesh)show=sep>par.px*1.05+3;else show=par.px>9&&sep>par.px*.6;}
    if(it.sprite){it.sprite.visible=show;if(show){const active=it.loc.id===selected||it.loc===hovered,k=active?(isStation(it)?1.25:1.5):1;it.displayPx=it.px*k;spriteScale(it.sprite,it.displayPx,it.displayPx);}}
@@ -217,7 +221,7 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
    clearLabels();clearGroup(scene);sphereGeo.dispose();bloom.dispose();
    renderer.dispose();renderer.forceContextLoss();el.remove();tip.remove();crumbs.remove();routeReadout.remove();
   },setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
-  focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);else home(false,top);},zoomBy(factor){rig.set({r:rig.goal.r/factor});},setOrbits(value){orbits=!!value;systemGroup.traverse(o=>{if(o.userData.orbit)o.visible=orbits;});},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
+  focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);home(false,top);},zoomBy(factor){rig.set({r:rig.goal.r/factor});},setOrbits(value){orbits=!!value;systemGroup.traverse(o=>{if(o.userData.orbit)o.visible=orbits;});},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
   setQuality(q){if(!QUALITY[q]||q===qualityName)return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
   _debug:()=>({renderLoop:renderLoop.stats(),reducedMotion:reducedMotion.matches,post:{bloom:quality.bloom>0},level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeLabelPx:legLabel?.sprite.userData.displayPx||null,routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id)),icon:itemById.get(id)?.icon}))}),
   search:q=>suggestLocations(q,data.locations,{limit:12})};
