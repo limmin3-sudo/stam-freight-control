@@ -1,0 +1,23 @@
+{
+  "branch": "cinematic/guide-walk-study-20261113",
+  "parentBranch": "cinematic/desk-cinema-25d-20261113",
+  "parentCommit": "b0d8bdb4c676942de820e237c746bf5f3b5e6ea1",
+  "sourceImage": "../assets/guide-entrance.png",
+  "sourceSha256": "1add9d729dc839f3c879a8fffb6d06795a2803d9431288add1fe07654d9ccf5b",
+  "newCharacterImages": 0,
+  "method": "Original photo texture on articulated Three.js meshes. Analytic two-segment leg IK locks toe contact, lifts the swing foot, preserves segment lengths and advances the root. Upper-body image remains rigid, forearm swings slightly and skirt hem follows thighs.",
+  "durationSeconds": 2.04,
+  "stepLandings": 3,
+  "sourceView": "Approved front / slight three-quarter guide image; not a new rear-facing view.",
+  "extraNeutralImageGeneration": "Tool rejected generation attempts; no generated result was substituted. Approved source reused.",
+  "limits": [
+    "Photographic cutout rig, not a volumetric 3D human or motion capture.",
+    "One source view, no natural turning to a new view or reconstruction of hidden surfaces.",
+    "Upper-leg hidden pixels are approximated from an existing skin row, and skirt hem deformation conceals the joint boundary.",
+    "Close-up can retain paper-puppet/cloth-deformation artifacts; visual quality requires user review.",
+    "No lip sync, blinking or newly recorded character voice."
+  ],
+  "defaultPreview": "../index.html remains the approved static-pose tour; ?walk=1 explicitly enables this study.",
+  "approvedBackground": "apps/control-room/src/assets/lounge-original-composite.png",
+  "deployment": "No runtime integration, main merge or public deployment."
+}

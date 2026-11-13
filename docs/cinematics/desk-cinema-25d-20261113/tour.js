@@ -3,11 +3,12 @@ import * as THREE from '/apps/control-room/node_modules/three/build/three.module
 const $=id=>document.getElementById(id);
 const viewer=$('viewer'),canvasHost=$('world'),duration=16;
 const root='/apps/control-room/src/assets/';
+const walkMode=new URLSearchParams(location.search).get('walk')==='1';
 const W=1672,H=941,aspect=W/H,fov=42,tan=Math.tan(THREE.MathUtils.degToRad(fov/2));
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const smooth=(a,b,t)=>{const p=clamp((t-a)/(b-a));return p*p*(3-2*p);};
 let renderer,scenes,cameras,targets,blendScene,blendCamera,blendMaterial;
-let guideMesh,leadingGuide,entranceGuide,ready=false,time=0,playing=false,raf=0,last=0,voice=false,spoken=-1;
+let guideMesh,leadingGuide,entranceGuide,walkRig=null,walkFoot=null,walkScale=1,ready=false,time=0,playing=false,raf=0,last=0,voice=false,spoken=-1;
 let frameSamples=[],lastRender=0,draws=0,quality=1,minimumQuality=1,slowFrames=0;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lines=[
@@ -73,7 +74,7 @@ async function init(){
   const textures=await Promise.all(urls.map(url=>loader.loadAsync(url)));
   textures.forEach(texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;});
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setClearColor('#02070b');renderer.toneMapping=THREE.NoToneMapping;
+  renderer.localClippingEnabled=walkMode;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setClearColor('#02070b');renderer.toneMapping=THREE.NoToneMapping;
   canvasHost.append(renderer.domElement);renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();pause();$('status').textContent='화면이 중단됐습니다. 새로고침해서 다시 열어 주세요.';});
   scenes=[new THREE.Scene(),new THREE.Scene(),new THREE.Scene()];cameras=scenes.map(makeCamera);
   // Continuous depth surfaces avoid exposing hard seams between floor cards.
@@ -84,6 +85,12 @@ async function init(){
   relief(scenes[2],textures[3],14,7,.70);
   leadingGuide=guideAhead(scenes[1],textures[4],1260,720,330,15,6,.54);
   entranceGuide=guideAhead(scenes[2],textures[5],1125,823,450,14,7,.70);
+  if(walkMode){
+   const {createPhotoWalkRig}=await import('./walk-study/photo-walk-rig.js');
+   const depth=15-(15-6)*smooth(.54,1,720/H);walkFoot=projectPoint(1130,720,depth);
+   walkScale=330/H*2*depth*tan/1774;walkRig=createPhotoWalkRig(THREE,textures[5]);walkRig.group.scale.setScalar(walkScale);walkRig.group.position.copy(walkFoot);scenes[1].add(walkRig.group);leadingGuide.mesh.visible=false;
+   document.querySelector('.review-tag').textContent='가이드 걷기 시험 · 데스크 → 시네마';
+  }
   targets=scenes.map(()=>new THREE.WebGLRenderTarget(16,16,{depthBuffer:true}));
   blendScene=new THREE.Scene();blendCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   blendMaterial=new THREE.ShaderMaterial({uniforms:{a:{value:targets[0].texture},b:{value:targets[1].texture},c:{value:targets[2].texture},ab:{value:0},bc:{value:0}},vertexShader:'varying vec2 uv0;void main(){uv0=uv;gl_Position=vec4(position.xy,0.,1.);}',fragmentShader:'uniform sampler2D a;uniform sampler2D b;uniform sampler2D c;uniform float ab;uniform float bc;varying vec2 uv0;void main(){gl_FragColor=mix(mix(texture2D(a,uv0),texture2D(b,uv0),ab),texture2D(c,uv0),bc);\n#include <colorspace_fragment>\n}'});
@@ -103,6 +110,10 @@ function world(t){
  cameras[1].lookAt(2.5*walk,-.1*walk,-15);
  cameras[1].fov=fov-6*walk;cameras[1].updateProjectionMatrix();
  cameras[2].position.set(.2*near,-.015*near,-.75*near);cameras[2].lookAt(.7*near,-.07,-14);
+ if(walkRig){
+  const pose=walkRig.update(Math.max(0,t-4.05),t<4.05);leadingGuide.shadow.position.copy(walkFoot);leadingGuide.shadow.position.x+=(pose.distance||0)*walkScale;leadingGuide.shadow.position.y-=.005;
+  window.__tour.walk={enabled:true,time:pose.time||0,distance:pose.distance||0,legs:pose.legs?.map(leg=>({toe:leg.foot.toe,swing:leg.foot.swing})),finished:!!pose.finished};
+ }
  blendMaterial.uniforms.ab.value=smooth(2.7,4.15,t);blendMaterial.uniforms.bc.value=smooth(7.4,8.5,t);
  const ab=blendMaterial.uniforms.ab.value,bc=blendMaterial.uniforms.bc.value;
  const needed=bc>=1?[2]:bc>0?[1,2]:ab>=1?[1]:ab>0?[0,1]:[0];
@@ -158,6 +169,6 @@ $('voice').addEventListener('click',()=>{if(!('speechSynthesis'in window)){$('st
 $('next-stop').addEventListener('click',()=>{$('arrival-note').hidden=false;$('arrival-note').textContent='시네마 소개는 여기까지예요. 다음은 아카이브로 안내해 드릴게요. (이번 시안은 여기서 끝납니다.)';});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing){pause();$('status').textContent='창을 벗어나 안내를 일시정지했습니다';}});
 window.addEventListener('keydown',event=>{if(event.target.closest('input,button,iframe'))return;if(event.code==='Space'){event.preventDefault();playing?pause():play();}if(event.key==='Escape'){if(playing)pause();$('arrival-note').hidden=true;}});
-window.addEventListener('pagehide',()=>{pause();targets?.forEach(target=>target.dispose());scenes?.forEach(scene=>scene.traverse(object=>{object.geometry?.dispose();if(object.material){object.material.uniforms?.map?.value.dispose();object.material.map?.dispose();object.material.dispose();}}));renderer?.dispose();});
+window.addEventListener('pagehide',()=>{pause();targets?.forEach(target=>target.dispose());scenes?.forEach(scene=>scene.traverse(object=>{object.geometry?.dispose();if(object.material){object.material.uniforms?.map?.value.dispose();object.material.map?.dispose();object.material.dispose();object.skeleton?.dispose();}}));renderer?.dispose();});
 window.__tour={ready:false,time:0,phase:'loading',draws:0,seek,play,pause,metrics:()=>({draws,frameSamples,playing,minimumQuality,webgl:!!renderer,videoElements:document.querySelectorAll('video').length})};
 init();
