@@ -1,0 +1,116 @@
+{
+  "kind": "Photographic 2.5D guide assets, native React lounge tour, and preserved standalone review",
+  "base": "b0d8bdb4c676942de820e237c746bf5f3b5e6ea1",
+  "mainAtStart": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "branch": "cinematic/lounge-tour-20261114",
+  "characterReference": "../desk-cinema-25d-20261113/assets/guide-entrance.png",
+  "background": "apps/control-room/src/assets/lounge-original-composite.png",
+  "reviewStatus": "New assets require visual approval. Generated likeness is not pixel-identical to the reference.",
+  "assets": [
+    {
+      "file": "assets/guide-escort.png",
+      "generatedOriginal": "exec-3427bc3a-a90e-491a-a627-1f7ad0c93f4d.png",
+      "method": "image_gen reference edit; transparent_background=true",
+      "purpose": "시네마 이동 · 인솔",
+      "prompt": "Create one new photorealistic full-length transparent character asset of the same adult female spaceport flight director in the reference. Preserve her recognizable face, blonde low bun, professional uniform, natural body proportions, shoes and jewelry. New pose: she is leading a visitor toward screen RIGHT, viewed from rear three-quarter, torso facing right away from the viewer, head turned naturally back toward the viewer with a small confident welcoming smile. Her black-covered anatomical RIGHT arm bends slightly to invite the viewer along, her other arm hangs naturally. One foot is placed slightly ahead in a settled poised stance. Entire head and both shoes included, no clipping. Exactly two arms and two legs. Keep uniform black sleeve only on her anatomical RIGHT arm, white short-sleeved shirt with black gold epaulettes, black skirt and pumps. Soft warm realistic light, clean cutout, no scenery, no shadow plane, no text, no objects. Do not mirror the reference. Portrait canvas.",
+      "sha256": "18c73067b6334a3663d925203e2334f015629a28a03a513c3db628e4609c167f",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "assets/guide-cinema.png",
+      "generatedOriginal": "exec-69116f39-8b40-44ad-90c5-9e7cc0b757cb.png",
+      "method": "image_gen reference edit; transparent_background=true",
+      "purpose": "시네마 소개",
+      "prompt": "Create one new photorealistic full-length transparent character asset of the SAME adult female spaceport flight director in the reference. Preserve her face, blonde low bun, professional uniform, natural full-body proportions and accessories. A genuinely new presentation pose: body in relaxed three-quarter view facing screen LEFT, face turned toward visitor, warm self-assured smile. Her black-covered anatomical RIGHT forearm is raised at waist level, open palm presenting a destination on screen LEFT; bare LEFT hand rests lightly over her other wrist, both hands clearly anatomically connected. Keep head and both shoes fully inside the image with margin. Exactly two arms and two legs. White short-sleeved shirt with black/gold epaulettes, fitted black skirt, black pumps; black sleeve ONLY on anatomical RIGHT arm. Realistic warm interior light matching reference. Transparent background, no scenery, no furniture, no text, no graphic UI. Portrait canvas.",
+      "sha256": "e91a6f660803d174b59244325fece6dbcdf91669e351e520612de5355f1a8fec",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "assets/guide-archive.png",
+      "generatedOriginal": "exec-01dbbfc1-3838-40b6-9080-c50d55e490b4.png",
+      "method": "image_gen reference edit; transparent_background=true",
+      "purpose": "아카이브 설명 · 원본 비율 기준 재편집",
+      "prompt": "Edit the FIRST reference image as the base image. Change ONLY the arm gesture to the explanatory pointing gesture shown in the SECOND image: bare LEFT hand points gently toward screen right, covered RIGHT hand open at waist level. CRITICAL: retain the FIRST image's original full-body proportions exactly. Keep its head size, neck length, torso length, waist level, hip level, skirt hem level, knees, leg lengths, ankle positions, foot size and total height. Do not use the second image's body proportions. Do not make legs longer or shorter. Preserve the first image's face identity, hair, professional white flight-director uniform, black skirt, shoes and accessories. Preserve original first-image camera and natural anatomy. Exactly two arms and two legs. Full character, both shoes visible. Only a pose edit of arms; otherwise keep the first approved character unchanged. Transparent background, no scenery, no text.",
+      "sha256": "6428af10deec1084c57dd34375c47e8588006f313b889b857e6370ddf29d00db",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "assets/guide-service.png",
+      "generatedOriginal": "exec-43b7f1ee-53f2-4725-a768-37539ce5f0c5.png",
+      "method": "image_gen reference edit; transparent_background=true",
+      "purpose": "서비스센터 응대 · 배경 잔상 정리",
+      "prompt": "Clean up the SECOND transparent character image. Remove the stray floating translucent light patch above and behind her head and all background residue around her arms. Leave a genuinely clean transparent background with only the professional adult flight director visible. Match the face and full-body proportions to the FIRST approved reference; retain the SECOND image's hands-clasped customer-service pose and exact uniform. No elongated legs, no larger head, no aging, no changed body shape. Keep two arms and two legs and both shoes fully visible. Only clean alpha and restore the approved likeness, otherwise preserve this professional character. Soft warm realistic light, no external glow or vignette.",
+      "sha256": "5e4ac2b51c85ba56ead4b375262359740182cd0a1b25b8184adbf71bb70eeabf",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "assets/guide-waiting.png",
+      "generatedOriginal": "exec-a815a166-2e8a-4f9c-9418-e8026b1d6317.png",
+      "method": "image_gen reference edit; transparent_background=true",
+      "purpose": "게이트 대기 · 얼굴 재편집",
+      "prompt": "Edit the SECOND image, the adult professional guide with her hand beside her ear. Correct ONLY her FACE to match the woman in the FIRST approved reference. It must clearly be that same person: preserve first-reference eye shape and spacing, soft eyebrows, nose, cheek contours, lips, jaw, complexion, subtle freckles and relaxed smile. The second image currently looks like a different older person. Restore the first-reference facial identity, without caricature, retouching or a different expression. You may align the head angle to the first reference to retain likeness. Keep the SECOND image's hair-touching arm pose, professional uniform, right-arm black sleeve and transparent background; do not redesign her clothing or add objects. Use FIRST-reference natural head-to-body and leg proportions; do not elongate legs. Photorealistic single adult full-length professional character, head and shoes fully visible.",
+      "sha256": "712e09df0261296d96fcf5b84db0ec4ed3f3806e0af4a8bad927e8eda6181c0e",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "excludedCandidates": [
+    {
+      "file": "exec-cb6785f1-d52d-4097-924b-ce81c99ed21d.png",
+      "reason": "User: legs look short"
+    },
+    {
+      "file": "exec-754b71e7-d8e1-43b2-bbee-c3618942c4ca.png",
+      "reason": "User: overlong unnatural legs"
+    },
+    {
+      "file": "exec-90901a0e-3c21-4e93-a9ef-cf74b5b0fcd5.png",
+      "reason": "User: different face"
+    },
+    {
+      "file": "exec-5f6c6c26-edbd-41b5-a03e-a362571cbb83.png",
+      "reason": "Transparent residue above head; superseded by clean edit"
+    }
+  ],
+  "notes": [
+    "Rejected candidates preserved in generated_images, not copied into this branch.",
+    "Two attempted gate-pose generations returned no usable image; no missing sixth asset is claimed.",
+    "Five newly generated poses are used; existing source images remain unmodified."
+  ],
+  "runtime": {
+    "entry": "apps/control-room/src/LoungeTour.tsx",
+    "trigger": "Existing guide page: dedicated lounge-tour button",
+    "renderer": "apps/control-room/src/lounge-tour-renderer.ts",
+    "bundle": "Vite lazy chunk and hashed PNGs, no product iframe",
+    "deployment": "Separate branch for function owner integration; no main/handoff merge or deployment"
+  }
+}

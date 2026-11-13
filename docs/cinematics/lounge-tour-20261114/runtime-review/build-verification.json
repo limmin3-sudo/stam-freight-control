@@ -1,0 +1,21 @@
+{
+  "typecheck": "passed",
+  "viteProductionBuild": "passed; lazy LoungeTour chunk and hashed guide PNGs",
+  "appTestFiles": {
+    "passed": 14,
+    "failed": 0
+  },
+  "rootTestFiles": {
+    "passedInSandbox": 41,
+    "localListenRestricted": 2,
+    "restrictedFilesRerunOutsideSandbox": {
+      "tests": 11,
+      "passed": 11,
+      "failed": 0
+    },
+    "note": "Only the two listen-EPERM files were rerun; no unrelated source fixes"
+  },
+  "sourceBaselineMain": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "testedPublicBasePath": "/stam-freight-control/",
+  "existingLocalDist": "Preserved; production verification used a separate temporary output directory"
+}

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <link rel="icon" href="/assets/stam-logo-transparent.png"><title>STAM · 라운지 가이드 투어</title>
+ <link rel="stylesheet" href="tour.css">
+</head>
+<body>
+ <header class="review-header"><span>STAM / CINEMATIC STUDIO</span><small>라운지 투어 · 별도 검토본</small><a href="assets.html">새 가이드 자산 비교 →</a></header>
+ <main>
+  <section id="app-shell" aria-label="실제 앱과 가이드 투어">
+   <iframe id="app" title="STAM 실제 메뉴·상단바·사이드바" src="/live/index.html#/lounge?lang=ko"></iframe>
+   <div id="content-overlay">
+    <div id="travel">
+     <div id="scene"><div id="world" aria-hidden="true"></div><div id="destination"><small id="destination-code"></small><strong id="destination-name"></strong><span id="destination-detail"></span></div></div>
+     <section id="desk-panel" class="glass"><img src="/apps/control-room/src/assets/hologram/flat/heading.png" alt="플라이트 가이드 · STAM 안내 데스크"><p>셔틀 출발 전에, 라운지를 잠깐 둘러보시죠.</p><p class="itinerary">시네마 → 아카이브 → 서비스센터 → 게이트</p><button id="start" class="asset-button amber">가이드를 따라갈게요 <span>→</span></button></section>
+    </div>
+    <div id="blackout" aria-hidden="true"></div>
+    <div id="standby" aria-hidden="true"><img src="/assets/stam-logo-transparent.png" alt=""><span id="standby-place"></span></div>
+    <div id="plasma" aria-hidden="true"></div>
+    <div id="portrait" aria-hidden="true"><img id="portrait-image" alt=""></div>
+    <section id="caption" class="glass" aria-label="플라이트 가이드 안내"><header>FLIGHT DIRECTOR <small id="caption-location">안내 데스크</small></header><p id="caption-text" aria-live="polite"></p><button id="next" class="asset-button" hidden></button></section>
+    <div id="loading" role="status">가이드와 라운지를 준비하고 있습니다…</div>
+   </div>
+  </section>
+  <section class="review-controls" aria-label="연출 검토 조작">
+   <nav id="route" aria-label="투어 순서"><button data-stop="-1">데스크</button><span>→</span><button data-stop="0">시네마</button><span>→</span><button data-stop="1">아카이브</button><span>→</span><button data-stop="2">서비스센터</button><span>→</span><button data-stop="3">게이트</button></nav>
+   <div class="controls"><button id="play" disabled>가이드 따라가기</button><button id="pause" disabled>일시정지</button><button id="skip" disabled>이번 장소 도착</button><button id="replay">처음부터</button><label><input id="auto" type="checkbox"> 안내 후 자동으로 다음 장소</label><span id="status" role="status">준비 중</span></div>
+   <div class="scrub"><label for="scrub">현재 구간</label><input id="scrub" type="range" min="0" max="14" step=".01" value="0" disabled><output id="time">0.0 / 14.0</output></div>
+  </section>
+  <p class="note">새로 제작한 가이드 자세 5종을 사용하는 2.5D 투어 시안입니다. 실제 메뉴는 현재 로컬 빌드에서 표시합니다. 자연 보행·립싱크·확정 음성은 포함하지 않습니다.</p>
+  <details class="current-ui"><summary>현재 화면 확인: 배포본 / 미통합 작업본</summary><p>아래는 실제 브라우저 캡처입니다. FLIGHT CONSOLE·아카이브·시네마 명칭은 미통합 작업본에 있으며 현재 배포본과 구분합니다.</p><div><figure><img src="review/deployed-desktop.png" alt="현재 공개 배포본 전체 화면"><figcaption>현재 공개 배포본 · 데스크톱</figcaption></figure><figure><img src="review/working-desktop.png" alt="미통합 로컬 작업본 전체 화면"><figcaption>미통합 작업본 · 데스크톱</figcaption></figure></div></details>
+ </main>
+ <script type="module" src="tour.js"></script>
+</body></html>
