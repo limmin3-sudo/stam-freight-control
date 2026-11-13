@@ -20,7 +20,7 @@
   "releaseVersion": "2.7.0",
   "integrationCheckout": "stam-freight-control-fresh-20261108",
   "cinematicRuntime": "apps/control-room/src/GuideDesk.tsx",
-  "tomorrow": "Continue partner selection in the 2.5D scene and the dedicated full tutorial/shuttle flow. Map surface detail/high-resolution source work remains optional follow-up. Preserve navigator always-visible map/cargo, operator route-only controls, fixed global navigation and approved cinematic runtime.",
+  "tomorrow": "Function cloud: map/cargo detail and performance refinement plus full functional regression with private real-log replay. Defer native log companion redesign. Cinematic owner takes the complete 2.5D person-selection and full tutorial/shuttle functional integration.",
   "shuttleHandoff": "docs/cinematics/shuttle-boarding-20261112/HANDOFF.md",
   "shuttleRuntime": "apps/control-room/src/ShuttleBoarding.tsx",
   "functionHandoff": "docs/FUNCTION-CINEMATIC-HANDOFF-20261112.md",
@@ -29,9 +29,15 @@
   "functionOwner": "cloud",
   "cinematicOwner": "cloud",
   "integrationOwner": "function-cloud",
-  "activeFunctionBranch": "handoff/local-studio-20261110",
+  "activeFunctionBranch": "feature/graphics-functional-audit-20261113",
   "cinematicIntegrated": [
     "2484135b54af34c17a3126f50e1b0bbe6be1ec55",
     "741ca01b62380043d2f7b0aa5183907a148ede87"
-  ]
+  ],
+  "functionReview": "docs/FUNCTION-AUDIT-20261113.md",
+  "functionReviewIntegrated": false,
+  "functionReviewStatus": "validated-uncommitted-unpublished",
+  "flightBackupReview": "docs/FLIGHT-BACKUP-20261113.md",
+  "flightBackupStatus": "validated-uncommitted-unpublished",
+  "nextFunctionWork": "Archive data/search/filter integration coordinated with cinematic archive theme (PR #29/#30 shared files); map/cargo detail later. Direct custom grid editor UI excluded by user; existing customShip restore compatibility retained. Native log companion redesign remains deferred."
 }

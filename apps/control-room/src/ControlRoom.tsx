@@ -1,3 +1,4 @@
+import {FlightBackup} from './FlightBackup';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { copyFor, screenTitle } from './copy';
@@ -36,7 +37,7 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
 
   useEffect(() => {
     document.documentElement.lang = route.locale === 'en' ? 'en' : 'ko';
-    document.title = `STAM · ${screenTitle(route.screen, copy)}`;
+    document.title = `${screenTitle(route.screen, copy)} · STAM FREIGHT DIVISION`;
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isHome && !event.defaultPrevented &&
           !(event.target instanceof Element && event.target.closest('input, select, textarea, [contenteditable], dialog'))) {
@@ -66,8 +67,8 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
       event.preventDefault(); document.getElementById('nav-mission')?.focus();
     }}>{copy.skip}</a>
     <header className="room-topbar">
-      <a className="room-brand" href={routeHash({ ...route, screen: 'bridge' })} aria-label={`STAM · ${copy.home}`}>
-        <img className="brand-emblem" src={stamLogo} alt="" width="64" height="64" /><span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
+      <a className="room-brand" href={routeHash({ ...route, screen: 'bridge' })} aria-label={`STAM FREIGHT DIVISION · ${copy.home}`}>
+        <img className="brand-emblem" src={stamLogo} alt="" width="64" height="64" /><span className="brand-wordmark">STAM<small>FREIGHT DIVISION</small></span>
       </a>
       <a className="console-lounge-link" href={`#/lounge?lang=${route.locale}`}>{route.locale === 'en' ? 'STAM Lounge' : 'STAM 라운지'}</a><div className="header-location"><span>COMMAND BRIDGE</span><i aria-hidden="true" /></div>
       <label className="language-control"><span>{copy.language}</span><select aria-label={copy.language} value={route.locale} onChange={event => {
@@ -101,7 +102,7 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
               onReview={next=>{if(next)flight.change(next);flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});});}}/> :
             <>{!controlMode && draft.partner==='navigator' && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
               <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}
-          {route.screen==='mission' && <ContractBackup flight={flight} locale={route.locale}/>}
+          {route.screen==='mission' && <><ContractBackup flight={flight} locale={route.locale}/><FlightBackup flight={flight} locale={route.locale}/></>}
           {route.screen==='mission' && flight.hasSaved && !flight.active && <button type="button" className="return-link" disabled={flight.busy||flight.blocked} onClick={()=>{
             if(!draft.jobs.length||window.confirm(route.locale==='en'?'Replace this manifest with the saved flight?':'현재 계약 목록을 이전에 저장한 운항으로 바꿀까요?'))flight.calculate(undefined,false,'saved');
           }}>{route.locale==='en'?'Load previous flight':'이전 운항 불러오기'}</button>}

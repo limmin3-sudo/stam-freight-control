@@ -1,5 +1,5 @@
 import {quantityBasis} from './quantity-basis';
-import {lazy,Suspense,useEffect,useRef,useState} from 'react';
+import {lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react';
 import type {useFlight} from './use-flight';
 import type {Locale} from './navigation';
 import {NavigationChart} from './NavigationChart';
@@ -25,6 +25,7 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
  useEffect(()=>{setSelected(current);setLocation('');setCargo(false);setBox(null);},[plan,current]);
  useEffect(()=>{stops.current?.querySelector('[data-active=true]')?.scrollIntoView({block:'nearest'});},[selected]);
  const visit=plan?.visits[selected];
+ const previewPacking=useMemo(()=>visit?{...visit.packing,capacity:plan?.capacity||0,used:visit.load} as Packing:null,[visit,plan?.capacity]);
  const minutes=(seconds:number)=>`${Math.max(0,Math.round(seconds/60)).toLocaleString()} ${t('분','min')}`;
  const chooseLocation=(id:string)=>{
   setLocation(id);setBox(null);
@@ -68,7 +69,7 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
   </div>
   {cargo&&plan&&visit&&plan.mode!=='simple'&&<dialog ref={node=>{if(node&&!node.open)node.showModal();}} className="chart-cargo-overlay" role="dialog" aria-modal="true" aria-label={t('거점 작업 후 적재','Cargo after this stop')} onCancel={e=>{e.preventDefault();setCargo(false);}} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setCargo(false);}}}>
    <header><div><small>CARGO / HOLOGRAPHIC INSPECTION</small><h2>{where(visit.locationId)} · {t('작업 후 예상 배치','Planned load after stop')}</h2></div><button autoFocus onClick={()=>setCargo(false)}>{t('닫기','Close')} ×</button></header>
-   <Suspense fallback={<p>3D…</p>}><CargoViewport ship={plan.ship as CargoShip} packing={{...visit.packing,capacity:plan.capacity||0,used:visit.load} as Packing} locale={locale} selected={box} onSelect={setBox}/></Suspense>
+   <Suspense fallback={<p>3D…</p>}><CargoViewport ship={plan.ship as CargoShip} packing={previewPacking} locale={locale} selected={box} onSelect={setBox}/></Suspense>
    <p className="chart-cargo-caption">{selection?`${selection.size} SCU · ${where(selection.dropoffId)} · ${cargoName(selection.commodity)} · ${selection.missionId} · ${quantityBasis(flight.session.draft.jobs.find(job=>job.id===selection.missionId),locale)}`:t('상자를 선택하면 배송지와 소속 계약을 확인합니다. 운항 진행을 바꾸지 않는 계획 미리보기입니다.','Select a crate for destination and contract. This planned preview does not change flight progress.')}</p>
   </dialog>}
  </section>;

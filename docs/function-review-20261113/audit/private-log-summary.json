@@ -1,0 +1,314 @@
+{
+  "files": [
+    {
+      "file": 0,
+      "cards": 10,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 10,
+      "conflict": 0
+    },
+    {
+      "file": 1,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 2,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 3,
+      "cards": 1,
+      "ready": 1,
+      "incomplete": 0,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 4,
+      "cards": 19,
+      "ready": 1,
+      "incomplete": 5,
+      "ended": 13,
+      "conflict": 0
+    },
+    {
+      "file": 5,
+      "cards": 28,
+      "ready": 1,
+      "incomplete": 4,
+      "ended": 22,
+      "conflict": 1
+    },
+    {
+      "file": 6,
+      "cards": 1,
+      "ready": 0,
+      "incomplete": 1,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 7,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 8,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 9,
+      "cards": 0,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 10,
+      "cards": 65,
+      "ready": 0,
+      "incomplete": 5,
+      "ended": 60,
+      "conflict": 0
+    },
+    {
+      "file": 11,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 12,
+      "cards": 0,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 13,
+      "cards": 8,
+      "ready": 0,
+      "incomplete": 1,
+      "ended": 7,
+      "conflict": 0
+    },
+    {
+      "file": 14,
+      "cards": 6,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 4,
+      "conflict": 0
+    },
+    {
+      "file": 15,
+      "cards": 26,
+      "ready": 0,
+      "incomplete": 5,
+      "ended": 21,
+      "conflict": 0
+    },
+    {
+      "file": 16,
+      "cards": 3,
+      "ready": 1,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 17,
+      "cards": 10,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 8,
+      "conflict": 0
+    },
+    {
+      "file": 18,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 19,
+      "cards": 12,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 12,
+      "conflict": 0
+    },
+    {
+      "file": 20,
+      "cards": 20,
+      "ready": 1,
+      "incomplete": 7,
+      "ended": 12,
+      "conflict": 0
+    },
+    {
+      "file": 21,
+      "cards": 7,
+      "ready": 1,
+      "incomplete": 4,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 22,
+      "cards": 10,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 10,
+      "conflict": 0
+    },
+    {
+      "file": 23,
+      "cards": 0,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 24,
+      "cards": 1,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 1,
+      "conflict": 0
+    },
+    {
+      "file": 25,
+      "cards": 6,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 6,
+      "conflict": 0
+    },
+    {
+      "file": 26,
+      "cards": 33,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 33,
+      "conflict": 0
+    },
+    {
+      "file": 27,
+      "cards": 14,
+      "ready": 0,
+      "incomplete": 7,
+      "ended": 7,
+      "conflict": 0
+    },
+    {
+      "file": 28,
+      "cards": 6,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 6,
+      "conflict": 0
+    },
+    {
+      "file": 29,
+      "cards": 0,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 30,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 0,
+      "conflict": 0
+    },
+    {
+      "file": 31,
+      "cards": 53,
+      "ready": 0,
+      "incomplete": 4,
+      "ended": 49,
+      "conflict": 0
+    },
+    {
+      "file": 32,
+      "cards": 7,
+      "ready": 1,
+      "incomplete": 0,
+      "ended": 6,
+      "conflict": 0
+    },
+    {
+      "file": 33,
+      "cards": 8,
+      "ready": 0,
+      "incomplete": 2,
+      "ended": 6,
+      "conflict": 0
+    },
+    {
+      "file": 34,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    },
+    {
+      "file": 35,
+      "cards": 6,
+      "ready": 0,
+      "incomplete": 1,
+      "ended": 5,
+      "conflict": 0
+    },
+    {
+      "file": 36,
+      "cards": 2,
+      "ready": 0,
+      "incomplete": 0,
+      "ended": 2,
+      "conflict": 0
+    }
+  ],
+  "workflow": {
+    "contracts": 1,
+    "shipments": 4,
+    "visits": 6,
+    "actions": 7,
+    "finished": true,
+    "boxesRemaining": 0
+  },
+  "polling": {
+    "append": true,
+    "duplicateSafe": true,
+    "endedObserved": true,
+    "stopped": true
+  }
+}

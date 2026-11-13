@@ -1,6 +1,7 @@
+import {FlightBackup} from './FlightBackup';
 import {quantityBasis} from './quantity-basis';
 import {ConsoleDial} from './ConsoleDial';
-import {lazy, Suspense, useEffect, useRef, useState} from 'react';
+import {lazy, Suspense, useEffect, useMemo, useRef, useState} from 'react';
 const CargoViewport=lazy(()=>import('./CargoWorkspace').then(m=>({default:m.CargoViewport})));
 import {cargoShip} from './cargo-plan.mjs';
 const OperationsMap=lazy(()=>import('./OperationsMap').then(module=>({default:module.OperationsMap})));
@@ -32,8 +33,8 @@ export function FlightOperations({flight, locale, controlMode}:{
   useEffect(()=>{heading.current?.focus({preventScroll:true});},[controlMode]);
   const visit=plan && run ? plan.visits[run.index] : undefined;
   const jump=visit && run ? visit.jumps[run.jump] : undefined;
-  const ship=plan?.ship || (draft.customShip?.id===draft.ship?draft.customShip:cargoShip(shipIdFor(draft.ship)));
-  const boxes=run?.aboard || [];
+  const ship=useMemo(()=>plan?.ship || (draft.customShip?.id===draft.ship?draft.customShip:cargoShip(shipIdFor(draft.ship))),[plan?.ship,draft.customShip,draft.ship]);
+  const boxes=useMemo(()=>run?.aboard || [],[run?.aboard]);
   const projected=plan&&run&&visit&&cargoPhase!=='aboard' ?
     (cargoPhase==='before' ? plan.visits[run.index-1]?.packing || plan.initialPacking : visit.packing) : null;
   const selectedBox=(projected?.boxes || boxes).find(box=>box.boxId===selected);
@@ -41,7 +42,8 @@ export function FlightOperations({flight, locale, controlMode}:{
   const simple=draft.partner==='operator' || plan?.mode==='simple';
   const voice=flightVoice(simple?'aide':'standard',en);
   const used=simple?(run?.loadScu??0):boxes.reduce((n,b)=>n+b.size,0);
-  const packing={boxes,used,capacity:plan?.capacity||0,bins:ship.grids.map((_,i)=>({used:boxes.reduce((n,b)=>n+(b.bin===i?b.size:0),0)}))};
+  // Selection and timer renders must not recreate the hold's geometry.
+  const packing=useMemo(()=>projected?{...projected,capacity:plan?.capacity??0}:{boxes,used,capacity:plan?.capacity||0,bins:ship.grids.map((_,i)=>({used:boxes.reduce((n,b)=>n+(b.bin===i?b.size:0),0)}))},[projected,plan?.capacity,boxes,used,ship]);
   const where=(id:string)=>placeName(id,locale==='ko'?0:1);
   const cargoName=(name:string)=>locale==='ko'?(korean.goods as Record<string,string>)[name]||draft.jobs.flatMap(job=>job.shipments).find(row=>row.cargo[1]===name)?.cargo[0]||name:name;
   const actionLabel=jump?t('점프 완료','Complete jump'):visit?.events.some(e=>e.type==='departure')?t('출발 완료','Departed'):
@@ -116,6 +118,7 @@ export function FlightOperations({flight, locale, controlMode}:{
       </li>)}</ol></details>}
     {plan&&run&&(controlMode?<details className="ops-record"><summary>{t('운항 기록 · 보상','Flight record · Rewards')}</summary><RunDetails session={flight.session} locale={locale}/></details>:<RunDetails session={flight.session} locale={locale}/>)}
     {plan && <FlightRouteEditor key={plan.startId+String(run?.index)} flight={flight} locale={locale}/>}
+    <FlightBackup flight={flight} locale={locale}/>
     </div>
     {controlMode && <aside className="ops-partner"><div className="ops-portrait"><img src={simple?operatorPortrait:navigatorPortrait} alt=""/></div><div className="ops-transmission"><small>{t('파트너 통신','Partner comms')}</small><h2>{voice.role}</h2><p aria-live="polite">{instruction}</p>{!simple&&cargoLines}</div></aside>}
     {controlMode&&!simple&&<section className="ops-hold ops-live-cargo" tabIndex={0} onPointerDownCapture={event=>{
@@ -129,7 +132,7 @@ export function FlightOperations({flight, locale, controlMode}:{
         <p className="ops-cargo-note">{ship.name} · {cargoPhase==='aboard'?t('완료한 작업을 반영한 선적 상태입니다.','Cargo recorded by completed actions.'):t('계산된 예상 배치입니다. 운항 진행에는 반영되지 않습니다.','Planned layout only. Previewing does not advance the run.')} {(projected?.boxes||boxes).some(b=>b._reservation)&&t('예약 공간은 실제 상자·픽업 수량과 다를 수 있습니다.','Reserved space may differ from actual crates and pickup quantities.')}</p>
       </div>
         <Suspense fallback={<p role="status">{t('적재 화면 준비 중…','Preparing cargo view…')}</p>}>
-          <CargoViewport ship={ship} packing={projected?{...projected,capacity:plan?.capacity??0}:packing} locale={locale} selected={selected} onSelect={select}/>
+          <CargoViewport ship={ship} packing={packing} locale={locale} selected={selected} onSelect={select}/>
         </Suspense>
         {selectedBox&&<output className="ops-box">{cargoName(selectedBox.commodity)} · {selectedBox.size} SCU · {selectedContract?.title[locale==='ko'?0:1]||selectedBox.missionId} → {where(selectedBox.dropoffId)} · {ship.grids[selectedBox.bin]?.name} · {quantityBasis(selectedContract,locale)}</output>}
     </section>}

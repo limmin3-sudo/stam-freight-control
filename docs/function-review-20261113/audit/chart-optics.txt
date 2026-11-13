@@ -1,0 +1,10 @@
+CAPTURE stanton
+CAPTURE pyro
+CAPTURE nyx
+CAPTURE microtech
+CAPTURE microtech-close
+CAPTURE hologram-microtech-close
+CAPTURE hologram-hurston
+CAPTURE hologram-crusader
+CAPTURE hologram-stanton
+PASS sky replacement; three system palettes; physical/projected styles; native body colours; close view; quality modes; 1440p/mobile; unchanged flight data; no shader errors

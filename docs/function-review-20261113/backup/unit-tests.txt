@@ -1,0 +1,15 @@
+✔ whole-flight backup preserves exact cargo, contracts, route, undo and metadata while pausing the timer (28.943501ms)
+✔ operator, completed flight, preparation, old raw JSON and replanned flights remain importable (15.249076ms)
+✔ custom ship from legacy import preserves independent contract ownership and grid coordinates (4.652019ms)
+✔ reject invalid format, progress, geometry, ownership and inconsistent aboard state (167.75451ms)
+✔ failed storage writes never replace the current flight; successful restore preserves a recovery copy (11.585833ms)
+✔ cross-system jump progress and every subsequent stop survive backup round trips (14.99561ms)
+✔ pooled unknown pickup shares keep reservations and evidence; unknown SCU operator also restores (18.066233ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 708.529576

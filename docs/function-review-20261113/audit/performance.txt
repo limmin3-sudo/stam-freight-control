@@ -1,0 +1,1 @@
+PASS: cargo selection preserves geometry, camera, flight state and saved map quality {"selectionRebuilds":{"map-preview":0,"operations":0,"workspace":0},"quality":["normal","normal","normal"]}

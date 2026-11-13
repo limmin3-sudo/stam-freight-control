@@ -15,6 +15,9 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.95;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ // Cargo and lights only move when the manifest changes. Orbiting/selecting
+ // needs a new camera image, not another 2048px shadow pass for the same hold.
+ renderer.shadowMap.autoUpdate=false;
  host.append(renderer.domElement);renderer.domElement.setAttribute('aria-label','Cargo 3D');
  const labels=document.createElement('div');labels.className='cargo-spatial-labels';host.append(labels);
  const camera=new THREE.PerspectiveCamera(35,1,.1,2000);
@@ -31,6 +34,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const textureCache=new Map<string,THREE.CanvasTexture>();
  const markers:Marker[]=[];const selectable:THREE.Object3D[]=[];const objects=new Map<string,THREE.Group>();
  const center=new THREE.Vector3();let radius=10,frame=0,dead=false,visible=true,selected:string|null=null,dirty=true;
+ let rebuilds=0;
  let gridShape='';let hover:string|null=null;let transition:{from:THREE.Vector3;target:THREE.Vector3;to:THREE.Vector3;start:number}|null=null;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const mesh=(geo:THREE.BufferGeometry,mat:THREE.Material,parent:THREE.Object3D)=>{const m=new THREE.Mesh(geo,mat);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
@@ -111,6 +115,8 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
   root.clear();selectable.length=0;objects.clear();markers.length=0;labels.replaceChildren();
  }
  function update(ship:CargoShip,packing:Packing|null,en:boolean){
+  host.dataset.sceneRevision=String(++rebuilds);
+  renderer.shadowMap.needsUpdate=true;
   const nextShape=JSON.stringify([ship.id,ship.grids.map(g=>[g.x,g.y,g.z,g.w,g.h,g.l,g.rotation,g.disabled])]);
   const refit=gridShape!==nextShape;gridShape=nextShape;
   resetContent();
@@ -180,7 +186,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    mesh(structure(d,'rails'),metal,container);mesh(structure(d,'ribs'),dark,container);mesh(structure(d,'corners'),silver,container);mesh(structure(d,'locks'),silver,container);
    identification(d,b.size,container);
    for(const child of container.children)child.userData.boxId=b.boxId;
-   const edges=new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeometry(d),30),new THREE.LineBasicMaterial({color:0xffb658,depthTest:false,transparent:true,opacity:.85}));edges.name='selection';edges.visible=false;edges.scale.setScalar(1.008);edges.renderOrder=10;container.add(edges);
+   const edges=new THREE.LineSegments(cached('selection'+d.join(','),()=>new THREE.EdgesGeometry(bodyGeometry(d),30)),mat('selection',()=>new THREE.LineBasicMaterial({color:0xffb658,depthTest:false,transparent:true,opacity:.85})));edges.name='selection';edges.visible=false;edges.scale.setScalar(1.008);edges.renderOrder=10;container.add(edges);
    objects.set(b.boxId,container);
   }
   // Reuse draw calls across crates. Geometry detail does not multiply draw calls

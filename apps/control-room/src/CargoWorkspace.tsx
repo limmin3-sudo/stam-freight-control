@@ -59,7 +59,7 @@ export function CargoWorkspace({draft,locale,session}:{draft:Draft;locale:Locale
  const ship=aboard && session?.plan?session.plan.ship:configured;
  const result=useMemo(()=>mode==='manifest'?manifestCargo(draft,actualPickup):{boxes:mode==='demo'?demoCargo():[],unresolved:[]},[mode,draft,actualPickup]);
  const packingResult=useMemo(()=>{try{return {packing:cargoPacking(ship,result.boxes),invalid:false};}catch{return {packing:null,invalid:true};}},[ship,result]);
- const packing=aboard?{boxes:aboard,used:aboard.reduce((s,b)=>s+b.size,0),capacity:capacity(ship),bins:ship.grids.map((_,i)=>({used:aboard.reduce((s,b)=>s+(b.bin===i?b.size:0),0)}))}:packingResult.packing;
+ const packing=useMemo(()=>aboard?{boxes:aboard,used:aboard.reduce((s,b)=>s+b.size,0),capacity:capacity(ship),bins:ship.grids.map((_,i)=>({used:aboard.reduce((s,b)=>s+(b.bin===i?b.size:0),0)}))}:packingResult.packing,[aboard,ship,packingResult.packing]);
  const selectedBox=packing?.boxes.find(b=>b.boxId===selected);
  const destinations=[...new Set((packing?.boxes||[]).map(b=>b.dropoffId))];
  const list=(packing?.boxes||[]).filter(b=>filter==='all'||b.dropoffId===filter);

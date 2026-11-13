@@ -6,7 +6,7 @@ import locations from '../../../data/locations.json';
 import {chartAppearance} from './chart-appearance';
 
 export type ChartCommand={serial:number;kind:'focus'|'leg'|'home'|'top'|'galaxy'|'system'|'zoom';id?:string;value?:number};
-export function NavigationChart({locale,plan,index=0,command,orbits=true,quality='high',look='physical',onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void}){
+export function NavigationChart({locale,plan,index=0,command,orbits=true,quality,look='physical',onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void}){
  const host=useRef<HTMLDivElement>(null),map=useRef<StarMap|null>(null),latest=useRef({plan,index,onSelect,orbits,quality});latest.current={plan,index,onSelect,orbits,quality};
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);
  useEffect(()=>{
@@ -17,7 +17,9 @@ export function NavigationChart({locale,plan,index=0,command,orbits=true,quality
    try{
     appearance=chartAppearance(locale,look);
     const view=createStarMap(host.current,null,locations,p=>latest.current.onSelect?.(p),appearance);map.current=view;
-    view.setRoute(latest.current.plan,latest.current.index);view.setOrbits(latest.current.orbits);view.setQuality(latest.current.quality);
+    view.setRoute(latest.current.plan,latest.current.index);view.setOrbits(latest.current.orbits);
+    // A console without a quality control inherits the renderer's saved choice.
+    if(latest.current.quality)view.setQuality(latest.current.quality);
     const start=latest.current.plan?.startId.split(':')[0];if(start)view.setSystem(start);
     setReady(true);
    }catch(error){console.error('Navigation chart failed',error);setFailed(true);}
@@ -26,7 +28,7 @@ export function NavigationChart({locale,plan,index=0,command,orbits=true,quality
  },[locale,look]);
  useEffect(()=>{map.current?.setRoute(plan,index);},[plan,index]);
  useEffect(()=>{map.current?.setOrbits(orbits);},[orbits]);
- useEffect(()=>{map.current?.setQuality(quality);try{localStorage.setItem('vh-map-quality',quality);}catch{}},[quality]);
+ useEffect(()=>{if(quality)map.current?.setQuality(quality);},[quality]);
  useEffect(()=>{
   const view=map.current;if(!view||!command||!ready)return;
   if(command.kind==='focus'&&command.id)view.focus(command.id);

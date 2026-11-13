@@ -1,0 +1,1 @@
+PASS private saved-log replay {"files":37,"workflow":{"contracts":1,"shipments":4,"visits":6,"actions":7,"finished":true,"boxesRemaining":0},"polling":{"append":true,"duplicateSafe":true,"endedObserved":true,"stopped":true}}

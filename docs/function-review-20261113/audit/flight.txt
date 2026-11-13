@@ -1,0 +1,4 @@
+PASS: navigator always sees map and cargo, no duplicate bar, cargo keyboard isolation and recorded/planned separation
+PASS: approved medium typography, fixed header and sidebar [{"selector":"h2","font":"BarlowAirReview, SUIT, sans-serif","weight":"500"},{"selector":".console-dial b","font":"BarlowAirReview, SUIT, sans-serif","weight":"500"},{"selector":".run-readout dd","font":"BarlowAirReview, SUIT, sans-serif","weight":"500"},{"selector":".manifest-primary","font":"BarlowAirReview, SUIT, sans-serif","weight":"500"}]
+PASS: locale, workspace round trip, reload/undo with exact cargo ownership, and responsive always-mounted instruments
+PASS: operator remains route-only with no cargo renderer, pane or popup; no page errors

@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
+import {exportFlight,importFlight,persistRestoredFlight,previousFlightKey} from './flight-backup';
 import {useLogReceipts} from './use-log-receipts';
 import {updateFlightHistory} from './flight-history.mjs';
 import {readCargoPreferences} from './cargo-plan.mjs';
@@ -25,7 +26,8 @@ export function useFlight(){
  const worker=useRef<Worker|null>(null),current=useRef(session);current.current=session;
  useEffect(()=>()=>{worker.current?.terminate();},[]);
  const [hasSaved]=useState(()=>{try{return savedFlight().missions.length>0;}catch{return false;}});
- const blocked=!!initial.error,active=!!session.run?.started&&!session.run.finished;
+ const [blocked,setBlocked]=useState(!!initial.error);
+ const active=!!session.run?.started&&!session.run.finished;
  function commit(next:Session){
   if(blocked)return;current.current=next;setSession(next);
   try{localStorage.setItem(sessionKey,JSON.stringify(next));setStorageError('');}
@@ -68,14 +70,29 @@ export function useFlight(){
   try{updateFlightHistory(next,s.run);}catch{setStorageError('운항 기록을 저장하지 못했습니다. 운항 백업을 내려받으세요.');}
  }
  function backup(){
-  const blob=new Blob([JSON.stringify(current.current,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);
+  const text=blocked?(localStorage.getItem(sessionKey)||exportFlight(current.current)):exportFlight(current.current);
+  const blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download='stam-flight-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
+ function prepareRestore(text:string){
+  if(worker.current)throw Error('항로 계산이 끝난 뒤 복원하세요.');
+  const next=importFlight(text),stamp=JSON.stringify(current.current),stored=localStorage.getItem(sessionKey);
+  return {session:next,apply:()=>{
+   if(worker.current||JSON.stringify(current.current)!==stamp||localStorage.getItem(sessionKey)!==stored)throw Error('현재 운항이 변경되었습니다. 백업 파일을 다시 선택해 확인하세요.');
+   // Validate again: preview state must not bypass validation or mutate the candidate.
+   const restored=importFlight(JSON.stringify(next));
+   const previous=blocked?(localStorage.getItem(sessionKey)||exportFlight(current.current)):exportFlight(current.current);
+   try{persistRestoredFlight(localStorage,restored,previous);}
+   catch{throw Error('복원 전 운항과 복원 결과를 저장하지 못했습니다. 현재 운항을 유지합니다. 저장 공간을 확보한 뒤 다시 시도하세요.');}
+   current.current=restored;setSession(restored);setBlocked(false);setError('');setStorageError('');
+  }};
+ }
+ function previousBackup(){const text=localStorage.getItem(previousFlightKey);if(!text)throw Error('복원 전 운항 백업이 없습니다.');return text;}
  function nextFlight(){
   const s=current.current;
   if(!s.run?.finished||worker.current||blocked)return;
   commit({version:1,draft:{...s.draft,jobs:[],start:s.run.positionId,received:false,reviewed:false},plan:null,run:null});
  }
  function stop(){if(worker.current||blocked)return;const s=current.current;commit({...s,draft:{...s.draft,reviewed:false},plan:null,run:null});}
- return {session,receipts,change,appendContracts,calculate,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup};
+ return {session,receipts,change,appendContracts,calculate,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup,prepareRestore,previousBackup};
 }

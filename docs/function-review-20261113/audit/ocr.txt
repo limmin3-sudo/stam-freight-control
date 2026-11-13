@@ -1,0 +1,9 @@
+{
+  "result": "PASS real Tesseract → parsed review → pooled total validation → duplicate guard → navigator plan",
+  "language": "en",
+  "peak": 22,
+  "reward": 73500,
+  "shipmentCount": 2,
+  "assetFailures": 0,
+  "fixture": "synthetic image; actual Tesseract engine"
+}
