@@ -178,12 +178,16 @@ export function SpaceExperience() {
     if(route.screen==='lounge'&&screen==='bridge'&&target?.id==='gate'){
       setConversation(null);setPending({screen,kind:'boarding',target});setActive(null);return;
     }
-    setPending({ screen, kind: target ? 'long' : 'short', target: target ?? configuration.targets.find(place => place.to === screen) });
+    // Direct lounge room visits use the existing brief camera zoom. Guided
+    // tutorial videos remain a separate cinematic path.
+    const loungeRoom = route.screen === 'lounge' && ['service', 'information', 'cinema'].includes(screen);
+    const kind = target && !loungeRoom ? 'long' : 'short';
+    setPending({ screen, kind, target: target ?? configuration.targets.find(place => place.to === screen) });
     setActive(target?.id ?? null);
     timer.current = setTimeout(() => {
       timer.current = null;
       if (destination.current) location.hash = spaceHash({ ...route, screen: destination.current });
-    }, target ? longEntryMs : spaceConfig.approachMs);
+    }, kind === 'long' ? longEntryMs : spaceConfig.approachMs);
   };
   const stopHoverTimer = () => {
     if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
@@ -303,10 +307,11 @@ export function SpaceExperience() {
             })}
           </svg>
           <div className="space-labels" inert={!!pending}>
-            {configuration.targets.map(target => <div key={target.id} className="space-target" data-target={target.id}
-              style={{ left: `${target.x}%`, top: `${target.y}%` }}>
+            {configuration.targets.map(target => <a key={target.id} className={`space-target ${active === target.id ? 'is-lit' : ''}`} data-target={target.id}
+              href={href(target.to)} style={{ left: `${target.x}%`, top: `${target.y}%` }}
+              onClick={event => enter(event, target.to, target)} onMouseEnter={() => highlight(target.id)} onMouseLeave={leaveTarget} onFocus={() => focusTarget(target.id)} onBlur={releaseHighlight}>
               <span className="space-target-text"><strong>{word(target.label)}</strong><span>{word(target.detail)}</span></span>
-            </div>)}
+            </a>)}
           </div>
           {imageError && <p className="space-image-error" role="alert">{en ? 'The scene could not load. Use the shortcuts.' : '전경을 불러오지 못했습니다. 바로가기를 이용해주세요.'}</p>}
         </div>
