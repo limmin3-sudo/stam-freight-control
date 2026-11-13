@@ -1,0 +1,19 @@
+{
+  "asset": "service-end-frame-v1.png",
+  "size": [
+    1672,
+    941
+  ],
+  "sha256": "34843335522b459dd16c71994017770fd480c2093bb263da567db4527abac4f7",
+  "generator": "image_gen",
+  "generation": "exec-78373a84-0f07-4c94-85d0-b54cf4c607c2",
+  "role": "서비스센터 이동 영상 마지막 프레임 시안",
+  "layout": "정면 화면과 얇은 모니터 프레임만, 상단 계정/배송기록 2칸 및 하단 도움말 3칸",
+  "sourceReferences": [
+    "apps/control-room/src/assets/console-screen-only.png",
+    "PR #26: docs/cinematics/flat-hologram-20261113/source.png",
+    "docs/design-review-20261112/lounge-rooms/service.png"
+  ],
+  "runtimeChanged": false,
+  "requiresIntegration": "현재 실제 서비스센터 화면과 새 프레임의 재질/좌표/서체는 아직 일치하지 않는다. 영상 생성 전 끝 프레임 검토, 실제 UI 연결은 이후 연출 작업으로 준비해 기능 담당이 통합한다."
+}
