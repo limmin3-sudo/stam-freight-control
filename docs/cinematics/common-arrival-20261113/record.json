@@ -1,0 +1,14 @@
+{
+  "asset": "stam-standby-v1.png",
+  "size": [
+    1672,
+    941
+  ],
+  "sha256": "0ce2b7367ce80ace3f83a474bdaa551ed1e217ddb9ead68abfdad5498404d36e",
+  "generation": "image_gen exec-1b2dc560-bbaf-4d16-8c4e-385b6ff2aecd",
+  "reference": "assets/stam-logo-transparent.png",
+  "purpose": "공통 튜토리얼 영상 도착 대기 프레임. 영상 종료 후 최신 실제 UI로 전환.",
+  "runtimeWallpaperConnected": false,
+  "directRoomTravel": "라운지 서비스센터/정보실/영상관은 기존 확대 전환을 사용한다.",
+  "notPixelIdenticalToSourceLogo": true
+}

@@ -1,20 +1,14 @@
-/* Permanent, non-interactive wayfinding; scene-specific sector colours. */
+/* Permanent text links; shared lounge/bridge colours and gold emphasis. */
 .space-experience[data-capture-frame] :is(.space-sidebar, .space-intro, .space-leaders,
   .space-markers, .space-labels, .director-partner-name, .bridge-partner-name, .partner-hit, .space-spotlight, .space-segments) {
   visibility: hidden;
 }
 .space-lounge[data-moving=true] .space-leaders { visibility: hidden; }
-.space-lounge {
+:is(.space-lounge, .space-bridge[data-screen=bridge]) {
   --wayfinding-title: #d9efff;
   --wayfinding-detail: #f0f8ff;
-  --wayfinding-hover: #f4fbff;
+  --wayfinding-hover: #ffe2a1;
   --wayfinding-line: #ceeaff;
-}
-.space-bridge[data-screen=bridge] {
-  --wayfinding-title: #ffe2a1;
-  --wayfinding-detail: #fff1d3;
-  --wayfinding-hover: #fff2ce;
-  --wayfinding-line: #ffdb8f;
 }
 :is(.space-lounge, .space-bridge[data-screen=bridge]) {
   --wayfinding-line-opacity: 1;
@@ -41,11 +35,11 @@
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-artwork{container-type:inline-size}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-leaders{color:var(--wayfinding-line,#dfbd78);opacity:var(--wayfinding-line-opacity,.75)}
 .space-leaders polyline{fill:none;stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
-:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target{opacity:1;pointer-events:auto;cursor:default;min-height:48px;width:max-content;max-width:23%;text-decoration:none;color:var(--wayfinding-title,#f2d294);transition:color .16s,text-shadow .16s}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target{opacity:1;pointer-events:auto;cursor:pointer;min-height:48px;width:max-content;max-width:23%;text-decoration:none;color:var(--wayfinding-title,#f2d294);transition:color .16s,text-shadow .16s}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text,:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target.is-lit .space-target-text{display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 2px;background:none;border:0;border-radius:0;box-shadow:none;color:inherit}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text strong{display:block;font-family:Oxanium,SUIT,sans-serif;font-size:clamp(15px,2cqw,26px);font-weight:var(--wayfinding-weight,450);line-height:1.4;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-shadow:var(--wayfinding-shadow,0 1px 1px #503b1c,0 2px 6px #08131ae0,0 0 16px #e8b75a66)}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text>span{display:block;position:static;transform:none;opacity:1;padding:0;max-width:210px;white-space:normal;word-break:keep-all;font:var(--wayfinding-weight,450) var(--wayfinding-detail-size,clamp(10px,1.05cqw,13px))/1.6 SUIT,sans-serif;letter-spacing:.05em;color:var(--wayfinding-detail,#f5e3be);background:none;border:0;border-radius:0;box-shadow:none;text-shadow:var(--wayfinding-detail-shadow,0 1px 4px #07131af2,0 0 10px #211a0dcc);pointer-events:none}
-:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:hover,:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target.is-lit{color:var(--wayfinding-hover,#ffe7b4)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:is(:hover,:focus-visible,.is-lit){color:var(--wayfinding-hover,#ffe7b4);--wayfinding-detail:#fff1d3;--wayfinding-shadow:0 1px 3px #101c28,0 2px 5px #101c28,0 0 14px #e7b65b88}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:focus-visible{outline:1px solid #f6d38a;outline-offset:7px;border-radius:0}
 @media(max-width:760px){
  :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-overview{overflow:auto;justify-content:flex-start}

@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "service-text: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "information-marker: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "cinema-sidebar: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "gate-text: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "mission-sidebar: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "Console-to-console sidebar uses same live ignition",
+    "map-text: deep zoom, fixed sidebar, logo + 150ms plasma, real destination, storage preserved",
+    "Escape cancels camera and ignition with no stale navigation",
+    "Guided tutorial desk remains the existing video and excludes ignition",
+    "Reduced motion skips zoom/ignition",
+    "390px mobile: boot below fixed menu, no horizontal overflow"
+  ],
+  "errors": [],
+  "totalBudgetMs": 1030,
+  "departureMs": 697,
+  "bootMs": 333,
+  "plasmaMs": 150
+}

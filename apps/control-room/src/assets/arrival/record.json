@@ -1,0 +1,34 @@
+{
+  "purpose": "일반 이동: STAM 로고 후 짧은 전류 점등 → 최신 실제 UI",
+  "timingMs": {
+    "departure": 697,
+    "arrival": 333,
+    "plasma": 150,
+    "total": 1030,
+    "audioNoise": 110
+  },
+  "assets": [
+    {
+      "file": "stam-standby.png",
+      "generation": "exec-1b2dc560-bbaf-4d16-8c4e-385b6ff2aecd",
+      "reference": "assets/stam-logo-transparent.png",
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "0ce2b7367ce80ace3f83a474bdaa551ed1e217ddb9ead68abfdad5498404d36e"
+    },
+    {
+      "file": "ignition-plasma.png",
+      "generation": "exec-0e606460-f4b8-4f10-a586-0079ab93802a",
+      "reference": null,
+      "size": [
+        1672,
+        941
+      ],
+      "mode": "RGBA",
+      "sha256": "8531c0387231a4395e7c89d90e9e11005bb721fdbcb830ab76311b1075f58ce8"
+    }
+  ]
+}

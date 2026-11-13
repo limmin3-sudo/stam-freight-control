@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "1366/service: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "1366/information: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "1366/cinema: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "390/service: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "390/information: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "390/cinema: label hover gold, text click → short camera zoom → existing live room, no flight-state change",
+    "Keyboard Enter activates text link; marker zoom and Escape cancellation preserved",
+    "Bridge shares lounge base blue and gold hover; mission text link reaches existing console",
+    "Guide text link preserves approved approach video path",
+    "Reduced motion reaches destination directly"
+  ],
+  "errors": []
+}
