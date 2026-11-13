@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const {chromium}=await import(process.env.STAM_PLAYWRIGHT_MODULE||'playwright-core');
+const out=fileURLToPath(new URL('./',import.meta.url));
+const browser=await chromium.launch({executablePath:process.env.STAM_CHROMIUM||'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
+const url=process.env.STAM_PREVIEW_URL||'http://127.0.0.1:5196/';
+const errors=[],badResponses=[],checks=[];
+try{
+ const ctx=await browser.newContext({viewport:{width:1280,height:980},recordVideo:{dir:'/tmp/stam-tour-recording',size:{width:1280,height:980}}});
+ const page=await ctx.newPage();page.on('pageerror',error=>errors.push(error.message));page.on('response',response=>{if(response.status()>=400)badResponses.push(response.url()+' '+response.status());});
+ await page.goto(url,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.__tour?.ready);await page.evaluate(()=>document.fonts.ready);
+ assert.equal(await page.locator('#world canvas').count(),1);assert.equal(await page.locator('.viewer>video').count(),0);
+ await page.screenshot({path:out+'desktop-start.png'});
+ await page.evaluate(()=>window.__tour.seek(2.1));assert.ok(Math.abs(await page.evaluate(()=>window.__tour.parallax.delta))>.015);checks.push('Separate guide/background projections produce measurable parallax; transition uses WebGL, no travel video');
+ await page.evaluate(()=>window.__tour.seek(5.7));await page.locator('#viewer').screenshot({path:out+'lounge-travel.png'});
+ await page.evaluate(()=>window.__tour.seek(9.4));await page.locator('#viewer').screenshot({path:out+'cinema-approach.png'});
+ await page.evaluate(()=>window.__tour.seek(14));const live=page.frameLocator('#live-cinema');await live.locator('.space-cinema').waitFor();
+ assert.equal(await live.locator('.space-topbar').count(),1);assert.equal(await live.locator('.space-sidebar').count(),1);assert.equal(await live.locator('.space-play').count(),1);
+ await page.screenshot({path:out+'desktop-cinema.png'});checks.push('Arrival mounts the existing built cinema page, preserves actual controls/chrome and continues guide caption');
+ await page.locator('#next-stop').click();await page.locator('#arrival-note').waitFor();assert.match(await page.locator('#arrival-note').innerText(),/이번 시안은 여기서 끝/);
+ await page.locator('#replay').click();assert.equal(await page.evaluate(()=>window.__tour.time),0);await page.locator('#play').click();await page.waitForTimeout(650);await page.locator('#pause').click();const paused=await page.evaluate(()=>window.__tour.time);await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.__tour.time),paused);
+ await page.locator('#skip').click();assert.equal(await page.evaluate(()=>window.__tour.phase),'cinema');checks.push('Start/pause/resume state, scrub/replay and arrival skip work; next-stop does not pretend the rest of the tour is implemented');
+ await page.locator('#replay').click();await page.locator('#play').click();await page.waitForFunction(()=>window.__tour.time>=16,{timeout:45000});
+ const metrics=await page.evaluate(()=>window.__tour.metrics());const samples=metrics.frameSamples.filter(ms=>ms>0).sort((a,b)=>a-b);const median=samples[Math.floor(samples.length/2)];
+ checks.push('Real-time animation reaches the cinema and stops at 16s without browser errors');
+ await page.setViewportSize({width:390,height:844});await page.locator('#replay').click();await page.screenshot({path:out+'mobile-start.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await page.locator('#skip').click();await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.ok((await page.locator('#viewer').boundingBox()).height>=430);await page.screenshot({path:out+'mobile-cinema.png',fullPage:true});checks.push('390px layout has no horizontal overflow; caption is outside the travel view and actual menu gets a usable portrait height');
+ await page.emulateMedia({reducedMotion:'reduce'});await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>window.__tour.ready);await page.locator('#play').click();assert.ok(await page.evaluate(()=>window.__tour.time)>=11.3);checks.push('Reduced-motion preference skips camera travel');
+ assert.deepEqual(errors,[]);assert.deepEqual(badResponses,[]);
+ const result={checks,errors,badResponses,softwareBrowser:{medianFrameIntervalMs:Math.round(median*10)/10,approxMedianFps:Math.round(1000/median),minimumMovingRenderScale:metrics.minimumQuality,note:'Headless Chromium/SwiftShader, screen recording enabled; not a hardware FPS guarantee'},nativeTravelVideoElements:0};
+ await writeFile(out+'checks.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));
+ const video=page.video();await ctx.close();await video.saveAs('/tmp/stam-tour-full-check.webm');
+}finally{await browser.close();}

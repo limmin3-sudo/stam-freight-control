@@ -1,0 +1,48 @@
+{
+  "kind": "standalone photographic 2.5D tutorial motion study; not production integration",
+  "base": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "branch": "cinematic/desk-cinema-25d-20261113",
+  "assets": [
+    {
+      "file": "assets/desk-clean.png",
+      "generatedOriginal": "exec-71cb8329-aa14-468f-b5b5-21d3ce051834.png",
+      "reference": "apps/control-room/src/assets/guide/desk-end.png",
+      "purpose": "Remove foreground guide and reconstruct occluded counter/gate; preserve receptionist",
+      "sha256": "69380b246166ece7ffb8c89bd59e61ad3f5e224cec637666657497a5e67542a6",
+      "method": "image_gen reference edit"
+    },
+    {
+      "file": "assets/cinema-approach.png",
+      "generatedOriginal": "exec-a3853e8a-f4ff-4adf-a81c-caa4ea854816.png",
+      "reference": "apps/control-room/src/assets/lounge-original.png",
+      "purpose": "Reframe far-right cinema entrance as high-resolution near view",
+      "sha256": "8faae1f8bda8d57b35c12c8a9e9561c0c04130362385d5ec1b3162ad9ee8a18e",
+      "method": "image_gen reference edit"
+    },
+    {
+      "file": "assets/guide-cutout.png",
+      "generatedOriginal": "exec-44a67ef1-59b7-41fd-8c62-abde283474d8.png",
+      "reference": "apps/control-room/src/assets/guide/desk-end.png",
+      "purpose": "Extract foreground director into transparent canvas with matching pose and placement",
+      "sha256": "d310730b33e3425650d6e0a62c93e593e156586caedd58b9035166261c6e7c16",
+      "method": "image_gen reference edit"
+    }
+  ],
+  "reused": [
+    "apps/control-room/src/assets/guide/desk-end.png (reference only)",
+    "apps/control-room/src/assets/lounge-original.png",
+    "apps/control-room/src/assets/hologram/flat/*",
+    "apps/control-room/src/assets/arrival/ignition-plasma.png",
+    "assets/stam-logo-transparent.png",
+    "apps/control-room/src/assets/fonts/Barlow-Medium.ttf",
+    "apps/control-room/src/assets/fonts/SUIT-Variable.woff2"
+  ],
+  "limitations": [
+    "Guide is a static RGBA image; no walking or lip animation.",
+    "Generated clean/near plates and cutout are derivatives; not exact recovered camera geometry or original segmentation pixels.",
+    "Desk/lounge/cinema views are joined with short dissolves, not one physically continuous camera traversal.",
+    "Optional speech uses an installed browser Korean voice, not an approved character performance.",
+    "Under sustained slow frames only the moving canvas reduces rendering scale to .65; still/paused and actual HTML interface remain full resolution.",
+    "Actual menu iframe reads whichever local app build exists; it is not a second implemented cinema UI."
+  ]
+}
