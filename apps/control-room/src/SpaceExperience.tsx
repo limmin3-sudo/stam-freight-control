@@ -143,13 +143,8 @@ export function SpaceExperience() {
 
   useEffect(() => {
     const ctx = audio.current;
-<<<<<<< HEAD
     if (!powerOn || arrivalView?.returning || !sound || !ctx || ctx.state !== 'running') return;
-    const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .11), ctx.sampleRate);
-=======
-    if (!powerOn || !sound || !ctx || ctx.state !== 'running') return;
     const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .25), ctx.sampleRate);
->>>>>>> 0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
@@ -278,12 +273,9 @@ export function SpaceExperience() {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button[aria-current],.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
     <header className="space-topbar">
-<<<<<<< HEAD
       <a className="room-brand" href={href('lounge')} onClick={event=>enter(event,'lounge')} aria-label={`STAM FREIGHT DIVISION · ${word(names.lounge)}`}>
-=======
-      <a className="room-brand" href={href('lounge')} onClick={event=>{if(route.screen==='guide')enter(event,'lounge');}} aria-label={word(names.lounge)}>
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
-        <span className="brand-wordmark">STAM<small>FREIGHT CONTROL</small></span>
+        <span className="brand-wordmark">STAM<small>FREIGHT DIVISION</small></span>
       </a>
       <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
       <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
@@ -396,7 +388,7 @@ export function SpaceExperience() {
         </div>}
         {route.screen === 'cinema' && <div className="space-cinema"><div className="space-screen">
           {playing ? <video controls autoPlay playsInline preload="metadata" src={intro} poster={poster} aria-label={en ? 'STAM introduction' : 'STAM 소개영상'} onError={() => setMediaError(true)} /> : <button className="space-play" onClick={() => setPlaying(true)} aria-label={en ? 'Play STAM introduction' : 'STAM 소개영상 재생'}><img src={poster} alt=""/><span><b aria-hidden="true">▷</b>{en ? 'Play introduction' : '소개영상 재생'}</span></button>}
-        </div><div className="space-cinema-caption"><span>STAM / FREIGHT CONTROL</span><p>{en ? 'The STAM fleet, beyond the horizon.' : '더 넓은 우주로 향하는 STAM 함대.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
+        </div><div className="space-cinema-caption"><span>STAM / FREIGHT DIVISION</span><p>{en ? 'Freight operations, with the STAM fleet.' : 'STAM 함대와 함께하는 운송.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
       </section>}
       {route.screen!=='guide' && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <SpaceNavigation screen={route.screen} locale={route.locale} pending={!!pending} href={href} onNavigate={enter}/>
@@ -410,7 +402,7 @@ export function SpaceExperience() {
       </div></details>
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
-      <ConsoleArrival departing={approaching} powerOn={powerOn} departureMs={departureMs} ignitionMs={ignitionMs}/>
+      <ConsoleArrival departing={approaching} powerOn={powerOn} returning={!!(pending?.returning||arrivalView?.returning)} departureMs={departureMs} ignitionMs={ignitionMs}/>
     </main>
 
     {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} en={en} onClose={()=>setConversation(null)}/>}
@@ -419,4 +411,3 @@ export function SpaceExperience() {
     {pending?.kind==='boarding'&&<ShuttleBoarding en={en} sound={sound} volume={volume} onSound={setSound} onComplete={finish} onCancel={cancel}/>}
   </>;
 }
->>>>>>> 0bbc5c3601fe7bbceea0a2a3f2e7d3ccabc2e8f1
