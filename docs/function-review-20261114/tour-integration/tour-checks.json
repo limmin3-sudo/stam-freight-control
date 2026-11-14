@@ -1,0 +1,21 @@
+{
+  "url": "http://127.0.0.1:5199/stam-freight-control/",
+  "checks": [
+    "Native lazy-loaded tour starts from the existing guide page, keeps one topbar/sidebar, uses no iframe and holds a rendered image while paused.",
+    "Cinema → Archive → Service Center → Gate uses existing routes/actual menu DOM, ends cleanly and leaves flight storage unchanged.",
+    "Normal sidebar navigation cancels the tour without replacing existing navigation.",
+    "Escape closes only the tour; cleanup removes its canvas and releases input.",
+    "Original first-haul button still opens the mission screen.",
+    "390px layout keeps captions and mobile navigation usable with no horizontal overflow; reduced motion skips travel and flashing at every stop.",
+    "English tour text follows the existing language mode.",
+    "Service inline account remains usable and does not block tour Escape.",
+    "WebGL-unavailable fallback still reaches the real menu and can close.",
+    "Actual production component completes continuous camera/ignition playback at all four stops and waits for Next.",
+    "GitHub Pages subpath loads hashed bundled assets and the separate tour chunk, with no development/docs requests or failed HTTP responses."
+  ],
+  "errors": [],
+  "failedResponses": [],
+  "flightStorageUnchanged": true,
+  "productionComponent": true,
+  "recording": null
+}

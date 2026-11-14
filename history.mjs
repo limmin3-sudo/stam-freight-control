@@ -48,5 +48,5 @@ export function createHistory(button,{notify=()=>{}}={}){
  return {
   // Called when the last stop of a run is completed.
   record(entry){if(!writable())return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(addRecord(readHistory(),entry)));window.dispatchEvent(new Event('sfc-history-changed'));notify(`운항 기록에 저장했습니다 · ${estimatedRewardCount(entry)?'목록 기준 예상 '+fmt(entry.reward)+' aUEC':hasReward(entry)?(unknownRewardCount(entry)?'확인된 보상 합계 ':'이번 운항 ')+fmt(entry.reward)+' aUEC':'보상 미확인'}`);}catch{notify('운항 기록을 저장하지 못했습니다.',true);}},
-  reset,open:()=>{render();if(!dialog.open)(dialog.dataset.inline?dialog.show():dialog.showModal());},mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);render();dialog.show();return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
+  reset,open:()=>{render();if(!dialog.open)(dialog.dataset.inline?dialog.setAttribute('open',''):dialog.showModal());},mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);render();dialog.setAttribute('open','');return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
 }

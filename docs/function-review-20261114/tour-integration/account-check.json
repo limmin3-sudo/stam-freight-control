@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "syntheticBackend": true,
+  "realAccountRequests": 0,
+  "checks": [
+    "A → B → guest → A current/previous flight isolation",
+    "failed account transition rolls back both flights and metadata",
+    "flight writes locked while account read is pending",
+    "explicit unowned flight adoption and original backup retention",
+    "late account read ignored after UID change",
+    "late save cannot acknowledge into a changed login",
+    "stale confirmed cloud choice preserves local data",
+    "two devices: exactly one concurrent transaction accepted"
+  ],
+  "pageErrors": []
+}

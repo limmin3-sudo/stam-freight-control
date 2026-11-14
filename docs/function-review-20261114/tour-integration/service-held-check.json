@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "account opens inside service screen",
+    "history opens inside service screen",
+    "packaged release history and search",
+    "draft survives internal navigation and failed send; mock send succeeds",
+    "390px service screen fits",
+    "cancel preserves boxes; partial physical unload preserves other placements",
+    "last unload finishes without cancelled delivery or reward; ledger survives reload"
+  ],
+  "errors": []
+}

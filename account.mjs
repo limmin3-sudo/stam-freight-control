@@ -30,7 +30,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  const fail=e=>{if(e?.code==='stam/stale')return;stop();status=message(e);setButton();notify(status,true);};
  try{initializeOwner(localStorage);}catch(e){setAccountBoundary('error');status=message(e);}
  const dialog=document.createElement('dialog');dialog.className='account-dialog';document.body.append(dialog);
- const show=()=>{if(!dialog.open)(dialog.dataset.inline?dialog.show():dialog.showModal());};
+ const show=()=>{if(!dialog.open)(dialog.dataset.inline?dialog.setAttribute('open',''):dialog.showModal());};
  dialog.addEventListener('close',()=>{if(dialog.dataset.inline&&!dialog.open)open(user?'account':'login');});
  const setButton=()=>{button.innerHTML=user?`<span class="account-dot ${paused?'warn':''}"></span><span><small>${paused?'확인 필요':'동기화 연결됨'}</small><b>${esc(user.label)}</b></span>`:`<span><small>계정</small><b>${FIREBASE_CONFIG?'로그인':'로그인 준비 중'}</b></span>`;button.title=status;};
  async function load(){if(fb)return fb;
@@ -137,7 +137,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
    <p class="account-msg" role="status"></p>
    <div class="account-alt"><button type="button" data-act="${signup?'to-login':'to-signup'}" class="text-button">${signup?'이미 아이디가 있어요 · 로그인':'처음이에요 · 아이디 만들기'}</button><span>또는</span><button type="button" data-act="google" class="google-btn">Google로 로그인</button></div>
    <p class="small subtle">비밀번호는 Firebase가 암호화해 보관하며 사이트 운영자도 볼 수 없습니다. Google 로그인은 이름·이메일 확인 외의 권한을 요청하지 않습니다. 아이디 방식은 이메일이 없어 비밀번호를 잊으면 찾을 수 없습니다.</p>`;
-  bind(signup);show();setTimeout(()=>dialog.querySelector('input')?.focus(),50);
+  bind(signup);show();setTimeout(()=>{if(!dialog.dataset.inline)dialog.querySelector('input')?.focus();},50);
  }
  function refreshTotals(){const target=dialog.querySelector('.account-run-totals');if(target)target.innerHTML=historyTotalsMarkup();const reset=dialog.querySelector('[data-act="reset-history"]');if(reset)reset.disabled=!readHistory().length;}
  window.addEventListener('sfc-history-changed',refreshTotals);
