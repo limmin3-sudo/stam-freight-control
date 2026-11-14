@@ -235,9 +235,19 @@ internal sealed class BridgeWindow : Form {
 
 internal static class HoloFonts {
     static readonly System.Drawing.Text.PrivateFontCollection fonts=new System.Drawing.Text.PrivateFontCollection();
+    static readonly List<IntPtr> fontMemory=new List<IntPtr>();
     static bool loaded;
-    [System.Runtime.InteropServices.DllImport("gdi32.dll",CharSet=System.Runtime.InteropServices.CharSet.Unicode)] static extern int AddFontResourceEx(string file,uint flags,IntPtr reserved);
-    internal static void Load(){if(loaded)return;loaded=true;foreach(string name in new[]{"Barlow-Medium.ttf","SUIT-Medium.ttf"}){string file=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","fonts",name);try{fonts.AddFontFile(file);try{AddFontResourceEx(file,16,IntPtr.Zero);}catch{}}catch{}}}
+    // Keep private GDI+ fonts in memory. File-backed GDI registration can leave
+    // Windows holding the installed TTF after exit and block packaging/updates.
+    internal static void Load(){
+        if(loaded)return;loaded=true;
+        AppDomain.CurrentDomain.ProcessExit+=(s,e)=>{fonts.Dispose();foreach(var memory in fontMemory)System.Runtime.InteropServices.Marshal.FreeCoTaskMem(memory);fontMemory.Clear();};
+        foreach(string name in new[]{"Barlow-Medium.ttf","SUIT-Medium.ttf"}){
+            IntPtr memory=IntPtr.Zero;
+            try{var bytes=File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","fonts",name));memory=System.Runtime.InteropServices.Marshal.AllocCoTaskMem(bytes.Length);System.Runtime.InteropServices.Marshal.Copy(bytes,0,memory,bytes.Length);fonts.AddMemoryFont(memory,bytes.Length);fontMemory.Add(memory);memory=IntPtr.Zero;}
+            catch{}finally{if(memory!=IntPtr.Zero)System.Runtime.InteropServices.Marshal.FreeCoTaskMem(memory);}
+        }
+    }
     internal static Font At(float size,bool latin=false){Load();string target=latin?"Barlow":"SUIT";foreach(var family in fonts.Families)if(family.Name.StartsWith(target,StringComparison.OrdinalIgnoreCase))return Environment.OSVersion.Platform==PlatformID.Win32NT?new Font(family,size,FontStyle.Regular):new Font(family.Name,size,FontStyle.Regular);return new Font(latin?"Segoe UI":"Malgun Gothic",size,FontStyle.Regular);}
     internal static void Draw(Graphics g,string text,Font font,Color colour,RectangleF bounds,bool center=false){
         bool korean=false;foreach(char c in text)if(c>=0xAC00&&c<=0xD7AF){korean=true;break;}
