@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <link rel="icon" href="/assets/stam-logo-transparent.png"><meta name="theme-color" content="#07121b"><title>STAM · 가이드와 시네마로</title>
+ <link rel="stylesheet" href="tour.css">
+</head>
+<body>
+ <header class="review-header"><a class="brand" href="#"><img src="/assets/stam-logo-transparent.png" alt="STAM"><span>SPACEPORT LOUNGE<small>가이드와 함께하는 라운지 투어</small></span></a><span class="review-tag">데스크 → 시네마 · 연출 시안</span></header>
+ <main>
+  <div class="viewer" id="viewer" data-phase="ready" aria-label="가이드와 데스크에서 시네마로 이동하는 2.5D 연출">
+   <div id="world" aria-hidden="true"></div>
+   <div class="scene-shade" aria-hidden="true"></div>
+   <div id="loading" role="status">라운지를 준비하고 있습니다…</div>
+   <div class="scene-heading" id="scene-heading"><small>PLANETSIDE / ARRIVALS</small><span id="place-name">안내 데스크</span></div>
+   <section class="desk-panel" id="desk-panel" aria-label="플라이트 가이드 홀로그램">
+    <div class="panel-inner">
+     <header><img class="original-heading" src="/apps/control-room/src/assets/hologram/flat/heading.png" alt="플라이트 가이드 · STAM 안내 데스크"><span>STAM / WELCOME</span></header>
+     <div class="asset-divider"></div>
+     <div class="desk-body"><div><img class="original-question" src="/apps/control-room/src/assets/hologram/flat/question.png" alt="무엇을 도와드릴까요?">
+      <button class="original-action selected" data-start><img src="/apps/control-room/src/assets/hologram/flat/label-0.png" alt="첫 운송 시작"></button>
+      <button class="original-action" data-start><img src="/apps/control-room/src/assets/hologram/flat/label-1.png" alt="운송 절차 안내"></button>
+      <button class="original-action" data-start><img src="/apps/control-room/src/assets/hologram/flat/label-2.png" alt="함선·화물 정보"></button>
+      <button class="original-action" id="leave-desk"><img src="/apps/control-room/src/assets/hologram/flat/label-3.png" alt="라운지로 돌아가기"></button>
+     </div><div class="desk-greeting"><img src="/apps/control-room/src/assets/hologram/flat/greeting.png" alt="STAM에 오신 것을 환영합니다. 첫 운송을 함께 준비해 볼까요?">
+      <div class="asset-divider"></div>
+      <button class="original-action" data-start><img src="/apps/control-room/src/assets/hologram/flat/label-4.png" alt="처음이에요. 안내해 주세요."></button>
+      <button class="original-action" data-start><img src="/apps/control-room/src/assets/hologram/flat/label-5.png" alt="운송 준비부터 시작할게요."></button>
+     </div></div>
+    </div>
+   </section>
+   <div class="destination" id="destination" aria-hidden="true"><span class="target-ring"></span><div><small>LOUNGE TOUR / 01</small><strong>시네마</strong><em>영상 감상 · 라운지 투어</em></div></div>
+   <div class="blackout" id="blackout" aria-hidden="true"></div>
+   <div class="standby" id="standby" aria-hidden="true"><img src="/assets/stam-logo-transparent.png" alt=""><small>STAM / CINEMA</small></div>
+   <div class="plasma" id="plasma" aria-hidden="true"></div>
+   <iframe id="live-cinema" title="현재 STAM 시네마 실제 화면" data-src="/live/index.html#/cinema?lang=ko" inert></iframe>
+   <div class="guide-portrait" id="guide-portrait"><img src="./assets/guide-cutout.png" alt="안내를 이어가는 플라이트 가이드"></div>
+   <section class="guide-caption" id="guide-caption" aria-label="가이드 안내" hidden>
+    <div class="speaker"><span></span>FLIGHT DIRECTOR<small>플라이트 가이드</small></div>
+    <p id="caption-text" aria-live="polite"></p><button id="next-stop" hidden>다음은 아카이브예요 <span>→</span></button>
+   </section>
+   <div class="arrival-note" id="arrival-note" hidden>셔틀 출발 전, 라운지를 간단히 둘러볼게요.</div>
+  </div>
+  <section class="playback" aria-label="시안 재생 조작">
+   <div class="playback-main"><button id="play" disabled>가이드 따라가기 <span>→</span></button><button id="pause" disabled>일시정지</button><button id="replay">처음으로</button><button id="skip" disabled>도착 장면</button><button id="voice" aria-pressed="false">안내 음성 켜기</button><span id="status" role="status">준비 중</span></div>
+   <div class="scrub-row"><label for="scrub">장면 확인</label><input id="scrub" type="range" min="0" max="16" step="0.01" value="0" disabled><output id="time">00.0 / 16.0</output></div>
+   <div class="route"><span class="active" id="route-desk">01 안내 데스크</span><i></i><span id="route-travel">라운지 이동</span><i></i><span id="route-cinema">02 시네마</span></div>
+  </section>
+ </main>
+ <p class="preview-note">카메라 이동과 가이드 자막을 확인하는 독립 시안입니다. 도착 후 현재 앱의 시네마 화면을 표시합니다. ‘다음’은 이번 시안의 끝입니다.</p>
+ <script type="module" src="tour.js"></script>
+</body>
+</html>

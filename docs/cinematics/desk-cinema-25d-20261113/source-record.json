@@ -1,0 +1,111 @@
+{
+  "kind": "standalone photographic 2.5D tutorial motion study; not production integration",
+  "base": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
+  "branch": "cinematic/desk-cinema-25d-20261113",
+  "assets": [
+    {
+      "file": "assets/desk-clean.png",
+      "generatedOriginal": "exec-71cb8329-aa14-468f-b5b5-21d3ce051834.png",
+      "reference": "apps/control-room/src/assets/guide/desk-end.png",
+      "purpose": "Remove foreground guide and reconstruct occluded counter/gate; preserve receptionist",
+      "sha256": "69380b246166ece7ffb8c89bd59e61ad3f5e224cec637666657497a5e67542a6",
+      "method": "image_gen reference edit"
+    },
+    {
+      "file": "assets/cinema-approach.png",
+      "generatedOriginal": "exec-a3853e8a-f4ff-4adf-a81c-caa4ea854816.png",
+      "reference": "apps/control-room/src/assets/lounge-original.png",
+      "purpose": "Reframe far-right cinema entrance as high-resolution near view",
+      "sha256": "8faae1f8bda8d57b35c12c8a9e9561c0c04130362385d5ec1b3162ad9ee8a18e",
+      "method": "image_gen reference edit"
+    },
+    {
+      "file": "assets/guide-cutout.png",
+      "generatedOriginal": "exec-44a67ef1-59b7-41fd-8c62-abde283474d8.png",
+      "reference": "apps/control-room/src/assets/guide/desk-end.png",
+      "purpose": "Extract foreground director into transparent canvas with matching pose and placement",
+      "sha256": "d310730b33e3425650d6e0a62c93e593e156586caedd58b9035166261c6e7c16",
+      "method": "image_gen reference edit"
+    },
+    {
+      "file": "assets/guide-leading.png",
+      "generatedOriginal": "exec-eb6f0db9-90e6-433c-b11e-0d65f8cf40bd.png",
+      "reference": [
+        "apps/control-room/src/assets/director-standing.png",
+        "assets/guide-cutout.png"
+      ],
+      "purpose": "Three-quarter rear guide a few steps ahead, looking back and indicating cinema. Extra-limb candidate was corrected and excluded.",
+      "sha256": "d8bda22588934f803c313831501c97b9aadc6eee04e34e6b9d232d437e87e1b7",
+      "dimensions": [
+        887,
+        1774
+      ],
+      "method": "image_gen reference edit; rendered with original aspect ratio"
+    },
+    {
+      "file": "assets/guide-entrance.png",
+      "generatedOriginal": "exec-9143fd85-8a70-46a0-8987-aea8b527e8ee.png",
+      "reference": [
+        "apps/control-room/src/assets/director-standing.png",
+        "assets/guide-cutout.png"
+      ],
+      "purpose": "Front three-quarter entrance invitation, using original long-leg/body proportions and youthful adult face. User approved this corrected character asset.",
+      "sha256": "1add9d729dc839f3c879a8fffb6d06795a2803d9431288add1fe07654d9ccf5b",
+      "dimensions": [
+        887,
+        1774
+      ],
+      "method": "image_gen reference edit; rendered with original aspect ratio"
+    }
+  ],
+  "reused": [
+    "apps/control-room/src/assets/guide/desk-end.png (reference only)",
+    "apps/control-room/src/assets/lounge-original-composite.png",
+    "apps/control-room/src/assets/hologram/flat/*",
+    "apps/control-room/src/assets/arrival/ignition-plasma.png",
+    "assets/stam-logo-transparent.png",
+    "apps/control-room/src/assets/fonts/Barlow-Medium.ttf",
+    "apps/control-room/src/assets/fonts/SUIT-Variable.woff2"
+  ],
+  "limitations": [
+    "Guide uses three static RGBA poses at fixed world locations, including ahead/rear and entrance gesture. No continuous walking cycle or lip animation.",
+    "Generated clean/near plates and cutout are derivatives; not exact recovered camera geometry or original segmentation pixels.",
+    "Desk/lounge/cinema views are joined with short dissolves, not one physically continuous camera traversal.",
+    "Optional speech uses an installed browser Korean voice, not an approved character performance.",
+    "Under sustained slow frames only the moving canvas reduces rendering scale to .65; still/paused and actual HTML interface remain full resolution.",
+    "Actual menu iframe reads whichever local app build exists; it is not a second implemented cinema UI."
+  ],
+  "rejectedCandidates": [
+    {
+      "generatedOriginal": "exec-c35a74ac-fd26-4146-b8ed-052a45165f59.png",
+      "reason": "extra arm; corrected in leading asset"
+    },
+    {
+      "generatedOriginal": "exec-85e85918-59a3-405b-ad9a-f3a99d878a39.png",
+      "reason": "shortened legs, reduced torso volume and changed facial age; rejected by user"
+    },
+    {
+      "generatedOriginal": "exec-813e5bc6-7e4c-4ae2-87e0-731d77383930.png",
+      "reason": "same unapproved body/face; not used"
+    }
+  ],
+  "destinationLabel": {
+    "desktop": "650 weight; clamp(22px,2.65cqw,42px), about33px at1280 viewport",
+    "mobile": "22px minimum",
+    "anchor": "projected doorway reference follows actual shallow camera, blended between wide/near views",
+    "contrast": "warm white/gold with dark outline/shadow and local soft shade, no button plate"
+  },
+  "approvedLoungeBackground": {
+    "file": "apps/control-room/src/assets/lounge-original-composite.png",
+    "reason": "Same terminal-free, receptionist-corrected background imported by current space-config.ts; original.png has a discarded central terminal and is not a runtime source."
+  },
+  "forbiddenRuntimeBackgrounds": [
+    "apps/control-room/src/assets/lounge-original.png",
+    "apps/control-room/src/assets/lounge-terminal-reference.png"
+  ],
+  "supersededRecordings": {
+    "browser-realtime-original.webm": "Prior first trial with obsolete central terminal; not current preview",
+    "browser-realtime-leading-guide.webm": "Intermediate guide trial with obsolete central terminal; not current preview"
+  },
+  "currentRecording": "review/desk-to-cinema-preview.mp4 (approved terminal-free lounge composite)"
+}
