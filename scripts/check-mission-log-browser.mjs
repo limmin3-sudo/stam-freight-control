@@ -23,6 +23,6 @@ try{
  await p.locator('.dispatch-launch').click();await p.waitForSelector('.chart-stop-events',{timeout:60000});s=await state();assert.equal(s.plan.mode,'detail');assert.equal(s.plan.visits.flatMap(v=>v.events).filter(e=>e.type==='delivery').reduce((n,e)=>n+e.scu,0),16);
  await p.locator('.space-room-link > a[href^="#/mission?"]').click();await p.waitForSelector('.mission-screen');
  const ended=stamp+`<SHUDEvent_OnNotification> Added notification "Contract Complete: Junior small haul" [9] to queue. MissionId: [${id}], ObjectiveId: [dropoff_${objective}_0]`;
- await read([...lines,ended].join('\n'));await p.locator('.dispatch-launch').click();await p.waitForSelector('[role=alert]');assert.match(await p.locator('.workspace-layout>[role=alert]').innerText(),/바뀌었습니다/);assert.equal((await state()).plan,null);assert.equal((await state()).draft.jobs.length,1);
+ await read([...lines,ended].join('\n'));const beforeBlocked=await state();await p.locator('.dispatch-launch').click();await p.getByRole('alert').filter({hasText:'바뀌었습니다'}).waitFor();assert.deepEqual(await state(),beforeBlocked,'ended receipt is rejected before changing the existing plan or manifest');assert.equal((await state()).draft.jobs.length,1);
  await p.screenshot({path:out+'/ended-receipt-blocked.png'});assert.deepEqual(errors,[]);console.log('PASS actual log Worker + current SCMDB ID enrichment: 8/4/4 destinations, repeated import remains one mission, navigator delivery total 16, ended selected receipt blocked without deleting manifest');
 }finally{await b.close();}

@@ -13,13 +13,17 @@ import {reviewReceipt,reservationBoxes} from './receipt-edit.mjs';
 import {useDismissedReceipts} from './use-dismissed-receipts';
 import {CargoPanel} from './CargoPanel';
 import {planningPartner} from './partner-policy';
+import {draftCargoShip,shipIdFor} from './ship-profile.mjs';
+import {capacity} from './cargo-plan.mjs';
+import {useCargoPreferences} from './use-cargo-preferences';
+import type {Session} from './flight-session';
 import {MissionReference} from './MissionReference';
 
 import {BoxInputs,ContractFields,DeliveryTotalFields,invalidCargo} from './ContractFields';
 import type {BoxCounts} from './ContractFields';
 import {ScreenshotIntake} from './ScreenshotIntake';
 
-type Props = {draft:Draft; locale:Locale; change:(d:Draft)=>void; locked:boolean; onReview:(draft?:Draft)=>void; receipts:ReturnType<typeof useLogReceipts>};
+type Props = {session?:Session; draft:Draft; locale:Locale; change:(d:Draft)=>void; locked:boolean; onReview:(draft?:Draft)=>void; receipts:ReturnType<typeof useLogReceipts>};
 function JobDetails({job,locale}:{job:Job;locale:Locale}) {
   const n=locale==='ko'?0:1;
   const en=locale==='en';
@@ -39,7 +43,7 @@ function JobDetails({job,locale}:{job:Job;locale:Locale}) {
     {Object.entries(job.reservations||{}).map(([id,scu])=><p key={id}>{placeName(id,n)} · {en?'Reserved delivery total':'배송 총량 예약'} {scu} SCU</p>)}
     {job.hints?.filter(h=>!job.reservations?.[h.place]).map((h,i)=><p key={i}>{en?'Logged delivery goal':'로그 배송 목표'} · {h.cargo} {h.scu} SCU · {h.name||placeName(h.place,n)}</p>)}</details>;
 }
-export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:Props) {
+export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,session}:Props) {
   const t = (ko:string,en:string)=>locale==='en'?en:ko;
   const n = locale==='ko'?0:1;
   const [form,setForm] = useState<Job|null>(null);
@@ -85,7 +89,9 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:
   const pay=d.jobs.reduce((a,j)=>a+(j.rewardUnknown?0:j.pay),0);
   const unknownQuantity=d.jobs.some(j=>!info(j).ready);
   const estimated=d.jobs.some(j=>info(j).certainty==='upper-bound');
-  const hold=ships[d.ship] ?? d.customShip?.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0) ?? 0;
+  const cargoPreferences=useCargoPreferences();
+  const activeShip=session?.run?.started&&!session.run.finished&&session.plan?.mode!=='simple'?session.plan?.ship:undefined;
+  const hold=capacity(activeShip||draftCargoShip(d,cargoPreferences?.disabled[shipIdFor(d.ship)]));
   const [totals,setTotals]=useState<Record<string,string>>({});
   const [quickError,setQuickError]=useState('');
   const totalKey=(job:Job,place:string)=>JSON.stringify([job.id,job.signature,place]);
@@ -163,7 +169,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:
         }
         setFormError('');
         if(editingReceipt){
-          if(saved.signature && !manifestJob)receipts.saveCorrection(saved);
+          if(saved.signature)receipts.saveCorrection(saved);
           if(!d.jobs.some(j=>j.id===saved.id)){setForm(null);return;}
         }
         edit({jobs:d.jobs.some(j=>j.id===form.id)?d.jobs.map(j=>j.id===form.id?saved:j):[...d.jobs,saved]});setForm(pendingForms[0]||null);setPendingForms(pendingForms.slice(1))}}>
@@ -191,7 +197,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:
     <section className="mission-intake" aria-labelledby="mission-intake-title">
       <header className="mission-stage-heading"><div><small>01 / CONTRACT INTAKE</small><h2 id="mission-intake-title">{t('계약을 불러오세요','Bring in your contracts')}</h2></div><p>{t('로그 · 스크린샷 · 직접 입력 중 편한 방법을 선택하세요.','Choose a log, screenshots or manual entry.')}</p></header>
       <div className="mission-source-grid">
-        <div className="mission-source receipt-import"><h3>Game.log</h3><p>{t('수주한 계약을 로그에서 가져옵니다.','Read your accepted contracts from the game log.')}</p>
+        <div hidden={!!session?.run?.started&&!session.run.finished} className="mission-source receipt-import"><h3>Game.log</h3><p>{t('수주한 계약을 로그에서 가져옵니다.','Read your accepted contracts from the game log.')}</p>
           <input hidden ref={logInput} type="file" accept=".log" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file){setChecked([]);setSampleMode(false);receipts.read(file);}}}/>
           <div className="source-actions"><button type="button" disabled={!!form} onClick={()=>logInput.current?.click()}>{t('Game.log 선택','Choose Game.log')}</button>
           {receipts.canWatch&&<button type="button" disabled={!!form} aria-pressed={receipts.watching} onClick={()=>{if(receipts.watching)receipts.stopWatching();else{setSampleMode(false);void receipts.follow();}}}>{receipts.watching?t('자동 수신 중지','Stop watching'):t('Game.log 자동 수신','Watch Game.log')}</button>}</div>
@@ -204,8 +210,10 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:
           <button type="button" disabled={!!form} aria-controls="mission-text-import" onClick={()=>{if(manualEntry.current){manualEntry.current.open=!manualEntry.current.open;if(manualEntry.current.open)manualEntry.current.querySelector('textarea')?.focus();}}}>{t('텍스트 가져오기','Import text')}</button></div>
         </div>
       </div>
-      <div className="mission-source-footer"><p role="status">{showLog?(receipts.phase==='reading'?t('로그를 읽고 있습니다.','Reading log…'):receipts.phase==='mixed'?t('여러 플레이어의 기록이 섞였습니다. 현재 Game.log를 선택하세요.','Mixed players. Select the current Game.log.'):receipts.phase==='error'?t('로그를 읽지 못했습니다.','Could not read log.'):receipts.phase==='loaded'?t(`수신 계약 ${receipts.cards.length}건`,`${receipts.cards.length} received contracts`):''):t('예시 계약을 보고 사용법을 확인할 수 있습니다.','Try sample contracts to explore the flow.')}</p>
+      <div className="mission-source-footer"><p role="status">{showLog?(receipts.phase==='reading'?t('로그를 읽고 있습니다.','Reading log…'):receipts.phase==='mixed'?t('여러 플레이어의 기록이 섞였습니다. 현재 Game.log를 선택하세요.','Mixed players. Select the current Game.log.'):receipts.phase==='error'?t('로그를 읽지 못했습니다. 이전 수신 기록은 유지됩니다.','Could not read log. Previous receipts are retained.'):receipts.phase==='loaded'?(receipts.cached?t(`저장된 수신 계약 ${receipts.cards.length}건 · 로그 미연결`,`${receipts.cards.length} saved receipts · Log not connected`):t(`수신 계약 ${receipts.cards.length}건`,`${receipts.cards.length} received contracts`)):''):t('예시 계약을 보고 사용법을 확인할 수 있습니다.','Try sample contracts to explore the flow.')}</p>
         <div className="source-actions"><button type="button" disabled={!!form} onClick={()=>{setSampleMode(true);edit({received:true});}}>{t('예시 계약 보기','Show sample contracts')}</button>
+        {showLog&&receipts.phase!=='idle'&&<small>{t('수신함과 저장한 보완 내용은 이 탭에서만 보관됩니다. 새로고침 후 자동 수신은 다시 연결하세요.','Receipts and saved corrections stay in this tab only. Reconnect log watching after reloading.')}</small>}
+        {receipts.storageError&&<p role="alert">{receipts.storageError==='restore'?t('저장된 수신함을 읽지 못했습니다. 로그를 다시 선택하세요. 선택한 운항 계약은 유지됩니다.','Could not restore this tab’s inbox. Select the log again. Selected flight contracts are retained.'):t('수신함을 이 탭에 저장하지 못했습니다. 현재 내용은 화면에 유지되지만 새로고침하면 마지막 저장 상태로 돌아갑니다.','Could not save this tab’s inbox. Current receipts remain on screen; reloading restores the last saved state.')}</p>}
         {!showLog&&receipts.phase!=='idle'&&<button type="button" disabled={!!form} onClick={()=>setSampleMode(false)}>{t('읽은 로그 보기','View log receipts')}</button>}</div>
       </div>
       <details ref={manualEntry} id="mission-text-import" className="manifest-intake manual-entry"><summary>{t('계약 원문 가져오기','Import contract text')}</summary>
@@ -244,12 +252,12 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview}:
     </section>
     <aside className="manifest-summary" aria-labelledby="mission-flight-title"><small>03 / ROUTE PLANNING</small><h2 id="mission-flight-title" ref={manifestHeading} tabIndex={-1}>{t('이번 운송','This flight')}</h2><div className="selection-count">{d.jobs.length}<span>{t('개 계약 선택','contracts selected')}</span></div>
       <div className="selected-contracts">{d.jobs.map(j=><div className="manifest-row" key={j.id}><div><b>{j.title[n]}</b><span>{info(j).scu||'—'} SCU{info(j).certainty==='upper-bound'?t(' 예상',' est.'):''}</span></div><button type="button" aria-label={j.title[n]+' '+t('선택 해제','Deselect')} disabled={!!form} onClick={()=>toggleJob(j)}>−</button></div>)}</div>
-      <dl><dt>{t('총 운송량','Total freight')}</dt><dd>{total} SCU{estimated?t(' 예상',' est.'):unknownQuantity?t(' 확인분',' known'):''}</dd>{!simple&&<><dt>{t('함선 적재 용량','Ship capacity')}</dt><dd>{hold} SCU</dd></>}<dt>{t('입력된 보상 합계','Entered rewards')}</dt><dd>{pay.toLocaleString()} aUEC</dd></dl>
+      <dl><dt>{t('총 운송량','Total freight')}</dt><dd>{total} SCU{estimated?t(' 예상',' est.'):unknownQuantity?t(' 확인분',' known'):''}</dd>{!simple&&<><dt>{t('사용 가능한 적재 용량','Available cargo capacity')}</dt><dd>{hold} SCU</dd></>}<dt>{t('입력된 보상 합계','Entered rewards')}</dt><dd>{pay.toLocaleString()} aUEC</dd></dl>
       {d.jobs.some(j=>j.rewardUnknown)&&<p>{t('보상 미확인 계약은 합계에서 제외됩니다.','Unknown rewards are excluded.')}</p>}
       <p className="mission-summary-note">{simple?t('적재는 직접 관리합니다. 거점 방문 순서만 계산합니다.','Manage cargo yourself. Only the visit order is calculated.'):unknownQuantity?t('총 SCU를 입력하지 않고 계산하면 오퍼레이터의 경로 안내로 전환합니다.','Continue without total SCU to use operator route guidance.'):t('총 운송량은 동시에 싣는 양과 다릅니다. 각 구간의 공간과 상자 배치를 함께 확인합니다.','Total freight differs from peak load. Every leg is checked for capacity and box fit.')}</p>
       <button type="button" className="manifest-primary dispatch-launch" disabled={!d.jobs.length||!!form||d.jobs.some(j=>!eligible(j))} onClick={calculate}><InterfaceGlyph kind="map"/><span>{form?t('편집을 마쳐 주세요','Finish editing'):simple?t('선택한 계약으로 경로 계산','Plan selected route'):t('선택한 계약으로 경로·적재 계산','Plan route & cargo')}</span><b aria-hidden="true">↗</b></button>
       {!simple&&<button type="button" className="cargo-review-toggle" aria-expanded={reviewCargo} onClick={()=>setReviewCargo(!reviewCargo)}>{t('적재 상세 열기','Open cargo details')}</button>}
-    </aside></div>{!simple&&reviewCargo&&<div className="departure-cargo-review"><CargoPanel draft={d} locale={locale}/></div>}
+    </aside></div>{!simple&&reviewCargo&&<div className="departure-cargo-review"><CargoPanel draft={d} locale={locale} session={session}/></div>}
   </fieldset>;
 }
 

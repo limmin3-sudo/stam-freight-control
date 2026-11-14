@@ -46,12 +46,13 @@ export function cargoWorldCenter(grid,box){
  return [x+grid.x+grid.w/2,y+grid.y+grid.h/2,z+grid.z+grid.l/2];
 }
 
+export const cargoPreferenceEvent='stam:cargo-preferences';
 export const cargoPreferenceKey='stam.cargo-preview.v1';
 export function readCargoPreferences(){
  try{const p=JSON.parse(sessionStorage.getItem(cargoPreferenceKey)||'null');
-  if(!p||!cargoShips.some(s=>s.id===p.shipId))return null;
-  const disabled={};for(const s of cargoShips){if(Array.isArray(p.disabled?.[s.id]))disabled[s.id]=p.disabled[s.id].filter(id=>s.grids.some(g=>g.id===id));}
+  if(!p||typeof p.shipId!=='string'||!p.shipId)return null;
+  const disabled=Object.fromEntries(Object.entries(p.disabled||{}).filter(([,ids])=>Array.isArray(ids)).map(([id,ids])=>[id,[...new Set(ids.filter(value=>typeof value==='string'))]]));
   return {shipId:p.shipId,disabled};
  }catch{return null;}
 }
-export function saveCargoPreferences(value){try{sessionStorage.setItem(cargoPreferenceKey,JSON.stringify(value));}catch{}}
+export function saveCargoPreferences(value){try{sessionStorage.setItem(cargoPreferenceKey,JSON.stringify(value));window.dispatchEvent(new Event(cargoPreferenceEvent));}catch{}}

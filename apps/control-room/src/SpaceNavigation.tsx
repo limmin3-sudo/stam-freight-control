@@ -5,10 +5,10 @@ import type {Locale} from './navigation';
 // Space membership is separate from navigation/rendering so new activities can
 // join a space without another global row of shortcuts.
 const groups = [
-  {id:'lounge', code:'PLANETSIDE / ARRIVALS', name:['SPACEPORT LOUNGE','SPACEPORT LOUNGE'],
+  {id:'lounge', code:'PLANETSIDE / ARRIVALS', name:['라운지','SPACEPORT LOUNGE'],
     description:['다음 항해가 시작되는 곳.','Every journey begins here.'],
     links:[['guide','안내 데스크','Welcome desk'],['service','서비스센터','Service centre'],['information','아카이브','Archive'],['cinema','시네마','Cinema']]},
-  {id:'bridge', code:'ORBITAL / COMMAND', name:['CONTROL CENTER','CONTROL CENTER'],
+  {id:'bridge', code:'ORBITAL / COMMAND', name:['관제센터','CONTROL CENTER'],
     description:['항로를 펼치고, 다음 운송을 준비하세요.','Chart your route. Prepare your next haul.'],
     links:[['mission','미션 콘솔','Mission console'],['map','항로 지도','Star map'],['operations','관제 콘솔','Control console']]},
 ] as const;

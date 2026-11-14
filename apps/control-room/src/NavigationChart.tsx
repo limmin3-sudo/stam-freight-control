@@ -2,11 +2,12 @@ import {useEffect,useRef,useState} from 'react';
 import type {StarMap} from '../../../starmap.mjs';
 import type {FlightPlan,Point} from './flight-types';
 import type {Locale} from './navigation';
-import locations from '../../../data/locations.json';
+import {currentLocationData} from './personal-locations.mjs';
 import {chartAppearance} from './chart-appearance';
 
 export type ChartCommand={serial:number;kind:'focus'|'leg'|'home'|'top'|'galaxy'|'system'|'zoom';id?:string;value?:number};
 export function NavigationChart({locale,plan,index=0,command,orbits=true,quality,look='physical',onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void}){
+ const locations=currentLocationData();
  const host=useRef<HTMLDivElement>(null),map=useRef<StarMap|null>(null),latest=useRef({plan,index,onSelect,orbits,quality});latest.current={plan,index,onSelect,orbits,quality};
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);
  useEffect(()=>{
@@ -20,12 +21,12 @@ export function NavigationChart({locale,plan,index=0,command,orbits=true,quality
     view.setRoute(latest.current.plan,latest.current.index);view.setOrbits(latest.current.orbits);
     // A console without a quality control inherits the renderer's saved choice.
     if(latest.current.quality)view.setQuality(latest.current.quality);
-    const start=latest.current.plan?.startId.split(':')[0];if(start)view.setSystem(start);
+    const start=locations.locations.find(p=>p.id===latest.current.plan?.startId)?.system;if(start)view.setSystem(start);
     setReady(true);
    }catch(error){console.error('Navigation chart failed',error);setFailed(true);}
   }).catch(()=>{if(!cancelled)setFailed(true);});
   return()=>{cancelled=true;map.current?.dispose();map.current=null;appearance?.dispose();};
- },[locale,look]);
+ },[locale,look,locations]);
  useEffect(()=>{map.current?.setRoute(plan,index);},[plan,index]);
  useEffect(()=>{map.current?.setOrbits(orbits);},[orbits]);
  useEffect(()=>{if(quality)map.current?.setQuality(quality);},[quality]);

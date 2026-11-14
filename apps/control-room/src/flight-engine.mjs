@@ -2,18 +2,18 @@
 import {planRoute,planRoutesOnly} from '../../../route-departure.mjs';
 import {containerText,eventContainers} from '../../../cargo-summary.mjs';
 import {jumpSegments} from '../../../route-display.mjs';
-import {DEFAULT_SHIP,validateShip,withStacking,selectShipGrids} from '../../../ships.mjs';
+import {draftCargoShip,shipIdFor} from './ship-profile.mjs';
+import {makeShipments,packBoxes} from '../../../engine.mjs';
+import {capacity} from '../../../ships.mjs';
+import {reservationJobs} from '../../../delivery-totals.mjs';
 import {actualQuantity} from '../../../delivery-totals.mjs';
 import {resolveQuantumDrive} from '../../../quantum.mjs';
-import locations from '../../../data/locations.json' with {type:'json'};
-import fleet from '../../../data/ships.json' with {type:'json'};
+import {locationDataFor,canonicalLocationId} from './personal-locations.mjs';
 import quantum from '../../../data/quantum-drives.json' with {type:'json'};
 import performance from '../../../data/ship-performance.json' with {type:'json'};
 import {quantityPlan} from './mission-quantities.mjs';
 
-const byId=new Map(locations.locations.map(p=>[p.id,p]));
-const cities={hurston:'Lorville',crusader:'Orison',arccorp:'Area18',microtech:'New Babbage'};
-export function canonicalPlace(id){return cities[id]?locations.locations.find(p=>p.system==='stanton'&&p.name===cities[id])?.id:id;}
+export const canonicalPlace=canonicalLocationId;
 export function missionFor(job){
   // Receipt evidence, cryopod shape, exact boxes and destination reservations survive intact.
   const mission=job.mission?structuredClone(job.mission):{id:job.id,title:job.title[1],reward:job.pay,_rewardKnown:!job.rewardUnknown,
@@ -23,7 +23,8 @@ export function missionFor(job){
   mission.title??=job.title[1];mission.reward??=job.pay;
   return mission;
 }
-export function missionsFor(draft, simple = false){
+export function missionsFor(draft, simple = false, data=locationDataFor(draft.locationEdits)){
+ const byId=new Map(data.locations.map(p=>[p.id,p]));
  return draft.jobs.map(job=>{
   if(job.state==='ended'||job.state==='conflict')throw Error('종료되었거나 기록이 충돌한 계약입니다. 수신함에서 확인해 주세요.');
   const quantity=quantityPlan(missionFor(job),draft.allowUpperBounds!==false);
@@ -34,13 +35,19 @@ export function missionsFor(draft, simple = false){
   return mission;
  });
 }
+export function flightShipments(draft,simple=false,ship=draftCargoShip(draft),excluded=[]){
+ const data=locationDataFor(draft.locationEdits),byId=new Map(data.locations.map(p=>[p.id,p]));
+ const missions=missionsFor({...draft,jobs:draft.jobs.filter(j=>!excluded.includes(j.id))},simple,data);
+ if(!simple)return makeShipments(missions,byId,{...draft.settings,ship}).shipments;
+ return missions.flatMap(m=>{const {jobs,excluded}=reservationJobs(m);return [...m.cargo.flatMap((c,i)=>excluded.has(i)?[]:[{...c,id:m.id+':route:'+i,missionId:m.id,boxes:[]}]),...jobs];});
+}
 const slimPacking=p=>({boxes:p.boxes.map(b=>({...b,shipmentId:b.shipmentId||b.cargoId})),used:p.used,bins:(p.bins||[]).map(b=>({used:b.used}))});
 export function calculateFlight(draft,context){
+ const locations=locationDataFor(draft.locationEdits),byId=new Map(locations.locations.map(p=>[p.id,p]));
  const mode=context?.mode || (draft.partner==='operator'?'simple':'detail');
  const simple=mode==='simple';
- const id={'Cutlass Black':'drake-cutlass-black','C2 Hercules':'crusader-c2-hercules-starlifter'}[draft.ship]||draft.ship;
- const raw=draft.customShip?.id===id?draft.customShip:fleet.find(s=>s.id===id);if(!raw)throw Error('함선 그리드를 찾지 못했습니다.');
- const ship=selectShipGrids(withStacking(validateShip(raw.id===DEFAULT_SHIP.id?{...raw,...DEFAULT_SHIP}:raw)),simple?[]:context?.disabledGrids||draft.settings?.disabledGrids?.[id]);
+ const id=shipIdFor(draft.ship);
+ const ship=draftCargoShip(draft,simple?[]:context?.disabledGrids);
  const base={...performance.profiles[id],...quantum.profiles[id]};
  const drive=resolveQuantumDrive(quantum,base,{driveMode:'factory'}).drive;
  const flightPerformance={scm:base.scm,maxSpeed:base.maxSpeed,zeroToScm:base.zeroToScm,drive,
@@ -48,8 +55,18 @@ export function calculateFlight(draft,context){
   ascentAcceleration:base.scm>0&&base.zeroToScm>0?Math.round(base.scm/base.zeroToScm*.25*100)/100:null,
   approachSpeed:base.scm?Math.round(base.scm*.65):null};
  const calculate=simple?planRoutesOnly:planRoute;
- const plan=calculate(locations,missionsFor(draft,simple),context?.startId||canonicalPlace(draft.start),{
-  ...draft.settings,ship,performance:draft.settings?.performance||flightPerformance,routePolicy:draft.partner==='operator'?'delivery-first':'batch',
+ const excluded=context?.excludedMissionIds||[];
+ const missions=missionsFor({...draft,jobs:draft.jobs.filter(j=>!excluded.includes(j.id))},simple,locations);
+ const heldCargo=simple?[]:(context?.resume?.aboard||[]).filter(b=>excluded.includes(b.missionId));
+ const startId=context?.startId||canonicalPlace(draft.start);
+ if(context?.resume&&flightShipments(draft,simple,ship,excluded).every(s=>context.resume.delivered.includes(s.id))){
+  const packing=simple?{boxes:[],used:0,bins:[]}:packBoxes([],heldCargo,ship);
+  if(!packing||!byId.has(startId)||(!simple&&packing.boxes.length!==context.resume.aboard.length))throw Error('현재 선적 기록을 유지할 수 없습니다.');
+  const point=byId.get(startId);
+  return {visits:[],mode,initialPacking:slimPacking(packing),ship,seconds:0,peak:packing.used,capacity:simple?null:capacity(ship),warnings:[],points:[point],startId,driveName:drive?.name||null,policy:draft.partner};
+ }
+ const plan=calculate(locations,missions,startId,{
+  ...draft.settings,ship,heldCargo,performance:draft.settings?.performance||flightPerformance,routePolicy:draft.partner==='operator'?'delivery-first':'batch',
   includeReturn:false,...(context?.manualStops?{manualStops:context.manualStops}:{}),...(context?.resume?{resume:context.resume,avoidFirst:context.avoidFirst,showDeparture:context.showDeparture}:{}),
  });
  // The legacy engine may recover missing coordinates by repacking; an active console must fail closed instead.

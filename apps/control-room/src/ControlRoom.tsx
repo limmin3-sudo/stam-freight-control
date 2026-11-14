@@ -1,3 +1,4 @@
+import {ActiveFlightLog} from './ActiveFlightLog';
 import {FlightBackup} from './FlightBackup';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
@@ -97,8 +98,9 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
         <div className="console-heading">{missionScreen&&<nav className="monitor-navigation" aria-label={copy.navigate}><a href={routeHash({...route,screen:'mission'})} aria-current="page">{copy.mission}</a><a href={routeHash({...route,screen:'map'})}>{route.locale==='en'?'Navigation hologram':'항법 홀로그램'}</a><a href={routeHash({...route,screen:'operations'})}>{copy.operations}</a><label>{copy.language}<select value={route.locale} onChange={e=>{const next={...route,locale:e.target.value as Locale};history.replaceState(null,'',routeHash(next));setRoute(next);}}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label></nav>}<div><p className="eyebrow">STAM / {route.screen.toUpperCase()}</p><h1 id="workspace-title" ref={heading} tabIndex={-1}>{copy[route.screen]}</h1><p>{copy.descriptions[route.screen]}</p></div></div>
         <div className="console-display-content" tabIndex={0} role="region" aria-label={copy[route.screen]}>
         <div className="workspace-layout" data-screen={route.screen}>
+          {route.screen==='mission'&&flight.active&&<ActiveFlightLog receipts={receipts} locale={route.locale}/>}
           {route.screen === 'mission' ?
-            <MissionConsole draft={draft} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
+            <MissionConsole draft={draft} session={flight.session} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
               onReview={next=>{if(next)flight.change(next);flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});});}}/> :
             <>{!controlMode && draft.partner==='navigator' && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
               <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}
@@ -106,6 +108,10 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
           {route.screen==='mission' && flight.hasSaved && !flight.active && <button type="button" className="return-link" disabled={flight.busy||flight.blocked} onClick={()=>{
             if(!draft.jobs.length||window.confirm(route.locale==='en'?'Replace this manifest with the saved flight?':'현재 계약 목록을 이전에 저장한 운항으로 바꿀까요?'))flight.calculate(undefined,false,'saved');
           }}>{route.locale==='en'?'Load previous flight':'이전 운항 불러오기'}</button>}
+          {missionScreen&&flight.locationUpdate&&<p className="personal-location-status" role="status">
+            {route.locale==='en'?(flight.locationUpdate==='invalid'?'Saved personal locations need review. Current coordinates are retained.':'Personal locations have changed. Current flight coordinates are retained.'):(flight.locationUpdate==='invalid'?'저장된 개인 장소를 확인하세요. 현재 좌표는 유지됩니다.':'개인 장소가 변경됐습니다. 현재 운항의 좌표는 유지됩니다.')}
+            {!flight.session.run?.started&&<button disabled={flight.busy||flight.blocked} onClick={flight.refreshLocations}>{route.locale==='en'?'Apply to preparation · Replan required':'운항 준비에 적용 · 경로 재계산 필요'}</button>}
+          </p>}
           {(route.screen!=='operations'||!controlMode) && flight.error && <p role="alert">{flight.error}</p>}
           {(route.screen!=='operations'||!controlMode) && flight.storageError && <p role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
           {(route.screen!=='operations'||!controlMode) && flight.busy && <p role="status">{route.locale==='en'?'Calculating route…':'항로 계산 중…'}</p>}

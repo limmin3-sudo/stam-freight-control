@@ -1,5 +1,5 @@
 import type {Locale} from './navigation';
-import {placeName,places} from './mission-trial';
+import {placeName,hasPlace} from './mission-trial';
 import type {Job,Shipment} from './mission-trial';
 import {PortSearch} from './PortSearch';
 
@@ -20,7 +20,7 @@ export function invalidCargo(form:Job, n:0|1, quantityOptional:(row:Shipment)=>b
     const rows=form.shipments.filter(row=>row.to===place);
     const known=rows.reduce((sum,row)=>sum+row.scu,0),unknown=rows.filter(row=>!row.scu).length;
     return !rows.length || !Number.isSafeInteger(total) || total<1 || (unknown?total<known+unknown:total!==known);
-  }) || form.shipments.some(row=>!places[row.from] || !places[row.to] || row.from===row.to || !row.cargo[n].trim() || !Number.isSafeInteger(row.scu) || row.scu<0 || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
+  }) || form.shipments.some(row=>!hasPlace(row.from) || !hasPlace(row.to) || row.from===row.to || !row.cargo[n].trim() || !Number.isSafeInteger(row.scu) || row.scu<0 || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
 }
 
 export function DeliveryTotalFields({form,setForm,locale}:Pick<Props,'form'|'setForm'|'locale'>){

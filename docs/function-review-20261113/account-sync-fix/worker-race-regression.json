@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "real Worker stale result cannot overwrite another tab session",
+    "pending review survives conflict and reload",
+    "operator route replan retains progress and no cargo renderer",
+    "navigator retained cargo survives confirmed replan"
+  ],
+  "pageErrors": []
+}

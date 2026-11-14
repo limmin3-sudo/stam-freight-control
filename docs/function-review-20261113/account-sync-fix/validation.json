@@ -1,0 +1,30 @@
+{
+  "root": {
+    "tests": 247,
+    "pass": 247,
+    "fail": 0
+  },
+  "app": {
+    "tests": 78,
+    "pass": 78,
+    "fail": 0
+  },
+  "targetedAfterHistoryGuard": {
+    "tests": 17,
+    "pass": 17,
+    "fail": 0
+  },
+  "productionBuild": "passed",
+  "realFirebaseRequests": 0,
+  "deployment": "not performed",
+  "remaining": [
+    "console flight cloud storage and explicit resume",
+    "server revision rules / legacy writer compatibility and emulator validation",
+    "real account validation"
+  ],
+  "browserRegressions": {
+    "accountSync": "8 scenarios passed; page errors 0",
+    "receiptChanges": "14 scenarios passed; page errors 0",
+    "workerRace": "4 scenarios passed; page errors 0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": [
+    "lazy detail rendering",
+    "each exact value/variant matches current snapshot",
+    "SCMDB preferred and both variants visible",
+    "definition-specific source links",
+    "differences-only filter",
+    "grouped definitions switch provenance independently",
+    "ko/mix/en",
+    "390px no page or card overflow",
+    "Escape preserves archive hierarchy",
+    "flight storage unchanged"
+  ],
+  "pageErrors": []
+}

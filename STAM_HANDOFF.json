@@ -2,7 +2,7 @@
   "repository": "limmin3-sudo/stam-freight-control",
   "developmentBranch": "handoff/local-studio-20261110",
   "deploymentBranch": "main",
-  "updated": "2026-11-13",
+  "updated": "2026-11-14",
   "latestRequestMeans": "Fetch the current development branch, preserve local work, read the latest handoff, and open the local preview.",
   "instructions": "AGENTS.md",
   "status": "PROJECT_STATUS.md",
@@ -43,7 +43,7 @@
   "functionReviewStatus": "validated-integrated-local-unpublished",
   "flightBackupReview": "docs/FLIGHT-BACKUP-20261113.md",
   "flightBackupStatus": "validated-integrated-local-unpublished",
-  "nextFunctionWork": "Archive per-field source/difference details and transport guide content. Facility 3D hub is a plan, separate from the star map. Preserve current journeys and flight state. Native log companion redesign deferred; direct custom grid editor UI excluded; existing customShip restore compatible.",
+  "nextFunctionWork": "Server revision enforcement/legacy-client compatibility validation, then separate versioned large console-flight cloud storage and explicit paused resume. Local owner isolation and existing-state transactional saves are implemented and mock-browser verified; no real-account/rules deployment.",
   "integrationReview": "docs/FUNCTION-CINEMATIC-INTEGRATION-20261113.md",
   "integrationBase": "fa647d0a6077c200897eb1a43e4b4bb5f2242eec",
   "functionPreservationCommit": "342a5fa",
@@ -59,5 +59,41 @@
     "browser": "pass",
     "privateLogFiles": 37,
     "evidence": "docs/function-review-20261113/integration/README.md"
+  },
+  "archiveReferenceStatus": "validated-working-tree-uncommitted-unpublished",
+  "archiveReferenceReview": "docs/function-review-20261113/archive-reference/README.md",
+  "coreFunctionReview": "docs/CORE-FUNCTION-REVIEW-20261113.md",
+  "guidePolicy": "Transport tips/guides belong to a separate future centre, not Archive. Defer user-help redesign until core workflows settle.",
+  "cargoCapacityReview": "docs/function-review-20261113/cargo-capacity/README.md",
+  "cargoCapacityStatus": "validated-working-tree-uncommitted-unpublished",
+  "receiptContinuityReview": "docs/function-review-20261113/receipt-continuity/README.md",
+  "receiptContinuityStatus": "validated-working-tree-uncommitted-unpublished",
+  "receiptRetention": "Current tab only via sessionStorage; reload restores records offline; closing the tab clears inbox/corrections. Selected flight contracts remain independently saved.",
+  "flightReceiptReview": "docs/function-review-20261113/flight-receipts/README.md",
+  "flightReceiptStatus": "validated-working-tree-uncommitted-unpublished",
+  "cancelledLoadedCargo": "After confirmation, exclude remaining pickups/deliveries and retain aboard cargo on hold, occupying original cells. No automatic delivery/payment. Physical disposition UI remains unimplemented.",
+  "personalLocationReview": "docs/function-review-20261113/personal-locations/README.md",
+  "personalLocationStatus": "validated-working-tree-uncommitted-unpublished",
+  "liveGameVerification": "Deferred by user; continue saved-log, synthetic and browser verification without claiming live-game coverage.",
+  "accountSyncAudit": "docs/function-review-20261113/account-sync/README.md",
+  "accountSyncStatus": "local-owner-isolation-and-existing-state-transactions-validated-uncommitted-unpublished",
+  "accountSyncFixReview": "docs/function-review-20261113/account-sync-fix/README.md",
+  "accountSyncValidation": {
+    "rootTests": 247,
+    "appTests": 78,
+    "targetedAfterHistoryGuard": 17,
+    "build": "pass",
+    "browser": "synthetic Firebase SDK only; no real account writes",
+    "rules": "unchanged, not deployed, real server unverified",
+    "consoleCloudResume": "not implemented"
+  },
+  "serviceHeldAccountReview": {
+    "document": "docs/function-review-20261114/service-held-account/README.md",
+    "status": "implemented locally; production Firestore rules unpublished; no commit/push/deploy",
+    "scope": [
+      "F1 server revision enforcement",
+      "F2 explicit held-crate discharge",
+      "F5 internal service sections"
+    ]
   }
 }

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "emulator": true,
+  "productionRequests": 0,
+  "checks": [
+    "new account transaction creates head and state atomically",
+    "legacy batch without revision advancement denied",
+    "standalone state write/delete and head deletion denied",
+    "state timestamp must match the transaction head",
+    "real SDK transactions accept one concurrent writer irrespective of client clock",
+    "cross-account reads and writes denied",
+    "existing timestamp-only account migrates without deleting data",
+    "intentional deletion succeeds only with matching revision",
+    "feedback remains write-only, including guests"
+  ]
+}

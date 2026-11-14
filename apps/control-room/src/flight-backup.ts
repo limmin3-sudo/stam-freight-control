@@ -1,4 +1,6 @@
+import {locationDataFor} from './personal-locations.mjs';
 import type {Session,Progress} from './flight-session.ts';
+import {decodeReceiptCache} from './receipt-cache.ts';
 import {elapsed,sessionKey} from './flight-session.ts';
 import type {Box,Ship} from './flight-types';
 
@@ -40,6 +42,7 @@ const boxState=(bs:Box[])=>JSON.stringify(bs.map(b=>[b.boxId,b.missionId,b.shipm
 /** Validate the imported snapshot without replanning or normalizing away evidence/ownership. */
 export function validateFlight(value:unknown):asserts value is Session {
  object(value);requireValue(value.version===1);const d=value.draft;object(d);
+ if(d.locationEdits!==undefined){list(d.locationEdits);locationDataFor(d.locationEdits as import('./personal-locations.mjs').PersonalLocation[]);}
  requireValue(['operator','navigator'].includes(String(d.partner)));string(d.start);string(d.ship);
  for(const k of ['received','reviewed'])requireValue(typeof d[k]==='boolean');
  optionalBooleans(d,['partnerSelected','allowUpperBounds']);
@@ -53,6 +56,14 @@ export function validateFlight(value:unknown):asserts value is Session {
   if(j.mission!==undefined){object(j.mission);list(j.mission.cargo);j.mission.cargo.forEach(r=>{object(r);requireValue(typeof r.commodity==='string'&&typeof r.pickupId==='string'&&typeof r.dropoffId==='string');requireValue(r.scu===null||typeof r.scu==='string'||typeof r.scu==='number');});}
   if(j.reservations!==undefined){object(j.reservations);Object.values(j.reservations).forEach(v=>number(v));}
  });
+
+ if(value.receiptReview!==undefined){
+  const review=value.receiptReview;object(review);object(review.accepted);Object.values(review.accepted).forEach(string);
+  strings(review.excluded);unique(review.excluded as unknown[]);requireValue((review.excluded as string[]).every(id=>owners.has(id)));
+  decodeReceiptCache(JSON.stringify({version:1,phase:'loaded',cards:review.observed,corrections:{},savedAt:0}));
+  requireValue((review.observed as {id:string}[]).every(j=>owners.has(j.id)));
+  list(review.log);review.log.forEach(e=>{object(e);number(e.at);string(e.id);requireValue(owners.has(e.id));string(e.evidence);requireValue(['changed','ended','conflict'].includes(String(e.kind))&&['apply','keep','exclude'].includes(String(e.action)));});
+ }
  if(d.customShip!==undefined)ship(d.customShip);
  if(value.plan===null){requireValue(value.run===null);return;}
  const p=value.plan;object(p);ship(p.ship);const vessel=p.ship;
@@ -61,19 +72,35 @@ export function validateFlight(value:unknown):asserts value is Session {
  string(p.startId);string(p.policy);strings(p.warnings);number(p.seconds);number(p.peak);if(p.capacity!==null)number(p.capacity);
  requireValue(p.driveName===null||typeof p.driveName==='string');
  list(p.points);requireValue(p.points.length>0);p.points.forEach(pt=>{object(pt);string(pt.id);string(pt.name);string(pt.system);string(pt.type);vector(pt.position);});
+ if(d.locationEdits!==undefined){
+  const data=locationDataFor(d.locationEdits as import('./personal-locations.mjs').PersonalLocation[]);
+  const edited=new Set((d.locationEdits as {id:string}[]).map(l=>l.id));
+  for(const pt of p.points as {id:string;position:number[];system:string}[]){
+   if(!edited.has(pt.id))continue;
+   const known=data.locations.find(l=>l.id===pt.id);requireValue(known&&known.system===pt.system&&JSON.stringify(known.position)===JSON.stringify(pt.position));
+  }
+ }
  const locations=new Set(p.points.map(pt=>(pt as Record<string,unknown>).id));requireValue(locations.has(p.startId));
+ if(value.heldDischarges!==undefined){
+  list(value.heldDischarges);const removed=new Set<string>();
+  value.heldDischarges.forEach(entry=>{object(entry);number(entry.at);string(entry.locationId);requireValue(locations.has(entry.locationId));boxes(entry.boxes,vessel,owners);
+   entry.boxes.forEach(b=>{requireValue((value.receiptReview as Session['receiptReview'])?.excluded.includes(b.missionId)&&!removed.has(b.boxId));removed.add(b.boxId);});
+  });
+  object(value.run);list(value.run.aboard);value.run.aboard.forEach(b=>{object(b);requireValue(!removed.has(b.boxId as string));});
+ }
  const simple=p.mode==='simple';
  function packing(v:unknown){object(v);boxes(v.boxes,vessel,owners);number(v.used);list(v.bins);requireValue(v.bins.length===(simple?0:vessel.grids.length));v.bins.forEach(b=>{object(b);number(b.used);});requireValue(v.used===v.boxes.reduce((n,b)=>n+b.size,0));if(simple)requireValue(v.boxes.length===0);}
- packing(p.initialPacking);list(p.visits);requireValue(p.visits.length>0);
+ packing(p.initialPacking);list(p.visits);requireValue(p.visits.length>0||!!value.receiptReview);
  p.visits.forEach(v=>{object(v);string(v.locationId);requireValue(locations.has(v.locationId));packing(v.packing);number(v.load);number(v.seconds);number(v.elapsed);object(v.leg);strings(v.leg.nodes);number(v.leg.meters);
   list(v.events);v.events.forEach(e=>{object(e);string(e.type);requireValue(['pickup','delivery','departure'].includes(e.type));if(e.type!=='departure'){string(e.shipmentId);string(e.missionId);requireValue(owners.has(e.missionId));string(e.commodity);number(e.scu);}if(e.boxIds!==undefined)strings(e.boxIds);});
   list(v.jumps);v.jumps.forEach(j=>{object(j);for(const k of ['entryId','exitId','entryName','exitName'])string(j[k]);requireValue(locations.has(j.exitId));});
   if(v.blocked!==undefined){list(v.blocked);v.blocked.forEach(b=>{object(b);string(b.boxId);list(b.blockers);b.blockers.forEach(a=>{object(a);string(a.boxId);});});}
  });
  const plan=p as unknown as Session['plan'];requireValue(plan);
+ const heldOwners=(value.receiptReview as Session['receiptReview'])?.excluded||[];
  function progress(r:unknown):asserts r is Progress & Record<string,unknown> {
   object(r);number(r.index);number(r.jump);requireValue(Number.isInteger(r.index)&&r.index<=plan!.visits.length&&Number.isInteger(r.jump));
-  requireValue(typeof r.started==='boolean'&&typeof r.finished==='boolean');requireValue(r.finished===(r.index===plan!.visits.length));
+  requireValue(typeof r.started==='boolean'&&typeof r.finished==='boolean');requireValue(r.finished===(r.index===plan!.visits.length&&Array.isArray(r.aboard)&&r.aboard.length===0));
   requireValue(!r.finished||r.started);requireValue(r.started||(r.index===0&&r.jump===0));
   number(r.elapsed);for(const k of ['since','startedAt'])if(r[k]!==null)number(r[k]);
   if(r.loadScu!==undefined)number(r.loadScu);if(r.completedStops!==undefined)number(r.completedStops);if(r.distanceMeters!==undefined)number(r.distanceMeters);
@@ -81,6 +108,7 @@ export function validateFlight(value:unknown):asserts value is Session {
   const picked=new Set(r.picked as string[]),delivered=new Set(r.delivered as string[]);
   for(const v of plan!.visits.slice(0,r.index))for(const e of v.events){if(e.type==='pickup')requireValue(picked.has(e.shipmentId));if(e.type==='delivery')requireValue(delivered.has(e.shipmentId));}
   boxes(r.aboard,vessel,owners);string(r.positionId);
+  if(r.index===plan!.visits.length&&r.aboard.length){requireValue(r.aboard.every(b=>heldOwners.includes(b.missionId)));}
   const prev=plan!.visits[r.index-1],visit=plan!.visits[r.index];requireValue(r.jump<=(visit?.jumps.length??0));
   requireValue(r.positionId===(r.jump?visit?.jumps[r.jump-1]?.exitId:prev?.locationId??plan!.startId));
   requireValue(boxState(r.aboard)===boxState(prev?.packing.boxes??plan!.initialPacking.boxes));

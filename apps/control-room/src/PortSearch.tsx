@@ -1,4 +1,5 @@
 import {useId,useMemo,useState} from 'react';
+import {currentLocationData} from './personal-locations.mjs';
 import {findPorts} from './port-search.mjs';
 import {placeName} from './mission-trial';
 import type {Locale} from './navigation';
@@ -6,10 +7,11 @@ import './port-search.css';
 
 type Props={locale:Locale;label:string;value?:string;onSelect:(id:string)=>void};
 export function PortSearch({locale,label,value,onSelect}:Props){
+  const data=currentLocationData();
   const listId=useId();
   const [query,setQuery]=useState<string|null>(null);
   const [active,setActive]=useState(-1);
-  const results=useMemo(()=>query!==null&&(query.trim()||value!==undefined)?findPorts(query):[],[query,value]);
+  const results=useMemo(()=>query!==null&&(query.trim()||value!==undefined)?findPorts(query):[],[query,value,data]);
   const language=locale==='ko'?0:1;
   const open=query!==null && (!!query.trim() || value!==undefined);
   function close(){setQuery(null);setActive(-1);}

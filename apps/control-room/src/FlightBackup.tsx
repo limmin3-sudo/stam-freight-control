@@ -29,6 +29,7 @@ export function FlightBackup({flight,locale}:{flight:Flight;locale:Locale}){
    <button type="button" onClick={()=>{try{flight.backup();setMessage(t('운항 백업을 내려받았습니다.','Flight backup downloaded.'));}catch(e){setMessage((e as Error).message);}}}>{t('운항 백업 저장','Download flight backup')}</button>
    <label>{t('운항 백업 파일 선택','Choose flight backup')}<input aria-label={t('운항 백업 파일 선택','Choose flight backup')} type="file" accept=".json,application/json" disabled={reading||flight.busy} onChange={e=>{const f=e.target.files?.[0];e.target.value='';if(f)void select(f);}}/></label>
    <button type="button" disabled={reading||flight.busy} onClick={()=>{try{preview(flight.previousBackup(),t('복원 전 운항','Flight before last restore'));}catch(e){setMessage((e as Error).message);}}}>{t('복원 전 운항 확인','Review previous flight')}</button>
+   <button type="button" disabled={reading||flight.busy||flight.blocked} onClick={()=>{try{preview(flight.loginBackup(),t('로그인 전 운항','Flight before login'));}catch(e){setMessage((e as Error).message);}}}>{t('로그인 전 운항 확인','Review flight before login')}</button>
   </div>
   {reading&&<p role="status">{t('백업 확인 중…','Checking backup…')}</p>}{message&&<p role="status">{message}</p>}
   <dialog ref={dialog} className="flight-restore-dialog" aria-labelledby="flight-restore-title" onCancel={e=>{e.preventDefault();setPending(null);}} onKeyDown={e=>{if(e.key==='Escape')e.stopPropagation();}}>

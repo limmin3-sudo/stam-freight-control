@@ -1,3 +1,4 @@
+import {accountBoundary,readOwner} from './flight-ownership.mjs';
 import {hasReward,rewardValue,rewardText} from './reward-summary.mjs';
 import {L} from './i18n.mjs';
 // Completed-run history and totals ("운항 기록"). Stored in the browser and synced with the account when signed in.
@@ -25,6 +26,8 @@ export function historyTotalsMarkup(records=readHistory()){const s=summarize(rec
 }
 
 export function createHistory(button,{notify=()=>{}}={}){
+ let owner;try{owner=readOwner(localStorage);}catch{}
+ const writable=()=>{try{if(['checking','error'].includes(accountBoundary().phase)||readOwner(localStorage)!==owner||localStorage.getItem('stam.account-storage-journal.v1'))throw Error();return true;}catch{notify('계정 확인을 마치거나 새로고침한 뒤 운항 기록을 변경하세요.',true);return false;}};
  const dialog=document.createElement('dialog');dialog.className='history-dialog';document.body.append(dialog);
  function render(){const list=readHistory(),s=summarize(list);
   dialog.innerHTML=`<div class="dialog-title"><h2>운항 기록</h2><button type="button" data-close aria-label="닫기">×</button></div>
@@ -35,15 +38,15 @@ export function createHistory(button,{notify=()=>{}}={}){
   :'<p>아직 완료한 운항이 없습니다. 관제 모드에서 마지막 거점까지 완료하면 함선·계약·수익·걸린 시간이 여기에 쌓입니다.</p>'}
   <p class="small subtle">기록은 이 브라우저에 저장되고, 로그인하면 계정에도 저장되어 다른 PC에서 함께 볼 수 있습니다. 수익은 계약에 입력된 보상 기준입니다.</p>`;
   dialog.querySelector('[data-close]').onclick=()=>dialog.close();dialog.querySelector('[data-reset]')?.addEventListener('click',reset);
-  dialog.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!confirm('이 운항 기록을 삭제할까요?'))return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(readHistory().filter(r=>r.id!==b.dataset.delete)));window.dispatchEvent(new Event('sfc-history-changed'));}catch{notify('운항 기록을 삭제하지 못했습니다.',true);}});}
- function reset(){if(!readHistory().length)return false;if(!confirm(L('완료된 운항기록과 누적 통계를 모두 초기화할까요? 진행 중인 미션과 설정은 유지됩니다. 로그인 중이면 계정에도 반영됩니다.','Reset all completed runs and cumulative statistics? Active missions and settings are kept. While signed in, this change also syncs to your account.')))return false;
-  try{clearHistory();window.dispatchEvent(new Event('sfc-history-changed'));notify(L('운항기록과 누적 통계를 초기화했습니다.','Run history and totals have been reset.'));return true;}catch{notify(L('운항기록을 초기화하지 못했습니다.','Could not reset run history.'),true);return false;}}
+  dialog.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{if(!writable())return;if(!confirm('이 운항 기록을 삭제할까요?'))return;if(!writable())return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(readHistory().filter(r=>r.id!==b.dataset.delete)));window.dispatchEvent(new Event('sfc-history-changed'));}catch{notify('운항 기록을 삭제하지 못했습니다.',true);}});}
+ function reset(){if(!writable())return false;if(!readHistory().length)return false;if(!confirm(L('완료된 운항기록과 누적 통계를 모두 초기화할까요? 진행 중인 미션과 설정은 유지됩니다. 로그인 중이면 계정에도 반영됩니다.','Reset all completed runs and cumulative statistics? Active missions and settings are kept. While signed in, this change also syncs to your account.')))return false;
+  if(!writable())return false;try{clearHistory();window.dispatchEvent(new Event('sfc-history-changed'));notify(L('운항기록과 누적 통계를 초기화했습니다.','Run history and totals have been reset.'));return true;}catch{notify(L('운항기록을 초기화하지 못했습니다.','Could not reset run history.'),true);return false;}}
  const refresh=()=>{if(dialog.open)render();};
  window.addEventListener('sfc-history-changed',refresh);
  window.addEventListener('storage',e=>{if(!e.key||e.key===HISTORY_KEY)refresh();});
  if(button)button.onclick=()=>{render();dialog.showModal();};
  return {
   // Called when the last stop of a run is completed.
-  record(entry){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(addRecord(readHistory(),entry)));window.dispatchEvent(new Event('sfc-history-changed'));notify(`운항 기록에 저장했습니다 · ${estimatedRewardCount(entry)?'목록 기준 예상 '+fmt(entry.reward)+' aUEC':hasReward(entry)?(unknownRewardCount(entry)?'확인된 보상 합계 ':'이번 운항 ')+fmt(entry.reward)+' aUEC':'보상 미확인'}`);}catch{notify('운항 기록을 저장하지 못했습니다.',true);}},
-  reset,open:()=>{render();dialog.showModal();}};
+  record(entry){if(!writable())return;try{localStorage.setItem(HISTORY_KEY,JSON.stringify(addRecord(readHistory(),entry)));window.dispatchEvent(new Event('sfc-history-changed'));notify(`운항 기록에 저장했습니다 · ${estimatedRewardCount(entry)?'목록 기준 예상 '+fmt(entry.reward)+' aUEC':hasReward(entry)?(unknownRewardCount(entry)?'확인된 보상 합계 ':'이번 운항 ')+fmt(entry.reward)+' aUEC':'보상 미확인'}`);}catch{notify('운항 기록을 저장하지 못했습니다.',true);}},
+  reset,open:()=>{render();if(!dialog.open)(dialog.dataset.inline?dialog.show():dialog.showModal());},mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);render();dialog.show();return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
 }

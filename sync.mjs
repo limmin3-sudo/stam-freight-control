@@ -1,3 +1,4 @@
+import {applyStoragePatch} from './storage-transaction.mjs';
 // Account sync rules, independent of the backend so they can be tested without a server.
 // Only player data is synced; device settings (map quality, AI server address, guide-seen flag) stay per browser.
 export const SYNC_KEYS=['vh-missions','vh-recipes','vh-ships','vh-ship-id','vh-ship-performance','vh-settings','vh-start','vh-mode','sfc-run','sfc-voice','sfc-location-overrides-v1','vh-storage-note','sfc-history'];
@@ -9,7 +10,8 @@ const MAX_VALUE=900000;// Firestore documents are limited to 1 MiB.
 export function cleanValue(key,value){
  if(value==null)return null;
  if(key==='vh-missions'){try{const ms=JSON.parse(value);if(Array.isArray(ms))value=JSON.stringify(ms.map(({_sourcePreview,...m})=>m));}catch{}}
- return value.length>MAX_VALUE?null:value;
+ if(new TextEncoder().encode(value).byteLength>MAX_VALUE)throw Error('계정 저장 용량을 초과했습니다. 기존 계정 자료는 유지됩니다. 백업을 내려받아 주세요.');
+ return value;
 }
 export function snapshot(storage){const out={};for(const k of SYNC_KEYS){const v=cleanValue(k,storage.getItem(k));if(v!=null)out[k]=v;}return out;}
 export const isEmpty=snap=>!Object.keys(snap||{}).some(k=>k!=='sfc-voice'&&k!=='vh-mode');
@@ -27,7 +29,8 @@ export function changedKeys(prev,next){return SYNC_KEYS.filter(k=>(prev||{})[k]!
 // Another PC saved after our last sync: do not overwrite it.
 export const remoteIsNewer=(cloudUpdatedAt,lastSyncedAt)=>Number(cloudUpdatedAt||0)>Number(lastSyncedAt||0);
 
-export function applySnapshot(storage,snap){for(const k of SYNC_KEYS){if(snap[k]==null)storage.removeItem(k);else storage.setItem(k,snap[k]);}}
+export const snapshotPatch=snap=>Object.fromEntries(SYNC_KEYS.map(k=>[k,snap[k]??null]));
+export function applySnapshot(storage,snap){applyStoragePatch(storage,snapshotPatch(snap));}
 
 // Usernames for ID sign-up: lowercase letters, digits and underscore, 3–20 characters.
 export const USERNAME_RE=/^[a-z0-9_]{3,20}$/;

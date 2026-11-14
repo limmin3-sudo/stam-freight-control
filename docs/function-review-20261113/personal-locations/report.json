@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "legacy data unchanged",
+    "manual alias selection uses canonical custom ID",
+    "coordinate-less place excluded",
+    "real planner Worker uses personal coordinates",
+    "explicit refresh retains contracts and invalidates stale plan",
+    "3D map searches and focuses personal place",
+    "active flight snapshot survives later deletion and reload",
+    "full-flight backup restores into fresh profile without legacy storage",
+    "390px layout",
+    "corrupt source remains unchanged and blocks planning"
+  ],
+  "pageErrors": []
+}

@@ -9,7 +9,8 @@ test('only player data is synced; device settings and screenshot thumbnails stay
   const snap=snapshot(s);
   assert.deepEqual(Object.keys(snap).sort(),['vh-missions','vh-recipes']);
   assert.ok(!snap['vh-missions'].includes('_sourcePreview'));
-  assert.equal(cleanValue('vh-recipes','x'.repeat(950000)),null,'oversized values are not uploaded');
+  assert.throws(()=>cleanValue('vh-recipes','x'.repeat(950000)),/용량/);
+  assert.throws(()=>cleanValue('vh-recipes','한'.repeat(310000)),/용량/,'UTF-8 byte size, not character count');
 });
 
 test('first sign-in never overwrites silently', ()=>{

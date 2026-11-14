@@ -1,10 +1,7 @@
 import {withDeliveryTotal} from '../../../integration/inbox-core.mjs';
 import {actualQuantity, deliveryGroups, quantitiesReady} from '../../../delivery-totals.mjs';
 import {boxList} from '../../../engine.mjs';
-import locations from '../../../data/locations.json' with {type:'json'};
-
-const cityNames={hurston:'Lorville',crusader:'Orison',arccorp:'Area18',microtech:'New Babbage'};
-const routeId=id=>Object.hasOwn(cityNames,id)?locations.locations.find(p=>p.system==='stanton'&&p.name===cityNames[id])?.id:id;
+import {canonicalLocationId as routeId} from './personal-locations.mjs';
 
 // The old workbench can store one box configuration for a whole delivery.
 export function reservationBoxes(job){

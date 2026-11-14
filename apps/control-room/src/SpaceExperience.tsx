@@ -11,7 +11,8 @@ import {needsPartnerChoice} from './partner-policy';
 import { bridgePatches, bridgePartners } from './hologram-layout';
 import cleanPlate from './assets/control-room-clean-plate.png';
 import { ControlRoom } from './ControlRoom';
-import {ServiceAccountHistory} from './ServiceAccountHistory';
+import {ServiceCenter} from './ServiceCenter';
+import {FlightReceiptReview} from './FlightReceiptReview';
 import {useFlight} from './use-flight';
 import {GuideDesk} from './GuideDesk';
 import {ShuttleBoarding} from './ShuttleBoarding';
@@ -42,7 +43,7 @@ const MissionArchive=lazy(()=>import('./MissionArchive'));
 import './console-arrival.css';
 
 const names: Record<SpaceScreen, readonly [string, string]> = {
-  lounge: ['SPACEPORT LOUNGE', 'SPACEPORT LOUNGE'], bridge: ['CONTROL CENTER', 'CONTROL CENTER'],
+  lounge: ['라운지', 'SPACEPORT LOUNGE'], bridge: ['관제센터', 'CONTROL CENTER'],
   guide: ['안내 데스크', 'Welcome desk'], information: ['아카이브', 'Archive'],
   cinema: ['시네마', 'Cinema'], service: ['서비스센터', 'Service centre'], mission: ['미션 콘솔', 'Mission console'],
   map: ['항로 지도', 'Star map'], operations: ['관제 콘솔', 'Control console'],
@@ -50,7 +51,6 @@ const names: Record<SpaceScreen, readonly [string, string]> = {
 // Read-only public resources. This preview never imports the legacy app's DOM
 // bootstrap or moves its contracts into another origin/storage namespace.
 const publicSite = 'https://limmin3-sudo.github.io/stam-freight-control/';
-const flightSite = new URL('flight.html', import.meta.env.DEV ? publicSite : location.href).href;
 const revealMs = 180;
 // Keep the previous 850ms approach + 180ms reveal budget, with a brief ignition.
 const departureMs = Math.round(spaceConfig.approachMs * .82);
@@ -175,7 +175,7 @@ export function SpaceExperience() {
     document.title = `${word(names[route.screen])} · STAM FREIGHT DIVISION`;
     const escape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || event.defaultPrevented || isStation(route.screen) && route.screen !== 'map') return;
-      if (document.querySelector('dialog[open]')) return;
+      if (document.querySelector('dialog[open]:not([data-inline])')) return;
       if (event.target instanceof Element && event.target.closest('select, input, textarea, video, [contenteditable]')) return;
       if(route.screen==='guide'){event.preventDefault();guideController.current?.navigate('lounge');return;}
       if (destination.current) { cancel(); return; }
@@ -317,6 +317,7 @@ export function SpaceExperience() {
       }}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label>
     </header>
 
+    <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
       {choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
@@ -402,13 +403,7 @@ export function SpaceExperience() {
         onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title">
         <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
         <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{route.view==='missions'?(en?'Mission catalogue':'미션 자료'):word(names[route.screen])}</h1></div></header>
-        {route.screen === 'service' && <div className="space-information space-service">
-          <ServiceAccountHistory locale={route.locale} />
-          {[
-            [en ? 'Feedback & bug reports' : '피드백 · 오류 신고', en ? 'Use Feedback on STAM to send suggestions or report a problem.' : 'STAM의 피드백·오류 신고 메뉴에서 의견과 문제를 접수합니다.', flightSite],
-            [en ? 'Release history' : '업데이트 기록', en ? 'Browse the changes in each STAM release.' : 'STAM의 버전별 변경 내용을 확인합니다.', `${publicSite}patch-notes.html`],
-          ].map(([title, description, link],index) => <a key={title} href={link} target="_blank" rel="noopener noreferrer"><div className="room-card-symbol"><InterfaceGlyph kind={(['mission','map'] as const)[index]!}/><small>{['FEEDBACK','RELEASES'][index]}</small></div><h2>{title}</h2><p>{description}</p><span>{en ? 'Open STAM' : 'STAM에서 열기'} ↗</span></a>)}
-        </div>}
+        {route.screen === 'service' && <ServiceCenter locale={route.locale} view={route.serviceView||'account'}/>}
         {route.screen === 'information' && route.view!=='missions' && <div className="space-information room-reference-library">
           <p>{en ? 'Prepare your next run. Browse mission conditions, cargo rules and source data.' : '다음 운송을 준비하세요. 미션 조건과 화물 적재 규칙, 자료 출처를 한곳에서 확인합니다.'}</p>
           {[

@@ -1,0 +1,10 @@
+export type PersonalLocation={id:string;name:string;system:string;type:string;position:number[]|null;parentId?:string|null;aliases?:string[];qt?:boolean;checkedVersion?:string;source?:string;updatedAt?:string};
+type Data=typeof import('../../../data/locations.json');
+export function locationDataFor(records?:PersonalLocation[]):Data;
+export function readPersonalLocations(storage?:Pick<Storage,'getItem'>):PersonalLocation[];
+export function activateLocations(edits?:PersonalLocation[]):Data;
+export function currentLocationData():Data;
+export function currentLocationEdits():PersonalLocation[];
+export function canonicalLocationId(id:string):string;
+export function currentLocationPoint(id:string):Data['locations'][number]|undefined;
+export function personalLocationPoint(id:string):PersonalLocation|undefined;

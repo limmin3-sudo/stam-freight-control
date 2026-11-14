@@ -3,7 +3,9 @@ import type { Locale, Station } from './navigation';
 export const spaceScreens = ['lounge', 'guide', 'information', 'cinema', 'service', 'bridge', 'mission', 'map', 'operations'] as const;
 export type SpaceScreen = typeof spaceScreens[number];
 export type ArchiveView = 'missions';
-export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView }>;
+export const serviceViews=['account','history','feedback','updates'] as const;
+export type ServiceView=typeof serviceViews[number];
+export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView }>;
 
 export function parseSpaceRoute(hash: string): SpaceRoute {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
@@ -12,11 +14,12 @@ export function parseSpaceRoute(hash: string): SpaceRoute {
   return {
     screen,
     locale: lang === 'en' || lang === 'mix' ? lang : 'ko',
+    ...(screen==='service'&&serviceViews.some(v=>v===params.get('section'))?{serviceView:params.get('section') as ServiceView}:{}),
     ...(screen==='information'&&params.get('view')==='missions'?{view:'missions' as const}:{}),
   };
 }
 
-export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='information'&&route.view==='missions'?'&view=missions':''}`; }
+export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='information'&&route.view==='missions'?'&view=missions':''}${route.screen==='service'&&route.serviceView?'&section='+route.serviceView:''}`; }
 export function isStation(screen: SpaceScreen): screen is Station {
   return screen === 'mission' || screen === 'map' || screen === 'operations';
 }

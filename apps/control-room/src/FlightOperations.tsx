@@ -1,3 +1,4 @@
+import {HeldCargoReview} from './HeldCargoReview';
 import {FlightBackup} from './FlightBackup';
 import {quantityBasis} from './quantity-basis';
 import {ConsoleDial} from './ConsoleDial';
@@ -24,6 +25,8 @@ export function FlightOperations({flight, locale, controlMode}:{
   flight:ReturnType<typeof useFlight>; locale:Locale; controlMode:boolean;
 }) {
   const {plan,run,draft} = flight.session;
+  const held=run?.aboard.filter(b=>flight.session.receiptReview?.excluded.includes(b.missionId))||[];
+  const heldScu=held.reduce((n,b)=>n+b.size,0);
   const en = locale==='en';
   const t = (ko:string,eng:string)=>en?eng:ko;
   const [selected,select] = useState<string|null>(null);
@@ -49,7 +52,7 @@ export function FlightOperations({flight, locale, controlMode}:{
   const actionLabel=jump?t('점프 완료','Complete jump'):visit?.events.some(e=>e.type==='departure')?t('출발 완료','Departed'):
     visit?.events.every(e=>e.type==='pickup')?t('접수 완료','Confirm pickup'):visit?.events.every(e=>e.type==='delivery')?t('배송 완료','Confirm delivery'):t('거점 작업 완료','Complete stop');
   useEffect(()=>{
-    if(!controlMode||!run?.started||run.finished||flight.busy||flight.blocked)return;
+    if(!controlMode||!run?.started||run.finished||flight.busy||flight.blocked||flight.receiptChanges.length||!visit)return;
     const key=(e:KeyboardEvent)=>{
       if(e.repeat||e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||!['Space','Enter'].includes(e.code))return;
       if(e.target instanceof Element && e.target.closest('.ops-hold,.ops-map,button,a,input,textarea,select,summary,[contenteditable]'))return;
@@ -84,7 +87,7 @@ export function FlightOperations({flight, locale, controlMode}:{
       </li>)}</ol></details>}
     <div className={controlMode?'ops-progress':undefined}>
     {controlMode && <header className="ops-panel-head"><InterfaceGlyph kind="bridge"/><h2>{t('운항 진행','Flight progress')}</h2>
-      <span className="ops-status" data-active={flight.active}>{run?.finished?t('운송 완료','Haul complete'):flight.active?(run?.since===null?t('타이머 일시정지','Timer paused'):t('운항 중','In flight')):plan?t('출항 준비','Ready for departure'):t('계약 대기','Awaiting contract')}</span>
+      <span className="ops-status" data-active={flight.active}>{held.length&&!visit?t('선내 보류 화물','Cargo on hold'):run?.finished?(flight.session.receiptReview?.excluded.length?t('운항 경로 종료','Flight route ended'):t('운송 완료','Haul complete')):flight.active?(run?.since===null?t('타이머 일시정지','Timer paused'):t('운항 중','In flight')):plan?t('출항 준비','Ready for departure'):t('계약 대기','Awaiting contract')}</span>
       {totalSteps>0 && <ConsoleDial value={Math.min(completedSteps,totalSteps)} maximum={totalSteps} label={t('완료','Done')+' / '+totalSteps}/>}</header>}
     {controlMode&&flight.error&&<p className="ops-notice" role="alert">{flight.error}</p>}
     {controlMode&&flight.storageError&&<p className="ops-notice" role="alert">{flight.storageError} <button onClick={flight.backup}>JSON</button></p>}
@@ -92,13 +95,15 @@ export function FlightOperations({flight, locale, controlMode}:{
     {(!plan||!run)?<div className="trial-brief ops-empty"><h2>{t('계약을 선택해 주세요','Choose a contract')}</h2><a href={'#/mission?lang='+locale}>{t('미션 콘솔에서 계약 선택','Select contracts in the mission console')} →</a></div>:
     <div className="trial-brief"><small>{simple?t('오퍼레이터 · 경로 안내','Operator · Route guidance'):<>{t('상세 적재','Cargo planning')} · {used} SCU{boxes.some(b=>b._reservation) && t(' 예약 포함',' incl. reservations')}</>}</small>
       <p className="ops-position">{t('현재 위치','Current position')} · {where(run.positionId)}</p>
-      <h2>{run.finished?t('운송 완료','Haul complete'):jump?jump.entryName+' → '+jump.exitName:visit?where(visit.locationId):''}</h2>
+      <h2>{held.length&&!visit?t('남은 배송 없음 · 보류 화물 있음','No remaining deliveries · Cargo on hold'):run.finished?(flight.session.receiptReview?.excluded.length?t('운항 경로 종료','Flight route ended'):t('운송 완료','Haul complete')):jump?jump.entryName+' → '+jump.exitName:visit?where(visit.locationId):''}</h2>
+      {held.length>0&&<p className="ops-notice">{t(`선내 보류 ${heldScu} SCU · ${held.length}상자. 경로에서 제외했으며 적재 공간은 계속 차지합니다.`,`On hold: ${heldScu} SCU · ${held.length} crates. Excluded from the route; still occupies cargo space.`)}</p>}
+      {!simple&&<HeldCargoReview flight={flight} locale={locale}/>}
       {(simple||!controlMode)&&cargoLines}
       {controlMode && totalSteps>0 && <progress value={completedSteps} max={totalSteps} aria-label={t('운항 진행','Flight progress')}/>}
       {visit&&<p className="flight-next">{t('다음','Next')} · {nextStepName(plan,run,where)??t('이 단계에서 운송 완료','Haul complete after this step')}</p>}
       <div className="flight-actions">
         {!run.started && <button className="manifest-primary" disabled={flight.busy||flight.blocked} onClick={()=>flight.progress('start')}>{t('운항 시작','Start run')}</button>}
-        {run.started && !run.finished && <><button key={actionLabel} className="manifest-primary" disabled={flight.busy} onClick={()=>flight.progress('complete')}>{actionLabel}{controlMode && <kbd>Space</kbd>}</button>
+        {run.started && !run.finished && <><button key={actionLabel} className="manifest-primary" disabled={flight.busy||!visit||!!flight.receiptChanges.length} onClick={()=>flight.progress('complete')}>{actionLabel}{controlMode && <kbd>Space</kbd>}</button>
           <details className="ops-run-menu"><summary>{t('운항 관리','Run options')}</summary><div>
           <button disabled={flight.busy} onClick={()=>flight.progress('pause')}>{run.since===null?t('타이머 재개','Resume timer'):t('타이머 일시정지','Pause timer')}</button>
           <button disabled={flight.busy} onClick={()=>flight.calculate(undefined,true)}>{t('현재 위치에서 재계산','Replan from here')}</button>
@@ -117,7 +122,7 @@ export function FlightOperations({flight, locale, controlMode}:{
         <span className="ops-stop-number">{i<run.index?'✓':i+1}</span><div><b>{where(stop.locationId)}</b><small>{i<run.index?t('완료','Done'):i===run.index?t('현재 작업','Current task'):t('예정','Upcoming')} · {[...new Set(stop.events.map(e=>e.type==='departure'?t('출발','Departure'):e.type==='pickup'?t('픽업','Pickup'):e.type==='delivery'?t('배송','Delivery'):t('경유','Waypoint')))].join(' · ')}</small></div>
       </li>)}</ol></details>}
     {plan&&run&&(controlMode?<details className="ops-record"><summary>{t('운항 기록 · 보상','Flight record · Rewards')}</summary><RunDetails session={flight.session} locale={locale}/></details>:<RunDetails session={flight.session} locale={locale}/>)}
-    {plan && <FlightRouteEditor key={plan.startId+String(run?.index)} flight={flight} locale={locale}/>}
+    {plan && plan.visits.length>0 && <FlightRouteEditor key={plan.startId+String(run?.index)} flight={flight} locale={locale}/>}
     <FlightBackup flight={flight} locale={locale}/>
     </div>
     {controlMode && <aside className="ops-partner"><div className="ops-portrait"><img src={simple?operatorPortrait:navigatorPortrait} alt=""/></div><div className="ops-transmission"><small>{t('파트너 통신','Partner comms')}</small><h2>{voice.role}</h2><p aria-live="polite">{instruction}</p>{!simple&&cargoLines}</div></aside>}
@@ -134,7 +139,7 @@ export function FlightOperations({flight, locale, controlMode}:{
         <Suspense fallback={<p role="status">{t('적재 화면 준비 중…','Preparing cargo view…')}</p>}>
           <CargoViewport ship={ship} packing={packing} locale={locale} selected={selected} onSelect={select}/>
         </Suspense>
-        {selectedBox&&<output className="ops-box">{cargoName(selectedBox.commodity)} · {selectedBox.size} SCU · {selectedContract?.title[locale==='ko'?0:1]||selectedBox.missionId} → {where(selectedBox.dropoffId)} · {ship.grids[selectedBox.bin]?.name} · {quantityBasis(selectedContract,locale)}</output>}
+        {selectedBox&&<output className="ops-box">{flight.session.receiptReview?.excluded.includes(selectedBox.missionId)&&t('선내 보류 · ','On hold · ')}{cargoName(selectedBox.commodity)} · {selectedBox.size} SCU · {selectedContract?.title[locale==='ko'?0:1]||selectedBox.missionId} → {where(selectedBox.dropoffId)} · {ship.grids[selectedBox.bin]?.name} · {quantityBasis(selectedContract,locale)}</output>}
     </section>}
 
   </section>;

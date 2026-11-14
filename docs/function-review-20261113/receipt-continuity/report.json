@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "actual log Worker import",
+    "unselected corrected quantities, boxes, reward persist across reload",
+    "same evidence re-import retains correction",
+    "tab-local dismissal and restore",
+    "read failure retains inbox",
+    "quota failure is visible; last saved cache and selected flight independent",
+    "changed evidence and different instance reject old correction",
+    "live watcher reload restores offline cache only",
+    "390px layout",
+    "corrupt cache preserves bytes and selected contracts",
+    "closed tab clears inbox, flight survives"
+  ],
+  "pageErrors": []
+}

@@ -10,6 +10,14 @@
 .archive-table-scroll{overflow-x:auto}.archive-card table{width:100%;border-collapse:collapse;min-width:280px;font-size:11px}.archive-card th,.archive-card td{text-align:left;vertical-align:top;padding:10px 6px;border-bottom:1px solid #80acbf25}.archive-card th{font-weight:500;color:#9fc3d2}.archive-card td{color:#dcecf3}.archive-card td small{display:block;margin-top:5px;font-size:10px;color:#a0bdcc}.archive-card .archive-ids{font-size:10px}
 .archive-more{display:block;margin:22px auto}.archive-sources{margin-top:24px;padding:16px 0;border-top:1px solid #9dc3d633;color:#91b3c3;font-size:12px}.archive-sources a{color:#f0d2a1}
 .archive-load-state{max-width:1280px;margin:30px auto;color:#b8d2de;font-size:15px}
+.archive-reference-policy{color:#ecd29e!important}.archive-definition-select{display:grid;gap:8px;font-size:12px;color:#b7d0dc}
+.archive-definition-select select{width:100%;min-width:0;min-height:42px;padding:8px;color:#def0f8;background:#091c28;border:1px solid #88bdcb66;border-radius:4px;font:inherit}
+.archive-reference-sources{list-style:none;padding:0;display:grid;gap:10px}.archive-reference-sources li{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:11px;overflow-wrap:anywhere}.archive-reference-sources a{color:#f0d2a1}.archive-reference-sources small{flex-basis:100%;color:#93b2c2}
+.archive-difference-filter{display:flex;align-items:center;gap:8px;min-height:44px;font-size:12px;color:#e7d3ab}.archive-difference-filter input{accent-color:#dbbc77;width:17px;height:17px}
+.archive-reference-fields>section{border-top:1px solid #88b8c32b;padding:4px 0 12px}.archive-reference-fields h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}.archive-reference-fields h3 small{font-size:10px;font-weight:500;color:#a5c4cf}
+.archive-reference-fields [data-status=preferred] h3 small,.archive-reference-fields [data-status=unresolved] h3 small{color:#efcf8d}
+.archive-card .archive-reference-value{color:#e1f0f5}.archive-card .archive-field-source{font-size:10px;margin-top:-5px;color:#9cbbc9}
+.archive-variants{display:grid;gap:8px;margin-top:10px;border-left:2px solid #d6b36577;padding-left:12px}.archive-variants strong{font-size:11px;font-weight:500;color:#e5c88d}.archive-variants p{margin:4px 0 10px}
 /* Keep the approved navigation button art/type on a wrapper that holds children. */
 .space-nav-links>.space-room-link>a{position:relative;isolation:isolate;color:#cceafa;text-decoration:none;border:0;background:transparent;font-family:SUIT,sans-serif;text-shadow:0 1px 3px #00111f,0 0 12px #9edcff45;transition:filter .22s,transform .22s;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:53px;padding:10px 18px;font-size:14px;font-weight:550;line-height:1.35;word-break:keep-all}
 .space-nav-links>.space-room-link>a:before{content:"";position:absolute;inset:-5px -7px;z-index:-1;pointer-events:none;background:url('./assets/hologram-button.png') center/100% 135% no-repeat;filter:brightness(.82) saturate(.72);transition:filter .25s}
@@ -26,3 +34,7 @@
 .space-nav-links>.space-room-link>a[aria-current=page]{color:#ffe6ac}.space-nav-links>.space-room-link>a[aria-current=page]:before{filter:sepia(.85) saturate(1.4) brightness(.95)}
 .space-nav-links>.space-room-link>a:hover{transform:translateX(3px);filter:brightness(1.2)}
 @media(min-width:761px) and (max-height:780px){.space-nav-links>.space-room-link>a{min-height:45px}}
+
+/* Expanded reference content must not stretch neighbouring mission cards. */
+.archive-catalogue-grid>.archive-card{align-self:start}
+.archive-card .archive-reference-long{margin-top:4px;padding-top:0;border:0}.archive-reference-long>summary{font-size:11px;color:#a8c6d3}

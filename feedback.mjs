@@ -11,6 +11,18 @@ window.addEventListener('unhandledrejection',e=>{errors.push(String(e.reason?.me
 export async function firebaseApp(){const [app,auth,store]=await Promise.all(['firebase-app.js','firebase-auth.js','firebase-firestore.js'].map(f=>import(SDK+f)));
  const a=app.getApps()[0]||app.initializeApp(FIREBASE_CONFIG);return {auth:auth.getAuth(a),store,db:store.getFirestore(a)};}
 
+export async function shrinkFeedbackImage(file){const bitmap=await createImageBitmap(file);let w=Math.min(1920,bitmap.width),q=.8,url='';
+  for(let i=0;i<8;i++){const c=document.createElement('canvas');c.width=w;c.height=Math.round(bitmap.height*w/bitmap.width);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);url=c.toDataURL('image/jpeg',q);if(url.length<=IMAGE_MAX)break;if(q>.55)q-=.1;else w=Math.round(w*.8);}
+  bitmap.close?.();if(url.length>IMAGE_MAX)throw Error('too large');return {url,size:`${bitmap.width}x${bitmap.height}`};}
+
+export async function submitFeedback({kind,text,contact='',locale='ko',details=true,image=null}){
+ if(!['feedback','bug'].includes(kind)||typeof text!=='string'||text.trim().length<2||text.length>MAX||contact.length>100||!['ko','mix','en'].includes(locale)||image&&(!image.startsWith('data:image/jpeg;base64,')||image.length>IMAGE_MAX))throw Error('입력 내용을 확인하세요.');
+ if(!FIREBASE_CONFIG)throw Error('현재 전송할 수 없습니다. 잠시 후 다시 시도하세요.');
+ const {auth,store,db}=await firebaseApp();
+ await store.addDoc(store.collection(db,'feedback'),{kind,text:text.trim(),contact:contact.trim(),lang:locale,at:store.serverTimestamp(),uid:auth.currentUser?.uid||null,
+  page:details?{version:String(document.querySelector('meta[name="app-version"]')?.content||'dev').slice(0,40),ua:navigator.userAgent.slice(0,300),screen:`${innerWidth}x${innerHeight} @${devicePixelRatio}`,errors:errors.slice(-5)}:null,image});
+}
+
 export function createFeedback(button,{notify=()=>{},context=()=>({})}={}){
  const dialog=document.createElement('dialog');dialog.className='feedback-dialog desk-dialog';document.body.append(dialog);
  dialog.innerHTML=`<form method="dialog"><div class="dialog-title"><h2>피드백 · 오류 신고</h2><button type="button" data-close aria-label="닫기">×</button></div>
@@ -26,10 +38,7 @@ export function createFeedback(button,{notify=()=>{},context=()=>({})}={}){
  const form=dialog.querySelector('form'),text=form.elements.text,count=dialog.querySelector('.feedback-count'),send=dialog.querySelector('[data-send]'),preview=dialog.querySelector('.feedback-preview');
  // A screenshot is shrunk to a JPEG data URL small enough for one Firestore document (no separate file storage).
  let shot=null;
- async function shrink(file){const bitmap=await createImageBitmap(file);let w=Math.min(1920,bitmap.width),q=.8,url='';
-  for(let i=0;i<8;i++){const c=document.createElement('canvas');c.width=w;c.height=Math.round(bitmap.height*w/bitmap.width);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);url=c.toDataURL('image/jpeg',q);if(url.length<=IMAGE_MAX)break;if(q>.55)q-=.1;else w=Math.round(w*.8);}
-  bitmap.close?.();if(url.length>IMAGE_MAX)throw Error('too large');return {url,size:`${bitmap.width}x${bitmap.height}`};}
- async function attach(file){if(!file||!/^image\//.test(file.type))return;try{shot=await shrink(file);preview.hidden=false;preview.querySelector('img').src=shot.url;}catch{shot=null;notify('스크린샷을 첨부하지 못했습니다. 다른 이미지로 시도하십시오.',true);}}
+ async function attach(file){if(!file||!/^image\//.test(file.type))return;try{shot=await shrinkFeedbackImage(file);preview.hidden=false;preview.querySelector('img').src=shot.url;}catch{shot=null;notify('스크린샷을 첨부하지 못했습니다. 다른 이미지로 시도하십시오.',true);}}
  form.elements.shot.onchange=()=>attach(form.elements.shot.files[0]);
  dialog.addEventListener('paste',e=>{const item=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));if(item){e.preventDefault();attach(item.getAsFile());}});
  dialog.querySelector('[data-clear-shot]').onclick=()=>{shot=null;form.elements.shot.value='';preview.hidden=true;};

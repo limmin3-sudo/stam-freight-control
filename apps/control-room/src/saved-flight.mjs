@@ -12,9 +12,9 @@ export function jobFromMission(mission) {
       reservations:Object.fromEntries(deliveryGroups(mission).filter(g=>g.reservation).map(g=>[g.dropoffId,g.total])),
     };
   }
-export function importSavedFlight({missions,start,shipId,customShips,settings,voice,run,mode}) {
+export function importSavedFlight({missions,start,shipId,customShips,settings,voice,run,mode,locationEdits=[]}) {
   const jobs=missions.map(jobFromMission);
-  const draft={jobs,start:start||missions[0].cargo[0].pickupId,ship:({'drake-cutlass-black':'Cutlass Black','crusader-c2-hercules-starlifter':'C2 Hercules'})[shipId]||shipId||'misc-hull-b',partner:voice==='aide'?'operator':'navigator',
+  const draft={locationEdits,jobs,start:start||missions[0].cargo[0].pickupId,ship:({'drake-cutlass-black':'Cutlass Black','crusader-c2-hercules-starlifter':'C2 Hercules'})[shipId]||shipId||'misc-hull-b',partner:voice==='aide'?'operator':'navigator',
     received:false,reviewed:true,customShip:customShips.find(s=>s.id===shipId),settings};
   const savedMode=run?.started ? (mode==='simple'?'simple':'detail') : undefined;
   let plan=calculateFlight(draft,{mode:savedMode});

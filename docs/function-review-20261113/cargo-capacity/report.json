@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "46→40→46 grid toggle live update",
+    "reload retains 40",
+    "preview ship independent and labeled",
+    "flight ship change updates open preview",
+    "worker plan capacity 40",
+    "active aboard/progress preserved despite preview preference change and reload",
+    "390px no horizontal overflow"
+  ],
+  "pageErrors": []
+}

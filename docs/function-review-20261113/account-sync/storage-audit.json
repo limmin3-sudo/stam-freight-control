@@ -1,0 +1,29 @@
+{
+  "reproduced": true,
+  "scope": "pure local-storage model; no network",
+  "syncKeys": [
+    "vh-missions",
+    "vh-recipes",
+    "vh-ships",
+    "vh-ship-id",
+    "vh-ship-performance",
+    "vh-settings",
+    "vh-start",
+    "vh-mode",
+    "sfc-run",
+    "sfc-voice",
+    "sfc-location-overrides-v1",
+    "vh-storage-note",
+    "sfc-history"
+  ],
+  "consoleFlightSynced": false,
+  "previousConsoleBackupSynced": false,
+  "transientInboxSynced": false,
+  "completedHistorySynced": true,
+  "personalLocationsSynced": true,
+  "accountApplyRetainsCurrentFlight": true,
+  "accountApplyRetainsPreviousFlight": true,
+  "oversizeClassifiedAsMissingAndChanged": true,
+  "characterLimitAcceptsOversizeUtf8Bytes": 1200000,
+  "clockRevisionEqualityAndRegressionUndetected": true
+}

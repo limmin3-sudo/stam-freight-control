@@ -1,6 +1,6 @@
 import {missionFor} from './flight-engine.mjs';
 import {jobFromMission} from './saved-flight.mjs';
-import {places} from './mission-trial.ts';
+import {hasPlace} from './mission-trial.ts';
 
 export function exportContracts(jobs){return JSON.stringify(jobs.map(missionFor),null,2);}
 export function importContracts(text,existing){
@@ -16,7 +16,7 @@ export function importContracts(text,existing){
     seen.add(mission.id);
     for(const row of mission.cargo){
       if(!row||typeof row.commodity!=='string'||!row.commodity.trim()||
-        (row.pickupId&&!Object.hasOwn(places,row.pickupId))||(row.dropoffId&&!Object.hasOwn(places,row.dropoffId))||
+        (row.pickupId&&!hasPlace(row.pickupId))||(row.dropoffId&&!hasPlace(row.dropoffId))||
         (row.scu!=null && row.scu!=='' && (!Number.isSafeInteger(row.scu)||row.scu<0||row.scu>10000))||
         (row.boxes!=null && (!Array.isArray(row.boxes)||row.boxes.some(b=>!b||![1,2,4,8,16,24,32].includes(b.size)||!Number.isSafeInteger(b.count)||b.count<1||b.count>10000))))
         throw Error('화물의 거점·수량·상자 규격을 확인하세요.');

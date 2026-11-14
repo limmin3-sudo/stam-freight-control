@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": [
+    "real receipt Worker imports two contracts",
+    "load both via flight controls",
+    "notification leaves route and cargo unchanged",
+    "pending review survives reload",
+    "active-flight log reconnect remains usable",
+    "later/Escape preserve flight",
+    "stale review rejected",
+    "storage failure preserves old session",
+    "390px review fits screen",
+    "confirmed cancellation preserves exact aboard boxes and completed log",
+    "other deliveries complete while held boxes retain space",
+    "held cargo prevents false completion",
+    "zero-visit route remains readable",
+    "fixed header/sidebar retained"
+  ],
+  "pageErrors": []
+}

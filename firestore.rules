@@ -4,20 +4,34 @@ rules_version = '2';
 // and a claimed username cannot be taken over.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function owns(uid) { return request.auth != null && request.auth.uid == uid; }
+    function revisionOf(data) { return data.get('revision', 0); }
+    function advances(uid) {
+      let path = /databases/$(database)/documents/users/$(uid);
+      let after = getAfter(path).data;
+      return after.revision is int && after.updatedAt is number
+        && after.revision == (exists(path) ? revisionOf(get(path).data) : 0) + 1
+        && after.updatedAt > (exists(path) ? get(path).data.get('updatedAt', 0) : 0);
+    }
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if owns(uid);
+      allow create: if owns(uid) && request.resource.data.keys().hasOnly(['revision', 'updatedAt']) && advances(uid);
+      allow update: if owns(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['revision', 'updatedAt']) && advances(uid);
+      allow delete: if false;
       match /changes/{cid} {
-        allow read, delete: if request.auth != null && request.auth.uid == uid;
-        allow create: if request.auth != null && request.auth.uid == uid
+        allow read, delete: if owns(uid);
+        allow create: if owns(uid) && advances(uid)
           && request.resource.data.at is number && request.resource.data.items is list
           && request.resource.data.items.size() <= 40 && request.resource.data.device is string;
         allow update: if false;
       }
       match /state/{key} {
-        allow read, delete: if request.auth != null && request.auth.uid == uid;
-        allow create, update: if request.auth != null && request.auth.uid == uid
+        allow read: if owns(uid);
+        allow delete: if owns(uid) && advances(uid);
+        allow create, update: if owns(uid) && advances(uid)
+          && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
           && request.resource.data.value is string && request.resource.data.value.size() < 1000000
-          && request.resource.data.updatedAt is number;
+          && request.resource.data.updatedAt == getAfter(/databases/$(database)/documents/users/$(uid)).data.updatedAt;
       }
     }
     // Feedback and bug reports: anyone may add one (size-checked); nobody can read, change or delete them from

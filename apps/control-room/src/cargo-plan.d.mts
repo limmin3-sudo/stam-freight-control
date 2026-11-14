@@ -14,3 +14,6 @@ export function cargoWorldCenter(grid:Grid,box:CargoBox):number[];
 
 export function readCargoPreferences():{shipId:string;disabled:Record<string,string[]>}|null;
 export function saveCargoPreferences(value:{shipId:string;disabled:Record<string,string[]>}):void;
+
+export const cargoPreferenceKey:string;
+export const cargoPreferenceEvent:string;

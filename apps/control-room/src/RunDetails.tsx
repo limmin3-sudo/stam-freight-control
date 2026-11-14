@@ -35,7 +35,7 @@ export function RunDetails({session,locale}:{session:Session;locale:Locale}){
   const where=(id:string)=>placeName(id,locale==='ko'?0:1);
   const seconds=elapsed(run,now);
   const remaining=run.finished?0:Math.max(0,plan.seconds-(plan.visits[run.index-1]?.elapsed??0));
-  const known=draft.jobs.filter(job=>!job.rewardUnknown);
+  const known=draft.jobs.filter(job=>!job.rewardUnknown&&!session.receiptReview?.excluded.includes(job.id));
   const reward=known.reduce((total,job)=>total+job.pay,0);
   const rate=run.started && seconds>0 && (run.finished||seconds>=30) && known.length?Math.round(reward*3600/(seconds+remaining)):null;
   return <section className="run-readout" aria-label={t('운항 기록','Flight record')}>

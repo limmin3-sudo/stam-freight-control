@@ -1,0 +1,15 @@
+{
+  "reproduced": true,
+  "syntheticBackend": true,
+  "realAccountRequests": 0,
+  "findings": [
+    "choosing account B data leaves account A active console flight unchanged",
+    "guest backup excludes console flight; logout also retains it",
+    "two simultaneous devices both acknowledge saving but one overwrites the other"
+  ],
+  "concurrentAcceptedWrites": 2,
+  "acknowledgedDevices": 2,
+  "survivingDeviceSnapshots": 1,
+  "interceptedSdkRequests": 12,
+  "pageErrors": []
+}

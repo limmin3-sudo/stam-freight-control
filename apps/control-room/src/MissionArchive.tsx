@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import type {Locale} from './navigation';
 import {loadMissionArchive,type MissionArchiveData,type ArchiveQuantity} from './mission-archive-data.mjs';
 import './mission-archive.css';
+import {ArchiveReference} from './ArchiveReference';
 
 export default function MissionArchive({locale}:{locale:Locale}){
  const en=locale==='en',gameEn=locale!=='ko',t=(ko:string,english:string)=>en?english:ko;
@@ -41,8 +42,9 @@ export default function MissionArchive({locale}:{locale:Locale}){
     {record.description&&<section><h3>{t('미션 내용 원문','Original mission description')}</h3><p>{record.description}</p></section>}
     <details><summary>{t(`연결된 정의 ${record.ids.length}개`,`Linked definitions: ${record.ids.length}`)}</summary><p className="archive-ids">{record.ids.join('\n')}</p></details>
    </details>
+   <ArchiveReference ids={record.ids} data={data} locale={locale}/>
   </article>)}</div>
   {rows.length>shown&&<button type="button" className="archive-more" onClick={()=>setShown(value=>value+24)}>{t('24개 유형 더 보기','Show 24 more types')}</button>}
-  <footer className="archive-sources"><a href={`https://limmin3-sudo.github.io/stam-freight-control/operations-intel.html?lang=${en?'en':'ko'}`} target="_blank" rel="noopener noreferrer">{t('상세 출처·서로 다른 값 대조','Detailed sources and differing values')} ↗</a> · {t('원본 출처','Original sources')} · <a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB ↗</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></footer>
+  <footer className="archive-sources"><a href={`https://limmin3-sudo.github.io/stam-freight-control/operations-intel.html?lang=${en?'en':'ko'}`} target="_blank" rel="noopener noreferrer">{t('기존 자료실','Legacy reference library')} ↗</a> · {t('원본 출처','Original sources')} · <a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB ↗</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></footer>
  </div>;
 }

@@ -181,12 +181,17 @@ export function planRoute(data,missions,startId,settings={}){
  const compare=compareRoute;
  const bounds0=shipBounds(opt.ship);
  // Resume support: shipments already picked up / delivered, and where the aboard boxes currently sit.
+ const held=settings.heldCargo||[],heldIds=new Set(held.map(b=>b.boxId));
+ if(held.length){
+  const activeBoxIds=new Set(shipments.flatMap(shipmentBoxes).map(b=>b.boxId));
+  if(!settings.resume||heldIds.size!==held.length||held.some(b=>activeBoxIds.has(b.boxId)))throw Error('보류 화물 식별 정보가 운송 화물과 충돌합니다.');
+ }
  const resume=settings.resume||null,startStatus=Array(n).fill(0);let startPacking=packBoxes([],[],opt.ship);
  if(resume){const picked=new Set(resume.picked||[]),delivered=new Set(resume.delivered||[]);shipments.forEach((s,i)=>{if(delivered.has(s.id))startStatus[i]=2;else if(picked.has(s.id))startStatus[i]=1;});
   const allBoxes=[...new Map(shipments.flatMap(shipmentBoxes).map(b=>[b.boxId,b])).values()],aboardIds=new Set(activeShipmentBoxes(shipments,startStatus).map(b=>b.boxId)),known=new Map((resume.aboard||[]).map(b=>[b.boxId,b]));
-  if((resume.aboard||[]).some(b=>(b._reservation||shipments.some(s=>s.reservation&&s.missionId===b.missionId))&&!allBoxes.some(x=>x.boxId===b.boxId&&x.size===b.size)))throw Error('진행 중인 적재를 배송 총량 예약으로 바꾸면 상자 위치가 달라집니다. 현재 운항의 실제 수량·상자 구성을 먼저 확인하세요.');
-  const fixed=[...aboardIds].map(id=>known.get(id)).filter(Boolean);startPacking=fixed.length===aboardIds.size?packBoxes([],fixed.map(b=>({...b,...allBoxes.find(x=>x.boxId===b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})),opt.ship):null;
-  if(!startPacking&&shipments.some((s,i)=>s.reservation&&startStatus[i]===1))throw Error('진행 중인 예약 공간의 위치를 복원하지 못했습니다. 기존 운항 데이터를 확인하세요.');if(!startPacking)startPacking=packBoxes(activeShipmentBoxes(shipments,startStatus),[],opt.ship);if(!startPacking)throw Error('지금 실린 화물이 이 함선 그리드에 들어가지 않습니다. 함선 설정을 확인하세요.');
+  if((resume.aboard||[]).filter(b=>!heldIds.has(b.boxId)).some(b=>(b._reservation||shipments.some(s=>s.reservation&&s.missionId===b.missionId))&&!allBoxes.some(x=>x.boxId===b.boxId&&x.size===b.size)))throw Error('진행 중인 적재를 배송 총량 예약으로 바꾸면 상자 위치가 달라집니다. 현재 운항의 실제 수량·상자 구성을 먼저 확인하세요.');
+  const fixed=[...aboardIds].map(id=>known.get(id)).filter(Boolean);startPacking=fixed.length===aboardIds.size?packBoxes([],fixed.map(b=>({...b,...allBoxes.find(x=>x.boxId===b.boxId),bin:b.bin,cell:b.cell,dims:b.dims})).concat(held),opt.ship):null;
+  if(!startPacking&&shipments.some((s,i)=>s.reservation&&startStatus[i]===1))throw Error('진행 중인 예약 공간의 위치를 복원하지 못했습니다. 기존 운항 데이터를 확인하세요.');if(!startPacking&&held.length)throw Error('보류 화물과 현재 선적 배치를 유지할 수 없습니다.');if(!startPacking)startPacking=packBoxes(activeShipmentBoxes(shipments,startStatus),[],opt.ship);if(!startPacking)throw Error('지금 실린 화물이 이 함선 그리드에 들어가지 않습니다. 함선 설정을 확인하세요.');
   if(startStatus.every(x=>x===2))throw Error('남은 운송이 없습니다. 모든 배송을 마쳤습니다.');}
  // The shared stop search looks ahead to the complete route. Validate every proposed
  // pickup against the real grids before using it; aboard boxes remain fixed.

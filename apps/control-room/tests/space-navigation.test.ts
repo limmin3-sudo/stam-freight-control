@@ -23,3 +23,11 @@ test('Archive mission subpage preserves locale and rejects unrelated room views'
  assert.deepEqual(parseSpaceRoute('#/information?lang=en&view=unknown'),{screen:'information',locale:'en'});
  assert.equal(spaceHash({screen:'lounge',locale:'ko',view:'missions'}),'#/lounge?lang=ko');
 });
+
+ test('service section deep links survive reload without leaking to other rooms',()=>{
+ for(const locale of ['ko','mix','en'] as const) for(const serviceView of ['account','history','feedback','updates'] as const){
+  const route={screen:'service' as const,locale,serviceView};assert.deepEqual(parseSpaceRoute(spaceHash(route)),route);
+ }
+ assert.deepEqual(parseSpaceRoute('#/service?lang=ko&section=unknown'),{screen:'service',locale:'ko'});
+ assert.equal(spaceHash({screen:'lounge',locale:'en',serviceView:'history'}),'#/lounge?lang=en');
+ });
