@@ -63,7 +63,9 @@ public static class STAMWindowQA {
         $caption=New-Object System.Text.StringBuilder 256
         [STAMWindowQA]::GetWindowText($window,$caption,256) | Out-Null
         Write-Host ('Entry window: ' + $caption.ToString())
-        if (![STAMWindowQA]::PostMessage($window,0x0010,[IntPtr]::Zero,[IntPtr]::Zero)) { throw 'Close message was not delivered' }
+        # Title-bar X / Alt+F4 uses WM_SYSCOMMAND + SC_CLOSE. A bare WM_CLOSE
+        # is TaskManagerClosing in WinForms and correctly exits instead of hiding.
+        if (![STAMWindowQA]::PostMessage($window,0x0112,[IntPtr]0xF060,[IntPtr]::Zero)) { throw 'Close message was not delivered' }
         $deadline=(Get-Date).AddSeconds(5)
         do { Start-Sleep -Milliseconds 100; $first.Refresh() } while ([STAMWindowQA]::IsWindowVisible($window) -and (Get-Date) -lt $deadline)
         if ($first.HasExited -or [STAMWindowQA]::IsWindowVisible($window)) { throw ('Close did not hide the running app: exited=' + $first.HasExited + ', visible=' + [STAMWindowQA]::IsWindowVisible($window)) }
