@@ -1,0 +1,14 @@
+{
+  "checkedFunctionBranch": "origin/cinematic/archive-subpage-20261113",
+  "checkedFunctionSha": "6fc12a96559a65100d8b8f925075c582e99713e7",
+  "nativeCommit": "2bd2142f3c005641f5fabe025b919e81082e452b",
+  "operation": "read-only git merge-tree; no branch or worktree merged",
+  "conflictingFiles": [
+    "PROJECT_STATUS.md",
+    "apps/control-room/src/SpaceExperience.tsx"
+  ],
+  "sharedFileConflictBlocks": 4,
+  "resolution": "Both route-sync cleanups; union effect deps; tour exit before Archive handling; keep Archive-aware href and add tour helpers",
+  "patch": "pr31-tour-hooks.patch",
+  "scope": "Patch against exactly the checked function file; use git apply --check before adapting to newer function work"
+}

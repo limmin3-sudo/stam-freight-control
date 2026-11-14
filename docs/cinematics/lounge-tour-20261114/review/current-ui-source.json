@@ -1,0 +1,40 @@
+{
+  "deployed": {
+    "url": "https://limmin3-sudo.github.io/stam-freight-control/#/lounge?lang=ko",
+    "title": "STAM 라운지 · STAM · 미리보기",
+    "sidebar": "STAM / DESTINATIONS\n\nSTAM / 01\n라운지\n⌄\n\nPLANETSIDE / ARRIVALS\n다음 항해가 시작되는 곳.\n\n01\n안내 데스크\n›\n02\n서비스센터\n›\n03\n정보실\n›\n04\n영상관\n›\nSTAM / 02\n관제센터\n⌄\n소리·연출",
+    "mainBox": {
+      "x": 0,
+      "y": 67,
+      "width": 1440,
+      "height": 893
+    },
+    "artBox": {
+      "x": 248,
+      "y": 178.078125,
+      "width": 1192,
+      "height": 670.84375
+    },
+    "topbar": 1,
+    "bodyText": "주요 메뉴로 건너뛰기\nSTAM\nFREIGHT CONTROL\n앱 다운로드\n표시 언어\n한국어\n한/영\nEnglish\nSTAM 라운지\n플라이트 가이드\n안내 데스크\n첫 운송 튜토리얼\n탑승 게이트\n우주 관제센터로\n서비스센터\n계정 · 운송기록 · 이용안내\n정보실\n함선 · 미션 · 화물 자료\n영상관\nSTAM 소개영상\n\nSTAM / DESTINATIONS\n\nSTAM / 01\n라운지\n⌄\n\nPLANETSIDE / ARRIVALS\n다음 항해가 시작되는 곳.\n\n01\n안내 데스크\n›\n02\n서비스센터\n›\n03\n정보실\n›\n04\n영상관\n›\nSTAM / 02\n관제센터\n⌄\n소리·연출"
+  },
+  "working": {
+    "url": "http://127.0.0.1:5196/live/index.html#/lounge?lang=ko",
+    "title": "SPACEPORT LOUNGE · STAM · 미리보기",
+    "sidebar": "FLIGHT CONSOLE\n⌄\nDrake Cutlass Black\n파트너 선택 전\n미션 0\n\nSTAM / DESTINATIONS\n\nSTAM / 01\nSPACEPORT LOUNGE\n⌄\n\nPLANETSIDE / ARRIVALS\n다음 항해가 시작되는 곳.\n\n01\n안내 데스크\n›\n02\n서비스센터\n›\n03\n아카이브\n›\n04\n시네마\n›\nSTAM / 02\nCONTROL CENTER\n⌄\n소리·연출",
+    "mainBox": {
+      "x": 0,
+      "y": 67,
+      "width": 1440,
+      "height": 893
+    },
+    "artBox": {
+      "x": 248,
+      "y": 178.078125,
+      "width": 1192,
+      "height": 670.84375
+    },
+    "topbar": 1,
+    "bodyText": "주요 메뉴로 건너뛰기\nSTAM\nFREIGHT CONTROL\n로그인\n로그 미연결\n앱 다운로드\n표시 언어\n한국어\n한/영\nEnglish\nSPACEPORT LOUNGE\n플라이트 가이드\n안내 데스크\n첫 운송 튜토리얼\n탑승 게이트\nCONTROL CENTER\n서비스센터\n계정 · 운송기록 · 이용안내\n아카이브\n함선 · 미션 · 화물 자료\n시네마\nSTAM 소개영상\nFLIGHT CONSOLE\n⌄\nDrake Cutlass Black\n파트너 선택 전\n미션 0\n\nSTAM / DESTINATIONS\n\nSTAM / 01\nSPACEPORT LOUNGE\n⌄\n\nPLANETSIDE / ARRIVALS\n다음 항해가 시작되는 곳.\n\n01\n안내 데스크\n›\n02\n서비스센터\n›\n03\n아카이브\n›\n04\n시네마\n›\nSTAM / 02\nCONTROL CENTER\n⌄\n소리·연출"
+  }
+}
