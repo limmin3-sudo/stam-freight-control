@@ -44,11 +44,13 @@ using System.Runtime.InteropServices;
 public static class STAMWindowQA {
     [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr window,uint message,IntPtr wParam,IntPtr lParam);
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr window);
+    [DllImport("user32.dll",CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr window,System.Text.StringBuilder text,int maximum);
 }
 '@
-    $first=$null;$second=$null;$watchers=@()
+    $first=$null;$second=$null;$watchers=@();$priorQA=$env:STAM_WINDOW_QA
     try {
-        $first=Start-Process -FilePath $exe -PassThru
+        $env:STAM_WINDOW_QA='1'
+        $first=Start-Process -FilePath $exe -PassThru -RedirectStandardError (Join-Path $Work 'entry-check.txt')
         $deadline=(Get-Date).AddSeconds(15)
         do { Start-Sleep -Milliseconds 100; $first.Refresh() } while ($first.MainWindowHandle -eq 0 -and !$first.HasExited -and (Get-Date) -lt $deadline)
         if ($first.HasExited -or $first.MainWindowHandle -eq 0) { throw 'App window did not open' }
@@ -58,10 +60,13 @@ public static class STAMWindowQA {
         # Keep the actual form handle. Process.MainWindowHandle may select a
         # different helper/tray window once the form has been hidden.
         $window=$first.MainWindowHandle
+        $caption=New-Object System.Text.StringBuilder 256
+        [STAMWindowQA]::GetWindowText($window,$caption,256) | Out-Null
+        Write-Host ('Entry window: ' + $caption.ToString())
         if (![STAMWindowQA]::PostMessage($window,0x0010,[IntPtr]::Zero,[IntPtr]::Zero)) { throw 'Close message was not delivered' }
         $deadline=(Get-Date).AddSeconds(5)
         do { Start-Sleep -Milliseconds 100; $first.Refresh() } while ([STAMWindowQA]::IsWindowVisible($window) -and (Get-Date) -lt $deadline)
-        if ($first.HasExited -or [STAMWindowQA]::IsWindowVisible($window)) { throw 'Close did not hide the running app' }
+        if ($first.HasExited -or [STAMWindowQA]::IsWindowVisible($window)) { throw ('Close did not hide the running app: exited=' + $first.HasExited + ', visible=' + [STAMWindowQA]::IsWindowVisible($window)) }
         $second=Start-Process -FilePath $exe -PassThru
         if (!$second.WaitForExit(10000) -or $second.ExitCode -ne 0) { throw 'Second icon launch did not hand off to existing app' }
         $deadline=(Get-Date).AddSeconds(5)
@@ -70,7 +75,9 @@ public static class STAMWindowQA {
         $after=@(Get-CimInstance Win32_Process -Filter ("ParentProcessId = " + $first.Id + " AND Name = 'node.exe'"))
         if ($after.Count -ne 1 -or $after[0].ProcessId -ne $watchers[0].ProcessId) { throw 'Icon launch restarted or duplicated log watcher' }
     } finally {
+        $env:STAM_WINDOW_QA=$priorQA
         foreach ($process in @($second,$first)) { if ($process -and !$process.HasExited) { Stop-Process -Id $process.Id -Force; $process.WaitForExit() } }
+        if (Test-Path (Join-Path $Work 'entry-check.txt')) { Get-Content (Join-Path $Work 'entry-check.txt') | Write-Host }
         foreach ($watcher in $watchers) { $process=Get-Process -Id $watcher.ProcessId -ErrorAction SilentlyContinue; if ($process -and !$process.WaitForExit(5000)) { Stop-Process -Id $process.Id -Force; throw 'Watcher did not stop when the parent exited' } }
     }
     Run-Checked $Installer $arguments # Same AppId updates the existing install.
