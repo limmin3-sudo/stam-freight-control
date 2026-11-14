@@ -10,8 +10,18 @@ using System.Web.Script.Serialization;
 using System.Collections.Generic;
 
 internal static class Launcher {
+    const string WakeEvent="Local\\STAM-Freight-Control.Activate";
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool AllowSetForegroundWindow(int processId);
+    static void AllowExistingForeground(){
+        if(Environment.OSVersion.Platform!=PlatformID.Win32NT)return;
+        foreach(var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Application.ExecutablePath)))using(process){
+            try{if(process.Id!=Process.GetCurrentProcess().Id&&String.Equals(process.MainModule.FileName,Application.ExecutablePath,StringComparison.OrdinalIgnoreCase))AllowSetForegroundWindow(process.Id);}catch{}
+        }
+    }
+    static bool WakeExisting(){for(int attempt=0;attempt<20;attempt++){try{using(var signal=EventWaitHandle.OpenExisting(WakeEvent)){AllowExistingForeground();signal.Set();return true;}}catch(WaitHandleCannotBeOpenedException){Thread.Sleep(50);}catch(UnauthorizedAccessException){return false;}}return false;}
     [STAThread] static int Main(string[] args) {
         if (args.Length == 1 && args[0] == "--self-test") return SelfTest();
+        if (args.Length == 1 && args[0] == "--self-test-window") {Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);return BridgeWindow.CheckLifecycle()?0:1;}
         if (args.Length == 1 && args[0] == "--self-test-language") {Application.EnableVisualStyles();using(var window=new BridgeWindow(false))return window.CheckLanguages()?0:1;}
         if (args.Length == 2 && (args[0] == "--capture-ui" || args[0] == "--capture-ui-en")) {
             Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
@@ -19,10 +29,14 @@ internal static class Launcher {
         }
         bool created;
         using (var mutex = new Mutex(true, "Local\\STAM-Freight-Control", out created)) {
-            if (!created) { MessageBox.Show(BridgeWindow.ReadEnglish()?"STAM is already running. Open its connection window from the taskbar.":"STAM이 이미 실행 중입니다. 작업 표시줄에서 관제 연결 창을 열어 주십시오.", "STAM"); return 0; }
+            if (!created) { if(WakeExisting())return 0;MessageBox.Show(BridgeWindow.ReadEnglish()?"STAM is already running. Open it from the STAM system tray icon.":"STAM이 이미 실행 중입니다. 트레이의 STAM 아이콘으로 연결 창을 열어 주십시오.", "STAM"); return 0; }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new BridgeWindow());
+            using(var signal=new EventWaitHandle(false,EventResetMode.AutoReset,WakeEvent))
+            using(var window=new BridgeWindow()) {
+                var wake=ThreadPool.RegisterWaitForSingleObject(signal,(state,timedOut)=>window.ShowFromLauncher(),null,Timeout.Infinite,false);
+                try{Application.Run(window);}finally{wake.Unregister(null);}
+            }
         }
         return 0;
     }
@@ -31,6 +45,7 @@ internal static class Launcher {
         var info = new ProcessStartInfo(Path.Combine(root,"runtime","node.exe"), "\""+Path.Combine(root,"app","desktop","bridge.mjs")+"\" \""+file+"\""+(test?" --self-test":""));
         info.WorkingDirectory = Path.Combine(root,"app"); info.UseShellExecute=false; info.CreateNoWindow=true;
         info.RedirectStandardOutput=true; info.RedirectStandardError=true; info.RedirectStandardInput=true;
+        info.StandardOutputEncoding=new System.Text.UTF8Encoding(false);info.StandardErrorEncoding=new System.Text.UTF8Encoding(false);
         info.EnvironmentVariables.Remove("NODE_OPTIONS"); info.EnvironmentVariables.Remove("NODE_PATH");
         return Process.Start(info);
     }
@@ -53,7 +68,7 @@ internal static class Launcher {
             string fixture="<2026-11-05T10:00:00.000Z> [Notice] <SHUDEvent_OnNotification> Added notification \"Contract Accepted: Test haul: \" [1] to queue. MissionId: ["+mission+"], ObjectiveId: [dropoff_test_1]\n";
             File.WriteAllText(file,fixture);child=StartBridge(file,true);
             var read=child.StandardOutput.ReadLineAsync();if(!read.Wait(15000))throw new Exception("startup-timeout");
-            string url=ReadUrl(read.Result);var uri=new Uri(url);var website=new Uri(BridgeWindow.SiteAddress(url,false));if(website.Scheme!="https"||website.Host!="limmin3-sudo.github.io"||website.AbsolutePath!="/stam-freight-control/"||website.Fragment!=uri.Fragment)throw new Exception("public-website-address");if(new Uri(BridgeWindow.SiteAddress(null,true)).Fragment!="")throw new Exception("unpaired-website-address");
+            string url=ReadUrl(read.Result);var uri=new Uri(url);var website=new Uri(BridgeWindow.SiteAddress(url,false));if(website.Scheme!="https"||website.Host!="limmin3-sudo.github.io"||website.AbsolutePath!="/stam-freight-control/"||website.Fragment!="#/mission?lang=ko")throw new Exception("public-website-address");if(new Uri(BridgeWindow.SiteAddress(null,true)).Fragment!="#/mission?lang=en")throw new Exception("unpaired-website-address");
             using(var discovery=new WebClient()) {
                 discovery.Headers["Origin"]="https://limmin3-sudo.github.io";discovery.Headers["X-STAM-Client"]="flight-deck";
                 var pairing=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(discovery.DownloadString(new Uri(uri,"/api/pair")));
@@ -78,154 +93,185 @@ internal static class Launcher {
     }
 }
 internal sealed class BridgeWindow : Form {
-    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
-    Process child;string url;bool stopping;readonly System.Windows.Forms.Timer startup=new System.Windows.Forms.Timer{Interval=15000};
-    readonly Label status=new Label(),path=new Label(),stateName=new Label();
-    readonly DeckButton choose=new DeckButton(),open=new DeckButton(),stop=new DeckButton(),guide=new DeckButton();
-    readonly ToolTip hints=new ToolTip();readonly PictureBox logo=new PictureBox();
-    readonly string settings=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","log-path.txt");
-    static readonly Color Ink=Color.FromArgb(230,242,248),Muted=Color.FromArgb(169,191,205),Cyan=Color.FromArgb(98,222,228);
-
+    readonly bool preview;
+    bool english,quitting,manualStop;
+    Process child;string selected="--auto",phase="idle";
+    int failures;
+    readonly System.Windows.Forms.Timer retry=new System.Windows.Forms.Timer();
+    readonly NotifyIcon tray=new NotifyIcon();
+    readonly ToolTip hints=new ToolTip();
+    readonly HoloLabel title=new HoloLabel(),subtitle=new HoloLabel(),state=new HoloLabel(),detail=new HoloLabel(),fileLabel=new HoloLabel(),filePath=new HoloLabel(),bytes=new HoloLabel(),updated=new HoloLabel(),footer=new HoloLabel();
+    readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton();
+    readonly string settings,languageSettings;
     static readonly string languageFile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","ui-language.txt");
-    static readonly Dictionary<string,string> English=new Dictionary<string,string>{
-        {"StarCitizen 폴더의 LIVE 안에서 Game.log를 선택하십시오. 파일 확장명을 숨겼다면 Game으로 표시됩니다.","Choose Game.log inside StarCitizen / LIVE. Windows may display it as Game when file extensions are hidden."},
-        {"STAM FREIGHT CONTROL · 관제 연결","STAM FREIGHT CONTROL · Companion"},
-        {"LOCAL LINK  /  게임 로그 연결","LOCAL LINK  /  GAME LOG CONNECTION"},
-        {"함장님, Game.log를 연결하십시오.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하십시오.","Ready when you are, Captain. Connect Game.log.\nSign in and review received contracts on the STAM website."},
-        {"01 / 게임 로그","01 / GAME LOG"},
-        {"파일을 선택하십시오. 확장자가 숨겨져 있으면 Game으로 표시됩니다.","Choose the log file. Windows may display it as Game when extensions are hidden."},
-        {"● 연결 대기","● STANDING BY"},
-        {"Game.log를 선택하면 열려 있는 STAM 사이트에 자동으로 연결됩니다.","Select Game.log to connect automatically to open STAM tabs."},
-        {"Game.log 선택","Select Game.log"},
-        {"STAM 사이트 열기 ↗","Open STAM website ↗"},
-        {"연결 종료","Disconnect"},
-        {"Game.log 위치 안내","Where to find Game.log"},
-        {"이 창은 최소화해 두십시오. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다.","Keep this window open or minimised. Closing it ends the connection.\nRead-only log access. No game input or file modification."},
-        {"연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도하십시오.","Connection is taking longer than expected. Check for an earlier STAM window and try again."},
-        {"로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다.","Disconnect the game log? Your saved flight settings will remain."},
-        {"Star Citizen Game.log 선택 · 읽기 전용","Select Star Citizen Game.log · Read only"},
-        {"게임 로그 (Game.log)|Game.log|로그 파일 (*.log)|*.log","Game log (Game.log)|Game.log|Log files (*.log)|*.log"},
-        {"● 연결 준비 중","● ESTABLISHING LINK"},
-        {"관제 연결을 준비하고 있습니다…","Preparing your flight deck…"},
-        {"로그가 연결됐습니다. 열려 있는 STAM 사이트에서 계약을 확인하십시오.","Log connected. Review contracts in your existing STAM tab."},
-        {"● 관제 연결됨","● LINK ESTABLISHED"},
-        {"이전 STAM 연결을 종료한 뒤 다시 선택하십시오.","Close the previous STAM connection, then select the log again."},
-        {"연결하지 못했습니다. 압축을 모두 풀었는지 확인하십시오.","Could not connect. Check that the entire ZIP was extracted."},
-        {"로그 연결이 종료됐습니다. 다시 연결할 로그를 선택하십시오.","The log connection ended. Select a log to reconnect."},
-        {"실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주십시오.","Required files were not found. Extract the entire ZIP to a new folder."},
-        {"기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정하십시오.","Could not open your browser. Set a default browser in Windows Settings."},
-        {"● 연결 확인 필요","● CHECK CONNECTION"},
-        {"연결 종료 · 저장된 설정은 유지됩니다.","Disconnected. Your saved flight settings are intact."}
-    };
-    bool english;
-    readonly DeckButton korean=new DeckButton(),englishButton=new DeckButton();
-    internal static bool ReadEnglish(){try{return File.ReadAllText(languageFile).Trim()=="en";}catch{return false;}}
-    string T(string text){string value;return english&&English.TryGetValue(text,out value)?value:text;}
-    void TranslateTree(Control control){string source=control.Text;foreach(var item in English)if(source==item.Value){source=item.Key;break;}control.Text=T(source);foreach(Control childControl in control.Controls)TranslateTree(childControl);}
-    void SetLanguage(bool value,bool persist=true){english=value;TranslateTree(this);korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();
-        if(persist)try{Directory.CreateDirectory(Path.GetDirectoryName(languageFile));File.WriteAllText(languageFile,english?"en":"ko");}catch{}
+    static readonly Color Ink=Color.FromArgb(223,240,244),Muted=Color.FromArgb(144,177,188),Cyan=Color.FromArgb(129,224,234),Gold=Color.FromArgb(240,205,142);
+    internal static bool ReadEnglish(string file=null){try{return File.ReadAllText(file??languageFile).Trim()=="en";}catch{return false;}}
+    string T(string ko,string en){return english?en:ko;}
+    static HoloLabel Label(string text,float size,Color colour){return new HoloLabel{Text=text,Font=HoloFonts.At(size),ForeColor=colour,Dock=DockStyle.Fill,Margin=Padding.Empty};}
+    void ApplyLanguage(){
+        Text="STAM · "+T("로그 연결","Log companion");
+        title.Text=T("운항의 시작, 자동으로","Your flight, connected");subtitle.Text=T("게임에서 수주한 계약을 미션콘솔로 연결합니다.","Bring accepted game contracts into your mission console.");
+        choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
+        footer.Text=T("창을 닫아도 트레이에서 수신합니다. 종료는 트레이 메뉴를 이용하세요.\n게임 로그는 읽기만 하며, 원본 파일과 진행 중 운항은 변경하지 않습니다.","Closing this window keeps the app in your system tray. Quit from its menu.\nRead-only game log access. Your game files and current flight stay intact.");
+        korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();updated.Text="";RenderStatus(null);BuildTray();
     }
-
-    internal bool CheckLanguages(){
-        SetLanguage(true,false);bool valid=choose.Text=="Select Game.log"&&open.Text=="Open STAM website ↗"&&stateName.Text=="● STANDING BY"&&open.Enabled;
-        SetLanguage(false,false);return valid&&choose.Text=="Game.log 선택"&&stateName.Text=="● 연결 대기"&&open.Enabled;
+    void SetLanguage(bool value){english=value;ApplyLanguage();if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(languageSettings));File.WriteAllText(languageSettings,english?"en":"ko");}catch{}}
+    internal bool CheckLanguages(){SetLanguage(true);bool ok=open.Text=="Open mission console  ↗"&&choose.Text=="Choose Game.log";SetLanguage(false);return ok&&open.Text=="미션콘솔 열기  ↗"&&choose.Text=="파일 직접 선택";}
+    public BridgeWindow(bool? languageOverride=null,string testSettingsDirectory=null){
+        string directory=testSettingsDirectory??Path.GetDirectoryName(languageFile);settings=Path.Combine(directory,"log-path.txt");languageSettings=Path.Combine(directory,"ui-language.txt");
+        preview=languageOverride.HasValue&&testSettingsDirectory==null;english=languageOverride??ReadEnglish(languageSettings);
+        HoloFonts.Load();AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;Font=HoloFonts.At(11);
+        ClientSize=new Size(920,710);MinimumSize=new Size(820,700);StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
+        try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
+        var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(36,24,36,22),ColumnCount=1,RowCount=7};
+        foreach(int height in new[]{90,76,174,138,74,50})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(layout);
+        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty};mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170));layout.Controls.Add(mast);
+        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty};brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        brand.Controls.Add(Label("S T A M",29,Ink));brand.Controls.Add(Label("F R E I G H T   D I V I S I O N   /   LOG LINK",9,Cyan));mast.Controls.Add(brand);
+        var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0)};korean.Text="한국어";englishButton.Text="English";
+        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}mast.Controls.Add(languages);
+        var intro=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty};intro.RowStyles.Add(new RowStyle(SizeType.Absolute,36));intro.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        Setup(title,22,Ink);Setup(subtitle,11,Muted);intro.Controls.Add(title);intro.Controls.Add(subtitle);layout.Controls.Add(intro);
+        var connection=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,18,24,18),ColumnCount=2,RowCount=3,Margin=new Padding(0,0,0,14)};
+        connection.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,63));connection.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,37));
+        connection.RowStyles.Add(new RowStyle(SizeType.Absolute,24));connection.RowStyles.Add(new RowStyle(SizeType.Absolute,43));connection.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        connection.Controls.Add(Label("01  /  LIVE CONNECTION",9,Cyan),0,0);connection.SetColumnSpan(connection.GetControlFromPosition(0,0),2);
+        Setup(state,24,Gold);Setup(detail,11,Muted);Setup(bytes,19,Ink);Setup(updated,10,Muted);
+        connection.Controls.Add(state,0,1);connection.Controls.Add(detail,0,2);connection.Controls.Add(bytes,1,1);connection.Controls.Add(updated,1,2);layout.Controls.Add(connection);
+        var file=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,16,24,15),ColumnCount=1,RowCount=3,Margin=new Padding(0,0,0,14)};file.RowStyles.Add(new RowStyle(SizeType.Absolute,22));file.RowStyles.Add(new RowStyle(SizeType.Absolute,31));file.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        file.Controls.Add(Label("02  /  GAME LOG",9,Cyan));Setup(fileLabel,17,Ink);Setup(filePath,10,Muted);file.Controls.Add(fileLabel);file.Controls.Add(filePath);layout.Controls.Add(file);
+        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};foreach(float width in new[]{50f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
+        open.Warm=true;foreach(var b in new[]{open,search,choose}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,10,14);actions.Controls.Add(b);}choose.Margin=new Padding(0,0,0,14);layout.Controls.Add(actions);
+        var utility=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty};utility.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));utility.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));
+        utility.Controls.Add(Label("COMPANION  1.4  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
+        Setup(footer,10,Muted);layout.Controls.Add(footer);
+        korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
+        retry.Tick+=(s,e)=>{retry.Stop();if(!manualStop&&!quitting)Start(selected,false);};
+        tray.Icon=Icon;tray.DoubleClick+=(s,e)=>Reveal();ApplyLanguage();
+        Shown+=(s,e)=>{if(preview)return;tray.Visible=true;try{string prior=File.ReadAllText(settings).Trim();if(Path.IsPathRooted(prior)&&prior.EndsWith(".log",StringComparison.OrdinalIgnoreCase))selected=prior;}catch{}Start(selected);};
+        FormClosing+=(s,e)=>{if(!preview&&!quitting&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();return;}quitting=true;StopChild();tray.Visible=false;};
     }
-    public BridgeWindow(bool? languageOverride=null){
-        english=languageOverride??ReadEnglish();
-        Text=T("STAM FREIGHT CONTROL · 관제 연결");ClientSize=new Size(1080,760);MinimumSize=new Size(960,720);StartPosition=FormStartPosition.CenterScreen;
-        BackColor=Color.FromArgb(8,17,27);ForeColor=Ink;Font=new Font("Malgun Gothic",10);AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;
-        var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(38,30,38,24),ColumnCount=1,RowCount=7,AutoScroll=true};
-        foreach(int height in new[]{122,64,138,122,80,54})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(layout);
-        var heading=new MastheadPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Margin=Padding.Empty};heading.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));heading.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));heading.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,154));
-        logo.SizeMode=PictureBoxSizeMode.Zoom;logo.Dock=DockStyle.Fill;logo.Margin=new Padding(0,0,20,26);
-        try{using(var original=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))logo.Image=new Bitmap(original);
-            using(var iconBitmap=new Bitmap(logo.Image,32,32)){IntPtr handle=iconBitmap.GetHicon();try{using(var sourceIcon=System.Drawing.Icon.FromHandle(handle))Icon=(System.Drawing.Icon)sourceIcon.Clone();}finally{DestroyIcon(handle);}}
-        }catch{}
-        heading.Controls.Add(logo,0,0);
-        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty};brand.RowStyles.Add(new RowStyle(SizeType.Absolute,48));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        brand.Controls.Add(new Label{Text="STAM FREIGHT CONTROL",Dock=DockStyle.Fill,Font=new Font("Segoe UI Semibold",25,FontStyle.Bold),ForeColor=Ink,Margin=Padding.Empty});
-        brand.Controls.Add(new Label{Text=T("LOCAL LINK  /  게임 로그 연결"),Dock=DockStyle.Fill,Font=new Font("Malgun Gothic",9),ForeColor=Cyan,Margin=Padding.Empty});heading.Controls.Add(brand,1,0);
-        var languageRow=new FlowLayoutPanel{Dock=DockStyle.Fill,Margin=new Padding(0,4,0,0),FlowDirection=FlowDirection.LeftToRight};
-        korean.Text="한국어";englishButton.Text="English";korean.Primary=!english;englishButton.Primary=english;
-        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(71,38);b.Font=new Font("Segoe UI",9,FontStyle.Bold);b.Margin=new Padding(0,0,5,0);languageRow.Controls.Add(b);}
-        korean.Click+=(sender,e)=>SetLanguage(false);englishButton.Click+=(sender,e)=>SetLanguage(true);heading.Controls.Add(languageRow,2,0);layout.Controls.Add(heading);
-        layout.Controls.Add(new Label{Text=T("함장님, Game.log를 연결하십시오.\nSTAM 사이트에서 로그인하고 받은 계약을 확인하십시오."),Dock=DockStyle.Fill,ForeColor=Ink,Margin=new Padding(0,0,0,12)});
-        var filePanel=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,20,24,18),BackColor=Color.FromArgb(18,40,55),ColumnCount=1,RowCount=3,Margin=new Padding(0,0,0,14)};
-        filePanel.RowStyles.Add(new RowStyle(SizeType.Absolute,23));filePanel.RowStyles.Add(new RowStyle(SizeType.Absolute,27));filePanel.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        filePanel.Controls.Add(new Label{Text=T("01 / 게임 로그"),Dock=DockStyle.Fill,ForeColor=Cyan,Font=new Font("Malgun Gothic",9),Margin=Padding.Empty});
-        filePanel.Controls.Add(new Label{Text="StarCitizen  ›  LIVE  ›  Game.log",Dock=DockStyle.Fill,ForeColor=Ink,Font=new Font("Segoe UI",15,FontStyle.Bold),Margin=Padding.Empty});
-        path.Text=T("파일을 선택하십시오. 확장자가 숨겨져 있으면 Game으로 표시됩니다.");path.Dock=DockStyle.Fill;path.AutoEllipsis=true;path.ForeColor=Muted;path.Font=new Font("Malgun Gothic",9);path.Margin=Padding.Empty;filePanel.Controls.Add(path);layout.Controls.Add(filePanel);
-        var connection=new LinkCard{Stripe=Color.FromArgb(222,187,132),Dock=DockStyle.Fill,Padding=new Padding(24,18,24,18),BackColor=Color.FromArgb(14,31,45),ColumnCount=1,RowCount=2,Margin=new Padding(0,0,0,16)};connection.RowStyles.Add(new RowStyle(SizeType.Absolute,29));connection.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        stateName.Dock=DockStyle.Fill;stateName.Text=T("● 연결 대기");stateName.ForeColor=Color.FromArgb(240,190,116);stateName.Font=new Font("Malgun Gothic",15,FontStyle.Bold);stateName.Margin=Padding.Empty;connection.Controls.Add(stateName);
-        status.Text=T("Game.log를 선택하면 열려 있는 STAM 사이트에 자동으로 연결됩니다.");status.Dock=DockStyle.Fill;status.ForeColor=Muted;status.Margin=Padding.Empty;status.Font=new Font("Malgun Gothic",9);connection.Controls.Add(status);layout.Controls.Add(connection);
-        var buttons=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Margin=Padding.Empty};buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,39));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,43));buttons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,18));layout.Controls.Add(buttons);
-        choose.Text=T("Game.log 선택");choose.Primary=true;choose.Step="01";open.Warm=true;open.Step="02";open.Text=T("STAM 사이트 열기 ↗");stop.Text=T("연결 종료");
-        foreach(var button in new[]{choose,open,stop}){button.Dock=DockStyle.Fill;button.Margin=new Padding(0,0,10,10);buttons.Controls.Add(button);}stop.Margin=new Padding(0,0,0,10);
-        open.Enabled=true;stop.Enabled=false;guide.Text=T("Game.log 위치 안내");guide.Dock=DockStyle.Fill;guide.Margin=new Padding(0,0,0,12);layout.Controls.Add(guide);
-        layout.Controls.Add(new Label{Text=T("이 창은 최소화해 두십시오. 닫으면 로그 연결이 종료됩니다.\n선택한 로그만 읽으며, 게임을 조작하거나 파일을 수정하지 않습니다."),Dock=DockStyle.Fill,ForeColor=Muted,Font=new Font("Malgun Gothic",9),Margin=new Padding(0,5,0,0)});
-        var edition=new Label{Text="STAM  /  COMPANION 1.3.1",ForeColor=Color.FromArgb(137,165,183),Font=new Font("Segoe UI",8,FontStyle.Bold),AutoSize=true,Anchor=AnchorStyles.Bottom|AnchorStyles.Right,Location=new Point(ClientSize.Width-225,ClientSize.Height-30),BackColor=Color.Transparent};Controls.Add(edition);edition.BringToFront();
-        choose.Click+=(sender,e)=>SelectLog();open.Click+=(sender,e)=>Open(url);guide.Click+=(sender,e)=>MessageBox.Show(T("StarCitizen 폴더의 LIVE 안에서 Game.log를 선택하십시오. 파일 확장명을 숨겼다면 Game으로 표시됩니다."),"STAM");stop.Click+=(sender,e)=>Disconnect();
-        startup.Tick+=(sender,e)=>{startup.Stop();status.Text=T("연결 준비가 지연됐습니다. 이전 실행 창을 확인한 뒤 다시 시도하십시오.");Disconnect(false);};
-        FormClosing+=(sender,e)=>{if(child!=null&&MessageBox.Show(T("로그 연결을 종료할까요? 관제 화면의 저장된 설정은 유지됩니다."),"STAM",MessageBoxButtons.YesNo)!=DialogResult.Yes){e.Cancel=true;return;}Disconnect();};
-    }
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
-    protected override void OnHandleCreated(EventArgs e){base.OnHandleCreated(e);try{int dark=1;DwmSetWindowAttribute(Handle,20,ref dark,4);int caption=ColorTranslator.ToWin32(Color.FromArgb(16,35,49));DwmSetWindowAttribute(Handle,35,ref caption,4);int ink=ColorTranslator.ToWin32(Color.FromArgb(225,240,246));DwmSetWindowAttribute(Handle,36,ref ink,4);}catch{}}
-    protected override void Dispose(bool disposing){if(disposing){startup.Dispose();hints.Dispose();if(logo.Image!=null){logo.Image.Dispose();logo.Image=null;}if(Icon!=null){Icon.Dispose();Icon=null;}}base.Dispose(disposing);}
-    void SelectLog(){using(var dialog=new OpenFileDialog{Title=T("Star Citizen Game.log 선택 · 읽기 전용"),Filter=T("게임 로그 (Game.log)|Game.log|로그 파일 (*.log)|*.log"),CheckFileExists=true}){
-        try{if(File.Exists(settings)){string prior=File.ReadAllText(settings);if(File.Exists(prior))dialog.FileName=prior;}}catch{}
-        if(dialog.ShowDialog()!=DialogResult.OK)return;
-        Disconnect();path.Text=dialog.FileName;hints.SetToolTip(path,dialog.FileName);choose.Enabled=false;stateName.Text=T("● 연결 준비 중");status.Text=T("관제 연결을 준비하고 있습니다…");
+    static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
+    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
+    internal void ShowFromLauncher(){UI(Reveal);}
+    void Quit(){if(IsDisposed)return;quitting=true;Close();}
+    void Reveal(){Show();WindowState=FormWindowState.Normal;Activate();}
+    void SelectLog(){using(var dialog=new OpenFileDialog{Title=T("Game.log 선택 · 읽기 전용","Choose Game.log · Read only"),Filter="Game.log|Game.log|Log files (*.log)|*.log",CheckFileExists=true}){if(File.Exists(selected))dialog.FileName=selected;if(dialog.ShowDialog()==DialogResult.OK)Start(dialog.FileName);}}
+    void Start(string file,bool reset=true){
+        StopChild();selected=file;manualStop=false;if(reset)failures=0;phase="starting";ApplyLanguage();
+        if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,file=="--auto"?"":file);}catch{}
         try{
-            child=Launcher.StartBridge(dialog.FileName,false);var active=child;startup.Start();
-            child.OutputDataReceived+=(s,e)=>{if(e.Data==null)return;string line=e.Data;UI(()=>{
-                if(child!=active||stopping)return;
-                try{url=Launcher.ReadUrl(line);startup.Stop();status.Text=T("로그가 연결됐습니다. 열려 있는 STAM 사이트에서 계약을 확인하십시오.");open.Enabled=stop.Enabled=true;choose.Enabled=true;stateName.Text=T("● 관제 연결됨");stateName.ForeColor=Color.FromArgb(130,235,190);}
-                catch(Exception error){status.Text=error.Message=="port-busy"?T("이전 STAM 연결을 종료한 뒤 다시 선택하십시오."):T("연결하지 못했습니다. 압축을 모두 풀었는지 확인하십시오.");Disconnect(false);}
-            });};
-            child.ErrorDataReceived+=(s,e)=>{};child.EnableRaisingEvents=true;child.Exited+=(s,e)=>UI(()=>{if(child==active&&!stopping){status.Text=T("로그 연결이 종료됐습니다. 다시 연결할 로그를 선택하십시오.");Disconnect(false);}});
+            child=Launcher.StartBridge(file,false);var active=child;
+            child.OutputDataReceived+=(s,e)=>{if(e.Data!=null)UI(()=>{if(child==active)Receive(e.Data);});};child.ErrorDataReceived+=(s,e)=>{};
+            child.EnableRaisingEvents=true;child.Exited+=(s,e)=>UI(()=>{if(child!=active||quitting)return;child=null;active.Dispose();if(phase=="port-busy")return;ScheduleRetry();});
             child.BeginOutputReadLine();child.BeginErrorReadLine();
-            try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,dialog.FileName);}catch{}
-        }catch{status.Text=T("실행 파일을 찾지 못했습니다. ZIP 전체를 새 폴더에 풀어 주십시오.");Disconnect(false);}
-    }}
+        }catch{phase="missing-runtime";RenderStatus(null);}
+    }
+    void ScheduleRetry(){if(manualStop||quitting)return;phase="reconnecting";failures++;retry.Interval=Math.Min(30000,1000*(1<<Math.Min(failures,5)));retry.Start();RenderStatus(null);}
+    void Receive(string line){
+        try{
+            var data=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(line);string type=Convert.ToString(data["type"]);
+            if(type=="ready"){
+                Launcher.ReadUrl(line);failures=0;selected=Convert.ToString(data["file"]);phase="starting";
+                try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,selected);}catch{}
+            }else if(type=="status")phase=Convert.ToString(data["phase"]);
+            else if(type=="discovery")phase=Convert.ToString(data["phase"]);
+            else if(type=="error"){phase=Convert.ToString(data["code"]);if(phase=="port-busy"){manualStop=true;retry.Stop();}}
+            RenderStatus(data);
+        }catch{phase="error";RenderStatus(null);}
+    }
+    void RenderStatus(Dictionary<string,object> data){
+        string name,description;
+        switch(phase){
+            case "watching":name=T("로그 수신 중","LOG CONNECTED");description=T("새 계약을 미션콘솔에서 확인하세요.","Review new contracts in your mission console.");break;
+            case "catching-up":name=T("로그 읽는 중","READING LOG");description=T("기존 기록을 읽고 자동 수신을 이어갑니다.","Reading existing records before live updates.");break;
+            case "waiting-file":name=T("게임 실행 대기","WAITING FOR GAME");description=T("Game.log가 생성되면 자동으로 이어집니다.","Resumes automatically when Game.log appears.");break;
+            case "searching":name=T("로그 찾는 중","FINDING GAME.LOG");description=T("찾지 못하면 아래에서 파일을 선택하세요.","Choose the file below if it is not found.");break;
+            case "choose-file":name=T("로그 선택 필요","CHOOSE A LOG");description=T("여러 설치 또는 테스트 채널이 발견됐습니다.","Multiple installs or test channels were found.");break;
+            case "reconnecting":name=T("다시 연결 중","RECONNECTING");description=T("잠시 후 자동으로 재연결합니다.","The app will retry automatically shortly.");break;
+            case "stopped":name=T("연결 중지됨","DISCONNECTED");description=T("수신한 계약과 진행 중 운항은 유지됩니다.","Your received contracts and flight are retained.");break;
+            case "port-busy":name=T("다른 연결 실행 중","ANOTHER LINK IS OPEN");description=T("다른 로그 연결 앱을 종료하고 다시 연결하세요.","Close the other log app, then reconnect.");break;
+            case "missing-runtime":name=T("앱 파일 확인 필요","CHECK APP FILES");description=T("설치 파일로 복구하거나 ZIP 전체를 풀어 주세요.","Repair the installation or extract the entire ZIP.");break;
+            case "error":case "startup-failed":name=T("연결 확인 필요","CHECK CONNECTION");description=T("파일 위치와 읽기 권한을 확인하세요.","Check the file location and read access.");break;
+            case "starting":name=T("연결 준비 중","CONNECTING");description=T("게임 로그를 확인하고 있습니다.","Checking your game log.");break;
+            default:name=T("연결 대기","READY TO CONNECT");description=T("앱을 실행하면 로그를 자동으로 찾습니다.","Finds your game log automatically on launch.");break;
+        }
+        state.Text=name;state.ForeColor=phase=="watching"?Cyan:Gold;detail.Text=description;
+        if(data!=null&&data.ContainsKey("bytesRead"))bytes.Text=(Convert.ToDouble(data["bytesRead"])/1048576d).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+" MB";
+        else if(bytes.Text=="")bytes.Text="— MB";
+        if(data!=null&&data.ContainsKey("lastReadAt")&&data["lastReadAt"]!=null){DateTime stamp;if(DateTime.TryParse(Convert.ToString(data["lastReadAt"]),out stamp))updated.Text=T("최근 확인  ","Last checked  ")+stamp.ToLocalTime().ToString("HH:mm:ss");}
+        else if(updated.Text=="")updated.Text=T("로그 읽기 대기","Waiting to read");
+        fileLabel.Text=selected=="--auto"?T("Star Citizen · 자동 탐색","Star Citizen · Auto discovery"):Path.GetFileName(Path.GetDirectoryName(selected))+"  /  Game.log";
+        filePath.Text=selected=="--auto"?T("일반 설치 경로에서 LIVE 로그를 찾습니다.","Searches standard installation folders for LIVE."):selected;hints.SetToolTip(filePath,selected=="--auto"?filePath.Text:selected);
+        tray.Text="STAM · "+name;disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
+    }
+    static void Until(Func<bool> ready){var deadline=DateTime.UtcNow.AddSeconds(15);while(!ready()){if(DateTime.UtcNow>deadline)throw new Exception("window-timeout");Application.DoEvents();Thread.Sleep(25);}Application.DoEvents();}
+    internal static bool CheckLifecycle(){
+        string directory=Path.Combine(Path.GetTempPath(),"stam-window-"+Guid.NewGuid());BridgeWindow first=null,second=null;
+        try{
+            Directory.CreateDirectory(directory);string file=Path.Combine(directory,"테스트 Game.log"),fixture="<2026-11-14T10:00:00.000Z> [Notice] Synthetic lifecycle check\n";File.WriteAllText(file,fixture);File.WriteAllText(Path.Combine(directory,"log-path.txt"),file);
+            first=new BridgeWindow(false,directory);first.Show();Until(()=>first.phase=="watching");var process=first.child;int id=process.Id;
+            if(first.selected!=file)throw new Exception("remembered-path");
+            first.Close();Application.DoEvents();if(first.IsDisposed||first.Visible||first.child.Id!=id||first.child.HasExited)throw new Exception("close-to-tray");
+            first.ShowFromLauncher();Until(()=>first.Visible);if(first.child.Id!=id)throw new Exception("duplicate-watcher");
+            first.SetLanguage(true);if(File.ReadAllText(Path.Combine(directory,"ui-language.txt"))!="en")throw new Exception("language-persistence");
+            first.Quit();if(!first.IsDisposed)throw new Exception("quit-window");
+            try{using(var old=Process.GetProcessById(id)){if(!old.HasExited)throw new Exception("orphan-watcher");}}catch(ArgumentException){}
+            second=new BridgeWindow(null,directory);second.Show();Until(()=>second.phase=="watching");
+            if(!second.english||second.selected!=file||second.child.Id==id||File.ReadAllText(file)!=fixture)throw new Exception("restart-preservation");
+            second.Quit();return true;
+        }catch(Exception error){Console.Error.WriteLine("STAM window check: "+error.GetType().Name+" / "+error.Message);return false;}
+        finally{if(first!=null){first.Quit();first.Dispose();}if(second!=null){second.Quit();second.Dispose();}try{Directory.Delete(directory,true);}catch{}}
+    }
+    void StopChild(){retry.Stop();var old=child;child=null;Launcher.Stop(old);}
     void UI(Action action){if(IsDisposed||!IsHandleCreated)return;try{BeginInvoke(action);}catch(InvalidOperationException){}}
-    internal static string SiteAddress(string address,bool english){var destination=new UriBuilder("https://limmin3-sudo.github.io/stam-freight-control/");if(!String.IsNullOrEmpty(address))destination.Fragment=new Uri(address).Fragment.TrimStart('#');destination.Query="lang="+(english?"en":"ko");return destination.Uri.ToString();}
-    void Open(string address){try{Process.Start(new ProcessStartInfo(SiteAddress(address,english)){UseShellExecute=true});}catch{MessageBox.Show(T("기본 브라우저를 열지 못했습니다. Windows 기본 앱에서 브라우저를 설정하십시오."),"STAM");}}
-    void Disconnect(bool update=true){startup.Stop();stopping=true;var old=child;child=null;Launcher.Stop(old);url=null;open.Enabled=true;stop.Enabled=false;choose.Enabled=true;stateName.Text=update?T("● 연결 대기"):T("● 연결 확인 필요");stateName.ForeColor=Color.FromArgb(240,190,116);if(update)status.Text=T("연결 종료 · 저장된 설정은 유지됩니다.");stopping=false;}
+    internal static string SiteAddress(string ignored,bool english){return "https://limmin3-sudo.github.io/stam-freight-control/#/mission?lang="+(english?"en":"ko");}
+    void Open(){try{Process.Start(new ProcessStartInfo(SiteAddress(null,english)){UseShellExecute=true});}catch{MessageBox.Show(T("Windows 기본 브라우저 설정을 확인하세요.","Check your Windows default browser settings."),"STAM");}}
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
+    protected override void OnHandleCreated(EventArgs e){base.OnHandleCreated(e);try{int dark=1;DwmSetWindowAttribute(Handle,20,ref dark,4);}catch{}}
+    protected override void Dispose(bool disposing){if(disposing){StopChild();retry.Dispose();tray.Dispose();hints.Dispose();}base.Dispose(disposing);}
 }
 
-// Owner-drawn buttons keep readable text in every state; Windows' disabled
-// FlatStyle text renderer otherwise falls back to low-contrast system colours.
-internal sealed class DeckButton : Button {
-    public bool Primary {get;set;}
-    public bool Warm {get;set;}
-    public string Step {get;set;}
-    public DeckButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;FlatAppearance.BorderSize=0;Font=new Font("Malgun Gothic",10,FontStyle.Bold);Cursor=Cursors.Hand;AccessibleRole=AccessibleRole.PushButton;}
-    protected override void OnEnabledChanged(EventArgs e){base.OnEnabledChanged(e);Cursor=Enabled?Cursors.Hand:Cursors.Default;Invalidate();}
-    protected override void OnPaint(PaintEventArgs e){
-        var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;g.Clear(Parent==null?Color.FromArgb(8,17,25):Parent.BackColor);
-        var rect=new Rectangle(1,1,Math.Max(1,Width-3),Math.Max(1,Height-3));int radius=7;
-        using(var shape=new GraphicsPath()){
-            shape.AddArc(rect.X,rect.Y,radius*2,radius*2,180,90);shape.AddArc(rect.Right-radius*2,rect.Y,radius*2,radius*2,270,90);shape.AddArc(rect.Right-radius*2,rect.Bottom-radius*2,radius*2,radius*2,0,90);shape.AddArc(rect.X,rect.Bottom-radius*2,radius*2,radius*2,90,90);shape.CloseFigure();
-            Color fill=!Enabled?Color.FromArgb(24,37,48):Warm?Color.FromArgb(225,193,145):Primary?Color.FromArgb(93,214,215):Color.FromArgb(20,43,59);
-            Color ink=!Enabled?Color.FromArgb(162,183,198):(Primary||Warm)?Color.FromArgb(9,34,45):Color.FromArgb(218,235,245);
-            using(var brush=new LinearGradientBrush(rect,fill,Enabled&&Warm?Color.FromArgb(196,157,103):Enabled&&Primary?Color.FromArgb(45,161,181):Color.FromArgb(13,29,43),40f))g.FillPath(brush,shape);using(var pen=new Pen(Enabled?(Warm?Color.FromArgb(246,218,174):Color.FromArgb(105,174,188)):Color.FromArgb(61,82,97),1))g.DrawPath(pen,shape);
-            using(var line=new Pen(Color.FromArgb(Enabled?50:15,255,255,255)))g.DrawLine(line,9,3,Width-9,3);
-            var textRect=rect;
-            if(!String.IsNullOrEmpty(Step)){var badge=new Rectangle(13,(Height-24)/2,28,24);using(var pen=new Pen(Color.FromArgb(70,ink)))g.DrawRectangle(pen,badge);using(var badgeFont=new Font("Segoe UI",8,FontStyle.Bold))TextRenderer.DrawText(g,Step,badgeFont,badge,ink,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter);textRect=new Rectangle(46,rect.Y,rect.Width-53,rect.Height);}
-            TextRenderer.DrawText(g,Text,Font,textRect,ink,TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.EndEllipsis);
-            if(Focused&&ShowFocusCues)ControlPaint.DrawFocusRectangle(g,Rectangle.Inflate(rect,-5,-5),ink,fill);
+internal static class HoloFonts {
+    static readonly System.Drawing.Text.PrivateFontCollection fonts=new System.Drawing.Text.PrivateFontCollection();
+    static bool loaded;
+    [System.Runtime.InteropServices.DllImport("gdi32.dll",CharSet=System.Runtime.InteropServices.CharSet.Unicode)] static extern int AddFontResourceEx(string file,uint flags,IntPtr reserved);
+    internal static void Load(){if(loaded)return;loaded=true;foreach(string name in new[]{"Barlow-Medium.ttf","SUIT-Medium.ttf"}){string file=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","fonts",name);try{fonts.AddFontFile(file);try{AddFontResourceEx(file,16,IntPtr.Zero);}catch{}}catch{}}}
+    internal static Font At(float size,bool latin=false){Load();string target=latin?"Barlow":"SUIT";foreach(var family in fonts.Families)if(family.Name.StartsWith(target,StringComparison.OrdinalIgnoreCase))return Environment.OSVersion.Platform==PlatformID.Win32NT?new Font(family,size,FontStyle.Regular):new Font(family.Name,size,FontStyle.Regular);return new Font(latin?"Segoe UI":"Malgun Gothic",size,FontStyle.Regular);}
+    internal static void Draw(Graphics g,string text,Font font,Color colour,RectangleF bounds,bool center=false){
+        bool korean=false;foreach(char c in text)if(c>=0xAC00&&c<=0xD7AF){korean=true;break;}
+        using(var actual=At(font.Size,!korean))using(var ink=new SolidBrush(colour))using(var format=new StringFormat{Trimming=StringTrimming.EllipsisCharacter,Alignment=center?StringAlignment.Center:StringAlignment.Near,LineAlignment=center?StringAlignment.Center:StringAlignment.Near}){
+            g.TextRenderingHint=System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;g.DrawString(text,actual,ink,bounds,format);
         }
     }
 }
-
-// Native panels retain Windows accessibility and DPI layout, with a restrained flight-deck frame.
-internal sealed class LinkCard : TableLayoutPanel {
-    public Color Stripe {get;set;}
-    public LinkCard(){Stripe=Color.FromArgb(112,211,214);SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
-    protected override void OnPaintBackground(PaintEventArgs e){using(var brush=new LinearGradientBrush(ClientRectangle,BackColor,Color.FromArgb(11,27,40),18f))e.Graphics.FillRectangle(brush,ClientRectangle);}
-    protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);using(var pen=new Pen(Color.FromArgb(55,87,107)))e.Graphics.DrawRectangle(pen,0,0,Width-1,Height-1);using(var bar=new SolidBrush(Stripe))e.Graphics.FillRectangle(bar,0,20,3,Height-40);using(var pen=new Pen(Color.FromArgb(80,Stripe))){e.Graphics.DrawLine(pen,20,0,115,0);e.Graphics.DrawLine(pen,Width-45,Height-1,Width-1,Height-1);}}
+internal sealed class HoloLabel : Label {
+    public HoloLabel(){SetStyle(ControlStyles.UserPaint|ControlStyles.SupportsTransparentBackColor|ControlStyles.OptimizedDoubleBuffer,true);BackColor=Color.Transparent;}
+    protected override void OnPaint(PaintEventArgs e){HoloFonts.Draw(e.Graphics,Text,Font,ForeColor,ClientRectangle);}
 }
-
-internal sealed class MastheadPanel : TableLayoutPanel {
-    protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);using(var line=new Pen(Color.FromArgb(51,79,97)))e.Graphics.DrawLine(line,0,Height-9,Width,Height-9);using(var accent=new Pen(Color.FromArgb(220,185,130),2))e.Graphics.DrawLine(accent,0,Height-9,70,Height-9);using(var accent=new Pen(Color.FromArgb(106,204,207),2))e.Graphics.DrawLine(accent,76,Height-9,245,Height-9);}
+internal sealed class DeckButton : Button {
+    public bool Primary {get;set;}public bool Warm {get;set;}bool hover,pressed;
+    public DeckButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;FlatAppearance.BorderSize=0;Font=HoloFonts.At(11);Cursor=Cursors.Hand;AccessibleRole=AccessibleRole.PushButton;}
+    protected override void OnMouseEnter(EventArgs e){hover=true;Invalidate();base.OnMouseEnter(e);}protected override void OnMouseLeave(EventArgs e){hover=false;pressed=false;Invalidate();base.OnMouseLeave(e);}protected override void OnMouseDown(MouseEventArgs e){pressed=true;Invalidate();base.OnMouseDown(e);}protected override void OnMouseUp(MouseEventArgs e){pressed=false;Invalidate();base.OnMouseUp(e);}
+    internal static GraphicsPath Shape(Rectangle r){var shape=new GraphicsPath();int cut=Math.Min(11,r.Height/4);shape.AddPolygon(new[]{new Point(r.Left+cut,r.Top),new Point(r.Right-cut,r.Top),new Point(r.Right,r.Top+cut),new Point(r.Right,r.Bottom-cut),new Point(r.Right-cut,r.Bottom),new Point(r.Left+cut,r.Bottom),new Point(r.Left,r.Bottom-cut),new Point(r.Left,r.Top+cut)});return shape;}
+    protected override void OnPaint(PaintEventArgs e){var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;g.Clear(Parent==null?Color.FromArgb(7,17,25):Parent.BackColor);if(Width<10||Height<10)return;
+        var r=new Rectangle(3,2,Width-7,Height-8);Color glow=Warm?Color.FromArgb(239,201,133):Color.FromArgb(126,213,229);
+        using(var shadow=Shape(new Rectangle(r.X,r.Y+4,r.Width,r.Height)))using(var fill=new SolidBrush(Color.FromArgb(2,9,15)))g.FillPath(fill,shadow);
+        using(var shape=Shape(r)){
+            using(var face=new LinearGradientBrush(r,pressed?Color.FromArgb(18,37,47):Color.FromArgb(hover||Primary?43:31,hover||Primary?76:58,hover||Primary?88:70),Color.FromArgb(9,24,34),90f))g.FillPath(face,shape);
+            using(var halo=new Pen(Color.FromArgb(35,glow),5))g.DrawPath(halo,shape);using(var edge=new Pen(Color.FromArgb(Enabled?200:70,glow),1))g.DrawPath(edge,shape);
+            using(var inner=Shape(Rectangle.Inflate(r,-3,-3)))using(var rim=new Pen(Color.FromArgb(40,220,245,250),1))g.DrawPath(rim,inner);
+            using(var highlight=new Pen(Color.FromArgb(115,glow),1))g.DrawLine(highlight,r.Left+14,r.Top+2,r.Right-14,r.Top+2);
+            if(Warm||Primary)using(var accent=new Pen(glow,2))g.DrawLine(accent,r.Left+18,r.Bottom-3,r.Right-18,r.Bottom-3);
+            HoloFonts.Draw(g,Text.Replace(" ↗",""),Font,Enabled?(Warm?Color.FromArgb(249,226,185):Color.FromArgb(226,243,246)):Color.FromArgb(130,151,162),Rectangle.Inflate(r,-8,-3),true);
+            if(Text.Contains("↗")){float x=r.Right-25,y=r.Top+r.Height/2f;using(var arrow=new Pen(glow,1.4f)){g.DrawLine(arrow,x-4,y+4,x+4,y-4);g.DrawLine(arrow,x-3,y-4,x+4,y-4);g.DrawLine(arrow,x+4,y-4,x+4,y+3);}}
+            if(Focused&&ShowFocusCues)ControlPaint.DrawFocusRectangle(g,Rectangle.Inflate(r,-6,-6));
+        }
+    }
+}
+internal sealed class LinkCard : TableLayoutPanel {
+    public LinkCard(){BackColor=Color.FromArgb(13,30,41);SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
+    protected override void OnPaintBackground(PaintEventArgs e){if(Width<2||Height<2)return;using(var face=new LinearGradientBrush(ClientRectangle,Color.FromArgb(20,44,56),Color.FromArgb(8,24,35),100f))e.Graphics.FillRectangle(face,ClientRectangle);}
+    protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;if(Width<8||Height<8)return;using(var shape=DeckButton.Shape(new Rectangle(2,2,Width-5,Height-5))){using(var glow=new Pen(Color.FromArgb(25,130,216,235),4))g.DrawPath(glow,shape);using(var border=new Pen(Color.FromArgb(125,139,207,220),1))g.DrawPath(border,shape);}using(var line=new Pen(Color.FromArgb(110,163,224,234)))g.DrawLine(line,20,5,Width-20,5);}
 }
