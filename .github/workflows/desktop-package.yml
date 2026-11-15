@@ -4,6 +4,12 @@ on:
     branches: ['feature/**', 'rebuild/**']
     paths: ['desktop/**', 'integration/log/**', 'scripts/build-desktop.mjs', '.github/workflows/desktop-package.yml']
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified Windows package
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: read
 jobs:
@@ -31,7 +37,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
   publish:
-    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish desktop]')
+    if: (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish desktop]')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
     needs: package
     runs-on: ubuntu-latest
     permissions:
