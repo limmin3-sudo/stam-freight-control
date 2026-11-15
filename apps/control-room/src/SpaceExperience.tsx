@@ -1,3 +1,5 @@
+import desktopRelease from '../../../data/desktop-release.json';
+import {useFlightCloud} from './use-flight-cloud';
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
 import {PartnerConversation} from './PartnerConversation';
@@ -19,7 +21,6 @@ import {ShuttleBoarding} from './ShuttleBoarding';
 import {ConsoleArrival} from './ConsoleArrival';
 import {isReturnTravel} from './travel-direction';
 import {PilotDesk,type PilotAction} from './PilotDesk';
-import {PilotTopbar} from './PilotTopbar';
 import type {GuideDeskHandle} from './GuideDesk';
 import { spaceConfig } from './space-config';
 import type { SceneTarget } from './space-config';
@@ -39,6 +40,7 @@ import './left-space-navigation.css';
 import './lounge-labels.css';
 import './content-optics.css';
 import './mission-archive.css';
+const FreightArchive=lazy(()=>import('./FreightArchive'));
 const MissionArchive=lazy(()=>import('./MissionArchive'));
 import './console-arrival.css';
 import './lounge-tour.css';
@@ -60,13 +62,14 @@ const departureMs = Math.round(spaceConfig.approachMs * .82);
 const ignitionMs = spaceConfig.approachMs + revealMs - departureMs;
 type ArrivalView = {screen:SpaceScreen;returning:boolean;focus:readonly [number,number]};
 type Entry = { screen: SpaceScreen; kind: 'short' | 'long' | 'boarding'; target?: SceneTarget; returning?:boolean };
-const appDownload = 'https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.3.2';
+const appDownload = desktopRelease.installer?.url || desktopRelease.url;
 // Full-body director in front of the desk: keep selection/approach tied to her,
 // rather than to the separate receptionist seated in the background.
 const directorContour = 'M541 400 Q576 393 586 433 L581 473 L602 493 L615 569 L606 642 L596 709 L586 784 L581 847 L544 850 L531 822 L525 745 L516 682 L509 616 L502 549 L512 493 L538 474 L527 441 Z';
 
 export function SpaceExperience() {
   const flight = useFlight();
+  const cloud=useFlightCloud(flight);
   const [conversation,setConversation]=useState<{partner:PartnerId;variant:number}|null>(null);
   const greetingVisits=useRef<Record<PartnerId,number>>({director:0,operator:0,navigator:0});
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
@@ -188,7 +191,7 @@ export function SpaceExperience() {
       if (event.target instanceof Element && event.target.closest('select, input, textarea, video, [contenteditable]')) return;
       if(route.screen==='guide'){event.preventDefault();guideController.current?.navigate('lounge');return;}
       if (destination.current) { cancel(); return; }
-      if(route.screen==='information'&&route.view==='missions'){event.preventDefault();openArchive();return;}
+      if(route.screen==='information'&&route.view){event.preventDefault();openArchive();return;}
       if (route.screen === 'map') return; // The chart owns Escape for hierarchical navigation.
       if (!isOverview) beginTravel(scene);
     };
@@ -320,7 +323,6 @@ export function SpaceExperience() {
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
         <span className="brand-wordmark">STAM<small>FREIGHT DIVISION</small></span>
       </a>
-      <PilotTopbar receipts={flight.receipts} en={en} onLog={event=>{setPilotAction('log');enter(event,'mission');}}/>
       <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
       <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
         cancel();
@@ -416,16 +418,19 @@ export function SpaceExperience() {
         onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title" inert={tourTravelling||undefined}>
         <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
         <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{route.view==='missions'?(en?'Mission catalogue':'미션 자료'):word(names[route.screen])}</h1></div></header>
-        {route.screen === 'service' && <ServiceCenter locale={route.locale} view={route.serviceView||'account'}/>}
-        {route.screen === 'information' && route.view!=='missions' && <div className="space-information room-reference-library">
+        {route.screen === 'service' && <ServiceCenter locale={route.locale} view={route.serviceView} flight={flight} cloud={cloud}/>}
+        {route.screen === 'information' && !route.view && <div className="space-information room-reference-library">
           <p>{en ? 'Prepare your next run. Browse mission conditions, cargo rules and source data.' : '다음 운송을 준비하세요. 미션 조건과 화물 적재 규칙, 자료 출처를 한곳에서 확인합니다.'}</p>
           {[
             [en?'Mission catalogue':'미션 자료',en?'Compare mission rewards and cargo conditions. SCMDB comes first; Wiki fills missing information.':'SCMDB를 우선하고, 부족한 정보는 위키로 보충한 미션 자료입니다.',href('information','missions'),'mission','MISSION ARCHIVE'],
+            [en?'Ships':'함선 자료',en?'Cargo grids, capacity and factory flight performance.':'함선 구성·적재 용량·구역·기본 성능을 확인합니다.',href('information','ships'),'map','SHIP ARCHIVE'],
+            [en?'Cargo':'화물 자료',en?'Cargo names, catalogue container limits and related missions.':'화물 품목·목록 상자 규격·관련 미션을 확인합니다.',href('information','cargo'),'mission','CARGO ARCHIVE'],
             [en?'Freight manual':'운송 이용안내',en?'Check ship preparation, contract intake, routes and cargo rules.':'함선 준비부터 계약 입력·항로 계산·화물 적재까지 확인합니다.',`${publicSite}guide.html`,'operations','FLIGHT MANUAL'],
             [en?'SCMDB source':'SCMDB 원본 자료',en?'Visit the source database for ships, missions and game data.':'함선·미션·게임 데이터의 원본 출처를 확인합니다.','https://scmdb.dev/','map','SOURCE DATABASE'],
-          ].map(([title,description,link,icon,code])=><a key={code} href={link} target={code==='MISSION ARCHIVE'?undefined:'_blank'} rel={code==='MISSION ARCHIVE'?undefined:'noopener noreferrer'} onClick={code==='MISSION ARCHIVE'?event=>enter(event,'information',undefined,'missions'):undefined}><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} {code==='MISSION ARCHIVE'?'→':'↗'}</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
+          ].map(([title,description,link,icon,code])=><a key={code} href={link} target={code?.endsWith('ARCHIVE')?undefined:'_blank'} rel={code?.endsWith('ARCHIVE')?undefined:'noopener noreferrer'} onClick={code?.endsWith('ARCHIVE')?event=>enter(event,'information',undefined,code==='SHIP ARCHIVE'?'ships':code==='CARGO ARCHIVE'?'cargo':'missions'):undefined}><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} {code?.endsWith('ARCHIVE')?'→':'↗'}</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
         </div>}
         {route.screen==='information'&&route.view==='missions'&&<ArchiveBoundary en={en}><Suspense fallback={<p className="archive-load-state" role="status">{en?'Loading mission reference…':'미션 자료를 불러오고 있습니다.'}</p>}><MissionArchive locale={route.locale}/></Suspense></ArchiveBoundary>}
+        {route.screen==='information'&&(route.view==='ships'||route.view==='cargo')&&<ArchiveBoundary en={en}><Suspense fallback={<p role="status">{en?'Loading reference…':'자료를 불러오는 중…'}</p>}><FreightArchive locale={route.locale} view={route.view}/></Suspense></ArchiveBoundary>}
         {route.screen === 'cinema' && <div className="space-cinema"><div className="space-screen">
           {playing ? <video controls autoPlay playsInline preload="metadata" src={intro} poster={poster} aria-label={en ? 'STAM introduction' : 'STAM 소개영상'} onError={() => setMediaError(true)} /> : <button className="space-play" onClick={() => setPlaying(true)} aria-label={en ? 'Play STAM introduction' : 'STAM 소개영상 재생'}><img src={poster} alt=""/><span><b aria-hidden="true">▷</b>{en ? 'Play introduction' : '소개영상 재생'}</span></button>}
         </div><div className="space-cinema-caption"><span>STAM / FREIGHT DIVISION</span><p>{en ? 'Freight operations, with the STAM fleet.' : 'STAM 함대와 함께하는 운송.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
@@ -444,6 +449,7 @@ export function SpaceExperience() {
       </div></details>
       </aside>}
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
+      {cloud.status==='review'&&route.screen!=='service'&&<div className="flight-cloud-notice" role="status"><a href={`#/service?lang=${route.locale}&section=account`}>{en?'Account flight available · Compare and continue':'계정 운항이 있습니다 · 비교하고 이어하기'} →</a></div>}
       {!!archivePulse&&<div key={archivePulse} className="archive-view-pulse" aria-hidden="true"><img src={archivePlasma} alt=""/></div>}
       <ConsoleArrival departing={approaching} powerOn={powerOn} returning={!!(pending?.returning||arrivalView?.returning)} departureMs={departureMs} ignitionMs={ignitionMs}/>
       {tour&&<Suspense fallback={<section className="lounge-tour"><div className="lounge-tour-loading" role="status">{en?'Your guide is getting ready…':'가이드가 안내를 준비하고 있어요…'}</div><nav className="lounge-tour-controls"><button type="button" onClick={closeTour}>{en?'End tour':'투어 종료'}</button></nav></section>}>

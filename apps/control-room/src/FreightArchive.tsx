@@ -1,0 +1,42 @@
+import {useEffect,useMemo,useState} from 'react';
+import type {Locale} from './navigation';
+import {loadMissionArchive,type MissionArchiveData} from './mission-archive-data.mjs';
+import './freight-archive.css';
+type Grid={id:string;name:string;w:number;h:number;l:number;maxBoxSize?:number};
+type Vessel={id:string;name:string;grids:Grid[];layout?:string;sourceUrl?:string};
+type Performance={version:string;scm:number;maxSpeed:number;sourceUrl:string;updateStatus?:string;factoryDrive:{name:string;size:number}};
+type Data={ships:Vessel[];profiles:Record<string,Performance>;missions?:MissionArchiveData;goods:Record<string,string>;audits?:Record<string,string>};
+const pending:Partial<Record<'ships'|'cargo',Promise<Data>>>={};
+async function json(url:URL){const r=await fetch(url);if(!r.ok)throw Error('reference unavailable');return r.json();}
+function load(view:'ships'|'cargo'){
+ return pending[view]??=(view==='ships'?Promise.all([json(new URL('../../../data/ships.json',import.meta.url)),json(new URL('../../../data/ship-performance.json',import.meta.url)),json(new URL('../../../data/ship-grid-audit.json',import.meta.url))]).then(([ships,performance,audit])=>({ships,profiles:performance.profiles,goods:{},audits:Object.fromEntries(audit.profiles.map((p:{id:string;status:string})=>[p.id,p.status]))})):Promise.all([loadMissionArchive(),json(new URL('../../../data/stam-korean.json',import.meta.url))]).then(([missions,korean])=>({ships:[],profiles:{},goods:korean.goods,missions}))).catch(e=>{delete pending[view];throw e;});
+}
+export default function FreightArchive({locale,view}:{locale:Locale;view:'ships'|'cargo'}){
+ const en=locale==='en',t=(ko:string,english:string)=>en?english:ko;
+ const [data,setData]=useState<Data>(),[error,setError]=useState(false),[retry,setRetry]=useState(0),[query,setQuery]=useState(''),[selection,setSelection]=useState(''),[minimum,setMinimum]=useState('');
+ useEffect(()=>{let alive=true;setError(false);setData(undefined);load(view).then(d=>{if(alive)setData(d);}).catch(()=>{if(alive)setError(true);});return()=>{alive=false;};},[retry,view]);
+ useEffect(()=>{setQuery('');setSelection('');setMinimum('');},[view]);
+ const goods=useMemo(()=>{const map=new Map<string,{name:string;label:string;missions:Set<string>;sizes:Set<number>;units:Set<string>}>();for(const mission of data?.missions?.filter({})||[])for(const order of mission.orders){let row=map.get(order.name);if(!row){row={name:order.name,label:data?.goods[order.name]||order.label,missions:new Set(),sizes:new Set(),units:new Set()};map.set(order.name,row);}row.missions.add(mission.id);if(order.maxBoxScu>0)row.sizes.add(order.maxBoxScu);if(order.quantity.unit)row.units.add(order.quantity.unit);}return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));},[data]);
+ const volume=(s:Vessel)=>s.grids.reduce((n,g)=>n+g.w*g.h*g.l,0),search=query.trim().toLowerCase();
+ const ships=data?.ships.filter(s=>s.name.toLowerCase().includes(search)&&volume(s)>=Math.max(0,Number(minimum)||0))||[];
+ const cargo=goods.filter(g=>(g.name+' '+g.label).toLowerCase().includes(search));
+ const vessel=ships.find(s=>s.id===selection)||ships[0],item=cargo.find(g=>g.name===selection)||cargo[0],performance=vessel&&data?.profiles[vessel.id];
+ if(error)return <p role="alert">{t('자료를 불러오지 못했습니다.','Could not load reference data.')} <button onClick={()=>setRetry(n=>n+1)}>{t('다시 시도','Retry')}</button></p>;
+ if(!data)return <p role="status">{t('자료를 불러오는 중…','Loading reference…')}</p>;
+ return <div className="freight-archive">
+  <nav className="service-breadcrumb"><a href={`#/information?lang=${locale}`}>{t('아카이브','Archive')}</a><span>/</span><h2>{view==='ships'?t('함선 자료','Ships'):t('화물 자료','Cargo')}</h2></nav>
+  <p>{view==='ships'?t('운항 계산에 사용하는 함선 구성·적재 구역·성능을 확인합니다.','Inspect the ship configurations, cargo grids and performance used by the planner.'):t('미션 목록에 등장하는 화물을 모았습니다. 상자 제한은 계약별 참고값이며 실제 수주 내용이 우선합니다.','Cargo found in the mission catalogue. Container limits vary by contract; accepted-contract details take priority.')}</p>
+  <div className="archive-filters"><label>{view==='ships'?t('함선 검색','Find ship'):t('화물 검색','Find cargo')}<input type="search" value={query} onChange={e=>setQuery(e.target.value)}/></label>{view==='ships'&&<label>{t('최소 적재량 · SCU','Minimum cargo · SCU')}<input type="number" min="0" value={minimum} onChange={e=>setMinimum(e.target.value)}/></label>}<span role="status">{view==='ships'?ships.length:cargo.length} {t('개','results')}</span></div>
+  <div className="freight-reference-layout"><nav className="freight-reference-list" aria-label={t('자료 선택','Select reference')}>
+   {view==='ships'?ships.map(s=><button key={s.id} aria-pressed={vessel?.id===s.id} onClick={()=>setSelection(s.id)}><strong>{s.name}</strong><small>{volume(s).toLocaleString()} SCU · {s.grids.length} {t('구역','grids')}</small></button>):cargo.map(g=><button key={g.name} aria-pressed={item?.name===g.name} onClick={()=>setSelection(g.name)}><strong>{locale==='ko'?g.label:g.name}</strong><small>{g.missions.size} {t('미션 유형','mission types')}</small></button>)}
+  </nav><article className="freight-reference-detail">
+  {view==='ships'&&vessel?<><small>SHIP / {performance?.version||t('버전 미확인','Version unknown')}</small><h2>{vessel.name}</h2>{performance?.updateStatus==='retained'&&<p className="reference-warning">{t('최신 원본이 없어 이전 버전 자료를 유지합니다.','Latest source unavailable; previous-version data retained.')}</p>}
+   <dl><div><dt>{t('총 적재 용량','Cargo capacity')}</dt><dd>{volume(vessel).toLocaleString()} SCU</dd></div><div><dt>SCM / NAV</dt><dd>{performance?`${performance.scm} / ${performance.maxSpeed} m/s`:'—'}</dd></div><div><dt>{t('기본 퀀텀 드라이브','Factory quantum drive')}</dt><dd>{performance?.factoryDrive.name||'—'} {performance&&`· S${performance.factoryDrive.size}`}</dd></div></dl>
+   {data.audits?.[vessel.id]!=='dimensions-confirmed'&&<p className="reference-warning">{t('현재 원본과 그리드 구분 또는 버전 차이가 있어 검토 중인 기존 배치를 유지합니다.','Grid partition or version differs from the current source; the existing layout is retained pending review.')}</p>}<h3>{t('적재 구역','Cargo grids')}</h3><p>{t('치수는 SCU 셀 단위입니다(1셀 = 1.25 m). 구역 간 배치는 개략도이며 실제 선체 모델이 아닙니다.','Dimensions use SCU cells (1 cell = 1.25 m). Grid spacing is schematic, not a measured hull model.')}</p>
+   <div className="freight-grid-table"><table><thead><tr><th>{t('구역','Grid')}</th><th>{t('폭 × 높이 × 깊이','W × H × L')}</th><th>SCU</th><th>{t('최대 상자','Max box')}</th></tr></thead><tbody>{vessel.grids.map(g=><tr key={g.id}><td>{g.name}</td><td>{g.w} × {g.h} × {g.l}</td><td>{g.w*g.h*g.l}</td><td>{g.maxBoxSize?`${g.maxBoxSize} SCU`:t('형상에 따름','By dimensions')}</td></tr>)}</tbody></table></div>
+   <p>{t('표시 용량은 기본 구역 전체 기준입니다. 꺼진 구역과 이미 실린 화물은 실제 운항 계산에 별도로 반영됩니다.','Capacity includes all default grids. Disabled grids and aboard cargo are applied separately in your flight.')}</p>
+   {performance&&<a href={performance.sourceUrl} target="_blank" rel="noreferrer">Star Citizen Wiki · {performance.version} ↗</a>} {vessel.sourceUrl&&<a href={vessel.sourceUrl} target="_blank" rel="noreferrer">{t('그리드 출처','Grid source')} ↗</a>}
+  </>:view==='cargo'&&item?<><small>CARGO / SCMDB · {data.missions?.version}</small><h2>{locale==='ko'?item.label:item.name}</h2>{locale==='ko'&&item.label!==item.name&&<p>{item.name}</p>}<dl><div><dt>{t('관련 미션 유형','Related mission types')}</dt><dd>{item.missions.size}</dd></div><div><dt>{t('목록의 최대 상자 규격','Catalogue maximum box sizes')}</dt><dd>{[...item.sizes].sort((a,b)=>a-b).join(' / ')||t('미확인','Unknown')} {item.sizes.size>0?'SCU':''}</dd></div><div><dt>{t('목록 수량 단위','Catalogue quantity units')}</dt><dd>{[...item.units].join(' / ')||t('미확인','Unknown')}</dd></div></dl><p>{t('같은 화물도 계약에 따라 수량과 상자 구성이 다릅니다. 이 목록으로 실제 수량이나 거래 가격을 확정하지 않습니다.','Quantities and containers vary by contract. This catalogue does not establish accepted quantities or trading prices.')}</p><a className="freight-related-link" href={`#/information?lang=${locale}&view=missions&q=${encodeURIComponent(item.name)}`}>{t('관련 미션 보기','View related missions')} →</a><p><a href="https://scmdb.dev/" target="_blank" rel="noreferrer">SCMDB ↗</a> · Wiki {data.missions?.wikiVersion}</p></>:<p>{t('검색 결과가 없습니다.','No matching results.')}</p>}
+  </article></div>
+ </div>;
+}

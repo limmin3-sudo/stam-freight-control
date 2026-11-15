@@ -1,3 +1,4 @@
+import {readCloudFlight,writeCloudFlight} from './flight-cloud.mjs';
 import {historyTotalsMarkup,readHistory,HISTORY_KEY} from './history.mjs';
 // Optional account login (ID + password or Google) and per-account sync through Firebase.
 // Guests keep using browser storage. Nothing here runs until FIREBASE_CONFIG is filled in.
@@ -41,7 +42,7 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  const reload=()=>location.reload();
  const stampOf=meta=>({revision:meta?.revision||0,updatedAt:meta?.lastSyncedAt||0});
  const metaFor=(uid,stamp,snap)=>({uid,revision:stamp.revision,lastSyncedAt:stamp.updatedAt,lastSnap:snap});
- function ready(){paused=false;status='';setAccountBoundary('ready',user?.uid);setButton();clearInterval(timer);timer=setInterval(tick,5000);}
+ function ready(){paused=false;status='';setAccountBoundary('ready',user?.uid);setButton();if(dialog.dataset.inline)open('account');clearInterval(timer);timer=setInterval(tick,5000);}
  function transition(snap,stamp,{adopt=false,lastSnap=snap}={}){
   const uid=user?.uid,target=ownerFor(uid),meta=readJSON(ACCOUNT_META),from=readOwner(localStorage);
   const source=meta?.uid?ownerFor(meta.uid):from==='unassigned'?'guest':from;
@@ -124,8 +125,8 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
    'first-conflict':['어느 데이터를 쓸까요?','계정에 저장된 데이터와 이 브라우저의 데이터가 다릅니다. 자동으로 덮어쓰지 않았습니다.',[['use-cloud','계정 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 계정 덮어쓰기',''],['sign-out','취소하고 로그아웃','quiet']]],
    'conflict':['다른 기기에서 더 최근에 저장했습니다','다른 PC에서 저장한 뒤 이 브라우저에서도 바뀐 내용이 있습니다. 어느 쪽을 쓸지 골라 주십시오.',[['use-cloud','다른 기기 데이터 불러오기','primary'],['use-local','이 브라우저 데이터로 덮어쓰기',''],['close','나중에','quiet']]]};
   if(choices[view]){const [t,p,bs]=choices[view];dialog.innerHTML=`<div class="dialog-title"><h2>${t}</h2></div><p>${p}</p><div class="account-actions">${bs.map(([a,l,c])=>`<button type="button" class="${c}" data-act="${a}">${l}</button>`).join('')}</div><p class="account-msg" role="status"></p>`;bind();show();return;}
-  if(user){dialog.innerHTML=`<div class="dialog-title"><h2>${esc(user.label)} 님</h2><button type="button" data-close aria-label="닫기">×</button></div><p>${paused?'⚠ '+esc(status||'자동 저장이 멈춰 있습니다.'):historyContext?'완료한 운송기록이 계정에 자동 저장됩니다.':'미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.'}</p><p class="small subtle">진행 중인 새 콘솔 운항은 이 브라우저에서 계정별로 보관됩니다. 다른 기기로 옮길 때는 운항 백업 파일을 사용하세요.</p><div class="account-actions">${paused?'<button type="button" class="primary" data-act="open-conflict">어느 쪽을 쓸지 고르기</button>':''}<button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button><button type="button" data-act="sign-out">로그아웃</button></div><section class="account-run-totals">${historyTotalsMarkup()}</section>
-   <h3 class="account-sub">수정 기록</h3><ol class="change-log"><li class="subtle">불러오는 중…</li></ol><p class="small subtle">이 계정에서 저장된 변경만 표시됩니다. 로그아웃하면 이 브라우저는 로그인 전의 게스트 데이터로 돌아갑니다.</p>`;bind();show();
+  if(user){dialog.innerHTML=`<div class="dialog-title"><h2>${esc(user.label)} 님</h2><button type="button" data-close aria-label="닫기">×</button></div><p>${paused?'⚠ '+esc(status||'자동 저장이 멈춰 있습니다.'):historyContext?'완료한 운송기록이 계정에 자동 저장됩니다.':'미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.'}</p><p class="small subtle">진행 중 운항은 서비스센터의 ‘다른 기기에서 이어하기’에서 계정에 저장하고 복원할 수 있습니다. 이 브라우저의 운항과 백업도 유지됩니다.</p><div class="account-actions">${paused?'<button type="button" class="primary" data-act="open-conflict">어느 쪽을 쓸지 고르기</button>':''}<button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button><button type="button" data-act="sign-out">로그아웃</button></div><section class="account-run-totals">${historyTotalsMarkup()}</section>
+   <details class="account-change-history"${dialog.dataset.inline?'':' open'}><summary>수정 기록</summary><ol class="change-log"><li class="subtle">불러오는 중…</li></ol><p class="small subtle">이 계정에서 저장된 변경만 표시됩니다. 로그아웃하면 이 브라우저는 로그인 전의 게스트 데이터로 돌아갑니다.</p></details>`;bind();show();
    const historyToken=token();load().then(f=>{assertCurrent(historyToken);return f.getDocs(f.query(f.collection(f.db,'users',historyToken.uid,'changes'),f.orderBy('at','desc'),f.limit(50)));}).then(r=>{assertCurrent(historyToken);const ol=dialog.querySelector('.change-log');if(!ol)return;const rows=[];r.forEach(d=>rows.push(d.data()));ol.innerHTML=rows.length?rows.map(x=>`<li><span>${new Date(x.at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})} · ${esc(x.device||'')}</span>${(x.items||[]).map(t=>`<div>${esc(t)}</div>`).join('')}</li>`).join(''):'<li class="subtle">아직 수정 기록이 없습니다.</li>';}).catch(e=>{if(historyToken.epoch!==generation)return;const ol=dialog.querySelector('.change-log');if(ol)ol.innerHTML=`<li class="subtle">${esc(message(e))}</li>`;});return;}
   const signup=view==='signup';
   dialog.innerHTML=`<div class="dialog-title"><h2>${signup?'아이디 만들기':'로그인'}</h2><button type="button" data-close aria-label="닫기">×</button></div>
@@ -185,5 +186,11 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
  button.onclick=()=>{open(user?'account':'login');resume();};
  setButton();
  try{if(readJSON(ACCOUNT_META)?.uid||readOwner(localStorage).startsWith('account:'))resume();}catch(e){fail(e);}
- return {open,user:()=>user,mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
+ function flightCloud(){
+  if(!user||paused||!fb||readOwner(localStorage)!==ownerFor(user.uid))throw Error('로그인과 계정 저장 연결을 먼저 확인하세요.');
+  const epoch=generation,uid=user.uid;
+  const assert=()=>{if(epoch!==generation||uid!==user?.uid||paused||readOwner(localStorage)!==ownerFor(uid)||localStorage.getItem(STORAGE_JOURNAL))throw Object.assign(Error('계정이 변경되었습니다. 다시 확인하세요.'),{code:'stam/stale'});};
+  return {uid,read:knownRevision=>readCloudFlight(fb,uid,{assertCurrent:assert,knownRevision}),save:(expected,value)=>writeCloudFlight(fb,uid,expected,value,{assertCurrent:assert,device:device()})};
+ }
+ return {open,user:()=>user,flightCloud,mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
 }

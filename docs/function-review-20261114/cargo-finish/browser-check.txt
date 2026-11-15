@@ -1,0 +1,2 @@
+Captured real app cargo dialog
+PASS: real crate picking, camera controls, preview run isolation, same-grid camera preservation, attachment profiles and disabled grids [ 'drake-cutlass-black', 'misc-hull-b', 'argo-raft', 'drake-golem-ox' ]

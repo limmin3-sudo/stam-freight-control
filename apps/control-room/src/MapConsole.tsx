@@ -1,3 +1,4 @@
+import {useChartLook} from './use-chart-look';
 import {quantityBasis} from './quantity-basis';
 import {lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react';
 import type {useFlight} from './use-flight';
@@ -13,7 +14,7 @@ import './map-console.css';
 export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;locale:Locale}){
  const {plan,run}=flight.session;
  // Review variants share the same real map and flight state. The approved shell stays unchanged.
- const look=new URLSearchParams(window.location.hash.split('?')[1]).get('chartLook')==='hologram'?'hologram':'physical';
+ const {look,choose:chooseLook,saved:lookSaved}=useChartLook();
  const [selected,setSelected]=useState(Math.min(run?.index||0,Math.max(0,(plan?.visits.length||1)-1)));
  const [command,setCommand]=useState<ChartCommand>();
  const [orbits,setOrbits]=useState(true),[explore,setExplore]=useState(!plan),[cargo,setCargo]=useState(false),[box,setBox]=useState<string|null>(null),[location,setLocation]=useState('');
@@ -44,6 +45,7 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
    <section className="chart-space" aria-labelledby="chart-title">
     <header className="chart-title"><div><small>STAM / STELLAR CARTOGRAPHY</small><h1 id="chart-title" tabIndex={-1}>{t('입체 항로지도','3D navigation')}</h1></div><span><i/>{look==='hologram'?t('항법 홀로그램','NAVIGATION HOLOGRAM'):t('실사 항로지도','CELESTIAL NAVIGATION')}</span></header>
     <NavigationChart locale={locale} look={look} plan={plan} index={selected} command={command} orbits={orbits} quality={quality} onSelect={p=>chooseLocation(p.id)}/>
+    <div className="chart-look-switch" role="group" aria-label={t('지도 표현','Map appearance')}>{(['physical','hologram'] as const).map(value=><button key={value} aria-pressed={look===value} onClick={()=>chooseLook(value)}>{value==='physical'?t('실사','Physical'):t('홀로그램','Hologram')}</button>)}{!lookSaved&&<small role="status">{t('선택을 저장하지 못했습니다.','Could not remember this choice.')}</small>}</div>
     <div className="chart-view-tools" aria-label={t('지도 시점','Map camera')}>
      <button onClick={()=>send({kind:'home'})}>{t('전체 보기','Reset view')}</button><button onClick={()=>send({kind:'top'})}>{t('위에서','Top view')}</button><button onClick={()=>send({kind:'zoom',value:1.3})} aria-label={t('확대','Zoom in')}>＋</button><button onClick={()=>send({kind:'zoom',value:1/1.3})} aria-label={t('축소','Zoom out')}>−</button><button aria-pressed={orbits} onClick={()=>setOrbits(!orbits)}>{t('궤도','Orbits')}</button>
     </div>

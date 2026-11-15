@@ -71,10 +71,22 @@ async function pooled(items,limit,fn){let cursor=0;const output=Array(items.leng
 export async function downloadWikiSupplement({previous,fetchImpl=fetch,onProgress=()=>{}}={}){
  const get=async url=>{const response=await fetchImpl(url,{signal:AbortSignal.timeout(45000)});if(response.status===404)return null;if(!response.ok)throw Error('Wiki HTTP '+response.status);return response.json();};
  const v=await get(api+'game-versions/default'),version=v?.data?.code;if(!/^\d+\.\d+\.\d+-LIVE\.\d+$/i.test(version||''))throw Error('Invalid Wiki LIVE version');
- const first=await get(api+'missions?'+new URLSearchParams({'page[size]':'200','page[number]':'1',version}));
- if(!Array.isArray(first?.data)||!Number.isSafeInteger(first.meta?.last_page)||first.meta.last_page>100)throw Error('Invalid Wiki mission index');
- const rest=await pooled(Array.from({length:first.meta.last_page-1},(_,i)=>i+2),3,async page=>{const value=await get(api+'missions?'+new URLSearchParams({'page[size]':'200','page[number]':String(page),version}));if(!Array.isArray(value?.data)||value.meta.current_page!==page)throw Error('Incomplete Wiki mission index');return value.data;});
- const rows=[...first.data,...rest.flat()];if(rows.length<100||rows.length!==first.meta.total||new Set(rows.map(r=>r.uuid)).size!==rows.length)throw Error('Incomplete Wiki mission records');
+ // Title ordering is not unique. Equal-title records can overlap page boundaries.
+ // Recover with a reverse traversal, but still require every distinct UUID promised by total.
+ const collect=async sort=>{
+  const query=page=>api+'missions?'+new URLSearchParams({'page[size]':'200','page[number]':String(page),version,sort});
+  const first=await get(query(1));
+  if(!Array.isArray(first?.data)||first.meta?.current_page!==1||!Number.isSafeInteger(first.meta?.total)||!Number.isSafeInteger(first.meta?.last_page)||first.meta.last_page<1||first.meta.last_page>100)throw Error('Invalid Wiki mission index');
+  const rest=await pooled(Array.from({length:first.meta.last_page-1},(_,i)=>i+2),3,async page=>{const value=await get(query(page));if(!Array.isArray(value?.data)||value.meta.current_page!==page||value.meta.total!==first.meta.total||value.meta.last_page!==first.meta.last_page)throw Error('Incomplete Wiki mission index');return value.data;});
+  const rows=[...first.data,...rest.flat()].map(row=>({...row,...(Array.isArray(row.blueprints)?{blueprints:[...row.blueprints].sort((a,b)=>String(a.uuid).localeCompare(String(b.uuid)))}:{})}));if(rows.length<100||rows.length!==first.meta.total)throw Error('Incomplete Wiki mission records');
+  return {rows,total:first.meta.total};
+ };
+ const forward=await collect('title'),unique=new Map();
+ const merge=rows=>{for(const row of rows){if(!uuid.test(row.uuid||''))throw Error('Invalid Wiki mission UUID');const prior=unique.get(row.uuid);if(prior&&digest(prior)!==digest(row))throw Error('Conflicting Wiki mission index records');unique.set(row.uuid,row);}};
+ merge(forward.rows);
+ if(unique.size!==forward.total){const reverse=await collect('-title');if(reverse.total!==forward.total)throw Error('Wiki mission total changed');merge(reverse.rows);}
+ if(unique.size!==forward.total)throw Error('Incomplete Wiki mission records');
+ const rows=[...unique.values()];
  if(rows.some(r=>(r.game_version||r.version)!==version))throw Error('Mixed Wiki versions');
  const records=new Map(rows.map(row=>[row.uuid,row])),targets=new Map(),hashes={};
  for(const row of rows){hashes[row.uuid]=digest(row);if(!row.released||row.not_for_release||!/CargoHauling|HaulCargo/i.test(row.debug_name||''))continue;

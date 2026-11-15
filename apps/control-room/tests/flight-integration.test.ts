@@ -136,3 +136,24 @@ test('pre-departure edits to shared delivery containers keep pickup shares unkno
   for(let i=0;i<plan.visits.length && !run.aboard.length;i++)run=completeStep(plan,run,2000+i);
   assert.deepEqual(run.aboard.map(b=>b.size),[4,4,4,4,4]);
 });
+
+test('data updates affect new plans while active replans retain their saved grid dimensions and cargo coordinates',()=>{
+ const draft={...emptyDraft(),ship:'aegis-hammerhead',partner:'navigator' as const,jobs:[samples[0]!]};
+ const fresh=calculateFlight(draft);assert.equal(fresh.capacity,64);
+ const originalShip=structuredClone(fresh.ship);originalShip.grids[0]!.l=5;originalShip.grids[0]!.x=-3;
+ const oldPlan=calculateFlight(draft,{ship:originalShip});assert.equal(oldPlan.capacity,40);
+ const run=completeStep(oldPlan,completeStep(oldPlan,startRun(blankRun(oldPlan),1000),2000),3000),before=structuredClone(run);
+ const next=calculateFlight(draft,{...contextOf(run),ship:oldPlan.ship});assert.equal(next.capacity,40);assert.equal(next.ship.grids[0]!.l,5);assert.equal(next.ship.grids[0]!.x,-3);
+ assert.deepEqual(next.initialPacking.boxes.map(b=>[b.boxId,b.bin,b.cell,b.dims]),run.aboard.map(b=>[b.boxId,b.bin,b.cell,b.dims]));assert.deepEqual(run,before);
+ assert.throws(()=>calculateFlight(draft,{...contextOf(run),ship:{...originalShip,id:'another-ship'}}),/함선/);
+});
+
+test('released fleet additions work in both partner modes with distinct module loadouts',()=>{
+ for(const [ship,scu] of [['anvil-liberator',400],['rsi-galaxy',64],['rsi-galaxy-cargo',720],['rsi-galaxy-medical',68]] as const){
+  for(const partner of ['operator','navigator'] as const){
+   const result=calculateFlight({...emptyDraft(),ship,partner,jobs:[samples[0]!]});assert.ok(result.visits.length);
+   assert.equal(result.mode,partner==='operator'?'simple':'detail');
+   if(partner==='operator')assert.ok(result.visits.every(v=>!v.packing.boxes.length));else{assert.equal(result.capacity,scu);assert.equal(result.visits.flatMap(v=>v.events).filter(e=>e.type==='delivery').reduce((n,e)=>n+e.scu,0),16);}
+  }
+ }
+});

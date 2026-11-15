@@ -20,3 +20,14 @@ with zipfile.ZipFile(io.BytesIO(data)) as z:
     assert root+'STAM.exe' in names
     assert root+'runtime/node.exe' in names
 print('PASS: public Windows ZIP, version, EXE, runtime and all file checksums')
+
+if meta.get('installer'):
+    installer=meta['installer']
+    expected=f"https://github.com/limmin3-sudo/stam-freight-control/releases/download/{meta['version']}/STAM-{meta['version']}-setup-win-x64.exe"
+    assert installer['url']==expected, 'Installer URL'
+    with urllib.request.urlopen(installer['url'],timeout=120) as response:
+        content=response.read(100*1024*1024+1)
+    assert len(content)==installer['bytes'], 'Installer byte count'
+    assert hashlib.sha256(content).hexdigest()==installer['sha256'], 'Installer checksum'
+    assert content[:2]==b'MZ', 'Installer executable'
+    print('PASS: public installer URL, byte count and checksum')

@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "installer download 1.4",
+    "tour cinema/archive/service/gate",
+    "persistent topbar/sidebar",
+    "2.9 release history"
+  ],
+  "errors": [],
+  "missing": []
+}

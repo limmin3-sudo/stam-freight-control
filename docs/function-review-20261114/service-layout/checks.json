@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checks": [
+    "four Archive-style service cards; no account auto-open",
+    "account/log only inside Flight Console",
+    "inline account has no nested border/shadow",
+    "30 change records retained in disclosure",
+    "history preserved and accessible",
+    "mobile layout and touch targets",
+    "account modal and log navigation still work",
+    "sidebar nested Archive list removed"
+  ],
+  "errors": []
+}

@@ -11,7 +11,7 @@ export function confirmHeldDischarge(session:Session,ids:string[],now=Date.now()
  const boxes=held.filter(b=>selected.has(b.boxId)),prior=session.run;
  const aboard=prior.aboard.filter(b=>!selected.has(b.boxId));
  const nextRun={...prior,aboard,loadScu:aboard.reduce((n,b)=>n+b.size,0)};
- const plan=calculateFlight(session.draft,{...contextOf(nextRun),mode:session.plan.mode,excludedMissionIds:session.receiptReview?.excluded,
+ const plan=calculateFlight(session.draft,{...contextOf(nextRun),ship:session.plan.ship,mode:session.plan.mode,excludedMissionIds:session.receiptReview?.excluded,
   disabledGrids:session.plan.ship.grids.filter(g=>g.disabled).map(g=>g.id)});
  const run=adoptReplan(nextRun,plan);
  return {...session,plan,run:{...run,finished:!plan.visits.length&&!aboard.length,...(!plan.visits.length?{elapsed:elapsed(prior,now),since:null}:{})},

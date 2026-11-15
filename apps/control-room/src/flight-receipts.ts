@@ -62,7 +62,7 @@ export function prepareReceiptUpdate(session:Session,actions:Record<string,Recei
 }
 export function replanReceiptUpdate(session:Session,actions:Record<string,ReceiptAction>,token:string,now=Date.now()):Session{
  const next=prepareReceiptUpdate(session,actions,token,now),prior=session.run!;
- const plan=calculateFlight(next.draft,{...contextOf(prior),mode:session.plan!.mode,disabledGrids:session.plan!.ship.grids.filter(g=>g.disabled).map(g=>g.id),excludedMissionIds:next.receiptReview!.excluded});
+ const plan=calculateFlight(next.draft,{...contextOf(prior),ship:session.plan!.ship,mode:session.plan!.mode,disabledGrids:session.plan!.ship.grids.filter(g=>g.disabled).map(g=>g.id),excludedMissionIds:next.receiptReview!.excluded});
  const run=adoptReplan(prior);
  // Only confirmed run actions mark deliveries. An ended log never adds to delivered.
  const finished=!plan.visits.length&&!run.aboard.length;

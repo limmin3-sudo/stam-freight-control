@@ -27,10 +27,19 @@ try{
  await p.getByRole('button',{name:'확대',exact:true}).click();await p.getByRole('button',{name:'확대',exact:true}).click();await capture('hologram-microtech-close');
  for(const name of ['Hurston','Crusader']){await explore(true);await p.getByRole('combobox',{name:'거점 검색',exact:true}).fill(name);await p.locator('.chart-explore [role=option]').first().click();await settle();await p.getByRole('button',{name:'확대',exact:true}).click();await capture('hologram-'+name.toLowerCase());}
  await p.getByRole('button',{name:'전체 보기',exact:true}).click();await capture('hologram-stanton');
+ // Preserve the approved stellar artwork at close range in the projected look too.
+ await p.locator('.navigation-chart canvas').evaluate(el=>{for(let i=0;i<9;i++)el.dispatchEvent(new WheelEvent('wheel',{deltaY:-Math.log(1.3)/.0017,cancelable:true}));});
+ await capture('hologram-star-close');
+ // Actual drag and wheel controls must still move the existing camera.
+ const canvas=p.locator('.navigation-chart canvas'),box=await canvas.boundingBox();assert(box);
+ let view=await canvas.getAttribute('data-view');
+ await p.mouse.move(box.x+box.width*.6,box.y+box.height*.65);await p.mouse.down();await p.mouse.move(box.x+box.width*.6+65,box.y+box.height*.65+30,{steps:5});await p.mouse.up();await settle();assert.notEqual(await canvas.getAttribute('data-view'),view);
+ view=await canvas.getAttribute('data-view');await p.mouse.wheel(0,220);await settle();assert.notEqual(await canvas.getAttribute('data-view'),view);
+ await p.getByRole('button',{name:'전체 보기',exact:true}).click();await settle();
  // Exercise all three real render quality settings after shader/material changes.
  for(const quality of ['high','ultra','normal']){await explore(true);await p.locator('.chart-explore select').selectOption(quality);await settle();}
  await explore(false);await p.setViewportSize({width:2560,height:1440});await settle();await p.screenshot({path:out+'/hologram-1440p.png'});await p.setViewportSize({width:390,height:844});await settle();assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:out+'/mobile.png'});
  assert.equal(await p.evaluate(()=>localStorage.getItem('stam.control-room.flight.v1')),stored,'graphics exploration must preserve flight data');
  assert.deepEqual(panoramas,[],'low-resolution sky panoramas must not be requested');assert.deepEqual(errors,[]);
- await writeFile(out+'/verification.json',JSON.stringify({errors,panoramas,viewport:'1920x1080',mobile:'390x844',qualities:['normal','high','ultra'],styles:['physical','hologram'],hologramGrid:false,bodyColoursPreserved:true,storagePreserved:true},null,2));console.log('PASS sky replacement; three system palettes; physical/projected styles; native body colours; close view; quality modes; 1440p/mobile; unchanged flight data; no shader errors');
+ await writeFile(out+'/verification.json',JSON.stringify({errors,panoramas,viewport:'1920x1080',mobile:'390x844',qualities:['normal','high','ultra'],styles:['physical','hologram'],hologramGrid:false,bodyColoursPreserved:true,storagePreserved:true,cameraDragAndWheel:true},null,2));console.log('PASS sky replacement; three system palettes; physical/projected styles; native body colours; close view; quality modes; 1440p/mobile; unchanged flight data; no shader errors');
 }finally{await browser.close()}

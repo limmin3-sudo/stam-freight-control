@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import type {CargoShip,Packing} from './cargo-plan.mjs';
 import {cargoWorldCenter} from './cargo-plan.mjs';
-import {paintedCargoSurface,cargoIdentification,cargoMicrosurface,hologramField,hologramWall,hologramBrackets} from './cargo-look';
+import {paintedCargoSurface,cargoIdentification,cargoSurfaceMaps,cargoStudioEnvironment,hologramField,hologramWall,hologramBrackets} from './cargo-look';
 
 export type CargoCamera='orbit'|'top'|'port'|'starboard';
 type Marker={node:HTMLElement;position:THREE.Vector3};
@@ -13,7 +12,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const scene=new THREE.Scene();scene.background=new THREE.Color('#020611');
  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.95;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  // Cargo and lights only move when the manifest changes. Orbiting/selecting
  // needs a new camera image, not another 2048px shadow pass for the same hold.
@@ -23,12 +22,12 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const camera=new THREE.PerspectiveCamera(35,1,.1,2000);
  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.12;
  controls.mouseButtons.MIDDLE=THREE.MOUSE.PAN;controls.maxPolarAngle=Math.PI*.91;controls.zoomSpeed=.8;controls.rotateSpeed=.65;
- const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),environment=pmrem.fromScene(room,.04);
- scene.environment=environment.texture;scene.environmentIntensity=.65;room.dispose();pmrem.dispose();
- scene.add(new THREE.HemisphereLight(0xd6edff,0x263946,.85));
- const key=new THREE.DirectionalLight(0xfff2de,2.3);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.normalBias=.03;key.shadow.bias=-.0002;scene.add(key,key.target);
- const fill=new THREE.DirectionalLight(0x9ddfff,.85);fill.position.set(-30,12,-20);scene.add(fill);
- const rim=new THREE.DirectionalLight(0xb5eaff,1.4);rim.position.set(20,18,-30);scene.add(rim);
+ const environment=cargoStudioEnvironment(renderer);
+ scene.environment=environment.texture;scene.environmentIntensity=.8;
+ scene.add(new THREE.HemisphereLight(0xd6edff,0x263946,.65));
+ const key=new THREE.DirectionalLight(0xfff2de,2.6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.normalBias=.03;key.shadow.bias=-.0002;scene.add(key,key.target);
+ const fill=new THREE.DirectionalLight(0xb3cbd9,.65);fill.position.set(-30,12,-20);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0xb5d7e6,1.5);rim.position.set(20,18,-30);scene.add(rim);
  const root=new THREE.Group();scene.add(root);
  const geometryCache=new Map<string,THREE.BufferGeometry>(),materialCache=new Map<string,THREE.Material>();
  const textureCache=new Map<string,THREE.CanvasTexture>();
@@ -40,10 +39,11 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  const mesh=(geo:THREE.BufferGeometry,mat:THREE.Material,parent:THREE.Object3D)=>{const m=new THREE.Mesh(geo,mat);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
  const mat=(id:string,make:()=>THREE.Material)=>{if(!materialCache.has(id))materialCache.set(id,make());return materialCache.get(id)!;};
  const cached=(id:string,make:()=>THREE.BufferGeometry)=>{if(!geometryCache.has(id))geometryCache.set(id,make());return geometryCache.get(id)!;};
- const metal=mat('frame',()=>new THREE.MeshStandardMaterial({color:0x354650,metalness:.87,roughness:.27}));
- const silver=mat('silver',()=>new THREE.MeshStandardMaterial({color:0x89999f,metalness:.92,roughness:.3}));
- const dark=mat('rubber',()=>new THREE.MeshStandardMaterial({color:0x15222c,metalness:.2,roughness:.65}));
- const micro=cargoMicrosurface();textureCache.set('micro',micro);
+ const surfaces=cargoSurfaceMaps();
+ for(const [name,map]of Object.entries(surfaces)){map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textureCache.set('finish:'+name,map);}
+ const metal=mat('frame',()=>new THREE.MeshStandardMaterial({color:0x57636a,metalness:.9,roughness:.48,roughnessMap:surfaces.metalRoughness}));
+ const silver=mat('silver',()=>new THREE.MeshStandardMaterial({color:0xa1aaac,metalness:.92,roughness:.4,roughnessMap:surfaces.metalRoughness}));
+ const dark=mat('rubber',()=>new THREE.MeshStandardMaterial({color:0x15222c,metalness:.12,roughness:.78}));
  function texture(color:string){
   const id=color;if(!textureCache.has(id)){
    const t=paintedCargoSurface(color);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());textureCache.set(id,t);
@@ -62,7 +62,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
  function structure(d:number[],kind:'rails'|'corners'|'ribs'|'locks'){
   return cached(kind+d.join(','),()=>{
    const [w,h,l]=d as [number,number,number],parts:THREE.BufferGeometry[]=[];
-   const bar=(a:number,b:number,c:number,x:number,y:number,z:number)=>{const g=new THREE.BoxGeometry(a,b,c).toNonIndexed();g.translate(x,y,z);parts.push(g);};
+   const bar=(a:number,b:number,c:number,x:number,y:number,z:number)=>{const g=kind==='rails'||kind==='corners'?new RoundedBoxGeometry(a,b,c,1,Math.min(.012,Math.min(a,b,c)*.18)):new THREE.BoxGeometry(a,b,c).toNonIndexed();g.translate(x,y,z);parts.push(g);};
    if(kind==='rails'){
     for(const y of [-1,1])for(const z of [-1,1])bar(w,.08,.08,0,y*(h/2-.04),z*(l/2-.04));
     for(const x of [-1,1])for(const z of [-1,1])bar(.08,h,.08,x*(w/2-.04),0,z*(l/2-.04));
@@ -179,7 +179,7 @@ export function createCargoScene(host:HTMLElement,onSelect:(id:string|null)=>voi
    const group=new THREE.Group();group.position.fromArray(cargoWorldCenter(g,b));group.rotation.set(...(g.rotation.map(a=>a*Math.PI/180) as [number,number,number]));
    const container=new THREE.Group();group.add(container);root.add(group);
    const d=b.dims.map(x=>Math.max(.12,x-.07));
-   const painted=mat(`paint:${b.color}`,()=>new THREE.MeshPhysicalMaterial({map:texture(b.color),metalness:.38,roughness:.68,roughnessMap:micro,bumpMap:micro,bumpScale:.006,clearcoat:.08,clearcoatRoughness:.48}));
+   const painted=mat(`paint:${b.color}`,()=>new THREE.MeshPhysicalMaterial({map:texture(b.color),metalness:.12,roughness:.78,roughnessMap:surfaces.roughness,bumpMap:surfaces.bump,bumpScale:.009,clearcoat:.14,clearcoatRoughness:.38}));
    // The painted body is recessed behind the frame; previously the full-size
    // shell swallowed the rails, flattening both silhouettes and contact shadows.
    mesh(bodyGeometry(d.map(v=>v-.12)),painted,container);

@@ -15,8 +15,8 @@ test('new arrivals enter the lounge; old console deep links and all languages su
 });
 
 test('Archive mission subpage preserves locale and rejects unrelated room views',()=>{
- for(const locale of ['ko','mix','en'] as const){
-  const route={screen:'information' as const,locale,view:'missions' as const};
+ for(const locale of ['ko','mix','en'] as const)for(const view of ['missions','ships','cargo'] as const){
+  const route={screen:'information' as const,locale,view};
   assert.deepEqual(parseSpaceRoute(spaceHash(route)),route);
  }
  assert.deepEqual(parseSpaceRoute('#/service?lang=ko&view=missions'),{screen:'service',locale:'ko'});

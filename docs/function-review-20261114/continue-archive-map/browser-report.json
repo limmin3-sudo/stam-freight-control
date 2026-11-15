@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "syntheticBackend": true,
+  "productionRequests": 0,
+  "checks": [
+    "first explicit account save",
+    "second device compares before loading; current flight backed up; coordinates retained and clock paused",
+    "stale device cannot overwrite newer flight",
+    "connected flight automatically saves a real progress change",
+    "map look survives reload and applies to operations without changing the flight",
+    "archive distinguishes Galaxy configurations and shows cargo grids",
+    "cargo search links to filtered mission references",
+    "English and mobile reference layout",
+    "sign-out removes account flight from the panel and preserves per-owner storage"
+  ],
+  "errors": []
+}

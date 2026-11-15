@@ -1,0 +1,22 @@
+import {useEffect,useState} from 'react';
+import type {useFlightCloud} from './use-flight-cloud';
+import type {useFlight} from './use-flight';
+import type {Session} from './flight-session';
+import type {Locale} from './navigation';
+import {placeName,shipName} from './mission-trial';
+import {serviceControls} from './service-account.mjs';
+import './flight-cloud.css';
+export function FlightCloudPanel({cloud,flight,locale}:{cloud:ReturnType<typeof useFlightCloud>;flight:ReturnType<typeof useFlight>;locale:Locale}){
+ const en=locale==='en',t=(ko:string,english:string)=>en?english:ko,[confirm,setConfirm]=useState(false);
+ useEffect(()=>setConfirm(false),[flight.session,cloud.remote?.snapshot.header.revision,cloud.uid]);
+ function summary(s:Session){return <dl><div><dt>{t('함선 · 파트너','Ship · partner')}</dt><dd>{shipName(s.draft.ship)} · {s.draft.partner==='operator'?t('오퍼레이터','Operator'):t('수석 항해사','Navigator')}</dd></div><div><dt>{t('선택 계약','Selected contracts')}</dt><dd>{s.draft.jobs.length}</dd></div><div><dt>{t('운항 진행','Progress')}</dt><dd>{s.run?.finished?t('완료','Finished'):s.run?.started?`${s.run.index} / ${s.plan?.visits.length||0}`:t('출발 준비','Preparing')}</dd></div><div><dt>{t('현재 위치','Current location')}</dt><dd>{placeName(s.run?.positionId||s.draft.start,locale==='ko'?0:1)}</dd></div><div><dt>{t('선내 화물','Aboard cargo')}</dt><dd>{s.draft.partner==='operator'?t('직접 관리','Managed by pilot'):`${s.run?.aboard.reduce((n,b)=>n+b.size,0)||0} SCU`}</dd></div></dl>;}
+ const statuses:Record<string,string>={login:t('로그인 후 이용할 수 있습니다.','Sign in to continue on another device.'),checking:t('계정 운항 확인 중…','Checking account flight…'),empty:t('계정에 저장한 운항이 없습니다.','No flight saved to this account.'),review:t('계정 운항과 현재 기기의 운항을 비교해 선택하세요.','Compare the account flight with this device and choose.'),saved:t('계정 운항 연결됨','Account flight connected'),restored:t('운항을 불러왔습니다. 운항 시간은 일시정지 상태입니다.','Flight restored. The flight clock is paused.'),error:t('기존 운항을 유지했습니다. 내용을 확인하고 다시 시도하세요.','Existing flight preserved. Review the message and retry.')};
+ return <section className="flight-cloud-panel" aria-labelledby="cloud-flight-title"><small>FLIGHT / CONTINUE</small><h2 id="cloud-flight-title">{t('다른 기기에서 이어하기','Continue on another device')}</h2><p role="status">{statuses[cloud.status]}</p>
+ {!cloud.uid?<button onClick={()=>serviceControls().accountButton.click()}>{t('계정 로그인','Sign in')}</button>:<>
+  <div className="flight-cloud-comparison"><article><h3>{t('이 기기의 운항','This device')}</h3>{summary(flight.session)}</article><article><h3>{t('계정에 저장된 운항','Account flight')}</h3>{cloud.remote?<>{summary(cloud.remote.session)}<small>{new Date(cloud.remote.snapshot.header.updatedAt).toLocaleString(en?'en-US':'ko-KR')} · {cloud.remote.snapshot.header.device}</small></>:<p>{t('저장된 운항 없음','No saved flight')}</p>}</article></div>
+  <p>{t('불러오기 전에 현재 운항을 이 기기에 백업합니다. 선적 위치와 완료 기록을 그대로 복원하며, 새 경로를 계산하지 않습니다.','Loading backs up this device’s current flight first. Cargo positions and completed steps are restored without replanning.')}</p>
+  <label className="service-check"><input type="checkbox" checked={confirm} disabled={cloud.busy} onChange={e=>setConfirm(e.target.checked)}/>{t('두 운항을 확인했으며, 아래에서 선택한 쪽으로 저장하거나 불러오겠습니다.','I reviewed both flights and will save or load the selected one below.')}</label>
+  <div className="flight-cloud-actions"><button disabled={cloud.busy||flight.busy||flight.blocked||!confirm||cloud.status==='checking'||cloud.status==='error'} onClick={()=>void cloud.save()}>{t('이 기기 운항을 계정에 저장','Save this flight to account')}</button><button disabled={cloud.busy||flight.busy||!confirm||!cloud.remote||cloud.status==='error'} onClick={()=>void cloud.restore()}>{t('계정 운항 불러오기','Load account flight')}</button><button disabled={cloud.busy} onClick={()=>void cloud.inspect()}>{t('다시 확인','Refresh comparison')}</button></div>
+  <label className="service-check"><input type="checkbox" checked={cloud.automatic} disabled={cloud.busy||!cloud.remote||cloud.status==='review'} onChange={e=>cloud.toggleAutomatic(e.target.checked)}/>{t('연결한 운항의 변경을 자동 저장','Automatically save changes to the connected flight')}</label><small>{t('다른 기기에서 변경하면 자동 저장을 멈추고 다시 비교합니다. 오프라인에서도 이 기기의 운항은 유지됩니다.','Changes from another device pause automatic saving for review. Your local flight remains available offline.')}</small>
+ </>}{cloud.error&&<p role="alert">{cloud.error}</p>}</section>;
+}

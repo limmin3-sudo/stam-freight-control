@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {publishFiles} from './refresh-fleet.mjs';
 import {fileURLToPath} from 'node:url';
 const base=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export function normalize(raw,version){
@@ -23,13 +25,16 @@ export function validateSnapshot(data,previous=null){
  if(previous){if(removed.length>Math.max(5,before.size*.2))throw Error('기존 장소가 20% 이상 사라졌습니다. 원본 확인 전에는 기존 배포를 유지합니다.');for(const j of previous.jumps||[])if(!data.jumps.some(k=>k.from===j.from&&k.to===j.to||k.from===j.to&&k.to===j.from))throw Error('기존 점프 연결이 사라졌습니다. 수동 확인이 필요합니다.');}
  return {comparedWith:previous?.meta?.version||null,added:added.length,changed:changed.length,removed:removed.length,addedNames:added.slice(0,20).map(l=>l.name),changedNames:changed.slice(0,20).map(l=>l.name),removedNames:removed.slice(0,20).map(l=>l.name)};
 }
-export async function downloadSnapshot(fetcher=fetch){
+export async function downloadLocationData(fetcher=fetch){
  const get=async url=>{const r=await fetcher(url,{signal:AbortSignal.timeout(90000)});if(!r.ok)throw Error('지도 데이터 요청 실패: '+r.status);return r.json();};
  const v=await get('https://api.star-citizen.wiki/api/game-versions/default');if(!v?.data?.code)throw Error('게임 버전을 확인하지 못했습니다.');
  const raw=await get('https://api.star-citizen.wiki/api/locations/positions?version='+encodeURIComponent(v.data.code));
  const after=await get('https://api.star-citizen.wiki/api/game-versions/default');if(after?.data?.code!==v.data.code)throw Error('다운로드 중 기본 게임 버전이 바뀌었습니다. 다음 갱신에서 재시도합니다.');
- const data=normalize(raw,v.data.code);data.meta.downloaded=new Date().toISOString().slice(0,10);data.meta.checkedAt=new Date().toISOString();return data;
+ const data=normalize(raw,v.data.code);data.meta.downloaded=new Date().toISOString().slice(0,10);data.meta.checkedAt=new Date().toISOString();
+ const logIndex={schemaVersion:1,source:data.meta.source,units:'meters',version:v.data.code,retrievedAt:data.meta.checkedAt,sourceSha256:createHash('sha256').update(JSON.stringify(raw)).digest('hex'),attribution:data.meta.attribution,scope:'Public coordinate snapshot; parent-relative surface matches only. No runtime zone IDs or cargo allocations.',locations:raw.data.filter(l=>l.uuid&&l.name&&['stanton','pyro','nyx'].includes(l.system)&&[l.x,l.y,l.z].every(Number.isFinite)).map(l=>({id:l.uuid,name:l.name,system:l.system,type:l.type,parentId:l.parent_uuid||null,position:[l.x,l.y,l.z]}))};
+ return {data,logIndex};
 }
+export async function downloadSnapshot(fetcher=fetch){return (await downloadLocationData(fetcher)).data;}
 if(process.argv[1]===fileURLToPath(import.meta.url)){
  let previous=null;const previousUrl=process.argv[process.argv.indexOf('--previous-url')+1];
  const fallbackFile=process.argv.includes('--fallback-file')?process.argv[process.argv.indexOf('--fallback-file')+1]:null;
@@ -39,8 +44,10 @@ if(process.argv[1]===fileURLToPath(import.meta.url)){
   else{if(!r.ok)throw Error('이전 배포를 확인하지 못했습니다: '+r.status);previous=await r.json();}
   validateSnapshot(previous);}
  else{try{previous=JSON.parse(await fs.readFile(path.join(base,'data/locations.json'),'utf8'));}catch{}}
- const data=await downloadSnapshot();data.meta.changes=validateSnapshot(data,previous);
- const target=path.join(base,'data/locations.json');await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target+'.tmp',JSON.stringify(data));await fs.rename(target+'.tmp',target);
+ const {data,logIndex}=await downloadLocationData();data.meta.changes=validateSnapshot(data,previous);
+ const oldLog=JSON.parse(await fs.readFile(path.join(base,'data/log-location-index.json'),'utf8'));
+ if(logIndex.locations.length<oldLog.locations.length*.8)throw Error('Log coordinate catalogue unexpectedly shrank');
+ await publishFiles(path.join(base,'data'),{'locations.json':JSON.stringify(data),'log-location-index.json':JSON.stringify(logIndex)+'\n'});
  const c=data.meta.changes,summary=`지도 ${data.meta.version}: ${data.locations.length}개 좌표 / ${data.jumps.length}개 점프 연결\n이전 배포 대비 추가 ${c.added} · 변경 ${c.changed} · 삭제 ${c.removed}\n`;
  console.log(summary);if(process.env.GITHUB_STEP_SUMMARY)await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,summary+'\n');
 }

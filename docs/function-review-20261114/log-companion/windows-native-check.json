@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-14",
+  "environment": "Windows Server 2025 10.0.26100 / GitHub Actions windows-2025-vs2026",
+  "branch": "verify/log-companion-windows-20261114",
+  "testedSourceCommit": "66c26ac84d7a22824be7f2bf3794b828482f145f",
+  "run": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43597049181",
+  "passed": true,
+  "nodeTests": 5,
+  "packageManifestFilesVerified": 33,
+  "sourceFilesMatchWorktree": 39,
+  "published": false,
+  "checks": [
+    "native C# and bundled Windows Node runtime",
+    "paired read-only API with appended synthetic contracts",
+    "Korean path and language restored",
+    "title-bar close keeps receiving in tray",
+    "second icon launch restores same form and watcher PID",
+    "parent exit leaves no watcher",
+    "one STAM desktop shortcut after reinstall",
+    "upgrade and uninstall preserve settings",
+    "Korean and English real-form captures",
+    "archive and payload checksums verified"
+  ],
+  "pending": [
+    "Windows 10/11 user PC and 125-200% DPI",
+    "real game stream (user deferred)",
+    "public website/app publication"
+  ],
+  "artifacts": [
+    {
+      "file": "STAM-app.1.4.0-setup-win-x64.exe",
+      "bytes": 26659357,
+      "sha256": "f7eb304db4f5225f0640c51848031b35a0ff4f648c54e4c4d212d7f4cc4e634d"
+    },
+    {
+      "file": "STAM-app.1.4.0-win-x64.zip",
+      "bytes": 35543960,
+      "sha256": "1916eed52434496737aa3d8f642f25b68f910aa8497d2a4a86b8fdbb2ea16bfa"
+    }
+  ]
+}

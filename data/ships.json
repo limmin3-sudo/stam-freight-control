@@ -52,16 +52,16 @@
  {
   "id": "aegis-hammerhead",
   "name": "Aegis Hammerhead",
-  "source": "SuperCargo cargoGrids.ts (community reference)",
-  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
-  "layout": "datamine",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/395f30ae-f930-4929-b881-d711fde7e70f?version=4.10.3-LIVE.13165946",
+  "layout": "reviewed-schematic",
   "grids": [
    {
     "id": "hold",
     "name": "Hold",
     "w": 4,
     "h": 2,
-    "l": 5,
+    "l": 8,
     "x": 0,
     "y": 0,
     "z": 0,
@@ -72,7 +72,15 @@
      0
     ]
    }
-  ]
+  ],
+  "wikiVehicleId": "395f30ae-f930-4929-b881-d711fde7e70f",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  },
  {
   "id": "aegis-idris-m",
@@ -422,9 +430,9 @@
  {
   "id": "aegis-idris-p",
   "name": "Aegis Idris-P",
-  "source": "SuperCargo cargoGrids.ts (community reference)",
-  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
-  "layout": "sccargo",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/4b0585b0-b60b-4c52-a744-d812e5e9ad58?version=4.10.3-LIVE.13165946",
+  "layout": "reviewed-schematic",
   "grids": [
    {
     "id": "hangar-1",
@@ -435,7 +443,7 @@
     "x": 0,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -451,7 +459,7 @@
     "x": 0,
     "y": 0,
     "z": 6,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -467,7 +475,7 @@
     "x": 0,
     "y": 0,
     "z": 11,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -483,7 +491,7 @@
     "x": 0,
     "y": 0,
     "z": 19,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -499,7 +507,7 @@
     "x": 0,
     "y": 0,
     "z": 24,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -515,7 +523,7 @@
     "x": 0,
     "y": 0,
     "z": 32,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -531,7 +539,7 @@
     "x": 0,
     "y": 0,
     "z": 37,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -547,7 +555,7 @@
     "x": 0,
     "y": 0,
     "z": 47,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -563,7 +571,7 @@
     "x": 16,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -579,7 +587,7 @@
     "x": 16,
     "y": 0,
     "z": 6,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -595,7 +603,7 @@
     "x": 16,
     "y": 0,
     "z": 11,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -611,7 +619,7 @@
     "x": 16,
     "y": 0,
     "z": 19,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -627,7 +635,7 @@
     "x": 16,
     "y": 0,
     "z": 24,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -643,7 +651,7 @@
     "x": 16,
     "y": 0,
     "z": 32,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -659,7 +667,7 @@
     "x": 16,
     "y": 0,
     "z": 37,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -675,7 +683,7 @@
     "x": 16,
     "y": 0,
     "z": 47,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -723,7 +731,7 @@
     "x": 25,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 16,
+    "maxBoxSize": 1,
     "rotation": [
      0,
      0,
@@ -739,7 +747,7 @@
     "x": 29.5,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 16,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -755,7 +763,7 @@
     "x": 37,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 16,
+    "maxBoxSize": 1,
     "rotation": [
      0,
      0,
@@ -767,7 +775,7 @@
     "name": "Bay 3.1",
     "w": 3,
     "h": 2,
-    "l": 4,
+    "l": 2,
     "x": 23,
     "y": 0,
     "z": 14,
@@ -783,7 +791,7 @@
     "name": "Bay 3.2",
     "w": 3,
     "h": 2,
-    "l": 4,
+    "l": 2,
     "x": 27,
     "y": 0,
     "z": 14,
@@ -793,8 +801,48 @@
      0,
      0
     ]
+   },
+   {
+    "id": "bay-3-1-rear",
+    "name": "Bay 3.1 · Rear",
+    "w": 3,
+    "h": 2,
+    "l": 2,
+    "x": 23,
+    "y": 0,
+    "z": 16,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "bay-3-2-rear",
+    "name": "Bay 3.2 · Rear",
+    "w": 3,
+    "h": 2,
+    "l": 2,
+    "x": 27,
+    "y": 0,
+    "z": 16,
+    "maxBoxSize": 2,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
    }
-  ]
+  ],
+  "wikiVehicleId": "4b0585b0-b60b-4c52-a744-d812e5e9ad58",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  },
  {
   "id": "aegis-reclaimer",
@@ -2023,20 +2071,20 @@
  {
   "id": "drake-caterpillar",
   "name": "Drake Caterpillar",
-  "source": "SuperCargo cargoGrids.ts (community reference)",
-  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
-  "layout": "sccargo",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/dc39ca6b-1d76-4db5-9346-356f49954978?version=4.10.3-LIVE.13165946",
+  "layout": "reviewed-schematic",
   "grids": [
    {
     "id": "bay-1-1",
     "name": "Bay 1.1",
     "w": 5,
-    "h": 2,
-    "l": 6,
+    "h": 3,
+    "l": 4,
     "x": 1,
     "y": 0,
     "z": 0,
-    "maxBoxSize": 32,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -2047,12 +2095,12 @@
     "id": "drak-caterpillar-cargo-inventory-module-ladder-1",
     "name": "DRAK Caterpillar Cargo Inventory Module Ladder 1",
     "w": 5,
-    "h": 1,
-    "l": 4,
+    "h": 2,
+    "l": 2,
     "x": 1,
-    "y": 2,
-    "z": 0,
-    "maxBoxSize": 32,
+    "y": 0,
+    "z": 5,
+    "maxBoxSize": 16,
     "rotation": [
      0,
      0,
@@ -2068,7 +2116,7 @@
     "x": 0,
     "y": 0,
     "z": 9,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2084,7 +2132,7 @@
     "x": 1,
     "y": 0,
     "z": 9,
-    "maxBoxSize": 32,
+    "maxBoxSize": 24,
     "rotation": [
      0,
      0,
@@ -2100,7 +2148,7 @@
     "x": 2,
     "y": 0,
     "z": 13,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2116,7 +2164,7 @@
     "x": 0,
     "y": 0,
     "z": 18,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2132,7 +2180,7 @@
     "x": 1,
     "y": 0,
     "z": 18,
-    "maxBoxSize": 32,
+    "maxBoxSize": 24,
     "rotation": [
      0,
      0,
@@ -2148,7 +2196,7 @@
     "x": 2,
     "y": 0,
     "z": 22,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2164,7 +2212,7 @@
     "x": 0,
     "y": 0,
     "z": 27,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2180,7 +2228,7 @@
     "x": 1,
     "y": 0,
     "z": 27,
-    "maxBoxSize": 32,
+    "maxBoxSize": 24,
     "rotation": [
      0,
      0,
@@ -2196,7 +2244,7 @@
     "x": 2,
     "y": 0,
     "z": 31,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2212,7 +2260,7 @@
     "x": 0,
     "y": 0,
     "z": 36,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
@@ -2228,7 +2276,7 @@
     "x": 1,
     "y": 0,
     "z": 36,
-    "maxBoxSize": 32,
+    "maxBoxSize": 24,
     "rotation": [
      0,
      0,
@@ -2244,14 +2292,22 @@
     "x": 2,
     "y": 0,
     "z": 40,
-    "maxBoxSize": 32,
+    "maxBoxSize": 2,
     "rotation": [
      0,
      0,
      0
     ]
    }
-  ]
+  ],
+  "wikiVehicleId": "dc39ca6b-1d76-4db5-9346-356f49954978",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  },
  {
   "id": "drake-clipper",
@@ -2529,9 +2585,9 @@
  {
   "id": "drake-ironclad",
   "name": "Drake Ironclad",
-  "source": "SuperCargo cargoGrids.ts (community reference)",
-  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
-  "layout": "sccargo",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/c42bf65e-f3f2-4234-8c19-8276bfd5de3a?version=4.10.3-LIVE.13165946",
+  "layout": "reviewed-schematic",
   "grids": [
    {
     "id": "hold-center-1",
@@ -2596,8 +2652,96 @@
      0,
      0
     ]
+   },
+   {
+    "id": "secure-hold-1",
+    "name": "Secure · Front left",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 17,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "secure-hold-2",
+    "name": "Secure · Front right",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 20,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "secure-hold-center",
+    "name": "Secure · Centre",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 23,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "secure-hold-3",
+    "name": "Secure · Rear left",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 17,
+    "y": 0,
+    "z": 3,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "secure-hold-4",
+    "name": "Secure · Rear right",
+    "w": 2,
+    "h": 2,
+    "l": 2,
+    "x": 23,
+    "y": 0,
+    "z": 3,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
    }
-  ]
+  ],
+  "wikiVehicleId": "c42bf65e-f3f2-4234-8c19-8276bfd5de3a",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  },
  {
   "id": "drake-ironclad-assault",
@@ -2814,16 +2958,16 @@
  {
   "id": "gatac-syulen",
   "name": "Gatac Syulen",
-  "source": "SuperCargo cargoGrids.ts (community reference)",
-  "sourceUrl": "https://github.com/AquatikJustice/SuperCargo/blob/main/src/shared/cargoGrids.ts",
-  "layout": "sccargo",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/11ebc47d-4763-4faa-9020-171cf6c2651f?version=4.10.3-LIVE.13165946",
+  "layout": "reviewed-schematic",
   "grids": [
    {
-    "id": "bay-1",
-    "name": "Bay 1",
-    "w": 3,
+    "id": "slot-1",
+    "name": "Cargo slot 1",
+    "w": 1,
     "h": 1,
-    "l": 2,
+    "l": 1,
     "x": 0,
     "y": 0,
     "z": 0,
@@ -2833,8 +2977,96 @@
      0,
      0
     ]
+   },
+   {
+    "id": "slot-2",
+    "name": "Cargo slot 2",
+    "w": 1,
+    "h": 1,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "slot-3",
+    "name": "Cargo slot 3",
+    "w": 1,
+    "h": 1,
+    "l": 1,
+    "x": 4,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "slot-4",
+    "name": "Cargo slot 4",
+    "w": 1,
+    "h": 1,
+    "l": 1,
+    "x": 0,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "slot-5",
+    "name": "Cargo slot 5",
+    "w": 1,
+    "h": 1,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "slot-6",
+    "name": "Cargo slot 6",
+    "w": 1,
+    "h": 1,
+    "l": 1,
+    "x": 4,
+    "y": 0,
+    "z": 2,
+    "maxBoxSize": 1,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
    }
-  ]
+  ],
+  "wikiVehicleId": "11ebc47d-4763-4faa-9020-171cf6c2651f",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  },
  {
   "id": "gatac-tyilui",
@@ -5220,5 +5452,281 @@
     ]
    }
   ]
+ },
+ {
+  "id": "anvil-liberator",
+  "name": "Anvil Liberator",
+  "grids": [
+   {
+    "id": "garage-b",
+    "name": "Garage B · 128 SCU",
+    "w": 8,
+    "h": 4,
+    "l": 4,
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "garage-a",
+    "name": "Garage A · 192 SCU",
+    "w": 8,
+    "h": 4,
+    "l": 6,
+    "x": 0,
+    "y": 0,
+    "z": 6,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "hangar",
+    "name": "Hangar · 80 SCU",
+    "w": 4,
+    "h": 4,
+    "l": 5,
+    "x": 0,
+    "y": 0,
+    "z": 15,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "wikiVehicleId": "609ce4ca-0f46-44a5-b6d3-2c2f87417126",
+  "layout": "reviewed-schematic",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/609ce4ca-0f46-44a5-b6d3-2c2f87417126?version=4.10.3-LIVE.13165946",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
+ },
+ {
+  "id": "rsi-galaxy",
+  "name": "RSI Galaxy",
+  "grids": [
+   {
+    "id": "rear-left",
+    "name": "Hangar · Left",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rear-right",
+    "name": "Hangar · Right",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 14,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "wikiVehicleId": "01051d26-084e-4b4f-9566-ebd2251db0aa",
+  "layout": "reviewed-schematic",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/01051d26-084e-4b4f-9566-ebd2251db0aa?version=4.10.3-LIVE.13165946",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
+ },
+ {
+  "id": "rsi-galaxy-cargo",
+  "name": "RSI Galaxy (Cargo Module)",
+  "grids": [
+   {
+    "id": "rear-left",
+    "name": "Hangar · Left",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rear-right",
+    "name": "Hangar · Right",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 14,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "module-left",
+    "name": "Cargo Module · Left",
+    "w": 4,
+    "h": 4,
+    "l": 16,
+    "x": 0,
+    "y": 0,
+    "z": 8,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "module-lift",
+    "name": "Cargo Module · Lift",
+    "w": 6,
+    "h": 2,
+    "l": 12,
+    "x": 6,
+    "y": 0,
+    "z": 8,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "module-right",
+    "name": "Cargo Module · Right",
+    "w": 4,
+    "h": 4,
+    "l": 16,
+    "x": 14,
+    "y": 0,
+    "z": 8,
+    "maxBoxSize": 32,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "wikiVehicleId": "e50eb3fc-bbc1-4baf-8878-8e8ca7e832ce",
+  "layout": "reviewed-schematic",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/e50eb3fc-bbc1-4baf-8878-8e8ca7e832ce?version=4.10.3-LIVE.13165946",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
+ },
+ {
+  "id": "rsi-galaxy-medical",
+  "name": "RSI Galaxy (Medical Module)",
+  "grids": [
+   {
+    "id": "rear-left",
+    "name": "Hangar · Left",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 2,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "rear-right",
+    "name": "Hangar · Right",
+    "w": 2,
+    "h": 4,
+    "l": 4,
+    "x": 14,
+    "y": 0,
+    "z": 0,
+    "maxBoxSize": 16,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "id": "medical-store",
+    "name": "Medical Module · Storage",
+    "w": 2,
+    "h": 2,
+    "l": 1,
+    "x": 2,
+    "y": 0,
+    "z": 7,
+    "maxBoxSize": 4,
+    "rotation": [
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "wikiVehicleId": "42724505-2d5b-41ec-adb1-e4c2ee4e855c",
+  "layout": "reviewed-schematic",
+  "source": "Wiki dimensions / reviewed cargo layout",
+  "sourceUrl": "https://api.star-citizen.wiki/api/vehicles/42724505-2d5b-41ec-adb1-e4c2ee4e855c?version=4.10.3-LIVE.13165946",
+  "reviewedLayout": {
+   "version": "4.10.3-LIVE.13165946",
+   "arrangement": "https://sc-cargo.space/",
+   "diagram": "https://ratjack.net/Star-Citizen/Cargo-Grids/CargoGrids4103.pdf",
+   "releaseSource": "https://robertsspaceindustries.com/en/comm-link/Patch-Notes/21429-Star-Citizen-Alpha-4103",
+   "spacing": "schematic; not measured hull attachment coordinates"
+  }
  }
 ]

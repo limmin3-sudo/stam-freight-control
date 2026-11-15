@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {readFile} from 'node:fs/promises';
+import {writeCloudFlight,readCloudFlight,CLOUD_CHUNK_SIZE} from '../flight-cloud.mjs';
 import {writeAccount,readAccount} from '../account-sync-transport.mjs';
 const require=createRequire((process.env.STAM_FIREBASE_QA_ROOT||'/tmp/stam-firestore-qa')+'/package.json');
 const {initializeTestEnvironment,assertSucceeds,assertFails}=require('@firebase/rules-unit-testing');
@@ -22,5 +23,9 @@ try{
  const old={...F,db:env.authenticatedContext('old').firestore()};await assertSucceeds(writeAccount(old,'old',{revision:0,updatedAt:99},['vh-missions'],{'vh-missions':'migrated'},{now:1}));assert.equal((await readAccount(old,'old')).stamp.revision,1);pass('existing timestamp-only account migrates without deleting data');
  const stamp=(await readAccount(f,'a')).stamp;await assertSucceeds(writeAccount(f,'a',stamp,['vh-missions'],{}));assert.equal((await readAccount(f,'a')).snap['vh-missions'],undefined);pass('intentional deletion succeeds only with matching revision');
  const anon=env.unauthenticatedContext().firestore();await assertSucceeds(F.addDoc(F.collection(anon,'feedback'),{kind:'feedback',text:'synthetic test',contact:'',lang:'ko',at:F.serverTimestamp(),uid:null,page:null,image:null}));await assertFails(F.getDocs(F.collection(anon,'feedback')));pass('feedback remains write-only, including guests');
+ const large={payload:'A'.repeat(CLOUD_CHUNK_SIZE+4),digest:'a'.repeat(64),bytes:CLOUD_CHUNK_SIZE+4};
+ await assertSucceeds(writeCloudFlight(f,'a',0,large));assert.equal((await readCloudFlight(f,'a')).payload,large.payload);pass('multi-document flight snapshot writes and reads atomically');
+ await assertFails(F.getDoc(F.doc(b,'users/a/flight/current')));await assertFails(F.getDoc(F.doc(b,'users/a/flight/current/parts/0')));await assertFails(F.setDoc(F.doc(db,'users/a/flight/current/parts/0'),{revision:1,value:'AAAA'}));await assertFails(F.deleteDoc(F.doc(db,'users/a/flight/current')));pass('cloud flight owner and revision checks reject cross-account access and standalone chunk mutation');
+ const flightRaces=await Promise.allSettled([writeCloudFlight(f,'a',1,{...large,payload:'AAAA'}),writeCloudFlight(f,'a',1,{...large,payload:'BBBB'})]);assert.equal(flightRaces.filter(r=>r.status==='fulfilled').length,1);assert.equal((await readCloudFlight(f,'a')).header.revision,2);assert.equal((await F.getDoc(F.doc(db,'users/a/flight/current/parts/1'))).exists(),false);pass('two flight writers accept one winner and remove superseded chunks');
  console.log(JSON.stringify({passed:true,emulator:true,productionRequests:0,checks},null,2));
 }finally{await env.cleanup();}

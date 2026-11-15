@@ -41,8 +41,8 @@ try{
  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('stam.control-room.flight.v1')).run),state.run);
  await page.keyboard.press('Escape');
  // Exercise the same renderer with outward/downward grids and disable/re-enable.
- const result=await page.evaluate(async()=>{
-  const {createCargoScene}=await import('/src/cargo-scene.ts');const {cargoShip,cargoPacking,demoCargo}=await import('/src/cargo-plan.mjs');
+ const result=await page.evaluate(async moduleBase=>{
+  const {createCargoScene}=await import(new URL('src/cargo-scene.ts',moduleBase).href);const {cargoShip,cargoPacking,demoCargo}=await import(new URL('src/cargo-plan.mjs',moduleBase).href);
   const host=document.createElement('div');Object.assign(host.style,{position:'fixed',inset:'0',zIndex:'99999'});document.body.append(host);
   const view=createCargoScene(host,()=>{},()=>{throw Error('WebGL context lost');});const checks=[];
   try{for(const id of ['drake-cutlass-black','misc-hull-b','argo-raft','drake-golem-ox']){
@@ -60,6 +60,6 @@ try{
    const allOff=cargoShip(id,ship.grids.map(g=>g.id));view.update(allOff,null,false);if(host.dataset.view?.includes('null'))throw Error(id+': all-disabled camera invalid');
    view.update(ship,packing,false);checks.push(id);
   }}finally{view.dispose();host.remove();}return checks;
- });
+ },process.env.STAM_CARGO_MODULE_URL||process.env.STAM_MISSION_URL||'http://127.0.0.1:5182/');
  assert.deepEqual(errors,[]);console.log('PASS: real crate picking, camera controls, preview run isolation, same-grid camera preservation, attachment profiles and disabled grids',result);
 }finally{await browser.close();}

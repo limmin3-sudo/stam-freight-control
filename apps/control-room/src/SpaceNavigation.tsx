@@ -54,12 +54,8 @@ export function SpaceNavigation({screen,locale,pending,view,href,onNavigate}:{
               <p className="space-group-description"><small>{group.code}</small>{group.description[en?1:0]}</p>
               <div className="space-nav-links">
                 {group.links.map(([target,ko,english],index)=><div className="space-room-link" key={target}>
-                  <a href={href(target)} aria-current={screen===target&&!view?'page':undefined}
-                    aria-expanded={target==='information'?screen==='information':undefined} aria-controls={target==='information'?'archive-subnavigation':undefined}
+                  <a href={href(target)} aria-current={screen===target?'page':undefined}
                     onClick={event=>onNavigate(event,target)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{en?english:ko}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>
-                  {target==='information'&&<div className="archive-subnavigation" data-open={screen==='information'} inert={screen!=='information'} aria-hidden={screen!=='information'} id="archive-subnavigation"><div>
-                    <a href={href('information','missions')} aria-current={view==='missions'?'page':undefined} onClick={event=>onNavigate(event,'information','missions')}>{en?'Mission catalogue':'미션 자료'}</a>
-                  </div></div>}
                 </div>)}
               </div>
             </div>

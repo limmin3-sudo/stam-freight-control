@@ -49,3 +49,17 @@ test('a Wiki template alias cannot shadow the unique primary SCMDB alias',()=>{
  const resolved=definitionDraft({definitionId:'33333333-3333-4333-8333-333333333333',markerObservations:[{template:'Twin_CargoHauling'}]},[],result.catalog);
  assert.equal(resolved.id,id);assert.equal(resolved.source,'scmdb');
 });
+
+test('paginated equal-title overlap is recovered without dropping a promised mission UUID',async()=>{
+ const {downloadWikiSupplement}=await import('../scripts/wiki-mission-supplement.mjs');
+ const version='4.10.3-LIVE.13165946',rows=Array.from({length:120},(_,i)=>({...row(i.toString(16).padStart(8,'0')+'-1111-4111-8111-111111111111'),debug_name:'Other',version,game_version:version}));
+ const get=(mode='complete')=>async url=>{const u=new URL(url);if(u.pathname.endsWith('/default'))return {ok:true,json:async()=>({data:{code:version}})};
+  const page=Number(u.searchParams.get('page[number]')),reverse=u.searchParams.get('sort')==='-title';
+  let data=reverse&&mode!=='incomplete'?(page===1?rows.slice(60):rows.slice(0,60)):(page===1?rows.slice(0,60):[rows[59],...rows.slice(61)]);
+  if(reverse&&mode==='conflict')data=data.map(r=>r.uuid===rows[59].uuid?{...r,reward_min:999}:r);
+  return {ok:true,json:async()=>({data,meta:{current_page:page,last_page:2,total:120}})};
+ };
+ const result=await downloadWikiSupplement({fetchImpl:get()});assert.equal(result.records.length,120);assert.ok(result.records.some(r=>r.uuid===rows[60].uuid));
+ await assert.rejects(downloadWikiSupplement({fetchImpl:get('incomplete')}),/Incomplete Wiki mission records/);
+ await assert.rejects(downloadWikiSupplement({fetchImpl:get('conflict')}),/Conflicting Wiki mission/);
+});

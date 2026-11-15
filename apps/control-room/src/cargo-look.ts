@@ -34,11 +34,50 @@ export function cargoIdentification(size:number){
  for(let x=31;x<480;x+=7)c.fillRect(x,209,1+(x%3),17);
  const map=new THREE.CanvasTexture(cv);map.colorSpace=THREE.SRGBColorSpace;return map;
 }
-export function cargoMicrosurface(){
- const cv=document.createElement('canvas');cv.width=cv.height=512;const c=cv.getContext('2d')!;
- c.fillStyle='#969696';c.fillRect(0,0,512,512);let seed=8753;
- for(let i=0;i<45000;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const x=seed%512;seed=(Math.imul(seed,1664525)+1013904223)>>>0;const y=seed%512,v=100+seed%74;c.fillStyle=`rgb(${v},${v},${v})`;c.fillRect(x,y,1+seed%4,1);}
- const texture=new THREE.CanvasTexture(cv);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;return texture;
+// One immutable set per viewport. Separate height and roughness retain paint
+// colour without turning every grain into a polished pit. All values are linear data.
+export function cargoSurfaceMaps(){
+ const width=512,height=256;let seed=8753;
+ const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+ const canvas=()=>{const c=document.createElement('canvas');c.width=width;c.height=height;return c;};
+ const bump=canvas(),rough=canvas(),metal=canvas();
+ const bc=bump.getContext('2d')!,rc=rough.getContext('2d')!,mc=metal.getContext('2d')!;
+ const pixels=bc.createImageData(width,height),paint=rc.createImageData(width,height),alloy=mc.createImageData(width,height);
+ for(let y=0;y<height;y++){
+  const brush=random()*12;
+  for(let x=0;x<width;x++){
+   const i=(y*width+x)*4,n=random(),h=Math.round(127+n*8),r=Math.round(211+n*13),m=Math.round(156+brush+random()*8);
+   pixels.data.set([h,h,h,255],i);paint.data.set([r,r,r,255],i);alloy.data.set([m,m,m,255],i);
+  }
+ }
+ bc.putImageData(pixels,0,0);rc.putImageData(paint,0,0);mc.putImageData(alloy,0,0);
+ // Match the recessed panels in the existing 1024×512 destination artwork.
+ bc.strokeStyle='#646464';bc.lineWidth=2;
+ rc.strokeStyle='#eeeeee';rc.lineWidth=3;
+ for(let x=19;x<500;x+=158){bc.strokeRect(x,27,149,197.5);rc.strokeRect(x,27,149,197.5);}
+ for(let i=0;i<140;i++){
+  const x=random()*width,y=random()*height,len=1+random()*7;
+  rc.fillStyle='#aaaaaa';rc.fillRect(x,y,len,.5);
+ }
+ const texture=(c:HTMLCanvasElement)=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.NoColorSpace;return t;};
+ return {bump:texture(bump),roughness:texture(rough),metalRoughness:texture(metal)};
+}
+// Static strip-light reflections. Generated once, never a live reflection pass;
+// this environment is lighting only and does not add a fabricated hangar or floor.
+export function cargoStudioEnvironment(renderer:THREE.WebGLRenderer){
+ const studio=new THREE.Scene();studio.background=new THREE.Color(.025,.032,.044);
+ const panels:THREE.Mesh[]=[];
+ const panel=(w:number,h:number,at:[number,number,number],color:THREE.Color)=>{
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide}));
+  m.position.set(...at);m.lookAt(0,0,0);studio.add(m);panels.push(m);
+ };
+ panel(14,5,[-8,10,5],new THREE.Color(3.5,3.25,2.9));
+ panel(2,16,[9,5,-5],new THREE.Color(2.,2.45,2.7));
+ panel(12,1.5,[0,5,-10],new THREE.Color(3.,3.3,3.5));
+ panel(7,7,[2,-10,0],new THREE.Color(.18,.23,.27));
+ const pmrem=new THREE.PMREMGenerator(renderer);
+ try{return pmrem.fromScene(studio,.035,.1,80);}
+ finally{pmrem.dispose();for(const p of panels){p.geometry.dispose();(p.material as THREE.Material).dispose();}}
 }
 // A one-cell board confined to each real ship attachment face.
 // Never extend it into a background or room-wide reference floor.

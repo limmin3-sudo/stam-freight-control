@@ -53,6 +53,12 @@ function reset(){
 self.onmessage=async ({data})=>{
   const live=data.live===true,file=live?data.file:data;
   try{
+    if(data.snapshot){
+      const snapshot=data.snapshot;
+      if(snapshot.schemaVersion!==1||!Array.isArray(snapshot.contracts)||!Array.isArray(snapshot.candidates))throw Error('invalid-snapshot');
+      const result=inboxCards(snapshot,points,index,catalog,db);
+      self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});return;
+    }
     const prior=offset<=file.size?await file.slice(Math.max(0,offset-128),offset).text():null;
     if(!live||!stream||prior!==tail)reset();
     while(offset<file.size){

@@ -45,7 +45,7 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
       if(status.revision!==revision){
         const data=await request('/api/snapshot');if(closed)return;
         if(data.snapshot?.schemaVersion!==1||!Number.isSafeInteger(data.revision)||!Array.isArray(data.snapshot.contracts)||!Array.isArray(data.snapshot.candidates))throw new Error('unsupported-service');
-        onSnapshot(data.snapshot);revision=data.revision;
+        onSnapshot(data.snapshot,data.revision);revision=data.revision;
       }
       failures=0;
     }catch(error){

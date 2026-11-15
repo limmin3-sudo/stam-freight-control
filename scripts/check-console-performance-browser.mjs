@@ -45,6 +45,7 @@ try{
   }
   assert.equal(await p.locator('.ops-box').count(),1,'the operations test must select a real crate');
  });
+ await p.mouse.move(20,20);await p.screenshot({path:out+'/operations-cargo.png'});
  const revision=Number(await p.locator('.cargo-render-surface').getAttribute('data-scene-revision'));
  await p.locator('.ops-live-cargo').getByRole('button',{name:'작업 후 예상',exact:true}).click();
  assert(Number(await p.locator('.cargo-render-surface').getAttribute('data-scene-revision'))>revision,'a real phase change must still update geometry');

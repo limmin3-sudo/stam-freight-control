@@ -1,6 +1,6 @@
 import type {Draft} from './mission-trial';
 export type Grid={id:string;name:string;w:number;h:number;l:number;x:number;y:number;z:number;rotation:number[];disabled?:boolean;_stack?:string;_world?:{x:number;y:number;w:number;h:number}};
-export type CargoShip={id:string;name:string;grids:Grid[];access?:string;source?:string;shareGrids?:boolean};
+export type CargoShip={id:string;name:string;grids:Grid[];access?:string;source?:string;layout?:string;shareGrids?:boolean};
 export type CargoItem={boxId:string;missionId:string;shipmentId:string;dropoffId:string;commodity:string;size:number;color:string;estimated?:boolean;aboard?:boolean;_cargoShape?:string};
 export type CargoBox=CargoItem & {bin:number;cell:number[];dims:number[]};
 export type Packing={boxes:CargoBox[];used:number;capacity:number;bins:{used:number}[]};

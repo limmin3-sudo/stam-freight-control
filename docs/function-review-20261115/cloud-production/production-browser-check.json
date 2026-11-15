@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "checkedAt": "2026-11-15T12:48:09.702Z",
+  "realProduction": true,
+  "realFirebaseBrowserSDK": "10.14.1",
+  "transport": "TLS-verified forwarding through environment proxy; local hop loopback only",
+  "checks": [
+    "real application explicit save to production",
+    "second isolated browser restores cargo and progress with previous-flight backup",
+    "concurrent production transactions accept one writer; stale revision cannot overwrite",
+    "other account cannot read or overwrite flight or cargo chunks",
+    "standalone chunk mutation rejected",
+    "existing account settings transaction still saves and restores; standalone overwrite rejected"
+  ],
+  "requests": {
+    "firestore": 157,
+    "auth": 6
+  },
+  "pageErrors": [],
+  "cleanup": [
+    {
+      "documentsDeleted": 4,
+      "authDeleted": true
+    },
+    {
+      "documentsDeleted": 1,
+      "authDeleted": true
+    }
+  ],
+  "webDeployed": false,
+  "appPublished": false
+}

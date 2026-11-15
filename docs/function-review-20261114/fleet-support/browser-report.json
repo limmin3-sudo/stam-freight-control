@@ -1,0 +1,66 @@
+[
+  {
+    "ship": "anvil-liberator",
+    "partner": "operator",
+    "capacity": null,
+    "mode": "simple",
+    "cargoVisible": false,
+    "errors": []
+  },
+  {
+    "ship": "anvil-liberator",
+    "partner": "navigator",
+    "capacity": 400,
+    "mode": "detail",
+    "cargoVisible": true,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy",
+    "partner": "operator",
+    "capacity": null,
+    "mode": "simple",
+    "cargoVisible": false,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy",
+    "partner": "navigator",
+    "capacity": 64,
+    "mode": "detail",
+    "cargoVisible": true,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy-cargo",
+    "partner": "operator",
+    "capacity": null,
+    "mode": "simple",
+    "cargoVisible": false,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy-cargo",
+    "partner": "navigator",
+    "capacity": 720,
+    "mode": "detail",
+    "cargoVisible": true,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy-medical",
+    "partner": "operator",
+    "capacity": null,
+    "mode": "simple",
+    "cargoVisible": false,
+    "errors": []
+  },
+  {
+    "ship": "rsi-galaxy-medical",
+    "partner": "navigator",
+    "capacity": 68,
+    "mode": "detail",
+    "cargoVisible": true,
+    "errors": []
+  }
+]

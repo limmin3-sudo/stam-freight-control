@@ -47,7 +47,8 @@ export function calculateFlight(draft,context){
  const mode=context?.mode || (draft.partner==='operator'?'simple':'detail');
  const simple=mode==='simple';
  const id=shipIdFor(draft.ship);
- const ship=draftCargoShip(draft,simple?[]:context?.disabledGrids);
+ if(context?.ship&&context.ship.id!==id)throw Error('저장된 함선과 현재 운항 함선이 다릅니다.');
+ const ship=context?.ship?draftCargoShip({...draft,customShip:context.ship},context.ship.grids.filter(g=>g.disabled).map(g=>g.id)):draftCargoShip(draft,simple?[]:context?.disabledGrids);
  const base={...performance.profiles[id],...quantum.profiles[id]};
  const drive=resolveQuantumDrive(quantum,base,{driveMode:'factory'}).drive;
  const flightPerformance={scm:base.scm,maxSpeed:base.maxSpeed,zeroToScm:base.zeroToScm,drive,
@@ -80,7 +81,7 @@ export function calculateFlight(draft,context){
     return {...event,deliveryId:shipment?.dropoffId,containers:simple?'':containerText(eventContainers(event,shipment)),estimatedBoxes:!!shipment?.estimated};
   }),packing:slimPacking(v.packing),jumps:jumpSegments(v.leg,byId)})),
   mode,initialPacking:slimPacking(plan.initialPacking||{boxes:[],used:0}),ship:plan.ship||ship,seconds:plan.seconds,peak:plan.peak,capacity:plan.capacity,
-  warnings:[...plan.warnings,...(!drive?['기본 퀀텀 드라이브 미확인 · 이동시간은 기본 속도 가정입니다.']:[])],
+  warnings:[...plan.warnings,...(base.updateStatus==='retained'?[`${draft.ship.name||base.name} · ${base.requestedVersion} 자료 미확인: ${base.version} 성능으로 예상합니다.`]:[]),...(!drive?['기본 퀀텀 드라이브 미확인 · 이동시간은 기본 속도 가정입니다.']:[])],
   points:[...new Set(plan.visits.flatMap(v=>[v.locationId,...v.leg.nodes]))].map(id=>byId.get(id)).filter(Boolean).map(({id,name,system,type,position,parentId})=>({id,name,system,type,position,parentId})),
   startId:plan.settings.startId,driveName:drive?.name||null,policy:draft.partner};
 }

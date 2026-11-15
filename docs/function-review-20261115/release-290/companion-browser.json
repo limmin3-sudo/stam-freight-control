@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "syntheticLog": true,
+  "realLoopback": true,
+  "checks": [
+    "tab opened before app → authenticated automatic pairing → waits for missing Game.log → actual Worker enriches 8/4/4 SCU",
+    "appended second accepted contract appears without changing selected flight",
+    "revision zero on an empty restarted log never clears saved receipts",
+    "offline receipts retained; process token rotation and reload recover without changing route",
+    "explicit disconnect stops reception; manual file import still works without racing app",
+    "reconnect button restores receiving; English mobile layout fits"
+  ],
+  "errors": [],
+  "tokenLeaks": []
+}

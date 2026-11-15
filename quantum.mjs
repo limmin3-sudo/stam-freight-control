@@ -2,7 +2,7 @@ import {quantumFlightSeconds} from './travel.mjs';
 export function compatibleQuantumDrives(data,profile){
  if(!profile||!Array.isArray(data?.drives))return [];
  const allowed=new Set(profile.compatibleDriveIds||[]);
- return data.drives.filter(d=>allowed.has(d.id)&&d.size>=profile.minDriveSize&&d.size<=profile.maxDriveSize&&(!d.stockOnly||d.id===profile.factoryDriveId)&&(profile.editable||d.id===profile.factoryDriveId));
+ return (profile.updateStatus==='retained'?profile.cachedDrives||[]:data.drives).filter(d=>allowed.has(d.id)&&d.size>=profile.minDriveSize&&d.size<=profile.maxDriveSize&&(!d.stockOnly||d.id===profile.factoryDriveId)&&(profile.editable||d.id===profile.factoryDriveId));
 }
 export function rankQuantumDrives(data,profile,distanceGm=10){
  if(!Number.isFinite(distanceGm)||distanceGm<=0||distanceGm>10000)throw Error('Invalid quantum comparison distance');

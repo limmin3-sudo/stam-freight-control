@@ -136,7 +136,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   origin = `http://127.0.0.1:${server.address().port}`;
   schedule(0);
   return {
-    origin, url: origin + '/index.html#token=' + token, token,
+    origin, url: origin + '/index.html#token=' + token, token, status,
     async close() {
       stopped = true;
       clearTimeout(timer);

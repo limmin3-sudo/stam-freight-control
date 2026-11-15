@@ -1,0 +1,17 @@
+{
+  "errors": [],
+  "panoramas": [],
+  "viewport": "1920x1080",
+  "mobile": null,
+  "qualities": [
+    "normal"
+  ],
+  "styles": [
+    "physical",
+    "hologram"
+  ],
+  "hologramGrid": false,
+  "bodyColoursPreserved": true,
+  "storagePreserved": true,
+  "cameraDragAndWheel": true
+}

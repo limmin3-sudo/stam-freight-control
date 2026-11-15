@@ -52,7 +52,7 @@
 .space-experience .space-cinema-caption>span{font-size:10px;letter-spacing:.22em;color:#9bcedd}
 .space-experience .space-cinema-caption p{font-size:14px;color:#a6c4d3;margin:0}
 /* These legacy controls open native dialogs under body, outside the room subtree. */
-body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog){font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none;border:12px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 19px stretch;background:#071520;box-shadow:0 20px 80px #000b}
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog):not([data-inline]){font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none;border:12px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 19px stretch;background:#071520;box-shadow:0 20px 80px #000b}
 body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) :is(button,input,select,h2,h3,summary){font-family:inherit;font-weight:500}
 body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) button{border:7px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 11px stretch;background:none;padding:5px 10px;color:#dff6fd;min-height:40px}
 @media(max-width:1150px){

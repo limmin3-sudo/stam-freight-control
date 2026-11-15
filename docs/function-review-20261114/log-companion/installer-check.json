@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-14",
+  "nativeWindowsVerified": false,
+  "published": false,
+  "launcherEnvironment": "Mono 6.12 / Linux",
+  "installerEnvironment": "Wine 10 / Windows x64 compatibility environment",
+  "compiler": "Inno Setup 7.1.1 x64 (official installer SHA256 verified)",
+  "installedManifestFiles": 34,
+  "checks": [
+    "C# x64 compilation",
+    "native form close preserves watcher; restore keeps same PID",
+    "Korean path and language restored after quit and restart",
+    "installer compiles",
+    "installed files match package SHA256",
+    "one STAM desktop shortcut; Start Menu entry targets same app",
+    "reinstall preserves path and language, no duplicate desktop shortcut",
+    "uninstall removes app and shortcuts but retains path and language",
+    "5 related Node tests pass; release artifact URL/hash mismatch rejected"
+  ],
+  "pending": [
+    "real Windows dual-process icon activation / tray / DPI",
+    "Windows PowerShell clean-profile end-to-end installer job",
+    "actual game log stream",
+    "publication with updated web console"
+  ],
+  "artifacts": [
+    {
+      "file": "STAM-app.1.4.0-review-setup-win-x64.exe",
+      "bytes": 26779530,
+      "sha256": "55dddb2b8b81176509fd6c6c33e812eddb9eab084b5afcb0ab26f30666f08f7f"
+    },
+    {
+      "file": "STAM-app.1.4.0-review-win-x64.zip",
+      "bytes": 35541616,
+      "sha256": "0ea22ffa5637545555b7b95f0ad7aa5672077ea2632459302ceeefe6bfd5bfbf"
+    }
+  ]
+}

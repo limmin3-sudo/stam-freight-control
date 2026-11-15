@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
+import {connectLive,type LiveConnection} from '../../../integration/log/live-client.mjs';
 import type {Job} from './mission-trial';
 import {correctReceipt,decodeReceiptCache,effectiveReceipts,receiptCacheKey,receiveReceipts} from './receipt-cache';
 import type {ReceiptCache,ReceiptResult} from './receipt-cache';
@@ -17,6 +18,10 @@ export function useLogReceipts(){
  const worker=useRef<Worker|null>(null),watch=useRef<ReturnType<typeof setInterval>|undefined>(undefined);
  const generation=useRef(0),readingLive=useRef(false);
  const [watching,setWatching]=useState(false);
+ const companion=useRef<LiveConnection|null>(null);
+ const [source,setSource]=useState<'companion'|'browser'|'file'|null>(null);
+ const [connection,setConnection]=useState('off');
+ useEffect(()=>{connectCompanion();return()=>{generation.current++;companion.current?.disconnect();companion.current=null;};},[]);
  useEffect(()=>()=>{generation.current++;clearInterval(watch.current);worker.current?.terminate();worker.current=null;},[]);
  function persist(next:ReceiptCache){
   current.current=next;setCache(next);
@@ -29,9 +34,33 @@ export function useLogReceipts(){
   persist(correctReceipt(current.current,card));
  }
  function stopWatching(){
-  generation.current++;clearInterval(watch.current);watch.current=undefined;
+  generation.current++;companion.current?.disconnect();companion.current=null;setConnection('off');setSource(null);clearInterval(watch.current);watch.current=undefined;
   worker.current?.terminate();worker.current=null;readingLive.current=false;setWatching(false);
   setPhase(prior=>prior==='reading'?(current.current?.phase||'idle'):prior);
+ }
+ function connectCompanion(){
+  stopWatching();const serial=generation.current;
+  const active=()=>serial===generation.current;
+  let queued:{snapshot:unknown;revision:number}|null=null;
+  let busy=false,hasReceived=false,servicePhase='offline',revision=0;
+  const flush=()=>{if(!active()||!queued||busy||servicePhase!=='watching'||queued.revision===0||queued.revision<revision)return;busy=true;const {snapshot}=queued;queued=null;worker.current?.postMessage({snapshot});};
+  companion.current=connectLive({
+   onSnapshot(snapshot,snapshotRevision){
+    if(!active())return;
+    try{
+     if(!worker.current){
+      const next=new Worker(new URL('./receipt-log.worker.mjs',import.meta.url),{type:'module'});worker.current=next;
+      next.onmessage=({data}:MessageEvent<Result>)=>{if(!active())return;busy=false;hasReceived=accept(data);if(servicePhase==='offline'||servicePhase==='waiting-file')setCached(!!current.current);flush();};
+      next.onerror=()=>{if(!active())return;next.terminate();worker.current=null;busy=false;failed();};
+     }
+     queued={snapshot,revision:snapshotRevision};flush();
+    }catch{busy=false;failed();}
+   },
+   onStatus(status){if(!active())return;servicePhase=status.phase;revision=status.revision||0;flush();setConnection(status.phase);setWatching(status.phase==='watching'||status.phase==='catching-up');if(status.phase==='offline'||status.phase==='waiting-file')setCached(!!current.current);else if(status.phase==='watching'&&revision>0&&hasReceived)setCached(false);},
+   onError(){if(active()){setConnection('error');setWatching(false);setCached(!!current.current);}},
+   onDisconnect(){},
+  });
+  if(companion.current){setSource('companion');setConnection('offline');}
  }
  function failed(){setPhase('error');setCached(!!current.current);}
  function accept(value:Result){
@@ -40,7 +69,7 @@ export function useLogReceipts(){
   catch{failed();return false;}
  }
  function read(file:File){
-  stopWatching();setPhase('reading');setCached(!!current.current);
+  stopWatching();setSource('file');setPhase('reading');setCached(!!current.current);
   try{
    const next=new Worker(new URL('./receipt-log.worker.mjs',import.meta.url),{type:'module'});worker.current=next;
    next.onmessage=({data}:MessageEvent<Result>)=>{
@@ -70,8 +99,8 @@ export function useLogReceipts(){
    const next=new Worker(new URL('./receipt-log.worker.mjs',import.meta.url),{type:'module'});worker.current=next;
    next.onmessage=({data}:{data:Result})=>{if(serial!==generation.current)return;readingLive.current=false;if(!accept(data))stopWatching();};
    next.onerror=()=>{if(serial===generation.current){stopWatching();failed();}};
-   setPhase('reading');setCached(!!current.current);setWatching(true);watch.current=setInterval(()=>void poll(),2000);await poll();
+   setSource('browser');setPhase('reading');setCached(!!current.current);setWatching(true);watch.current=setInterval(()=>void poll(),2000);await poll();
   }catch(error){if(serial===generation.current&&(error as Error).name!=='AbortError'){stopWatching();failed();}}
  }
- return {phase,rawCards:cache?.cards||[],cards:effectiveReceipts(cache),cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker};
+ return {phase,rawCards:cache?.cards||[],cards:effectiveReceipts(cache),cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
 }

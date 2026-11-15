@@ -110,7 +110,7 @@ export function useFlight(){
    };
    next.onerror=()=>{finish();setError('계산을 완료하지 못했습니다. 기존 운항은 유지됩니다.');};
    const disabledGrids=replan?prior.plan?.ship.grids.filter(g=>g.disabled).map(g=>g.id):readCargoPreferences()?.disabled?.[shipIdFor(prior.draft.ship)];
-   const context=replan&&prior.run?{...contextOf(prior.run),excludedMissionIds:prior.receiptReview?.excluded,mode:prior.plan?.mode||'detail',disabledGrids,avoidFirst:source==='defer'?prior.plan?.visits[prior.run.index]?.locationId:undefined,showDeparture:prior.plan?.visits[prior.run.index]?.events.some(e=>e.type==='departure')}:{disabledGrids};
+   const context=replan&&prior.run?{...contextOf(prior.run),ship:prior.plan?.ship,excludedMissionIds:prior.receiptReview?.excluded,mode:prior.plan?.mode||'detail',disabledGrids,avoidFirst:source==='defer'?prior.plan?.visits[prior.run.index]?.locationId:undefined,showDeparture:prior.plan?.visits[prior.run.index]?.events.some(e=>e.type==='departure')}:{disabledGrids};
    next.postMessage(source==='saved'?{saved:savedFlight()}:{draft:prior.draft,context:{...context,...(from?{startId:from}:{}),manualStops}});
   }catch{worker.current?.terminate();worker.current=null;setBusy(false);setError('항로 계산기를 시작하지 못했습니다.');}
  }

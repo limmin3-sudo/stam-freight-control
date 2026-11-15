@@ -18,6 +18,23 @@ vW=(modelMatrix*vec4(position,1.)).xyz;vCenter=(modelMatrix*vec4(0.,0.,0.,1.)).x
 gl_Position=projectionMatrix*viewMatrix*vec4(vW,1.);
 #include <logdepthbuf_vertex>
 }`;
+// Surface detail is evaluated in object space, filtered by the pixel footprint.
+// It augments the approved colour artwork; it does not invent terrain from snow brightness.
+const detail=`
+float grainHash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float grain(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(mix(grainHash(i),grainHash(i+vec3(1,0,0)),f.x),mix(grainHash(i+vec3(0,1,0)),grainHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(grainHash(i+vec3(0,0,1)),grainHash(i+vec3(1,0,1)),f.x),mix(grainHash(i+vec3(0,1,1)),grainHash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+vec3 bodyAlbedo(vec3 source,vec3 tint,vec3 low,vec3 mid,vec3 high,float recolor){
+ float value=dot(source,vec3(.2126,.7152,.0722));
+ // The shared rock map supplies structure; each body's documented palette supplies colour.
+ float tone=clamp(sqrt(value)*1.65,0.,1.);
+ vec3 palette=mix(low,mid,smoothstep(0.,.57,tone));
+ palette=mix(palette,high,smoothstep(.57,1.,tone));
+ // Keep crater/terrain contrast when applying a bright ice palette.
+ palette*=clamp(.24+1.25*sqrt(value),.24,1.12);
+ return mix(source*tint,palette,recolor);
+}
+`;
 const head=`
 #include <logdepthbuf_pars_fragment>
 varying vec2 vUv;varying vec3 vN,vW,vP,vCenter;
@@ -67,16 +84,15 @@ export function createCelestialMaterials({hologram=false}={}){
  };
  // A separate projected volume, deliberately without latitude/longitude grids,
  // scan lines or wireframe. Surface luminance only modulates the projected light.
- const projectedMaterial=(texture:THREE.Texture,offset=0,star=false,tint=new THREE.Color('#ffffff'),rimColor='#c5d8df')=>new THREE.ShaderMaterial({
-  name:star?'projected-stellar-volume':'projected-celestial-volume',vertexShader:vertex,
-  transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{uMap:{value:texture},uOffset:{value:offset},uStar:{value:star?1:0},uHighlight:{value:0},uColor:{value:new THREE.Color(rimColor)},uTint:{value:tint}},
-  fragmentShader:head+`uniform sampler2D uMap;uniform float uOffset,uStar,uHighlight;uniform vec3 uColor,uTint;`+start+`
+ const projectedMaterial=(texture:THREE.Texture,offset=0,tint=new THREE.Color('#ffffff'),rimColor='#c5d8df',palette=[tint,tint,tint],recolor=0)=>new THREE.ShaderMaterial({
+  name:'projected-celestial-volume',vertexShader:vertex,
+  transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{uMap:{value:texture},uOffset:{value:offset},uLow:{value:palette[0]},uMid:{value:palette[1]},uHigh:{value:palette[2]},uRecolor:{value:recolor},uHighlight:{value:0},uColor:{value:new THREE.Color(rimColor)},uTint:{value:tint}},
+  fragmentShader:head+detail+`uniform sampler2D uMap;uniform float uOffset,uHighlight,uRecolor;uniform vec3 uColor,uTint,uLow,uMid,uHigh;`+start+`
    vec3 N=normalize(vN),V=normalize(cameraPosition-vW);float facing=abs(dot(N,V));
-   vec3 albedo=sphereMap(uMap,vUv+vec2(uOffset,0.)).rgb*uTint;
+   vec3 albedo=bodyAlbedo(sphereMap(uMap,vUv+vec2(uOffset,0.)).rgb,uTint,uLow,uMid,uHigh,uRecolor);
    float rim=pow(1.-facing,4.5),surface=dot(albedo,vec3(.2126,.7152,.0722));
    float relief=smoothstep(.035,.65,surface);
-   float light=uStar>.5?1.:.55+.45*max(dot(N,lightDirection()),0.);
-   // Starlight has no external illuminant at the system origin.
+   float light=.42+.58*max(dot(N,lightDirection()),0.);
    // Smooth coloured glass: do not turn texture gradients into noisy luminous dots.
    vec3 surfaceLight=albedo*.8+sqrt(max(albedo,vec3(0.)))*.2;
    vec3 edgeColor=mix(uColor,vec3(.88,.96,1.),.1);
@@ -84,17 +100,20 @@ export function createCelestialMaterials({hologram=false}={}){
    float reflection=pow(max(dot(reflect(-V,N),normalize(vec3(-.4,.8,1.))),0.),70.);
    vec3 color=surfaceLight*(1.1+relief*.5)*light+edgeColor*rim*.8;
    color+=vec3(.55,.75,.9)*reflection*.25;
-   float alpha=.2+relief*.28+rim*.42+reflection*.12;
+   float alpha=.24+relief*.32+rim*.3+reflection*.1;
    // Back faces form a faint inner volume, not an opaque second globe.
    if(!gl_FrontFacing){alpha*=.16;color*=.7;}
    gl_FragColor=vec4(color,alpha);
   `+end,
  });
  const bodyProfile=(name:string,type:string)=>{
-  const look=bodyLook(name,type);const kind=(look as {kind?:string}).kind||'rock';
+  const look=bodyLook(name,type);const kind=look.kind;
   const named:Record<string,string>={Hurston:hurston,microTech:microtech,ArcCorp:arccorp,Crusader:crusader};
   const tint= new THREE.Color(name in named?'#ffffff':name==='Nyx III'?'#9fc5ff':name==='Pyro V'?'#ded29c':({ice:'#c6d9eb',desert:'#d8b18d',lava:'#c88b64',toxic:'#b6c7a0',gas:'#dfcaa8',rock:'#d2c8bd'}[kind]||'#ffffff'));
-  return {look,kind,tint,url:named[name]||(kind==='gas'?crusader:rock),offset:name in named?0:hashName(name)};
+  const stops=look.ramp;
+  const stopColor=(index:number)=>new THREE.Color().setRGB(...stops[index]![1].map(v=>v/255) as [number,number,number]);
+  const palette=[stopColor(0),stopColor(Math.floor((stops.length-1)/2)),stopColor(stops.length-1)];
+  return {look,kind,tint,palette,recolor:name in named?0:1,url:named[name]||(kind==='gas'?crusader:rock),offset:name in named?0:hashName(name)};
  };
  return {
   selectionColor:'#f0cd86',marker,routeStyle:{optical:true,widthScale:hologram?1.45:1.25},orbitStyle:{color:hologram?'#7bc9d2':'#7195a6',ticks:!hologram},
@@ -102,21 +121,28 @@ export function createCelestialMaterials({hologram=false}={}){
   // the star's 3D position, not a rotating surface texture or the legacy shader.
   starObject(color:string){
    const group=new THREE.Group();group.name=hologram?'projected-stellar-vfx':'redesign-stellar-vfx';
-   if(hologram){group.add(new THREE.Mesh(new THREE.SphereGeometry(1,64,48),projectedMaterial(cloudMap,0,true,new THREE.Color(color),color)));group.add(glowSprite(color,3.8,.13));return group;}
    const halo=glowSprite(color,3.7,.12);halo.name='restrained-stellar-corona';group.add(halo);
-   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:load(stellarPlasma),transparent:true,depthWrite:false,toneMapped:false,color:color==='#e87539'?'#ffd6a7':'#ffffff'}));
+   const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:load(stellarPlasma),transparent:true,depthWrite:false,toneMapped:false,opacity:hologram?.78:1,color:color==='#e87539'?'#ffd6a7':'#ffffff'}));
+   // Both looks retain the user-approved plasma artwork, never a cloud-mask globe.
    sprite.name='redesign-stellar-plasma';sprite.scale.setScalar(2.56);group.add(sprite);
    return group;
   },
   planet(name:string,type:string){
-   const {look,kind,tint,url,offset}=bodyProfile(name,type);
-   if(hologram)return projectedMaterial(load(url),offset,false,tint,look.atmo||'#c5d8df');
+   const {look,kind,tint,url,offset,palette,recolor}=bodyProfile(name,type);
+   if(hologram)return projectedMaterial(load(url),offset,tint,look.atmo||palette[1]!.getStyle(),palette,recolor);
    return new THREE.ShaderMaterial({name:'celestial-surface-'+name,vertexShader:vertex,uniforms:{
+    uLow:{value:palette[0]},uMid:{value:palette[1]},uHigh:{value:palette[2]},uRecolor:{value:recolor},uDetail:{value:1},
     uMap:{value:load(url)},uClouds:{value:cloudMap},uCloudAmount:{value:look.clouds||0},uTime:{value:0},
     uOffset:{value:offset},uTint:{value:tint},uAtmosphere:{value:new THREE.Color(look.atmo||'#8198ac')},uHaze:{value:look.atmo ? .1 : 0},uHighlight:{value:0},uGas:{value:kind==='gas'?1:0},uCity:{value:kind==='city'?1:0},uOcean:{value:name==='microTech'?1:0},
-   },fragmentShader:head+`uniform sampler2D uMap,uClouds;uniform float uCloudAmount,uTime,uOffset,uGas,uCity,uOcean;uniform vec3 uTint,uAtmosphere;uniform float uHaze,uHighlight;
+   },fragmentShader:head+detail+`uniform float uRecolor,uDetail;uniform vec3 uLow,uMid,uHigh;uniform sampler2D uMap,uClouds;uniform float uCloudAmount,uTime,uOffset,uGas,uCity,uOcean;uniform vec3 uTint,uAtmosphere;uniform float uHaze,uHighlight;
    `+start+`
-    vec2 uv=vUv+vec2(uOffset,0.);vec3 albedo=sphereMap(uMap,uv).rgb*uTint;albedo=mix(vec3(dot(albedo,vec3(.2126,.7152,.0722))),albedo,.86);
+    vec2 uv=vUv+vec2(uOffset,0.);vec3 albedo=bodyAlbedo(sphereMap(uMap,uv).rgb,uTint,uLow,uMid,uHigh,uRecolor);
+    float footprint=length(fwidth(vP))*180.;
+    float resolved=1.-smoothstep(.35,1.4,footprint);
+    if(uDetail>.5 && resolved>.01 && uGas<.5){
+     float mineral=grain(vP*180.+uOffset*31.)-.5;
+     albedo*=1.+mineral*.14*resolved;
+    }
     vec3 N=normalize(vN),V=normalize(cameraPosition-vW),L=lightDirection();
     // Albedo is color, not elevation: snow/shore boundaries must not become ridges.
     float height=dot(albedo,vec3(.2126,.7152,.0722));
@@ -127,12 +153,14 @@ export function createCelestialMaterials({hologram=false}={}){
     float sea=smoothstep(.008,.06,albedo.b-albedo.r)*uOcean;
     color+=vec3(.9,.83,.65)*pow(max(dot(N,normalize(L+V)),0.),110.)*sea*day*.7;
     vec2 cityUv=uv*vec2(1400.,700.),streets=abs(fract(cityUv)-.5);
-    float footprint=max(fwidth(cityUv.x),fwidth(cityUv.y));
-    float streetLight=mix(step(.45,max(streets.x,streets.y)),.19,smoothstep(.2,1.,footprint));
+    float cityFootprint=max(fwidth(cityUv.x),fwidth(cityUv.y));
+    float streetLight=mix(step(.45,max(streets.x,streets.y)),.19,smoothstep(.2,1.,cityFootprint));
     float city=smoothstep(.12,.32,height)*uCity*streetLight;
     color+=vec3(1.,.48,.17)*city*(1.-day)*.65;
     float fresnel=pow(1.-max(dot(N,V),0.),3.5);
-    color+=uAtmosphere*fresnel*smoothstep(-.12,.5,nl)*uHaze;
+    float airPath=(1.-exp(-fresnel*2.))*uHaze;
+    color=mix(color,uAtmosphere*(.14+diffuse*.48),airPath*smoothstep(-.2,.4,nl));
+    color+=uAtmosphere*fresnel*smoothstep(-.12,.5,nl)*uHaze*.65;
     color+=vec3(1.,.69,.29)*pow(1.-max(dot(N,V),0.),7.)*uHighlight*.42;
     gl_FragColor=vec4(color,1.);
    `+end});

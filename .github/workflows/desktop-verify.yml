@@ -1,0 +1,29 @@
+name: Verify Windows companion (no publication)
+on:
+  push:
+    branches: ['verify/log-companion-windows-20261114']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify companion and artifact checks
+        run: node --test tests/companion.test.mjs tests/desktop-artifacts.test.mjs
+      - name: Compile and verify native app and installer
+        shell: powershell
+        run: ./desktop/build-windows.ps1
+      - name: Preserve Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: STAM-Windows-verification
+          path: dist/*
+          if-no-files-found: warn
+          retention-days: 14

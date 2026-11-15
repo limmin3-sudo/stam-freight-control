@@ -19,3 +19,5 @@
 .cargo-stage.cargo-stage .cargo-stage-scale{font-family:BarlowAirReview,SUIT,sans-serif;font-size:11px;letter-spacing:.03em}
 .cargo-stage.cargo-stage .cargo-gesture{font-size:11px}
 @media(max-width:650px){.cargo-stage.cargo-stage .cargo-spatial-labels .grid-caption{font-size:10px}.cargo-stage.cargo-stage .cargo-spatial-labels .orientation{font-size:11px}}
+
+.ops-hold .cargo-stage-scale[data-layout="reviewed-schematic"] span{display:block;max-width:240px;white-space:normal}

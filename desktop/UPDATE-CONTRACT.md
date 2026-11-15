@@ -1,3 +1,9 @@
+# Development update: app.1.4.0 (unpublished)
+
+The current implementation opens the public `#/mission?lang=ko|en` route explicitly, without a URL token. The new console uses existing public-origin pairing. Standard LIVE discovery, remembered paths, tray lifetime and retry are implemented; all read-only/origin/authentication guarantees below remain. Window X now hides to tray; Quit ends the watcher. The Windows package includes Barlow/SUIT fonts, the original STAM icon and a per-user installer. [Implementation and actual verification boundary](../docs/function-review-20261114/log-companion/README.md). The review installer was generated and install/reinstall/uninstall preservation checked under Wine; native Windows end-to-end and real-game checks are pending; public download metadata remains unchanged.
+
+The following entries describe earlier release versions.
+
 # Companion update boundary
 
 `app.1.3.1` connects the existing public website to a read-only local log API.

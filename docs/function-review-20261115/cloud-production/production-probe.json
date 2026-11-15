@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-15T07:50:53.390Z",
+  "project": "stam-freight-control",
+  "production": true,
+  "scope": "temporary Auth identity and read-only Firestore probes; no flight writes",
+  "checks": [
+    {
+      "check": "temporary email/password identity creation",
+      "http": 200,
+      "error": null
+    },
+    {
+      "check": "two independent password sign-ins",
+      "first": {
+        "http": 200,
+        "error": null
+      },
+      "second": {
+        "http": 200,
+        "error": null
+      },
+      "sameIdentity": true
+    },
+    {
+      "check": "own account head",
+      "first": {
+        "http": 404,
+        "error": "NOT_FOUND"
+      },
+      "second": {
+        "http": 404,
+        "error": "NOT_FOUND"
+      }
+    },
+    {
+      "check": "own cloud flight",
+      "first": {
+        "http": 403,
+        "error": "PERMISSION_DENIED"
+      },
+      "second": {
+        "http": 403,
+        "error": "PERMISSION_DENIED"
+      }
+    },
+    {
+      "check": "own cloud flight chunk",
+      "first": {
+        "http": 403,
+        "error": "PERMISSION_DENIED"
+      },
+      "second": {
+        "http": 403,
+        "error": "PERMISSION_DENIED"
+      }
+    },
+    {
+      "check": "unauthenticated flight access",
+      "http": 403,
+      "error": "PERMISSION_DENIED"
+    }
+  ],
+  "firestoreWrites": 0,
+  "cleanup": {
+    "temporaryAuthAccountDeleted": true,
+    "http": 200,
+    "error": null
+  }
+}

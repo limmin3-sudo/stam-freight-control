@@ -11,7 +11,7 @@ const near = (a, b) => Math.hypot(...a.map((n, i) => n - b[i])) <= POSITION_EPSI
 
 export function locationIndex(data) {
   if (data?.schemaVersion !== 1 || data.source !== LOCATION_SOURCE || data.units !== 'meters' ||
-      data.version !== null || !Number.isFinite(Date.parse(data.retrievedAt)) ||
+      !(data.version === null || /^\d+\.\d+\.\d+-LIVE\.\d+$/i.test(data.version || '')) || !Number.isFinite(Date.parse(data.retrievedAt)) ||
       !/^[a-f\d]{64}$/.test(data.sourceSha256 || '') || !Array.isArray(data.locations) ||
       data.locations.length > 100_000) throw new Error('invalid-location-catalog');
   const byId = new Map(), buckets = new Map();

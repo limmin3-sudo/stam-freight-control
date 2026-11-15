@@ -10,3 +10,10 @@ test('bad coordinates, duplicate backups and cross-system overrides fail closed'
 test('snapshot diff reports additions and changes',()=>{const next=structuredClone(base);next.locations.push({...place,uuid:'test'});next.locations.find(l=>l.id===sample.id).name='Renamed Harbor';const result=validateSnapshot(next,base);assert.equal(result.added,1);assert.equal(result.changed,1);assert.equal(result.removed,0);});
 test('invalid snapshots cannot replace the published map',()=>{const bad=structuredClone(base);bad.locations[0].position[0]=NaN;assert.throws(()=>validateSnapshot(bad));const duplicate=structuredClone(base);duplicate.locations.push(duplicate.locations[0]);assert.throws(()=>validateSnapshot(duplicate));const lost=structuredClone(base);lost.jumps=lost.jumps.slice(1);assert.throws(()=>validateSnapshot(lost,base),/점프/);const sparse=structuredClone(base);sparse.locations=sparse.locations.filter(l=>l.type==='Planet'||l.isGateway);assert.throws(()=>validateSnapshot(sparse,base),/20%/);});
 test('download pins coordinate request to a version and rejects version changes',async()=>{let urls=[];const raw={data:[{uuid:'a',name:'A',system:'stanton',type:'Planet',x:1,y:2,z:3}],connections:[]};const get=async url=>{urls.push(url);return {ok:true,json:async()=>url.includes('positions')?raw:{data:{code:'TEST-LIVE'}}};};const data=await downloadSnapshot(get);assert.ok(urls[1].includes('?version=TEST-LIVE'));assert.equal(data.meta.version,'TEST-LIVE');let versions=0;await assert.rejects(()=>downloadSnapshot(async url=>({ok:true,json:async()=>url.includes('positions')?raw:{data:{code:++versions===1?'OLD':'NEW'}}})),/버전/);});
+
+test('log coordinate index accepts pinned LIVE versions and keeps legacy null-version snapshots compatible',async()=>{
+ const {locationIndex}=await import('../integration/log/locations.mjs');
+ const current=JSON.parse(fs.readFileSync(new URL('../data/log-location-index.json',import.meta.url)));
+ assert.doesNotThrow(()=>locationIndex(current));assert.doesNotThrow(()=>locationIndex({...current,version:null}));
+ assert.throws(()=>locationIndex({...current,version:'5.0.0-PTU.999'}),/invalid-location-catalog/);
+});

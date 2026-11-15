@@ -1,3 +1,6 @@
+import {FlightCloudPanel} from './FlightCloudPanel';
+import type {useFlightCloud} from './use-flight-cloud';
+import type {useFlight} from './use-flight';
 import {useEffect,useRef,useState} from 'react';
 import type {Locale} from './navigation';
 import {serviceViews,type ServiceView} from './space-navigation';
@@ -43,10 +46,39 @@ function UpdatesPanel({locale}:{locale:Locale}){
   {error?<p role="alert">{t('업데이트 기록을 불러오지 못했습니다.','Could not load release history.')} <button onClick={()=>setAttempt(n=>n+1)}>{t('다시 시도','Retry')}</button></p>:!records.length?<p role="status">{t('불러오는 중…','Loading…')}</p>:<div className="service-release-layout"><nav aria-label={t('버전 선택','Choose release')}>{filtered.map(r=><button key={key(r)} aria-current={current===r?'true':undefined} onClick={()=>setSelected(key(r))}>{r.channel||'alpha'} {r.version}<small>{r.date.slice(0,10)}</small></button>)}</nav><article>{current?<><small>{current.channel||'alpha'} {current.version} · {current.date}</small><h3>{copy(current).title}</h3><ul>{copy(current).changes.map((line,i)=><li key={i}>{line}</li>)}</ul></>:<p>{t('일치하는 업데이트가 없습니다.','No matching updates.')}</p>}</article></div>}
  </section>;
 }
-export function ServiceCenter({locale,view}:{locale:Locale;view:ServiceView}){
- const [message,setMessage]=useState('');
+const descriptions:Record<ServiceView,readonly [string,string]>={
+ account:['로그인과 계정 저장 상태, 변경 기록을 확인합니다.','Manage sign-in, account saving and change history.'],
+ history:['완료한 운송과 누적 실적을 확인합니다.','Review completed flights and your freight totals.'],
+ feedback:['의견을 보내거나 발생한 문제를 알려주세요.','Share feedback or report a problem.'],
+ updates:['새로 추가되거나 달라진 내용을 확인합니다.','See what is new and what has changed.'],
+};
+const codes:Record<ServiceView,string>={account:'PILOT ACCOUNT',history:'FLIGHT RECORDS',feedback:'FEEDBACK & SUPPORT',updates:'RELEASE NOTES'};
+function ServiceGlyph({kind}:{kind:ServiceView}){
+ return <svg className="interface-glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  {kind==='account'&&<><path d="m20 3 14 6v12c0 8-14 16-14 16S6 29 6 21V9Z" opacity=".45"/><circle cx="20" cy="15" r="5"/><path d="M11 29c0-9 18-9 18 0"/></>}
+  {kind==='history'&&<><path d="M8 9a15 15 0 1 1-3 17M8 3v7H2"/><path d="M20 11v10l7 4"/><circle cx="20" cy="21" r="1"/></>}
+  {kind==='feedback'&&<><path d="M5 8h30v20H19l-9 7v-7H5Z" opacity=".65"/><path d="M11 15h18M11 21h12"/></>}
+  {kind==='updates'&&<><path d="M9 5h17l6 6v24H9Z" opacity=".55"/><path d="M26 5v7h6M14 22l4 4 9-10M14 31h12"/></>}
+ </svg>;
+}
+export function ServiceCenter({locale,view,flight,cloud}:{locale:Locale;view?:ServiceView;flight:ReturnType<typeof useFlight>;cloud:ReturnType<typeof useFlightCloud>}){
+ const [message,setMessage]=useState(''),[feedbackVisited,setFeedbackVisited]=useState(view==='feedback');
+ const container=useRef<HTMLDivElement>(null),title=useRef<HTMLHeadingElement>(null),lastView=useRef(view),en=locale==='en',index=en?1:0;
+ useEffect(()=>{if(view==='feedback')setFeedbackVisited(true);if(lastView.current!==view){lastView.current=view;const room=container.current?.closest('.space-room');room?.scrollTo({top:0});(title.current||room?.querySelector<HTMLElement>('#space-title'))?.focus({preventScroll:true});}},[view]);
  useEffect(()=>{const announce=(e:Event)=>setMessage((e as CustomEvent<string>).detail);window.addEventListener('stam-account-message',announce);return()=>window.removeEventListener('stam-account-message',announce);},[]);
- return <div className="service-center"><nav className="service-sections" aria-label={locale==='en'?'Service sections':'서비스센터 메뉴'}>{serviceViews.map(section=><a key={section} href={`#/service?lang=${locale}&section=${section}`} aria-current={view===section?'page':undefined}>{names[section][locale==='en'?1:0]}</a>)}</nav>
-  {message&&<p role="status">{message}</p>}<div className="service-content">{view==='account'?<AccountPanel key="account"/>:view==='history'?<AccountPanel key="history" history/>:view==='updates'?<UpdatesPanel locale={locale}/>:null}<div hidden={view!=='feedback'}><FeedbackPanel locale={locale}/></div></div>
+ return <div ref={container} className="service-center">
+  {!view&&<div className="space-information room-reference-library service-catalogue">
+   <p>{en?'Choose the service you need. Your account and flight records stay connected.':'필요한 서비스를 선택하세요. 계정과 운송기록을 확인하거나 의견을 보낼 수 있습니다.'}</p>
+   {serviceViews.map(section=><a key={section} href={`#/service?lang=${locale}&section=${section}`}>
+    <div className="room-card-symbol"><ServiceGlyph kind={section}/><small>{codes[section]}</small></div>
+    <h2>{names[section][index]}</h2><p>{descriptions[section][index]}</p><span>{en?'Open service':'열기'} →</span>
+   </a>)}
+  </div>}
+  {view&&<nav className="service-breadcrumb" aria-label={en?'Service location':'서비스센터 내 위치'}><a href={`#/service?lang=${locale}`}>{en?'Service centre':'서비스센터'}</a><span aria-hidden="true">/</span><h2 ref={title} tabIndex={-1}>{names[view][index]}</h2></nav>}
+  {message&&<p role="status">{message}</p>}
+  <div className="service-content" hidden={!view}>
+   {view==='account'?<><FlightCloudPanel flight={flight} cloud={cloud} locale={locale}/><AccountPanel key="account"/></>:view==='history'?<AccountPanel key="history" history/>:view==='updates'?<UpdatesPanel locale={locale}/>:null}
+   {feedbackVisited&&<div hidden={view!=='feedback'}><FeedbackPanel locale={locale}/></div>}
+  </div>
  </div>;
 }

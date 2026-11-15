@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "checks": [
+    "first explicit account save",
+    "look switch preserves Pyro system and zoomed camera"
+  ],
+  "pageErrors": []
+}

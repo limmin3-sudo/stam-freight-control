@@ -1,0 +1,18 @@
+{
+  "scope": "local packaging only; includes uncommitted changes; revision stamp is a test value, not a released commit",
+  "sourceHead": "916b06775662f1008d280692e74f544858cdca61",
+  "matchingDataFiles": [
+    "ships.json",
+    "ship-performance.json",
+    "quantum-drives.json",
+    "ship-grid-audit.json",
+    "hauling-missions.json",
+    "mission-details.json",
+    "wiki-mission-supplement.json",
+    "locations.json",
+    "log-location-index.json"
+  ],
+  "verifiedDesktopSnapshotFiles": 239,
+  "loungeAndLegacyEntry": true,
+  "entryAssetsPresent": true
+}

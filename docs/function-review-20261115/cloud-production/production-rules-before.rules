@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /changes/{cid} {
+        allow read, delete: if request.auth != null && request.auth.uid == uid;
+        allow create: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.at is number && request.resource.data.items is list
+          && request.resource.data.items.size() <= 40 && request.resource.data.device is string;
+        allow update: if false;
+      }
+      match /state/{key} {
+        allow read, delete: if request.auth != null && request.auth.uid == uid;
+        allow create, update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.value is string && request.resource.data.value.size() < 1000000
+          && request.resource.data.updatedAt is number;
+      }
+    }
+    match /feedback/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(['kind','text','contact','lang','at','uid','page','image'])
+        && request.resource.data.kind in ['feedback','bug']
+        && request.resource.data.text is string && request.resource.data.text.size() > 1 && request.resource.data.text.size() <= 2000
+        && request.resource.data.contact is string && request.resource.data.contact.size() <= 100
+        && request.resource.data.lang in ['ko','mix','en'] && request.resource.data.at == request.time
+        && (request.resource.data.uid == null || (request.auth != null && request.resource.data.uid == request.auth.uid))
+        && (request.resource.data.page == null || (request.resource.data.page is map && request.resource.data.page.size() <= 10))
+        && (!('image' in request.resource.data) || request.resource.data.image == null
+            || (request.resource.data.image is string && request.resource.data.image.size() <= 900000));
+    }
+    match /usernames/{name} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if request.auth != null && name.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+  }
+}

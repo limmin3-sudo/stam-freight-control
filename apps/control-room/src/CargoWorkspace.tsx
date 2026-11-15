@@ -36,7 +36,7 @@ export function CargoViewport({ship,packing,locale,selected,onSelect}:{ship:Carg
   <div ref={host} className="cargo-render-surface"/>
   {!ready&&!failed&&<p className="cargo-render-message" role="status">{t('적재 공간을 준비하고 있습니다.','Preparing cargo view…')}</p>}
   {failed&&<p className="cargo-render-message" role="alert">{t('3D 화면을 표시할 수 없습니다. 화물 목록은 계속 확인할 수 있습니다.','3D view is unavailable. The cargo list remains accessible.')}</p>}
-  <div className="cargo-stage-scale">1 CELL / 1.25 m<span>{t('그리드 치수 기준 · 함선 외형 생략','Grid dimensions · Ship exterior omitted')}</span></div>
+  <div className="cargo-stage-scale" data-layout={ship.layout}>1 CELL / 1.25 m<span>{ship.layout==='reviewed-schematic'?t('실제 그리드 치수 · 구역 간격은 개략 배치','Actual grid dimensions · Schematic spacing'):t('그리드 치수 기준 · 함선 외형 생략','Grid dimensions · Ship exterior omitted')}</span></div>
   <div className="cargo-view-controls" aria-label={t('적재 시점','Cargo camera')}>
    {(['orbit','top','port','starboard'] as CargoCamera[]).map((mode,i)=><button key={mode} aria-pressed={camera===mode} disabled={!ready||failed} onClick={()=>scene.current?.home(mode)}>{[t('전체','Reset'),t('위','Top'),t('좌현','Port'),t('우현','Starboard')][i]}</button>)}
    <span/><button disabled={!ready||failed} aria-label={t('확대','Zoom in')} onClick={()=>scene.current?.zoom(.8)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M8 3v10" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></button><button disabled={!ready||failed} aria-label={t('축소','Zoom out')} onClick={()=>scene.current?.zoom(1.25)}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg></button>

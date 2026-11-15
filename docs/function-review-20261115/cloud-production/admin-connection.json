@@ -1,0 +1,22 @@
+{
+  "project": "stam-freight-control",
+  "authenticated": true,
+  "rulesRead": true,
+  "retrievedAt": "2026-11-15T12:32:38.225Z",
+  "releaseUpdatedAt": "2026-11-02T09:44:14.381426Z",
+  "rulesetName": "projects/stam-freight-control/rulesets/a7d0cc21-a8a3-4872-8144-0018c5d8de2e",
+  "productionRulesSHA256": "3d77ef212488d93245ae953edcfa46fcb4bcfa7d6872fda3abd82573a273bac0",
+  "flightPathPresent": false,
+  "permissions": {
+    "firebaserules.rulesets.get": true,
+    "firebaserules.rulesets.create": true,
+    "firebaserules.releases.get": true,
+    "firebaserules.releases.update": true,
+    "datastore.entities.get": true,
+    "datastore.entities.create": true,
+    "datastore.entities.update": true,
+    "datastore.entities.delete": true
+  },
+  "published": false,
+  "dataMutations": 0
+}

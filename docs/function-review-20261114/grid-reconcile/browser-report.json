@@ -1,0 +1,29 @@
+[
+  {
+    "ship": "drake-caterpillar",
+    "partner": "navigator",
+    "capacity": 576,
+    "mode": "detail",
+    "gridCount": 14,
+    "cargoVisible": true,
+    "errors": []
+  },
+  {
+    "ship": "aegis-idris-p",
+    "partner": "navigator",
+    "capacity": 1374,
+    "mode": "detail",
+    "gridCount": 25,
+    "cargoVisible": true,
+    "errors": []
+  },
+  {
+    "ship": "gatac-syulen",
+    "partner": "navigator",
+    "capacity": 6,
+    "mode": "detail",
+    "gridCount": 6,
+    "cargoVisible": true,
+    "errors": []
+  }
+]
