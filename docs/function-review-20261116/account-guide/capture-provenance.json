@@ -1,0 +1,66 @@
+{
+  "syntheticBackend": true,
+  "productionRequests": 0,
+  "userDataUsed": false,
+  "checks": [
+    "actual UI save and restore using sample flights",
+    "second device preserved until explicit load",
+    "cargo restored, previous flight backed up, timer paused"
+  ],
+  "records": [
+    {
+      "locale": "ko",
+      "step": "account-save",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\n다른 기기에서 이어하기\n\n계정에 저장한 운항이 없습니다.\n\n이 기기의 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\n로어빌\n선내 화물\n16 SCU\n계정에 저장된 운항\n\n저장된 운항 없음\n\n불러오기 전에 현재 운항을 이 기기에 백업합니다. 선적 위치와 완료 기록을 그대로 복원하며, 새 경로를 계산하지 않습니다.\n\n두 운항을 확인했으며, 아래에서 선택한 쪽으로 저장하거나 불러오겠습니다.\n이 기기 운항을 계정에 저장\n계정 운항 불러오기\n다시 확인\n연결한 운항의 변경을 자동 저장\n다른 기기에서 변경하면 자동 저장을 멈추고 다시 비교합니다. 오프라인에서도 이 기기의 운항은 유지됩니다."
+    },
+    {
+      "locale": "ko",
+      "step": "account-compare",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\n다른 기기에서 이어하기\n\n계정 운항과 현재 기기의 운항을 비교해 선택하세요.\n\n이 기기의 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\nArea18\n선내 화물\n8 SCU\n계정에 저장된 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\n로어빌\n선내 화물\n16 SCU\n2026. 11. 16. 오전 12:33:47 · Linux · Chrome\n\n불러오기 전에 현재 운항을 이 기기에 백업합니다. 선적 위치와 완료 기록을 그대로 복원하며, 새 경로를 계산하지 않습니다.\n\n두 운항을 확인했으며, 아래에서 선택한 쪽으로 저장하거나 불러오겠습니다.\n이 기기 운항을 계정에 저장\n계정 운항 불러오기\n다시 확인\n연결한 운항의 변경을 자동 저장\n다른 기기에서 변경하면 자동 저장을 멈추고 다시 비교합니다. 오프라인에서도 이 기기의 운항은 유지됩니다."
+    },
+    {
+      "locale": "ko",
+      "step": "account-restored",
+      "selector": ".flight-cloud-panel p[role=status]",
+      "text": "운항을 불러왔습니다. 운항 시간은 일시정지 상태입니다."
+    },
+    {
+      "locale": "en",
+      "step": "account-save",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\nContinue on another device\n\nNo flight saved to this account.\n\nThis device\nShip · partner\nDrake Cutlass Black · Navigator\nSelected contracts\n1\nProgress\n2 / 3\nCurrent location\nLorville\nAboard cargo\n16 SCU\nAccount flight\n\nNo saved flight\n\nLoading backs up this device’s current flight first. Cargo positions and completed steps are restored without replanning.\n\nI reviewed both flights and will save or load the selected one below.\nSave this flight to account\nLoad account flight\nRefresh comparison\nAutomatically save changes to the connected flight\nChanges from another device pause automatic saving for review. Your local flight remains available offline."
+    },
+    {
+      "locale": "en",
+      "step": "account-compare",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\nContinue on another device\n\nCompare the account flight with this device and choose.\n\nThis device\nShip · partner\nDrake Cutlass Black · Navigator\nSelected contracts\n1\nProgress\n2 / 3\nCurrent location\nArea18\nAboard cargo\n8 SCU\nAccount flight\nShip · partner\nDrake Cutlass Black · Navigator\nSelected contracts\n1\nProgress\n2 / 3\nCurrent location\nLorville\nAboard cargo\n16 SCU\n11/16/2026, 12:33:52 AM · Linux · Chrome\n\nLoading backs up this device’s current flight first. Cargo positions and completed steps are restored without replanning.\n\nI reviewed both flights and will save or load the selected one below.\nSave this flight to account\nLoad account flight\nRefresh comparison\nAutomatically save changes to the connected flight\nChanges from another device pause automatic saving for review. Your local flight remains available offline."
+    },
+    {
+      "locale": "en",
+      "step": "account-restored",
+      "selector": ".flight-cloud-panel p[role=status]",
+      "text": "Flight restored. The flight clock is paused."
+    },
+    {
+      "locale": "mix",
+      "step": "account-save",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\n다른 기기에서 이어하기\n\n계정에 저장한 운항이 없습니다.\n\n이 기기의 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\nLorville\n선내 화물\n16 SCU\n계정에 저장된 운항\n\n저장된 운항 없음\n\n불러오기 전에 현재 운항을 이 기기에 백업합니다. 선적 위치와 완료 기록을 그대로 복원하며, 새 경로를 계산하지 않습니다.\n\n두 운항을 확인했으며, 아래에서 선택한 쪽으로 저장하거나 불러오겠습니다.\n이 기기 운항을 계정에 저장\n계정 운항 불러오기\n다시 확인\n연결한 운항의 변경을 자동 저장\n다른 기기에서 변경하면 자동 저장을 멈추고 다시 비교합니다. 오프라인에서도 이 기기의 운항은 유지됩니다."
+    },
+    {
+      "locale": "mix",
+      "step": "account-compare",
+      "selector": ".flight-cloud-panel",
+      "text": "FLIGHT / CONTINUE\n다른 기기에서 이어하기\n\n계정 운항과 현재 기기의 운항을 비교해 선택하세요.\n\n이 기기의 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\nArea18\n선내 화물\n8 SCU\n계정에 저장된 운항\n함선 · 파트너\nDrake Cutlass Black · 수석 항해사\n선택 계약\n1\n운항 진행\n2 / 3\n현재 위치\nLorville\n선내 화물\n16 SCU\n2026. 11. 16. 오전 12:33:56 · Linux · Chrome\n\n불러오기 전에 현재 운항을 이 기기에 백업합니다. 선적 위치와 완료 기록을 그대로 복원하며, 새 경로를 계산하지 않습니다.\n\n두 운항을 확인했으며, 아래에서 선택한 쪽으로 저장하거나 불러오겠습니다.\n이 기기 운항을 계정에 저장\n계정 운항 불러오기\n다시 확인\n연결한 운항의 변경을 자동 저장\n다른 기기에서 변경하면 자동 저장을 멈추고 다시 비교합니다. 오프라인에서도 이 기기의 운항은 유지됩니다."
+    },
+    {
+      "locale": "mix",
+      "step": "account-restored",
+      "selector": ".flight-cloud-panel p[role=status]",
+      "text": "운항을 불러왔습니다. 운항 시간은 일시정지 상태입니다."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "four symptom sections, keyboard disclosure, three locales, no repeated screenshots, persistent shell",
+    "all guide links and direct screen links work without changing selected flight",
+    "feedback opens without submission or changes to the flight",
+    "390px expanded sections do not overflow"
+  ],
+  "errors": [],
+  "missing": [],
+  "productionWrites": 0
+}

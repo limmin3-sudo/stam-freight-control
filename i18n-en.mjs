@@ -160,6 +160,10 @@ export const PHRASES={
  '다른 기기 데이터 불러오기':'Load the other device’s data','이 브라우저 데이터로 덮어쓰기':'Overwrite with this browser','나중에':'Later','자동 저장이 멈춰 있습니다.':'Auto-save is paused.','미션·함선·설정·운항 기록이 계정에 자동 저장됩니다.':'Missions, ships, settings and run logs are saved to your account automatically.',
  '어느 쪽을 쓸지 고르기':'Choose which to keep','로그아웃':'Log out','수정 기록':'Change log','불러오는 중…':'Loading…','이 계정에서 저장된 변경만 표시됩니다. 로그아웃하면 이 브라우저는 로그인 전의 게스트 데이터로 돌아갑니다.':'Only changes saved by this account are shown. Logging out returns this browser to its guest data.',
  '아직 수정 기록이 없습니다.':'No changes yet.','아이디 만들기':'Create username','아이디':'Username','영문 소문자·숫자·_ 3~20자':'3–20 lowercase letters, digits or _','중복 확인':'Check','비밀번호 확인':'Confirm password','비밀번호':'Password','이미 아이디가 있어요 · 로그인':'I have a username · log in','처음이에요 · 아이디 만들기':'New here · create a username','또는':'or','Google로 로그인':'Log in with Google',
+ "로그인은 Google Firebase 인증으로 처리합니다. STAM 운영자는 저장된 비밀번호를 조회할 수 없습니다.":"Sign-in is handled by Google Firebase Authentication. STAM operators cannot retrieve your stored password.",
+ "Google 로그인은 기본 프로필과 이메일 확인에 사용하며, 메일이나 드라이브 내용에 접근하는 권한은 요청하지 않습니다.":"Google sign-in uses your basic profile and email address. We do not request access to your mail or Drive contents.",
+ "계정에 저장한 운항 정보는 다른 기기에서 이어하기에 사용됩니다. 로그인 없이도 이용할 수 있으며, 운항은 이 브라우저에 보관됩니다.":"Flight information saved to your account lets you continue on another device. You can also use STAM without signing in; your flight stays in this browser.",
+ "아이디 방식은 이메일이 없어 비밀번호를 잊으면 찾을 수 없습니다.":"Username accounts have no email address, so a forgotten password cannot be recovered.",
  '비밀번호는 Firebase가 암호화해 보관하며 사이트 운영자도 볼 수 없습니다. Google 로그인은 이름·이메일 확인 외의 권한을 요청하지 않습니다. 아이디 방식은 이메일이 없어 비밀번호를 잊으면 찾을 수 없습니다.':'Passwords are encrypted by Firebase; even the site operator cannot see them. Google login asks only for your name and email. Username accounts have no email, so a forgotten password cannot be recovered.',
  '사용할 수 있는 아이디입니다.':'Username available.','비밀번호 확인이 맞지 않습니다.':'Passwords do not match.','로그인 모듈을 불러오지 못했습니다:':'Could not load the login module:',
  // sync

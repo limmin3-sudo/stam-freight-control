@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "widths": [
+    {
+      "file": "ko-operation-actions-Do73JPQ1.png",
+      "natural": 303,
+      "display": 301
+    },
+    {
+      "file": "ko-operation-menu-D_DKAq-C.png",
+      "natural": 303,
+      "display": 301
+    },
+    {
+      "file": "ko-operation-route-DHquqCzY.png",
+      "natural": 673,
+      "display": 671
+    },
+    {
+      "file": "ko-operation-change-CBjg_HZF.png",
+      "natural": 840,
+      "display": 838
+    },
+    {
+      "file": "ko-operation-held-BoRfDZEf.png",
+      "natural": 840,
+      "display": 838
+    }
+  ],
+  "mobileOverflow": false
+}

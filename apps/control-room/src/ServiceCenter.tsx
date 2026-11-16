@@ -1,7 +1,8 @@
 import {FlightCloudPanel} from './FlightCloudPanel';
 import type {useFlightCloud} from './use-flight-cloud';
 import type {useFlight} from './use-flight';
-import {useEffect,useRef,useState} from 'react';
+import {lazy,Suspense,useEffect,useRef,useState} from 'react';
+const UserManual=lazy(()=>import('./UserManual').then(m=>({default:m.UserManual})));
 import type {Locale} from './navigation';
 import {serviceViews,type ServiceView} from './space-navigation';
 import {serviceControls} from './service-account.mjs';
@@ -9,7 +10,7 @@ import {shrinkFeedbackImage,submitFeedback} from '../../../feedback.mjs';
 import releaseUrl from '../../../data/releases.json?url';
 import './service-account.css';
 import './service-center.css';
-const names={account:['계정','Account'],history:['운송기록','Flight records'],feedback:['피드백 · 오류 신고','Feedback & bugs'],updates:['업데이트','Updates']};
+const names={account:['계정','Account'],history:['운송기록','Flight records'],feedback:['피드백 · 오류 신고','Feedback & bugs'],updates:['업데이트','Updates'],manual:['이용안내','User guide']};
 function AccountPanel({history=false}:{history?:boolean}){
  const host=useRef<HTMLDivElement>(null);
  useEffect(()=>{if(!host.current)return;const controls=serviceControls();return history?controls.mountHistory(host.current):controls.mountAccount(host.current);},[history]);
@@ -47,14 +48,16 @@ function UpdatesPanel({locale}:{locale:Locale}){
  </section>;
 }
 const descriptions:Record<ServiceView,readonly [string,string]>={
+ manual:['미션 준비부터 운항과 저장까지, 실제 화면으로 확인합니다.','Follow actual screens from mission setup to flight and saving.'],
  account:['로그인과 계정 저장 상태, 변경 기록을 확인합니다.','Manage sign-in, account saving and change history.'],
  history:['완료한 운송과 누적 실적을 확인합니다.','Review completed flights and your freight totals.'],
  feedback:['의견을 보내거나 발생한 문제를 알려주세요.','Share feedback or report a problem.'],
  updates:['새로 추가되거나 달라진 내용을 확인합니다.','See what is new and what has changed.'],
 };
-const codes:Record<ServiceView,string>={account:'PILOT ACCOUNT',history:'FLIGHT RECORDS',feedback:'FEEDBACK & SUPPORT',updates:'RELEASE NOTES'};
+const codes:Record<ServiceView,string>={account:'PILOT ACCOUNT',history:'FLIGHT RECORDS',feedback:'FEEDBACK & SUPPORT',updates:'RELEASE NOTES',manual:'FLIGHT MANUAL'};
 function ServiceGlyph({kind}:{kind:ServiceView}){
  return <svg className="interface-glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  {kind==='manual'&&<><path d="M20 9c-5-4-11-4-16-2v25c5-2 11-2 16 2 5-4 11-4 16-2V7c-5-2-11-2-16 2Z"/><path d="M20 9v25M9 14h6M9 20h6M25 14h6M25 20h6"/></>}
   {kind==='account'&&<><path d="m20 3 14 6v12c0 8-14 16-14 16S6 29 6 21V9Z" opacity=".45"/><circle cx="20" cy="15" r="5"/><path d="M11 29c0-9 18-9 18 0"/></>}
   {kind==='history'&&<><path d="M8 9a15 15 0 1 1-3 17M8 3v7H2"/><path d="M20 11v10l7 4"/><circle cx="20" cy="21" r="1"/></>}
   {kind==='feedback'&&<><path d="M5 8h30v20H19l-9 7v-7H5Z" opacity=".65"/><path d="M11 15h18M11 21h12"/></>}
@@ -76,7 +79,8 @@ export function ServiceCenter({locale,view,flight,cloud}:{locale:Locale;view?:Se
   </div>}
   {view&&<nav className="service-breadcrumb" aria-label={en?'Service location':'서비스센터 내 위치'}><a href={`#/service?lang=${locale}`}>{en?'Service centre':'서비스센터'}</a><span aria-hidden="true">/</span><h2 ref={title} tabIndex={-1}>{names[view][index]}</h2></nav>}
   {message&&<p role="status">{message}</p>}
-  <div className="service-content" hidden={!view}>
+  <div className={`service-content${view==='manual'?' service-manual':''}`} hidden={!view}>
+   {view==='manual'&&<Suspense fallback={<p role="status">{en?'Loading guide…':'이용안내를 불러오고 있습니다.'}</p>}><UserManual locale={locale}/></Suspense>}
    {view==='account'?<><FlightCloudPanel flight={flight} cloud={cloud} locale={locale}/><AccountPanel key="account"/></>:view==='history'?<AccountPanel key="history" history/>:view==='updates'?<UpdatesPanel locale={locale}/>:null}
    {feedbackVisited&&<div hidden={view!=='feedback'}><FeedbackPanel locale={locale}/></div>}
   </div>

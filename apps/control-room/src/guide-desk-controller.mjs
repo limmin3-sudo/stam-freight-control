@@ -218,9 +218,9 @@ const onKeyDown = event => {
 };
 root.addEventListener('keydown', onKeyDown);
 
-async function navigate(screen) {
+async function navigate(screen, serviceView) {
   if(['playing','ready','returning'].includes(stage.dataset.state)){
-    cancelPending();video.pause();idle.pause();returnVideo.pause();options.onNavigate(screen);return;
+    cancelPending();video.pause();idle.pause();returnVideo.pause();options.onNavigate(screen, serviceView);return;
   }
   if (screen === 'lounge') return returnToLounge();
   if (stage.dataset.state !== 'arrived') return;
@@ -228,11 +228,11 @@ async function navigate(screen) {
   stage.dataset.state='closing-action';
   toggle.disabled=true;showPanels(false);
   await waitForPanelExit();
-  if(current===sequence){stopIdle();options.onNavigate(screen);}
+  if(current===sequence){stopIdle();options.onNavigate(screen, serviceView);}
 }
 const actions=[...stage.querySelectorAll('.actions button')];
 actions[0].addEventListener('click',()=>navigate('mission'));
-actions[1].addEventListener('click',()=>{byId('greeting').textContent=word('미션 콘솔에서 함선과 출발지를 고른 뒤 계약을 담아 주세요. 항로와 적재를 확인하면 출항할 수 있어요.');});
+actions[1].addEventListener('click',()=>navigate('service','manual'));
 actions[2].addEventListener('click',()=>navigate('information'));
 const replies=[...stage.querySelectorAll('.replies button')];
 replies[0].addEventListener('click',()=>{byId('greeting').textContent=word('먼저 미션 콘솔에서 이번 운송에 담을 계약을 선택해 주세요. 확인한 계약으로 항로를 계산할 수 있어요.');});

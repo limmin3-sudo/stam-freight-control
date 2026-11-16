@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "build": "before",
+      "mode": "ended",
+      "width": 1600,
+      "motion": "reduce",
+      "active": "",
+      "nav": true,
+      "visible": true,
+      "ring": true,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "ended",
+      "width": 1600,
+      "motion": "no-preference",
+      "active": "space-title",
+      "nav": false,
+      "visible": true,
+      "ring": false,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "pointer",
+      "width": 1600,
+      "motion": "reduce",
+      "active": "space-title",
+      "nav": false,
+      "visible": true,
+      "ring": false,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "keyboard",
+      "width": 1600,
+      "motion": "reduce",
+      "active": "",
+      "nav": true,
+      "visible": true,
+      "ring": true,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "escape",
+      "width": 1600,
+      "motion": "reduce",
+      "active": "",
+      "nav": true,
+      "visible": true,
+      "ring": true,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "ended",
+      "width": 390,
+      "motion": "reduce",
+      "active": "space-title",
+      "nav": false,
+      "visible": true,
+      "ring": false,
+      "seen": "1",
+      "inert": false
+    },
+    {
+      "build": "after",
+      "mode": "keyboard",
+      "width": 390,
+      "motion": "reduce",
+      "active": "",
+      "nav": true,
+      "visible": true,
+      "ring": false,
+      "seen": "1",
+      "inert": false
+    }
+  ],
+  "scope": "real built application; natural completion handler dispatched as ended event, no full film playback"
+}

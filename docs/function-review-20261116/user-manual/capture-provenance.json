@@ -1,0 +1,112 @@
+{
+  "syntheticContracts": true,
+  "userDataUsed": false,
+  "source": "current app, actual clicks; isolated browser storage; element crops only",
+  "records": [
+    {
+      "locale": "ko",
+      "step": "prepare",
+      "selector": ".mission-preflight",
+      "route": "#/mission?lang=ko",
+      "content": "함선\nAegis Avenger Titan\nAegis Avenger Titan Renegade\nAegis Hammerhead\nAegis Idris-M\nAegis Idris-P\nAegis Reclaimer\nAegis Redeemer\nAegis Retaliator (화물 모듈 장착 시)\nAegis Tiburon\nAnvil Asgard\nAnvil C8 Pisces\nAnvil C8X Pisces Expedition\nAnvil Carrack\nAnvil Carrack Expedition\nAnvil F7C Hornet Mk II\nAnvil Paladin\nAnvil Valkyrie\nArgo MOLE\nArgo MOTH\nArgo RAFT\nArgo SRV\nC.O. Mustang Alpha\nC.O. Nomad\nCrusader A2 Hercules Starlifter\nCrusader C1 Spirit\nCrusader C2 Hercules Starlifter\nCrusader Intrepid\nCrusader M2 Hercules Starlifter\nCrusader Mercury Star Runner\nDrake Caterpillar\nDrake Clipper\nDrake Corsair\nDrake Cutlass Black\nDrake Cutlass Blue\nDrake Cutlass Red\nDrake Cutter\nDrake Cutter Rambler\nDrake Cutter Scout\nDrake Golem Ox\nDrake Ironclad\nDrake Ironclad Assault\nDrake Vulture\nEsperia Prowler Utility\nGatac Railen\nGatac Syulen\nGatac Tyilui\nGrey's Market Shiv\nMISC Fortune\nMISC Freelancer\nMISC Freelancer DUR\nMISC Freelancer MAX\nMISC Freelancer MIS\nMISC Hull A\nMISC Hull B\nMISC Hull C\nMISC Reliant Kore\nMISC Reliant Tana\nMISC Starfarer\nMISC Starfarer Gemini\nMISC Starlancer MAX\nMISC Starlancer TAC\nOrigin 100i\nOrigin 125a\nOrigin 135c\nOrigin 300i\nOrigin 315p\nOrigin 325a\nOrigin 350r\nOrigin 400i\nOrigin 600i Explorer\nOrigin 600i Touring\nOrigin 890 Jump\nOrigin M80\nRSI Apollo Medivac\nRSI Apollo Triage\nRSI Aurora Mk I CL\nRSI Aurora Mk I ES\nRSI Aurora Mk I LN\nRSI Aurora Mk I LX\nRSI Aurora Mk I MR\nRSI Aurora Mk I SE\nRSI Aurora Mk II\nRSI Constellation Andromeda\nRSI Constellation Aquila\nRSI Constellation Phoenix\nRSI Constellation Phoenix Emerald\nRSI Constellation Taurus\nRSI Hermes\nRSI Perseus\nRSI Polaris\nRSI Salvation\nRSI Zeus Mk II CL\nRSI Zeus Mk II ES\nAnvil Liberator\nRSI Galaxy\nRSI Galaxy (Cargo Module)\nRSI Galaxy (Medical Module)\n출발지\n운항 파트너\n브리지 오퍼레이터 · 경로 안내\n수석 항해사 · 경로와 적재\n\n픽업을 묶고, 각 구간의 적재 가능 여부까지 계산합니다."
+    },
+    {
+      "locale": "ko",
+      "step": "import",
+      "selector": ".mission-intake",
+      "route": "#/mission?lang=ko",
+      "content": "01 / CONTRACT INTAKE\n계약을 불러오세요\n\n로그 · 스크린샷 · 직접 입력 중 편한 방법을 선택하세요.\n\nGame.log\n로그 앱 연결\nGame.log 선택\n브라우저로 감시\n스크린샷 자동 인식\n스크린샷 여러 장 선택\n직접 입력\n+ 직접 입력\n텍스트 가져오기\n\n예시 계약을 보고 사용법을 확인할 수 있습니다.\n\n예시 계약 보기"
+    },
+    {
+      "locale": "ko",
+      "step": "select",
+      "selector": ".receipt-card:first-child",
+      "route": "#/mission?lang=ko",
+      "content": "선택됨\n광석\n총량 확인 · 배치 예상\n로어빌 → Area18\n16 SCU\n상세 · 수정"
+    },
+    {
+      "locale": "ko",
+      "step": "calculate",
+      "selector": ".manifest-summary",
+      "route": "#/mission?lang=ko",
+      "content": "03 / ROUTE PLANNING\n이번 운송\n2\n개 계약 선택\n광석\n16 SCU\n−\n의료 물자\n8 SCU\n−\n총 운송량\n24 SCU\n사용 가능한 적재 용량\n46 SCU\n입력된 보상 합계\n56,500 aUEC\n\n총 운송량은 동시에 싣는 양과 다릅니다. 각 구간의 공간과 상자 배치를 함께 확인합니다.\n\n선택한 계약으로 경로·적재 계산\n↗\n적재 상세 열기"
+    },
+    {
+      "locale": "ko",
+      "step": "progress",
+      "selector": ".ops-progress",
+      "route": "#/operations?lang=ko",
+      "content": "운항 진행\n운항 중\n1\n\n현재 위치 · 로어빌\n\n로어빌\n\n다음 · Area18\n\n접수 완료Space\n운항 관리\n직전 작업 되돌리기\n운항 기록 · 보상\n방문 순서 수정\n운항 백업 · 복원"
+    },
+    {
+      "locale": "en",
+      "step": "prepare",
+      "selector": ".mission-preflight",
+      "route": "#/mission?lang=en",
+      "content": "Ship\nAegis Avenger Titan\nAegis Avenger Titan Renegade\nAegis Hammerhead\nAegis Idris-M\nAegis Idris-P\nAegis Reclaimer\nAegis Redeemer\nAegis Retaliator (화물 모듈 장착 시)\nAegis Tiburon\nAnvil Asgard\nAnvil C8 Pisces\nAnvil C8X Pisces Expedition\nAnvil Carrack\nAnvil Carrack Expedition\nAnvil F7C Hornet Mk II\nAnvil Paladin\nAnvil Valkyrie\nArgo MOLE\nArgo MOTH\nArgo RAFT\nArgo SRV\nC.O. Mustang Alpha\nC.O. Nomad\nCrusader A2 Hercules Starlifter\nCrusader C1 Spirit\nCrusader C2 Hercules Starlifter\nCrusader Intrepid\nCrusader M2 Hercules Starlifter\nCrusader Mercury Star Runner\nDrake Caterpillar\nDrake Clipper\nDrake Corsair\nDrake Cutlass Black\nDrake Cutlass Blue\nDrake Cutlass Red\nDrake Cutter\nDrake Cutter Rambler\nDrake Cutter Scout\nDrake Golem Ox\nDrake Ironclad\nDrake Ironclad Assault\nDrake Vulture\nEsperia Prowler Utility\nGatac Railen\nGatac Syulen\nGatac Tyilui\nGrey's Market Shiv\nMISC Fortune\nMISC Freelancer\nMISC Freelancer DUR\nMISC Freelancer MAX\nMISC Freelancer MIS\nMISC Hull A\nMISC Hull B\nMISC Hull C\nMISC Reliant Kore\nMISC Reliant Tana\nMISC Starfarer\nMISC Starfarer Gemini\nMISC Starlancer MAX\nMISC Starlancer TAC\nOrigin 100i\nOrigin 125a\nOrigin 135c\nOrigin 300i\nOrigin 315p\nOrigin 325a\nOrigin 350r\nOrigin 400i\nOrigin 600i Explorer\nOrigin 600i Touring\nOrigin 890 Jump\nOrigin M80\nRSI Apollo Medivac\nRSI Apollo Triage\nRSI Aurora Mk I CL\nRSI Aurora Mk I ES\nRSI Aurora Mk I LN\nRSI Aurora Mk I LX\nRSI Aurora Mk I MR\nRSI Aurora Mk I SE\nRSI Aurora Mk II\nRSI Constellation Andromeda\nRSI Constellation Aquila\nRSI Constellation Phoenix\nRSI Constellation Phoenix Emerald\nRSI Constellation Taurus\nRSI Hermes\nRSI Perseus\nRSI Polaris\nRSI Salvation\nRSI Zeus Mk II CL\nRSI Zeus Mk II ES\nAnvil Liberator\nRSI Galaxy\nRSI Galaxy (Cargo Module)\nRSI Galaxy (Medical Module)\nDeparture\nFlight partner\nBridge operator · Route guidance\nSenior navigator · Route & cargo\n\nBatch pickups and check cargo fit at every stop."
+    },
+    {
+      "locale": "en",
+      "step": "import",
+      "selector": ".mission-intake",
+      "route": "#/mission?lang=en",
+      "content": "01 / CONTRACT INTAKE\nBring in your contracts\n\nChoose a log, screenshots or manual entry.\n\nGame.log\nConnect log app\nChoose Game.log\nWatch in browser\nScreenshot recognition\nChoose screenshots\nManual entry\n+ Manual entry\nImport text\n\nTry sample contracts to explore the flow.\n\nShow sample contracts"
+    },
+    {
+      "locale": "en",
+      "step": "select",
+      "selector": ".receipt-card:first-child",
+      "route": "#/mission?lang=en",
+      "content": "Selected\nOre\nKnown total · Estimated boxes\nLorville → Area18\n16 SCU\nDetails · Edit"
+    },
+    {
+      "locale": "en",
+      "step": "calculate",
+      "selector": ".manifest-summary",
+      "route": "#/mission?lang=en",
+      "content": "03 / ROUTE PLANNING\nThis flight\n2\ncontracts selected\nOre\n16 SCU\n−\nMedical supplies\n8 SCU\n−\nTotal freight\n24 SCU\nAvailable cargo capacity\n46 SCU\nEntered rewards\n56,500 aUEC\n\nTotal freight differs from peak load. Every leg is checked for capacity and box fit.\n\nPlan route & cargo\n↗\nOpen cargo details"
+    },
+    {
+      "locale": "en",
+      "step": "progress",
+      "selector": ".ops-progress",
+      "route": "#/operations?lang=en",
+      "content": "Flight progress\nIn flight\n1\n\nCurrent position · Lorville\n\nLorville\n\nNext · Area18\n\nConfirm pickupSpace\nRun options\nUndo last action\nFlight record · Rewards\nEdit stop order\nFlight backup · restore"
+    },
+    {
+      "locale": "mix",
+      "step": "prepare",
+      "selector": ".mission-preflight",
+      "route": "#/mission?lang=mix",
+      "content": "함선\nAegis Avenger Titan\nAegis Avenger Titan Renegade\nAegis Hammerhead\nAegis Idris-M\nAegis Idris-P\nAegis Reclaimer\nAegis Redeemer\nAegis Retaliator (화물 모듈 장착 시)\nAegis Tiburon\nAnvil Asgard\nAnvil C8 Pisces\nAnvil C8X Pisces Expedition\nAnvil Carrack\nAnvil Carrack Expedition\nAnvil F7C Hornet Mk II\nAnvil Paladin\nAnvil Valkyrie\nArgo MOLE\nArgo MOTH\nArgo RAFT\nArgo SRV\nC.O. Mustang Alpha\nC.O. Nomad\nCrusader A2 Hercules Starlifter\nCrusader C1 Spirit\nCrusader C2 Hercules Starlifter\nCrusader Intrepid\nCrusader M2 Hercules Starlifter\nCrusader Mercury Star Runner\nDrake Caterpillar\nDrake Clipper\nDrake Corsair\nDrake Cutlass Black\nDrake Cutlass Blue\nDrake Cutlass Red\nDrake Cutter\nDrake Cutter Rambler\nDrake Cutter Scout\nDrake Golem Ox\nDrake Ironclad\nDrake Ironclad Assault\nDrake Vulture\nEsperia Prowler Utility\nGatac Railen\nGatac Syulen\nGatac Tyilui\nGrey's Market Shiv\nMISC Fortune\nMISC Freelancer\nMISC Freelancer DUR\nMISC Freelancer MAX\nMISC Freelancer MIS\nMISC Hull A\nMISC Hull B\nMISC Hull C\nMISC Reliant Kore\nMISC Reliant Tana\nMISC Starfarer\nMISC Starfarer Gemini\nMISC Starlancer MAX\nMISC Starlancer TAC\nOrigin 100i\nOrigin 125a\nOrigin 135c\nOrigin 300i\nOrigin 315p\nOrigin 325a\nOrigin 350r\nOrigin 400i\nOrigin 600i Explorer\nOrigin 600i Touring\nOrigin 890 Jump\nOrigin M80\nRSI Apollo Medivac\nRSI Apollo Triage\nRSI Aurora Mk I CL\nRSI Aurora Mk I ES\nRSI Aurora Mk I LN\nRSI Aurora Mk I LX\nRSI Aurora Mk I MR\nRSI Aurora Mk I SE\nRSI Aurora Mk II\nRSI Constellation Andromeda\nRSI Constellation Aquila\nRSI Constellation Phoenix\nRSI Constellation Phoenix Emerald\nRSI Constellation Taurus\nRSI Hermes\nRSI Perseus\nRSI Polaris\nRSI Salvation\nRSI Zeus Mk II CL\nRSI Zeus Mk II ES\nAnvil Liberator\nRSI Galaxy\nRSI Galaxy (Cargo Module)\nRSI Galaxy (Medical Module)\n출발지\n운항 파트너\n브리지 오퍼레이터 · 경로 안내\n수석 항해사 · 경로와 적재\n\n픽업을 묶고, 각 구간의 적재 가능 여부까지 계산합니다."
+    },
+    {
+      "locale": "mix",
+      "step": "import",
+      "selector": ".mission-intake",
+      "route": "#/mission?lang=mix",
+      "content": "01 / CONTRACT INTAKE\n계약을 불러오세요\n\n로그 · 스크린샷 · 직접 입력 중 편한 방법을 선택하세요.\n\nGame.log\n로그 앱 연결\nGame.log 선택\n브라우저로 감시\n스크린샷 자동 인식\n스크린샷 여러 장 선택\n직접 입력\n+ 직접 입력\n텍스트 가져오기\n\n예시 계약을 보고 사용법을 확인할 수 있습니다.\n\n예시 계약 보기"
+    },
+    {
+      "locale": "mix",
+      "step": "select",
+      "selector": ".receipt-card:first-child",
+      "route": "#/mission?lang=mix",
+      "content": "선택됨\nOre\n총량 확인 · 배치 예상\nLorville → Area18\n16 SCU\n상세 · 수정"
+    },
+    {
+      "locale": "mix",
+      "step": "calculate",
+      "selector": ".manifest-summary",
+      "route": "#/mission?lang=mix",
+      "content": "03 / ROUTE PLANNING\n이번 운송\n2\n개 계약 선택\nOre\n16 SCU\n−\nMedical supplies\n8 SCU\n−\n총 운송량\n24 SCU\n사용 가능한 적재 용량\n46 SCU\n입력된 보상 합계\n56,500 aUEC\n\n총 운송량은 동시에 싣는 양과 다릅니다. 각 구간의 공간과 상자 배치를 함께 확인합니다.\n\n선택한 계약으로 경로·적재 계산\n↗\n적재 상세 열기"
+    },
+    {
+      "locale": "mix",
+      "step": "progress",
+      "selector": ".ops-progress",
+      "route": "#/operations?lang=mix",
+      "content": "운항 진행\n운항 중\n1\n\n현재 위치 · Lorville\n\nLorville\n\n다음 · Area18\n\n접수 완료Space\n운항 관리\n직전 작업 되돌리기\n운항 기록 · 보상\n방문 순서 수정\n운항 백업 · 복원"
+    }
+  ]
+}

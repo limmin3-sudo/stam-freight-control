@@ -55,7 +55,6 @@ const names: Record<SpaceScreen, readonly [string, string]> = {
 };
 // Read-only public resources. This preview never imports the legacy app's DOM
 // bootstrap or moves its contracts into another origin/storage namespace.
-const publicSite = 'https://limmin3-sudo.github.io/stam-freight-control/';
 const revealMs = 180;
 // Keep the previous 850ms approach + 180ms reveal budget, with a brief ignition.
 const departureMs = Math.round(spaceConfig.approachMs * .82);
@@ -414,7 +413,7 @@ export function SpaceExperience() {
         </div>
         <div className="space-scene-note"><span>{scene === 'lounge' ? 'STAM / WELCOME ABOARD' : 'STAM / ORBITAL FREIGHT DIVISION'}</span><p>{en ? 'Select a location, or use the shortcuts.' : '공간 속 대상을 선택하거나 바로가기를 이용하세요.'}</p></div>
       </section> : route.screen==='guide' ? <GuideDesk ref={guideController} locale={route.locale} startWithApproach={guideApproach.current} motion={motion} sound={sound}
-        onNavigate={screen=>{location.hash=spaceHash({...route,screen});}}
+        onNavigate={(screen,serviceView)=>{location.hash=spaceHash({...route,screen,serviceView});}}
         onLounge={()=>{location.hash=spaceHash({...route,screen:'lounge'});}}/> : <section className={`space-room room-${route.screen}`} aria-labelledby="space-title" inert={tourTravelling||undefined}>
         <div className="space-room-background" style={{ backgroundImage: `url(${configuration.image})` }} aria-hidden="true" />
         <header className="space-room-heading"><div><p>STAM LOUNGE / {route.screen.toUpperCase()}</p><h1 id="space-title" ref={heading} tabIndex={-1}>{route.view==='missions'?(en?'Mission catalogue':'미션 자료'):word(names[route.screen])}</h1></div></header>
@@ -425,9 +424,9 @@ export function SpaceExperience() {
             [en?'Mission catalogue':'미션 자료',en?'Compare mission rewards and cargo conditions. SCMDB comes first; Wiki fills missing information.':'SCMDB를 우선하고, 부족한 정보는 위키로 보충한 미션 자료입니다.',href('information','missions'),'mission','MISSION ARCHIVE'],
             [en?'Ships':'함선 자료',en?'Cargo grids, capacity and factory flight performance.':'함선 구성·적재 용량·구역·기본 성능을 확인합니다.',href('information','ships'),'map','SHIP ARCHIVE'],
             [en?'Cargo':'화물 자료',en?'Cargo names, catalogue container limits and related missions.':'화물 품목·목록 상자 규격·관련 미션을 확인합니다.',href('information','cargo'),'mission','CARGO ARCHIVE'],
-            [en?'Freight manual':'운송 이용안내',en?'Check ship preparation, contract intake, routes and cargo rules.':'함선 준비부터 계약 입력·항로 계산·화물 적재까지 확인합니다.',`${publicSite}guide.html`,'operations','FLIGHT MANUAL'],
+            [en?'Freight manual':'운송 이용안내',en?'Check ship preparation, contract intake, routes and cargo rules.':'함선 준비부터 계약 입력·항로 계산·화물 적재까지 확인합니다.',`#/service?lang=${route.locale}&section=manual`,'operations','FLIGHT MANUAL'],
             [en?'SCMDB source':'SCMDB 원본 자료',en?'Visit the source database for ships, missions and game data.':'함선·미션·게임 데이터의 원본 출처를 확인합니다.','https://scmdb.dev/','map','SOURCE DATABASE'],
-          ].map(([title,description,link,icon,code])=><a key={code} href={link} target={code?.endsWith('ARCHIVE')?undefined:'_blank'} rel={code?.endsWith('ARCHIVE')?undefined:'noopener noreferrer'} onClick={code?.endsWith('ARCHIVE')?event=>enter(event,'information',undefined,code==='SHIP ARCHIVE'?'ships':code==='CARGO ARCHIVE'?'cargo':'missions'):undefined}><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} {code?.endsWith('ARCHIVE')?'→':'↗'}</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
+          ].map(([title,description,link,icon,code])=><a key={code} href={link} target={code==='FLIGHT MANUAL'||code?.endsWith('ARCHIVE')?undefined:'_blank'} rel={code==='FLIGHT MANUAL'||code?.endsWith('ARCHIVE')?undefined:'noopener noreferrer'} onClick={code?.endsWith('ARCHIVE')?event=>enter(event,'information',undefined,code==='SHIP ARCHIVE'?'ships':code==='CARGO ARCHIVE'?'cargo':'missions'):undefined}><div className="room-card-symbol"><InterfaceGlyph kind={icon as 'mission'|'map'|'operations'}/><small>{code}</small></div><h2>{title}</h2><p>{description}</p><span>{en?'Open reference':'자료 열기'} {code==='FLIGHT MANUAL'||code?.endsWith('ARCHIVE')?'→':'↗'}</span></a>)}<p className="room-reference-sources">{en?'Sources: ':'자료 출처: '}<a href="https://scmdb.dev/" target="_blank" rel="noopener noreferrer">SCMDB</a> · <a href="https://api.star-citizen.wiki/missions" target="_blank" rel="noopener noreferrer">Star Citizen Wiki ↗</a></p>
         </div>}
         {route.screen==='information'&&route.view==='missions'&&<ArchiveBoundary en={en}><Suspense fallback={<p className="archive-load-state" role="status">{en?'Loading mission reference…':'미션 자료를 불러오고 있습니다.'}</p>}><MissionArchive locale={route.locale}/></Suspense></ArchiveBoundary>}
         {route.screen==='information'&&(route.view==='ships'||route.view==='cargo')&&<ArchiveBoundary en={en}><Suspense fallback={<p role="status">{en?'Loading reference…':'자료를 불러오는 중…'}</p>}><FreightArchive locale={route.locale} view={route.view}/></Suspense></ArchiveBoundary>}

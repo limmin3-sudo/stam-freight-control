@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "service guide entry, five topics, persistent topbar/sidebar",
+    "five unique matching real screenshots, step jumps, no people/video/iframe",
+    "reload/back navigation and selected flight preserved",
+    "English and mixed mode use their own actual UI screenshots",
+    "mobile no overflow; actual-screen link keeps selected contracts",
+    "archive manual opens within same persistent shell",
+    "log app: four setup steps, three relevant screenshots, matching installer link, three languages/mobile and stored flight preserved",
+    "account guide: save/load direction, four stages, three distinct screenshots, languages/mobile and account link preserve local flight"
+  ],
+  "errors": [],
+  "missing": [],
+  "fixture": "isolated sample contracts; no production account writes"
+}

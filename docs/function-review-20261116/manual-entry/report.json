@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Game-first order across four guide chapters and three locales",
+    "Welcome-desk hauling guide opens new manual with locale and fixed shell on desktop/mobile",
+    "First-haul and information actions retained; selected flight unchanged"
+  ],
+  "errors": [],
+  "productionWrites": 0
+}

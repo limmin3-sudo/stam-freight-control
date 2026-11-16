@@ -21,3 +21,9 @@ Windows 사용자 PC 고배율·실게임 장시간 검증은 사용자가 보�
 추가 기존 화면 검증: 브리핑/기존 화물 렌더링·한/영·모바일, 미션 자료실 검색·보상/수량·상세·저장 보존 통과. 자료실의 과거 빌드 번호 고정 검사도 현재 SCMDB 원문 버전 표시 확인으로 갱신했다. CI에서 그 앞의 안내·파트너·준비창·퀀텀·그리드·수신함·합계 예약 검사는 이미 통과했다.
 
 기존 공개 탭 자동 로그 연결→수주 계약 확인→452 SCU 경로/적재·중복 추가 방지·기존 수동 계약 보존 브라우저 검증도 통과했다.
+
+## 공개 확인 완료
+
+최종 웹 SHA `8c9b06a80b20c9a2bcf787db62c8ee4c3625fd03`, [Pages 실행 성공](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43721716347). `published-check.json`은 실제 공개 version.json/HTML SHA, 계정 이어하기 패널·함선 자료실·2.9 업데이트·투어/고정 메뉴·설치 링크 확인 결과다. 공개 설치 EXE/ZIP의 해시가 최종 메타데이터와 일치한다. 실제 Firebase 저장 검증은 별도 운영 근거를 유지한다. 이 완료 문서는 배포 후 로컬 기록이며 불필요한 문서 전용 재배포는 하지 않았다.
+
+최종 커밋의 [기존 운항 브라우저 CI](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43721716484)도 성공했다.

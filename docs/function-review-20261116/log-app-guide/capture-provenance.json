@@ -1,0 +1,69 @@
+{
+  "userDataUsed": false,
+  "installerScreenshot": false,
+  "records": [
+    {
+      "locale": "ko",
+      "step": "download",
+      "selector": ".space-topbar",
+      "text": "STAM\nFREIGHT DIVISION\n앱 다운로드\n표시 언어\n한국어\n한/영\nEnglish",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "ko",
+      "step": "connected",
+      "selector": ".mission-source.receipt-import",
+      "text": "Game.log\n앱 연결 중지\nGame.log 선택\n브라우저로 감시\n앱 자동 수신 중",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "ko",
+      "step": "app-window",
+      "source": "docs/function-review-20261114/log-companion/companion-ko-windows.png",
+      "testedSourceCommit": "66c26ac84d7a22824be7f2bf3794b828482f145f",
+      "note": "Native Windows form capture. Launcher.cs and installer.iss unchanged through HEAD 8c9b06a. Ready state, not connected."
+    },
+    {
+      "locale": "en",
+      "step": "download",
+      "selector": ".space-topbar",
+      "text": "STAM\nFREIGHT DIVISION\nDownload app\nDisplay language\n한국어\n한/영\nEnglish",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "en",
+      "step": "connected",
+      "selector": ".mission-source.receipt-import",
+      "text": "Game.log\nDisconnect app\nChoose Game.log\nWatch in browser\nReceiving from app",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "en",
+      "step": "app-window",
+      "source": "docs/function-review-20261114/log-companion/companion-en-windows.png",
+      "testedSourceCommit": "66c26ac84d7a22824be7f2bf3794b828482f145f",
+      "note": "Native Windows form capture. Launcher.cs and installer.iss unchanged through HEAD 8c9b06a. Ready state, not connected."
+    },
+    {
+      "locale": "mix",
+      "step": "download",
+      "selector": ".space-topbar",
+      "text": "STAM\nFREIGHT DIVISION\n앱 다운로드\n표시 언어\n한국어\n한/영\nEnglish",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "mix",
+      "step": "connected",
+      "selector": ".mission-source.receipt-import",
+      "text": "Game.log\n앱 연결 중지\nGame.log 선택\n브라우저로 감시\n앱 자동 수신 중",
+      "source": "built site; actual local API; synthetic log; isolated storage"
+    },
+    {
+      "locale": "mix",
+      "step": "app-window",
+      "source": "docs/function-review-20261114/log-companion/companion-ko-windows.png",
+      "testedSourceCommit": "66c26ac84d7a22824be7f2bf3794b828482f145f",
+      "note": "Native Windows form capture. Launcher.cs and installer.iss unchanged through HEAD 8c9b06a. Ready state, not connected."
+    }
+  ]
+}

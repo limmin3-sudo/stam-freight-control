@@ -1,0 +1,103 @@
+{
+  "sampleFlight": true,
+  "userDataUsed": false,
+  "checks": [
+    "complete then undo restores cargo",
+    "pending cancellation does not remove cargo",
+    "confirmed exclusion holds cargo",
+    "explicit physical unload removes only selected box"
+  ],
+  "records": [
+    {
+      "locale": "ko",
+      "step": "operation-actions",
+      "selector": ".flight-actions",
+      "text": "배송 완료Space\n운항 관리\n직전 작업 되돌리기"
+    },
+    {
+      "locale": "ko",
+      "step": "operation-menu",
+      "selector": ".ops-run-menu",
+      "text": "운항 관리\n타이머 재개\n현재 위치에서 재계산\n이 거점 나중에\n운항 종료"
+    },
+    {
+      "locale": "ko",
+      "step": "operation-route",
+      "selector": ".flight-route-editor",
+      "text": "방문 순서 수정\nArea18\n↑\n↓\n빼기\n추가할 거점\n거점 추가적용하고 재계산\n실제 함선 위치\n선택한 위치에서 재계산"
+    },
+    {
+      "locale": "ko",
+      "step": "operation-change",
+      "selector": ".receipt-update-dialog:not(.held-cargo-dialog)",
+      "text": "FLIGHT / CONTRACT UPDATE\n운항 계약 변경 확인\n\n확인 전에는 경로가 바뀌지 않습니다. 현재 위치에서 남은 작업만 재계산하며 선적 위치와 완료 기록을 보존합니다.\n\n종료·취소 신호\n현재 운항\n광석\n광석 · 16 SCU\n로어빌 → Area18\n\n보상 · 32,500 aUEC\n\n최근 수신\n광석\n광석 · 16 SCU\n로어빌 → Area18\n\n보상 · 32,500 aUEC\n\n이 계약의 남은 픽업·배송을 경로에서 제외합니다. 실린 화물은 선내 보류로 남고 공간도 계속 차지합니다. 배송 완료나 보상 수령으로 기록하지 않습니다.\n\n나중에 확인\n확인하고 남은 경로 재계산"
+    },
+    {
+      "locale": "ko",
+      "step": "operation-held",
+      "selector": ".held-cargo-dialog",
+      "text": "게임에서 내린 보류 화물을 확인하세요\n\n실제로 함선에서 내린 상자만 선택하세요. 남은 화물의 위치는 유지하고, 취소 계약의 배송 완료나 보상으로 기록하지 않습니다.\n\n광석 · Ore · 8 SCU\nMain · 0, 0, 3 · manual-haul:0:0\n광석 · Ore · 8 SCU\nMain · 2, 0, 3 · manual-haul:0:1\n선택한 상자를 게임에서 실제로 내렸습니다.\n\n확인하면 남은 경로를 다시 계산합니다. 이전 운항은 백업으로 보관됩니다.\n\n취소\n선택한 상자 하역 확인"
+    },
+    {
+      "locale": "en",
+      "step": "operation-actions",
+      "selector": ".flight-actions",
+      "text": "Confirm deliverySpace\nRun options\nUndo last action"
+    },
+    {
+      "locale": "en",
+      "step": "operation-menu",
+      "selector": ".ops-run-menu",
+      "text": "Run options\nResume timer\nReplan from here\nDefer this stop\nEnd run"
+    },
+    {
+      "locale": "en",
+      "step": "operation-route",
+      "selector": ".flight-route-editor",
+      "text": "Edit stop order\nArea18\n↑\n↓\nRemove\nAdditional stop\nAdd stopApply and recalculate\nActual ship location\nReplan from this location"
+    },
+    {
+      "locale": "en",
+      "step": "operation-change",
+      "selector": ".receipt-update-dialog:not(.held-cargo-dialog)",
+      "text": "FLIGHT / CONTRACT UPDATE\nReview flight contract changes\n\nYour route stays unchanged until confirmation. Replan remaining work from your current location while preserving cargo positions and completed records.\n\nEnded / cancelled signal\nCurrent flight\nOre\nOre · 16 SCU\nLorville → Area18\n\nReward · 32,500 aUEC\n\nLatest receipt\nOre\nOre · 16 SCU\nLorville → Area18\n\nReward · 32,500 aUEC\n\nRemove this contract’s remaining pickups and deliveries from the route. Its aboard cargo stays on hold and continues to occupy space. This does not record delivery success or payment.\n\nReview later\nConfirm and replan remaining route"
+    },
+    {
+      "locale": "en",
+      "step": "operation-held",
+      "selector": ".held-cargo-dialog",
+      "text": "Confirm the held crates unloaded in game\n\nSelect only crates physically removed from the ship. Other cargo stays in place. Cancelled contracts are not marked delivered or paid.\n\nOre · Ore · 8 SCU\nMain · 0, 0, 3 · manual-haul:0:0\nOre · Ore · 8 SCU\nMain · 2, 0, 3 · manual-haul:0:1\nI physically unloaded the selected crates in game.\n\nConfirmation replans the remaining route and keeps the previous flight as a backup.\n\nCancel\nConfirm selected crates unloaded"
+    },
+    {
+      "locale": "mix",
+      "step": "operation-actions",
+      "selector": ".flight-actions",
+      "text": "배송 완료Space\n운항 관리\n직전 작업 되돌리기"
+    },
+    {
+      "locale": "mix",
+      "step": "operation-menu",
+      "selector": ".ops-run-menu",
+      "text": "운항 관리\n타이머 재개\n현재 위치에서 재계산\n이 거점 나중에\n운항 종료"
+    },
+    {
+      "locale": "mix",
+      "step": "operation-route",
+      "selector": ".flight-route-editor",
+      "text": "방문 순서 수정\nArea18\n↑\n↓\n빼기\n추가할 거점\n거점 추가적용하고 재계산\n실제 함선 위치\n선택한 위치에서 재계산"
+    },
+    {
+      "locale": "mix",
+      "step": "operation-change",
+      "selector": ".receipt-update-dialog:not(.held-cargo-dialog)",
+      "text": "FLIGHT / CONTRACT UPDATE\n운항 계약 변경 확인\n\n확인 전에는 경로가 바뀌지 않습니다. 현재 위치에서 남은 작업만 재계산하며 선적 위치와 완료 기록을 보존합니다.\n\n종료·취소 신호\n현재 운항\nOre\nOre · 16 SCU\nLorville → Area18\n\n보상 · 32,500 aUEC\n\n최근 수신\nOre\nOre · 16 SCU\nLorville → Area18\n\n보상 · 32,500 aUEC\n\n이 계약의 남은 픽업·배송을 경로에서 제외합니다. 실린 화물은 선내 보류로 남고 공간도 계속 차지합니다. 배송 완료나 보상 수령으로 기록하지 않습니다.\n\n나중에 확인\n확인하고 남은 경로 재계산"
+    },
+    {
+      "locale": "mix",
+      "step": "operation-held",
+      "selector": ".held-cargo-dialog",
+      "text": "게임에서 내린 보류 화물을 확인하세요\n\n실제로 함선에서 내린 상자만 선택하세요. 남은 화물의 위치는 유지하고, 취소 계약의 배송 완료나 보상으로 기록하지 않습니다.\n\n광석 · Ore · 8 SCU\nMain · 0, 0, 3 · manual-haul:0:0\n광석 · Ore · 8 SCU\nMain · 2, 0, 3 · manual-haul:0:1\n선택한 상자를 게임에서 실제로 내렸습니다.\n\n확인하면 남은 경로를 다시 계산합니다. 이전 운항은 백업으로 보관됩니다.\n\n취소\n선택한 상자 하역 확인"
+    }
+  ],
+  "errors": []
+}

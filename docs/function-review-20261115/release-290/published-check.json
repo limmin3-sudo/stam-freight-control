@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checkedAt": "2026-11-15T14:00:03.538Z",
+  "version": "8c9b06a80b20c9a2bcf787db62c8ee4c3625fd03",
+  "web": "beta 2.9.0",
+  "app": "app.1.4.0",
+  "downloadHashesVerified": true,
+  "checks": [
+    "published commit, cloud panel and installer link",
+    "published ship reference",
+    "published 2.9 update history",
+    "published tour entry and persistent shell"
+  ],
+  "errors": [],
+  "missing": [],
+  "browserTransport": "public HTTPS responses forwarded with TLS validation through environment proxy; Firebase login excluded (separate production evidence)"
+}

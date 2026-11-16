@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Korean and English login and signup notices",
+    "matching account guide notice",
+    "mobile no horizontal overflow"
+  ],
+  "errors": [],
+  "realLoginAttempted": false
+}

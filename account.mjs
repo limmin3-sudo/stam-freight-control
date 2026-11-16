@@ -19,6 +19,7 @@ const message=e=>ERRORS[e?.code]||e?.message||String(e);
 const device=()=>{const ua=navigator.userAgent||'';const os=/Windows/.test(ua)?'Windows':/Mac OS/.test(ua)?'Mac':/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Linux/.test(ua)?'Linux':'기기';const br=/Edg\//.test(ua)?'Edge':/Whale\//.test(ua)?'Whale':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'브라우저';return `${os} · ${br}`;};
 // Login is optional. Shown wherever the account is offered.
 const LOGIN_NOTE=`<div class="account-note" data-i18n="login-note"><b>로그인은 선택입니다.</b> 로그인하지 않아도 모든 기능을 그대로 쓸 수 있고, 데이터는 이 브라우저에 저장됩니다.<ul><li>로그인하면 <b>계정별 수정 기록</b>이 남아 언제·어느 기기에서 무엇을 바꿨는지 볼 수 있습니다.</li><li>미션·함선·설정과 <b>운항 기록(누적 수익)</b>을 다른 PC에서도 이어서 봅니다.</li></ul></div>`;
+const AUTH_INFO=[["로그인은 Google Firebase 인증으로 처리합니다. STAM 운영자는 저장된 비밀번호를 조회할 수 없습니다.", "Sign-in is handled by Google Firebase Authentication. STAM operators cannot retrieve your stored password."], ["Google 로그인은 기본 프로필과 이메일 확인에 사용하며, 메일이나 드라이브 내용에 접근하는 권한은 요청하지 않습니다.", "Google sign-in uses your basic profile and email address. We do not request access to your mail or Drive contents."], ["계정에 저장한 운항 정보는 다른 기기에서 이어하기에 사용됩니다. 로그인 없이도 이용할 수 있으며, 운항은 이 브라우저에 보관됩니다.", "Flight information saved to your account lets you continue on another device. You can also use STAM without signing in; your flight stays in this browser."]];
 const HISTORY_LINK='<div class="account-actions"><button type="button" data-act="history">운항 기록 보기</button><button type="button" data-act="reset-history" class="quiet danger">운항기록 초기화</button></div>';
 export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,resetHistory,historyContext=false}={}){
  const loginNote=historyContext?'<p>로그인 없이도 이 브라우저의 완료 운송기록을 볼 수 있습니다. 로그인하면 다른 기기와 기록을 동기화할 수 있습니다.</p>':LOGIN_NOTE;
@@ -137,12 +138,15 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
    <button class="primary full" type="submit">${signup?'아이디 만들기':'로그인'}</button></form>
    <p class="account-msg" role="status"></p>
    <div class="account-alt"><button type="button" data-act="${signup?'to-login':'to-signup'}" class="text-button">${signup?'이미 아이디가 있어요 · 로그인':'처음이에요 · 아이디 만들기'}</button><span>또는</span><button type="button" data-act="google" class="google-btn">Google로 로그인</button></div>
-   <p class="small subtle">비밀번호는 Firebase가 암호화해 보관하며 사이트 운영자도 볼 수 없습니다. Google 로그인은 이름·이메일 확인 외의 권한을 요청하지 않습니다. 아이디 방식은 이메일이 없어 비밀번호를 잊으면 찾을 수 없습니다.</p>`;
+   <div class="account-auth-info" data-i18n-skip>${AUTH_INFO.map((copy,i)=>`<p class="small subtle" data-auth-info-index="${i}">${esc(copy[authInfoEnglish()?1:0])}</p>`).join('')}</div><p class="small subtle">아이디 방식은 이메일이 없어 비밀번호를 잊으면 찾을 수 없습니다.</p>`;
   bind(signup);show();setTimeout(()=>{if(!dialog.dataset.inline)dialog.querySelector('input')?.focus();},50);
  }
  function refreshTotals(){const target=dialog.querySelector('.account-run-totals');if(target)target.innerHTML=historyTotalsMarkup();const reset=dialog.querySelector('[data-act="reset-history"]');if(reset)reset.disabled=!readHistory().length;}
  window.addEventListener('sfc-history-changed',refreshTotals);
  window.addEventListener('storage',e=>{if(!e.key||e.key===HISTORY_KEY)refreshTotals();if(!e.key||[ACCOUNT_META,'stam.flight-owner.v1',STORAGE_JOURNAL].includes(e.key)){stop();generation++;pending=null;setAccountBoundary('error',user?.uid);status='다른 탭에서 계정 자료가 변경됐습니다. 새로고침해 주세요.';setButton();}});
+ function authInfoEnglish(){const query=new URLSearchParams(location.hash.split('?')[1]||location.search);return (query.get('lang')||document.documentElement.lang)==='en';}
+ function refreshAuthInfo(){for(const element of dialog.querySelectorAll('[data-auth-info-index]'))element.textContent=AUTH_INFO[Number(element.dataset.authInfoIndex)][authInfoEnglish()?1:0];}
+ window.addEventListener('hashchange',refreshAuthInfo);
  function bind(signup=false){
   refreshTotals();
   const msg=t=>{const m=dialog.querySelector('.account-msg');if(m)m.textContent=t;};

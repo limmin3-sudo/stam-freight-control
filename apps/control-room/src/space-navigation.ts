@@ -3,7 +3,7 @@ import type { Locale, Station } from './navigation';
 export const spaceScreens = ['lounge', 'guide', 'information', 'cinema', 'service', 'bridge', 'mission', 'map', 'operations'] as const;
 export type SpaceScreen = typeof spaceScreens[number];
 export type ArchiveView = 'missions'|'ships'|'cargo';
-export const serviceViews=['account','history','feedback','updates'] as const;
+export const serviceViews=['account','history','feedback','updates','manual'] as const;
 export type ServiceView=typeof serviceViews[number];
 export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView }>;
 
