@@ -21,7 +21,15 @@ New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')
 $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.Speech.dll "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
+# System.Speech is a desktop reference assembly, not in csc.exe's framework folder.
+$speechReference = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8/System.Speech.dll'
+if (!(Test-Path $speechReference)) {
+    Add-Type -AssemblyName System.Speech
+    $speechReference = [System.Speech.Recognition.SpeechRecognitionEngine].Assembly.Location
+}
+if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is required to compile the optional voice feature' }
+
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 $languageTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-language' -Wait -PassThru
 if ($languageTest.ExitCode -ne 0) { throw 'Launcher language switching failed' }
