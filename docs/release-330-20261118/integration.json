@@ -33,5 +33,19 @@
   "protectedDiff": [],
   "webVersion": "3.3.0",
   "companionVersion": "1.5.1",
-  "realGameOrAccountTest": false
+  "realGameOrAccountTest": false,
+  "releaseSource": "9ed183a8d58e964ab0a1dc4a757143a6b6bdf328",
+  "pagesRun": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44112353830",
+  "pullRequestStateNote": "PR35 marked merged automatically; PR37/38 target their cinematic parent branches and remain open. Their exact heads are ancestors of the release. Closing lifecycle was declined by automatic approval review as outside the request; not retried.",
+  "ci": {
+    "root": 283,
+    "app": 175,
+    "total": 458,
+    "typecheck": "passed",
+    "build": "passed",
+    "conclusion": "success"
+  },
+  "localFlowGroups": 36,
+  "publicFlowGroups": 16,
+  "publicResources": 111
 }
