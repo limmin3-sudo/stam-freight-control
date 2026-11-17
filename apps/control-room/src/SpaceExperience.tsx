@@ -98,6 +98,7 @@ export function SpaceExperience() {
   const [guideJourneyOpen,setGuideJourneyOpen]=useState(false);
   const [motion, setMotion] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [volume, setVolume] = useState(20);
+  const [facilityNavigationKey,setFacilityNavigationKey]=useState(0);
   const [playing, setPlaying] = useState(false);
   const [mediaError, setMediaError] = useState(false);
   const [imageReady, setImageReady] = useState(false);
@@ -366,7 +367,7 @@ export function SpaceExperience() {
 
     <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
-      {route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>openDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={openDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
+      {route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>openDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={openDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={tourTravelling||undefined}>
         <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
@@ -470,7 +471,7 @@ export function SpaceExperience() {
       {route.screen==='guide'&&!tour&&<button type="button" className="lounge-tour-entry" onClick={()=>startTour()}>{en?'Lounge tour · Follow your guide':'라운지 투어 · 가이드 따라가기'} <span aria-hidden="true">→</span></button>}
       {(route.screen!=='guide'||guideJourneyOpen) && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
-        <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending} href={href} onNavigate={enterShortcut}/>
+        <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();setFacilityNavigationKey(key=>key+1);openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending} href={href} onNavigate={enterShortcut}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {
           if (sound) { setSound(false); return; }

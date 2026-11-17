@@ -1,0 +1,29 @@
+/* Scene-only choreography. The functional monitors and storage owners remain mounted once. */
+.facility-lobby .lobby-camera{transition:transform .85s cubic-bezier(.5,.02,.25,1)}
+.facility-lobby .lobby-staff-people{position:absolute;inset:0;transform-origin:var(--travel-x,50%) var(--travel-y,50%);transition:transform .85s cubic-bezier(.5,.02,.25,1),opacity .2s}
+.facility-lobby[data-travel=approach] .lobby-staff-people{transform:scale(2.3);opacity:0;transition-delay:0s,.42s}
+.facility-lobby[data-travel=approach] :is(.lobby-heading,.lobby-leaders,.lobby-places,.lobby-person-label,.lobby-exit){opacity:0;transition:opacity .2s}
+.facility-arrival{position:absolute;inset:0;z-index:12;background:#02070c;opacity:0;pointer-events:none;overflow:hidden}
+.facility-arrival img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0}
+.facility-lobby[data-travel=approach] .facility-arrival{animation:facility-darken .72s ease-in both}
+.facility-lobby[data-travel=approach] .facility-standby{animation:facility-standby .72s ease-in both}
+.facility-lobby[data-travel=ignite] .facility-arrival{animation:facility-reveal .25s ease-out both}
+.facility-lobby[data-travel=ignite] .facility-standby{opacity:1}
+.facility-lobby[data-travel=ignite] .facility-plasma{object-fit:cover;mix-blend-mode:screen;animation:facility-plasma .25s linear both}
+.facility-lobby[data-travel=blackout] .facility-arrival{animation:facility-blackout .18s ease-in both}
+.facility-lobby[data-travel=return] .facility-arrival{animation:facility-reveal .28s ease-out both}
+.facility-lobby[data-travel=return] .lobby-camera{animation:facility-pullback .65s cubic-bezier(.16,.7,.2,1) both}
+.facility-lobby[data-travel=return] .lobby-staff-people{animation:facility-people-return .65s ease-out both}
+.facility-lobby[data-travel=return] :is(.lobby-heading,.lobby-places,.lobby-leaders,.lobby-exit){animation:facility-label-return .65s ease-out both}
+.facility-travel-cancel{position:absolute;right:18px;bottom:18px;z-index:13;border:1px solid #d6c28c66;background:#06131bd9;color:#f1d390;padding:10px 16px;min-height:44px;font:500 15px BarlowAirReview,SUIT,sans-serif;cursor:pointer}
+.lobby-travel-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@keyframes facility-darken{0%,45%{opacity:0}100%{opacity:1}}
+@keyframes facility-standby{0%,72%{opacity:0}100%{opacity:1}}
+@keyframes facility-reveal{0%,25%{opacity:1}100%{opacity:0}}
+@keyframes facility-blackout{from{opacity:0}to{opacity:1}}
+@keyframes facility-plasma{0%{opacity:.15;transform:scaleY(.02)}35%{opacity:.85;transform:scaleY(.75)}100%{opacity:0;transform:scaleY(1)}}
+@keyframes facility-pullback{from{transform:scale(3.8)}to{transform:scale(1)}}
+@keyframes facility-people-return{from{opacity:0;transform:scale(1.4)}to{opacity:1;transform:scale(1)}}
+@keyframes facility-label-return{0%,30%{opacity:0;translate:0 18px}100%{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.facility-lobby *{animation:none!important;transition:none!important}}
+.space-experience[data-motion=false] .facility-lobby *{animation:none!important;transition:none!important}

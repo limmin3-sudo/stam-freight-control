@@ -31,3 +31,53 @@
 @media(prefers-reduced-motion:reduce){.lobby-person img{transition:none}.lobby-staff-shade,.lobby-staff[data-closing=true] .lobby-staff-shade{animation:none}}
 .space-experience[data-motion=false] .lobby-person img{transition:none}
 .space-experience[data-motion=false] .lobby-staff-shade{animation:none!important}
+
+/* Approved full-body cutouts: uniform scaling only, feet remain on the lobby floor. */
+.facility-lobby .lobby-person{height:59%;bottom:9%;transition:transform .38s cubic-bezier(.2,.7,.2,1),filter .3s;transform-origin:50% 100%}
+.facility-lobby .lobby-person[data-selected=true]{transform:translateX(-50%) scale(1.17)}
+.facility-lobby .lobby-person-label strong{font-size:clamp(18px,1.4vw,25px)}
+.facility-lobby .lobby-person-label small{font-size:14px}
+.facility-lobby .lobby-staff-detail{top:22%;max-height:74%;width:clamp(300px,28vw,460px)}
+.facility-lobby .lobby-staff-detail[data-align=left]{left:4%;right:auto;top:22%}
+.lobby-staff-rooms{display:grid;gap:8px}
+.lobby-staff-rooms .lobby-reset{min-height:48px}
+.lobby-staff-detail h2:focus{outline:none}
+@media(max-width:760px){
+ .facility-lobby:not([data-monitor=true]) .lobby-stage{padding-top:410px}
+ .facility-lobby:not([data-monitor=true]) .lobby-camera{height:410px;aspect-ratio:auto}
+ .facility-lobby:not([data-monitor=true]) .lobby-plate{object-fit:cover}
+ .facility-lobby .lobby-staff{position:absolute;inset:0 0 auto;height:410px;padding:0}
+ .facility-lobby .lobby-staff-people{position:absolute;inset:0;display:block}
+ .facility-lobby .lobby-person{position:absolute;left:var(--staff-x);bottom:16%;height:62%;width:auto;aspect-ratio:2/3;padding:0;transform:translateX(-50%)}
+ .facility-lobby[data-facility-lobby=trade] .lobby-person:first-child{left:29%}
+ .facility-lobby[data-facility-lobby=trade] .lobby-person:nth-child(2){left:73%}
+ .facility-lobby .lobby-person img{height:100%;width:100%;aspect-ratio:auto;object-fit:contain}
+ .facility-lobby .lobby-person-label{top:100%;bottom:auto;max-width:175px;width:175px}
+ .facility-lobby .lobby-person-label strong{font-size:18px}.facility-lobby .lobby-person-label small{font-size:13px}
+ .facility-lobby .lobby-person:before{bottom:2%}
+ .facility-lobby .lobby-staff[data-open=true] .lobby-person{width:auto}
+ .facility-lobby .lobby-staff-detail,.facility-lobby .lobby-staff-detail[data-align=left]{position:absolute;top:410px;left:12px;right:12px;width:auto;max-height:none;margin:0;padding:30px}
+ .facility-lobby .lobby-stage:has(.lobby-staff-detail){padding-top:980px}
+ .facility-lobby .lobby-stage:has(.lobby-staff-detail) .lobby-places{display:none}
+ .facility-lobby .lobby-staff-shade{display:block}
+ .facility-lobby .lobby-heading{max-width:calc(100% - 20px)}
+}
+@media(prefers-reduced-motion:reduce){.facility-lobby .lobby-person{transition:none}}
+.space-experience[data-motion=false] .facility-lobby .lobby-person{transition:none}
+@media(min-width:761px){
+ .facility-lobby .lobby-person{bottom:11%;height:57%}
+ .facility-lobby .lobby-person[data-selected=true] .lobby-person-label{transform:translateX(-50%) scale(.855);transform-origin:50% 0}
+ .facility-lobby .lobby-staff-detail,.facility-lobby .lobby-staff-detail[data-align=left]{top:18%;max-height:79%}
+ .facility-lobby .lobby-staff-detail>p:not(.lobby-detail-code){font-size:17px;line-height:1.65;margin-bottom:16px}
+ .facility-lobby .lobby-staff-detail h2{margin:12px 0 16px}
+}
+@media(max-width:760px){
+ .facility-lobby .lobby-stage:has(.lobby-staff-detail){padding-top:410px}
+ .facility-lobby .lobby-staff:has(.lobby-staff-detail){position:relative;inset:auto;height:auto;margin-top:-410px;padding-top:410px}
+ .facility-lobby .lobby-staff:has(.lobby-staff-detail) .lobby-staff-people,.facility-lobby .lobby-staff-shade{height:410px}
+ .facility-lobby .lobby-staff-detail,.facility-lobby .lobby-staff-detail[data-align=left]{position:relative;inset:auto;width:calc(100% - 24px);margin:12px}
+}
+/* PNG transparent margins must not steal clicks from adjacent room labels. */
+.facility-lobby .lobby-person{aspect-ratio:1/3}
+.facility-lobby .lobby-person img{position:absolute;inset:0 auto 0 -50%;width:200%;max-width:none;height:100%;pointer-events:none}
+@media(max-width:760px){.facility-lobby .lobby-person{aspect-ratio:1/3}.facility-lobby .lobby-person img{width:200%;height:100%}}
