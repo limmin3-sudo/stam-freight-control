@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-17",
+  "branch": "cinematic/guide-close-dialogue-20261117",
+  "base": "3d628877e7c2b0b08e8db484d74b81a958f22e15",
+  "dependency": "PR #35; not merged or deployed",
+  "method": "image_gen reference edits; transparent_background=true. Originals preserved in /workspace/generated_images. No manual pixel stretching or face replacement.",
+  "review": "New generated assets, visual review candidates; not pixel-identical likeness. Standing originals remain unchanged.",
+  "closePrompt": "Edit this approved character into a high-resolution photorealistic FACE-TO-FACE CONVERSATION cutout asset. SAME exact recognizable person, same facial structure, eye spacing, nose, lips, skin texture, hairstyle, age, body build, uniform details and accessories. Do not substitute a new actor or beautify/change face. Eye-level camera, natural 65mm portrait lens, at conversational distance. Vertical 2:3 portrait framing from entire head with 5% headroom to upper thighs, face looking directly into viewer's eyes, relaxed shoulders, very small welcoming smile, natural neutral listening pose with hands resting together below waist. Head center at x50%, eyes at y23%, head height about 25% of canvas, waist near y78%. Preserve believable proportions, no stretched torso, no oversized head. Match reference lighting softly, no harsh rim glow. Transparent background, clean alpha edges with no black/white fringe, no setting or furniture, no added text, no UI, no detached objects. Keep full shoulder width and both arms inside canvas. This is a matching close view of the provided person, NOT a new character.",
+  "guideJobs": [
+    {
+      "key": "guide-lead",
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png",
+      "prompt": "Edit the approved adult flight guide in the reference to create ONE photorealistic transparent character cutout for a spaceport tour. Maintain this SAME woman's facial identity, natural body proportions, head size, age, hair in blonde low bun, exact white uniform with black/gold shoulder epaulettes, necklace, black pencil skirt, black pumps and watch. Black arm cover ONLY on anatomical RIGHT arm. Do not lengthen or shorten legs or torso. Full body, entire head and shoes visible with small margins, narrow standing stance with legs together, realistic professional posture. No background, no scenery, no objects, no glow around silhouette, clean transparent alpha. Natural soft warm light. New pose: she stands a few steps ahead of a visitor, facing away from viewer toward screen right at a rear three-quarter angle. Her face is visible in a gentle three-quarter look over her right shoulder back at the visitor, recognizable not hidden. Her right hand makes a small low open-palm follow-me gesture. Feet close together, settled pause while leading, no exaggerated stride. No mirror flip."
+    },
+    {
+      "key": "guide-present",
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png",
+      "prompt": "Edit the approved adult flight guide in the reference to create ONE photorealistic transparent character cutout for a spaceport tour. Maintain this SAME woman's facial identity, natural body proportions, head size, age, hair in blonde low bun, exact white uniform with black/gold shoulder epaulettes, necklace, black pencil skirt, black pumps and watch. Black arm cover ONLY on anatomical RIGHT arm. Do not lengthen or shorten legs or torso. Full body, entire head and shoes visible with small margins, narrow standing stance with legs together, realistic professional posture. No background, no scenery, no objects, no glow around silhouette, clean transparent alpha. Natural soft warm light. New pose: she has stopped at the entrance to a cinema. Torso turned slightly toward screen LEFT, face turned back directly toward visitor with her familiar small smile. Her covered RIGHT arm presents the entrance on screen LEFT with an elegant low open palm; LEFT hand relaxed by her waist. No raised pointing finger. Preserve the original reference's face and natural leg/torso length."
+    },
+    {
+      "key": "guide-close",
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png",
+      "prompt": "Edit this approved character into a high-resolution photorealistic FACE-TO-FACE CONVERSATION cutout asset. SAME exact recognizable person, same facial structure, eye spacing, nose, lips, skin texture, hairstyle, age, body build, uniform details and accessories. Do not substitute a new actor or beautify/change face. Eye-level camera, natural 65mm portrait lens, at conversational distance. Vertical 2:3 portrait framing from entire head with 5% headroom to upper thighs, face looking directly into viewer's eyes, relaxed shoulders, very small welcoming smile, natural neutral listening pose with hands resting together below waist. Head center at x50%, eyes at y23%, head height about 25% of canvas, waist near y78%. Preserve believable proportions, no stretched torso, no oversized head. Match reference lighting softly, no harsh rim glow. Transparent background, clean alpha edges with no black/white fringe, no setting or furniture, no added text, no UI, no detached objects. Keep full shoulder width and both arms inside canvas. This is a matching close view of the provided person, NOT a new character. Preserve her black RIGHT arm cover, white professional flight director shirt, gold buttons and black/gold epaulettes, low blonde bun and small necklace exactly."
+    },
+    {
+      "key": "professor-close",
+      "reference": "apps/control-room/src/assets/facility-staff/academic-advisor.png",
+      "prompt": "Create a professional academy instructor dialogue portrait of the same adult woman in this reference, preserving her face, glasses, hair, jewelry and grey long-sleeved formal dress. Eye-level camera; head and shoulders through waist, ordinary neutral listening expression, looking at the viewer, holding her teaching tablet low. Entire head with margin, normal anatomy, dignified professional appearance and soft neutral light. Transparent background, clean character cutout only. Match facial identity, no redesign."
+    }
+  ],
+  "assets": [
+    {
+      "id": "operator",
+      "generatedOriginal": "exec-8f266418-45aa-4d2f-8ebe-a34ce19f8962.png",
+      "file": "apps/control-room/src/assets/partner-close/operator.png",
+      "purpose": "live bridge dialogue",
+      "sha256": "5e2a9954c383a1377b08b4b33d46c7099c4f8d26213cbcba8d9b4135d951d874",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "apps/control-room/src/assets/operator-identity-v2.png"
+    },
+    {
+      "id": "navigator",
+      "generatedOriginal": "exec-5cf0a04e-9087-4de6-9dd5-6982ced82540.png",
+      "file": "apps/control-room/src/assets/partner-close/navigator.png",
+      "purpose": "live bridge dialogue",
+      "sha256": "274a6ceec5b366c71db7aeb17ca6e0d5015b4ed0c574fff37cca5cb82ef11fac",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "apps/control-room/src/assets/navigator-standing.png"
+    },
+    {
+      "id": "director",
+      "generatedOriginal": "exec-3a68d61e-558a-4237-ad0f-f048056062b5.png",
+      "file": "apps/control-room/src/assets/partner-close/director.png",
+      "purpose": "prepared; existing guide desk retained",
+      "sha256": "31c832a24e6744465d07a45251b0bff74344e4eb2efff0b4d764857074140e5f",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png"
+    },
+    {
+      "id": "senior-trade-officer",
+      "generatedOriginal": "exec-e9031271-1bd7-4c41-ac2b-49f81935a327.png",
+      "file": "assets/senior-trade-officer-close.png",
+      "purpose": "prepared; existing trade planning navigation retained",
+      "sha256": "8a37add3051006b11a2d436f173857854d0a25065e0ed74427c88e97f9571a0b",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "apps/control-room/src/assets/facility-staff/senior-trade-officer.png"
+    },
+    {
+      "id": "ling-broker",
+      "generatedOriginal": "exec-d311d5c8-9cad-4171-b1b5-665e5f65ba85.png",
+      "file": "assets/ling-broker-close.png",
+      "purpose": "prepared; existing trade planning navigation retained",
+      "sha256": "37736501b7fd5ce49eb2f8f93e5a6ebb5e76453daf50415d64db74287a91dacc",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "reference": "apps/control-room/src/assets/facility-staff/ling-broker.png"
+    },
+    {
+      "id": "academic-advisor",
+      "generatedOriginal": "exec-d2ef8dcd-cfa0-49b0-bdbb-fbf490adf8b4.png",
+      "file": "assets/academic-advisor-close.png",
+      "purpose": "prepared; existing academy room choices retained",
+      "sha256": "2ce8c73e2230968183f63e40ac99cb3f388891c1f28a68a30002db4ade6b3901",
+      "width": 1086,
+      "height": 1448,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "reference": "apps/control-room/src/assets/facility-staff/academic-advisor.png"
+    },
+    {
+      "id": "guide-lead-lookback",
+      "generatedOriginal": "exec-706a7163-2217-49f8-a38a-6ee9e747b410.png",
+      "file": "assets/guide-lead-lookback.png",
+      "purpose": "live tour escort; stationary pose not a walking cycle",
+      "sha256": "964be9cbde8c362d60c987ab0e60379276d41f32ad5db8b679701ab1ee7394c4",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png"
+    },
+    {
+      "id": "guide-cinema-present",
+      "generatedOriginal": "exec-c7483baa-efcb-4336-83c4-a3a9756a86d1.png",
+      "file": "assets/guide-cinema-present.png",
+      "purpose": "live cinema arrival and caption",
+      "sha256": "59addda9ee1b0a6a90292248e2fa4f47c643153b63aa250da342db8c161885a3",
+      "width": 887,
+      "height": 1774,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "reference": "docs/cinematics/desk-cinema-25d-20261113/assets/guide-entrance.png"
+    }
+  ]
+}

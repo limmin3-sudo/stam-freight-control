@@ -12,3 +12,46 @@
 .partner-conversation button{float:right;background:transparent;color:#ead3a6;border:0;border-bottom:1px solid #ad926455;padding:10px 0;font:600 14px SUIT,sans-serif;cursor:pointer}
 .partner-conversation button:focus-visible{outline:2px solid #d7bd86;outline-offset:5px}
 @media(max-width:760px){.director-partner-name{font-size:11px;letter-spacing:0}.partner-conversation{padding:24px}.partner-conversation h2{font-size:20px}}
+
+/* Real PNG close portraits and the approved nine-slice glass, bounded to the
+   scene. Navigation stays outside this non-modal dialogue. */
+.crew-encounter{position:fixed;inset:auto;margin:0;padding:0;max-width:none;max-height:none;border:0;background:transparent;color:#edf6f7;overflow:clip;z-index:3;container-type:inline-size;font-family:Barlow,SUIT,sans-serif;isolation:isolate}
+.crew-encounter-background,.crew-encounter-shade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 620ms ease,transform 720ms cubic-bezier(.18,.7,.18,1),filter 720ms ease}
+.crew-encounter-background{transform-origin:var(--crew-focus-x) 48%;transform:scale(1);filter:blur(0)}
+.crew-encounter-background img{width:100%;height:100%;object-fit:cover}
+.crew-encounter-shade{background:linear-gradient(90deg,#020b1226 20%,#020b1266 56%,#020b12bf),linear-gradient(0deg,#020b1299,transparent 30%)}
+.crew-encounter-person{position:absolute;left:31%;top:2.5%;height:110%;aspect-ratio:2/3;transform:translateX(-50%) translate(var(--crew-start-x,0px),var(--crew-start-y,0px)) scale(var(--crew-start-scale,.2));transform-origin:50% 17%;opacity:0;transition:transform 780ms cubic-bezier(.18,.7,.18,1),opacity 260ms ease;pointer-events:none;will-change:transform}
+.crew-encounter-person img{display:block;width:100%;height:100%;object-fit:contain;object-position:top center}
+/* Navigator eyes sit at 14.3% of his source, operator at 17%. Shift the
+   entire asset, without stretching it, to share the same conversation eye line. */
+.crew-encounter[data-partner=navigator] .crew-encounter-person{top:5.47%;transform-origin:50% 14.3%}
+.crew-encounter .partner-conversation.asset-hologram[data-glass-panel]{position:absolute;left:55%;top:24%;width:41%;max-width:540px;box-sizing:border-box;margin:0;padding:clamp(24px,3cqw,42px);opacity:0;transform:translateX(100%);transition:transform 540ms cubic-bezier(.18,.7,.18,1),opacity 280ms ease;transition-delay:240ms;font-family:Barlow,SUIT,sans-serif}
+.crew-encounter .partner-conversation-channel{font:500 11px Barlow,SUIT,sans-serif;letter-spacing:.22em;color:#d9c898;margin:0 0 16px}
+.crew-encounter .partner-conversation h2{font:500 clamp(21px,2.4cqw,30px)/1.4 Barlow,SUIT,sans-serif;margin:0 0 20px;color:#f6f4e8}
+.crew-encounter #partner-conversation-line{font:500 clamp(16px,1.65cqw,21px)/1.85 Barlow,SUIT,sans-serif;min-height:100px;margin:0;word-break:keep-all}
+.crew-encounter .partner-conversation-note{font:500 12px/1.7 Barlow,SUIT,sans-serif;color:#bdd0d3;margin:22px 0 18px}
+.crew-encounter .partner-conversation button{display:flex;justify-content:space-between;align-items:center;gap:20px;float:none;width:100%;font:500 15px Barlow,SUIT,sans-serif;text-align:left}
+.crew-encounter .partner-conversation button:disabled{cursor:default}
+.crew-encounter[data-ready=true] .crew-encounter-background{opacity:1;transform:scale(1.65);filter:blur(2px)}
+.crew-encounter[data-ready=true] .crew-encounter-shade{opacity:1}
+.crew-encounter[data-ready=true] .crew-encounter-person{opacity:1;transform:translateX(-50%) translate(0,0) scale(1)}
+.crew-encounter[data-ready=true] .partner-conversation.asset-hologram[data-glass-panel]{opacity:1;transform:translateX(0)}
+.crew-encounter[data-closing=true] .crew-encounter-background{opacity:0;transform:scale(1);filter:blur(0);transition-duration:420ms}
+.crew-encounter[data-closing=true] .crew-encounter-shade{opacity:0;transition-duration:420ms}
+.crew-encounter[data-closing=true] .crew-encounter-person{opacity:0;transform:translateX(-50%) translate(var(--crew-start-x,0px),var(--crew-start-y,0px)) scale(var(--crew-start-scale,.2));transition-duration:420ms}
+.crew-encounter[data-closing=true] .partner-conversation.asset-hologram[data-glass-panel]{opacity:0;transform:translateX(100%);transition-delay:0ms;transition-duration:420ms}
+.crew-loading{position:absolute;top:12px;right:12px;margin:0;padding:12px;background:#07131ce8;font-size:13px;z-index:5}
+.crew-loading button{margin-left:12px;min-height:40px;color:#efdab2;background:transparent;border:1px solid #bda678;padding:6px 16px;cursor:pointer}
+.crew-encounter[data-motion=false] *{transition:none!important;animation:none!important}
+@container(max-width:759px){
+ .crew-encounter-person{left:50%;height:70%}
+ .crew-encounter[data-partner=navigator] .crew-encounter-person{top:4.39%}
+ .crew-encounter .partner-conversation.asset-hologram[data-glass-panel]{left:12px;top:auto;bottom:12px;width:calc(100% - 24px);max-width:none;max-height:56%;overflow:auto;padding:24px;transform:translateY(100%)}
+ .crew-encounter .partner-conversation-channel{font-size:9px;margin-bottom:7px}
+ .crew-encounter .partner-conversation h2{font-size:21px;margin-bottom:10px}
+ .crew-encounter #partner-conversation-line{font-size:15px;line-height:1.7;min-height:0}
+ .crew-encounter .partner-conversation-note{margin:12px 0;font-size:11px}
+ .crew-encounter[data-ready=true] .partner-conversation.asset-hologram[data-glass-panel]{transform:translateY(0)}
+ .crew-encounter[data-closing=true] .partner-conversation.asset-hologram[data-glass-panel]{transform:translateY(100%)}
+}
+@media(prefers-reduced-motion:reduce){.crew-encounter *{transition:none!important;animation:none!important}}
