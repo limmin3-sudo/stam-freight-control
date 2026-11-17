@@ -13,5 +13,11 @@
     "file": "desktop/theme/hologram-button.png",
     "sha256": "a2ec30addbfd62866ed9c5348b5ad09e668f342e33e161f4b11f10975f24c886",
     "unchangedFromApprovedAsset": true
+  },
+  {
+    "file": "desktop/theme/division-overview.png",
+    "source": "apps/control-room/src/assets/division/overview-approved.png",
+    "sha256": "4a74b53783f6bb976ceea88f81064d342542ae20d5b9cb592c3aa0f110072ba1",
+    "unchangedFromApprovedAsset": true
   }
 ]
