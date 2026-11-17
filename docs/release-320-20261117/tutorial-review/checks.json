@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "ko 1440px no-preference: all trade steps, gating, scope, cash/cargo/profit, back/reset, unchanged stored flight/trade data, real planning, browser back, Escape/focus, freight entry, overflow",
+    "en 390px reduce: all trade steps, gating, scope, cash/cargo/profit, back/reset, unchanged stored flight/trade data, real planning, browser back, Escape/focus, freight entry, overflow",
+    "mix 390px reduce: all trade steps, gating, scope, cash/cargo/profit, back/reset, unchanged stored flight/trade data, real planning, browser back, Escape/focus, freight entry, overflow"
+  ],
+  "errors": []
+}

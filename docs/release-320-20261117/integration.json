@@ -1,0 +1,30 @@
+{
+  "order": [
+    {
+      "pr": 40,
+      "sha": "0d963d5ace995bbb51f2877ae7ac3332687f9d0f"
+    },
+    {
+      "pr": 41,
+      "sha": "8109510849bf0a0a167fc0cfe7f1a9976289473e"
+    }
+  ],
+  "baseline": "434b50eaf9713bd55e1dd8cb9a50fec3689a2edc",
+  "conflicts": [
+    "PROJECT_STATUS.md: kept both new handoff sections"
+  ],
+  "preservedPaths": [
+    "account.mjs",
+    "firestore.rules",
+    "desktop/bridge.mjs",
+    "integration/log",
+    "apps/control-room/src/SpaceExperience.tsx",
+    "apps/control-room/src/TradeSuite.tsx",
+    "apps/control-room/src/trade-operations.ts",
+    "apps/control-room/src/trade-expedition.ts"
+  ],
+  "codeUnchangedForPreservedPaths": true,
+  "newAppVersion": "app.1.5.1",
+  "webVersion": "3.2.0",
+  "extraIntegrationFix": "Explicit tutorial completion opens personal planning even if fleet mode was last used; only tab view preference changes, no practice/ledger values copied."
+}
