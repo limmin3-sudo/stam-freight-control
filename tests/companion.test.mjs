@@ -21,7 +21,7 @@ test('known-install search prefers a unique LIVE, never arbitrarily selects mult
 });
 test('companion package carries its real fonts and auto discovery without bundling the website',async()=>{
  const files=(await desktopFiles()).map(f=>f.split(path.sep).join('/'));
- for(const suffix of ['/desktop/discover-log.mjs','/desktop/fonts/Barlow-Medium.ttf','/desktop/fonts/SUIT-Medium.ttf','/desktop/fonts/SUIT-LICENSE.txt','/desktop/theme/black-gold-d-frame.png','/desktop/theme/flight-console-a-frame.png','/desktop/theme/hologram-button.png'])assert.ok(files.some(f=>f.endsWith(suffix)),suffix);
+ for(const suffix of ['/desktop/discover-log.mjs','/desktop/fonts/Barlow-Medium.ttf','/desktop/fonts/SUIT-Medium.ttf','/desktop/fonts/SUIT-LICENSE.txt','/desktop/theme/black-gold-d-frame.png','/desktop/theme/flight-console-a-frame.png','/desktop/theme/hologram-button.png','/desktop/theme/division-overview.png'])assert.ok(files.some(f=>f.endsWith(suffix)),suffix);
  assert.equal(files.some(f=>f.endsWith('/index.html')),false);
 });
 test('stdio bridge waits for a missing log, reads appended contracts, and exits with its parent',async()=>{

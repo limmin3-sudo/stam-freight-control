@@ -12,9 +12,15 @@ internal static class DeckTheme {
     static DeckTheme(){AppDomain.CurrentDomain.ProcessExit+=(s,e)=>{foreach(var image in images.Values)image.Dispose();images.Clear();};}
     static Image Get(string name){
         Image result;if(images.TryGetValue(name,out result))return result;
-        string file=name=="instrument"?"flight-console-a-frame.png":name=="button"?"hologram-button.png":"black-gold-d-frame.png";
+        string file=name=="panorama"?"division-overview.png":name=="instrument"?"flight-console-a-frame.png":name=="button"?"hologram-button.png":"black-gold-d-frame.png";
         using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","theme",file)))result=new Bitmap(source);
         images[name]=result;return result;
+    }
+    internal static void Panorama(Graphics g,Rectangle bounds){
+        try{var image=Get("panorama");float scale=Math.Max((float)bounds.Width/image.Width,(float)bounds.Height/image.Height);
+            var state=g.Save();g.SetClip(bounds);g.DrawImage(image,bounds.X+(bounds.Width-image.Width*scale)/2,bounds.Y+(bounds.Height-image.Height*scale)/2,image.Width*scale,image.Height*scale);
+            using(var shade=new SolidBrush(Color.FromArgb(135,3,12,19)))g.FillRectangle(shade,bounds);g.Restore(state);
+        }catch(IOException){}catch(ArgumentException){}
     }
     internal static void Draw(Graphics g,string name,Rectangle target,float brightness){
         if(target.Width<4||target.Height<4)return;
@@ -39,6 +45,7 @@ internal static class DeckTheme {
     }
 }
 internal sealed class DeckSurface : TableLayoutPanel {
+    public bool ShowDivision {get;set;}
     public DeckSurface(){BackColor=Color.FromArgb(8,18,24);SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
-    protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(BackColor);DeckTheme.Draw(e.Graphics,"gold",ClientRectangle,1f);}
+    protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(BackColor);DeckTheme.Draw(e.Graphics,"gold",ClientRectangle,1f);if(ShowDivision){int edge=(int)(14*e.Graphics.DpiX/96);DeckTheme.Panorama(e.Graphics,Rectangle.Inflate(ClientRectangle,-edge,-edge));}}
 }
