@@ -13,3 +13,7 @@ GitHub 내부에서 기존 검증 산출물을 내려받아 설치 EXE/ZIP 크�
 ## 로그 앱 공개 완료
 
 [앱1.5 릴리스](https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.5.0)와 [승격·공개 다운로드 검사](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44076038719)가 완료됐다. `companion-publication.json`이 공개 완료 근거다. 웹 배포는 운영 규칙 명시적 승인 대기이며 현재 공개 사이트 버전은3.0.0이다.
+
+## 운영 권한 승인 반영
+
+사용자가 규칙·인덱스 게시를 명시 승인했다. 승인한 규칙만 게시했고 `rules-publication.json`과 `server-rule-validation.json`에 서버 확인 결과를 저장했다. 조회 인덱스 상태는 `index-status.json`을 따른다. 아래의 과거 승인 대기는 해소됐다.

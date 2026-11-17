@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-11-17T12:01:37.649Z",
+  "created": false,
+  "operation": null,
+  "index": {
+    "name": "projects/stam-freight-control/databases/(default)/collectionGroups/tradePosts/indexes/CICAgOjXh4EK",
+    "state": "READY"
+  }
+}

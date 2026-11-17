@@ -1,0 +1,11 @@
+{
+  "published": true,
+  "project": "stam-freight-control",
+  "publishedAt": "2026-11-17T11:57:32.761Z",
+  "previousRuleset": "projects/stam-freight-control/rulesets/ecd00342-1165-4da0-8c38-b56e03244c7f",
+  "newRuleset": "projects/stam-freight-control/rulesets/3e863ec5-0f81-4fc2-b46d-e87cf98be2e1",
+  "sha256": "7107d05f0a3e703ca2abb441668488e8146b0cc1798829020b82b4785aad38f3",
+  "serverValidationPassed": true,
+  "webDeployed": false,
+  "appPublished": true
+}
