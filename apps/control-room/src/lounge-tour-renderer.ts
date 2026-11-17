@@ -4,8 +4,8 @@ import deskPhoto from '../../../docs/cinematics/desk-cinema-25d-20261113/assets/
 import deskPerson from '../../../docs/cinematics/desk-cinema-25d-20261113/assets/guide-cutout.png';
 import loungePhoto from './assets/lounge-original-composite.png';
 import cinemaPhoto from '../../../docs/cinematics/desk-cinema-25d-20261113/assets/cinema-approach.png';
-import escort from '../../../docs/cinematics/lounge-tour-20261114/assets/guide-escort.png';
-import cinema from '../../../docs/cinematics/lounge-tour-20261114/assets/guide-cinema.png';
+import escort from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/guide-lead-lookback.png';
+import cinema from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/guide-cinema-present.png';
 import archive from '../../../docs/cinematics/lounge-tour-20261114/assets/guide-archive.png';
 import service from '../../../docs/cinematics/lounge-tour-20261114/assets/guide-service.png';
 import waiting from '../../../docs/cinematics/lounge-tour-20261114/assets/guide-waiting.png';
