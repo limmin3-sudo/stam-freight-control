@@ -27,7 +27,7 @@ internal static class Launcher {
             Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
             using(var window=new BridgeWindow(args[0]=="--capture-ui-en")) {window.Show();Application.DoEvents();using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(args[1],System.Drawing.Imaging.ImageFormat.Png);}window.Close();}return 0;
         }
-        if(args.Length==2&&args[0]=="--capture-design"){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);BridgeWindow.CaptureDesign(args[1]);return 0;}
+        if(args.Length==2&&args[0]=="--capture-design"){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);try{BridgeWindow.CaptureDesign(args[1]);return 0;}catch(Exception error){Console.Error.WriteLine(error);return 1;}}
         if(args.Length==2&&args[0]=="--self-test-overlay"){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);return CompanionOverlay.CheckNative(args[1]);}
         bool created;
         using (var mutex = new Mutex(true, "Local\\STAM-Freight-Control", out created)) {
@@ -296,7 +296,7 @@ internal static class HoloFonts {
         using(var actual=At(font.Size,!korean)){
             g.TextRenderingHint=System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             var flags=TextFormatFlags.NoPrefix|TextFormatFlags.WordBreak|TextFormatFlags.EndEllipsis|TextFormatFlags.NoPadding|TextFormatFlags.PreserveGraphicsClipping|TextFormatFlags.PreserveGraphicsTranslateTransform;
-            if(center)flags|=TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter;
+            if(center){flags&=~TextFormatFlags.WordBreak;flags|=TextFormatFlags.SingleLine|TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter;}
             TextRenderer.DrawText(g,text,actual,Rectangle.Round(bounds),colour,flags);
         }
     }
