@@ -14,6 +14,7 @@ import './guide-desk.css';
 import './hologram-glass.css';
 import type {GuideTopic} from './guide-journey-content';
 import {mountGuideRasterSkin} from './guide-raster-skin';
+import {mountGuideDeskMenu} from './guide-desk-menu';
 const GuideJourney=lazy(()=>import('./GuideJourney').then(m=>({default:m.GuideJourney})));
 export type GuideDeskHandle={navigate(screen:SpaceScreen):void};
 const english:Record<string,string>={
@@ -31,8 +32,14 @@ type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean
 export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(props,ref){
  const [topic,setTopic]=useState<GuideTopic|null>(null);
  useEffect(()=>{props.onGuidedChange(!!topic);return()=>props.onGuidedChange(false);},[topic,props.onGuidedChange]);
- const trigger=useRef<HTMLElement|null>(null);
- const close=()=>{setTopic(null);requestAnimationFrame(()=>trigger.current?.focus({preventScroll:true}));};
+ const trigger=useRef<HTMLElement|null>(null),restoreFocus=useRef(false);
+ const close=()=>{restoreFocus.current=true;setTopic(null);};
+ useEffect(()=>{
+  if(topic||!restoreFocus.current)return;
+  restoreFocus.current=false;
+  const frame=requestAnimationFrame(()=>{if(trigger.current?.isConnected)trigger.current.focus({preventScroll:true});});
+  return()=>cancelAnimationFrame(frame);
+ },[topic]);
  const host=useRef<HTMLDivElement>(null),api=useRef<GuideDeskApi|null>(null),callbacks=useRef(props);
  callbacks.current=props;
  useImperativeHandle(ref,()=>({navigate(screen){void api.current?.navigate(screen);}}),[]);
@@ -51,9 +58,11 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
    root.querySelectorAll<HTMLElement>('span,h2,h3,small,button').forEach(node=>{if(!node.children.length)node.textContent=translate(node.textContent?.trim()??'');});
    const greeting=root.querySelector('#greeting');if(greeting)greeting.innerHTML='Welcome to STAM.<br>Shall we prepare your first haul?';
   }
+  const showGuide=(topic:GuideTopic)=>{trigger.current=document.activeElement as HTMLElement;setTopic(topic);};
+  const removeMenu=mountGuideDeskMenu(root,{locale:props.locale,onGuide:showGuide,onTour:()=>callbacks.current.onTour()});
   const removeSkin=mountGuideRasterSkin(root,props.locale!=='en');
-  api.current=mountGuideDesk(root,{...props,translate,onGuide:topic=>{trigger.current=document.activeElement as HTMLElement;setTopic(topic);},onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
-  return()=>{removeSkin();api.current?.destroy();api.current=null;root.replaceChildren();};
+  api.current=mountGuideDesk(root,{...props,menuManaged:true,translate,onGuide:showGuide,onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
+  return()=>{removeMenu();removeSkin();api.current?.destroy();api.current=null;root.replaceChildren();};
  },[props.locale,props.startWithApproach,props.motion]);
  return <><div className="guide-desk" data-material="generated-glass" data-guided={!!topic} ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>{topic&&<Suspense fallback={<div className="guide-journey-loading" role="status">{props.locale==='en'?'Preparing your guide…':'안내를 준비하고 있어요…'}<button onClick={close}>{props.locale==='en'?'Cancel':'취소'}</button></div>}><GuideJourney key={topic} topic={topic} locale={props.locale} motion={props.motion} onClose={close} onTopic={setTopic} onTour={props.onTour} onNavigate={(screen,serviceView,view)=>{setTopic(null);props.onNavigate(screen,serviceView,view);}}/></Suspense>}</>;
 });

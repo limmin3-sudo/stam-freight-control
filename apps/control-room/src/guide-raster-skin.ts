@@ -23,9 +23,9 @@ export function mountGuideRasterSkin(root:HTMLElement,korean:boolean):()=>void{
  ink(root.querySelector('.unified-header'),heading);
  ink(root.querySelector('.unified-functions h3'),question,true);
  const labels=[label0,label1,label2,label3,label4,label5];
- root.querySelectorAll<HTMLElement>('.unified .holo-action').forEach((node,index)=>ink(node,labels[index]!));
+ root.querySelectorAll<HTMLElement>('.unified .holo-action').forEach((node,index)=>{if(!node.dataset.liveInk)ink(node,labels[index]!);});
  const line=root.querySelector<HTMLElement>('#greeting');
- if(!line)return()=>{};
+ if(!line||line.dataset.liveInk)return()=>{};
  const initial=line.textContent;
  line.style.setProperty('--greeting-ink',`url("${greeting}")`);
  line.classList.add('raster-greeting');

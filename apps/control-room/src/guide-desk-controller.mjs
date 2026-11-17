@@ -230,6 +230,7 @@ async function navigate(screen, serviceView) {
   await waitForPanelExit();
   if(current===sequence){stopIdle();options.onNavigate(screen, serviceView);}
 }
+if(!options.menuManaged){
 const actions=[...stage.querySelectorAll('.actions button')];
 actions[0].addEventListener('click',()=>options.onGuide?options.onGuide('practice'):navigate('mission'));
 actions[1].addEventListener('click',()=>options.onGuide?options.onGuide('procedure'):navigate('service','manual'));
@@ -237,6 +238,7 @@ actions[2].addEventListener('click',()=>options.onGuide?options.onGuide('referen
 const replies=[...stage.querySelectorAll('.replies button')];
 replies[0].addEventListener('click',()=>options.onGuide?options.onGuide('overview'):navigate('service','manual'));
 replies[1].addEventListener('click',()=>navigate('mission'));
+}
 byId('skip').addEventListener('click',()=>{
   if(stage.dataset.state==='playing')jumpToArrival();
   else if(stage.dataset.state==='returning'){returnVideo.pause();completeReturn();}
