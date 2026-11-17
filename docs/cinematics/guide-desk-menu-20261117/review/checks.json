@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Four menu choices, live/raster labels, selected description, unavailable trade, practice/procedure entry and return/focus, fold/unfold, unchanged flight storage.",
+    "Facility tour starts the existing lounge tour and reaches the cinema; close exits the tour.",
+    "Return retains panel exit, original return video and skip-to-lounge.",
+    "390px Korean/English, no horizontal overflow, reduced motion and existing guide/return flow."
+  ],
+  "errors": []
+}
