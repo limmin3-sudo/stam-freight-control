@@ -50,6 +50,7 @@ const MissionArchive=lazy(()=>import('./MissionArchive'));
 import './console-arrival.css';
 import './lounge-tour.css';
 import './space-location-heading.css';
+import './black-gold-shell.css';
 
 const GuideJourney=lazy(()=>import('./GuideJourney').then(module=>({default:module.GuideJourney})));
 const LoungeTour=lazy(()=>import('./LoungeTour').then(module=>({default:module.LoungeTour})));

@@ -4,6 +4,19 @@
 기준: `handoff/local-studio-20261110` / beta 3.0.0 `2c637afa21c9de904b3ad58b289215f3508670ec`.
 최종 SHA와 PR은 이 브랜치의 Git HEAD 및 PR 설명을 기준으로 한다. main/공통 인계 병합·배포는 하지 않았다.
 
+## 최신 — 상단/사이드 버튼 분리와 A 플라이트 콘솔
+
+사용자 최종 조합: 상단바 버튼은 예전 `hologram-button.png` 청록색 사선 유리, 사이드바 버튼은 D 검은 유리/금색, 플라이트 콘솔은 A 금속 매립형 계기판. 아래 D 콘솔 항목은 이전 선택 기록이다.
+
+- `black-gold-shell.css` 신규: 상단바 컨트롤 4종의 프레임·높이·여백 통일. 사이드바 목적지 5종은 동일한 D 프레임·88px 높이·서체로 통일하고 선택/hover 금색 강조. 하위 메뉴/설정/모바일 메뉴도 같은 계열 사용.
+- `SpaceExperience.tsx`에는 스타일 import만 추가. 메뉴 이벤트·ID·URL·기능 상태 변경 없음.
+- `flight-console-a-frame.png` 신규: 사용자가 고른 A 비교 시안을 이미지 편집해 만든 무광 금속/나사/청록 표시등 프레임. `pilot-desk.css`에서 요약/상세/관리 버튼에 9분할로 적용. PilotDesk.tsx 기능은 그대로다. 시안의 함선 썸네일/예시 수치를 실제 데이터로 오인해 추가하지 않았다.
+- **바 몸체 자체는 아직 별도 자산을 적용하지 않았다.** 사용자가 원해 [상단바/사이드바 몸체 3안](shell-review/bar-body-options.png)을 생성했고 선택을 기다린다. 이 파일은 생성 비교 시안이며 실제 구현 캡처가 아니다.
+
+[실제 적용](shell-review/closed-1440-ko.png), [상세 콘솔](shell-review/open-1440-ko.png), [모바일 메뉴](shell-review/menu-ko.png), [검증 결과](shell-review/checks.json).
+
+최종 타입/생산 빌드 및 한국어/영어 1440/390px 검증 통과. 목적지 버튼 높이 일치, 원본 에셋 로드, hover/탭 펼침·Escape 접힘, 기존 4개 관리 버튼·초기화 비활성·함선 변경·운송사업부 이동 확인. 브라우저 오류 0. main/공통 인계 병합·배포 없음.
+
 ## 최신 — D 재질 운송사업부·FLIGHT CONSOLE
 
 사용자가 D를 선택하고 플라이트 콘솔도 같은 재질로 지정했다. `assets/navigation/black-gold-d-frame.png`는 선택된 D 시안을 이미지 편집해 글자/아이콘을 제거한 프레임 자산이다. 검은 사파이어 유리·샴페인 금색 림·청록 반사를 유지한다. 원본 생성 비교 시트와 편집 원본은 저장소 밖 `/workspace/generated_images`에 보존한다.

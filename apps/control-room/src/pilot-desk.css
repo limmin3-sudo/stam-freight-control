@@ -36,12 +36,15 @@ body:has(.pilot-connections) :is(.account-dialog,.history-dialog):not([data-inli
 .pilot-log[data-log-state=live] i{background:#80d9b9}.pilot-log[data-log-state=error] i{background:#e3b678}.pilot-log[data-log-state=off] i{background:#607681;box-shadow:none}.pilot-log[data-log-state=busy] i{background:#bed3e1}
 @media(max-width:760px){.pilot-connections{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.pilot-connections button{min-height:60px;border-bottom:0;gap:8px}.pilot-connections svg{width:20px;height:20px}.pilot-connection-copy strong{font-size:13px}.pilot-connection-arrow{font-size:18px}}
 
-/* D material: slice corners/edges separately so expansion keeps rim proportions. */
-.pilot-desk{background:transparent;border-image:url('./assets/navigation/black-gold-d-frame.png') 200 250 200 250 fill / 25px stretch;color:#f3eee4;box-shadow:none;filter:drop-shadow(0 5px 9px #0005)}
-.pilot-eyebrow{color:#dec59b}
-.pilot-summary-line,.pilot-details dt,.pilot-help{color:#c2c5c4}
-.pilot-summary-line b,.pilot-desk[data-open=true] .pilot-eyebrow,.pilot-phase{color:#f1d196}
-.pilot-summary strong,.pilot-details dd{color:#f3eee4}
-.pilot-phase{border-top-color:#d9b87940}
-.pilot-actions button{background:transparent;border-image:url('./assets/navigation/black-gold-d-frame.png') 200 250 200 250 fill / 13px stretch;color:#f1e7d3}
-@media(min-width:761px){.pilot-reveal{background:transparent;border-image:url('./assets/navigation/black-gold-d-frame.png') 200 250 200 250 fill / 25px stretch;box-shadow:none;filter:drop-shadow(0 9px 12px #0009)}}
+/* Selected A instrument module, rendered from the approved metal frame asset. */
+.pilot-desk{background:transparent;border-image:url('./assets/navigation/flight-console-a-frame.png') 145 150 145 150 fill / 18px stretch;color:#e7eff1;box-shadow:none;filter:drop-shadow(0 5px 9px #0006)}
+.pilot-eyebrow{color:#e6eff1;font-size:10px;letter-spacing:.1em}
+.pilot-eyebrow:before{content:'//';font-size:14px;color:#38d5e5;font-weight:700;margin-right:5px}
+.pilot-eyebrow>span{margin-left:auto}
+.pilot-summary-line,.pilot-details dt,.pilot-help{color:#b8c2c7}
+.pilot-summary-line b,.pilot-desk[data-open=true] .pilot-eyebrow,.pilot-phase{color:#b8edf0}
+.pilot-summary strong,.pilot-details dd{color:#eef3f4}
+.pilot-phase{border-top-color:#9ac4cc33}
+.pilot-phase i{background:#41c9d6;box-shadow:0 0 8px #40d8e555}
+.pilot-actions button{background:transparent;border-image:url('./assets/navigation/flight-console-a-frame.png') 145 150 145 150 fill / 9px stretch;color:#e6edef}
+@media(min-width:761px){.pilot-reveal{background:transparent;border-image:url('./assets/navigation/flight-console-a-frame.png') 145 150 145 150 fill / 18px stretch;box-shadow:none;filter:drop-shadow(0 9px 12px #0009)}}
