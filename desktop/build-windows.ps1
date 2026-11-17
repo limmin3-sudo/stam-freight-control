@@ -21,7 +21,15 @@ New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')
 $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path
+# System.Speech is a desktop reference assembly, not in csc.exe's framework folder.
+$speechReference = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8/System.Speech.dll'
+if (!(Test-Path $speechReference)) {
+    Add-Type -AssemblyName System.Speech
+    $speechReference = [System.Speech.Recognition.SpeechRecognitionEngine].Assembly.Location
+}
+if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is required to compile the optional voice feature' }
+
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 $languageTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-language' -Wait -PassThru
 if ($languageTest.ExitCode -ne 0) { throw 'Launcher language switching failed' }
@@ -30,6 +38,10 @@ $smoke = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--se
 if ($smoke.ExitCode -ne 0) { throw 'Packaged launcher self-test failed' }
 $windowTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-window' -Wait -PassThru
 if ($windowTest.ExitCode -ne 0) { throw 'Launcher close, reopen and settings preservation failed' }
+New-Item -ItemType Directory -Force dist | Out-Null
+$overlayEvidence = Join-Path (Resolve-Path dist) 'overlay-native-check.json'
+$overlayTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--self-test-overlay', ('"' + $overlayEvidence + '"')) -Wait -PassThru
+if ($overlayTest.ExitCode -ne 0 -or !(Test-Path $overlayEvidence)) { throw 'Native overlay verification failed' }
 $manifest = @{ version=$version; runtime="Node.js $runtimeVersion win-x64"; runtimeArchiveSHA256=$expected; gameValidated=$false; signed=$false; files=@() }
 Get-ChildItem $out -File -Recurse | ForEach-Object { $manifest.files += @{path=$_.FullName.Substring($out.Length+1).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'PACKAGE.json') -Encoding UTF8

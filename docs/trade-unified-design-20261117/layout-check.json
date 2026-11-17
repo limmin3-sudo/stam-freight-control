@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "prototypeOnly": true,
+  "productCodeChanged": false,
+  "views": [
+    "market",
+    "plan",
+    "personal",
+    "member",
+    "leader",
+    "directory",
+    "settlement",
+    "academy",
+    "app",
+    "features"
+  ],
+  "search": true,
+  "mobileWidth": 390,
+  "pageErrors": []
+}

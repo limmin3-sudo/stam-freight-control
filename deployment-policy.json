@@ -1,0 +1,6 @@
+{
+  "updated": "2026-11-17",
+  "billingMode": "free-only",
+  "paidServicesApproved": false,
+  "reason": "User explicitly declined paid hosting and Firebase Blaze. Do not link billing or deploy services requiring billing."
+}

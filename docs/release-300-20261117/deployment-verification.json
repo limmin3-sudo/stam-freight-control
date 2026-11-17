@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "checkedAt": "2026-11-17T02:20:58.463Z",
+  "sha": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "url": "https://limmin3-sudo.github.io/stam-freight-control/",
+  "version": "3.0.0",
+  "checks": [
+    "Public version.json matches release commit and beta 3.0.0",
+    "Default entry opens division with four destinations and approved assets",
+    "Trade lobby loads approved background and three room links",
+    "Lobby opens price-first trade monitor and current published prices render after choosing Everus Harbor; no map/cargo 3D mounted",
+    "Market reference room opens",
+    "Academy lobby and education room load with shared monitor",
+    "Academy freight references load",
+    "Existing lounge route and background remain available",
+    "English 390px trade control fits without horizontal overflow",
+    "Preserved legacy flight entry carries same release SHA"
+  ],
+  "errors": [],
+  "failed": [],
+  "publicRequests": 67,
+  "transport": "Public responses over verified Node HTTPS proxy, original browser origins preserved; external authentication not exercised",
+  "workflow": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44001545782",
+  "pagesConclusion": "success",
+  "remoteBranches": {
+    "main": "2c637afa21c9de904b3ad58b289215f3508670ec",
+    "handoff/local-studio-20261110": "2c637afa21c9de904b3ad58b289215f3508670ec"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "production": false,
+  "functionsCalls": 0,
+  "checks": [
+    "Fleet creation, requested/approved membership, private roster, invitation, leave, reserved official name",
+    "Fleet-only recruitment and private ledger; captain delegates officer without changing ownership",
+    "Concurrent same request applies once; real officer recorded; forged owner/roles/shares/settlement denied",
+    "Officer batch of 99 assignments commits atomically under the actual rules budget",
+    "Officer assignment, approved buy/sell, exact shared cash/cargo accounting",
+    "Pending reports block finalization, officer denied finalization, exact settlement/payment/receipt and reload",
+    "Explicit legacy conversion saves original payload; shared chat and trade posts use rules without Functions"
+  ]
+}

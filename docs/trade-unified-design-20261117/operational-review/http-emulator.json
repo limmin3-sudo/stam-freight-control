@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "project": "demo-stam-v2-http",
+  "actualFunctionsHttp": true,
+  "production": false,
+  "checks": [
+    "Actual Functions HTTP rejects missing authentication and foreign origins; accepted emulator identity receives capabilities",
+    "HTTP recruitment/delegation and concurrent duplicate approvals apply exactly once with the actual officer recorded",
+    "HTTP commands enforce officer/captain/member boundaries and stale revisions; even captain direct v2 writes are denied",
+    "Disabled external submission returns configuration-required without contacting UEX",
+    "A deleted emulator identity cannot keep using its previously issued token"
+  ],
+  "uexRequests": 0,
+  "pushes": 0
+}

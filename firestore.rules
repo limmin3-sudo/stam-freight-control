@@ -90,6 +90,119 @@ service cloud.firestore {
           && request.resource.data.updatedAt == getAfter(/databases/$(database)/documents/users/$(uid)).data.updatedAt;
       }
     }
+    // Private fleet operations. Members submit reports; only the leader approves the ledger.
+    function crewHead(key) { return get(/databases/$(database)/documents/crewTrades/$(key)).data; }
+    function crewMember(key) { return request.auth != null && request.auth.uid in crewHead(key).memberIds; }
+    function crewLeader(key) { return request.auth != null && crewHead(key).ownerUid == request.auth.uid; }
+    match /crewTrades/{key} {
+      match /chat/{messageId} {
+        allow read: if crewMember(key);
+        allow create: if crewMember(key) && crewHead(key).phase != 'settled'
+          && request.resource.data.keys().hasOnly(['uid','name','text','announcement','at'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
+          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1500
+          && request.resource.data.announcement is bool && (!request.resource.data.announcement || crewLeader(key))
+          && request.resource.data.at is int && request.resource.data.at <= request.time.toMillis()+5000 && request.resource.data.at >= request.time.toMillis()-300000;
+        allow update,delete: if false;
+      }
+      function validCrewHead() {
+        let d=request.resource.data;
+        return d.keys().hasOnly(['ownerUid','memberIds','participantIds','phase','revision','settlementId','payload','updatedAt'])
+          && d.ownerUid is string && d.memberIds is list && d.memberIds.size() >= 1 && d.memberIds.size() <= 30
+          && d.participantIds is list && d.participantIds.size() >= 1 && d.participantIds.size() <= 30
+          && d.participantIds.hasAll(d.memberIds) && d.ownerUid in d.memberIds
+          && d.phase in ['open','review','settled'] && d.revision is int
+          && d.settlementId is string && d.settlementId.size() <= 128
+          && ((d.phase == 'settled' && d.settlementId.size() > 0) || (d.phase != 'settled' && d.settlementId == ''))
+          && d.payload is string && d.payload.size() <= 650000 && d.updatedAt == request.time;
+      }
+      allow read: if request.auth != null && request.auth.uid in resource.data.memberIds;
+      allow create: if request.auth != null && validCrewHead() && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.memberIds == [request.auth.uid] && request.resource.data.participantIds == [request.auth.uid]
+        && request.resource.data.phase == 'open' && request.resource.data.revision == 1;
+      allow update: if request.auth != null && resource.data.ownerUid == request.auth.uid && resource.data.phase != 'settled'
+        && validCrewHead() && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.revision == resource.data.revision + 1
+        && (request.resource.data.phase != 'settled' || resource.data.phase == 'review');
+      allow delete: if false;
+      match /requests/{uid} {
+        function validRequest() {
+          let d=request.resource.data;
+          let invite=get(/databases/$(database)/documents/crewInvites/$(d.invite)).data;
+          return d.keys().hasOnly(['uid','name','ship','capacity','invite','at']) && d.uid == uid
+            && d.name is string && d.name.size() > 0 && d.name.size() <= 60
+            && d.ship is string && d.ship.size() <= 100 && d.capacity is int && d.capacity >= 0 && d.capacity <= 10000
+            && invite.operationId == key && invite.expiresAt > request.time && crewHead(key).phase == 'open' && d.at == request.time;
+        }
+        allow create: if owns(uid) && validRequest();
+        allow read: if owns(uid) || crewLeader(key);
+        allow delete: if owns(uid) || crewLeader(key);
+        allow update: if false;
+      }
+      match /reports/{rid} {
+        function validReport() {
+          let d=request.resource.data;
+          return d.keys().hasOnly(['id','uid','kind','assignmentId','quantity','amount','note','at']) && d.id == rid && d.uid == request.auth.uid
+            && d.kind in ['capital','buy','sell','expense','loss']
+            && d.assignmentId is string && d.assignmentId.size() <= 128
+            && d.quantity is int && d.quantity >= 0 && d.quantity <= 10000
+            && d.amount is int && d.amount >= 0 && d.amount <= 1000000000000
+            && d.note is string && d.note.size() <= 500 && d.at == request.time
+            && (!(d.kind in ['expense','loss']) || d.note.size() > 0) && (d.kind != 'loss' || d.amount == 0);
+        }
+        allow read: if crewMember(key);
+        allow create: if crewMember(key) && crewHead(key).phase == 'open' && validReport();
+        allow delete: if crewLeader(key) && getAfter(/databases/$(database)/documents/crewTrades/$(key)).data.revision == crewHead(key).revision + 1;
+        allow update: if false;
+      }
+      match /presence/{uid} {
+        allow read: if crewMember(key);
+        allow create, update: if owns(uid) && crewMember(key)
+          && request.resource.data.keys().hasOnly(['uid','state','note','at']) && request.resource.data.uid == uid
+          && request.resource.data.state in ['preparing','loading','ready','transit','unloading','done','issue']
+          && request.resource.data.note is string && request.resource.data.note.size() <= 500 && request.resource.data.at == request.time;
+        allow delete: if false;
+      }
+      match /payments/{uid} {
+        allow read: if crewMember(key);
+        allow create: if crewLeader(key) && crewHead(key).phase == 'settled' && uid in crewHead(key).participantIds
+          && request.resource.data.keys().hasOnly(['uid','settlementId','at']) && request.resource.data.uid == uid
+          && request.resource.data.settlementId == crewHead(key).settlementId && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+      match /receipts/{uid} {
+        allow read: if crewMember(key);
+        allow create: if owns(uid) && crewMember(key) && crewHead(key).phase == 'settled'
+          && request.resource.data.keys().hasOnly(['uid','settlementId','at']) && request.resource.data.uid == uid
+          && request.resource.data.settlementId == crewHead(key).settlementId && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+    }
+    match /crewInvites/{token} {
+      allow get: if request.auth != null;
+      allow list, update: if false;
+      allow create: if request.auth != null && token.matches('^[a-f0-9]{32}$')
+        && request.resource.data.keys().hasOnly(['operationId','ownerUid','expiresAt'])
+        && request.resource.data.ownerUid == request.auth.uid && crewLeader(request.resource.data.operationId)
+        && crewHead(request.resource.data.operationId).phase == 'open'
+        && request.resource.data.expiresAt is timestamp && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt <= request.time + duration.value(8,'d');
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+    match /tradePosts/{postId} {
+      allow read: if request.auth != null;
+      allow create,update: if request.auth != null && request.resource.data.ownerUid == request.auth.uid
+        && (!exists(/databases/$(database)/documents/tradePosts/$(postId)) || resource.data.ownerUid == request.auth.uid)
+        && request.resource.data.keys().hasOnly(['ownerUid','name','side','commodityId','terminalId','quantity','price','note','status','at','expiresAt','closedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
+        && request.resource.data.side in ['buy','sell'] && request.resource.data.commodityId is int && request.resource.data.commodityId > 0 && request.resource.data.commodityId <= 100000000
+        && request.resource.data.terminalId is int && request.resource.data.terminalId > 0 && request.resource.data.terminalId <= 100000000
+        && request.resource.data.quantity is int && request.resource.data.quantity > 0 && request.resource.data.quantity <= 10000
+        && request.resource.data.price is int && request.resource.data.price >= 0 && request.resource.data.price <= 1000000000000
+        && request.resource.data.note is string && request.resource.data.note.size() <= 500 && request.resource.data.status in ['open','closed']
+        && request.resource.data.expiresAt is int && request.resource.data.expiresAt <= request.time.toMillis()+86700000;
+    }
     // Feedback and bug reports: anyone may add one (size-checked); nobody can read, change or delete them from
     // the site. The owner reads them in the Firebase console (Firestore Database → Data → feedback).
     match /feedback/{id} {

@@ -1,7 +1,9 @@
 import {readCloudFlight,writeCloudFlight} from './flight-cloud.mjs';
+import {createCrewCloud} from './crew-cloud.mjs';
 import {historyTotalsMarkup,readHistory,HISTORY_KEY} from './history.mjs';
 // Optional account login (ID + password or Google) and per-account sync through Firebase.
 // Guests keep using browser storage. Nothing here runs until FIREBASE_CONFIG is filled in.
+import {createFreightCloud} from './freight-cloud.mjs';
 import {FIREBASE_CONFIG} from './firebase-config.mjs';
 import {GUEST_BACKUP,ACCOUNT_META,snapshot,decideOnLogin,changedKeys,snapshotPatch,usernameProblem,normalizeUsername,usernameEmail,describeChanges} from './sync.mjs';
 
@@ -194,7 +196,9 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
   if(!user||paused||!fb||readOwner(localStorage)!==ownerFor(user.uid))throw Error('로그인과 계정 저장 연결을 먼저 확인하세요.');
   const epoch=generation,uid=user.uid;
   const assert=()=>{if(epoch!==generation||uid!==user?.uid||paused||readOwner(localStorage)!==ownerFor(uid)||localStorage.getItem(STORAGE_JOURNAL))throw Object.assign(Error('계정이 변경되었습니다. 다시 확인하세요.'),{code:'stam/stale'});};
+  if(scope==='freight')return createFreightCloud(fb,uid,assert);
+  if(scope==='crew')return createCrewCloud(fb,uid,assert);
   return {uid,read:knownRevision=>readCloudFlight(fb,uid,{assertCurrent:assert,knownRevision,scope}),save:(expected,value)=>writeCloudFlight(fb,uid,expected,value,{assertCurrent:assert,device:device(),scope})};
  }
- return {open,user:()=>user,flightCloud:()=>flightCloud(),tradeCloud:()=>flightCloud('trade'),mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
+ return {open,user:()=>user,freightCloud:()=>flightCloud('freight'),crewCloud:()=>flightCloud('crew'),flightCloud:()=>flightCloud(),tradeCloud:()=>flightCloud('trade'),mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
 }

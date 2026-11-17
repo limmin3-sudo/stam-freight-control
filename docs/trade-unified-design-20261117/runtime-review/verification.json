@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-17",
+  "baseCommit": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "uncommitted": true,
+  "deployed": false,
+  "tests": {
+    "root": 290,
+    "controlRoom": 172,
+    "failures": 0
+  },
+  "build": {
+    "typescript": "passed",
+    "vite": "passed",
+    "native": "Actual Windows compile, overlay/hotkeys and installer checks passed (44060734263)",
+    "functionsModule": "four exports loaded"
+  },
+  "browser": {
+    "fleet": {
+      "passed": true,
+      "syntheticAccounts": true,
+      "productionWrites": 0,
+      "checks": [
+        "Public recruitment → participation request → captain approval → delegated officer, using server domain commands",
+        "Officer confirms a contribution; cents and actual approver are retained",
+        "Officer has no settlement/share controls; shared chat updates across two accounts",
+        "390px fleet layout has no document overflow",
+        "Switching personal/fleet preserves personal draft and freight data"
+      ],
+      "errors": []
+    },
+    "personal": {
+      "passed": true,
+      "checks": [
+        "Remaining purchase prefill follows actual quantities; cancel leaves ledger unchanged; confirmation previews cash and aboard cargo",
+        "Departure and arrival require explicit confirmation and never auto-sell or alter cargo",
+        "Partial sale and expense realize 7 aUEC while preserving 60 aUEC cargo cost; cash is 947",
+        "Korean and English find the same goods; clearing filters restores results without changing holdings",
+        "Searchable status-filtered run history and CSV reflect actual ledger records",
+        "Storage/withdrawal preserve cost; selling the remaining cargo closes at exact 37 aUEC with freight sentinel intact",
+        "English mobile 390px settlement fits and reload preserves the finished ledger",
+        "Real UEX history loads only on expansion, draws report points and reuses cache after reopening"
+      ],
+      "errors": [],
+      "liveGame": false,
+      "transactions": "Synthetic isolated browser guest ledger",
+      "history": "Real public UEX HTTPS responses through verified Node proxy; no public submissions"
+    }
+  },
+  "firestore": {
+    "v1": 8,
+    "v2": {
+      "passed": true,
+      "production": false,
+      "checks": [
+        "Public fleet profile excludes roster; membership self-escalation denied; approved membership grants fleet access",
+        "Fleet recruitment is queryable by approved members without exposing the operation ledger",
+        "Officer can read requests; both captain and officer must use server commands for v2 ledger/report writes",
+        "Server-approved reports retain officer attribution; conversation is member-only and cannot be forged directly",
+        "Notifications are private and only their read marker can be changed by the recipient",
+        "Firestore cursor pagination reads all fleet profiles and same-timestamp chat messages without duplicates"
+      ]
+    }
+  },
+  "notValidated": [
+    "production Functions HTTP auth and deployment",
+    "actual microphone capture / live game / Windows screenshot visual review / local artifact integrity",
+    "UEX test/live submission",
+    "real Web Push delivery"
+  ],
+  "package": {
+    "version": "app.1.5.0",
+    "inputFiles": 30,
+    "windowsRuntimePackaged": true,
+    "signed": false,
+    "verificationArtifact": "../operational-review/windows-verification.json"
+  },
+  "functionsHttpEmulator": {
+    "passed": true,
+    "project": "demo-stam-v2-http",
+    "actualFunctionsHttp": true,
+    "production": false,
+    "checks": [
+      "Actual Functions HTTP rejects missing authentication and foreign origins; accepted emulator identity receives capabilities",
+      "HTTP recruitment/delegation and concurrent duplicate approvals apply exactly once with the actual officer recorded",
+      "HTTP commands enforce officer/captain/member boundaries and stale revisions; even captain direct v2 writes are denied",
+      "Disabled external submission returns configuration-required without contacting UEX",
+      "A deleted emulator identity cannot keep using its previously issued token"
+    ],
+    "uexRequests": 0,
+    "pushes": 0
+  },
+  "isolatedNativeVerificationCommit": "3ddc89bf8c62f6cb68b63b59d19b63a1035f727b"
+}

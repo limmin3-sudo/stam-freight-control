@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-11-17T10:01:44.255Z",
+  "projectId": "stam-freight-control",
+  "mutations": 0,
+  "billing": {
+    "ok": true,
+    "enabled": false
+  },
+  "project": {
+    "ok": true,
+    "projectNumber": "1085214482676",
+    "lifecycleState": "ACTIVE"
+  },
+  "functions": {
+    "ok": false,
+    "status": 403,
+    "reason": "PERMISSION_DENIED",
+    "details": [
+      {
+        "reason": "SERVICE_DISABLED",
+        "domain": "googleapis.com"
+      }
+    ]
+  },
+  "secrets": {
+    "ok": false,
+    "status": 403,
+    "reason": "PERMISSION_DENIED",
+    "details": [
+      {
+        "reason": "SERVICE_DISABLED",
+        "domain": "googleapis.com"
+      }
+    ]
+  },
+  "services": {
+    "ok": true,
+    "names": [
+      "fcm.googleapis.com",
+      "fcmregistrations.googleapis.com"
+    ],
+    "more": false
+  },
+  "iam": {
+    "cloudfunctions.functions.create": true,
+    "cloudfunctions.functions.list": true,
+    "serviceusage.services.enable": true,
+    "datastore.indexes.create": true,
+    "firebaserules.releases.update": true
+  }
+}

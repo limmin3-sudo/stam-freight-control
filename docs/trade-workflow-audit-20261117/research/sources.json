@@ -1,0 +1,155 @@
+[
+  {
+    "id": "uex",
+    "url": "https://uexcorp.space/trade/routes",
+    "finalUrl": "https://uexcorp.space/trade/routes",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:58.946Z",
+    "bytes": 1573772,
+    "sha256": "c0644fadb9b2f434af3bfdb174e1ab8cce59b84720939b4fb29d9b9499ef1100"
+  },
+  {
+    "id": "uex-history",
+    "url": "https://uexcorp.space/api/documentation/id/get_commodities_prices_history/",
+    "finalUrl": "https://uexcorp.space/api/documentation/id/get_commodities_prices_history/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:58.030Z",
+    "bytes": 61734,
+    "sha256": "cd4c195de919f13116c0e34e56dcda7f83ef5345ff284861a051a7e215fbd1a7"
+  },
+  {
+    "id": "sct",
+    "url": "https://sc-trade.tools/",
+    "finalUrl": "https://sc-trade.tools/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:58.000Z",
+    "bytes": 6721,
+    "sha256": "079a0ff069cc01301aa7722ce39a5e2383019ac56ba48716b565648353d8b017"
+  },
+  {
+    "id": "sct-help",
+    "url": "https://sc-trade.tools/help",
+    "finalUrl": "https://sc-trade.tools/help",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:58.001Z",
+    "bytes": 6721,
+    "sha256": "079a0ff069cc01301aa7722ce39a5e2383019ac56ba48716b565648353d8b017"
+  },
+  {
+    "id": "gallog",
+    "url": "https://gallog.co/trading",
+    "finalUrl": "https://gallog.co/trading",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:59.779Z",
+    "bytes": 366317,
+    "sha256": "387d116d058bbe9a512644f4842885d9c6ca2791c60b94a1d892510b4a493f60"
+  },
+  {
+    "id": "starhead",
+    "url": "https://www.star-head.de/tools/routes",
+    "finalUrl": "https://www.star-head.de/tools/routes/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:01.323Z",
+    "bytes": 2287,
+    "sha256": "8f3b44f0ab1a3656cf0383e81455b7fe9fde9d8d2f31f9c169dfc7f928dd10e2"
+  },
+  {
+    "id": "schaulers",
+    "url": "https://schaulers.space/features",
+    "finalUrl": "https://schaulers.space/features",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:59.363Z",
+    "bytes": 212821,
+    "sha256": "f7a4ecd5c30a5482cc8e037f249a814bb88142e6b245df3b98ec68147d0f4767"
+  },
+  {
+    "id": "schaulers-app",
+    "url": "https://schaulers.space/app",
+    "finalUrl": "https://schaulers.space/app",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:19:59.388Z",
+    "bytes": 459917,
+    "sha256": "634c0a75146c45ed302ef05efaedfd1fe510f3d8b04812530ea2616ca38c4cb7"
+  },
+  {
+    "id": "uverse",
+    "url": "https://uverse.space/trade",
+    "finalUrl": "https://uverse.space/trade",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:01.753Z",
+    "bytes": 199064,
+    "sha256": "ecdd3c6ffeb20d7c0dae86112bbd7ae95d9c57e094d94874b3f0aa7222b73214"
+  },
+  {
+    "id": "datahub",
+    "url": "https://sc-datahub.com/current-features",
+    "finalUrl": "https://sc-datahub.com/current-features",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:02.152Z",
+    "bytes": 86041,
+    "sha256": "50d3e033d5bae9b88fa10913302a50f2e3953405c32a5d5dac7a50d69990beec"
+  },
+  {
+    "id": "cargo-deck",
+    "url": "https://cargodeck.onrender.com/en",
+    "finalUrl": "https://cargodeck.onrender.com/en",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:01.748Z",
+    "bytes": 48917,
+    "sha256": "4399f632d0447ef084d46bee145b865c92b446e148a572478e8478adfc067f26"
+  },
+  {
+    "id": "arkanis",
+    "url": "https://arkanis.cc/overlay/",
+    "finalUrl": "https://arkanis.cc/overlay/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:02.826Z",
+    "bytes": 231119,
+    "sha256": "11de3e52b2642a19f8bdedfb2157153de81a7d1777005ff658df1659dd846819"
+  },
+  {
+    "id": "quantum",
+    "url": "https://quantumsc.org/",
+    "finalUrl": "https://quantumsc.org/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:04.102Z",
+    "bytes": 55201,
+    "sha256": "2268ad16a61efde7f73175e704e837493e3e75cdd32530168677e928b56bb365"
+  },
+  {
+    "id": "scuplift",
+    "url": "https://scuplift.com/en",
+    "finalUrl": "https://scuplift.com/en",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:04.386Z",
+    "bytes": 390081,
+    "sha256": "bedc508912f54cf23a76322e7f82616b1e02e5a11e57a973942a9f2e952d7076"
+  },
+  {
+    "id": "companion",
+    "url": "https://lvl222.com/",
+    "finalUrl": "https://lvl222.com/",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:03.363Z",
+    "bytes": 9876,
+    "sha256": "3d815df0f4a905fead1d89b301e149aa9709a84428449e25981b5bb9ec8384ce"
+  },
+  {
+    "id": "official-issues",
+    "url": "https://support.robertsspaceindustries.com/hc/en-us/articles/360056254754-Star-Citizen-Alpha-4-10-3-Known-Issues",
+    "finalUrl": "https://support.robertsspaceindustries.com/hc/en-us/articles/360056254754-Star-Citizen-Alpha-4-10-3-Known-Issues",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:03.333Z",
+    "bytes": 90254,
+    "sha256": "c3d9127788572077b143d6bc985b2a98dbeafe9c219821b206777eae2868f763"
+  },
+  {
+    "id": "history-sample",
+    "url": "https://api.uexcorp.uk/2.0/commodities_prices_history?id_terminal=25&id_commodity=102&game_version=4.10.3",
+    "finalUrl": "https://api.uexcorp.uk/2.0/commodities_prices_history?id_terminal=25&id_commodity=102&game_version=4.10.3",
+    "status": 200,
+    "checkedAt": "2026-11-17T04:20:05.421Z",
+    "bytes": 5220,
+    "sha256": "b1f2b76ffd7f91ef60e9e2b34e5fc2145307a7d91a719ca30e088f0a0ff3416c"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "syntheticAccounts": true,
+  "productionWrites": 0,
+  "checks": [
+    "Public recruitment → participation request → captain approval → delegated officer, using server domain commands",
+    "Officer confirms a contribution; cents and actual approver are retained",
+    "Officer has no settlement/share controls; shared chat updates across two accounts",
+    "390px fleet layout has no document overflow",
+    "Switching personal/fleet preserves personal draft and freight data"
+  ],
+  "errors": []
+}

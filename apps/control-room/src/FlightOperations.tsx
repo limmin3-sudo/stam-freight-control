@@ -1,3 +1,4 @@
+import CompanionDisplay from './CompanionDisplay';
 import {HeldCargoReview} from './HeldCargoReview';
 import {FlightBackup} from './FlightBackup';
 import {quantityBasis} from './quantity-basis';
@@ -86,6 +87,7 @@ export function FlightOperations({flight, locale, controlMode}:{
         <b>{where(stop.locationId)}</b> <span>{i<run.index?t('완료','Done'):i===run.index?t('현재 거점','Current stop'):''}</span>
       </li>)}</ol></details>}
     <div className={controlMode?'ops-progress':undefined}>
+    <CompanionDisplay locale={locale} summary={{mode:'flight',title:t('운송 관제','Freight control'),lines:[instruction,t('완료','Done')+': '+completedSteps+' / '+totalSteps,...(!simple?[t('선내 화물','Aboard')+': '+used+' SCU']:[])]}} onCommand={command=>{if(command==='open-trade'||command==='show-prices')window.location.hash='#/division?lang='+locale+'&facility=trade&room='+(command==='show-prices'?'market':'trade-operations');else heading.current?.focus();}}/>
     {controlMode && <header className="ops-panel-head"><InterfaceGlyph kind="bridge"/><h2>{t('운항 진행','Flight progress')}</h2>
       <span className="ops-status" data-active={flight.active}>{held.length&&!visit?t('선내 보류 화물','Cargo on hold'):run?.finished?(flight.session.receiptReview?.excluded.length?t('운항 경로 종료','Flight route ended'):t('운송 완료','Haul complete')):flight.active?(run?.since===null?t('타이머 일시정지','Timer paused'):t('운항 중','In flight')):plan?t('출항 준비','Ready for departure'):t('계약 대기','Awaiting contract')}</span>
       {totalSteps>0 && <ConsoleDial value={Math.min(completedSteps,totalSteps)} maximum={totalSteps} label={t('완료','Done')+' / '+totalSteps}/>}</header>}

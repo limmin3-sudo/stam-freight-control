@@ -1,0 +1,33 @@
+{
+  "method": "Chromium with verified HTTPS Node request bridge; read-only; no logins, submissions or installs",
+  "checks": [
+    {
+      "source": "schaulers-runtime",
+      "url": "https://schaulers.space/app",
+      "checkedAt": "2026-11-17T04:23:30.258Z",
+      "finding": "Public app UI loaded; DATA FEED UNAVAILABLE observed. No successful route calculation in this session.",
+      "errors": []
+    },
+    {
+      "source": "cargo-deck-runtime",
+      "url": "https://cargodeck.onrender.com/en",
+      "checkedAt": "2026-11-17T04:23:36.012Z",
+      "finding": "Public landing and routing controls inspected without login.",
+      "errors": []
+    },
+    {
+      "source": "cargo-deck-flow-runtime",
+      "url": "https://cargodeck.onrender.com/en/routes",
+      "checkedAt": "2026-11-17T04:29:51.427Z",
+      "finding": "Typed Iron in Good search. Results displayed 24 routes, removable filter chip, return trade and ship comparison.",
+      "errors": []
+    },
+    {
+      "source": "uverse-runtime",
+      "url": "https://uverse.space/trade",
+      "checkedAt": "2026-11-17T04:23:41.711Z",
+      "finding": "Public trade hub and price feed loaded. Routes, circuits, market analytics, logbook, history and fuel navigation visible; authenticated logbook not tested.",
+      "errors": []
+    }
+  ]
+}

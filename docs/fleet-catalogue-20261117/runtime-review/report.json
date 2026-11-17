@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "Korean/English/module-class search finds configurations; 64/720/68 SCU labels; filtering never changes selected ship or saved draft",
+    "Navigator Worker calculates with all five cargo-module grids and 720 SCU",
+    "Trade planning uses the same cargo configuration, calculates real reference routes and preserves freight data",
+    "Archive finds three Galaxy variants in Korean and Liberator at 400 SCU with matching module explanations",
+    "Mixed-language mode keeps English ship names with Korean search; 390px layout fits"
+  ],
+  "errors": [],
+  "liveGame": false
+}

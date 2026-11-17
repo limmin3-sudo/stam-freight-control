@@ -4,7 +4,7 @@ import {chromium} from '/opt/codex/runtimes/codex-primary-runtime/dependencies/n
 import {blankSuiteBook,changeSuiteBook} from '../apps/control-room/src/trade-expedition.ts';
 import {calculateSuite,defaultSuiteOptions} from '../apps/control-room/src/trade-suite.ts';
 import {suiteContext} from '../apps/control-room/src/trade-suite-runtime.mjs';
-const base=process.env.STAM_TRADE_URL||'http://127.0.0.1:5191/',out='docs/trade-price-console-20261117/runtime-review';await mkdir(out,{recursive:true});
+const base=process.env.STAM_TRADE_URL||'http://127.0.0.1:5191/',out=process.env.STAM_TRADE_REVIEW||'docs/trade-price-console-20261117/runtime-review';await mkdir(out,{recursive:true});
 const data=JSON.parse(await readFile('data/trade-market.json','utf8')),origin=data.terminals.find(t=>t.location==='Everus Harbor').id,options={...defaultSuiteOptions,shipId:'drake-cutlass-black',capacity:46,budget:1000000,originId:origin,risk:'all',maxAgeHours:720};
 const route=calculateSuite(data,options,suiteContext(options)).routes[0];assert(route);const line=route.legs[0].lines[0],destination=route.legs[0].destinationId,destinationName=data.terminals.find(t=>t.id===destination).name;
 let book=changeSuiteBook(blankSuiteBook('guest'),{kind:'start',id:'price-console',options,route});

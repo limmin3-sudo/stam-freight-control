@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "project": "demo-stam-sync",
+  "checks": [
+    "Only members can read operations; safe membership query works; outsider and guest denied",
+    "Private invitation requires leader approval before access; invitation revocation prevents reuse",
+    "Retained batch allocation uses one revision and captain permission; private chat, captain notices and board ownership rules enforced",
+    "Members cannot edit leader ledger or another member’s status",
+    "Reports apply atomically only once; impossible spending is rejected without losing report; rejection reason is audited",
+    "Two leader devices cannot silently overwrite each other",
+    "Review freezes new reports; pending reports block settlement; final payouts exactly conserve funds",
+    "Final ledger is immutable; leader payment and member receipt permissions are separate and settlement-bound",
+    "Account-bound client rejects operations after identity changes"
+  ],
+  "production": false
+}

@@ -1,0 +1,40 @@
+--- previously-published-v1.rules
++++ retained-worktree.rules
+@@ -95,6 +95,17 @@
+     function crewMember(key) { return request.auth != null && request.auth.uid in crewHead(key).memberIds; }
+     function crewLeader(key) { return request.auth != null && crewHead(key).ownerUid == request.auth.uid; }
+     match /crewTrades/{key} {
++      match /chat/{messageId} {
++        allow read: if crewMember(key);
++        allow create: if crewMember(key) && crewHead(key).phase != 'settled'
++          && request.resource.data.keys().hasOnly(['uid','name','text','announcement','at'])
++          && request.resource.data.uid == request.auth.uid
++          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
++          && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1500
++          && request.resource.data.announcement is bool && (!request.resource.data.announcement || crewLeader(key))
++          && request.resource.data.at is int && request.resource.data.at <= request.time.toMillis()+5000 && request.resource.data.at >= request.time.toMillis()-300000;
++        allow update,delete: if false;
++      }
+       function validCrewHead() {
+         let d=request.resource.data;
+         return d.keys().hasOnly(['ownerUid','memberIds','participantIds','phase','revision','settlementId','payload','updatedAt'])
+@@ -178,6 +189,19 @@
+         && request.resource.data.expiresAt is timestamp && request.resource.data.expiresAt > request.time
+         && request.resource.data.expiresAt <= request.time + duration.value(8,'d');
+       allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
++    }
++    match /tradePosts/{postId} {
++      allow read: if request.auth != null;
++      allow create,update: if request.auth != null && request.resource.data.ownerUid == request.auth.uid
++        && (!exists(/databases/$(database)/documents/tradePosts/$(postId)) || resource.data.ownerUid == request.auth.uid)
++        && request.resource.data.keys().hasOnly(['ownerUid','name','side','commodityId','terminalId','quantity','price','note','status','at','expiresAt','closedAt'])
++        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
++        && request.resource.data.side in ['buy','sell'] && request.resource.data.commodityId is int && request.resource.data.commodityId > 0 && request.resource.data.commodityId <= 100000000
++        && request.resource.data.terminalId is int && request.resource.data.terminalId > 0 && request.resource.data.terminalId <= 100000000
++        && request.resource.data.quantity is int && request.resource.data.quantity > 0 && request.resource.data.quantity <= 10000
++        && request.resource.data.price is int && request.resource.data.price >= 0 && request.resource.data.price <= 1000000000000
++        && request.resource.data.note is string && request.resource.data.note.size() <= 500 && request.resource.data.status in ['open','closed']
++        && request.resource.data.expiresAt is int && request.resource.data.expiresAt <= request.time.toMillis()+86700000;
+     }
+     // Feedback and bug reports: anyone may add one (size-checked); nobody can read, change or delete them from
+     // the site. The owner reads them in the Firebase console (Firestore Database → Data → feedback).

@@ -1,0 +1,42 @@
+name: Publish verified Windows companion
+on:
+  push:
+    branches: [integration/freight-division-20261113]
+    paths: [scripts/promote-verified-desktop.mjs, .github/workflows/desktop-promote.yml]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the already verified package after review
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  actions: read
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: STAM-Windows-verification
+          run-id: 44060734263
+          github-token: ${{ github.token }}
+          path: dist
+      - name: Verify source and existing package, expose review evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/promote-verified-desktop.mjs
+      - name: Publish the verified assets
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-desktop.mjs
+      - name: Check published downloads
+        if: inputs.publish
+        run: python scripts/check-published-app.py dist/desktop-release.json

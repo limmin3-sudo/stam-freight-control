@@ -1,0 +1,55 @@
+{
+  "verifiedCommit": "3ddc89bf8c62f6cb68b63b59d19b63a1035f727b",
+  "files": [
+    {
+      "path": ".github/workflows/desktop-verify.yml",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/CompanionOverlay.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/CompanionOverlayChecks.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/Launcher.cs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/bridge.mjs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/build-windows.ps1",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/overlay-material.png",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "desktop/version.json",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "integration/log/companion-state.mjs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "integration/log/live-server.mjs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "scripts/build-desktop.mjs",
+      "matchesVerifiedSource": true
+    },
+    {
+      "path": "tests/companion-state.test.mjs",
+      "matchesVerifiedSource": true
+    }
+  ],
+  "allMatch": true,
+  "reranWindowsTests": false
+}

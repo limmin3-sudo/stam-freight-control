@@ -1,0 +1,68 @@
+{
+  "checkedAt": "2026-11-17T05:06:18.691Z",
+  "version": "4.10.3-LIVE.13165946",
+  "rows": 311,
+  "source": "https://api.star-citizen.wiki/api/vehicles?version=4.10.3-LIVE.13165946",
+  "sourceSha256": "6c0ae74d4cdc54568875f118ec60d46c467f330054ff33308dc9a212340a5a95",
+  "publicUrl": "https://limmin3-sudo.github.io/stam-freight-control/data/ships.json",
+  "publicProfiles": 97,
+  "localProfiles": 97,
+  "verified": [
+    {
+      "id": "rsi-galaxy",
+      "scu": 64,
+      "gridCount": 2,
+      "uuid": "01051d26-084e-4b4f-9566-ebd2251db0aa",
+      "source": "https://api.star-citizen.wiki/api/vehicles/01051d26-084e-4b4f-9566-ebd2251db0aa?version=4.10.3-LIVE.13165946"
+    },
+    {
+      "id": "rsi-galaxy-cargo",
+      "scu": 720,
+      "gridCount": 5,
+      "uuid": "e50eb3fc-bbc1-4baf-8878-8e8ca7e832ce",
+      "source": "https://api.star-citizen.wiki/api/vehicles/e50eb3fc-bbc1-4baf-8878-8e8ca7e832ce?version=4.10.3-LIVE.13165946"
+    },
+    {
+      "id": "rsi-galaxy-medical",
+      "scu": 68,
+      "gridCount": 3,
+      "uuid": "42724505-2d5b-41ec-adb1-e4c2ee4e855c",
+      "source": "https://api.star-citizen.wiki/api/vehicles/42724505-2d5b-41ec-adb1-e4c2ee4e855c?version=4.10.3-LIVE.13165946"
+    },
+    {
+      "id": "anvil-liberator",
+      "scu": 400,
+      "gridCount": 3,
+      "uuid": "609ce4ca-0f46-44a5-b6d3-2c2f87417126",
+      "source": "https://api.star-citizen.wiki/api/vehicles/609ce4ca-0f46-44a5-b6d3-2c2f87417126?version=4.10.3-LIVE.13165946"
+    }
+  ],
+  "otherNewVehicles": [
+    {
+      "slug": "drak-marauder",
+      "uuid": "16099337-179f-473e-8bc9-545e38ef0a32",
+      "scu": 0,
+      "gridCount": 0,
+      "quantumSpeed": 209236400,
+      "source": "https://api.star-citizen.wiki/api/vehicles/16099337-179f-473e-8bc9-545e38ef0a32?version=4.10.3-LIVE.13165946"
+    },
+    {
+      "slug": "gama-hyun",
+      "uuid": "e25212d6-2078-4a91-8f5a-5863e9a8d583",
+      "scu": 32,
+      "gridCount": 1,
+      "quantumSpeed": 275942800,
+      "source": "https://api.star-citizen.wiki/api/vehicles/e25212d6-2078-4a91-8f5a-5863e9a8d583?version=4.10.3-LIVE.13165946"
+    },
+    {
+      "slug": "rsi-skylark",
+      "uuid": "6a77c8c6-87ef-4d01-9401-024e1b3fcc74",
+      "scu": 0,
+      "gridCount": 0,
+      "quantumSpeed": null,
+      "source": "https://api.star-citizen.wiki/api/vehicles/6a77c8c6-87ef-4d01-9401-024e1b3fcc74?version=4.10.3-LIVE.13165946"
+    }
+  ],
+  "hyunAvailability": "Wiki lists 2026-11-21, future relative to 2026-11-17; not enabled as a released hauler.",
+  "addedProfiles": 0
+}

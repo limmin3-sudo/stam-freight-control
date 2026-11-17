@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createCrewCloud} from '../crew-cloud.mjs';
+import {createCrew,crewTotals} from '../crew-trade.mjs';
+const require=createRequire('/tmp/stam-firestore-qa/package.json');
+const {initializeTestEnvironment,assertFails}=require('@firebase/rules-unit-testing'),F=require('firebase/firestore');
+const env=await initializeTestEnvironment({projectId:'demo-stam-sync',firestore:{host:'127.0.0.1',port:8089,rules:await readFile(new URL('../firestore.rules',import.meta.url),'utf8')}});
+const checks=[];
+try{
+ await env.clearFirestore();const a=env.authenticatedContext('leader').firestore(),b=env.authenticatedContext('pilot').firestore(),x=env.authenticatedContext('outsider').firestore(),guest=env.unauthenticatedContext().firestore();let stale=false;
+ const leader=createCrewCloud({...F,db:a},'leader',()=>{if(stale)throw Error('stale');}),pilot=createCrewCloud({...F,db:b},'pilot');
+ let op=await leader.create(createCrew({id:'test-crew',ownerUid:'leader',name:'Leader',title:'QA fleet',capacity:8}));
+ const head=db=>F.doc(db,'crewTrades',op.id),revision=async()=>{op=await leader.read(op.id);return op.revision;};
+ await assertFails(F.getDoc(head(x)));await assertFails(F.getDoc(head(guest)));await assertFails(F.getDocs(F.collection(a,'crewTrades')));assert.equal((await leader.list()).length,1);checks.push('Only members can read operations; safe membership query works; outsider and guest denied');
+ const token=await leader.invite(op.id);await pilot.join(token,{name:'Pilot',ship:'Hull B',capacity:8});await assertFails(pilot.read(op.id));await assertFails(F.getDocs(F.collection(b,'crewTrades',op.id,'requests')));
+ await leader.approveMember(op.id,await revision(),'pilot');assert.equal((await pilot.list()).length,1);await pilot.read(op.id);await leader.revoke(token);await assert.rejects(()=>pilot.join(token,{name:'Pilot',ship:'Hull B',capacity:8}));checks.push('Private invitation requires leader approval before access; invitation revocation prevents reuse');
+ await assertFails(F.updateDoc(head(b),{revision:999}));await assertFails(F.setDoc(F.doc(b,'crewTrades',op.id,'presence','leader'),{uid:'leader',state:'done',note:'',at:F.serverTimestamp()}));await pilot.status(op.id,'loading','Loading verified');checks.push('Members cannot edit leader ledger or another member’s status');
+ const r1=await leader.report(op.id,{kind:'capital',amount:6000});await leader.decideReport(op.id,await revision(),r1);const r2=await pilot.report(op.id,{kind:'capital',amount:4000});await assertFails(F.deleteDoc(F.doc(a,'crewTrades',op.id,'reports',r2)));await leader.decideReport(op.id,await revision(),r2);await assert.rejects(()=>leader.decideReport(op.id,op.revision,r2));
+ await leader.update(op.id,await revision(),{kind:'assignment',assignment:{id:'iron',uid:'pilot',commodityId:1,from:1,to:2,planned:8,boxSize:2}});
+ const invalid=await pilot.report(op.id,{kind:'buy',assignmentId:'iron',quantity:8,amount:11000});await assert.rejects(()=>leader.decideReport(op.id,op.revision,invalid),/crew-conflict/);await revision();await assert.rejects(()=>leader.decideReport(op.id,op.revision,invalid),/crew-capital/);
+ assert((await F.getDoc(F.doc(a,'crewTrades',op.id,'reports',invalid))).exists());await leader.decideReport(op.id,await revision(),invalid,'Exceeds funding');
+ const buy=await pilot.report(op.id,{kind:'buy',assignmentId:'iron',quantity:8,amount:8000});await leader.decideReport(op.id,await revision(),buy);await revision();assert.equal(crewTotals(op).remaining,8);checks.push('Reports apply atomically only once; impossible spending is rejected without losing report; rejection reason is audited');
+ const rev=await revision(),race=await Promise.allSettled([leader.update(op.id,rev,{kind:'shares',mode:'capital',shares:{}}),leader.update(op.id,rev,{kind:'shares',mode:'custom',shares:{leader:5000,pilot:5000}})]);assert.equal(race.filter(r=>r.status==='fulfilled').length,1);assert.equal(race.find(r=>r.status==='rejected').reason.code,'crew-conflict');await leader.update(op.id,await revision(),{kind:'shares',mode:'capital',shares:{}});checks.push('Two leader devices cannot silently overwrite each other');
+ const sale=await pilot.report(op.id,{kind:'sell',assignmentId:'iron',quantity:8,amount:12000});await leader.update(op.id,await revision(),{kind:'review'});await assertFails(pilot.report(op.id,{kind:'expense',amount:100,note:'late'}));await revision();await assert.rejects(()=>leader.settle(op.id,op.revision),/crew-pending/);await leader.decideReport(op.id,await revision(),sale);op=await leader.settle(op.id,await revision());assert.deepEqual(op.settlement.value.payouts.map(p=>p.payout),[8400,5600]);checks.push('Review freezes new reports; pending reports block settlement; final payouts exactly conserve funds');
+ await assertFails(F.updateDoc(head(a),{revision:op.revision+1,updatedAt:F.serverTimestamp()}));await assertFails(pilot.markPayment(op.id,'leader',op.settlement.id));await assertFails(pilot.acknowledge(op.id,'wrong'));await leader.markPayment(op.id,'pilot',op.settlement.id);await pilot.acknowledge(op.id,op.settlement.id);await assertFails(F.deleteDoc(F.doc(a,'crewTrades',op.id,'payments','pilot')));checks.push('Final ledger is immutable; leader payment and member receipt permissions are separate and settlement-bound');
+ stale=true;await assert.rejects(()=>leader.list(),/stale/);await assert.rejects(()=>leader.invite(op.id),/stale/);checks.push('Account-bound client rejects operations after identity changes');
+ const dir=new URL('../docs/trade-workflow-audit-20261117/runtime-review/',import.meta.url);await mkdir(dir,{recursive:true});await writeFile(new URL('crew-firestore.json',dir),JSON.stringify({passed:true,project:'demo-stam-sync',checks,production:false},null,2)+'\n');console.log(checks);
+}finally{await env.cleanup();}

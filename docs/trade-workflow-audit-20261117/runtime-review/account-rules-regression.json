@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "emulator": true,
+  "productionRequests": 0,
+  "checks": [
+    "new account transaction creates head and state atomically",
+    "legacy batch without revision advancement denied",
+    "standalone state write/delete and head deletion denied",
+    "state timestamp must match the transaction head",
+    "real SDK transactions accept one concurrent writer irrespective of client clock",
+    "cross-account reads and writes denied",
+    "existing timestamp-only account migrates without deleting data",
+    "intentional deletion succeeds only with matching revision",
+    "feedback remains write-only, including guests",
+    "multi-document flight snapshot writes and reads atomically",
+    "cloud flight owner and revision checks reject cross-account access and standalone chunk mutation",
+    "two flight writers accept one winner and remove superseded chunks",
+    "trade workspace has independent atomic snapshot and does not modify flight revision",
+    "trade ownership, authenticated reads and atomic chunk constraints enforced",
+    "concurrent trade devices permit one writer and remove superseded parts"
+  ]
+}

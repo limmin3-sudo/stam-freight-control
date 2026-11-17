@@ -1,0 +1,12 @@
+export type CrewMember={uid:string;name:string;ship:string;capacity:number;role:'leader'|'officer'|'pilot'|'escort';active:boolean};
+export type CrewAssignment={id:string;uid:string;commodityId:number;from:number;to:number;planned:number;boxSize:number};
+export type CrewEvent={id:string;kind:'capital'|'buy'|'sell'|'expense'|'loss';memberUid:string;actorUid:string;assignmentId?:string;quantity?:number;amount:number;note:string;at:string;voidedAt?:string};
+export type CrewPayout={uid:string;capital:number;principal:number;profit:number;payout:number;loss:number};
+export type CrewSettlement={cash:number;net:number;contributed:number;remaining:number;payouts:CrewPayout[]};
+export type CrewOperation={schema:1;id:string;ownerUid:string;title:string;revision:number;phase:'open'|'review'|'settled';at:string;members:CrewMember[];assignments:CrewAssignment[];events:CrewEvent[];splitMode:'capital'|'custom';shares:Record<string,number>;settlement:{id:string;at:string;value:CrewSettlement}|null;rejections?:{id:string;memberUid:string;reason:string;at:string}[]};
+export type CrewCommand={kind:'member';member:CrewMember}|{kind:'assignment';assignment:CrewAssignment}|{kind:'event';event:Omit<CrewEvent,'actorUid'|'at'>}|{kind:'undo'|'review'|'resume'}|{kind:'shares';mode:'capital'|'custom';shares:Record<string,number>}|{kind:'reject';id:string;memberUid:string;reason:string}|{kind:'settle';id:string};
+export function createCrew(input:{id:string;ownerUid:string;name:string;title:string;ship?:string;capacity?:number;at?:string}):CrewOperation;
+export function validateCrew(op:unknown):CrewOperation;
+export function changeCrew(op:CrewOperation,command:CrewCommand,actorUid:string,at?:string):CrewOperation;
+export function crewTotals(op:CrewOperation):{cash:number;purchases:number;sales:number;expenses:number;realized:number;capital:Record<string,number>;contributed:number;remaining:number;remainingCost:number;cargo:Record<string,{quantity:number;cost:number;bought:number;sold:number;lost:number}>};
+export function crewSettlement(op:CrewOperation):CrewSettlement;

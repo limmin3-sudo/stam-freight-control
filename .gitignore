@@ -11,3 +11,8 @@ public/
 
 vendor/screen/
 dist/
+
+# Generated server bundle
+server/cloud/lib/
+server/cloud/node_modules/
+server/cloud/.secret.local

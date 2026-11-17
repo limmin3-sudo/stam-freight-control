@@ -1,0 +1,74 @@
+{
+  "at": "2026-11-17T05:00:43.433250+00:00",
+  "base": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "branch": "integration/freight-division-20261113",
+  "committed": false,
+  "deployed": false,
+  "productionCrewRulesPublished": false,
+  "liveGameVerified": false,
+  "tests": {
+    "root": 278,
+    "app": 169,
+    "crewEngineFinal": 6,
+    "typeCheck": true,
+    "productionBuild": true
+  },
+  "browserAndEmulator": {
+    "runtime-review/account-rules-regression.json": {
+      "passed": true,
+      "checks": 15
+    },
+    "runtime-review/crew-firestore.json": {
+      "passed": true,
+      "checks": 8
+    },
+    "runtime-review/crew-browser.json": {
+      "passed": true,
+      "checks": 6
+    },
+    "runtime-review/report.json": {
+      "passed": true,
+      "checks": 8
+    },
+    "runtime-review/price-regression/report.json": {
+      "passed": true,
+      "checks": 7
+    },
+    "runtime-review/suite-regression/report.json": {
+      "passed": true,
+      "checks": 9
+    }
+  },
+  "filesSha256": {
+    "PROJECT_STATUS.md": "333d0e47226c9485e45169d8692b43e0c23216d99710345d7eff60b6f49c83fe",
+    "account.mjs": "9560094e8da0a9612e6d18e7713d70164db9002ff84d53abf4a68bbe88e5e238",
+    "apps/control-room/src/CrewTradePanel.tsx": "72f0479f3f9f3cd10833b3f45465a6405b189d8418ac97140c2988f118dd79f4",
+    "apps/control-room/src/MarketInformation.tsx": "0182f20e0ea70ae135e6267d0e3fabbc82d15990ee34c6571eec794d6ea40820",
+    "apps/control-room/src/TradeControlPrices.tsx": "d818b68f2fe5fff69ba81d51eb1d3728925726492b33855d6885f23e91a2b877",
+    "apps/control-room/src/TradePriceDesk.tsx": "92310c5309f94d1e81ec767dd240c2b376ad69a65d88829d4d59ef15b44bc53f",
+    "apps/control-room/src/TradePriceHistory.tsx": "61f15efba9d7356539d232d1b559ed46e8b711b2acc1e30d34caa022a0ea6510",
+    "apps/control-room/src/TradeRunReview.tsx": "eaa7dd264ff8100f93375f6241bd120bcd15c2637f1bd0d4bc9cdda55da7fb7c",
+    "apps/control-room/src/TradeSuite.tsx": "b055ce8c34229979fa89b8c7c0d3a4ac70f3c0d2c8d6749d7b160bc7049ab80e",
+    "apps/control-room/src/academy-lessons.ts": "435ef63368602857dcdf06fca9b603f0115930ae0b79cc294465bacd5654c67e",
+    "apps/control-room/src/crew-trade.css": "c7ba15eb705609e366d79f7db75b4a3375ea0417adee9e4316bc68876a02fc93",
+    "apps/control-room/src/service-account.d.mts": "e6fd4b070181ba75681a17d68fbed54eab4c145a14860835668d8a8ed992923c",
+    "apps/control-room/src/service-account.mjs": "2388042d768b26c4a942f7e09ca690a265e1dff2457faae0df72ded7a687b86d",
+    "apps/control-room/src/trade-labels.ts": "8483d20c7426079c699b354b86d8e3854e1b3ef75df1b1d818bffb26cab13e13",
+    "apps/control-room/src/trade-price-history.ts": "47855a6945309501dd027ea2d10688ce598ee84bf84a2b68f9bd1a4c7a53acf1",
+    "apps/control-room/src/trade-workflow.css": "a9999798818b280b8cebca31fed936ea433e97304e1d8bb1b5fff4b184511f57",
+    "apps/control-room/src/trade-workflow.ts": "a850038a9a476e6a68575f2adae3228947480c7b4f90a3c4b30d17651718a89e",
+    "apps/control-room/src/use-crew-trade.ts": "9096ce7b8488cb1d137ad98b57316524f29ffb7af4fd68041840eeaf684da419",
+    "apps/control-room/tests/trade-workflow.test.ts": "ca7cb37aa2c58d544c4140701ae5d20674b551a6def133f14d26cdd9414e11b0",
+    "crew-cloud.d.mts": "3bd4027a59cf10afd5b9258b3aa9f7c7617e3844a3ca66cf423e3c60eec67dd8",
+    "crew-cloud.mjs": "726da6c1060acf2b6789d31ba13c0a2409588d465a713f8758307a061c76f676",
+    "crew-trade.d.mts": "401f5e497c5873ec927e46da433e4ee2ccc8fda5330e40651a5b14c35bf8929f",
+    "crew-trade.mjs": "7c9cb9e00f1771edc7e6042a8595e6f4722be79a880835489ea573c74052ec87",
+    "docs/LOCAL-CODEX-HANDOFF.md": "9d8917c802a93b9cbac06995aebc2213a063b164622fd95d26f016413f0f16b1",
+    "firestore.rules": "d1fb554a66079c94480b510bf2335e2df47c5f8573b2e97843e8fe05262284b2",
+    "scripts/check-crew-browser.mjs": "290b91d3f44cf3d9f3fcd3ded544bee25e70c9e576a4d72bf1f43d2ec340ef6e",
+    "scripts/check-crew-firestore.mjs": "dd0806b8aec654d095d5f8b0590ff9e333c179e886e86da08086043b169892db",
+    "scripts/check-trade-price-console-browser.mjs": "0457a3b0f00bdad33acd5d890751afb5831a086c03a9c6b727174f5b4c1b505b",
+    "scripts/check-trade-workflow-browser.mjs": "1cf29f7bd7e803ed212fb2d03e3b2fca3f3eb854136c1dfff8bffa1926c503ec",
+    "tests/crew-trade.test.mjs": "ffba144f6399365884e9bfe770cfcdf4413d4f7d8571c0462366171b80938073"
+  }
+}

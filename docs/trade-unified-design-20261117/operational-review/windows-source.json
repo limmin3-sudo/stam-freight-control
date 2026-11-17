@@ -1,0 +1,26 @@
+{
+  "branch": "verify/log-companion-v15-20261117",
+  "commit": "3ddc89bf8c62f6cb68b63b59d19b63a1035f727b",
+  "base": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "primaryIndexUnchanged": true,
+  "files": [
+    ".github/workflows/desktop-verify.yml",
+    "desktop/CompanionOverlay.cs",
+    "desktop/CompanionOverlayChecks.cs",
+    "desktop/Launcher.cs",
+    "desktop/bridge.mjs",
+    "desktop/build-windows.ps1",
+    "desktop/overlay-material.png",
+    "desktop/version.json",
+    "integration/log/companion-state.mjs",
+    "integration/log/live-server.mjs",
+    "scripts/build-desktop.mjs",
+    "tests/companion-state.test.mjs"
+  ],
+  "webPublished": false,
+  "appPublished": false,
+  "priorCommits": [
+    "5315c31ae1f173a1cdc0693ca1dc1558e8bd33e2"
+  ],
+  "localFilesMatchVerifiedCommit": true
+}

@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "evidenceBasis": "Successful Windows workflow; all mandatory native checks and installer checks fail the job on error",
+  "runId": 44060734263,
+  "url": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44060734263",
+  "sourceCommit": "3ddc89bf8c62f6cb68b63b59d19b63a1035f727b",
+  "artifact": {
+    "id": 14318252376,
+    "bytes": 64159210,
+    "githubReportedSHA256": "4f0f40317d6f66756fb52ee49338c684de710e68536818f22ffd2b92bed86750",
+    "downloadedLocally": false,
+    "localSHA256Verified": false,
+    "downloadLimitation": "Artifact storage proxy CONNECT returned 403 Forbidden; GitHub run and job logs are accessible"
+  },
+  "checks": [
+    "Native C# compilation and bundled runtime smoke test",
+    "Native language switching and close/reopen settings preservation",
+    "Real Windows global hotkeys, overlay show/hide, click-through and stale summary expiry",
+    "Configured shortcut restoration and KO/EN captures generated",
+    "Voice command allowlist and confidence rejection; installed recognizers enumerated without microphone",
+    "Installer, overwrite install, single-instance restore, uninstall and settings preservation"
+  ],
+  "notValidated": [
+    "Microphone speech capture",
+    "Actual game / exclusive fullscreen / user hotkey conflicts",
+    "Local visual review of Windows screenshots",
+    "Local archive hash and inner package integrity verification"
+  ],
+  "signed": false,
+  "published": false
+}

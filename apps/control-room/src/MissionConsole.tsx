@@ -1,3 +1,4 @@
+import ShipSelect from './ShipSelect';
 import { useEffect, useRef, useState } from 'react';
 import type { Locale } from './navigation';
 import { itinerary, placeName, samples, ships, shipName, routeReady } from './mission-trial';
@@ -189,7 +190,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       </form>;
   return <fieldset disabled={locked} className="manifest flight-manifest mission-screen">
     <div className="mission-preflight">
-      <label>{t('함선','Ship')}<select aria-label={t('함선','Ship')} value={d.ship} onChange={e=>edit({ship:e.target.value})}>{d.customShip?.id===d.ship&&!ships[d.ship]&&<option value={d.customShip.id}>{d.customShip.name}</option>}{Object.keys(ships).map(id=><option key={id} value={id}>{shipName(id)}</option>)}</select></label>
+      <ShipSelect locale={locale} value={d.ship} onChange={id=>edit({ship:id})} options={[...(d.customShip?.id===d.ship&&!ships[d.ship]?[{id:d.customShip.id,name:d.customShip.name,capacity:d.customShip.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)}]:[]),...Object.keys(ships).map(id=>({id,name:shipName(id),capacity:ships[id]!}))]}/>
       <PortSearch locale={locale} label={t('출발지','Departure')} value={d.start} onSelect={start=>edit({start})}/>
       <label>{t('운항 파트너','Flight partner')}<select aria-label={t('운항 파트너','Flight partner')} value={d.partner} onChange={e=>edit({partner:e.target.value as Draft['partner']})}><option value="operator">{t('브리지 오퍼레이터 · 경로 안내','Bridge operator · Route guidance')}</option><option value="navigator">{t('수석 항해사 · 경로와 적재','Senior navigator · Route & cargo')}</option></select></label>
       <p className="mission-partner-note">{simple?t('적재는 직접 · 같은 행성권에서 픽업한 뒤 배송합니다.','Load cargo yourself · Pick up within one region, then deliver.'):t('픽업을 묶고, 각 구간의 적재 가능 여부까지 계산합니다.','Batch pickups and check cargo fit at every stop.')}</p>

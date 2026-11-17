@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "syntheticAccounts": true,
+  "productionWrites": 0,
+  "functionsCalls": 0,
+  "checks": [
+    "Existing invitation-based operation creation/join preserved; fleet-directory/recruitment/delegation controls absent",
+    "Member reports and captain-only approval preserved without delegated officer path",
+    "Unrelated private chat remains available",
+    "Price lookup and visible-screen watches preserved; external submission and background settings absent"
+  ],
+  "errors": []
+}

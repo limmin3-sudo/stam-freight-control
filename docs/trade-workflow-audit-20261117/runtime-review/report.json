@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "Remaining purchase prefill follows actual quantities; cancel leaves ledger unchanged; confirmation previews cash and aboard cargo",
+    "Departure and arrival require explicit confirmation and never auto-sell or alter cargo",
+    "Partial sale and expense realize 7 aUEC while preserving 60 aUEC cargo cost; cash is 947",
+    "Korean and English find the same goods; clearing filters restores results without changing holdings",
+    "Searchable status-filtered run history and CSV reflect actual ledger records",
+    "Storage/withdrawal preserve cost; selling the remaining cargo closes at exact 37 aUEC with freight sentinel intact",
+    "English mobile 390px settlement fits and reload preserves the finished ledger",
+    "Real UEX history loads only on expansion, draws report points and reuses cache after reopening"
+  ],
+  "errors": [],
+  "liveGame": false,
+  "transactions": "Synthetic isolated browser guest ledger",
+  "history": "Real public UEX HTTPS responses through verified Node proxy; no public submissions"
+}

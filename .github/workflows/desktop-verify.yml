@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify companion and artifact checks
-        run: node --test tests/companion.test.mjs tests/desktop-artifacts.test.mjs
+        run: node --test tests/companion.test.mjs tests/desktop-artifacts.test.mjs tests/companion-state.test.mjs
       - name: Compile and verify native app and installer
         shell: powershell
         run: ./desktop/build-windows.ps1

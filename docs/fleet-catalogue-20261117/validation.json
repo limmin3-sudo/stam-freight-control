@@ -1,0 +1,23 @@
+{
+  "at": "2026-11-17T05:11:27.360788+00:00",
+  "base": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "newShipProfiles": 0,
+  "fleetProfiles": 97,
+  "rootTests": 278,
+  "appTests": 169,
+  "typeCheck": true,
+  "productionBuild": true,
+  "browserChecks": 5,
+  "productionDataReadOnly": true,
+  "uiChangesDeployed": false,
+  "liveGame": false,
+  "filesSha256": {
+    "apps/control-room/src/ShipSelect.tsx": "6cafa7211f0668748c51e4abeabf12b9c0f479977c8e0d888237594b72e67f21",
+    "apps/control-room/src/ship-select.css": "718a203865c2131ec65ea57ade19df007fefe1ac2da4e7ccc285e99106b6ee24",
+    "apps/control-room/src/ship-catalogue.ts": "880a79634aaf047aa36625d3263db95ec50757e95cf51eb59792a7e0a5ead39f",
+    "apps/control-room/src/MissionConsole.tsx": "adb0e8595f5ee90b9a07d612e7929d0ba8fdc9bf293daf63813ad7c4552a12a9",
+    "apps/control-room/src/TradeSuite.tsx": "34548fca18b2c9da3d1910989983f9ebbb45a964953af12dc6dd70cf8e97641a",
+    "apps/control-room/src/FreightArchive.tsx": "3880208d99ef6e983fc982450240ef51bf71cc487fc131916cbe97d3f8b17d2a",
+    "scripts/check-ship-catalogue-browser.mjs": "15b6029b9cf556ce1825a5284ffdb61a7f5eacf0dbe59c84127700c821efb14c"
+  }
+}

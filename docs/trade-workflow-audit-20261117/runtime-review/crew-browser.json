@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "syntheticBackend": true,
+  "productionRequests": 0,
+  "checks": [
+    "Two isolated accounts create, invite, request, approve and join the same operation",
+    "Member reports update the shared ledger only after explicit leader confirmation",
+    "Assigned cargo, confirmed purchases/sales and member progress update across devices",
+    "Custom 25/75 profit split returns 60/40 principal first; immutable final payouts are 70/70",
+    "Receipt confirmation and CSV work; private trade and freight data remain untouched",
+    "390px layout fits; signing out clears crew data and subscriptions"
+  ],
+  "errors": []
+}

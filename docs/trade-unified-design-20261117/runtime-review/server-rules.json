@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "production": false,
+  "checks": [
+    "Public fleet profile excludes roster; membership self-escalation denied; approved membership grants fleet access",
+    "Fleet recruitment is queryable by approved members without exposing the operation ledger",
+    "Officer can read requests; both captain and officer must use server commands for v2 ledger/report writes",
+    "Server-approved reports retain officer attribution; conversation is member-only and cannot be forged directly",
+    "Notifications are private and only their read marker can be changed by the recipient",
+    "Firestore cursor pagination reads all fleet profiles and same-timestamp chat messages without duplicates"
+  ]
+}

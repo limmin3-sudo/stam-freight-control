@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "checkedAt": "2026-11-17T05:42:22.293Z",
+  "realProduction": true,
+  "realFirebaseBrowserSDK": "10.14.1",
+  "transport": "TLS-verified forwarding through environment proxy; local hop loopback only",
+  "checks": [
+    "Real accounts: private crew creation, invitation, request, leader approval and realtime member access; pre-approval read denied",
+    "Revoked invitation cannot be reused",
+    "Contributions stay pending until approved once into the authoritative shared ledger",
+    "Assigned cargo, partial sale and shared costs preserve cost basis; member cannot overwrite leader ledger or another member status",
+    "Concurrent real-server revisions have one winner; no silent overwrite",
+    "Review phase rejects new member reports server-side and unsold cargo blocks final settlement",
+    "Pending reports block settlement; approval completes exact principal-first 25/75 profit payouts of 69.25 and 67.75 aUEC",
+    "Leader payment and recipient confirmation persist separately",
+    "Independent fresh sign-in restores exact settled crew state without creating a personal trade ledger",
+    "Finalized ledger is immutable even to its owner",
+    "Crew operations leave private freight and private trade cloud snapshots untouched"
+  ],
+  "requests": {
+    "firestore": 392,
+    "auth": 6
+  },
+  "pageErrors": [],
+  "cleanup": {
+    "operationsDeleted": 1,
+    "invitationsDeleted": 0,
+    "crewDocumentsDeleted": 3,
+    "accounts": [
+      {
+        "documentsDeleted": 1,
+        "authDeleted": true
+      },
+      {
+        "documentsDeleted": 1,
+        "authDeleted": true
+      }
+    ]
+  },
+  "realUserRecordsAccessed": false,
+  "googlePopupTested": false,
+  "liveGame": false,
+  "webDeployed": false
+}

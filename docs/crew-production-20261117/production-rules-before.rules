@@ -1,0 +1,115 @@
+rules_version = '2';
+// STAM FREIGHT CONTROL account data. Paste into Firebase console → Firestore Database → 규칙(Rules) → 게시.
+// Each account can read and write only its own data. Usernames can be checked one by one but never listed,
+// and a claimed username cannot be taken over.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) { return request.auth != null && request.auth.uid == uid; }
+    function revisionOf(data) { return data.get('revision', 0); }
+    function advances(uid) {
+      let path = /databases/$(database)/documents/users/$(uid);
+      let after = getAfter(path).data;
+      return after.revision is int && after.updatedAt is number
+        && after.revision == (exists(path) ? revisionOf(get(path).data) : 0) + 1
+        && after.updatedAt > (exists(path) ? get(path).data.get('updatedAt', 0) : 0);
+    }
+    match /users/{uid} {
+      allow read: if owns(uid);
+      allow create: if owns(uid) && request.resource.data.keys().hasOnly(['revision', 'updatedAt']) && advances(uid);
+      allow update: if owns(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['revision', 'updatedAt']) && advances(uid);
+      allow delete: if false;
+      match /flight/current {
+        function validHead() {
+          let d=request.resource.data;
+          return d.keys().hasOnly(['format','revision','updatedAt','device','parts','digest','bytes','encodedBytes','encoding'])
+            && d.format == 1 && d.encoding == 'gzip-base64' && d.revision is int
+            && d.updatedAt is number && d.device is string && d.device.size() <= 120
+            && d.parts is int && d.parts >= 1 && d.parts <= 14
+            && d.bytes is int && d.bytes > 0 && d.bytes <= 20971520
+            && d.encodedBytes is int && d.encodedBytes > 0 && d.encodedBytes <= 8000000
+            && d.digest is string && d.digest.matches('^[a-f0-9]{64}$');
+        }
+        allow read: if owns(uid);
+        allow create: if owns(uid) && validHead() && request.resource.data.revision == 1;
+        allow update: if owns(uid) && validHead() && request.resource.data.revision == resource.data.revision + 1 && request.resource.data.updatedAt > resource.data.updatedAt;
+        allow delete: if false;
+        match /parts/{part} {
+          function advancesFlight() {
+            let p=/databases/$(database)/documents/users/$(uid)/flight/current;
+            return getAfter(p).data.revision == (exists(p) ? get(p).data.revision : 0) + 1;
+          }
+          allow read: if owns(uid);
+          allow create, update: if owns(uid) && advancesFlight()
+            && request.resource.data.keys().hasOnly(['revision','value'])
+            && request.resource.data.revision == getAfter(/databases/$(database)/documents/users/$(uid)/flight/current).data.revision
+            && request.resource.data.value is string && request.resource.data.value.size() <= 600000;
+          allow delete: if owns(uid) && advancesFlight();
+        }
+      }
+      match /trade/current {
+        function validHead() {
+          let d=request.resource.data;
+          return d.keys().hasOnly(['format','revision','updatedAt','device','parts','digest','bytes','encodedBytes','encoding'])
+            && d.format == 1 && d.encoding == 'gzip-base64' && d.revision is int
+            && d.updatedAt is number && d.device is string && d.device.size() <= 120
+            && d.parts is int && d.parts >= 1 && d.parts <= 14
+            && d.bytes is int && d.bytes > 0 && d.bytes <= 20971520
+            && d.encodedBytes is int && d.encodedBytes > 0 && d.encodedBytes <= 8000000
+            && d.digest is string && d.digest.matches('^[a-f0-9]{64}$');
+        }
+        allow read: if owns(uid);
+        allow create: if owns(uid) && validHead() && request.resource.data.revision == 1;
+        allow update: if owns(uid) && validHead() && request.resource.data.revision == resource.data.revision + 1 && request.resource.data.updatedAt > resource.data.updatedAt;
+        allow delete: if false;
+        match /parts/{part} {
+          function advancesFlight() {
+            let p=/databases/$(database)/documents/users/$(uid)/trade/current;
+            return getAfter(p).data.revision == (exists(p) ? get(p).data.revision : 0) + 1;
+          }
+          allow read: if owns(uid);
+          allow create, update: if owns(uid) && advancesFlight()
+            && request.resource.data.keys().hasOnly(['revision','value'])
+            && request.resource.data.revision == getAfter(/databases/$(database)/documents/users/$(uid)/trade/current).data.revision
+            && request.resource.data.value is string && request.resource.data.value.size() <= 600000;
+          allow delete: if owns(uid) && advancesFlight();
+        }
+      }
+      match /changes/{cid} {
+        allow read, delete: if owns(uid);
+        allow create: if owns(uid) && advances(uid)
+          && request.resource.data.at is number && request.resource.data.items is list
+          && request.resource.data.items.size() <= 40 && request.resource.data.device is string;
+        allow update: if false;
+      }
+      match /state/{key} {
+        allow read: if owns(uid);
+        allow delete: if owns(uid) && advances(uid);
+        allow create, update: if owns(uid) && advances(uid)
+          && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
+          && request.resource.data.value is string && request.resource.data.value.size() < 1000000
+          && request.resource.data.updatedAt == getAfter(/databases/$(database)/documents/users/$(uid)).data.updatedAt;
+      }
+    }
+    // Feedback and bug reports: anyone may add one (size-checked); nobody can read, change or delete them from
+    // the site. The owner reads them in the Firebase console (Firestore Database → Data → feedback).
+    match /feedback/{id} {
+      allow read, update, delete: if false;
+      allow create: if request.resource.data.keys().hasOnly(['kind','text','contact','lang','at','uid','page','image'])
+        && request.resource.data.kind in ['feedback','bug']
+        && request.resource.data.text is string && request.resource.data.text.size() > 1 && request.resource.data.text.size() <= 2000
+        && request.resource.data.contact is string && request.resource.data.contact.size() <= 100
+        && request.resource.data.lang in ['ko','mix','en'] && request.resource.data.at == request.time
+        && (request.resource.data.uid == null || (request.auth != null && request.resource.data.uid == request.auth.uid))
+        && (request.resource.data.page == null || (request.resource.data.page is map && request.resource.data.page.size() <= 10))
+        && (!('image' in request.resource.data) || request.resource.data.image == null
+            || (request.resource.data.image is string && request.resource.data.image.size() <= 900000));
+    }
+    match /usernames/{name} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if request.auth != null && name.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+  }
+}

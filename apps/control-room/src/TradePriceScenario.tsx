@@ -1,0 +1,7 @@
+import type {SuiteRoute} from './trade-suite';
+import type {Locale} from './navigation';
+export default function TradePriceScenario({route,locale}:{route:SuiteRoute;locale:Locale}){
+ const t=(k:string,e:string)=>locale==='en'?e:k,leg=route.legs.find(l=>l.lines.length);if(!leg)return null;
+ const scenarios=[{name:t('현재 계획값','Plan values'),price:1,fill:1},{name:t('판매가 10% 하락','Sell price −10%'),price:.9,fill:1},{name:t('계획량 50%만 판매','Only 50% sold'),price:1,fill:.5}];
+ return <details><summary>{t('시세·수요 변동 영향 비교','Price and demand sensitivity')}</summary><p className="suite-note">{t('첫 거래 구간의 가정 비교입니다. 실제 시장 예측이 아니며, 남은 구간의 재투자는 계산하지 않습니다. 미판매 화물은 잔여 원가로 남깁니다.','Assumptions for the first trading leg, not market forecasts. Later reinvestment is excluded. Unsold cargo retains its remaining acquisition cost.')}</p><div className="market-table"><table><thead><tr>{[t('가정','Scenario'),t('판매대금','Proceeds'),t('실현 손익 추정','Estimated realized result'),t('미판매','Unsold')].map(v=><th key={v}>{v}</th>)}</tr></thead><tbody>{scenarios.map(s=>{let revenue=0,cost=0,remaining=0,unknown=false;for(const l of leg.lines){const quantity=Math.floor(l.quantity*s.fill/l.boxSize)*l.boxSize;revenue+=Math.round(l.sell*quantity*s.price*100)/100;cost+=l.buy*quantity;remaining+=l.quantity-quantity;unknown||=!l.costKnown;}return <tr key={s.name}><th>{s.name}</th><td>{revenue.toLocaleString()} aUEC</td><td>{unknown?t('원가 미확인','Unknown acquisition cost'):Math.round((revenue-cost-leg.costs)*100)/100+' aUEC'}</td><td>{remaining} SCU</td></tr>;})}</tbody></table></div></details>;
+}

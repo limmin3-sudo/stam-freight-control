@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {allocateFleet} from '../src/fleet-allocation.ts';
+import {defaultSuiteOptions,type SuiteOptions} from '../src/trade-suite.ts';
+import type {MarketSnapshot,Terminal} from '../src/trade-data.ts';
+const stamp=new Date().toISOString(),terminal:Terminal={id:1,name:'Origin',system:'Stanton',planet:'H',location:'O',version:'4.10.3',updatedAt:stamp,maxContainerScu:32,elevator:true,docking:true,autoLoad:true,playerOwned:false,security:{monitored:true,armistice:true,source:'https://api.uexcorp.uk/2.0/cities?id=1',updatedAt:stamp}};
+const market:MarketSnapshot={schema:1,source:'UEX',retrievedAt:stamp,liveVersion:'4.10.3',commodities:[{id:1,name:'Carbon',kind:'metal',illegal:false,hazards:[],riskKnown:true}],terminals:[terminal,{...terminal,id:2,name:'Buyer'}],quotes:[{id:1,terminalId:1,commodityId:1,buy:10,sell:null,stock:100,demand:null,version:'4.10.3',updatedAt:stamp,containers:[1]},{id:2,terminalId:2,commodityId:1,buy:null,sell:20,stock:null,demand:100,version:'4.10.3',updatedAt:stamp,containers:[1]}],coverage:{rawCommodities:1,rawTerminals:2,rawQuotes:2,excludedQuotes:0,queriedTerminals:2},evidence:[]};
+const options:SuiteOptions={...defaultSuiteOptions,budget:2000,capacity:80,shipId:'test',originId:1,maxBoxSize:1},vessels=['a','b'].map(uid=>({uid,shipId:'test',capacity:80,originId:1}));
+const context=(o:SuiteOptions)=>({route:()=>({meters:1e9,seconds:60,jumps:0,systems:['Stanton']}),pack:(items:{quantity:number}[])=>items.reduce((n,l)=>n+l.quantity,0)<=o.capacity});
+test('fleet candidates share reported demand and stock without mutating the source',()=>{const before=JSON.stringify(market),r=allocateFleet(market,options,vessels,context);assert.equal(r.routes.length,2);assert.equal(r.routes.flatMap(x=>x.route.legs.flatMap(l=>l.lines)).reduce((n,l)=>n+l.quantity,0),100);assert.equal(r.remainingCash,1000);assert.equal(JSON.stringify(market),before);});
+test('simultaneous purchases never reinvest another ship’s future proceeds; reserve is protected',()=>{const r=allocateFleet(market,{...options,budget:100},vessels,context);assert.equal(r.routes.length,1);assert.equal(r.routes[0]!.route.purchase,90);assert.equal(r.remainingCash,10);assert.equal(r.reserve,10);assert.equal(r.unassigned.length,1);});
