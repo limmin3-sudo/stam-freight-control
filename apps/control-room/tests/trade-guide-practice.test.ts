@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {blankTradePractice,advanceTradePractice,tradePracticeSummary} from '../src/trade-guide-practice.ts';
+test('example purchase, travel and sale remain separate; profit includes expenses only once',()=>{
+ let state=blankTradePractice();
+ assert.equal(advanceTradePractice(state,'sell'),state);
+ state=advanceTradePractice(state,'buy');
+ assert.deepEqual(tradePracticeSummary(state),{cash:68000,cargo:32,profit:0,next:'depart',finished:false});
+ assert.equal(advanceTradePractice(state,'buy'),state);
+ for(const action of ['depart','arrive'] as const)state=advanceTradePractice(state,action);
+ assert.equal(tradePracticeSummary(state).cargo,32);
+ assert.equal(tradePracticeSummary(state).profit,0);
+ assert.equal(advanceTradePractice(state,'close'),state);
+ state=advanceTradePractice(state,'sell');
+ assert.equal(tradePracticeSummary(state).cash,106400);
+ state=advanceTradePractice(state,'expense');
+ state=advanceTradePractice(state,'close');
+ assert.deepEqual(tradePracticeSummary(state),{cash:105400,cargo:0,profit:5400,next:undefined,finished:true});
+ assert.equal(advanceTradePractice(state,'expense'),state);
+ assert.deepEqual(blankTradePractice(),{events:[]});
+});

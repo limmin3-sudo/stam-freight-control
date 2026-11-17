@@ -1,0 +1,13 @@
+/* Preserve the approved face/frame/button PNGs and upright panel geometry. */
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] [data-live-ink]{font-family:Barlow,SUIT,system-ui,sans-serif;font-weight:500}
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] .guide-menu-title{font-family:Barlow,SUIT,system-ui,sans-serif;font-size:1.45cqw;font-weight:500;color:#ffe3ad;margin:0 0 .5cqw}
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] .greeting{font-size:1.13cqw;line-height:1.65;word-break:keep-all;min-height:6.8cqw;margin:0}
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] .replies [hidden]{display:none}
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] .holo-action:disabled{opacity:.65;cursor:default;filter:none;background-image:url('./assets/hologram/flat/button-teal.png')}
+.guide-desk[data-material=generated-glass] .unified[data-guide-menu] .holo-action:focus-visible{outline:2px solid #ffd68b;outline-offset:3px}
+@media(max-width:650px){
+ .guide-desk[data-material=generated-glass] .unified[data-guide-menu] .guide-menu-title{font-size:20px;margin-bottom:10px}
+ .guide-desk[data-material=generated-glass] .unified[data-guide-menu] .greeting{font-size:16px;min-height:0}
+}
+/* Tour now has a panel entry. The old floating duplicate obscures mobile choices. */
+.space-experience[data-screen=guide]:has(.unified[data-guide-menu]) .lounge-tour-entry{display:none}

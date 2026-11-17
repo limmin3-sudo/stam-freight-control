@@ -1,10 +1,17 @@
 import type {GuideShot} from './guide-scene-camera';
 import type {SpaceScreen} from './space-navigation';
 import {divisionFacilities,divisionTourOrder} from './division-facilities';
-export type GuideTopic='practice'|'procedure'|'reference'|'overview'|'bridge';
+export type GuideTopic='practice'|'trade'|'procedure'|'reference'|'overview'|'bridge';
 type Copy=readonly [string,string];
 export type GuidePage={title:Copy;body:Copy;image?:'division'|'lounge'|'bridge';destination?:SpaceScreen;shot?:GuideShot};
 export const guidePages:Record<GuideTopic,readonly GuidePage[]>={
+ trade:[
+  {title:['처음 시작하는 무역','Your first trade'],body:['무역센터에서는 시장을 확인하고 자금과 함선에 맞는 계획을 세워요. 먼저 담당 범위를 고른 뒤, 저장되지 않는 예시로 매입부터 정산까지 함께 해 볼게요.','At the trade centre, inspect the market and plan around your cash and ship. Choose your scope, then practice a purchase through settlement without saving anything.']},
+  {title:['시장 확인','Read the market'],body:['가격이 좋아 보여도 수요·공급과 확인 시점을 함께 봐야 해요. 여기 있는 숫자는 연습용이며, 실제 무역을 시작할 때는 게임에서 다시 확인해 주세요.','A promising price is only part of the picture: check demand, supply and timestamps too. These numbers are for practice; verify the live situation in game before trading.']},
+  {title:['계획 검토','Review your plan'],body:['32 SCU를 매입하는 예시예요. 매입에 32,000, 예상 판매에 38,400, 비용에 1,000 aUEC를 잡았어요. 예상 순이익은 5,400이지만 실제 판매 전에는 확정 수익이 아니에요.','Our example buys 32 SCU for 32,000, expects 38,400 from the sale and allows 1,000 aUEC in costs. The expected net result is 5,400, but it is not realized until the sale happens.']},
+  {title:['매입부터 마감까지','From purchase to close'],body:['예시 버튼을 순서대로 눌러 보세요. 매입하면 자본이 줄고 화물이 생겨요. 이동만으로 판매되지는 않으며, 실제 거래와 비용을 기록한 뒤 마감하는 흐름이에요.','Use the example buttons in order. Buying reduces cash and adds cargo. Travelling does not sell it: record the actual transactions and costs, then close the trade.']},
+  {title:['무역센터로 이어가기','Continue at the trade centre'],body:['연습을 마쳤어요. 선택한 담당자의 실제 계획 화면을 열 수 있어요. 기존 자료는 그대로 유지돼요. 공동 무역은 실제 화면의 함대 모드에서 초대 코드와 기존 승인·정산 흐름을 이용해요.','Practice complete. Open the real planning screen for your chosen advisor; your existing data stays intact. For joint trading, use Fleet mode with invite codes and its existing approval and settlement flow.']},
+ ],
  practice:[
   {title:['첫 운송 연습','Your first practice haul'],body:['오늘은 Hull B로 스탠턴의 화물을 모아 파이로까지 운송해 볼게요. 확인된 6계약, 총 363 SCU예요. 연습 내용은 실제 운항이나 계정에 저장되지 않아요.','We’ll collect freight in Stanton and take it to Pyro aboard a Hull B: six confirmed contracts, 363 SCU. This practice never saves to your real flight or account.'],image:'bridge'},
   {title:['함선과 파트너','Ship and flight partner'],body:['함선은 Hull B, 출발지는 오리슨이에요. 항해사는 경로와 적재를 함께, 오퍼레이터는 경로만 안내해요. 원하는 방식을 골라 주세요.','Our ship is a Hull B, departing Orison. The navigator handles routes and loading; the operator guides the route while you handle cargo. Choose your partner.']},
