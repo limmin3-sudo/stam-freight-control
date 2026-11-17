@@ -1,0 +1,23 @@
+[
+  {
+    "file": "desktop/theme/black-gold-d-frame.png",
+    "sha256": "bca4b8769f4686273daba0d2aa74c7ee0bf418691b78f2bb25b5debc39dce69d",
+    "unchangedFromApprovedAsset": true
+  },
+  {
+    "file": "desktop/theme/flight-console-a-frame.png",
+    "sha256": "e3d9ca5b1f851a4c96f9aee3c2201bdfc44c2433ad68d27550e042bbf7903ad6",
+    "unchangedFromApprovedAsset": true
+  },
+  {
+    "file": "desktop/theme/hologram-button.png",
+    "sha256": "a2ec30addbfd62866ed9c5348b5ad09e668f342e33e161f4b11f10975f24c886",
+    "unchangedFromApprovedAsset": true
+  },
+  {
+    "file": "desktop/theme/division-overview.png",
+    "source": "apps/control-room/src/assets/division/overview-approved.png",
+    "sha256": "4a74b53783f6bb976ceea88f81064d342542ae20d5b9cb592c3aa0f110072ba1",
+    "unchangedFromApprovedAsset": true
+  }
+]
