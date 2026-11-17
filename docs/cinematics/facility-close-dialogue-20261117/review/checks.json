@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "Both trade staff open dialogue first, then existing planning with exact intrasystem/interstellar scope. Close and room return restore the original person focus.",
+    "Professor dialogue retains all three academy destinations and existing room monitors; every room returns to the professor.",
+    "Place clicks remain direct; sidebar/history, including navigation during the deferred action, cancel the conversation without a late route change.",
+    "390px: portraits and all actions/close fit; menu Escape has priority; English/reduced-motion reaches the original academy room without zoom.",
+    "Existing operator/navigator greetings, approach and return still work after extracting the common presentation; facility conversations preserved flight storage."
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Local Chromium production build, no real account/game/iOS verification"
+}
