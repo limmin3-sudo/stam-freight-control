@@ -55,3 +55,20 @@
  .crew-encounter[data-closing=true] .partner-conversation.asset-hologram[data-glass-panel]{transform:translateY(100%)}
 }
 @media(prefers-reduced-motion:reduce){.crew-encounter *{transition:none!important;animation:none!important}}
+
+/* Facility conversations reuse the same material and keep original actions. */
+.crew-encounter .partner-conversation-note:empty{display:none}
+.crew-encounter-actions{display:grid;gap:9px;margin:16px 0 10px}
+.crew-encounter[data-actions=true] .partner-conversation.asset-hologram[data-glass-panel]{top:12%;max-height:84%;overflow:auto}
+.crew-encounter[data-actions=true] .crew-encounter-close{margin-top:8px}
+.crew-encounter[data-closing=true][data-departing=true] .crew-encounter-person{transform:translateX(-50%) scale(1.04)}
+.crew-encounter[data-closing=true][data-departing=true] .crew-encounter-background{transform:scale(1.75)}
+@container(max-width:759px){
+ .crew-encounter[data-actions=true] .partner-conversation.asset-hologram[data-glass-panel]{top:auto;bottom:8px;max-height:66%;padding:18px;display:flex;flex-direction:column;overflow:hidden}
+ .crew-encounter[data-actions=true] .partner-conversation-channel{margin-bottom:4px;flex:none}
+ .crew-encounter[data-actions=true] .partner-conversation h2{font-size:18px;margin-bottom:6px;flex:none}
+ .crew-encounter[data-actions=true] #partner-conversation-line{font-size:14px;line-height:1.6;min-height:42px;max-height:100px;overflow:auto;flex:1}
+ .crew-encounter[data-actions=true] .crew-encounter-actions{gap:5px;margin:9px 0 0;flex:none}
+ .crew-encounter[data-actions=true] .partner-conversation button{min-height:36px;padding:7px 14px;font-size:14px;flex:none}
+ .crew-encounter[data-actions=true] .crew-encounter-close{margin-top:6px}
+}

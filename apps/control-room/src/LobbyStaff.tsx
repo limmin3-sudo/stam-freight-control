@@ -1,8 +1,11 @@
-import {useEffect,useRef,useState,type CSSProperties} from 'react';
+import {useLayoutEffect,useState,type CSSProperties} from 'react';
 import type {DivisionFacility,LobbyRoom,TradeScope} from './space-navigation';
 import type {Locale} from './navigation';
 import {facilityLobbies,type LobbyCopy} from './facility-lobby-content';
-import {ApprovedGlass} from './ApprovedGlass';
+import {CrewEncounter} from './CrewEncounter';
+import seniorClose from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/senior-trade-officer-close.png';
+import lingClose from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/ling-broker-close.png';
+import professorClose from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/academic-advisor-close.png';
 import './lobby-staff.css';
 
 type Staff={id:string;name:LobbyCopy;role:LobbyCopy;intro:LobbyCopy;image:string;x:number;room:LobbyRoom;action:LobbyCopy;scope?:TradeScope};
@@ -16,34 +19,23 @@ const staff:Record<DivisionFacility,readonly Staff[]>={
  ],
 };
 
-// Local introductions only: never select a flight partner or modify an active run.
-export function LobbyStaff({facility,locale,travelling,onRoom}:{facility:DivisionFacility;locale:Locale;travelling:boolean;onRoom:(room:LobbyRoom,scope?:TradeScope,person?:string,point?:readonly[number,number])=>void}){
+const portraits:Record<string,string>={'senior-trade-officer':seniorClose,'ling-broker':lingClose,'academic-advisor':professorClose};
+
+// Room and scope still use the existing facility entry controller. Meeting a
+// staff member never selects a flight partner or edits a plan or stored run.
+export function LobbyStaff({facility,locale,motion,background,onConversationChange,onRoom}:{facility:DivisionFacility;locale:Locale;motion:boolean;background:string;onConversationChange:(open:boolean)=>void;onRoom:(room:LobbyRoom,scope?:TradeScope,person?:string,point?:readonly[number,number])=>void}){
  const en=locale==='en',t=(copy:LobbyCopy)=>copy[en?1:0],people=staff[facility];
- const [selected,setSelected]=useState<Staff|null>(null),[closing,setClosing]=useState(false);
- const heading=useRef<HTMLHeadingElement>(null);
- const host=useRef<HTMLDivElement>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null),buttons=useRef(new Map<string,HTMLButtonElement>());
- useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current);},[]);
- useEffect(()=>{if(!selected||facility==='trade')return;heading.current?.focus({preventScroll:true});if(matchMedia('(max-width:760px)').matches)heading.current?.closest('aside')?.scrollIntoView({block:'start'});},[selected]);
- useEffect(()=>{if(!travelling&&facility==='trade')setSelected(null);},[travelling,facility]);
- const close=(next?:()=>void)=>{
-  if(closing)return;
-  const finish=()=>{setSelected(null);setClosing(false);if(next)next();else if(selected)buttons.current.get(selected.id)?.focus({preventScroll:true});};
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||host.current?.closest('.space-experience')?.getAttribute('data-motion')==='false';
-  if(reduced){finish();return;}
-  setClosing(true);timer.current=setTimeout(()=>{timer.current=null;finish();},420);
- };
- return <div ref={host} className="lobby-staff" data-open={!!selected} data-closing={closing} onKeyDown={e=>{if(e.key==='Escape'&&selected&&!e.defaultPrevented&&!document.querySelector('dialog[open]')){e.preventDefault();e.stopPropagation();close();}}}>
-  {selected&&<button type="button" className="lobby-staff-shade" tabIndex={-1} aria-label={en?'Close introduction':'소개 닫기'} onClick={()=>close()}/>}
+ const [selected,setSelected]=useState<{person:Staff;origin:HTMLButtonElement}|null>(null);
+ useLayoutEffect(()=>{onConversationChange(!!selected);return()=>onConversationChange(false);},[!!selected,onConversationChange]);
+ const person=selected?.person;
+ const actions=person?(facility==='trade'?[{label:t(person.action),onSelect:()=>onRoom(person.room,person.scope,person.id,[person.x,56])}]:facilityLobbies[facility].places.map(place=>({label:t(place.name),onSelect:()=>onRoom(place.id,undefined,person.id,place.point)}))):[];
+ return <div className="lobby-staff">
   <div className="lobby-staff-people" aria-label={en?'Meet the staff':'담당자 안내'}>
-   {people.map(person=><button key={person.id} type="button" className="lobby-person" data-staff={person.id} data-selected={selected?.id===person.id} hidden={!!selected&&selected.id!==person.id} aria-expanded={facility==='guide-center'?selected?.id===person.id:undefined} aria-controls={facility==='guide-center'&&selected?.id===person.id?'lobby-staff-intro':undefined} style={{'--staff-x':`${person.x}%`} as CSSProperties} ref={node=>{if(node)buttons.current.set(person.id,node);else buttons.current.delete(person.id);}} onClick={()=>{if(!closing){setSelected(person);if(facility==='trade')onRoom(person.room,person.scope,person.id,[person.x,56]);}}}>
+   {people.map(person=><button key={person.id} type="button" className="lobby-person" data-staff={person.id} data-selected={false} aria-haspopup="dialog" aria-expanded={selected?.person.id===person.id} style={{'--staff-x':`${person.x}%`} as CSSProperties} onClick={event=>setSelected({person,origin:event.currentTarget})}>
     <img src={person.image} alt="" width="1024" height="1536" draggable={false}/>
     <span className="lobby-person-label"><strong>{t(person.name)}</strong></span>
    </button>)}
   </div>
-  {selected&&facility==='guide-center'&&<aside id="lobby-staff-intro" className="lobby-detail lobby-staff-detail" data-align={selected.x>50?'left':'right'} data-closing={closing} inert={closing} role="region" aria-label={t(selected.name)}>
-   <ApprovedGlass kind="panel"/><p className="lobby-detail-code">{t(selected.role)}</p><h2 ref={heading} tabIndex={-1}>{t(selected.name)}</h2><p>{t(selected.intro)}</p>
-   <div className="lobby-staff-rooms" aria-label={en?'Choose an academy room':'아카데미 방 선택'}>{facilityLobbies[facility].places.map(place=><button key={place.id} type="button" className="lobby-reset" onClick={()=>close(()=>onRoom(place.id,undefined,selected.id,place.point))}><ApprovedGlass/><span>{t(place.name)}</span></button>)}</div>
-   <button type="button" className="lobby-staff-close" onClick={()=>close()}>{en?'Close introduction':'소개 닫기'}</button>
-  </aside>}
+  {selected&&<CrewEncounter id={selected.person.id} name={t(selected.person.name)} line={t(selected.person.intro)} image={portraits[selected.person.id]!} background={background} focus={selected.person.x} en={en} motion={motion} origin={selected.origin} actions={actions} onClose={()=>setSelected(null)}/>}
  </div>;
 }

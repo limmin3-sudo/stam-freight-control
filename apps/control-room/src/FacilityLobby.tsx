@@ -23,6 +23,7 @@ const plates={
 export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motion=true,navigationKey=0,onRoom,onExit}:{facility:DivisionFacility;locale:Locale;room?:LobbyRoom;tradeScope?:TradeScope;initialShip?:string;motion?:boolean;navigationKey?:number;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void}){
  const data=facilityLobbies[facility],en=locale==='en',t=(copy:LobbyCopy)=>copy[en?1:0];
  const [hovered,setHovered]=useState<string|null>(null);
+ const [staffTalking,setStaffTalking]=useState(false);
  const host=useRef<HTMLElement>(null);
  const [loaded,setLoaded]=useState(false),[failed,setFailed]=useState(false);
  const heading=useRef<HTMLHeadingElement>(null);
@@ -40,7 +41,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
  return <section ref={host} className="facility-lobby" data-facility-lobby={facility} data-monitor={!!active} data-room={room} data-selected={!!active} aria-labelledby="lobby-title" data-travel={travel.phase} aria-busy={travel.busy} style={{'--travel-x':`${travel.focus[0]}%`,'--travel-y':`${travel.focus[1]}%`} as CSSProperties} onKeyDown={event=>{
   if(event.key==='Escape'&&!event.defaultPrevented&&!document.querySelector('dialog[open]')&&(active||travel.busy)){event.preventDefault();event.stopPropagation();if(travel.busy)travel.cancel();else reset();}
  }}>
-  <div className="lobby-stage" data-loaded={loaded} inert={travel.busy}>
+  <div className="lobby-stage" data-loaded={loaded} inert={travel.busy||staffTalking}>
    <div className="lobby-camera" style={{'--lobby-focus-x':`${travel.focus[0]}%`,'--lobby-focus-y':`${travel.focus[1]}%`,'--lobby-zoom':travel.phase==='approach'?5.2:1} as CSSProperties}>
     <img className="lobby-plate" src={plates[facility]} alt={t(data.alt)} width="1672" height="941" fetchPriority="high" onLoad={()=>setLoaded(true)} onError={()=>setFailed(true)}/>
     <svg className="lobby-spotlight" viewBox="0 0 1672 941" aria-hidden="true" data-active={!!lit&&!failed}>
@@ -61,7 +62,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
     <ApprovedGlass kind="panel"/><p className="lobby-detail-code">{en?'SPACE / INTRODUCTION':'공간 소개'}</p><h2>{t(active.name)}</h2><p>{t(active.description)}</p>
     <button autoFocus type="button" className="lobby-reset" onClick={reset}><ApprovedGlass/><span>{en?'Lobby overview':'로비 전체 보기'}</span></button>
    </aside>}
-   {!active&&<LobbyStaff key={`${navigationKey}-${locale}`} facility={facility} locale={locale} travelling={travel.busy} onRoom={enter}/>}
+   {!active&&<LobbyStaff key={`${navigationKey}-${locale}`} facility={facility} locale={locale} motion={motion} background={plates[facility]} onConversationChange={setStaffTalking} onRoom={enter}/>}
    <a className="lobby-exit" href={spaceHash({screen:'division',locale})} onClick={exit}><span aria-hidden="true">◇ ─</span> {en?'Division grounds':'사업부 전경'} <span aria-hidden="true">↗</span></a>
   </div>
   <div className="facility-arrival" aria-hidden="true"><ConsoleArrival departing={travel.phase==='approach'} powerOn={travel.phase==='ignite'} returning={false} departureMs={697} ignitionMs={333}/></div>
