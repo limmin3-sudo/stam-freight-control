@@ -145,8 +145,8 @@ internal sealed class BridgeWindow : Form {
         ClientSize=new Size(920,730);MinimumSize=new Size(820,680);StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
         try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
         var shell=new DeckSurface{Dock=DockStyle.Fill,Padding=new Padding(10)};Controls.Add(shell);
-        var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=Color.Transparent};shell.Controls.Add(scroll);
-        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=708,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=8,BackColor=Color.Transparent};
+        var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=Color.Transparent,Margin=Padding.Empty};shell.Controls.Add(scroll);
+        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=708,Margin=Padding.Empty,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=8,BackColor=Color.Transparent};
         foreach(int height in new[]{72,64,152,118,64,102,46})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));scroll.Controls.Add(layout);
         var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170));layout.Controls.Add(mast);
         var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};brand.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));brand.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
@@ -293,11 +293,11 @@ internal sealed class HoloLabel : Label {
 }
 internal sealed class DeckButton : Button {
     public bool Primary {get;set;}public bool Warm {get;set;}bool hover,pressed;
-    public DeckButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;FlatAppearance.BorderSize=0;Font=HoloFonts.At(11);Cursor=Cursors.Hand;AccessibleRole=AccessibleRole.PushButton;}
+    public DeckButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.SupportsTransparentBackColor,true);FlatStyle=FlatStyle.Flat;BackColor=Color.Transparent;UseVisualStyleBackColor=false;FlatAppearance.BorderSize=0;Font=HoloFonts.At(11);Cursor=Cursors.Hand;AccessibleRole=AccessibleRole.PushButton;}
     protected override void OnMouseEnter(EventArgs e){hover=true;Invalidate();base.OnMouseEnter(e);}protected override void OnMouseLeave(EventArgs e){hover=false;pressed=false;Invalidate();base.OnMouseLeave(e);}protected override void OnMouseDown(MouseEventArgs e){pressed=true;Invalidate();base.OnMouseDown(e);}protected override void OnMouseUp(MouseEventArgs e){pressed=false;Invalidate();base.OnMouseUp(e);}
     internal static GraphicsPath Shape(Rectangle r){var shape=new GraphicsPath();int cut=Math.Min(11,r.Height/4);shape.AddPolygon(new[]{new Point(r.Left+cut,r.Top),new Point(r.Right-cut,r.Top),new Point(r.Right,r.Top+cut),new Point(r.Right,r.Bottom-cut),new Point(r.Right-cut,r.Bottom),new Point(r.Left+cut,r.Bottom),new Point(r.Left,r.Bottom-cut),new Point(r.Left,r.Top+cut)});return shape;}
     protected override void OnPaint(PaintEventArgs e){
-        if(Width<10||Height<10)return;var g=e.Graphics;g.Clear(Parent==null?Color.FromArgb(7,17,25):Parent.BackColor);
+        if(Width<10||Height<10)return;var g=e.Graphics;
         var r=new Rectangle(1,1,Width-2,Height-2);if(pressed)r.Offset(0,1);
         DeckTheme.Draw(g,Warm||Primary?"gold":"button",r,hover&&Enabled?1.17f:Enabled?1f:.55f);
         HoloFonts.Draw(g,Text,Font,Enabled?(Warm||Primary?Color.FromArgb(255,230,181):Color.FromArgb(226,243,246)):Color.FromArgb(155,172,178),Rectangle.Inflate(r,-10,-4),true);
