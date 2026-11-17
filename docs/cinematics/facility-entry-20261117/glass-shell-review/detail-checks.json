@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Single uncut shell bitmap, persistent amber selection, submenu expansion/current child, browser Back",
+    "Existing ship selector updates C2 alias and exact Emerald thumbnail",
+    "97 ship mappings / 95 unique bundled images decode successfully (Galaxy module exterior is shared)",
+    "Reduced motion expands submenu without transition"
+  ],
+  "errors": []
+}

@@ -51,6 +51,7 @@ import './console-arrival.css';
 import './lounge-tour.css';
 import './space-location-heading.css';
 import './black-gold-shell.css';
+import {ShellMaterial} from './ShellMaterial';
 
 const GuideJourney=lazy(()=>import('./GuideJourney').then(module=>({default:module.GuideJourney})));
 const LoungeTour=lazy(()=>import('./LoungeTour').then(module=>({default:module.LoungeTour})));
@@ -368,6 +369,7 @@ export function SpaceExperience() {
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button,.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
+    <ShellMaterial/>
     <header className="space-topbar">
       <a className="room-brand" href={href('division')} onClick={event=>enter(event,'division')} aria-label={`STAM FREIGHT DIVISION · ${word(names.division)}`} >
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />

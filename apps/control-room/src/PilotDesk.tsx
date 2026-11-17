@@ -3,6 +3,7 @@ import type {Locale} from './navigation';
 import type {useFlight} from './use-flight';
 import {placeName,shipName} from './mission-trial';
 import './pilot-desk.css';
+import {ShipThumbnail} from './ShipThumbnail';
 export type PilotAction='ship'|'partner'|'missions'|'log';
 
 export function PilotDesk({flight,locale,onAction}:{flight:ReturnType<typeof useFlight>;locale:Locale;onAction:(action:PilotAction,event:MouseEvent)=>void}){
@@ -28,7 +29,7 @@ export function PilotDesk({flight,locale,onAction}:{flight:ReturnType<typeof use
   <button type="button" className="pilot-summary" aria-expanded={open} aria-controls="pilot-desk-details" aria-pressed={pinned} title={pinned?t('클릭하여 접기','Click to collapse'):t('클릭하여 펼친 상태 고정','Click to keep open')}
    onClick={()=>{if(pinned){setPinned(false);setHover(false);setFocused(false);}else setPinned(true);}}>
    <span className="pilot-eyebrow">FLIGHT CONSOLE <span aria-hidden="true">{pinned?'◆':'⌄'}</span></span>
-   <strong title={title}>{title}</strong>
+   <span className="pilot-vessel"><ShipThumbnail id={plan?.ship.id??draft.ship} name={title} en={en}/><strong title={title}>{title}</strong></span>
    <span className="pilot-summary-line"><span>{partner}</span><b>{t('미션','Missions')} {draft.jobs.length}</b></span>
   </button>
   <div className="pilot-reveal" inert={!open} aria-hidden={!open} id="pilot-desk-details"><div className="pilot-details">

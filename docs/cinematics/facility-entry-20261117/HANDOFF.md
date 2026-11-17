@@ -4,14 +4,40 @@
 기준: `handoff/local-studio-20261110` / beta 3.0.0 `2c637afa21c9de904b3ad58b289215f3508670ec`.
 최종 SHA와 PR은 이 브랜치의 Git HEAD 및 PR 설명을 기준으로 한다. main/공통 인계 병합·배포는 하지 않았다.
 
-## 최신 — 상단/사이드 버튼 분리와 A 플라이트 콘솔
+## 최신 — 원본 연결부 보존, 호박빛 선택, 실제 함선 이미지
+
+사용자는 2번 검은 유리/얇은 금색 바를 선택했고, 다시 생성한 비슷한 프레임 대신 원본 사용을 명시했다. 분할 조각의 경계가 보이는 시제품은 반려되어 최종본에서 제거했다.
+
+- `ShellMaterial.tsx`는 `approved-shell-atlas.png` **원본 한 장**을 표시한다. 상단과 좌측의 곡면·반사·금색 선이 하나의 이미지 안에서 이어진다. SVG는 시안의 예시 글자/컨트롤과 방 이미지를 가리는 마스크 용도이며 프레임을 선으로 다시 그리지 않는다. 원본 파일은 `shell-review/bar-body-options.png`와 바이트가 같다.
+- 실시간 글자·로그인·언어·메뉴는 기존 HTML 컨트롤이다. 시안 전체를 클릭 이미지로 대체하지 않았다. 화면 비율, 실제 데이터와 언어에 따라 배치는 달라지며 **전체 화면의 픽셀 단위 동일성을 주장하지 않는다**. 1199×650 원본 비교 크기 캡처를 제공한다.
+- `SpaceExperience.tsx` 추가 수정은 ShellMaterial import/마운트 2줄뿐. 기존 시설 진입·기능 코드를 보존한다.
+- 상단 기존 청록 사선 버튼 / 사이드 D / FLIGHT CONSOLE A 조합 유지. 현재 위치는 지속적인 호박빛 유리·금빛 프레임/아이콘, hover는 일시적인 밝기 변화로 구분한다. 하위 현재 메뉴도 금빛으로 표시한다.
+- `PilotDesk.tsx`는 함선 표시 행에 실제 썸네일만 추가. 현재 계획이 있으면 그 계획의 함선, 아니면 준비 중 함선을 사용한다. 기존 hover·고정·Escape·함선/파트너/미션 변경·초기화 조건은 보존한다.
+- 지원 함선 **97개 모두** 출처가 있는 로컬 이미지로 연결. RSI 96항목, Wiki의 정확한 Phoenix Emerald 도색 1항목. Galaxy 기본/화물/의료 모듈은 같은 외관 사진을 공유하여 고유 이미지는 95개다. `ship-image-catalog.json`에 모델 ID/이름/출처/다운로드 URL/치수/SHA256 기록. 외부 이미지 핫링크·실행 중 외부 API 요청 없음. 알 수 없는 사용자 함선이나 로드 실패는 다른 함선을 보여주지 않고 ‘이미지 없음’ 표시.
+- 이미지는 공식/출처 썸네일 그대로다. 시안의 배경 없는 함선 실루엣으로 새로 그리거나 누끼 생성한 것이 아니며, 원본에 배경이 있는 사진도 있다.
+
+### 이번 변경 파일 / 통합 주의
+
+`SpaceExperience.tsx`, `PilotDesk.tsx`는 위의 표시 부분만 적용하고 최신 기능 담당 변경을 보존한다. `black-gold-shell.css`, `pilot-desk.css`는 셸·콘솔 범위의 재질과 반응형 간격이다. 신규 `ShellMaterial.tsx`, `ShipThumbnail.tsx`, `ship-image.ts`, `ship-image-catalog.json`, `assets/navigation/approved-shell-atlas.png`, `assets/ships/*`, `tests/ship-image.test.ts`를 함께 포함해야 한다. 기능 데이터/ID/저장키/가격·경로·장부 계산은 수정하지 않았다. 기능 담당이 새로 연결해야 하는 콜백은 없다.
+
+### 최종 검증 / 화면
+
+- 타입 검사·생산 빌드, 함선 목록 전수 파일/SHA/출처 및 이전 함선 별칭/미등록 함선 fallback 검사 통과. 빌드의 기존 큰 chunk 경고는 남음.
+- 한국어/영어 1440/390px, A 프레임·동일 버튼 높이, hover/탭·고정/Escape, 관리 버튼 4개/초기화 비활성, 기존 함선 변경 진입/사업부 이동 통과.
+- 1199×650, 원본 단일 비트맵, 선택 강조 유지, 하위 메뉴 펼침/현재 하위 항목, 뒤로 가기, C2→Emerald 실제 선택 변경, 97항목/95개 이미지 decode, 동작 줄이기 통과. 브라우저 오류 0.
+- [같은 화면 크기](glass-shell-review/reference-size-1199.png), [데스크톱](glass-shell-review/closed-1440-ko.png), [상세](glass-shell-review/open-1440-ko.png), [펼친 하위 메뉴](glass-shell-review/submenu-desktop.png), [모바일](glass-shell-review/closed-390-ko.png), [모바일 메뉴](glass-shell-review/menu-ko.png).
+- [기본 동작 결과](glass-shell-review/checks.json), [추가 검증](glass-shell-review/detail-checks.json). 재현은 `verify-glass-shell.mjs`, `verify-glass-details.mjs`; 로컬 생산 서버 5201과 `/tmp/stam-facility-build`를 사용했다.
+
+남은 범위: 실계정 로그인/동기화·실게임·Safari/iOS 실기기는 이번에 재검증하지 않았다. 새 투어/보행/음성, 로그 연결 앱 디자인은 이번 범위 밖. 원본 비교 시안은 하나로 합쳐진 이미지이므로 예시 컨트롤 뒤의 가려진 픽셀을 복원한 별도 투명 레이어 자산이라고 부르지 않는다. main/공통 인계 직접 병합·배포 없음. 기능 담당이 최신 기능을 보존해 PR #35를 통합·검증·배포한다.
+
+## 이전 — 상단/사이드 버튼 분리와 A 플라이트 콘솔
 
 사용자 최종 조합: 상단바 버튼은 예전 `hologram-button.png` 청록색 사선 유리, 사이드바 버튼은 D 검은 유리/금색, 플라이트 콘솔은 A 금속 매립형 계기판. 아래 D 콘솔 항목은 이전 선택 기록이다.
 
 - `black-gold-shell.css` 신규: 상단바 컨트롤 4종의 프레임·높이·여백 통일. 사이드바 목적지 5종은 동일한 D 프레임·88px 높이·서체로 통일하고 선택/hover 금색 강조. 하위 메뉴/설정/모바일 메뉴도 같은 계열 사용.
 - `SpaceExperience.tsx`에는 스타일 import만 추가. 메뉴 이벤트·ID·URL·기능 상태 변경 없음.
 - `flight-console-a-frame.png` 신규: 사용자가 고른 A 비교 시안을 이미지 편집해 만든 무광 금속/나사/청록 표시등 프레임. `pilot-desk.css`에서 요약/상세/관리 버튼에 9분할로 적용. PilotDesk.tsx 기능은 그대로다. 시안의 함선 썸네일/예시 수치를 실제 데이터로 오인해 추가하지 않았다.
-- **바 몸체 자체는 아직 별도 자산을 적용하지 않았다.** 사용자가 원해 [상단바/사이드바 몸체 3안](shell-review/bar-body-options.png)을 생성했고 선택을 기다린다. 이 파일은 생성 비교 시안이며 실제 구현 캡처가 아니다.
+- **이전 단계 기록: 당시 바 몸체는 미적용이었다.** 사용자가 원해 [상단바/사이드바 몸체 3안](shell-review/bar-body-options.png)을 생성했고 선택을 기다린다. 이 파일은 생성 비교 시안이며 실제 구현 캡처가 아니다.
 
 [실제 적용](shell-review/closed-1440-ko.png), [상세 콘솔](shell-review/open-1440-ko.png), [모바일 메뉴](shell-review/menu-ko.png), [검증 결과](shell-review/checks.json).
 
