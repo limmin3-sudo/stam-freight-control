@@ -4,15 +4,23 @@
 기준: `handoff/local-studio-20261110` / beta 3.0.0 `2c637afa21c9de904b3ad58b289215f3508670ec`.
 최종 SHA와 PR은 이 브랜치의 Git HEAD 및 PR 설명을 기준으로 한다. main/공통 인계 병합·배포는 하지 않았다.
 
-## 최종 배치·공통 연출 보정
+## 최신 배치·명칭·사업부 이동
 
-교역 계획실 표식을 `[50,32]`로 올렸다. 인물 높이는 장면의 34%를 유지하면서 바닥 여백을 18%→8%로 줄여 앞으로 옮기고 이름·역할을 머리 위에 배치했다. 선택 확대는 1.10이며 원본 체형·얼굴·자세·자산 바이트는 바꾸지 않았다.
+- 무역 계획실 점은 실제 안쪽 방 위치 `[42,53]`로 복구하고 명칭은 `[42,34]`에 배치했다. 위층 난간에 붙였던 `[50,32]`는 사용하지 않는다.
+- 수석 무역관/링 가문 중개인은 오른쪽 `55%/67%`에 나란히 배치한다. 바닥 기준은 bottom 8%, 높이는 무역관 42%·중개인 40%·교수 40%다. 모바일은 이름 겹침을 피하도록 `44%/77%`로 재배치한다. 원본 PNG의 2:3 비율을 보존하고 신체나 얼굴은 변형하지 않는다.
+- 로비 인물 위에는 이름만 표시한다. 행성계 범위 등 역할 설명은 인물 이름 아래에서 제거하되 기존 담당 범위 연결은 유지한다.
+- UI 전체의 '교역'을 '무역'으로 통일했다. 안내·계획·관제·장부·계정 알림·아카데미 학습·한국어 번역 사전까지 포함하며 기능 식별자/저장 키/URL은 변경하지 않았다.
+- 라운지 위에 `사업부` 버튼을 추가했다. 기존 공간 버튼과 다른 `ops-glass-key.png` 에셋을 쓰고 hover/선택은 `ops-glass-key-amber.png`다. 라운지·관제센터와 각 내부 화면에서 기존 사이드바 즉시 이동 콜백으로 사업부 전경에 연결한다.
 
-시설 전경→로비에 빠졌던 확대·점등을 연결했다. 로비→내부 화면의 별도 약한 효과는 제거하고 라운지·관제센터의 `ConsoleArrival` 컴포넌트와 공통 키프레임을 그대로 사용한다. 배경 5.2배 접근 697ms, 점등 333ms 안에 80ms 지연 후 250ms 파지직. 로비 복귀는 암전 333ms→축소 697ms다. 장소·인물 클릭은 연출, 사이드바는 즉시 이동이다.
+최종 화면: [무역센터](placement-review/trade-1440.png), [아카데미](placement-review/guide-center-1440.png), [모바일 무역](placement-review/trade-390.png), [모바일 아카데미](placement-review/guide-center-390.png), [라운지 사업부 버튼](placement-review/lounge-division-button.png), [관제센터 사업부 버튼](placement-review/bridge-division-button.png), [모바일 사이드바](placement-review/mobile-navigation.png), [무역 계획 콘솔](placement-review/planning-console.png). [검증 결과](placement-review/checks.json), 재현 `verify-placement.mjs`.
 
-[최종 무역센터](layout-review/trade-desktop.png), [아카데미](layout-review/guide-center-desktop.png), [교수 선택](layout-review/professor-selected.png), [모바일 무역](layout-review/trade-mobile.png), [모바일 아카데미](layout-review/guide-center-mobile.png), [실제 브라우저 왕복 영상](layout-review/facility-common-arrival.mp4), [검증 결과](layout-review/checks.json).
+타입 검사·생산 빌드 통과. 1440/1366/390px, 이름만 표시/원본 종횡비/넘침, 두 담당자의 내부·행성계 간 계획 연결, 교수 세 방, 6개 내부 화면의 명칭, 라운지·관제센터/모바일 사업부 버튼을 확인했다. 브라우저 오류 0건. 배치 파일 외 13개 변경 파일은 기존 파일에서 '교역'→'무역' 치환만 했음을 비교 검증했다. 기존 전체 기능·서버 검증을 반복한 것은 아니다.
 
-타입 검사·생산 빌드 및 `verify-common-arrival.mjs` 통과. 두 시설 전경/로비/내부 왕복, 실제 공통 키프레임 `stam-contact-arc`의 0.25초/0.08초 지연, Escape·사이드바 중단, 중개인 범위/복귀 포커스, 교수 3개 방, 390px 배치·동작 줄이기를 확인했다. 브라우저 오류 0건. 아래 최초 기능 검증은 보존한 기록이며 전체 서버 검증을 다시 수행했다는 뜻이 아니다. `review/`와 `scale-review/`는 이전 배치 기록이다.
+`review/`, `scale-review/`, `layout-review/`는 이전 배치 기록이다. `layout-review/facility-common-arrival.mp4`는 현재도 유지한 공통 연출을 보여주지만 인물 배치·명칭은 이전 버전이다.
+
+## 유지한 공통 진입·복귀 연출
+
+전경→로비와 로비→내부 화면은 라운지·관제센터의 `ConsoleArrival` 컴포넌트와 공통 키프레임을 사용한다. 배경 5.2배 접근 697ms, 점등 333ms 안에 80ms 지연 후 250ms 파지직. 로비 복귀는 암전 333ms→축소 697ms다. 장소·인물 클릭은 연출, 사이드바는 즉시 이동이다. 기존 [전환 검증](layout-review/checks.json)을 유지하며 이번 배치 수정에서는 전환 로직을 바꾸지 않았다.
 
 ## 완료 동작
 
@@ -38,6 +46,9 @@
 | `apps/control-room/src/SpaceExperience.tsx` | `facilityNavigationKey`/motion 전달과 사이드바 취소 유지. `enterDivisionFacility`로 전경/로비 직접 클릭에 기존 전역 전환 연결, 같은 division 화면 내 도착 시설까지 비교, Escape 취소 및 시설별 확대 기준 전달. 사이드바는 기존 즉시 이동 함수 유지. 공유 파일 전체 덮어쓰기 금지. |
 | `apps/control-room/src/console-arrival.css` | 기존 공통 연출은 유지하고 `data-facility-travel` 범위의 전경 확대/복귀만 추가. |
 | `apps/control-room/src/facility-lobby-content.ts` | 교역 계획실 표식 좌표만 위로 이동. 기존 방 ID/윤곽/연결 유지. |
+| `apps/control-room/src/SpaceNavigation.tsx`, `left-space-navigation.css` | 기존 공간 버튼 앞에 별도 에셋 사업부 링크 추가. 다른 버튼 디자인/연결 유지. |
+| `TradeCloudPanel.tsx`, `TradeControlPrices.tsx`, `TradeOperations.tsx`, `TradePlanning.tsx`, `TradeSuite.tsx`, `TradeSuiteVisuals.tsx`, `TradeVisuals.tsx`, `TradeWorkspace.tsx`, `MarketInformation.tsx`, `trade-messages.ts`, `academy-lessons.ts`, `division-facilities.ts` | src 내부 표시 문자열만 교역→무역. 최신 기능 수정 위에 문구 변경만 적용. |
+| `data/ai-korean-lexicon.mjs` | 한국어 번역 사전의 표현만 무역으로 통일. 원문 키/식별자 유지. |
 | `PROJECT_STATUS.md` | 이번 인계 기록 추가. 기능 담당의 후속 기록 보존. |
 | `docs/cinematics/facility-entry-20261117/` | 이 문서, 재현 스크립트, 검증 결과/화면/실제 브라우저 영상. |
 

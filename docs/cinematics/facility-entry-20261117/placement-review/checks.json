@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "trade 1440px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "guide-center 1440px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "trade 1366px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "guide-center 1366px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "trade 390px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "guide-center 390px: original image ratio, name-only labels above heads, no overflow or old terminology",
+    "lounge: division asset button above lounge navigates to division overview",
+    "bridge: division asset button above lounge navigates to division overview",
+    "Both relocated people retain the correct trade scope; planning copy renamed",
+    "All six room copies and mobile division navigation checked"
+  ],
+  "errors": []
+}

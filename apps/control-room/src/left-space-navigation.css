@@ -74,3 +74,14 @@
 .space-experience .space-download:before{content:"";position:absolute;inset:-3px -7px;z-index:-1;pointer-events:none;background:url('./assets/hologram-button.png') center/100% 140% no-repeat;filter:brightness(.65) saturate(.65)}
 .space-experience .space-download:hover{filter:brightness(1.3)}
 @media(max-width:760px){.space-experience .space-download{padding:8px 10px}}
+
+/* Division headquarters uses the separate bevelled glass key asset. */
+.space-division-button{position:relative;isolation:isolate;display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 17px;color:#d4eaf0;text-decoration:none;font-family:BarlowAirReview,SUIT,sans-serif;text-shadow:0 1px 4px #00111f;transition:filter .2s}
+.space-division-button:before{content:'';position:absolute;inset:0 -3px;z-index:-1;pointer-events:none;background:url('./assets/ops-glass-key.png') center/100% 100% no-repeat}
+.space-division-button:hover:before,.space-division-button[aria-current]:before{background-image:url('./assets/ops-glass-key-amber.png')}
+.space-division-button:hover,.space-division-button[aria-current]{color:#ffe5ac;filter:brightness(1.15)}
+.space-division-button:focus-visible{outline:2px solid #f6d68d;outline-offset:3px}
+.space-division-button>svg{width:30px;height:30px;flex:none;stroke:currentColor;stroke-width:1.1}
+.space-division-button>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px}
+.space-division-button small{font-size:8px;letter-spacing:.2em}
+.space-division-button strong{font-size:19px;font-weight:500;letter-spacing:.06em}

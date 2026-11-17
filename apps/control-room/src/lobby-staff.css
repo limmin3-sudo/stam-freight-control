@@ -33,7 +33,7 @@
 .space-experience[data-motion=false] .lobby-staff-shade{animation:none!important}
 
 /* Approved full-body cutouts: uniform scaling only, feet remain on the lobby floor. */
-.facility-lobby .lobby-person{height:34%;bottom:8%;transition:transform .38s cubic-bezier(.2,.7,.2,1),filter .3s;transform-origin:50% 100%}
+.facility-lobby .lobby-person{height:var(--staff-height,40%);bottom:8%;transition:transform .38s cubic-bezier(.2,.7,.2,1),filter .3s;transform-origin:50% 100%}
 .facility-lobby .lobby-person[data-selected=true]{transform:translateX(-50%) scale(1.1)}
 .facility-lobby .lobby-person-label strong{font-size:clamp(18px,1.4vw,25px)}
 .facility-lobby .lobby-person-label small{font-size:14px}
@@ -48,11 +48,11 @@
  .facility-lobby:not([data-monitor=true]) .lobby-plate{object-fit:cover}
  .facility-lobby .lobby-staff{position:absolute;inset:0 0 auto;height:410px;padding:0}
  .facility-lobby .lobby-staff-people{position:absolute;inset:0;display:block}
- .facility-lobby .lobby-person{position:absolute;left:var(--staff-x);bottom:8%;height:34%;width:auto;aspect-ratio:2/3;padding:0;transform:translateX(-50%)}
- .facility-lobby[data-facility-lobby=trade] .lobby-person:first-child{left:29%}
- .facility-lobby[data-facility-lobby=trade] .lobby-person:nth-child(2){left:73%}
+ .facility-lobby .lobby-person{position:absolute;left:var(--staff-x);bottom:8%;height:var(--staff-height,40%);width:auto;aspect-ratio:2/3;padding:0;transform:translateX(-50%)}
+ .facility-lobby[data-facility-lobby=trade] .lobby-person:first-child{left:44%}
+ .facility-lobby[data-facility-lobby=trade] .lobby-person:nth-child(2){left:77%}
  .facility-lobby .lobby-person img{height:100%;width:100%;aspect-ratio:auto;object-fit:contain}
- .facility-lobby .lobby-person-label{top:100%;bottom:auto;max-width:175px;width:175px}
+ .facility-lobby .lobby-person-label{top:100%;bottom:auto;max-width:145px;width:145px}
  .facility-lobby .lobby-person-label strong{font-size:18px}.facility-lobby .lobby-person-label small{font-size:13px}
  .facility-lobby .lobby-person:before{bottom:2%}
  .facility-lobby .lobby-staff[data-open=true] .lobby-person{width:auto}
@@ -65,7 +65,7 @@
 @media(prefers-reduced-motion:reduce){.facility-lobby .lobby-person{transition:none}}
 .space-experience[data-motion=false] .facility-lobby .lobby-person{transition:none}
 @media(min-width:761px){
- .facility-lobby .lobby-person{bottom:8%;height:34%}
+ .facility-lobby .lobby-person{bottom:8%;height:var(--staff-height,40%)}
  .facility-lobby .lobby-person[data-selected=true] .lobby-person-label{transform:translateX(-50%) scale(.9091);transform-origin:50% 0}
  .facility-lobby .lobby-staff-detail,.facility-lobby .lobby-staff-detail[data-align=left]{top:18%;max-height:79%}
  .facility-lobby .lobby-staff-detail>p:not(.lobby-detail-code){font-size:17px;line-height:1.65;margin-bottom:16px}
@@ -85,3 +85,8 @@
 /* Names belong above the head, as in the lounge/control-centre scene. */
 .facility-lobby .lobby-person-label{top:auto;bottom:calc(100% + 10px);transform-origin:50% 100%}
 .facility-lobby .lobby-person[data-selected=true] .lobby-person-label{transform:translateX(-50%) scale(.9091);transform-origin:50% 100%}
+
+/* Match standing scale to the foreground floor; preserve each PNG aspect ratio. */
+.facility-lobby .lobby-person[data-staff=senior-trade-officer]{--staff-height:42%}
+.facility-lobby .lobby-person[data-staff=academic-advisor]{--staff-height:40%}
+@media(max-width:760px){.facility-lobby .lobby-person-label strong{font-size:16px}}
