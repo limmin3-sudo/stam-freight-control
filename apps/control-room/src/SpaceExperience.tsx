@@ -49,6 +49,7 @@ const FreightArchive=lazy(()=>import('./FreightArchive'));
 const MissionArchive=lazy(()=>import('./MissionArchive'));
 import './console-arrival.css';
 import './lounge-tour.css';
+import './space-location-heading.css';
 
 const GuideJourney=lazy(()=>import('./GuideJourney').then(module=>({default:module.GuideJourney})));
 const LoungeTour=lazy(()=>import('./LoungeTour').then(module=>({default:module.LoungeTour})));
@@ -386,7 +387,6 @@ export function SpaceExperience() {
       {route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={tourTravelling||undefined}>
-        <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
           <div className="space-camera">
             <img key={scene} className="space-background" src={configuration.image} width="1672" height="941" alt={en ? (scene === 'lounge' ? 'Sunlit STAM lounge with a receptionist seated behind the welcome desk and the smiling Flight Guide standing in front of its right corner, boarding gate, information room and cinema.' : 'Orbital control centre with the operator on the left, navigator on the right, a central hologram and two empty user seats.') : (scene === 'lounge' ? '별도 접수 직원이 앉은 안내데스크 오른쪽 앞에 미소 지으며 서 있는 플라이트 가이드, 탑승 게이트, 정보실과 영상관의 밝은 STAM 라운지' : '왼쪽 오퍼레이터와 오른쪽 항해사, 중앙 홀로그램과 두 빈 사용자 좌석이 있는 우주 관제센터')} fetchPriority="high" onLoad={() => setImageReady(true)} onError={() => setImageError(true)} />
@@ -414,6 +414,11 @@ export function SpaceExperience() {
 
             </svg>
           </div>
+          <header className="space-intro space-location-heading">
+            <p>{scene==='lounge'?'STAM / ARRIVALS':'STAM / COMMAND'}</p>
+            <h1 id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
+            <span>{scene==='lounge'?(en?'Welcome · Resources · Boarding':'안내 · 자료 탐색 · 탑승 준비'):(en?'Missions · Routes · Flight operations':'미션 준비 · 항로 탐색 · 운항 관리')}</span>
+          </header>
           {scene === 'bridge' && <div className="bridge-partners">
               <div className="space-person space-bridge-operator" style={{left:`${bridgePartners.operator.x}%`,top:`${bridgePartners.operator.y}%`,height:`${bridgePartners.operator.height}%`}} aria-hidden="true"><img src={bridgeOperator} alt="" width="887" height="1774" /></div>
               <div className="space-person space-bridge-navigator" style={{left:`${bridgePartners.navigator.x}%`,top:`${bridgePartners.navigator.y}%`,height:`${bridgePartners.navigator.height}%`}} aria-hidden="true"><img src={bridgeNavigator} alt="" width="887" height="1774" /></div>

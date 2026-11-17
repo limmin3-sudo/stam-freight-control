@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "lounge 1440px ko: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "lounge 1440px en: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "bridge 1440px ko: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "bridge 1440px en: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "lounge 390px ko: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "lounge 390px en: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "bridge 390px ko: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "bridge 390px en: title visible in scene, no overflow, pointer-transparent, unique existing heading ID",
+    "Service marker still navigates; heading hides during existing zoom"
+  ],
+  "errors": []
+}
