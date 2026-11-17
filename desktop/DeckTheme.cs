@@ -21,11 +21,11 @@ internal static class DeckTheme {
         try{
             var image=Get(name);bool instrument=name=="instrument",button=name=="button";
             // Remove the transparent production-sheet margin when sampling.
-            int left=(int)(image.Width*(instrument?.008:button?.005:.022));
-            int top=(int)(image.Height*(instrument?.02:button?.15:.13));
-            int width=(int)(image.Width*(instrument?.984:button?.99:.956));
-            int height=(int)(image.Height*(instrument?.96:button?.69:.74));
-            int sx=Math.Max(1,(int)(width*(instrument?.12:.13))),sy=Math.Max(1,(int)(height*(instrument?.19:.27)));
+            int left=(int)(image.Width*(instrument ? .008 : button ? .005 : .022));
+            int top=(int)(image.Height*(instrument ? .02 : button ? .15 : .13));
+            int width=(int)(image.Width*(instrument ? .984 : button ? .99 : .956));
+            int height=(int)(image.Height*(instrument ? .96 : button ? .69 : .74));
+            int sx=Math.Max(1,(int)(width*(instrument ? .12 : .13))),sy=Math.Max(1,(int)(height*(instrument ? .19 : .27)));
             int edge=Math.Max(2,(int)((instrument?20:button?10:13)*g.DpiX/96));
             int dx=Math.Min(edge,target.Width/3),dy=Math.Min(edge,target.Height/3);
             int[] xs={left,left+sx,left+width-sx,left+width},ys={top,top+sy,top+height-sy,top+height};

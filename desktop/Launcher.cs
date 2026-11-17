@@ -106,6 +106,7 @@ internal sealed class BridgeWindow : Form {
     readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton();
     readonly string settings,languageSettings;
     CompanionOverlay overlay;
+    Image brandLogo;
     CompanionOverlay Overlay(){if(overlay==null||overlay.IsDisposed)overlay=new CompanionOverlay(SendCommand,english,Path.GetDirectoryName(settings));return overlay;}
     void SendCommand(string command){try{if(child!=null&&!child.HasExited){child.StandardInput.WriteLine(new JavaScriptSerializer().Serialize(new{type="command",command=command}));child.StandardInput.Flush();}}catch{}}
     static readonly string languageFile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","ui-language.txt");
@@ -129,10 +130,10 @@ internal sealed class BridgeWindow : Form {
         foreach(bool en in new[]{false,true})using(var window=new BridgeWindow(en)){
             window.Show();Application.DoEvents();
             foreach(bool compact in new[]{false,true}){
-                window.ClientSize=compact?new Size(820,680):new Size(920,820);Application.DoEvents();
+                window.ClientSize=compact?new Size(820,680):new Size(920,730);Application.DoEvents();
                 using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(Path.Combine(directory,"companion-"+(en?"en":"ko")+(compact?"-compact":"-full")+".png"),System.Drawing.Imaging.ImageFormat.Png);}
             }
-            var scroll=window.Controls[0] as ScrollableControl;if(scroll!=null){scroll.ScrollControlIntoView(window.voiceButton);Application.DoEvents();}
+            var scroll=window.Controls[0].Controls[0] as ScrollableControl;if(scroll!=null){scroll.ScrollControlIntoView(window.footer);Application.DoEvents();}
             using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(Path.Combine(directory,"companion-"+(en?"en":"ko")+"-tools.png"),System.Drawing.Imaging.ImageFormat.Png);}
             window.Close();
         }
@@ -141,14 +142,17 @@ internal sealed class BridgeWindow : Form {
         string directory=testSettingsDirectory??Path.GetDirectoryName(languageFile);settings=Path.Combine(directory,"log-path.txt");languageSettings=Path.Combine(directory,"ui-language.txt");
         preview=languageOverride.HasValue&&testSettingsDirectory==null;english=languageOverride??ReadEnglish(languageSettings);
         HoloFonts.Load();AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;Font=HoloFonts.At(11);
-        ClientSize=new Size(920,820);MinimumSize=new Size(820,680);StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
+        ClientSize=new Size(920,730);MinimumSize=new Size(820,680);StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
         try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
-        var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=BackColor};Controls.Add(scroll);
-        var layout=new DeckSurface{Dock=DockStyle.Top,Height=800,Padding=new Padding(30,22,30,22),ColumnCount=1,RowCount=8};
+        var shell=new DeckSurface{Dock=DockStyle.Fill,Padding=new Padding(10)};Controls.Add(shell);
+        var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=Color.Transparent};shell.Controls.Add(scroll);
+        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=708,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=8,BackColor=Color.Transparent};
         foreach(int height in new[]{72,64,152,118,64,102,46})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));scroll.Controls.Add(layout);
         var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170));layout.Controls.Add(mast);
-        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty,BackColor=Color.Transparent};brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        brand.Controls.Add(Label("S T A M",29,Ink));brand.Controls.Add(Label("F R E I G H T   D I V I S I O N   /   LOG LINK",9,Cyan));mast.Controls.Add(brand);
+        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};brand.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));brand.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,0,12,8),BackColor=Color.Transparent};
+        try{using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))brandLogo=new Bitmap(source);logo.Image=brandLogo;}catch{}
+        brand.Controls.Add(logo,0,0);brand.SetRowSpan(logo,2);brand.Controls.Add(Label("S T A M",29,Ink),1,0);brand.Controls.Add(Label("FREIGHT DIVISION / LOG COMPANION",9,Cyan),1,1);mast.Controls.Add(brand);
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=Color.Transparent};korean.Text="한국어";englishButton.Text="English";
         foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}mast.Controls.Add(languages);
         var intro=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty,BackColor=Color.Transparent};intro.RowStyles.Add(new RowStyle(SizeType.Absolute,36));intro.RowStyles.Add(new RowStyle(SizeType.Percent,100));
@@ -257,7 +261,7 @@ internal sealed class BridgeWindow : Form {
     [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
     [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
     protected override void OnHandleCreated(EventArgs e){base.OnHandleCreated(e);try{int dark=1;DwmSetWindowAttribute(Handle,20,ref dark,4);}catch{}}
-    protected override void Dispose(bool disposing){if(disposing){StopChild();if(overlay!=null)overlay.Dispose();retry.Dispose();tray.Dispose();hints.Dispose();}base.Dispose(disposing);}
+    protected override void Dispose(bool disposing){if(disposing){StopChild();if(overlay!=null)overlay.Dispose();retry.Dispose();tray.Dispose();hints.Dispose();if(brandLogo!=null)brandLogo.Dispose();}base.Dispose(disposing);}
 }
 
 internal static class HoloFonts {
