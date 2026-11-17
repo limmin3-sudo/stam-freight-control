@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "Division direct clicks approach both lobbies; room entry and Escape return preserve shared shell and monitor, lobby exit zooms back to division",
+    "Escape and sidebar navigation during division approach cancel deferred arrival without late navigation",
+    "Service, archive and bridge retain the same approved shell"
+  ],
+  "errors": []
+}

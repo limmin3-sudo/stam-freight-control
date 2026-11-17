@@ -1,0 +1,61 @@
+import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {chromium} from '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs';
+const base='https://limmin3-sudo.github.io/stam-freight-control/',sha=process.env.STAM_RELEASE_SHA;
+const out='/workspace/stam-freight-control-fresh-20261108/docs/release-330-20261118';
+await mkdir(out+'/runtime-review',{recursive:true});
+assert.match(sha??'',/^[a-f0-9]{40}$/);
+const response=await fetch(base+'version.json?release='+sha);assert(response.ok);const version=await response.json();
+assert.equal(version.version,sha);assert.equal(version.releases[0].version,'3.3.0');
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']});
+const checks=['Public version.json matches release commit and beta 3.3.0'],errors=[],failed=[],cache=new Map();let p;
+try {
+ const c=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block'});
+ // The managed Chromium lacks the network proxy CA. Fetch real public responses
+ // through Node's verified HTTPS proxy transport, retaining original URLs/origin.
+ await c.route('https://**/*',async route=>{
+  const req=route.request(),url=req.url();
+  if(!url.startsWith(base)){await route.abort();return;}
+  try {
+   let item=cache.get(url);
+   if(!item){const r=await fetch(url);const headers=Object.fromEntries(r.headers);for(const k of ['content-encoding','content-length','transfer-encoding'])delete headers[k];item={status:r.status,headers,body:Buffer.from(await r.arrayBuffer())};cache.set(url,item);if(!r.ok)failed.push({url,status:r.status});}
+   await route.fulfill(item);
+  }catch(e){failed.push({url,error:e.message});await route.abort();}
+ });
+ p=await c.newPage();p.setDefaultTimeout(45000);p.on('pageerror',e=>errors.push(e.message));
+ const go=async(hash,selector)=>{await p.goto(base+'?release='+sha+hash,{waitUntil:'domcontentloaded'});await p.locator(selector).first().waitFor();await p.evaluate(()=>document.fonts.ready);assert.equal(await p.locator('meta[name=app-version]').getAttribute('content'),sha);};
+ await go('','.division-hub');assert.equal(await p.locator('.division-facility').count(),4);await p.screenshot({path:out+'/runtime-review/division-public.png'});checks.push('Default entry opens division with four destinations and approved assets');
+ assert.match(await p.locator('.space-download').getAttribute('href'),/releases\/download\/app\.1\.5\.1\/STAM-app\.1\.5\.1-setup-win-x64\.exe$/);checks.push('Top app download points to verified public companion 1.5.1 installer');
+ await go('#/division?lang=ko&facility=trade','.facility-lobby');await p.waitForFunction(()=>document.querySelector('.lobby-plate')?.naturalWidth>0);assert.equal(await p.locator('.lobby-place').count(),3);await p.screenshot({path:out+'/runtime-review/trade-lobby-public.png'});checks.push('Trade lobby loads approved background and three room links');
+ await p.locator('[data-place=trade-operations]').click();await p.locator('.trade-price-console').waitFor();await p.locator('.control-goods select').selectOption('25');await p.locator('.control-price-select').first().waitFor();assert.equal(await p.locator('.trade-map-canvas,.trade-cargo-view').count(),0);assert.equal(await p.locator('.space-sidebar').count(),1);await p.screenshot({path:out+'/runtime-review/trade-control-public.png'});checks.push('Lobby opens price-first trade monitor and current published prices render after choosing Everus Harbor; no map/cargo 3D mounted');
+ await p.getByRole('button',{name:'함대',exact:true}).click();await p.locator('.crew-trade').waitFor();await p.getByText('상단 계정 메뉴에서 로그인한 뒤 공동 교역을 사용할 수 있습니다.',{exact:true}).waitFor();assert.equal(await p.getByRole('button',{name:'함대·모집 찾기',exact:true}).count(),0);assert.equal(await p.getByRole('button',{name:'모집·권한',exact:true}).count(),0);await p.screenshot({path:out+'/runtime-review/fleet-public.png'});await p.getByRole('button',{name:'개인',exact:true}).click();await p.locator('.trade-price-console').waitFor();checks.push('Personal/fleet switch and existing sign-in entry available; cancelled recruitment and delegation controls absent');
+ await go('#/division?lang=ko&facility=trade&room=market','.market-room');await p.locator('.market-tabs').waitFor();checks.push('Market reference room opens');
+ await go('#/division?lang=ko&facility=guide-center','.facility-lobby');await p.waitForFunction(()=>document.querySelector('.lobby-plate')?.naturalWidth>0);assert.equal(await p.locator('.lobby-place').count(),3);
+ await p.locator('[data-place=education]').click();await p.locator('.academy-room .market-tabs').waitFor();await p.screenshot({path:out+'/runtime-review/academy-public.png'});checks.push('Academy lobby and education room load with shared monitor');
+ await p.getByText('함장·함대원은 무엇을 맡을까?',{exact:true}).click();assert((await p.locator('.academy-lessons').innerText()).includes('초대 코드'));assert(!(await p.locator('.academy-lessons').innerText()).includes('오피서'));checks.push('Academy lesson describes invitation and captain approval, not cancelled delegation');
+ await go('#/division?lang=ko&facility=guide-center&room=freight-information','.freight-reference-cards');checks.push('Academy freight references load');
+ await go('#/lounge?lang=ko','.space-background');await p.waitForFunction(()=>document.querySelector('.space-background')?.naturalWidth>0);checks.push('Existing lounge route and background remain available');
+ await go('#/guide?lang=ko','#stage[data-state=arrived]:not(.closed)');
+ const stored=()=>p.evaluate(()=>Object.fromEntries(Object.keys(localStorage).sort().map(k=>[k,localStorage.getItem(k)])));const before=await stored();
+ await p.getByRole('button',{name:'무역 튜토리얼',exact:true}).click();await p.getByRole('button',{name:'무역 연습 시작',exact:true}).click();await p.locator('.guide-journey[data-topic=trade]').waitFor();
+ const next=p.getByRole('button',{name:'다음 →',exact:true});await next.click();assert(await next.isDisabled());await p.getByRole('button',{name:'가격·수요·확인 시점 살펴봤어요',exact:true}).click();await next.click();await p.getByRole('button',{name:'적재량·자금·예상 손익 확인',exact:true}).click();await next.click();for(let i=0;i<6;i++)await p.locator('.trade-guide-actions button').first().click();await next.click();assert.equal(await p.locator('[data-trade-profit]').innerText(),'5,400 aUEC');assert.deepEqual(await stored(),before);await p.screenshot({path:out+'/runtime-review/trade-tutorial-public.png'});await p.locator('.trade-guide-open').click();await p.getByLabel('함선',{exact:true}).waitFor();assert.equal(await p.locator('.trade-mode-switch button[aria-pressed=true]').innerText(),'개인');checks.push('Published trade tutorial completes all six simulated actions with 5,400 profit, unchanged real storage and working personal planning handoff');
+ // Validate the missing cumulative cinematics on the real deployed response.
+ for(const [facility,id,target] of [['trade','senior-trade-officer','intrasystem'],['trade','ling-broker','interstellar'],['guide-center','academic-advisor','education']]){
+  await go('#/division?lang=ko&facility='+facility,'.facility-lobby');await p.locator('.lobby-stage[data-loaded=true]').waitFor();
+  assert.equal(await p.locator('svg.shell-material image').count(),1);
+  await p.locator(`[data-staff=${id}]`).click();await p.locator('.crew-encounter[data-ready=true]').waitFor();
+  await p.screenshot({path:out+'/runtime-review/'+id+'-public.png'});
+  await p.locator('.crew-encounter-actions button').filter({hasText:id==='academic-advisor'?'교육실':'무역 계획하기'}).click();
+  await p.waitForURL('**'+(id==='academic-advisor'?'room=':'advisor=')+target);await p.locator('.market-room').waitFor();
+ }
+ checks.push('Published trade officer, broker and professor close conversations open the exact existing scope or academy room; continuous shell remains mounted');
+ await go('#/bridge?lang=ko','.space-experience');if(await p.locator('.partner-choice').count())await p.locator('.partner-options [data-partner=operator]').click();
+ for(const id of ['operator','navigator']){await p.locator(`[data-partner=${id}].partner-hit`).click();await p.locator('.crew-encounter[data-ready=true]').waitFor();await p.screenshot({path:out+'/runtime-review/'+id+'-public.png'});await p.getByRole('button',{name:'대화 마치기'}).click();await p.locator('.crew-encounter').waitFor({state:'detached'});}
+ await p.locator('.pilot-ship-image img').evaluate(e=>e.decode());assert.match(await p.locator('.pilot-desk').evaluate(e=>getComputedStyle(e).borderImageSource),/flight-console-a-frame/);
+ checks.push('Published bridge operator/navigator close dialogue and return, A console and actual ship thumbnail load');
+ await p.setViewportSize({width:390,height:844});await go('#/division?lang=en&facility=trade&room=trade-operations','.trade-price-console');await p.locator('.control-goods select').selectOption('25');await p.locator('.control-price-select').first().waitFor();assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await p.locator('.control-price-scroll').scrollIntoViewIfNeeded();await p.screenshot({path:out+'/runtime-review/trade-mobile-public.png'});checks.push('English 390px trade control fits without horizontal overflow');
+ const legacy=await fetch(base+'flight.html?release='+sha);assert(legacy.ok);assert((await legacy.text()).includes(sha));checks.push('Preserved legacy flight entry carries same release SHA');
+ assert.deepEqual(errors,[]);assert.deepEqual(failed,[]);
+ const result={passed:true,checkedAt:new Date().toISOString(),sha,url:base,version:'3.3.0',checks,errors,failed,publicRequests:cache.size,transport:'Public responses over verified Node HTTPS proxy, original browser origins preserved; external authentication not exercised',workflow:process.env.STAM_RELEASE_WORKFLOW};
+ await writeFile(out+'/deployment-verification.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
+}catch(e){await p?.screenshot({path:out+'/runtime-review/failure.png'});console.log(JSON.stringify({errors,failed}));throw e;}finally{await browser.close();}

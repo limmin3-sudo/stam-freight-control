@@ -1,0 +1,37 @@
+{
+  "baseline": "86f1a39f018a069701f0f20e239126b680b22199",
+  "branch": "integration/web-cinematics-20261118",
+  "orderedPRs": [
+    35,
+    37,
+    38
+  ],
+  "mergeCommits": [
+    "c08fdcf",
+    "ac64538",
+    "b72f238"
+  ],
+  "preservedPRs": [
+    40,
+    41
+  ],
+  "excludedPRs": [
+    33,
+    36,
+    39
+  ],
+  "preservedUntrackedPaths": 120,
+  "missingOriginalPaths": [],
+  "unchangedProtectedPaths": [
+    "desktop",
+    "data/desktop-release.json",
+    "apps/control-room/src/TradeGuideStage.tsx",
+    "firebase.json",
+    "firestore.rules",
+    "firestore.indexes.json"
+  ],
+  "protectedDiff": [],
+  "webVersion": "3.3.0",
+  "companionVersion": "1.5.1",
+  "realGameOrAccountTest": false
+}

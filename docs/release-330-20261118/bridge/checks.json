@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "Both bridge partners approach from their standing position, display existing rotating greetings, reverse on close/Escape and restore focus. Scene inert; topbar/sidebar remain outside a non-modal dialog.",
+    "Sidebar navigation and browser Back cancel dialogue without stale close timers or route replacement.",
+    "English, 390px and 768px: full head visible, readable panel and close button fit viewport without horizontal overflow.",
+    "Mobile sidebar works while talking; reduced-motion disables zoom/slide; flight storage unchanged by all conversation interactions.",
+    "New escort/cinema pose loads in the live Three tour; cinema/archive/service/gate still navigate in order, complete and dispose canvas without changing flight data."
+  ],
+  "errors": [],
+  "missing": [],
+  "scope": "Local production build in Chromium. No real account/game/iOS verification."
+}
