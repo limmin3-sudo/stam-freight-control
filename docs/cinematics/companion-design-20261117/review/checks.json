@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "scope": "HTML design preview only; not a native Windows app or real log connection test",
+  "checks": [
+    "920x710 client layout",
+    "Korean/English × five preview states",
+    "No clipped action/status text",
+    "Example stop/reconnect toggle",
+    "820px minimum width and 390px review layout",
+    "Approved local image assets and fonts load"
+  ],
+  "errors": [],
+  "failures": []
+}
