@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "1440px ko: D asset loaded; hover/tap expansion, Escape collapse, four actions and reset guard preserved",
+    "1440px en: D asset loaded; hover/tap expansion, Escape collapse, four actions and reset guard preserved",
+    "390px ko: D asset loaded; hover/tap expansion, Escape collapse, four actions and reset guard preserved",
+    "390px en: D asset loaded; hover/tap expansion, Escape collapse, four actions and reset guard preserved",
+    "Ship change still opens existing mission preparation; division link works desktop/mobile in both languages"
+  ],
+  "errors": []
+}

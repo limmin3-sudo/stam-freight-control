@@ -1,3 +1,9 @@
+## 2026-11-17 연출 — D 재질 운송사업부·플라이트 콘솔 (미배포)
+
+사용자 최종 선택 D 적용. `black-gold-d-frame.png` 신규 자산은 승인 비교 시트 D를 편집해 만든 검은 유리/금색 프레임이다. 운송사업부 버튼 및 플라이트 콘솔 요약·상세·내부 버튼에 사용. 표시 문구는 운송사업부 / FREIGHT DIVISION, 동적 글자는 실제 DOM 유지. 기존 PilotDesk 로직은 수정하지 않았다.
+
+타입·생산 빌드 및 한국어/영어 1440/390px 접힘/펼침·Escape·초기화 조건·함선 변경·운송사업부 이동 검증 통과. [최종 화면·인계](docs/cinematics/facility-entry-20261117/HANDOFF.md). 별도 PR #35 유지, main/공통 인계 병합·배포 없음.
+
 ## 2026-11-17 연출 — 라운지·관제센터 제목 패널 (미배포)
 
 무역센터와 같은 왼쪽 위 반투명 코드명/장소명/설명 패널을 두 장면에 추가. `SpaceExperience.tsx` 기존 제목 ID·포커스 연결 보존, 별도 `space-location-heading.css`. 타입·생산 빌드·한국어/영어 1440/390px·이동 검증 통과. [최종 화면](docs/cinematics/facility-entry-20261117/heading-review/checks.json). 사용자 후속 요청: 사업부 버튼 이름은 운송사업부, 새 디자인 여러 안에서 선택 후 적용. main/공통 인계 병합·배포 없음.

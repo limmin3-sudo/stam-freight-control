@@ -4,13 +4,26 @@
 기준: `handoff/local-studio-20261110` / beta 3.0.0 `2c637afa21c9de904b3ad58b289215f3508670ec`.
 최종 SHA와 PR은 이 브랜치의 Git HEAD 및 PR 설명을 기준으로 한다. main/공통 인계 병합·배포는 하지 않았다.
 
+## 최신 — D 재질 운송사업부·FLIGHT CONSOLE
+
+사용자가 D를 선택하고 플라이트 콘솔도 같은 재질로 지정했다. `assets/navigation/black-gold-d-frame.png`는 선택된 D 시안을 이미지 편집해 글자/아이콘을 제거한 프레임 자산이다. 검은 사파이어 유리·샴페인 금색 림·청록 반사를 유지한다. 원본 생성 비교 시트와 편집 원본은 저장소 밖 `/workspace/generated_images`에 보존한다.
+
+- `SpaceNavigation.tsx`: 표기를 운송사업부 / FREIGHT DIVISION으로 확정, 작은 화물 아이콘. 기존 링크와 콜백 보존.
+- `left-space-navigation.css`: 운송사업부 버튼에 D 프레임 자산, hover/선택 시 밝기 강조. 다른 공간 버튼은 보존.
+- `pilot-desk.css`: FLIGHT CONSOLE 요약·상세 패널·관리 버튼에 동일 자산 적용. 패널은 9분할 테두리로 모서리를 보존하고 중앙을 늘린다. `PilotDesk.tsx` 및 데이터/함선·파트너·미션/초기화 로직은 수정하지 않았다.
+- 표시 글자/수치는 HTML이며 프레임에 굽지 않는다. 모바일 탭·데스크톱 hover/고정·Escape 동작을 유지한다.
+
+[실제 요약 화면](d-material-review/closed-1440-ko.png), [상세 화면](d-material-review/open-1440-ko.png), [모바일 요약](d-material-review/closed-390-ko.png), [모바일 상세](d-material-review/open-390-ko.png), [모바일 메뉴](d-material-review/menu-ko.png), [검증](d-material-review/checks.json).
+
+타입·생산 빌드, 한국어/영어 1440/390px, 자산 로딩·접힘/펼침·Escape·4개 관리 버튼·초기화 비활성 조건·기존 함선 변경 진입·운송사업부 이동 통과. 브라우저 오류 0건. 서버/저장 로직 무변경. main/공통 인계 병합·배포 없음.
+
 ## 라운지·관제센터 제목 패널
 
 `SpaceExperience.tsx`의 기존 `space-title`/heading ref를 사진 왼쪽 위 제목 패널로 옮겼다. `space-location-heading.css`로 무역센터와 동일한 반투명 어두운 그라데이션·황금 코드명·Barlow/SUIT 장소명·설명을 적용했다. 모바일은 사진 내부의 작은 패널로 배치하고 클릭을 가로채지 않는다. 기존 확대 중 제목 숨김과 프레임 캡처 제외 규칙을 재사용한다. 파트너 선택 흐름/저장/버튼 동작은 수정하지 않았다.
 
 타입·생산 빌드, 1440/390px 한국어/영어 양쪽 장면, 기존 제목 ID 유일성·패널 넘침·포인터 통과·서비스센터 이동을 확인했다. 브라우저 오류 0건. [라운지](heading-review/lounge-1440-ko.png), [관제센터](heading-review/bridge-1440-ko.png), [모바일](heading-review/lounge-390-ko.png), [검증](heading-review/checks.json).
 
-사업부 버튼은 사용자가 추가 시안을 요청했으므로 디자인 선택 후 별도 반영한다. 확정 이름은 **운송사업부**다.
+운송사업부 버튼과 플라이트 콘솔은 위의 최신 D 재질 항목으로 반영됐다.
 
 ## 최신 배치·명칭·사업부 이동
 

@@ -41,8 +41,8 @@ export function SpaceNavigation({screen,locale,pending,view,facility,lobbyRoom,h
       <p className="space-sidebar-caption">STAM / DESTINATIONS</p>
       <div className="space-nav-group space-division-home">
         <a className="space-division-button" href={href('division')} aria-current={screen==='division'&&!facility?'page':undefined} onClick={event=>onNavigate(event,'division')}>
-          <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="m20 3 15 9v16L20 37 5 28V12L20 3Z"/><path d="m20 11 8 5v9l-8 5-8-5v-9l8-5Zm0 0v19M12 16l8 5 8-5M5 12l7 4m16 0 7-4M20 30v7"/></svg>
-          <span><small>STAM / HQ</small><strong>{en?'DIVISION':'사업부'}</strong></span><span aria-hidden="true">↗</span>
+          <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="m20 4 15 9-15 9-15-9Z" fill="#d2b87a44"/><path d="m5 13 15 9v15L5 28Z" fill="#d2b87a16"/><path d="m35 13-15 9v15l15-9Z" fill="#d2b87a30"/><path d="M10 19v9m5-6v9m10-9v9m5-12v9"/></svg>
+          <span><small>STAM / FREIGHT</small><strong>{en?'FREIGHT DIVISION':'운송사업부'}</strong></span><span aria-hidden="true">↗</span>
         </a>
       </div>
       {groups.map(group=>{
