@@ -4,6 +4,14 @@
 기준: `handoff/local-studio-20261110` / beta 3.0.0 `2c637afa21c9de904b3ad58b289215f3508670ec`.
 최종 SHA와 PR은 이 브랜치의 Git HEAD 및 PR 설명을 기준으로 한다. main/공통 인계 병합·배포는 하지 않았다.
 
+## 최신 보정 — 인물의 공간 비례
+
+사용자 지적으로 로비 인물이 과도하게 크게 보이는 구도를 수정했다. 제품 변경은 `lobby-staff.css`뿐이다. 데스크톱 높이 57% → 34%, 바닥 기준 bottom 11% → 18%; 모바일 62% → 34%, bottom 16% → 18%. 선택 확대는 1.17 → 1.10. 원본 이미지/체형 비율과 명칭 크기는 유지했다.
+
+최종 화면은 [무역센터](scale-review/trade-1440.png), [아카데미](scale-review/guide-center-1440.png), [교수 선택](scale-review/professor-selected.png), [모바일 무역](scale-review/trade-390.png), [모바일 아카데미](scale-review/guide-center-390.png)를 사용한다. 아래 기존 review 화면·왕복 영상은 **크기 보정 전 기록**이다.
+
+생산 빌드 통과. 1440/1366/390px 두 로비의 전신 비율/넘침, 중개인 범위 연결·복귀 포커스·계획실 명칭 클릭·교수 세 방 선택을 재확인했다. [결과](scale-review/checks.json), 재현 `verify-scale.mjs`. CSS 배치 보정이므로 기능/서버 전체 검증은 반복하지 않았다.
+
 ## 완료 동작
 
 - 승인된 노신사·링 가문 중개인·지도 교수 PNG를 비율 그대로 로비에 배치. 새 이미지 생성·얼굴/신체 수정 없음. 여성의 다리를 모은 원본 자세 유지. 그림의 투명 여백이 장소 버튼을 가로채지 않도록 클릭 영역을 좁혔다.

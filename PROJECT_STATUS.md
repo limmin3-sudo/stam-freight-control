@@ -1,3 +1,9 @@
+## 2026-11-17 연출 보정 — 로비 인물의 과도한 크기 축소 (미배포)
+
+사용자 “사람이 너무 커서 이질적” 지적 반영. 동일 `cinematic/trade-academy-lobbies-20261117` / PR #35에서 `lobby-staff.css`만 수정. 데스크톱 장면 높이 57%→34%, 발 위치를 7%p 안쪽으로 이동. 모바일 62%→34%, 선택 확대 1.17→1.10. 원본 체형·자세·이름표 크기 보존.
+
+생산 빌드 및 1440/1366/390px 화면·클릭·담당 범위·복귀 포커스 검증 통과. [최신 화면·검증](docs/cinematics/facility-entry-20261117/scale-review/checks.json), [인계](docs/cinematics/facility-entry-20261117/HANDOFF.md). 기존 review 영상/화면은 크기 보정 전 기록이며 최신 화면은 scale-review를 사용한다. main/공통 인계 병합·배포 없음.
+
 ## 2026-11-17 연출 — 무역센터·아카데미 로비 진입·복귀 인계 (미배포)
 
 연출 Codex, `cinematic/trade-academy-lobbies-20261117`. 최신 개발 인계/배포 `2c637afa21c9de904b3ad58b289215f3508670ec` 기준으로 분기. 기존 라운지 투어 브랜치와 제작 원본 보존. [인계·변경·최종 화면·검증](docs/cinematics/facility-entry-20261117/HANDOFF.md).
