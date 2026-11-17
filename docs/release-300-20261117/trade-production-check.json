@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "checkedAt": "2026-11-17T02:08:31.979Z",
+  "realProduction": true,
+  "transport": "Auth and Firestore REST over verified HTTPS",
+  "checks": [
+    "New owner trade snapshot and chunk commit succeeds under published rules",
+    "Independent sign-in restores an identical compressed trade snapshot",
+    "Other account and anonymous reads remain denied",
+    "Standalone chunk overwrite is denied",
+    "Two same-revision writers have one winner; stale revisions are denied",
+    "Trade operations do not create or change the separate freight snapshot"
+  ],
+  "cleanup": [
+    {
+      "documentsDeleted": 3,
+      "authDeleted": true
+    },
+    {
+      "documentsDeleted": 1,
+      "authDeleted": true
+    }
+  ],
+  "realUserRecordsAccessed": false,
+  "googlePopupTested": false
+}

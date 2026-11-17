@@ -1,0 +1,33 @@
+{
+  "context": "Real saved UEX snapshot; Cutlass Black, Everus Harbor, 1,000,000 aUEC, risk all, 720h maximum age; browser checks were running concurrently; not a frame-rate or all-device guarantee",
+  "results": [
+    {
+      "mode": "direct",
+      "ms": 128,
+      "routes": 53,
+      "examined": 113,
+      "error": null
+    },
+    {
+      "mode": "loop",
+      "ms": 1460,
+      "routes": 100,
+      "examined": 4633,
+      "error": null
+    },
+    {
+      "mode": "chain",
+      "ms": 2623,
+      "routes": 100,
+      "examined": 4633,
+      "error": null
+    },
+    {
+      "mode": "destination",
+      "ms": 2018,
+      "routes": 14,
+      "examined": 1243,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+/* Academy screen composition. Uses the shared approved monitor/glass assets.
+   Every rule is scoped to the academy endpoint; travel is a separate handoff. */
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs{gap:10px;margin:18px 0 24px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs button{min-height:48px;padding:10px 22px;font-size:17px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:26px;align-items:start}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters{position:sticky;top:0;padding:20px;background:#0c202bd9;border:1px solid #83abb744;border-radius:8px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters h3{font-size:22px;margin:0 0 18px;color:#efd49c}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters .academy-fields{grid-template-columns:1fr;margin:0;gap:20px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters label{font-size:16px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters [role=status]{font-size:15px;color:#c4d6dd;margin:20px 0 0}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-content{min-width:0;max-width:1100px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson{margin:0 0 16px;padding:16px 24px;background:linear-gradient(120deg,#18313c99,#0a1b2688)}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson[open]{border-color:#d9be7b88}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson summary{line-height:1.6;padding:8px 0;min-height:52px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson :is(.academy-lead,li){font-size:18px;line-height:1.9;max-width:78ch}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson ol{padding-left:28px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson .market-action{min-width:170px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-selection{padding:20px 24px;background:linear-gradient(115deg,#34403a66,#10263188)}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-selection h3{margin:0 0 12px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-cards article{padding:20px;background:#11293588}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-fields label{font-size:16px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-setup>.academy-selection{margin-top:20px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-setup>.academy-fields{grid-template-columns:minmax(220px,420px) 1fr;align-items:end}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-setup>.academy-fields>p{justify-self:end;margin:0 0 8px;color:#f1d8a4;font-size:23px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-case-contracts{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-case-contracts article{padding:16px 18px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-case-contracts summary{font-size:16px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-results{border-top:1px solid #87b5c344;padding-top:22px;margin-top:24px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-result-heading{font-size:26px;margin:0;scroll-margin-top:20px;outline:none}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-metrics dt{font-size:15px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-metrics dd{font-size:22px;margin:6px 0;color:#f1d69a}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-views{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-views>.navigation-chart{height:510px;border:1px solid #83abb744;border-radius:8px;overflow:hidden}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-cargo{min-height:0;padding:16px;border:1px solid #83abb744;border-radius:8px;background:#10253088}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-cargo h4{font-size:20px;margin:0 0 6px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-cargo>p{margin:0 0 14px;color:#f1d69a}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-cargo .cargo-stage:not(:fullscreen){height:410px;min-height:360px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards article{display:flex;flex-direction:column;padding:24px;background:#11293588}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards h3{font-size:24px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards .market-action{align-self:start;margin-top:auto}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards p{margin-bottom:20px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-list{position:sticky;top:0;max-height:65vh;overflow:auto}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-reference-embed :is(input,select,button){font-size:16px}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-information-room>.market-source-list{padding:20px 24px;background:#10253088;border:1px solid #83abb744;border-radius:8px}
+@container(max-width:1200px){.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-case-contracts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container(max-width:900px){.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-layout{grid-template-columns:220px minmax(0,1fr);gap:18px}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-views{grid-template-columns:1fr}}
+@media(max-width:760px){
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] :is(.academy-learning-layout,.academy-case-contracts,.academy-study-views,.freight-reference-cards,.academy-study-setup>.academy-fields){grid-template-columns:1fr}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters{position:static;padding:16px}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-lesson{padding:16px}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-setup>.academy-fields>p{justify-self:start;margin-top:6px}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-results>.academy-cards{grid-template-columns:1fr}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-selection{padding:16px}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-views>.navigation-chart{height:350px}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-study-cargo{padding:12px}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-cards article{padding:18px}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-list{position:static;max-height:240px}
+ .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs button{padding:10px 14px;font-size:16px}
+}

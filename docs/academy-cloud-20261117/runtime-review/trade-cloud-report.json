@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "syntheticBackend": true,
+  "productionRequests": 0,
+  "checks": [
+    "Confirmed trade upload uses a separate cloud namespace; freight snapshot untouched",
+    "Empty second device resumes exact route, actual cargo, tags, costs and events after authenticated boundary",
+    "Different device records require choice, preserve a recoverable pre-load backup and support local rollback without cloud replacement",
+    "An actual confirmed ledger change automatically saves to the connected account",
+    "Stale device cannot overwrite a newer cloud transaction",
+    "Offline failures preserve local records; mobile layout fits; sign-out hides previous account data"
+  ],
+  "errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "Two approved lobbies: six rooms, spotlight/detail, sidebar shortcuts, reload, back, STAM/exit return; seeded flight/account/history storage preserved",
+    "English/mixed locale, valid deep links and reduced-motion",
+    "1366px short desktop panel, 390px mobile layout with no horizontal overflow, readable detail/reset and original lounge navigation",
+    "Normal motion: direct scene region activates room, zoom enabled, panel exits before removal, focus restored"
+  ],
+  "errors": [],
+  "missing": []
+}

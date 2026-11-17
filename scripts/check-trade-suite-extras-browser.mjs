@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {chromium} from '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs';
+const root='http://127.0.0.1:5189/',out='docs/trade-suite-20261116/runtime-review',market=JSON.parse(await readFile('data/trade-market.json','utf8'));
+const origin=market.terminals.find(t=>t.location==='Everus Harbor'),stops=market.terminals.filter(t=>t.system===origin.system&&t.id!==origin.id).slice(0,2);
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--enable-unsafe-swiftshader']}),errors=[],checks=[];
+const p=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));
+try{
+ await p.route(/https:\/\/(?:www.gstatic.com|[^/]*googleapis.com)\//,r=>r.abort());
+ await p.goto(root+'#/division?lang=ko&facility=trade&room=planning');await p.getByLabel('교역 방식',{exact:true}).selectOption('buyers');await p.getByRole('button',{name:'화물 추가',exact:true}).click();
+ await p.locator('.suite-lot').getByLabel('수량 SCU',{exact:true}).fill('32');await p.locator('.suite-lot').getByLabel('상자 SCU',{exact:true}).fill('32');
+ await p.getByRole('button',{name:'이 화물에 맞는 함선 찾기',exact:true}).click();const ships=p.getByLabel('적재 가능한 함선',{exact:true});await ships.waitFor();const values=await ships.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));assert(values.includes('misc-hull-b'));assert(!values.includes('drake-cutlass-black'));await ships.selectOption('');await ships.selectOption('misc-hull-b');assert.equal(await p.getByLabel('함선',{exact:true}).inputValue(),'misc-hull-b');
+ checks.push('Actual Worker finds ships for a 32 SCU box; excludes Cutlass despite nominal capacity, selecting Hull B updates planner');
+ await p.locator('.suite-lot').getByRole('button',{name:'제거',exact:true}).click();await p.getByLabel('함선',{exact:true}).selectOption('drake-cutlass-black');await p.getByLabel('교역 방식',{exact:true}).selectOption('chain');await p.getByLabel('현재 출발 거래소',{exact:true}).selectOption(String(origin.id));await p.getByLabel('가용 자본 · aUEC',{exact:true}).fill('1000000');await p.getByLabel('위험 허용',{exact:true}).selectOption('all');await p.getByText('세부 조건 · 경유·상자·설비·비용',{exact:true}).click();await p.getByLabel('가격 최대 경과 · 시간',{exact:true}).fill('720');
+ for(let i=0;i<2;i++){await p.getByRole('button',{name:'방문 추가',exact:true}).click();await p.getByLabel('지정 방문 '+(i+1),{exact:true}).selectOption(String(stops[i].id));}
+ await p.getByRole('button',{name:'위로',exact:true}).nth(1).click();assert.equal(await p.getByLabel('지정 방문 1',{exact:true}).inputValue(),String(stops[1].id));await p.getByRole('button',{name:'방문 제거',exact:true}).nth(1).click();assert.equal(await p.getByRole('button',{name:'방문 제거',exact:true}).count(),1);await p.getByRole('button',{name:'방문 추가',exact:true}).click();await p.getByLabel('지정 방문 2',{exact:true}).selectOption(String(origin.id));
+ await p.getByRole('button',{name:'경로 계산',exact:true}).click();await p.locator('.suite-results .suite-card').first().waitFor();const title=await p.locator('.suite-results .suite-card h3').first().innerText();assert(title.includes(origin.name+' → '+stops[1].name+' → '+origin.name));await p.getByRole('button',{name:'세부 검토',exact:true}).first().click();const dl=p.waitForEvent('download');await p.getByRole('button',{name:'계획 내려받기',exact:true}).click();const proposal=JSON.parse(await readFile(await (await dl).path(),'utf8'));assert.deepEqual(proposal.options.waypoints,[stops[1].id,origin.id]);assert.deepEqual(proposal.route.legs.map(l=>l.destinationId),[stops[1].id,origin.id]);
+ checks.push('Manual stop add/reorder/remove reaches calculation and exported route in exact order, including empty moves');
+ assert.deepEqual(errors,[]);await writeFile(out+'/extras-report.json',JSON.stringify({passed:true,checks,errors,mode:'Production bundle, real saved UEX catalogue; no game execution'},null,2));console.log(checks);
+}catch(error){await p.screenshot({path:out+'/extras-failure.png'});throw error;}finally{await browser.close();}

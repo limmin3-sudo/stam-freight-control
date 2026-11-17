@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-16",
+  "assets": [
+    {
+      "file": "professor-initial.png",
+      "sourceGeneration": "exec-85a0124f-3924-47a5-8ecf-46c3ba03592d.png",
+      "status": "reference",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "b927d9a000f9321fbb2a7edb3e3df469177b3cbe0ce32a863fbcce35b7bc30c7"
+    },
+    {
+      "file": "professor-fuller-rejected.png",
+      "sourceGeneration": "exec-f5fb1286-cf8e-4476-85f5-6afc62a34111.png",
+      "status": "rejected-heavy-proportions",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "19fe0dcb8d770c76e1a5a410b587c94adf1af95dc3bc9ddcf3e1ce1d9b89782e"
+    },
+    {
+      "file": "professor-slim-hourglass-candidate.png",
+      "sourceGeneration": "exec-c08e6265-8cbf-48b9-b229-3704fd04c0f3.png",
+      "status": "pending-review",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "c847df004617fb1433af8b671324d61d6610ae729b6077adb31c44c1ced5deb2"
+    },
+    {
+      "file": "professor-grey-dress-glasses-candidate.png",
+      "sourceGeneration": "exec-663b0095-29c4-40e4-8cb2-381c79540281.png",
+      "status": "pending-review",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "938cf70b257d14bad696698ae8ddee1b5003ea084c9cf13e7556c39150167a62"
+    },
+    {
+      "file": "professor-light-cotton-candidate.png",
+      "sourceGeneration": "exec-52af16db-748c-4590-9b48-0cb07cc10f48.png",
+      "status": "pending-review",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "0b48577c880d40e34a29ade96cbfd12210a81dca4905a9d6ea07cf27a750ce5f"
+    },
+    {
+      "file": "professor-fine-fitted-cotton-candidate.png",
+      "sourceGeneration": "exec-a5d0a9f8-27e3-4dd4-b559-0d764c952dee.png",
+      "status": "pending-review",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "fb7507e6ae3daa5e9a5ef114aca1fce4bd5f644ad4d9f3dc07557aeebdaf6a07"
+    },
+    {
+      "file": "professor-light-cotton-face-reference-candidate.png",
+      "sourceGeneration": "exec-75e9ee41-d902-4974-aa1e-174ff5b97ce2.png",
+      "status": "approved",
+      "runtimeApplied": true,
+      "width": 1024,
+      "height": 1536,
+      "sha256": "48141beca7699731dfd9b8ad10bc95994863204b88c92f1585cfdad9e48b072c",
+      "displayNameKo": "지도 교수",
+      "runtimePath": "apps/control-room/src/assets/facility-staff/academic-advisor.png",
+      "deployed": false
+    }
+  ]
+}

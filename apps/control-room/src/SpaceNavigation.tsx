@@ -1,5 +1,7 @@
-import {useEffect, useState, type MouseEvent} from 'react';
-import {parentSpace, type SpaceScreen,type ArchiveView} from './space-navigation';
+import {useEffect, useRef, useState, type MouseEvent} from 'react';
+import {parentSpace, spaceHash,type SpaceScreen,type ArchiveView,type DivisionFacility,type LobbyRoom} from './space-navigation';
+import {facilityLobbies} from './facility-lobby-content';
+import {extensionFacilities} from './division-facilities';
 import type {Locale} from './navigation';
 
 // Space membership is separate from navigation/rendering so new activities can
@@ -13,16 +15,19 @@ const groups = [
     links:[['mission','미션 콘솔','Mission console'],['map','항로 지도','Star map'],['operations','관제 콘솔','Control console']]},
 ] as const;
 
-export function SpaceNavigation({screen,locale,pending,view,href,onNavigate}:{
+export function SpaceNavigation({screen,locale,pending,view,facility,lobbyRoom,href,onNavigate,onFacility}:{
   screen:SpaceScreen;locale:Locale;pending:boolean;
-  view?:ArchiveView;
+  view?:ArchiveView;facility?:DivisionFacility;lobbyRoom?:LobbyRoom;
+  onFacility:(event:MouseEvent,facility:DivisionFacility,room?:LobbyRoom)=>void;
   href:(screen:SpaceScreen,view?:ArchiveView)=>string;
   onNavigate:(event:MouseEvent,screen:SpaceScreen,view?:ArchiveView)=>void;
 }) {
-  const scene=parentSpace(screen), en=locale==='en';
-  const [expanded,setExpanded]=useState<string|null>(scene);
+  const scene=screen==='division'?(facility??null):parentSpace(screen), en=locale==='en';
+  const [expanded,setExpanded]=useState<string|null>(null);
   const [mobileOpen,setMobileOpen]=useState(false);
-  useEffect(()=>{setExpanded(scene);setMobileOpen(false);},[scene,screen,view]);
+  const requestedGroup=useRef<string|null>(null);
+  useEffect(()=>{setExpanded(scene===requestedGroup.current?scene:null);requestedGroup.current=null;},[scene]);
+  useEffect(()=>{setMobileOpen(false);},[scene,screen,view,facility,lobbyRoom]);
   useEffect(()=>{
     if(!mobileOpen)return;
     const close=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();setMobileOpen(false);document.querySelector<HTMLButtonElement>('.space-menu-toggle')?.focus();}};
@@ -40,7 +45,8 @@ export function SpaceNavigation({screen,locale,pending,view,href,onNavigate}:{
           <a className="space-group-button" href={href(group.id)} aria-current={scene===group.id?'location':undefined}
             aria-expanded={open} aria-controls={`space-links-${group.id}`} onClick={event=>{
               if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-              setExpanded(open&&screen===group.id?null:group.id);
+              requestedGroup.current=open&&screen===group.id?null:group.id;
+              setExpanded(requestedGroup.current);
               onNavigate(event,group.id);
             }}>
             <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -62,6 +68,23 @@ export function SpaceNavigation({screen,locale,pending,view,href,onNavigate}:{
           </div>
         </div>;
       })}
+      {extensionFacilities.map(({id,name,code})=>{const open=expanded===id;return <div className="space-nav-group" key={id} data-active={scene===id}>
+        <a className="space-group-button" href={spaceHash({screen:'division',locale,facility:id})} aria-current={scene===id?'location':undefined} aria-expanded={open} aria-controls={`space-links-${id}`} onClick={event=>{
+          if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+          requestedGroup.current=open&&scene===id?null:id;setExpanded(requestedGroup.current);onFacility(event,id);
+        }}>
+          <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">{id==='trade'?<><path d="M7 38V19l17-10 17 10v19H7ZM16 38V25h16v13M12 19h24M21 25v13M27 25v13"/><path d="M8 13 24 4l16 9"/></>:<><path d="M24 12C17 7 9 8 5 10v27c6-2 12-2 19 3 7-5 13-5 19-3V10c-4-2-12-3-19 2ZM24 12v28M11 17h7M11 23h7M30 17h7M30 23h7"/></>}</svg>
+          <span><small>STAM / {code}</small><strong>{en?name[1].toUpperCase():name[0]}</strong></span>
+          <span className="space-group-chevron" aria-hidden="true">⌄</span>
+        </a>
+        <div className="space-group-reveal" id={`space-links-${id}`} data-open={open} inert={!open} aria-hidden={!open}>
+          <div className="space-group-content"><p className="space-group-description"><small>{facilityLobbies[id].code}</small>{en?'Explore the lobby spaces.':'로비의 공간을 살펴보세요.'}</p>
+            <div className="space-nav-links">{facilityLobbies[id].places.map((place,index)=><div className="space-room-link" key={place.id}>
+              <a href={spaceHash({screen:'division',locale,facility:id,lobbyRoom:place.id})} aria-current={scene===id&&lobbyRoom===place.id?'page':undefined} onClick={event=>onFacility(event,id,place.id)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{place.name[en?1:0]}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>
+            </div>)}</div>
+          </div>
+        </div>
+      </div>;})}
     </nav>
   </>;
 }

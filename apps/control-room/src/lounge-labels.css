@@ -1,14 +1,14 @@
-/* Permanent text links; shared lounge/bridge colours and gold emphasis. */
+/* Permanent text links; champagne gold at rest, platinum on hover/focus. */
 .space-experience[data-capture-frame] :is(.space-sidebar, .space-intro, .space-leaders,
   .space-markers, .space-labels, .director-partner-name, .bridge-partner-name, .partner-hit, .space-spotlight, .space-segments) {
   visibility: hidden;
 }
 .space-lounge[data-moving=true] .space-leaders { visibility: hidden; }
 :is(.space-lounge, .space-bridge[data-screen=bridge]) {
-  --wayfinding-title: #d9efff;
-  --wayfinding-detail: #f0f8ff;
-  --wayfinding-hover: #ffe2a1;
-  --wayfinding-line: #ceeaff;
+  --wayfinding-title: #f2d59a;
+  --wayfinding-detail: #f8eed9;
+  --wayfinding-hover: #fff9ed;
+  --wayfinding-line: #f2d59a;
 }
 :is(.space-lounge, .space-bridge[data-screen=bridge]) {
   --wayfinding-line-opacity: 1;
@@ -39,7 +39,7 @@
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text,:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target.is-lit .space-target-text{display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 2px;background:none;border:0;border-radius:0;box-shadow:none;color:inherit}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text strong{display:block;font-family:Oxanium,SUIT,sans-serif;font-size:clamp(15px,2cqw,26px);font-weight:var(--wayfinding-weight,450);line-height:1.4;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-shadow:var(--wayfinding-shadow,0 1px 1px #503b1c,0 2px 6px #08131ae0,0 0 16px #e8b75a66)}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target-text>span{display:block;position:static;transform:none;opacity:1;padding:0;max-width:210px;white-space:normal;word-break:keep-all;font:var(--wayfinding-weight,450) var(--wayfinding-detail-size,clamp(10px,1.05cqw,13px))/1.6 SUIT,sans-serif;letter-spacing:.05em;color:var(--wayfinding-detail,#f5e3be);background:none;border:0;border-radius:0;box-shadow:none;text-shadow:var(--wayfinding-detail-shadow,0 1px 4px #07131af2,0 0 10px #211a0dcc);pointer-events:none}
-:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:is(:hover,:focus-visible,.is-lit){color:var(--wayfinding-hover,#ffe7b4);--wayfinding-detail:#fff1d3;--wayfinding-shadow:0 1px 3px #101c28,0 2px 5px #101c28,0 0 14px #e7b65b88}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:is(:hover,:focus-visible,.is-lit){color:var(--wayfinding-hover,#ffe7b4);--wayfinding-detail:#fff9ed;--wayfinding-shadow:0 1px 3px #101c28,0 2px 5px #101c28,0 0 14px #fff4d866}
 :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-target:focus-visible{outline:1px solid #f6d38a;outline-offset:7px;border-radius:0}
 @media(max-width:760px){
  :is(.space-lounge,.space-bridge[data-screen=bridge]) .space-overview{overflow:auto;justify-content:flex-start}
@@ -56,3 +56,13 @@
 .bridge-partner-name{position:absolute;bottom:calc(57% + 4px);transform:translateX(-50%);color:var(--wayfinding-title,#ffe2a1);font:var(--wayfinding-weight,650) clamp(12px,1.7cqw,23px)/1.5 Oxanium,SUIT,sans-serif;letter-spacing:.12em;white-space:nowrap;text-shadow:var(--wayfinding-shadow)}
 .operator-name{left:32%}.navigator-name{left:68%}
 @media(max-width:760px){.space-leaders{display:none}.bridge-partner-name{font-size:11px;letter-spacing:0}}
+
+/* Keep each marker, leader and caption in the same interaction state. */
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-leaders g[data-lit=true]{color:var(--wayfinding-hover)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-leaders g[data-lit=true] polyline:not(.leader-underlay){filter:drop-shadow(0 0 4px #fff4d866)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker{color:var(--wayfinding-line)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker:is(.is-lit,:hover,:focus-visible){color:var(--wayfinding-hover)}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker :is(.marker-disc,.marker-inner,.marker-ticks){stroke:currentColor}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker .marker-core{fill:currentColor}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker.is-lit .marker-disc{fill:#34332c}
+:is(.space-lounge,.space-bridge[data-screen=bridge]) .space-marker.is-lit .space-marker-glyph{filter:drop-shadow(0 2px 3px #000b) drop-shadow(0 0 5px #fff4d866)}

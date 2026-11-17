@@ -1,6 +1,6 @@
-import {forwardRef,useImperativeHandle,useLayoutEffect,useRef} from 'react';
+import {forwardRef,lazy,Suspense,useImperativeHandle,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import type {Locale} from './navigation';
-import type {SpaceScreen,ServiceView} from './space-navigation';
+import type {SpaceScreen,ServiceView,ArchiveView} from './space-navigation';
 import {mountGuideDesk} from './guide-desk-controller.mjs';
 import type {GuideDeskApi} from './guide-desk-controller.mjs';
 import template from './guide-desk-template.html?raw';
@@ -12,7 +12,9 @@ import lounge from './assets/guide/lounge-start.png';
 import returnEnd from './assets/guide/lounge-return.png';
 import './guide-desk.css';
 import './hologram-glass.css';
+import type {GuideTopic} from './guide-journey-content';
 import {mountGuideRasterSkin} from './guide-raster-skin';
+const GuideJourney=lazy(()=>import('./GuideJourney').then(m=>({default:m.GuideJourney})));
 export type GuideDeskHandle={navigate(screen:SpaceScreen):void};
 const english:Record<string,string>={
  '플라이트 가이드':'Flight Guide','STAM · 안내 데스크':'STAM · Welcome desk','무엇을 도와드릴까요?':'How can I help?',
@@ -23,10 +25,14 @@ const english:Record<string,string>={
  '먼저 미션 콘솔에서 이번 운송에 담을 계약을 선택해 주세요. 확인한 계약으로 항로를 계산할 수 있어요.':'Select contracts in the mission console. You can calculate a route from the reviewed contracts.',
  '데스크로 이동 중':'Approaching the desk','데스크 도착':'At the desk','안내 데스크':'Welcome desk','홀로그램 수납':'Hologram closed','홀로그램 수납 중':'Closing hologram','라운지로 이동 중':'Returning to lounge','라운지':'Lounge',
 };
-type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean;onNavigate(screen:SpaceScreen,serviceView?:ServiceView):void;onLounge():void};
+type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean;onNavigate(screen:SpaceScreen,serviceView?:ServiceView,view?:ArchiveView):void;onTour():void;onGuidedChange(open:boolean):void;onLounge():void};
 // The approved SVG/HTML scene is an isolated DOM island. The controller is shared
 // with the verified cinematic preview; cleanup owns every timer and media element.
 export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(props,ref){
+ const [topic,setTopic]=useState<GuideTopic|null>(null);
+ useEffect(()=>{props.onGuidedChange(!!topic);return()=>props.onGuidedChange(false);},[topic,props.onGuidedChange]);
+ const trigger=useRef<HTMLElement|null>(null);
+ const close=()=>{setTopic(null);requestAnimationFrame(()=>trigger.current?.focus({preventScroll:true}));};
  const host=useRef<HTMLDivElement>(null),api=useRef<GuideDeskApi|null>(null),callbacks=useRef(props);
  callbacks.current=props;
  useImperativeHandle(ref,()=>({navigate(screen){void api.current?.navigate(screen);}}),[]);
@@ -46,8 +52,8 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
    const greeting=root.querySelector('#greeting');if(greeting)greeting.innerHTML='Welcome to STAM.<br>Shall we prepare your first haul?';
   }
   const removeSkin=mountGuideRasterSkin(root,props.locale!=='en');
-  api.current=mountGuideDesk(root,{...props,translate,onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
+  api.current=mountGuideDesk(root,{...props,translate,onGuide:topic=>{trigger.current=document.activeElement as HTMLElement;setTopic(topic);},onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
   return()=>{removeSkin();api.current?.destroy();api.current=null;root.replaceChildren();};
  },[props.locale,props.startWithApproach,props.motion]);
- return <div className="guide-desk" data-material="generated-glass" ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>;
+ return <><div className="guide-desk" data-material="generated-glass" data-guided={!!topic} ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>{topic&&<Suspense fallback={<div className="guide-journey-loading" role="status">{props.locale==='en'?'Preparing your guide…':'안내를 준비하고 있어요…'}<button onClick={close}>{props.locale==='en'?'Cancel':'취소'}</button></div>}><GuideJourney key={topic} topic={topic} locale={props.locale} motion={props.motion} onClose={close} onTopic={setTopic} onTour={props.onTour} onNavigate={(screen,serviceView,view)=>{setTopic(null);props.onNavigate(screen,serviceView,view);}}/></Suspense>}</>;
 });

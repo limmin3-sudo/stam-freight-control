@@ -1,0 +1,157 @@
+[
+  {
+    "file": "director-presenting-candidate.png",
+    "source": "/workspace/generated_images/exec-b7af2508-aed7-4f3b-a6fb-516469b34fc5.png",
+    "title": "오른쪽 안내 자세",
+    "intendedUse": "왼쪽에 배치, 오른쪽 콘솔을 소개",
+    "size": [
+      1062,
+      1481
+    ],
+    "mode": "RGBA",
+    "sha256": "a67131034c12669ed9fbe62cdeaf1120a8f32ce0e34e58fbbd6373280a9959dc",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "control-workstation-closeup-candidate.png",
+    "source": "/workspace/generated_images/exec-a54c1a88-95b9-49d4-b3da-da1e736d8628.png",
+    "title": "관제 콘솔 근접 배경",
+    "intendedUse": "왼쪽 가이드·오른쪽 장비 구도",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "94a087976fd9ad41810342765aaf2e04f95d8ca2899bc3ba14a8f62e17bba42f",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "director-present-left-candidate.png",
+    "source": "/workspace/generated_images/exec-71a26434-7724-4d01-bd6f-6243da85b27a.png",
+    "title": "왼쪽 안내 자세",
+    "intendedUse": "오른쪽에 배치, 왼쪽 시설·지도를 소개",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "c4d9eba52de45b46ff822130f2450bb060fad86183e66bfe9307ecbf86409191",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "director-tablet-candidate.png",
+    "source": "/workspace/generated_images/exec-697ba768-8a2f-4504-8158-3573dd4b9040.png",
+    "title": "태블릿 설명 자세",
+    "intendedUse": "계약 입력·운항 절차·정보 안내",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "sha256": "4270425c390e352e912552730f27b041cfe490d1bba68658185a205e04c6753b",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "hologram-table-closeup-candidate.png",
+    "source": "/workspace/generated_images/exec-18fe0484-5952-408c-a778-c80aa7d45a7f.png",
+    "title": "입체지도 근접 배경",
+    "intendedUse": "왼쪽 지도·오른쪽 가이드 구도",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "94a2c003c9a1383b59ecabdcd08927ec6e3c2ad9e24b74b9ce183249e66abe07",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "lounge-exterior-candidate.png",
+    "source": "/workspace/generated_images/exec-7b94f3ea-4720-479d-b0bc-ba002dc3654c.png",
+    "title": "라운지 외관 근접",
+    "intendedUse": "사업부에서 라운지 시설 소개",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "cfe51831e61a18ef284eb1132e8ab97be8ea94e64bdcdb1898410dc02a68df9f",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "academy-exterior-candidate.png",
+    "source": "/workspace/generated_images/exec-680704c4-8495-4911-a1cd-1b3e285e6871.png",
+    "title": "아카데미 외관 근접",
+    "intendedUse": "아카데미 소개·입구 강조",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "c6ae5d8fc5f0c2025b77dd4b234a210d483e1f49cca21ab2d2d2ed997419eace",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "trade-exterior-candidate.png",
+    "source": "/workspace/generated_images/exec-04608f46-ad25-4638-aeb8-19b413ce2576.png",
+    "title": "무역센터 외관 근접",
+    "intendedUse": "물류 시설·무역센터 소개",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "2a2b740c20f55bcd38bdbe6624cacff61237d8cb07ee9ac6eefbcf36ded1536d",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "director-welcome-candidate.png",
+    "source": "/workspace/generated_images/exec-8634ef95-181f-479e-8574-57948c3cb1c9.png",
+    "title": "환영 자세",
+    "intendedUse": "첫 방문 인사",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "sha256": "cb6bf4029e600d09976a7593af3e65f9ce2c72f9c4a32c71a84bb65676977d0b",
+    "approval": "pending",
+    "runtimeApplied": false
+  },
+  {
+    "file": "director-escort-candidate.png",
+    "source": "/workspace/generated_images/exec-11bfd400-569d-4c64-b00f-a9fe81cc3c27.png",
+    "title": "동행 방향 안내 자세",
+    "intendedUse": "이쪽으로 이동 안내 — 걷기/뒤돌아보기 포즈는 아님",
+    "size": [
+      1312,
+      1199
+    ],
+    "mode": "RGBA",
+    "sha256": "71558c492ca679f9a4688c22295d6444dc4c328591b08116efd3329b8a6ba7d4",
+    "approval": "pending",
+    "runtimeApplied": false,
+    "reviewNote": "원본과 검은 소매 좌우가 다름. 걷기 자세가 아니며 채택 전 복장 연속성 확인 필요."
+  },
+  {
+    "file": "director-completion-candidate.png",
+    "source": "/workspace/generated_images/exec-75278101-088e-4bdd-92ec-4d279273998e.png",
+    "title": "완료 안내 자세",
+    "intendedUse": "연습 완료·다음 단계 안내",
+    "size": [
+      1145,
+      1374
+    ],
+    "mode": "RGBA",
+    "sha256": "13e19040dc4eb0e8f240b0cf4348f0261d7e9d5d349cf9e8d1cbcf162c8954f5",
+    "approval": "pending",
+    "runtimeApplied": false
+  }
+]

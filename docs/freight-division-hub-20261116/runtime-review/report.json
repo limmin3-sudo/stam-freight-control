@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "Compact flight console retains hover details; account and log use assets in header; building hover highlights without opening a panel",
+    "Default entry is the approved division; six facility layers, four visible facility controls; original sidebar is retained with no false active room; no opening film",
+    "Lounge enters immediately without retired movie; orbital centre keeps existing partner choice; STAM returns to division",
+    "Planned facilities explain status; construction sites have no controls without fake navigation; guide centre links to existing manual; Escape closes only panel and returns focus",
+    "Sidebar facility panel survives reload; header account opens existing dialog; log opens mission intake",
+    "Existing selected contracts/partner survive hub visits, back, reload and orbital entry",
+    "English/mixed labels, locale-preserving links and keyboard actions",
+    "390px readable facility list, selected panel scrolls into view, unchanged mobile sidebar navigates normally"
+  ],
+  "errors": [],
+  "missing": [],
+  "retiredFilmRequests": 0,
+  "productionWrites": 0
+}

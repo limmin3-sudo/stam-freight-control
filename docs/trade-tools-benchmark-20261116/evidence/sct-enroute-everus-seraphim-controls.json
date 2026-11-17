@@ -1,0 +1,209 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "a8c475a9-64a3-42e3-b77d-6e8a46403919",
+    "name": "",
+    "type": "text",
+    "role": "button",
+    "placeholder": null,
+    "text": "",
+    "value": "Cutlass Black",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "investmentInput",
+    "name": "investmentInput",
+    "type": "number",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "1000000",
+    "checked": false,
+    "label": "Initial investment"
+  },
+  {
+    "tag": "INPUT",
+    "id": "9bc1961c-900e-4376-929b-f7b64d98a958",
+    "name": "",
+    "type": "text",
+    "role": "button",
+    "placeholder": null,
+    "text": "",
+    "value": "Stanton > Hurston > Everus Harbor",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "4f65e581-5310-4e3b-ba5b-a4e6aeaea03e",
+    "name": "",
+    "type": "text",
+    "role": "button",
+    "placeholder": null,
+    "text": "",
+    "value": "Stanton > Crusader > Seraphim Station",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Submit",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Reset",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Miscellaneous",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "maxStopsRange",
+    "name": "",
+    "type": "range",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "5",
+    "checked": false,
+    "label": "Maximum number of stops (5)"
+  },
+  {
+    "tag": "INPUT",
+    "id": "allowableDetourRange",
+    "name": "",
+    "type": "range",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "25",
+    "checked": false,
+    "label": "Allowable detour (25%)"
+  },
+  {
+    "tag": "INPUT",
+    "id": "allowWaitTimesCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Allow wait times"
+  },
+  {
+    "tag": "INPUT",
+    "id": "useAutoLoadingCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Auto-loading"
+  },
+  {
+    "tag": "INPUT",
+    "id": "smartFiltersCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": true,
+    "label": "Smart filters "
+  },
+  {
+    "tag": "INPUT",
+    "id": "expandedViewCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Expanded view"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Commodities",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Locations",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": " Alternative commodities",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": " Alternative commodities",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": " Alternative commodities",
+    "value": ""
+  }
+]

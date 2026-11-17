@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "Production bundle: five-mode planner; reserve defaults on at 10%, disabling retains edited 25% when reenabled; real market route results",
+    "Route saving and confirmed handover; map and cargo canvas mounted; no automatic cargo, payments or freight modifications",
+    "Inventory tags persist; grouping and search change presentation without altering cargo totals",
+    "Actual manual buy, partial sale, storage and retrieval; remaining-cargo buyer search uses actual cash without changing prior transactions",
+    "Two-tab conflicting update withdraws an old confirmation; no duplicate sale or lost expense",
+    "Quota failure retains prior ledger; final exact profit 18 aUEC; backup includes saved route and ledger, freight state unchanged",
+    "English mobile 390px, reduced motion, exact same-owner restore; occupied ledger cannot be replaced",
+    "Owner-specific terminal favorites and price thresholds saved through actual market UI",
+    "Changing to an unverified owner hides previous-owner saved watches and ledger"
+  ],
+  "errors": [],
+  "mode": "Production bundle, real saved UEX data, synthetic confirmed transactions; no live game or real Firebase sign-in"
+}

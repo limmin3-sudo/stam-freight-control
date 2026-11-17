@@ -1,0 +1,250 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Account",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "🇩🇪\nDeutsch",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Tools",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Feedback",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Cutlass Cutlass Black",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Hurston",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "number",
+    "role": null,
+    "placeholder": "Available funds",
+    "text": "",
+    "value": "1000000",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "number",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "1",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Calculate",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Share",
+    "value": ""
+  }
+]

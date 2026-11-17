@@ -1,0 +1,3193 @@
+[
+  {
+    "case": "sct-cutlass-1m-time",
+    "endpoint": "https://sc-trade.tools/api/tools/trades",
+    "status": 200,
+    "inputs": {
+      "ship": "Cutlass Black",
+      "investment": 1000000,
+      "profitType": "time",
+      "maxStops": 5,
+      "allowWaitTimes": false,
+      "useAutoLoading": false,
+      "smartFilters": true,
+      "expandedView": false,
+      "commodityTypes": [],
+      "commodityTypesType": "blacklist",
+      "commodityNames": [],
+      "commodityNamesType": "blacklist",
+      "maxVolume": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "origin": null,
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "id": 5073,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 27,
+          "maxQuantityInScu": 324,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 98829.39,
+        "profit": 333648.0,
+        "timeInSeconds": 203
+      },
+      {
+        "id": 4362,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 537,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 33691.67,
+        "profit": 333648.0,
+        "timeInSeconds": 595
+      },
+      {
+        "id": 373,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Monox",
+          "shop": "Jackson's Swap",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 96,
+          "maxQuantityInScu": 960,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 27850.47,
+        "profit": 270648.0,
+        "timeInSeconds": 584
+      },
+      {
+        "id": 5074,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 27,
+          "maxQuantityInScu": 324,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26780.19,
+        "profit": 333648.0,
+        "timeInSeconds": 748
+      },
+      {
+        "id": 4363,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 537,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26706.19,
+        "profit": 333648.0,
+        "timeInSeconds": 750
+      },
+      {
+        "id": 4652,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Patch City",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 242,
+          "maxQuantityInScu": 2420,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26328.38,
+        "profit": 270648.0,
+        "timeInSeconds": 617
+      },
+      {
+        "id": 374,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Monox",
+          "shop": "Jackson's Swap",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 96,
+          "maxQuantityInScu": 960,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23958.49,
+        "profit": 270648.0,
+        "timeInSeconds": 678
+      },
+      {
+        "id": 4653,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Patch City",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 242,
+          "maxQuantityInScu": 2420,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23687.58,
+        "profit": 270648.0,
+        "timeInSeconds": 686
+      },
+      {
+        "id": 5982,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Terminus",
+          "shop": "Canard View",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 192,
+          "maxQuantityInScu": 1920,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23648.97,
+        "profit": 270648.0,
+        "timeInSeconds": 687
+      },
+      {
+        "id": 5230,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Dudley & Daughters",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 54,
+          "maxQuantityInScu": 540,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 22731.14,
+        "profit": 270648.0,
+        "timeInSeconds": 715
+      },
+      {
+        "id": 5231,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Dudley & Daughters",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 54,
+          "maxQuantityInScu": 540,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 20787.49,
+        "profit": 270648.0,
+        "timeInSeconds": 782
+      },
+      {
+        "id": 5198,
+        "origin": {
+          "location": "Pyro > Terminus",
+          "shop": "Last Landings",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Neon",
+          "price": 653476.0,
+          "fees": 0.0,
+          "quantityInScu": 125,
+          "maxQuantityInScu": 375,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Neon",
+          "price": 874000.0,
+          "fees": 0.0,
+          "quantityInScu": 138,
+          "maxQuantityInScu": 1380,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 19269.18,
+        "profit": 220524.0,
+        "timeInSeconds": 687
+      }
+    ]
+  },
+  {
+    "case": "sct-cutlass-1m-pure",
+    "endpoint": "https://sc-trade.tools/api/tools/trades",
+    "status": 200,
+    "inputs": {
+      "ship": "Cutlass Black",
+      "investment": 1000000,
+      "profitType": "pure",
+      "maxStops": 5,
+      "allowWaitTimes": false,
+      "useAutoLoading": false,
+      "smartFilters": true,
+      "expandedView": false,
+      "commodityTypes": [],
+      "commodityTypesType": "blacklist",
+      "commodityNames": [],
+      "commodityNamesType": "blacklist",
+      "maxVolume": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "origin": null,
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "id": 5073,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 27,
+          "maxQuantityInScu": 324,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 98829.39,
+        "profit": 333648.0,
+        "timeInSeconds": 203
+      },
+      {
+        "id": 4362,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 537,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 33691.67,
+        "profit": 333648.0,
+        "timeInSeconds": 595
+      },
+      {
+        "id": 5074,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 27,
+          "maxQuantityInScu": 324,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26780.19,
+        "profit": 333648.0,
+        "timeInSeconds": 748
+      },
+      {
+        "id": 4363,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1323000.0,
+          "fees": 0.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 537,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26706.19,
+        "profit": 333648.0,
+        "timeInSeconds": 750
+      },
+      {
+        "id": 5078,
+        "origin": {
+          "location": "Stanton > Hurston",
+          "shop": "HDMS-Pinewood",
+          "securityLevel": 4,
+          "faction": "Hurston Dynamics",
+          "action": "SELLS",
+          "itemQuantityInScu": 41,
+          "itemName": "Bexalite",
+          "price": 981540.0,
+          "fees": 0.0,
+          "quantityInScu": 42,
+          "maxQuantityInScu": 370,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "The Golden Riviera",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "BUYS",
+          "itemQuantityInScu": 41,
+          "itemName": "Bexalite",
+          "price": 1291500.0,
+          "fees": 0.0,
+          "quantityInScu": 27,
+          "maxQuantityInScu": 324,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 15833.57,
+        "profit": 309960.0,
+        "timeInSeconds": 1175
+      },
+      {
+        "id": 4365,
+        "origin": {
+          "location": "Stanton > Hurston",
+          "shop": "HDMS-Pinewood",
+          "securityLevel": 4,
+          "faction": "Hurston Dynamics",
+          "action": "SELLS",
+          "itemQuantityInScu": 41,
+          "itemName": "Bexalite",
+          "price": 981540.0,
+          "fees": 0.0,
+          "quantityInScu": 42,
+          "maxQuantityInScu": 370,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 41,
+          "itemName": "Bexalite",
+          "price": 1291500.0,
+          "fees": 0.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 537,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 14282.13,
+        "profit": 309960.0,
+        "timeInSeconds": 1303
+      },
+      {
+        "id": 373,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Monox",
+          "shop": "Jackson's Swap",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 96,
+          "maxQuantityInScu": 960,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 27850.47,
+        "profit": 270648.0,
+        "timeInSeconds": 584
+      },
+      {
+        "id": 4652,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Patch City",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 242,
+          "maxQuantityInScu": 2420,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 26328.38,
+        "profit": 270648.0,
+        "timeInSeconds": 617
+      },
+      {
+        "id": 374,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Monox",
+          "shop": "Jackson's Swap",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 96,
+          "maxQuantityInScu": 960,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23958.49,
+        "profit": 270648.0,
+        "timeInSeconds": 678
+      },
+      {
+        "id": 4653,
+        "origin": {
+          "location": "Pyro > Pyro V > Pyro IV",
+          "shop": "Fallow Field",
+          "securityLevel": 2,
+          "faction": "Headhunters",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 378,
+          "maxQuantityInScu": 567,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Patch City",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 242,
+          "maxQuantityInScu": 2420,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23687.58,
+        "profit": 270648.0,
+        "timeInSeconds": 686
+      },
+      {
+        "id": 5982,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Terminus",
+          "shop": "Canard View",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 192,
+          "maxQuantityInScu": 1920,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23648.97,
+        "profit": 270648.0,
+        "timeInSeconds": 687
+      },
+      {
+        "id": 5230,
+        "origin": {
+          "location": "Pyro > Bloom",
+          "shop": "Bueno Ravine",
+          "securityLevel": 2,
+          "faction": "Citizens for Prosperity",
+          "action": "SELLS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 989352.0,
+          "fees": 0.0,
+          "quantityInScu": 188,
+          "maxQuantityInScu": 564,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Dudley & Daughters",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 42,
+          "itemName": "Bexalite",
+          "price": 1260000.0,
+          "fees": 0.0,
+          "quantityInScu": 54,
+          "maxQuantityInScu": 540,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 22731.14,
+        "profit": 270648.0,
+        "timeInSeconds": 715
+      }
+    ]
+  },
+  {
+    "case": "sct-cutlass-1m-autoload",
+    "endpoint": "https://sc-trade.tools/api/tools/trades",
+    "status": 200,
+    "inputs": {
+      "ship": "Cutlass Black",
+      "investment": 1000000,
+      "profitType": "pure",
+      "maxStops": 5,
+      "allowWaitTimes": false,
+      "useAutoLoading": true,
+      "smartFilters": true,
+      "expandedView": false,
+      "commodityTypes": [],
+      "commodityTypesType": "blacklist",
+      "commodityNames": [],
+      "commodityNamesType": "blacklist",
+      "maxVolume": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "origin": null,
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "id": 7054,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > HUR L1",
+          "shop": "HUR-L1 Green Glade Station",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 386400.0,
+          "fees": 1720.0,
+          "quantityInScu": 161,
+          "maxQuantityInScu": 548,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 6100.7,
+        "profit": 130696.0,
+        "timeInSeconds": 1286
+      },
+      {
+        "id": 4592,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > ARC L5",
+          "shop": "ARC-L5 Yellow Core Station",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 377200.0,
+          "fees": 1720.0,
+          "quantityInScu": 515,
+          "maxQuantityInScu": 611,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 5982.93,
+        "profit": 121496.0,
+        "timeInSeconds": 1219
+      },
+      {
+        "id": 3705,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Rod's Fuel 'N Supplies",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 358800.0,
+          "fees": 1720.0,
+          "quantityInScu": 204,
+          "maxQuantityInScu": 547,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 7667.67,
+        "profit": 103096.0,
+        "timeInSeconds": 807
+      },
+      {
+        "id": 3065,
+        "origin": {
+          "location": "Stanton > MIC L2",
+          "shop": "MIC-L2 Long Forest Station",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Medical Supplies",
+          "price": 162886.0,
+          "fees": 1720.0,
+          "quantityInScu": 81,
+          "maxQuantityInScu": 303,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Medical Supplies",
+          "price": 266800.0,
+          "fees": 1720.0,
+          "quantityInScu": 141,
+          "maxQuantityInScu": 1410,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4120.11,
+        "profit": 100474.0,
+        "timeInSeconds": 1464
+      },
+      {
+        "id": 6304,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Hurston",
+          "shop": "Lorville",
+          "securityLevel": 5,
+          "faction": "Hurston Dynamics",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 354200.0,
+          "fees": 1720.0,
+          "quantityInScu": 81,
+          "maxQuantityInScu": 810,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 3870.1,
+        "profit": 98496.0,
+        "timeInSeconds": 1528
+      },
+      {
+        "id": 1275,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Crusader",
+          "shop": "Orison",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 354200.0,
+          "fees": 1720.0,
+          "quantityInScu": 110,
+          "maxQuantityInScu": 1100,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 3826.13,
+        "profit": 98496.0,
+        "timeInSeconds": 1545
+      },
+      {
+        "id": 939,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Rat's Nest",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 252264.0,
+          "fees": 1720.0,
+          "quantityInScu": 159,
+          "maxQuantityInScu": 344,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > microTech",
+          "shop": "New Babbage",
+          "securityLevel": 5,
+          "faction": "microTech",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Diamond",
+          "price": 354200.0,
+          "fees": 1720.0,
+          "quantityInScu": 40,
+          "maxQuantityInScu": 400,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 3498.18,
+        "profit": 98496.0,
+        "timeInSeconds": 1690
+      },
+      {
+        "id": 3063,
+        "origin": {
+          "location": "Stanton > MIC L1",
+          "shop": "MIC-L1 Shallow Frontier Station",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Medical Supplies",
+          "price": 165922.0,
+          "fees": 1720.0,
+          "quantityInScu": 162,
+          "maxQuantityInScu": 565,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Medical Supplies",
+          "price": 266800.0,
+          "fees": 1720.0,
+          "quantityInScu": 141,
+          "maxQuantityInScu": 1410,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4095.34,
+        "profit": 97438.0,
+        "timeInSeconds": 1428
+      },
+      {
+        "id": 3153,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Gaslight",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 178756.0,
+          "fees": 1720.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 473,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Nyx > Keeger Belt",
+          "shop": "People's Service Station Lambda",
+          "securityLevel": 5,
+          "faction": "People's Alliance",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 271400.0,
+          "fees": 1720.0,
+          "quantityInScu": 48,
+          "maxQuantityInScu": 480,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4696.89,
+        "profit": 89204.0,
+        "timeInSeconds": 1140
+      },
+      {
+        "id": 5325,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Starlight Service Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 178756.0,
+          "fees": 1720.0,
+          "quantityInScu": 90,
+          "maxQuantityInScu": 587,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > HUR L3",
+          "shop": "HUR-L3 Thundering Express Station",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 271400.0,
+          "fees": 1720.0,
+          "quantityInScu": 1050,
+          "maxQuantityInScu": 1232,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4581.59,
+        "profit": 89204.0,
+        "timeInSeconds": 1169
+      },
+      {
+        "id": 5848,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Gaslight",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 178756.0,
+          "fees": 1720.0,
+          "quantityInScu": 142,
+          "maxQuantityInScu": 473,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Nyx > Keeger Belt",
+          "shop": "People's Service Station Delta",
+          "securityLevel": 5,
+          "faction": "People's Alliance",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 271400.0,
+          "fees": 1720.0,
+          "quantityInScu": 337,
+          "maxQuantityInScu": 1011,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4476.23,
+        "profit": 89204.0,
+        "timeInSeconds": 1196
+      },
+      {
+        "id": 3147,
+        "origin": {
+          "location": "Pyro",
+          "shop": "Starlight Service Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 178756.0,
+          "fees": 1720.0,
+          "quantityInScu": 90,
+          "maxQuantityInScu": 587,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Nyx > Keeger Belt",
+          "shop": "People's Service Station Lambda",
+          "securityLevel": 5,
+          "faction": "People's Alliance",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Stims",
+          "price": 271400.0,
+          "fees": 1720.0,
+          "quantityInScu": 48,
+          "maxQuantityInScu": 480,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 4456.28,
+        "profit": 89204.0,
+        "timeInSeconds": 1202
+      }
+    ]
+  },
+  {
+    "case": "sct-buyer-laranite32",
+    "endpoint": "https://sc-trade.tools/api/tools/buyers",
+    "status": 200,
+    "inputs": {
+      "commodityName": "Laranite",
+      "commodityQuantityInScu": 32,
+      "isCargoStolen": false,
+      "allowWaitTimes": false,
+      "expandedView": false,
+      "minInventorySizeInScu": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "location": "Nyx",
+        "shop": "Stanton Gateway",
+        "securityLevel": 5,
+        "faction": "United Empire of Earth (UEE)",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 284800.0,
+        "fees": 0.0,
+        "quantityInScu": 695,
+        "maxQuantityInScu": 1179,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Endgame",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 731,
+        "maxQuantityInScu": 7310,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Rat's Nest",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 621,
+        "maxQuantityInScu": 6210,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Gaslight",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 473,
+        "maxQuantityInScu": 4730,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro > Terminus",
+        "shop": "Ruin Station",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 393,
+        "maxQuantityInScu": 3930,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Patch City",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 343,
+        "maxQuantityInScu": 3430,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Starlight Service Station",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 242,
+        "maxQuantityInScu": 2420,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > microTech",
+        "shop": "New Babbage",
+        "securityLevel": 5,
+        "faction": "microTech",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 275200.0,
+        "fees": 0.0,
+        "quantityInScu": 932,
+        "maxQuantityInScu": 1928,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Dudley & Daughters",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 275200.0,
+        "fees": 0.0,
+        "quantityInScu": 679,
+        "maxQuantityInScu": 1434,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > ArcCorp",
+        "shop": "Area18",
+        "securityLevel": 5,
+        "faction": "ArcCorp",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 272000.0,
+        "fees": 0.0,
+        "quantityInScu": 613,
+        "maxQuantityInScu": 1896,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > Crusader",
+        "shop": "Orison",
+        "securityLevel": 5,
+        "faction": "Crusader Industries",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 272000.0,
+        "fees": 0.0,
+        "quantityInScu": 518,
+        "maxQuantityInScu": 1814,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > CRU L1",
+        "shop": "CRU-L1 Ambitious Dream Station",
+        "securityLevel": 5,
+        "faction": "United Empire of Earth (UEE)",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 272000.0,
+        "fees": 0.0,
+        "quantityInScu": 1010,
+        "maxQuantityInScu": 1308,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      }
+    ]
+  },
+  {
+    "case": "sct-buyer-laranite32-stolen",
+    "endpoint": "https://sc-trade.tools/api/tools/buyers",
+    "status": 200,
+    "inputs": {
+      "commodityName": "Laranite",
+      "commodityQuantityInScu": 32,
+      "isCargoStolen": true,
+      "allowWaitTimes": false,
+      "expandedView": false,
+      "minInventorySizeInScu": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "location": "Pyro",
+        "shop": "Endgame",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 731,
+        "maxQuantityInScu": 7310,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Rat's Nest",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 621,
+        "maxQuantityInScu": 6210,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Gaslight",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 473,
+        "maxQuantityInScu": 4730,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro > Terminus",
+        "shop": "Ruin Station",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 393,
+        "maxQuantityInScu": 3930,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Patch City",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 343,
+        "maxQuantityInScu": 3430,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Starlight Service Station",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 278400.0,
+        "fees": 0.0,
+        "quantityInScu": 242,
+        "maxQuantityInScu": 2420,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Dudley & Daughters",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 275200.0,
+        "fees": 0.0,
+        "quantityInScu": 679,
+        "maxQuantityInScu": 1434,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Pyro",
+        "shop": "Rod's Fuel 'N Supplies",
+        "securityLevel": 5,
+        "faction": "Rough & Ready",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 259200.0,
+        "fees": 0.0,
+        "quantityInScu": 996,
+        "maxQuantityInScu": 1322,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > Crusader > Yela",
+        "shop": "Grim HEX",
+        "securityLevel": 5,
+        "faction": "Nine Tails",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 236800.0,
+        "fees": 0.0,
+        "quantityInScu": 25,
+        "maxQuantityInScu": 250,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24,
+          32
+        ],
+        "isHidden": false
+      },
+      {
+        "location": "Stanton > CRU L5 > CRU-L5 Beautiful Glen Station",
+        "shop": "Maintenance Area",
+        "securityLevel": 5,
+        "faction": "United Empire of Earth (UEE)",
+        "action": "BUYS",
+        "itemQuantityInScu": 32,
+        "itemName": "Laranite",
+        "price": 208000.0,
+        "fees": 0.0,
+        "quantityInScu": 16,
+        "maxQuantityInScu": 160,
+        "boxSizesInScu": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          24
+        ],
+        "isHidden": false
+      }
+    ]
+  },
+  {
+    "case": "sct-enroute-everus-seraphim",
+    "endpoint": "https://sc-trade.tools/api/tools/itinerary",
+    "status": 200,
+    "inputs": {
+      "ship": "Cutlass Black",
+      "investment": 1000000,
+      "origin": "Stanton > Hurston > Everus Harbor",
+      "destination": "Stanton > Crusader > Seraphim Station",
+      "profitType": "time",
+      "allowableDetour": 25,
+      "maxStops": 5,
+      "allowWaitTimes": false,
+      "useAutoLoading": false,
+      "smartFilters": true,
+      "expandedView": false,
+      "commodityTypes": [],
+      "commodityTypesType": "blacklist",
+      "commodityNames": [],
+      "commodityNamesType": "blacklist",
+      "maxVolume": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "id": 5365,
+        "origin": {
+          "location": "Stanton > Hurston",
+          "shop": "Everus Harbor",
+          "securityLevel": 5,
+          "faction": "Hurston Dynamics",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Scrap",
+          "price": 135884.0,
+          "fees": 0.0,
+          "quantityInScu": 744,
+          "maxQuantityInScu": 1467,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Hurston",
+          "shop": "Rappel",
+          "securityLevel": 1,
+          "faction": "Dusters",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Scrap",
+          "price": 170200.0,
+          "fees": 0.0,
+          "quantityInScu": 168,
+          "maxQuantityInScu": 1680,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 5261.92,
+        "profit": 34316.0,
+        "timeInSeconds": 392
+      },
+      {
+        "id": 6785,
+        "origin": {
+          "location": "Stanton > Hurston",
+          "shop": "Rappel",
+          "securityLevel": 1,
+          "faction": "Dusters",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Recycled Material Composite",
+          "price": 328624.0,
+          "fees": 0.0,
+          "quantityInScu": 1050,
+          "maxQuantityInScu": 1050,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Crusader > Yela",
+          "shop": "Grim HEX",
+          "securityLevel": 5,
+          "faction": "Nine Tails",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Recycled Material Composite",
+          "price": 331200.0,
+          "fees": 0.0,
+          "quantityInScu": 192,
+          "maxQuantityInScu": 1920,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 263.37,
+        "profit": 2576.0,
+        "timeInSeconds": 587
+      },
+      {
+        "id": 99,
+        "origin": {
+          "location": "Stanton > Crusader > Yela",
+          "shop": "Grim HEX",
+          "securityLevel": 5,
+          "faction": "Nine Tails",
+          "action": "SELLS",
+          "itemQuantityInScu": 46,
+          "itemName": "Human Food Bars",
+          "price": 14904.0,
+          "fees": 0.0,
+          "quantityInScu": 18000,
+          "maxQuantityInScu": 18000,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "BUYS",
+          "itemQuantityInScu": 46,
+          "itemName": "Human Food Bars",
+          "price": 22540.0,
+          "fees": 0.0,
+          "quantityInScu": 32,
+          "maxQuantityInScu": 320,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 1169.82,
+        "profit": 7636.0,
+        "timeInSeconds": 392
+      }
+    ]
+  },
+  {
+    "case": "sct-hullc-10m-autoload",
+    "endpoint": "https://sc-trade.tools/api/tools/trades",
+    "status": 200,
+    "inputs": {
+      "ship": "Hull C",
+      "investment": 10000000,
+      "profitType": "pure",
+      "maxStops": 5,
+      "allowWaitTimes": false,
+      "useAutoLoading": true,
+      "smartFilters": true,
+      "expandedView": false,
+      "commodityTypes": [],
+      "commodityTypesType": "blacklist",
+      "commodityNames": [],
+      "commodityNamesType": "blacklist",
+      "maxVolume": null,
+      "locationTypes": [],
+      "locationTypesType": "blacklist",
+      "locationNames": [],
+      "locationNamesType": "blacklist",
+      "origin": null,
+      "factionNames": [],
+      "factionsNamesType": "blacklist",
+      "minSecurityLevel": 1,
+      "supportedBoxSizeInScu": 1,
+      "avoidHiddenLocations": true
+    },
+    "results": [
+      {
+        "id": 1842,
+        "origin": {
+          "location": "Pyro > Terminus",
+          "shop": "Ruin Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Helium",
+          "price": 3350016.0,
+          "fees": 137296.0,
+          "quantityInScu": 34544,
+          "maxQuantityInScu": 37684,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Helium",
+          "price": 5068800.0,
+          "fees": 137296.0,
+          "quantityInScu": 1648,
+          "maxQuantityInScu": 24930,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 16936.61,
+        "profit": 1444192.0,
+        "timeInSeconds": 5117
+      },
+      {
+        "id": 5320,
+        "origin": {
+          "location": "Stanton > ArcCorp",
+          "shop": "Baijini Point",
+          "securityLevel": 5,
+          "faction": "ArcCorp",
+          "action": "SELLS",
+          "itemQuantityInScu": 1358,
+          "itemName": "Corundum",
+          "price": 4094370.0,
+          "fees": 41144.0,
+          "quantityInScu": 1358,
+          "maxQuantityInScu": 2771,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "Orbituary",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 1358,
+          "itemName": "Corundum",
+          "price": 5975200.0,
+          "fees": 41144.0,
+          "quantityInScu": 432,
+          "maxQuantityInScu": 4320,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 44505.09,
+        "profit": 1798542.0,
+        "timeInSeconds": 2425
+      },
+      {
+        "id": 5258,
+        "origin": {
+          "location": "Stanton",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Mercury",
+          "price": 3428352.0,
+          "fees": 137296.0,
+          "quantityInScu": 15000,
+          "maxQuantityInScu": 15000,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Terminus",
+          "shop": "Ruin Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Mercury",
+          "price": 5068800.0,
+          "fees": 137296.0,
+          "quantityInScu": 1118,
+          "maxQuantityInScu": 11180,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 16017.93,
+        "profit": 1365856.0,
+        "timeInSeconds": 5117
+      },
+      {
+        "id": 4187,
+        "origin": {
+          "location": "Stanton > ArcCorp",
+          "shop": "Baijini Point",
+          "securityLevel": 5,
+          "faction": "ArcCorp",
+          "action": "SELLS",
+          "itemQuantityInScu": 3657,
+          "itemName": "Silicon",
+          "price": 7182348.0,
+          "fees": 109688.0,
+          "quantityInScu": 3657,
+          "maxQuantityInScu": 8877,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "BUYS",
+          "itemQuantityInScu": 3657,
+          "itemName": "Silicon",
+          "price": 8776800.0,
+          "fees": 109688.0,
+          "quantityInScu": 2298,
+          "maxQuantityInScu": 22980,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 24246.17,
+        "profit": 1375076.0,
+        "timeInSeconds": 3403
+      },
+      {
+        "id": 4069,
+        "origin": {
+          "location": "Stanton > ArcCorp",
+          "shop": "Baijini Point",
+          "securityLevel": 5,
+          "faction": "ArcCorp",
+          "action": "SELLS",
+          "itemQuantityInScu": 3657,
+          "itemName": "Silicon",
+          "price": 7182348.0,
+          "fees": 109688.0,
+          "quantityInScu": 3657,
+          "maxQuantityInScu": 8877,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > microTech",
+          "shop": "Port Tressler",
+          "securityLevel": 5,
+          "faction": "microTech",
+          "action": "BUYS",
+          "itemQuantityInScu": 3657,
+          "itemName": "Silicon",
+          "price": 8776800.0,
+          "fees": 109688.0,
+          "quantityInScu": 512,
+          "maxQuantityInScu": 5120,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 23614.85,
+        "profit": 1375076.0,
+        "timeInSeconds": 3494
+      },
+      {
+        "id": 1841,
+        "origin": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Helium",
+          "price": 3557376.0,
+          "fees": 137296.0,
+          "quantityInScu": 6842,
+          "maxQuantityInScu": 9502,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Helium",
+          "price": 5068800.0,
+          "fees": 137296.0,
+          "quantityInScu": 1648,
+          "maxQuantityInScu": 24930,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 18102.03,
+        "profit": 1236832.0,
+        "timeInSeconds": 4100
+      },
+      {
+        "id": 77,
+        "origin": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "SELLS",
+          "itemQuantityInScu": 4176,
+          "itemName": "Fluorine",
+          "price": 4551840.0,
+          "fees": 124920.0,
+          "quantityInScu": 5690,
+          "maxQuantityInScu": 6228,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Stanton Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 4176,
+          "itemName": "Fluorine",
+          "price": 6055200.0,
+          "fees": 124920.0,
+          "quantityInScu": 464,
+          "maxQuantityInScu": 4640,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 18273.76,
+        "profit": 1253520.0,
+        "timeInSeconds": 4116
+      },
+      {
+        "id": 1240,
+        "origin": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Hydrogen",
+          "price": 3686400.0,
+          "fees": 137296.0,
+          "quantityInScu": 6976,
+          "maxQuantityInScu": 8929,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > Hurston",
+          "shop": "Everus Harbor",
+          "securityLevel": 5,
+          "faction": "Hurston Dynamics",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Hydrogen",
+          "price": 5068800.0,
+          "fees": 137296.0,
+          "quantityInScu": 3412,
+          "maxQuantityInScu": 34120,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 16700.75,
+        "profit": 1107808.0,
+        "timeInSeconds": 3980
+      },
+      {
+        "id": 4934,
+        "origin": {
+          "location": "Stanton > Crusader",
+          "shop": "Seraphim Station",
+          "securityLevel": 5,
+          "faction": "Crusader Industries",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Hydrogen",
+          "price": 3686400.0,
+          "fees": 137296.0,
+          "quantityInScu": 6976,
+          "maxQuantityInScu": 8929,
+          "boxSizesInScu": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Stanton > ArcCorp",
+          "shop": "Baijini Point",
+          "securityLevel": 5,
+          "faction": "ArcCorp",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Hydrogen",
+          "price": 5068800.0,
+          "fees": 137296.0,
+          "quantityInScu": 756,
+          "maxQuantityInScu": 7560,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 16473.03,
+        "profit": 1107808.0,
+        "timeInSeconds": 4035
+      },
+      {
+        "id": 7215,
+        "origin": {
+          "location": "Pyro > Terminus",
+          "shop": "Ruin Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Processed Food",
+          "price": 5538816.0,
+          "fees": 137296.0,
+          "quantityInScu": 12000,
+          "maxQuantityInScu": 12000,
+          "boxSizesInScu": [
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Processed Food",
+          "price": 6912000.0,
+          "fees": 137296.0,
+          "quantityInScu": 2200,
+          "maxQuantityInScu": 22000,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 15458.38,
+        "profit": 1098592.0,
+        "timeInSeconds": 4265
+      },
+      {
+        "id": 7214,
+        "origin": {
+          "location": "Stanton",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "SELLS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Processed Food",
+          "price": 5538816.0,
+          "fees": 137296.0,
+          "quantityInScu": 12000,
+          "maxQuantityInScu": 12067,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro",
+          "shop": "Nyx Gateway",
+          "securityLevel": 5,
+          "faction": "United Empire of Earth (UEE)",
+          "action": "BUYS",
+          "itemQuantityInScu": 4608,
+          "itemName": "Processed Food",
+          "price": 6912000.0,
+          "fees": 137296.0,
+          "quantityInScu": 2200,
+          "maxQuantityInScu": 22000,
+          "boxSizesInScu": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 13698.0,
+        "profit": 1098592.0,
+        "timeInSeconds": 4813
+      },
+      {
+        "id": 5928,
+        "origin": {
+          "location": "Pyro > Terminus",
+          "shop": "Ruin Station",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "SELLS",
+          "itemQuantityInScu": 2204,
+          "itemName": "Pressurized Ice",
+          "price": 9997344.0,
+          "fees": 65896.0,
+          "quantityInScu": 4074,
+          "maxQuantityInScu": 4223,
+          "boxSizesInScu": [
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "destination": {
+          "location": "Pyro > Bloom",
+          "shop": "Orbituary",
+          "securityLevel": 5,
+          "faction": "Rough & Ready",
+          "action": "BUYS",
+          "itemQuantityInScu": 2204,
+          "itemName": "Pressurized Ice",
+          "price": 11460800.0,
+          "fees": 65896.0,
+          "quantityInScu": 576,
+          "maxQuantityInScu": 5760,
+          "boxSizesInScu": [
+            4,
+            8,
+            16,
+            24,
+            32
+          ],
+          "isHidden": false
+        },
+        "profitPerMinute": 32597.0,
+        "profit": 1331664.0,
+        "timeInSeconds": 2452
+      }
+    ]
+  }
+]

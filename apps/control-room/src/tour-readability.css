@@ -1,0 +1,55 @@
+/* Shared reading sizes for every guided tour. Keep the approved typography
+   and glass frame; do not shrink dialogue to squeeze it into the scenery. */
+.guide-journey .guide-journey-speech,.lounge-tour .lounge-tour-caption{
+ box-sizing:border-box;max-height:calc(100% - 100px);display:flex;flex-direction:column;gap:12px;
+ color:#f4faff;text-shadow:0 1px 3px #020a12;padding:24px 30px;
+}
+.guide-journey .guide-journey-speech:before,.lounge-tour .lounge-tour-caption:before{
+ background:linear-gradient(#061b287a,#061b28c9),url('./assets/hologram/flat/face.png') center/100% 100%;background-color:#082430;
+}
+.guide-journey .guide-journey-speech p,.lounge-tour .lounge-tour-caption p{
+ font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-size:clamp(1.375rem,1.35vw,1.75rem);line-height:1.65;
+ letter-spacing:normal;word-break:keep-all;overflow-wrap:anywhere;margin:0;
+}
+.guide-journey .guide-journey-speech>div,.lounge-tour .lounge-tour-caption>p{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#abc9d0 #081c29}
+.guide-journey .guide-journey-speech small,.lounge-tour .lounge-tour-caption header,.lounge-tour .lounge-tour-caption header small{
+ font-family:BarlowAirReview,SUIT,sans-serif;font-size:.9375rem;font-weight:500;line-height:1.5;letter-spacing:.035em;color:#ffe3b4;
+}
+.guide-journey .guide-journey-speech small{display:block;margin-bottom:8px}
+.lounge-tour .lounge-tour-caption header{flex-wrap:wrap;flex-shrink:0;gap:4px 16px}
+.guide-journey .guide-journey-speech nav{flex-shrink:0}
+.guide-journey .guide-journey-speech button,.guide-journey .guide-journey-header button,.lounge-tour .lounge-tour-controls button,.lounge-tour .lounge-tour-caption button,.lounge-tour-entry{
+ font-family:BarlowAirReview,SUIT,sans-serif;font-size:1rem;font-weight:500;line-height:1.45;min-height:48px;white-space:normal;overflow-wrap:anywhere;flex-shrink:0;
+}
+.lounge-tour .lounge-tour-caption button{max-width:100%;width:fit-content;min-width:240px}
+.lounge-tour .lounge-tour-controls{flex-wrap:wrap;max-width:94%}
+.lounge-tour .lounge-tour-destination small{font-size:.875rem}
+.lounge-tour .lounge-tour-destination>span{font-size:1.125rem;line-height:1.5}
+.lounge-tour .lounge-tour-loading,.lounge-tour .lounge-tour-caption>span{font-size:1rem}
+.guide-journey .guide-journey-header h2{font-size:clamp(1.5rem,1.6vw,2rem);line-height:1.35}
+.guide-journey .guide-journey-header small{font-size:.875rem;color:#e9d7b5}
+.guide-journey .guide-journey-work{margin-bottom:calc(var(--tour-caption-height,260px) + 4vh + 12px)}
+.guide-journey .guide-journey-work:has(>.guide-scene){margin:0}
+.guide-journey :is(.guide-practice-notice,.guide-practice-source){font-size:.875rem;line-height:1.6;color:#e0d6c2}
+.guide-journey :is(.guide-practice-contract ul,.guide-practice-stops,.guide-practice-cargo>p){font-size:1rem;line-height:1.6}
+.guide-journey .guide-practice-stops ol button{font-size:1rem;min-height:44px}
+.guide-journey .guide-journey-work button{font-size:1rem;line-height:1.45;min-height:44px}
+@media(max-width:760px){
+ .guide-journey .guide-journey-speech,.lounge-tour .lounge-tour-caption{padding:20px 24px;max-height:calc(100% - 84px);gap:12px}
+ .guide-journey .guide-journey-speech p,.lounge-tour .lounge-tour-caption p{font-size:1.125rem;line-height:1.6}
+ .guide-journey .guide-journey-speech small,.lounge-tour .lounge-tour-caption header,.lounge-tour .lounge-tour-caption header small{font-size:.875rem}
+ .guide-journey .guide-journey-header h2{font-size:1.375rem;max-width:none}
+ .guide-journey .guide-journey-header{gap:10px}.guide-journey .guide-journey-header>div{min-width:0}
+ .guide-journey .guide-journey-header button{padding-inline:14px}
+ .guide-journey .guide-journey-work{margin-bottom:calc(var(--tour-caption-height,300px) + 26px)}
+ .guide-journey .guide-journey-portrait{bottom:calc(var(--tour-caption-height,260px) + 8px);height:min(42%,max(100px,calc(100% - var(--tour-caption-height,260px) - 110px)))}
+ .guide-journey[data-topic=practice]:not([data-step='0']) .guide-journey-portrait{display:none}
+ .lounge-tour .lounge-tour-portrait{bottom:calc(var(--tour-caption-height,260px) + 12px)}
+ .lounge-tour .lounge-tour-destination>span{font-size:1rem}
+ .lounge-tour .lounge-tour-caption button{min-width:0;width:100%}
+}
+@media(max-height:540px){
+ .guide-journey .guide-journey-speech,.lounge-tour .lounge-tour-caption{max-height:calc(100% - 100px);padding:16px 24px;gap:8px}
+ .guide-journey[data-scene=false] .guide-journey-speech{max-height:52%}
+ .guide-journey .guide-journey-portrait,.lounge-tour .lounge-tour-portrait{display:none}
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Account",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "🇩🇪\nDeutsch",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Tools",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Feedback",
+    "value": ""
+  }
+]

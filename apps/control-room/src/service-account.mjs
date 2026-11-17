@@ -12,7 +12,7 @@ export function serviceControls() {
   const notify = message => window.dispatchEvent(new CustomEvent('stam-account-message', {detail: message}));
   const history = createHistory(null, {notify});
   const account=createAccount(accountButton, {historyContext: true, notify, openHistory:()=>{if(location.hash.startsWith('#/service')){const params=new URLSearchParams(location.hash.split('?')[1]);params.set('section','history');location.hash='#/service?'+params;}else history.open();}, resetHistory: history.reset});
-  controls = {flightCloud:account.flightCloud,accountButton, openHistory: history.open, mountAccount:account.mount, mountHistory:history.mount};
+  controls = {tradeCloud:account.tradeCloud,flightCloud:account.flightCloud,accountButton, openHistory: history.open, mountAccount:account.mount, mountHistory:history.mount};
   return controls;
 }
 

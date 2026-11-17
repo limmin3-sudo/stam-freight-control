@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "mode": "Mocked UEX browser requests; full live-source collection audited separately",
+  "checks": [
+    "Live lookup keeps SCU price direction and zero/unknown quantities; failed refresh retains the last successful price",
+    "Independent legality/handling-risk filters, unknown inclusion, empty search state",
+    "114 terminal references, source information, Escape/lobby focus restoration",
+    "English desktop/mobile, scrollable price table without page overflow, accessible lobby return",
+    "Freight source comparison, retained older variant, official issue links, existing archive navigation; seeded flight data unchanged"
+  ],
+  "errors": []
+}

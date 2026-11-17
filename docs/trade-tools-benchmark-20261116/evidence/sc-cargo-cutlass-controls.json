@@ -1,0 +1,218 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Viewer",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Finder",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rc:",
+    "name": "",
+    "type": "text",
+    "role": "combobox",
+    "placeholder": "Search vehicles...",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Add Vehicle"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rp:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "2",
+    "checked": false,
+    "label": "1 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rq:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "6",
+    "checked": false,
+    "label": "2 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rr:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "0",
+    "checked": false,
+    "label": "4 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rs:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "0",
+    "checked": false,
+    "label": "8 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rt:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "2",
+    "checked": false,
+    "label": "16 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":ru:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "0",
+    "checked": false,
+    "label": "24 scu"
+  },
+  {
+    "tag": "INPUT",
+    "id": ":rv:",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "0",
+    "checked": false,
+    "label": "32 scu"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Assign",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Reset",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  }
+]

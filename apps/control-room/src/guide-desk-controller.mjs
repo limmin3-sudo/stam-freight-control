@@ -231,11 +231,11 @@ async function navigate(screen, serviceView) {
   if(current===sequence){stopIdle();options.onNavigate(screen, serviceView);}
 }
 const actions=[...stage.querySelectorAll('.actions button')];
-actions[0].addEventListener('click',()=>navigate('mission'));
-actions[1].addEventListener('click',()=>navigate('service','manual'));
-actions[2].addEventListener('click',()=>navigate('information'));
+actions[0].addEventListener('click',()=>options.onGuide?options.onGuide('practice'):navigate('mission'));
+actions[1].addEventListener('click',()=>options.onGuide?options.onGuide('procedure'):navigate('service','manual'));
+actions[2].addEventListener('click',()=>options.onGuide?options.onGuide('reference'):navigate('information'));
 const replies=[...stage.querySelectorAll('.replies button')];
-replies[0].addEventListener('click',()=>{byId('greeting').textContent=word('먼저 미션 콘솔에서 이번 운송에 담을 계약을 선택해 주세요. 확인한 계약으로 항로를 계산할 수 있어요.');});
+replies[0].addEventListener('click',()=>options.onGuide?options.onGuide('overview'):navigate('service','manual'));
 replies[1].addEventListener('click',()=>navigate('mission'));
 byId('skip').addEventListener('click',()=>{
   if(stage.dataset.state==='playing')jumpToArrival();

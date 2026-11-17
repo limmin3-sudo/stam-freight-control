@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-17",
+  "timezone": "Asia/Seoul",
+  "branch": "integration/freight-division-20261113",
+  "baseCommit": "9ae7498",
+  "uncommitted": true,
+  "deployed": false,
+  "checks": {
+    "typescript": "passed",
+    "productionBuild": "passed",
+    "appTestFiles": {
+      "passed": 32,
+      "failed": 0
+    },
+    "rootTestFiles": {
+      "passed": 50,
+      "failed": 0,
+      "note": "Initial sandbox run: 47 passed, 3 could not bind localhost (EPERM). Those 3 files were rerun with network permission: all 14 contained tests passed."
+    },
+    "finalTargetedTestFiles": {
+      "passed": 3,
+      "failed": 0
+    },
+    "browser": [
+      "runtime-review/trade-cloud-report.json",
+      "runtime-review/academy-report.json",
+      "runtime-review/legacy-report.json"
+    ],
+    "firestore": "runtime-review/firestore-rules-report.json",
+    "diffCheck": "passed"
+  },
+  "limits": [
+    "No production Firestore rule publication or real-account device test",
+    "No live game session validation",
+    "Monitor approach cinematic remains a follow-up",
+    "New facility tour and separate hauling/trade tutorials remain deferred"
+  ]
+}

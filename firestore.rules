@@ -46,6 +46,34 @@ service cloud.firestore {
           allow delete: if owns(uid) && advancesFlight();
         }
       }
+      match /trade/current {
+        function validHead() {
+          let d=request.resource.data;
+          return d.keys().hasOnly(['format','revision','updatedAt','device','parts','digest','bytes','encodedBytes','encoding'])
+            && d.format == 1 && d.encoding == 'gzip-base64' && d.revision is int
+            && d.updatedAt is number && d.device is string && d.device.size() <= 120
+            && d.parts is int && d.parts >= 1 && d.parts <= 14
+            && d.bytes is int && d.bytes > 0 && d.bytes <= 20971520
+            && d.encodedBytes is int && d.encodedBytes > 0 && d.encodedBytes <= 8000000
+            && d.digest is string && d.digest.matches('^[a-f0-9]{64}$');
+        }
+        allow read: if owns(uid);
+        allow create: if owns(uid) && validHead() && request.resource.data.revision == 1;
+        allow update: if owns(uid) && validHead() && request.resource.data.revision == resource.data.revision + 1 && request.resource.data.updatedAt > resource.data.updatedAt;
+        allow delete: if false;
+        match /parts/{part} {
+          function advancesFlight() {
+            let p=/databases/$(database)/documents/users/$(uid)/trade/current;
+            return getAfter(p).data.revision == (exists(p) ? get(p).data.revision : 0) + 1;
+          }
+          allow read: if owns(uid);
+          allow create, update: if owns(uid) && advancesFlight()
+            && request.resource.data.keys().hasOnly(['revision','value'])
+            && request.resource.data.revision == getAfter(/databases/$(database)/documents/users/$(uid)/trade/current).data.revision
+            && request.resource.data.value is string && request.resource.data.value.size() <= 600000;
+          allow delete: if owns(uid) && advancesFlight();
+        }
+      }
       match /changes/{cid} {
         allow read, delete: if owns(uid);
         allow create: if owns(uid) && advances(uid)

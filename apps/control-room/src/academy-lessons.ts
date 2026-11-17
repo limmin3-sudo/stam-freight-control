@@ -1,0 +1,40 @@
+export type AcademyText=readonly[string,string];
+export type AcademyLesson={id:string;topic:AcademyText;title:AcademyText;summary:AcademyText;steps:AcademyText[];check:AcademyText;sources:{name:string;url:string}[]};
+const mission={name:'SCMDB · 미션 정의',url:'https://scmdb.dev/'},wiki={name:'Star Citizen Wiki · Missions',url:'https://api.star-citizen.wiki/missions'};
+export const academyLessons:AcademyLesson[]=[
+ {id:'reputation',topic:['평판','Reputation'],title:['초반에는 무엇부터 받을까?','Which contracts should I start with?'],summary:['같은 발주처에서 완료 가능한 작은 운송부터 비교합니다.','Start by comparing small, manageable hauls from the same contractor.'],steps:[
+ ['게임의 평판 화면에서 발주처와 현재 단계를 먼저 확인하세요. 서로 다른 발주처의 같은 단계 이름을 같은 진행도로 취급하지 않습니다.','Check your contractor and current rank in the game reputation screen. Identically named ranks at different contractors are not interchangeable.'],
+ ['처음에는 수습·신입 단계의 지역/행성권 운송에서 적은 총량과 단순한 픽업·배송 구성을 우선 검토하세요. 수주 가능한 미션은 서버와 실제 평판에 따라 달라집니다.','Initially, consider lower-volume local or planetary hauls at trainee or rookie rank with simple pickups and deliveries. Availability depends on the server and your actual reputation.'],
+ ['완료하기 쉬운 계약을 꾸준히 수행하는 전략입니다. 자료에 평판 획득량이 없으므로 “몇 건이면 승급”, “평판/시간 최고”를 단정하지 않습니다.','This is a strategy for consistent completion. Without sourced reputation rewards, neither contracts-to-promotion nor best reputation per hour can be asserted.'],
+ ],check:['발주처·내 단계·실제 수주 가능 여부를 확인했나요?','Have you checked the contractor, your rank and actual availability?'],sources:[mission,wiki]},
+ {id:'bundles',topic:['미션 조합','Contract combinations'],title:['같이 받을 계약을 고르는 기준','Choosing contracts that work together'],summary:['공통 픽업·배송 후보와 적재 상한을 먼저 확인합니다.','Check shared pickup or delivery candidates and the combined cargo ceiling.'],steps:[
+ ['같은 발주처의 계약 중 실제 픽업지나 배송지가 겹치는 조합을 먼저 비교하세요. 후보 목록에 같은 거점이 있다는 것만으로 두 계약이 그 거점에서 생성된다고 확정할 수는 없습니다.','Compare contracts from the same contractor whose actual pickup or delivery locations overlap. Shared catalogue candidates do not guarantee that accepted contracts use those locations.'],
+ ['처음에는 두 계약으로 비교하세요. 세 번째 계약을 더할 때는 새 거점·상하차 횟수·가장 큰 상자가 늘어나는지 확인합니다.','Start by comparing two contracts. Before adding a third, check the additional stops, handling and largest containers.'],
+ ['카탈로그 최대 총량의 합이 용량 이하여도 실제 상자 배치가 성립한다는 뜻은 아닙니다. 수주 후 수량과 상자를 확인하고 항해사로 실제 적재를 계산하세요.','Combined catalogue maxima fitting nominal capacity do not prove physical box fit. Confirm accepted quantities and containers, then calculate loading with the navigator.'],
+ ],check:['추가 계약으로 늘어나는 방문지와 상자를 확인했나요?','Have you checked the extra stops and containers?'],sources:[mission,wiki]},
+ {id:'routes',topic:['경로','Routes'],title:['수주 순서와 운송 순서는 다릅니다','Acceptance order is not delivery order'],summary:['픽업 선행·공통 거점·행성계 이동을 함께 봅니다.','Consider pickup precedence, shared stops and system crossings.'],steps:[
+ ['배송할 화물은 먼저 픽업해야 합니다. 가까운 배송지라도 화물이 없으면 해당 계약을 완료할 수 없습니다.','Delivery requires prior pickup. A nearby destination cannot complete a contract whose cargo has not been collected.'],
+ ['여러 계약을 합치면 공통 픽업·배송지를 묶을 수 있습니다. 행성계 간 운송은 출발 행성계의 화물을 모아 점프하는 방안과 계약별 왕복을 비교하세요.','Combining contracts can consolidate stops. For interstellar work, compare collecting origin-system cargo before crossing with completing contracts separately.'],
+ ['오퍼레이터는 경로·작업 순서를 맡고 적재는 직접 관리합니다. 항해사는 확인된 수량을 사용해 경로와 적재를 함께 계산합니다. 총량이 미확정이면 임의 수량을 넣지 마세요.','The operator handles route and task order while you manage loading. The navigator uses confirmed quantities for routing and cargo placement. Do not invent missing totals.'],
+ ],check:['모든 배송 전에 필요한 픽업이 들어 있나요?','Does every delivery follow its required pickup?'],sources:[mission,wiki]},
+ {id:'containers',topic:['적재','Cargo'],title:['SCU만 보고 함선을 고르지 않기','Ship choice requires more than total SCU'],summary:['총량·상자 규격·그리드·상하역 시설은 별도 조건입니다.','Volume, container size, grids and handling facilities are separate constraints.'],steps:[
+ ['명목 용량이 큰 함선도 긴 32 SCU 상자를 받을 그리드가 없을 수 있습니다. 함선 자료에서 구역 치수와 상자 제한을 확인하세요.','A ship with enough nominal capacity may lack a grid for a long 32 SCU container. Check grid dimensions and container limits in the ship reference.'],
+ ['계약의 최대 허용 상자는 실제 상자 구성과 다릅니다. 같은 16 SCU라도 16 SCU 한 개와 1 SCU 열여섯 개는 배치와 작업량이 다릅니다.','A contract’s maximum allowed container does not describe the actual load. One 16 SCU box and sixteen 1 SCU boxes differ in packing and handling.'],
+ ['먼저 내릴 목적지 화물에 접근하기 쉽도록 배치를 확인하세요. 이미 선적한 화물은 재계산한다고 자동으로 옮겨지지 않습니다.','Check access to cargo for earlier deliveries. Recalculation does not automatically move containers already aboard.'],
+ ],check:['가장 큰 상자와 출발·도착 시설 모두 취급 가능한가요?','Can the ship and both endpoints handle the largest box?'],sources:[{name:'Star Citizen Wiki · Ships',url:'https://api.star-citizen.wiki/vehicles'},{name:'UEX · Terminal references',url:'https://uexcorp.space/terminals'}]},
+ {id:'ownership',topic:['계약 관리','Contracts'],title:['같은 품목도 계약별로 구분하기','Keep identical goods separated by contract'],summary:['계약 종료 알림과 화물 처리는 별개의 확인입니다.','Contract termination and cargo disposition need separate confirmation.'],steps:[
+ ['같은 품목·같은 배송지라도 서로 다른 계약의 화물과 완료 기록은 구분합니다. 수량이 같다는 이유로 다른 계약에 합치지 마세요.','Keep cargo and completion records separate for different contracts, even when commodity and destination match. Equal quantities are not evidence of shared ownership.'],
+ ['로그에서 종료·취소·변경을 감지하면 내용을 확인한 뒤 남은 경로를 변경합니다. 종료된 계약의 이미 실린 화물은 선내 보류로 남깁니다.','Review detected termination, cancellation or amendments before changing the remaining route. Cargo already aboard from an ended contract remains held aboard.'],
+ ['보류 화물은 실제로 하역·처리한 상자를 선택해 확인합니다. 로그의 계약 종료만으로 배송 완료나 화물 삭제를 처리하지 않습니다.','Confirm the specific held containers actually unloaded or resolved. Contract termination alone does not establish delivery or authorize deleting cargo.'],
+ ],check:['현재 처리하는 화물이 어느 계약에 속하는지 확인했나요?','Have you confirmed which contract owns the cargo?'],sources:[mission]},
+ {id:'trade',topic:['무역','Trading'],title:['운송 계약과 개인 교역을 구분하기','Distinguish hauling contracts from personal trade'],summary:['교역은 매입 자본·시세·판매 수요를 함께 확인합니다.','Personal trade requires capital, prices and buyer demand.'],steps:[
+ ['운송 의뢰 화물과 내 자본으로 산 교역 화물은 별개입니다. 교역 계획의 매입·매출 예상값을 계약 보상이나 실제 거래로 기록하지 않습니다.','Contract cargo differs from goods bought with your own capital. Trade estimates are neither contract rewards nor completed transactions.'],
+ ['보고 시세·재고·수요는 조회 시각과 게임 패치를 확인하세요. 주간 평균과 보충률 가정은 현재 구매·판매 가능한 양을 보장하지 않습니다.','Check timestamps and patch versions on reported prices, supply and demand. Weekly averages and assumed replenishment do not guarantee executable quantities.'],
+ ['예비금은 기본 10%이며 켜고 끌 수 있습니다. 위험과 위법 여부는 따로 선택하고, 실제 상하역·연료 등 비용을 정산에 기록하세요.','Reserve defaults to 10% and can be switched off. Choose risk and legality independently, and record actual handling, fuel and other expenses.'],
+ ],check:['미확인 비용과 판매 수요를 확인하고 자본 여유를 잡았나요?','Have you checked unknown costs, buyer demand and spare capital?'],sources:[{name:'UEX',url:'https://uexcorp.space/trade/routes'},{name:'SC Trade Tools',url:'https://sc-trade.tools/trade-routes'}]},
+ {id:'access',topic:['이용 방법','Navigation'],title:['빠른 이동과 공간 이동','Quick navigation and scene navigation'],summary:['사이드바와 장소 직접 선택을 목적에 맞게 사용합니다.','Use the sidebar or the scene according to your needs.'],steps:[
+ ['다른 시설로 빠르게 갈 때는 사이드바를 사용하세요. 사업부 전경이나 로비에서 장소를 직접 누르면 공간을 보며 이동할 수 있습니다.','Use the sidebar to move quickly between facilities. Select places in the division grounds or lobby to navigate through the scene.'],
+ ['세부 화면의 로비 전체 보기 또는 Escape로 돌아갈 수 있습니다. 확인 창이 열려 있을 때는 해당 창의 확인·취소를 먼저 처리하세요.','Use Lobby overview or Escape to return. Resolve an open confirmation dialog before leaving its workflow.'],
+ ['로그 연결은 게임을 실행한 뒤 로그 앱을 켜는 순서로 준비합니다. 실제 받은 계약과 수신 내용을 확인한 뒤 운항에 넣으세요.','Launch the game before starting the log companion. Review accepted contracts and received data before adding them to a flight.'],
+ ],check:['빠른 이동이 필요한지, 공간을 보며 이동할지 골라보세요.','Choose quick navigation or movement through the scene.'],sources:[]},
+];

@@ -1,0 +1,13 @@
+.guide-scene{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#07131b;isolation:isolate}
+.guide-scene-world{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;will-change:transform}
+.guide-scene-shade{fill:#020b13;opacity:.48}
+.guide-scene-vignette{position:absolute;inset:0;background:linear-gradient(180deg,#030c17a8 0,transparent 22%,transparent 48%,#030c1788 78%,#030c17c7),linear-gradient(90deg,transparent 55%,#04101b55)}
+.guide-scene-marker{color:#ffe2a5;fill:none;stroke:currentColor;stroke-width:1.4;filter:drop-shadow(0 0 4px #f9d07999)}
+.guide-scene[data-moving=true] .guide-scene-marker{opacity:.3}
+.guide-scene[data-moving=false] .guide-scene-marker{opacity:1;transition:opacity .35s}
+.guide-scene[data-failed=true]:after{content:'STAM';position:absolute;left:12%;top:30%;color:#edd5a7;font:500 50px BarlowAirReview,sans-serif;letter-spacing:.3em}
+@media(max-width:760px){.guide-scene{bottom:22%}.guide-scene-vignette{background:linear-gradient(#030c1780,transparent 30%,transparent 65%,#07131b)}}
+@media(prefers-reduced-motion:reduce){.guide-scene-world{will-change:auto}.guide-scene-marker{transition:none!important}}
+
+.guide-scene[data-ready=false] .guide-scene-world{opacity:0}
+.guide-scene[data-motion=false] .guide-scene-world{will-change:auto}

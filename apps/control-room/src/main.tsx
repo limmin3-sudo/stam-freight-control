@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { SpaceExperience } from './SpaceExperience';
-import { OpeningFilm } from './OpeningFilm';
 import './theme.css';
 import './console-hud.css';
 import './persistent-console-shell.css';
 
-createRoot(document.getElementById('root')!).render(<StrictMode><OpeningFilm><SpaceExperience /></OpeningFilm></StrictMode>);
+// The retired lounge-preparation film must not wrap the division or existing routes.
+createRoot(document.getElementById('root')!).render(<StrictMode><SpaceExperience /></StrictMode>);

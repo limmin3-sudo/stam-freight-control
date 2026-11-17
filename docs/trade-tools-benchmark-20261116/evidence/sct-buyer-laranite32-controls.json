@@ -1,0 +1,110 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "b7762a8b-0a62-43d6-b403-75d6d4bdac96",
+    "name": "",
+    "type": "text",
+    "role": "button",
+    "placeholder": null,
+    "text": "",
+    "value": "Laranite",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "commodityQuantityInScuInput",
+    "name": "commodityQuantityInScuInput",
+    "type": "number",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "32",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Submit",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Reset",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Miscellaneous",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "isCargoStolenCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Stolen cargo"
+  },
+  {
+    "tag": "INPUT",
+    "id": "allowWaitTimesCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Allow wait times"
+  },
+  {
+    "tag": "INPUT",
+    "id": "expandedViewCheckbox",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": "Expanded view"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Locations",
+    "value": ""
+  }
+]

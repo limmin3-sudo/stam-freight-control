@@ -34,6 +34,9 @@ jobs:
         run: node scripts/refresh-missions.mjs
       - name: Refresh complete LIVE fleet, factory drives and log vehicle identifiers
         run: node scripts/refresh-fleet.mjs
+      - name: Refresh UEX market references (retain bundled snapshot on failure)
+        continue-on-error: true
+        run: node --experimental-strip-types scripts/refresh-trade.ts
       - name: Build Korean display labels
         run: node scripts/build-ai-korean.mjs
       - run: npm test

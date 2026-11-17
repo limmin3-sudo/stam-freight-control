@@ -1,0 +1,716 @@
+[
+  {
+    "endpoint": "https://api.star-head.de/trading",
+    "status": 200,
+    "inputs": {
+      "startCelestialObjectId": 2,
+      "quantumDriveId": 41,
+      "maxAvailablScu": 46,
+      "maxAvailableMoney": 10000,
+      "useOnlyWeaponFreeZones": false,
+      "onlySingleSections": true,
+      "commodityFilter": [
+        "9",
+        "22",
+        "18",
+        "28",
+        "92",
+        "2",
+        "24",
+        "47",
+        "91",
+        "63",
+        "16",
+        "5",
+        "96",
+        "7",
+        "140",
+        "88",
+        "30",
+        "55",
+        "117",
+        "107",
+        "58",
+        "62",
+        "15",
+        "20",
+        "59",
+        "12",
+        "110",
+        "44",
+        "106",
+        "97",
+        "142",
+        "56",
+        "108",
+        "13",
+        "31",
+        "57",
+        "10",
+        "98",
+        "25",
+        "129",
+        "48",
+        "66",
+        "8",
+        "141",
+        "27",
+        "102",
+        "99",
+        "26",
+        "103",
+        "128",
+        "37",
+        "100",
+        "89",
+        "45",
+        "4",
+        "119",
+        "21",
+        "23",
+        "65",
+        "46",
+        "43",
+        "104",
+        "157",
+        "149",
+        "148",
+        "147",
+        "146",
+        "145",
+        "144",
+        "154",
+        "139",
+        "93",
+        "101",
+        "111",
+        "54",
+        "40",
+        "6",
+        "105",
+        "87",
+        "11",
+        "124",
+        "17",
+        "42",
+        "94"
+      ],
+      "availableInventory": {
+        "size1Containers": 2,
+        "size2Containers": 6,
+        "size4Containers": 0,
+        "size8Containers": 0,
+        "size16Containers": 2,
+        "size24Containers": 0,
+        "size32Containers": 0
+      },
+      "needsCargoDeck": false,
+      "allowInterSystemTrade": true,
+      "maximumPriceAgeInHours": 720,
+      "useAutoLoad": false,
+      "searchAssociatedObjects": false
+    },
+    "results": [
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 90,
+                "name": "Trading Konsole"
+              },
+              "location": {
+                "id": 168,
+                "name": "Picker´s Field"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 65,
+                "name": "Recycled Material Composite"
+              },
+              "amount": 46,
+              "transactionType": "Buy",
+              "pricePerItem": 71.44,
+              "priceAllItems": 3286.2402,
+              "lastPriceUpdate": "2026-11-14T21:50:07Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 137,
+                "name": "Seer´s Canyon"
+              },
+              "location": {
+                "id": 205,
+                "name": "Seer´s Canyon"
+              },
+              "celestialObject": {
+                "id": 76,
+                "name": "Vatra (Pyro 5B)"
+              },
+              "item": {
+                "id": 65,
+                "name": "Recycled Material Composite"
+              },
+              "amount": 46,
+              "transactionType": "Sell",
+              "pricePerItem": 85,
+              "priceAllItems": 3910,
+              "lastPriceUpdate": "2026-11-07T09:13:09Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16"
+              ]
+            },
+            "distanceKm": 116611965,
+            "timeEstimation": 1640,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 2,
+              "size2Containers": 6,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 623.75977
+          }
+        ],
+        "totalProfit": 623.75977,
+        "totalTravelTimeEstimation": 1640
+      },
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 21,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 81,
+                "name": "Everus Harbor"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 11,
+                "name": "Titanium"
+              },
+              "amount": 32,
+              "transactionType": "Buy",
+              "pricePerItem": 73.15,
+              "priceAllItems": 2340.8,
+              "lastPriceUpdate": "2026-11-15T09:00:31Z",
+              "containerSizes": [
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 143,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 189,
+                "name": "Ruin Station"
+              },
+              "celestialObject": {
+                "id": 82,
+                "name": "Terminus (Pyro VI)"
+              },
+              "item": {
+                "id": 11,
+                "name": "Titanium"
+              },
+              "amount": 32,
+              "transactionType": "Sell",
+              "pricePerItem": 83,
+              "priceAllItems": 2656,
+              "lastPriceUpdate": "2026-11-15T09:59:57Z",
+              "containerSizes": [
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "distanceKm": 44943902,
+            "timeEstimation": 890,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 0,
+              "size2Containers": 0,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 315.19995
+          }
+        ],
+        "totalProfit": 315.19995,
+        "totalTravelTimeEstimation": 890
+      },
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 21,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 81,
+                "name": "Everus Harbor"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 43,
+                "name": "Scrap"
+              },
+              "amount": 46,
+              "transactionType": "Buy",
+              "pricePerItem": 29.54,
+              "priceAllItems": 1358.8401,
+              "lastPriceUpdate": "2026-11-15T09:00:31Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 98,
+                "name": "Dunboro"
+              },
+              "location": {
+                "id": 180,
+                "name": "Dunboro"
+              },
+              "celestialObject": {
+                "id": 10,
+                "name": "microTech"
+              },
+              "item": {
+                "id": 43,
+                "name": "Scrap"
+              },
+              "amount": 46,
+              "transactionType": "Sell",
+              "pricePerItem": 37,
+              "priceAllItems": 1702,
+              "lastPriceUpdate": "2026-11-07T00:28:23Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16"
+              ]
+            },
+            "distanceKm": 38407851,
+            "timeEstimation": 1067,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 2,
+              "size2Containers": 6,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 343.1599
+          }
+        ],
+        "totalProfit": 343.1599,
+        "totalTravelTimeEstimation": 1067
+      },
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 21,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 81,
+                "name": "Everus Harbor"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 66,
+                "name": "Iron"
+              },
+              "amount": 32,
+              "transactionType": "Buy",
+              "pricePerItem": 27.6,
+              "priceAllItems": 883.2,
+              "lastPriceUpdate": "2026-11-15T09:00:31Z",
+              "containerSizes": [
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 127,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 196,
+                "name": "Endgame"
+              },
+              "celestialObject": {
+                "id": 87,
+                "name": "PYR6 L3"
+              },
+              "item": {
+                "id": 66,
+                "name": "Iron"
+              },
+              "amount": 32,
+              "transactionType": "Sell",
+              "pricePerItem": 39,
+              "priceAllItems": 1248,
+              "lastPriceUpdate": "2026-11-15T09:33:45Z",
+              "containerSizes": [
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "distanceKm": 116287990,
+            "timeEstimation": 1189,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 0,
+              "size2Containers": 0,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 364.8
+          }
+        ],
+        "totalProfit": 364.8,
+        "totalTravelTimeEstimation": 1189
+      },
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 21,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 81,
+                "name": "Everus Harbor"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 101,
+                "name": "Steel"
+              },
+              "amount": 32,
+              "transactionType": "Buy",
+              "pricePerItem": 13.76,
+              "priceAllItems": 440.32,
+              "lastPriceUpdate": "2026-11-15T09:00:31Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 127,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 196,
+                "name": "Endgame"
+              },
+              "celestialObject": {
+                "id": 87,
+                "name": "PYR6 L3"
+              },
+              "item": {
+                "id": 101,
+                "name": "Steel"
+              },
+              "amount": 32,
+              "transactionType": "Sell",
+              "pricePerItem": 25,
+              "priceAllItems": 800,
+              "lastPriceUpdate": "2026-11-15T09:33:45Z",
+              "containerSizes": [
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "distanceKm": 116287990,
+            "timeEstimation": 1189,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 0,
+              "size2Containers": 0,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 359.68
+          }
+        ],
+        "totalProfit": 359.68,
+        "totalTravelTimeEstimation": 1189
+      },
+      {
+        "sections": [
+          {
+            "start": {
+              "shop": {
+                "id": 59,
+                "name": "Transfers Commodity Exchange"
+              },
+              "location": {
+                "id": 80,
+                "name": "Lorville"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 42,
+                "name": "Waste"
+              },
+              "amount": 46,
+              "transactionType": "Buy",
+              "pricePerItem": 1.93,
+              "priceAllItems": 88.78,
+              "lastPriceUpdate": "2026-11-15T11:50:29Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "destination": {
+              "shop": {
+                "id": 21,
+                "name": "Admin Office"
+              },
+              "location": {
+                "id": 81,
+                "name": "Everus Harbor"
+              },
+              "celestialObject": {
+                "id": 2,
+                "name": "Hurston"
+              },
+              "item": {
+                "id": 42,
+                "name": "Waste"
+              },
+              "amount": 46,
+              "transactionType": "Sell",
+              "pricePerItem": 4.5,
+              "priceAllItems": 207,
+              "lastPriceUpdate": "2026-11-14T15:23:16Z",
+              "containerSizes": [
+                "Size1",
+                "Size2",
+                "Size4",
+                "Size8",
+                "Size16",
+                "Size24",
+                "Size32"
+              ]
+            },
+            "distanceKm": 183,
+            "timeEstimation": 1533,
+            "autoloadFee": null,
+            "inventory": {
+              "size1Containers": 2,
+              "size2Containers": 6,
+              "size4Containers": 0,
+              "size8Containers": 0,
+              "size16Containers": 2,
+              "size24Containers": 0,
+              "size32Containers": 0
+            },
+            "profitForStep": 118.22
+          }
+        ],
+        "totalProfit": 118.22,
+        "totalTravelTimeEstimation": 1533
+      }
+    ]
+  },
+  {
+    "endpoint": "https://api.star-head.de/trading",
+    "status": 200,
+    "inputs": {
+      "startCelestialObjectId": 2,
+      "quantumDriveId": 41,
+      "maxAvailablScu": 46,
+      "maxAvailableMoney": 10000,
+      "useOnlyWeaponFreeZones": false,
+      "onlySingleSections": true,
+      "commodityFilter": [
+        "9",
+        "22",
+        "18",
+        "28",
+        "92",
+        "2",
+        "24",
+        "47",
+        "91",
+        "63",
+        "16",
+        "5",
+        "96",
+        "7",
+        "140",
+        "88",
+        "30",
+        "55",
+        "117",
+        "107",
+        "58",
+        "62",
+        "15",
+        "20",
+        "59",
+        "12",
+        "110",
+        "44",
+        "106",
+        "97",
+        "142",
+        "56",
+        "108",
+        "13",
+        "31",
+        "57",
+        "10",
+        "98",
+        "25",
+        "129",
+        "48",
+        "66",
+        "8",
+        "141",
+        "27",
+        "102",
+        "99",
+        "26",
+        "103",
+        "128",
+        "37",
+        "100",
+        "89",
+        "45",
+        "4",
+        "119",
+        "21",
+        "23",
+        "65",
+        "46",
+        "43",
+        "104",
+        "157",
+        "149",
+        "148",
+        "147",
+        "146",
+        "145",
+        "144",
+        "154",
+        "139",
+        "93",
+        "101",
+        "111",
+        "54",
+        "40",
+        "6",
+        "105",
+        "87",
+        "11",
+        "124",
+        "17",
+        "42",
+        "94"
+      ],
+      "availableInventory": {
+        "size1Containers": 2,
+        "size2Containers": 6,
+        "size4Containers": 0,
+        "size8Containers": 0,
+        "size16Containers": 2,
+        "size24Containers": 0,
+        "size32Containers": 0
+      },
+      "needsCargoDeck": false,
+      "allowInterSystemTrade": true,
+      "maximumPriceAgeInHours": 24,
+      "useAutoLoad": false,
+      "searchAssociatedObjects": false
+    },
+    "results": []
+  }
+]

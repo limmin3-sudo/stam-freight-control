@@ -1,0 +1,50 @@
+[
+  {
+    "case": "sct-cutlass-1m-time",
+    "priceMinusFeesMatchesProfit": true,
+    "rows": 12
+  },
+  {
+    "case": "sct-cutlass-1m-pure",
+    "priceMinusFeesMatchesProfit": true,
+    "rows": 12
+  },
+  {
+    "case": "sct-cutlass-1m-autoload",
+    "priceMinusFeesMatchesProfit": true,
+    "rows": 12
+  },
+  {
+    "case": "sct-enroute-everus-seraphim",
+    "priceMinusFeesMatchesProfit": true,
+    "rows": 3
+  },
+  {
+    "case": "sct-hullc-10m-autoload",
+    "priceMinusFeesMatchesProfit": true,
+    "rows": 12
+  },
+  {
+    "case": "gallog-unit-conversion",
+    "passed": true
+  },
+  {
+    "case": "uex-price-arithmetic",
+    "passed": true
+  },
+  {
+    "case": "mixed-box-total46",
+    "passed": true
+  },
+  {
+    "case": "starhead-720h-to24h",
+    "rows": [
+      6,
+      0
+    ]
+  },
+  {
+    "case": "markdown-links",
+    "passed": true
+  }
+]

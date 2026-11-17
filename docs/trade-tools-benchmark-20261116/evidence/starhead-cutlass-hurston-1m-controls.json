@@ -1,0 +1,375 @@
+[
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Account",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "🇩🇪\nDeutsch",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Tools",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Feedback",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "Cutlass Cutlass Black",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Hurston",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "number",
+    "role": null,
+    "placeholder": "Available funds",
+    "text": "",
+    "value": "1000000",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "on",
+    "checked": false,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "number",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "30",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Calculate",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Share",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Save",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Delete",
+    "value": ""
+  },
+  {
+    "tag": "SELECT",
+    "id": "sortBy",
+    "name": "",
+    "type": "select-one",
+    "role": null,
+    "placeholder": null,
+    "text": "Total Profit\nProfit Margin (%)\nProfit per Time",
+    "value": "totalProfit",
+    "label": "Sort by:",
+    "options": [
+      {
+        "v": "totalProfit",
+        "t": "Total Profit"
+      },
+      {
+        "v": "profitMargin",
+        "t": "Profit Margin (%)"
+      },
+      {
+        "v": "profitPerTime",
+        "t": "Profit per Time"
+      }
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 1",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 2",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 3",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 4",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 5",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Route 6",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "edit",
+    "value": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Add route",
+    "value": ""
+  }
+]

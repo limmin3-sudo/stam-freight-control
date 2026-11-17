@@ -1,0 +1,20 @@
+{
+  "file": "facility-original-architecture-v4.png",
+  "status": "awaiting-user-approval",
+  "method": "Original v1 architecture supplied as visual reference with full rerender instructions; not a text-only generation and not an edit of rejected v3.",
+  "dimensions": [
+    1672,
+    941
+  ],
+  "userCorrection": [
+    "Reject three-ring station",
+    "Prefer the earlier curved lounge and earlier trade/guide buildings",
+    "Avoid accumulated raster editing degradation"
+  ],
+  "generationDirection": [
+    "Use original v1 ground architecture and composition",
+    "One industrial harbor ring with central spindle and docking arms; this one-ring direction is a proposed interpretation, not yet approved",
+    "Two construction footprints retained"
+  ],
+  "runtimeApplied": false
+}

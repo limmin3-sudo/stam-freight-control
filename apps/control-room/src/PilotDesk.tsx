@@ -3,7 +3,6 @@ import type {Locale} from './navigation';
 import type {useFlight} from './use-flight';
 import {placeName,shipName} from './mission-trial';
 import './pilot-desk.css';
-import {PilotConnections} from './PilotConnections';
 export type PilotAction='ship'|'partner'|'missions'|'log';
 
 export function PilotDesk({flight,locale,onAction}:{flight:ReturnType<typeof useFlight>;locale:Locale;onAction:(action:PilotAction,event:MouseEvent)=>void}){
@@ -32,7 +31,6 @@ export function PilotDesk({flight,locale,onAction}:{flight:ReturnType<typeof use
    <strong title={title}>{title}</strong>
    <span className="pilot-summary-line"><span>{partner}</span><b>{t('미션','Missions')} {draft.jobs.length}</b></span>
   </button>
-  <PilotConnections receipts={flight.receipts} en={en} onLog={event=>onAction('log',event)}/>
   <div className="pilot-reveal" inert={!open} aria-hidden={!open} id="pilot-desk-details"><div className="pilot-details">
    <p className="pilot-phase"><i aria-hidden="true"/>{phase}</p>
    <dl><div><dt>{t('선택한 미션','Selected missions')}</dt><dd>{draft.jobs.length}</dd></div>

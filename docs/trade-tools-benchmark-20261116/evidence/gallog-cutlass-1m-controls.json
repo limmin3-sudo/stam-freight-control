@@ -1,0 +1,78 @@
+[
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "uec",
+    "name": "uec",
+    "type": "number",
+    "role": null,
+    "placeholder": "aUEC",
+    "text": "",
+    "value": "1000000",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "routeSwap",
+    "name": "routeSwap",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "",
+    "checked": false
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Calculate",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "",
+    "name": "",
+    "type": "search",
+    "role": null,
+    "placeholder": "",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Search:"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "file": "facility-fresh-v6.png",
+  "status": "awaiting-user-approval",
+  "method": "Fresh text-to-image generation; referenced_image_paths and num_last_images_to_include omitted.",
+  "dimensions": [
+    1672,
+    941
+  ],
+  "requirements": [
+    "Four facilities",
+    "Single-ring orbital station",
+    "Two construction sites",
+    "Photoreal rendering"
+  ],
+  "runtimeApplied": false
+}

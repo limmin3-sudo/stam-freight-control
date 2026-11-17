@@ -1,4 +1,6 @@
 import {useEffect,useState,type MouseEvent} from 'react';
+import {ApprovedGlass} from './ApprovedGlass';
+import './pilot-connections-topbar.css';
 import {serviceControls} from './service-account.mjs';
 import type {useLogReceipts} from './use-log-receipts';
 
@@ -15,8 +17,8 @@ export function PilotConnections({receipts,en,onLog}:{receipts:ReturnType<typeof
  const guest=!account.status||account.status==='계정';
  return <div className="pilot-connections">
   <button type="button" className="pilot-account" onClick={()=>serviceControls().accountButton.click()} title={guest?t('계정 로그인','Sign in'):account.status}>
-   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M4 21v-3a8 8 0 0 1 16 0v3Z"/></svg><span className="pilot-connection-copy"><small>{t('계정','Account')}</small><strong>{guest?t('로그인','Sign in'):account.name}</strong></span><span className="pilot-connection-arrow" aria-hidden="true">›</span>
+   <ApprovedGlass/><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M4 21v-3a8 8 0 0 1 16 0v3Z"/></svg><span className="pilot-connection-copy"><small>{t('계정','Account')}</small><strong>{guest?t('로그인','Sign in'):account.name}</strong></span><span className="pilot-connection-arrow" aria-hidden="true">›</span>
   </button>
-  <button type="button" className="pilot-log" data-log-state={state} onClick={onLog}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h11v16H5V7Z"/><path d="M8 4v4H5m4 4h6m-6 4h4"/></svg><span className="pilot-connection-copy"><small>{t('게임 로그','Game log')}</small><strong><i aria-hidden="true"/>{label}</strong></span><span className="pilot-connection-arrow" aria-hidden="true">›</span></button>
+  <button type="button" className="pilot-log" data-log-state={state} onClick={onLog} title={label}><ApprovedGlass kind={state==='live'?'gold':'normal'}/><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h11v16H5V7Z"/><path d="M8 4v4H5m4 4h6m-6 4h4"/></svg><span className="pilot-connection-copy"><small>{t('게임 로그','Game log')}</small><strong><i aria-hidden="true"/>{label}</strong></span><span className="pilot-connection-arrow" aria-hidden="true">›</span></button>
  </div>;
 }

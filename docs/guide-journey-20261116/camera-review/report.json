@@ -1,0 +1,22 @@
+{
+  "cameraMoves": true,
+  "targetSpotlights": [
+    "guide-center",
+    "trade",
+    "lounge",
+    "mission",
+    "map",
+    "operations"
+  ],
+  "fixedSidebarVisible": true,
+  "partnerSprites": 2,
+  "chainToPractice": true,
+  "reducedMotion": true,
+  "appMotionOff": true,
+  "mobileLocales": [
+    "ko",
+    "en",
+    "mix"
+  ],
+  "errors": []
+}

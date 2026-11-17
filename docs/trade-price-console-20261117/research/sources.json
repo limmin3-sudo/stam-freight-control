@@ -1,0 +1,56 @@
+[
+  {
+    "name": "uex-price-finder",
+    "url": "https://uexcorp.space/trade/price_finder",
+    "status": 200,
+    "sha256": "b4670c6bc6c949c3f92510d01ae65b3d06715d8bef29fe6921e3d92186f65e1b",
+    "textLength": 10191,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "sct-buyers",
+    "url": "https://sc-trade.tools/best-buyer",
+    "status": 200,
+    "sha256": "079a0ff069cc01301aa7722ce39a5e2383019ac56ba48716b565648353d8b017",
+    "textLength": 123,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "sct-help",
+    "url": "https://sc-trade.tools/help",
+    "status": 200,
+    "sha256": "079a0ff069cc01301aa7722ce39a5e2383019ac56ba48716b565648353d8b017",
+    "textLength": 123,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "carbon-tables",
+    "url": "https://carbondesignsystem.com/components/data-table/usage/",
+    "status": 200,
+    "sha256": "91af1cf40a343de824d9496e9e9f95b3045295eee277ce77a2f9dbbc089d3ef2",
+    "textLength": 17474,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "nng-progressive",
+    "url": "https://www.nngroup.com/articles/progressive-disclosure/",
+    "status": 200,
+    "sha256": "3542cd144bd3fd1581645dee599c6c397f0cea1f21d8732ab5b871925ff4ef1a",
+    "textLength": 14024,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "ons-chart-text",
+    "url": "https://service-manual.ons.gov.uk/data-visualisation/guidance/titles-and-text",
+    "error": "HTTP Error 404: Not Found",
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  },
+  {
+    "name": "wcag-color",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+    "status": 200,
+    "sha256": "2b5aea8d4cf5371fda0b14e5d43d40cc33305aa69ab7f0d86b4455f530f66aa8",
+    "textLength": 12148,
+    "checkedAt": "2026-11-17T01:57:45.146603+00:00"
+  }
+]

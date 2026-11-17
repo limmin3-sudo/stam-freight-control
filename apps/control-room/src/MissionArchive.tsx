@@ -4,10 +4,10 @@ import {loadMissionArchive,type MissionArchiveData,type ArchiveQuantity} from '.
 import './mission-archive.css';
 import {ArchiveReference} from './ArchiveReference';
 
-export default function MissionArchive({locale}:{locale:Locale}){
+export default function MissionArchive({locale,initialSearch}:{locale:Locale;initialSearch?:string}){
  const en=locale==='en',gameEn=locale!=='ko',t=(ko:string,english:string)=>en?english:ko;
  const [data,setData]=useState<MissionArchiveData|null>(null),[error,setError]=useState(false),[retry,setRetry]=useState(0);
- const [company,setCompany]=useState('all'),[rank,setRank]=useState('all'),[type,setType]=useState('all'),[sort,setSort]=useState('rank'),[search,setSearch]=useState(()=>new URLSearchParams(location.hash.split('?')[1]).get('q')||''),[shown,setShown]=useState(24);
+ const [company,setCompany]=useState('all'),[rank,setRank]=useState('all'),[type,setType]=useState('all'),[sort,setSort]=useState('rank'),[search,setSearch]=useState(()=>initialSearch??new URLSearchParams(location.hash.split('?')[1]).get('q')??''),[shown,setShown]=useState(24);
  useEffect(()=>{let alive=true;setError(false);void loadMissionArchive().then(value=>{if(alive)setData(value);},()=>{if(alive)setError(true);});return()=>{alive=false;};},[retry]);
  useEffect(()=>setShown(24),[company,rank,type,sort,search]);
  const rows=useMemo(()=>data?.filter({company,rank,type,sort,search})??[],[data,company,rank,type,sort,search]);

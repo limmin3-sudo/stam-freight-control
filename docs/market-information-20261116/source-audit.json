@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-11-16T10:20:35.469185+00:00",
+  "version": "4.10.3-LIVE.13165946",
+  "missions": {
+    "definitions": 3471,
+    "haulingDefinitions": 1397,
+    "ambiguousDefinitions": 1,
+    "wikiOnlyDefinitions": 1099,
+    "wikiFilledFields": 10313,
+    "wikiRecords": 2843,
+    "scmdb": {
+      "name": "SCMDB",
+      "version": "4.10.3-live.13165946",
+      "commit": "97f28fbbadafe76e9f2f6af5caf0e736844d2f52",
+      "sha256": "5e076817794f584f2bf31f07c98a7710593ec531b7caf13aec5ab8423a841f99",
+      "url": "https://github.com/KrovaxCode/SCMDB_DATA/blob/97f28fbbadafe76e9f2f6af5caf0e736844d2f52/data/merged-4.10.3-live.13165946.json"
+    },
+    "wiki": {
+      "name": "Star Citizen Wiki",
+      "version": "4.10.3-LIVE.13165946",
+      "url": "https://api.star-citizen.wiki/api/missions",
+      "checkedAt": "2026-11-16T10:17:36.278Z",
+      "sha256": "1b3a4589951758e6599bbad86c936c3b6fcbc0769f211ff38e256a8f27e65ec5"
+    },
+    "valuesChanged": false
+  },
+  "fleet": {
+    "profiles": 97,
+    "dimensionsConfirmed": 94,
+    "retainedLayouts": [
+      "aegis-retaliator-modules",
+      "misc-hull-c",
+      "rsi-constellation-phoenix-emerald"
+    ],
+    "uexRows": 283,
+    "exactUuidMatches": 57,
+    "unmatched": [
+      "aegis-hammerhead",
+      "aegis-idris-m",
+      "aegis-idris-p",
+      "aegis-tiburon",
+      "anvil-paladin",
+      "argo-moth",
+      "crusader-a2-hercules-starlifter",
+      "crusader-c2-hercules-starlifter",
+      "crusader-m2-hercules-starlifter",
+      "crusader-mercury-star-runner",
+      "drake-clipper",
+      "drake-golem-ox",
+      "drake-ironclad",
+      "drake-ironclad-assault",
+      "esperia-prowler-utility",
+      "gatac-railen",
+      "gatac-tyilui",
+      "grey-s-market-shiv",
+      "misc-hull-b",
+      "origin-m80",
+      "rsi-apollo-medivac",
+      "rsi-apollo-triage",
+      "rsi-aurora-mk-i-cl",
+      "rsi-aurora-mk-i-es",
+      "rsi-aurora-mk-i-ln",
+      "rsi-aurora-mk-i-lx",
+      "rsi-aurora-mk-i-mr",
+      "rsi-aurora-mk-i-se",
+      "rsi-aurora-mk-ii",
+      "rsi-constellation-andromeda",
+      "rsi-constellation-aquila",
+      "rsi-constellation-phoenix-emerald",
+      "rsi-hermes",
+      "rsi-perseus",
+      "rsi-polaris",
+      "rsi-salvation",
+      "anvil-liberator",
+      "rsi-galaxy",
+      "rsi-galaxy-cargo",
+      "rsi-galaxy-medical"
+    ],
+    "capacityDifferences": [
+      {
+        "id": "aegis-retaliator-modules",
+        "uexScu": 74,
+        "wikiScu": 0,
+        "localScu": 74,
+        "uexVersion": "3.23.1a",
+        "wikiVersion": "4.10.3-LIVE.13165946",
+        "uexUrl": "https://api.uexcorp.uk/2.0/vehicles?id=167",
+        "wikiUrl": "https://api.star-citizen.wiki/api/vehicles/93e1a434-f4fa-43ee-a40c-71bcae5073bc?version=4.10.3-LIVE.13165946"
+      }
+    ],
+    "unavailable": [
+      {
+        "id": "rsi-constellation-phoenix-emerald",
+        "requestedVersion": "4.10.3-LIVE.13165946",
+        "retainedVersion": "4.10.2-LIVE.12881860",
+        "reason": "No unambiguous current Wiki vehicle; previous exact variant retained"
+      }
+    ]
+  },
+  "marketCrossCheck": {
+    "allPriceRows": 2587,
+    "detailedRows": 2566,
+    "sameBuySell": 2566,
+    "changedOrDifferent": [],
+    "outsideActiveTerminals": [
+      217,
+      1303,
+      1358,
+      1359,
+      1362,
+      1363,
+      1413,
+      1441,
+      1576,
+      1705,
+      2294,
+      3159,
+      3160,
+      3289,
+      3295,
+      3565,
+      3580,
+      3597,
+      4111,
+      4112,
+      4126
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://api.uexcorp.uk/2.0/commodities",
+      "rows": 205,
+      "sha256": "ec0f895f31db0a2e8266ec1f52c37baee66857fd194bb72de9c7e97f82eda599",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/terminals?type=commodity",
+      "rows": 161,
+      "sha256": "d507c608cd4c0ad541937b1717f5eb9e4f1c0865e0d99f4185aa8acb54fb219b",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/commodities_prices_all",
+      "rows": 2587,
+      "sha256": "789556aaf94a4b20df1f18ce4402124a7ad2844d930359b217565950f1b72846",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/vehicles",
+      "rows": 283,
+      "sha256": "8f89d3160f63702505da83758dce72f6c1ba2a3923c43bdf1c37dfa84eafaace",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/star_systems",
+      "rows": 96,
+      "sha256": "bc242e589539c929b94e98a34912d236cc6b476ee0058c4a19bd30d72e48663a",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/orbits",
+      "rows": 383,
+      "sha256": "3405cbad8040f57f1c6e41cc3cf404c07f419ec7edfdb3d2a3bd565ec9561718",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/outposts",
+      "rows": 119,
+      "sha256": "141c74406b5f92d62e59bd8ae3bf370cd2bc3850dfc6deefa8bf2cc32d2fa8db",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/space_stations",
+      "rows": 60,
+      "sha256": "e8555e6013a3ba9f791217b86cc3ec57fbe961f3065a22bc11c6331f8f456ef7",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/cities",
+      "rows": 5,
+      "sha256": "c2a1c7e749564a0e1a254b7af0833efb9fd1e5c7dc5b8e94ae41fddebd34b8b7",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/commodities_status",
+      "rows": 1,
+      "sha256": "56968956d00e155339c1e687f5d24c271dcdbe4fd737a23f6b0b3633570b6c8c",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    },
+    {
+      "url": "https://api.uexcorp.uk/2.0/game_versions",
+      "rows": 1,
+      "sha256": "d5ca7e92368b83569b6f9dc7f431ebaf0181286039dd5bd5b029c7e94338828f",
+      "checkedAt": "2026-11-16T10:20:35.469185+00:00"
+    }
+  ],
+  "extendedWiki": {
+    "commodities": 206,
+    "locations": 2034,
+    "uniqueLocationIds": 2034,
+    "version": "4.10.3-LIVE.13165946",
+    "commodityVersionScope": "Version-pinned request; commodity index has no per-record version field. Do not claim row-level patch verification.",
+    "locationVersionScope": "All location record versions verified; UUID ordering with unique count matching advertised total.",
+    "sha256": "41c308423edc8483dae56f803cc54d272fea7461d1f79b1dc9ce64c4b48c1320",
+    "checkedAt": "2026-11-16T10:30:32.366985+00:00"
+  }
+}

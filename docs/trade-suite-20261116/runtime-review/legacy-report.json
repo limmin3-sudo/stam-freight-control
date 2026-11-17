@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Preexisting v1 trade book remains byte-for-byte unchanged",
+    "Earlier-trade link opens existing control and route/cargo canvases",
+    "Legacy planner reserve toggle retains 27%",
+    "Return to new workspace remains connected"
+  ],
+  "errors": []
+}

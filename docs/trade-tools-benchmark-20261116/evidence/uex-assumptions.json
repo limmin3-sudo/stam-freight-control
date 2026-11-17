@@ -1,0 +1,182 @@
+[
+  {
+    "text": "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tRefineries\t\t\t\t\t\t\t\t\t\t\t\t\t\t",
+    "title": "Shows all refineries and their respective commodities yields and workloads (averages)"
+  },
+  {
+    "text": "Loop",
+    "title": "Loop routes only"
+  },
+  {
+    "text": "Predicted",
+    "title": "Enabling 'Predictable' will display only the routes where UEX has calculated a stable demand using Datarunner data."
+  },
+  {
+    "text": "Averages",
+    "title": "Display averages instead of latest values"
+  },
+  {
+    "text": "SCU-C",
+    "title": "Calculated Demand in SCU"
+  },
+  {
+    "text": "",
+    "title": "Medium Inventory (44-57%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Out of Stock (Empty) (0-14%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "21m 1s",
+    "title": "((146 Gm × 1000000) ÷ 115797 km/s in average) ≈ 21m 1s"
+  },
+  {
+    "text": "1",
+    "title": "Loop Routes"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((146 Gm × 1000000) ÷ 115797 km/s in average) ≈ 21m 1s"
+  },
+  {
+    "text": "",
+    "title": "Very Low Inventory (15-28%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "High Inventory (58-71%) – last 15 day(s)"
+  },
+  {
+    "text": "2",
+    "title": "Loop Routes"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "",
+    "title": "High Inventory (58-71%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Out of Stock (Empty) (0-14%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "16m 59s",
+    "title": "((118 Gm × 1000000) ÷ 115797 km/s in average) ≈ 16m 59s"
+  },
+  {
+    "text": "",
+    "title": "High Inventory (58-71%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Very Low Inventory (15-28%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 256 SCU."
+  },
+  {
+    "text": "7m 29s",
+    "title": "((52 Gm × 1000000) ÷ 115797 km/s in average) ≈ 7m 29s"
+  },
+  {
+    "text": "3",
+    "title": "Loop Routes"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((52 Gm × 1000000) ÷ 115797 km/s in average) ≈ 7m 29s"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((52 Gm × 1000000) ÷ 115797 km/s in average) ≈ 7m 29s"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((52 Gm × 1000000) ÷ 115797 km/s in average) ≈ 7m 29s"
+  },
+  {
+    "text": "",
+    "title": "High Inventory (58-71%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Out of Stock (Empty) (0-14%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "11m 22s",
+    "title": "((79 Gm × 1000000) ÷ 115797 km/s in average) ≈ 11m 22s"
+  },
+  {
+    "text": "1",
+    "title": "Loop Routes"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((79 Gm × 1000000) ÷ 115797 km/s in average) ≈ 11m 22s"
+  },
+  {
+    "text": "",
+    "title": "Medium Inventory (44-57%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Out of Stock (Empty) (0-14%) – last 15 day(s)"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "19m 34s",
+    "title": "((136 Gm × 1000000) ÷ 115797 km/s in average) ≈ 19m 34s"
+  },
+  {
+    "text": "1",
+    "title": "Loop Routes"
+  },
+  {
+    "text": "",
+    "title": "Demand information is unpredictable; actual demand may be lower. The last reported figure was 0 SCU."
+  },
+  {
+    "text": "\n                                                                               ",
+    "title": "((136 Gm × 1000000) ÷ 115797 km/s in average) ≈ 19m 34s"
+  }
+]

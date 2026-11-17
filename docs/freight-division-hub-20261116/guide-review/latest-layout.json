@@ -1,0 +1,11 @@
+{
+  "sidebarQuickEntry": true,
+  "sceneApproachVideo": true,
+  "mobileLocales": [
+    "ko",
+    "en",
+    "mix"
+  ],
+  "manualNavigationHelp": true,
+  "errors": []
+}

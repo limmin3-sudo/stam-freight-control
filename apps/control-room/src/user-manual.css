@@ -33,3 +33,5 @@
 @media(max-width:760px){.manual-issue{padding:2px 10px}.manual-issue>summary{gap:10px}.manual-issue summary strong{font-size:17px}.manual-issue-number{font-size:20px}.manual-issue-links{gap:10px}}
 
 .manual-start-order{padding:14px 18px;border-left:2px solid #d5b97788;color:var(--manual-gold);background:#bfa36b0a;font-size:16px}
+
+.manual-movement{margin:22px 0 28px;padding:20px 24px;background:#14313d44;border-left:2px solid #d7bd7f;color:#dce9ee}.manual-movement h3{margin:0 0 12px;color:#f2d59a;font-size:18px;font-weight:500}.manual-movement dl{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0}.manual-movement dt{font-weight:500;color:#e7d1a5;margin-bottom:6px}.manual-movement dd{margin:0;font-size:14px;line-height:1.8}@media(max-width:760px){.manual-movement{padding:16px}.manual-movement dl{grid-template-columns:1fr}.manual-movement dd{font-size:13px}}

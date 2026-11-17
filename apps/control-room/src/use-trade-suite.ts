@@ -1,0 +1,15 @@
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {readyTradeOwner,suiteBookKey,tradeOwnerLock,assertTradeExclusivity} from './trade-storage';
+import {blankSuiteBook,changeSuiteBook,validateSuiteBook,expeditionSummary,type SuiteBook,type SuiteCommand} from './trade-expedition';
+export {suiteBookKey} from './trade-storage';
+export function useTradeSuite(){
+ const [view,setView]=useState<{owner:string;raw:string|null;book:SuiteBook|null;error:string}>({owner:'',raw:null,book:null,error:''});const ref=useRef(view),mounted=useRef(true);ref.current=view;
+ const reload=useCallback(()=>{try{const owner=readyTradeOwner(),raw=localStorage.getItem(suiteBookKey(owner)),book=raw===null?blankSuiteBook(owner):validateSuiteBook(JSON.parse(raw),owner);const next={owner,raw,book,error:''};ref.current=next;setView(next);}catch(e){const next={owner:'',raw:null,book:null,error:e instanceof Error?e.message:'storage'};ref.current=next;setView(next);}},[]);
+ useEffect(()=>{mounted.current=true;reload();const changed=(e:StorageEvent)=>{if(!e.key||e.key.startsWith('stam.trade-suite.')||['stam.flight-owner.v1','vh-account-meta','stam.account-storage-journal.v1'].includes(e.key))reload();};window.addEventListener('storage',changed);window.addEventListener('stam-account-boundary',reload);window.addEventListener('focus',reload);window.addEventListener('stam-trade-updated',reload);return()=>{mounted.current=false;window.removeEventListener('storage',changed);window.removeEventListener('stam-account-boundary',reload);window.removeEventListener('focus',reload);window.removeEventListener('stam-trade-updated',reload);};},[reload]);
+ const commit=async(make:(b:SuiteBook)=>SuiteBook)=>{const prior=ref.current;if(!prior.book||!navigator.locks)throw Error('storage');return navigator.locks.request(tradeOwnerLock(prior.owner),()=>{
+  if(!mounted.current||readyTradeOwner()!==prior.owner)throw Error('account');const raw=localStorage.getItem(suiteBookKey(prior.owner));if(raw!==prior.raw){reload();throw Error('conflict');}
+  const current=raw===null?blankSuiteBook(prior.owner):validateSuiteBook(JSON.parse(raw),prior.owner),book=validateSuiteBook(make(current),prior.owner),next=JSON.stringify(book);assertTradeExclusivity(localStorage,prior.owner,'suite',current.runs.some(r=>expeditionSummary(r).status==='active'),book.runs.some(r=>expeditionSummary(r).status==='active'));if(new TextEncoder().encode(next).length>8e6)throw Error('size');localStorage.setItem(suiteBookKey(prior.owner),next);const v={owner:prior.owner,raw:next,book,error:''};ref.current=v;setView(v);window.dispatchEvent(new Event('stam-trade-updated'));return book;
+ });};
+ return {...view,reload,dispatch:(c:SuiteCommand)=>commit(b=>changeSuiteBook(b,c)),restore:(value:unknown)=>commit(b=>{if(b.runs.length||b.plans.length||b.watches.length||b.favorites.length)throw Error('restoreOccupied');return {...validateSuiteBook(value,b.owner),revision:b.revision+1};})};
+}
+export type SuiteStore=ReturnType<typeof useTradeSuite>;

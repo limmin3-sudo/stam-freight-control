@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-16",
+  "assets": [
+    {
+      "file": "interstellar-advisor-approved.png",
+      "sourceGeneration": "exec-24617005-3fa3-4e95-b8af-1c5f82fa7ea2.png",
+      "role": "interstellar",
+      "status": "approved",
+      "runtimeApplied": true,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "84bbeae274100ee156cddadca5a137fd591c173d9333dd2ba7fcf34920773134",
+      "displayNameKo": "링 가문 중개인",
+      "runtimePath": "apps/control-room/src/assets/facility-staff/ling-broker.png",
+      "deployed": false
+    },
+    {
+      "file": "intrasystem-gentleman-candidate.png",
+      "sourceGeneration": "exec-4959c17a-b1aa-46a2-aa54-83cac9e4cc19.png",
+      "role": "intrasystem",
+      "status": "superseded-wide-stance",
+      "runtimeApplied": false,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "3dce27943d2f8eea2ad2f71047bcaa260fa93a229971422f74c87fa27ee65fbd",
+      "displayNameKo": "수석 교역관"
+    },
+    {
+      "file": "intrasystem-gentleman-close-stance-candidate.png",
+      "sourceGeneration": "exec-f7d28c5b-5f18-47a0-867f-462d6eafacca.png",
+      "role": "intrasystem",
+      "status": "selected-for-integration",
+      "runtimeApplied": true,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "sha256": "2766bd955c67d666fb18692852a8b8c4361fdddfd66ef37ef7a46496e33e65b2",
+      "displayNameKo": "수석 교역관",
+      "runtimePath": "apps/control-room/src/assets/facility-staff/senior-trade-officer.png",
+      "deployed": false
+    }
+  ]
+}

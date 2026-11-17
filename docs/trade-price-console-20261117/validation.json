@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-11-17T01:59:15.812790+00:00",
+  "build": "npm run build --prefix apps/control-room \u2014 passed",
+  "tests": "node --experimental-strip-types --test apps/control-room/tests/trade-control-prices.test.ts apps/control-room/tests/trade-suite.test.ts \u2014 2 files passed",
+  "browser": "runtime-review/report.json",
+  "existingTradeRegression": "suite-regression/report.json",
+  "liveGame": false,
+  "deployed": false,
+  "sourceSha256": {
+    "apps/control-room/src/TradeSuite.tsx": "ff6798c01e9fd34c887def4257ad689dfc64e64ccf3d981596afad6ec0a9bf11",
+    "apps/control-room/src/TradeSuiteVisuals.tsx": "71c5de9318d6762713fefb15d30381b855ebd63f15359c288abf39cfb8dd22fc",
+    "apps/control-room/src/TradeControlPrices.tsx": "525370b3187fb5f6af5325aeb577e12fe84250240eb23b32646e1c5369b07ad6",
+    "apps/control-room/src/trade-control-prices.ts": "b7fd6bdf7784bfca14516329e59480fd00421197941d9d90f8323c7fe78aa15f",
+    "apps/control-room/src/trade-control-prices.css": "d64cc1a34d6e818a78b4a80350d2d4a2487bce90e6c0dcb75a14ea5a634ed504"
+  }
+}

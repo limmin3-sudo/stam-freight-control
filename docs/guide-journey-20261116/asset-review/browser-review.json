@@ -1,0 +1,48 @@
+{
+  "candidates": [
+    {
+      "file": "director-presenting-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "director-present-left-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "director-tablet-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "director-welcome-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "director-escort-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "director-completion-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "control-workstation-closeup-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "hologram-table-closeup-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "lounge-exterior-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "academy-exterior-candidate.png",
+      "loaded": true
+    },
+    {
+      "file": "trade-exterior-candidate.png",
+      "loaded": true
+    }
+  ]
+}

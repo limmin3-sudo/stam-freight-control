@@ -1,0 +1,11 @@
+{
+  "order": [
+    "아카데미",
+    "무역센터",
+    "라운지"
+  ],
+  "boardingMetadata": true,
+  "bridgeIntro": true,
+  "practiceContinuation": true,
+  "errors": []
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checks": [
+    "Default control prioritizes cargo and price table with inline charts; no map or cargo 3D mounted",
+    "Selecting a quote does not mutate ledger; prefill, unit price, quantity, cancel and explicit partial sale preserve cargo identity and freight",
+    "Map and cargo mount independently only when requested and unmount on close",
+    "Advisor, inventory groups/tags, ledger, backups and cloud entry remain available; reload preserves ledger",
+    "Failed public-price refresh retains references and does not change actual trades",
+    "Short desktop and English mobile have no page overflow; empty ledger can browse local purchases and hand inputs to planner",
+    "Buyer recalculation preserves the active ledger and does not pretend to constrain buyers to a destination"
+  ],
+  "errors": [],
+  "liveGame": false
+}

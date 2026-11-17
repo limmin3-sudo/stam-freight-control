@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "Actual Worker finds ships for a 32 SCU box; excludes Cutlass despite nominal capacity, selecting Hull B updates planner",
+    "Manual stop add/reorder/remove reaches calculation and exported route in exact order, including empty moves"
+  ],
+  "errors": [],
+  "mode": "Production bundle, real saved UEX catalogue; no game execution"
+}

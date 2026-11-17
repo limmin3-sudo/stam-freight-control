@@ -1,0 +1,732 @@
+{
+  "results": [
+    {
+      "tag": "guide-ko-1920",
+      "font": 25.92,
+      "width": 1920,
+      "height": 1080,
+      "x": 363.015625,
+      "right": 1470.53125,
+      "top": 825.59375,
+      "bottom": 1049.625,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 1222.53125,
+          "right": 1327.53125,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 1335.53125,
+          "right": 1440.53125,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-ko-2560",
+      "font": 28,
+      "width": 2560,
+      "height": 1440,
+      "x": 387.1875,
+      "right": 1932.78125,
+      "top": 1167.9375,
+      "bottom": 1398.8125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 1684.78125,
+          "right": 1789.78125,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 1797.78125,
+          "right": 1902.78125,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-ko-1366",
+      "font": 22,
+      "width": 1366,
+      "height": 768,
+      "x": 281.53125,
+      "right": 1052.9375,
+      "top": 499.59375,
+      "bottom": 746.984375,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 804.9375,
+          "right": 909.9375,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 917.9375,
+          "right": 1022.9375,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-ko-390",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 559.015625,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 203.015625,
+          "right": 278.015625,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 283.015625,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-ko-360",
+      "font": 18,
+      "width": 360,
+      "height": 640,
+      "x": 7.1875,
+      "right": 352.78125,
+      "top": 355.015625,
+      "bottom": 628,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 173.609375,
+          "right": 248.609375,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 253.609375,
+          "right": 328.78125,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-ko-844",
+      "font": 22,
+      "width": 844,
+      "height": 390,
+      "x": 265.875,
+      "right": 700.953125,
+      "top": 157.3125,
+      "bottom": 380.3125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 458.953125,
+          "right": 563.953125,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 571.953125,
+          "right": 676.953125,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-1920",
+      "font": 25.92,
+      "width": 1920,
+      "height": 1080,
+      "x": 363.015625,
+      "right": 1406.34375,
+      "top": 821.59375,
+      "bottom": 1049.625,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 393.015625,
+          "right": 633.015625,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-2560",
+      "font": 28,
+      "width": 2560,
+      "height": 1440,
+      "x": 387.1875,
+      "right": 1843.1875,
+      "top": 1163.9375,
+      "bottom": 1398.8125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 417.1875,
+          "right": 657.1875,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-1366",
+      "font": 22,
+      "width": 1366,
+      "height": 768,
+      "x": 281.53125,
+      "right": 1008.21875,
+      "top": 531.890625,
+      "bottom": 746.984375,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 311.53125,
+          "right": 551.53125,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-390",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-360",
+      "font": 18,
+      "width": 360,
+      "height": 640,
+      "x": 7.1875,
+      "right": 352.78125,
+      "top": 379.8125,
+      "bottom": 628,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.1875,
+          "right": 328.78125,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-844",
+      "font": 22,
+      "width": 844,
+      "height": 390,
+      "x": 265.875,
+      "right": 653.265625,
+      "top": 157.3125,
+      "bottom": 380.3125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 289.875,
+          "right": 529.875,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-stop-2",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-stop-3",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-ko-stop-4",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-1920",
+      "font": 25.92,
+      "width": 1920,
+      "height": 1080,
+      "x": 363.015625,
+      "right": 1470.53125,
+      "top": 825.59375,
+      "bottom": 1049.625,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 1222.53125,
+          "right": 1327.53125,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 1335.53125,
+          "right": 1440.53125,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-2560",
+      "font": 28,
+      "width": 2560,
+      "height": 1440,
+      "x": 387.1875,
+      "right": 1932.78125,
+      "top": 1167.9375,
+      "bottom": 1398.8125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 1684.78125,
+          "right": 1789.78125,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 1797.78125,
+          "right": 1902.78125,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-1366",
+      "font": 22,
+      "width": 1366,
+      "height": 768,
+      "x": 281.53125,
+      "right": 1052.9375,
+      "top": 499.59375,
+      "bottom": 746.984375,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 804.9375,
+          "right": 909.9375,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 917.9375,
+          "right": 1022.9375,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-390",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 559.015625,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 184.21875,
+          "right": 273.03125,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 278.03125,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-360",
+      "font": 18,
+      "width": 360,
+      "height": 640,
+      "x": 7.1875,
+      "right": 352.78125,
+      "top": 355.015625,
+      "bottom": 628,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 154.8125,
+          "right": 243.625,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 248.625,
+          "right": 328.78125,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "guide-en-844",
+      "font": 22,
+      "width": 844,
+      "height": 390,
+      "x": 265.875,
+      "right": 700.953125,
+      "top": 157.3125,
+      "bottom": 380.3125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 458.953125,
+          "right": 563.953125,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        },
+        {
+          "font": 16,
+          "x": 571.953125,
+          "right": 676.953125,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-1920",
+      "font": 25.92,
+      "width": 1920,
+      "height": 1080,
+      "x": 363.015625,
+      "right": 1406.34375,
+      "top": 821.59375,
+      "bottom": 1049.625,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 393.015625,
+          "right": 633.015625,
+          "top": 977.625,
+          "bottom": 1025.625,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-2560",
+      "font": 28,
+      "width": 2560,
+      "height": 1440,
+      "x": 387.1875,
+      "right": 1843.1875,
+      "top": 1163.9375,
+      "bottom": 1398.8125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 417.1875,
+          "right": 657.1875,
+          "top": 1326.8125,
+          "bottom": 1374.8125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-1366",
+      "font": 22,
+      "width": 1366,
+      "height": 768,
+      "x": 281.53125,
+      "right": 1008.21875,
+      "top": 495.59375,
+      "bottom": 746.984375,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 311.53125,
+          "right": 551.53125,
+          "top": 674.984375,
+          "bottom": 722.984375,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-390",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-360",
+      "font": 18,
+      "width": 360,
+      "height": 640,
+      "x": 7.1875,
+      "right": 352.78125,
+      "top": 355.21875,
+      "bottom": 628,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.1875,
+          "right": 328.78125,
+          "top": 560,
+          "bottom": 608,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-844",
+      "font": 22,
+      "width": 844,
+      "height": 390,
+      "x": 265.875,
+      "right": 653.265625,
+      "top": 157.3125,
+      "bottom": 380.3125,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 289.875,
+          "right": 529.875,
+          "top": 316.3125,
+          "bottom": 364.3125,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-stop-2",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 555.015625,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-stop-3",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 583.8125,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    },
+    {
+      "tag": "lounge-en-stop-4",
+      "font": 18,
+      "width": 390,
+      "height": 844,
+      "x": 7.796875,
+      "right": 382.1875,
+      "top": 555.015625,
+      "bottom": 832,
+      "overflow": false,
+      "buttons": [
+        {
+          "font": 16,
+          "x": 31.796875,
+          "right": 358.1875,
+          "top": 764,
+          "bottom": 812,
+          "height": 48
+        }
+      ]
+    }
+  ],
+  "practiceAreaPreserved": true,
+  "errors": []
+}

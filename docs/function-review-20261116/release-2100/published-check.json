@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "sha": "9ae749824e76b67fdbfcb5785fa03ec05fe2bd76",
+  "version": "2.10.0",
+  "url": "https://limmin3-sudo.github.io/stam-freight-control/",
+  "checks": [
+    "Published version.json and HTML match 2.10.0 and release SHA; five-topic manual loads",
+    "Manual image resolves on Pages subpath, game-first instructions and app 1.4 installer retained",
+    "Welcome desk opens the new manual",
+    "Published sign-in notice describes authentication and data use",
+    "Release notes show beta 2.10.0",
+    "Desktop/mobile retain the existing fixed shell without horizontal overflow"
+  ],
+  "errors": [],
+  "missing": [],
+  "productionAccountWrites": 0,
+  "transport": "Published HTTPS responses via API request context with environment proxy and CA validation; browser renders at actual public origin"
+}

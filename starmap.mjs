@@ -69,7 +69,7 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
   const from=byId.get(visit.leg.nodes[0]),to=byId.get(visit.locationId),heading=document.createElement('small'),path=document.createElement('div'),metrics=document.createElement('p');
   heading.textContent=L('선택 구간','SELECTED LEG')+' · '+String(activeIndex+1).padStart(2,'0')+' / '+String(route.visits.length).padStart(2,'0');
   const origin=document.createElement('span'),arrow=document.createElement('i'),destination=document.createElement('strong');origin.textContent=from?placeLabel(from):'—';arrow.textContent='→';arrow.setAttribute('aria-hidden','true');destination.textContent=to?placeLabel(to):'—';path.append(origin,arrow,destination);
-  metrics.textContent=fmtDist(visit.leg.meters)+' · '+L('예상 ','Est. ')+Math.max(1,Math.round(visit.seconds/60))+L('분',' min')+(visit.leg.jumps?' · '+L('점프 ','Jump ')+visit.leg.jumps:'');
+  metrics.textContent=route.policy==='trade-reference'?(visit.leg.jumps?L('점프 연결 · 거리 합산 제외','Jump connection · Distance excluded'):fmtDist(visit.leg.meters)+' · '+L('참고 항로','Reference route')):fmtDist(visit.leg.meters)+' · '+L('예상 ','Est. ')+Math.max(1,Math.round(visit.seconds/60))+L('분',' min')+(visit.leg.jumps?' · '+L('점프 ','Jump ')+visit.leg.jumps:'');
   routeReadout.replaceChildren(heading,path,metrics);
  }
 

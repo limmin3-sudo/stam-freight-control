@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "mode": "Real saved UEX plan; synthetic manual trades and owner boundary, no actual game trades",
+  "checks": [
+    "Real planning candidate handover; interstellar sequence retained; no invented cargo or payment, existing freight data untouched",
+    "Confirm/cancel without leaving room, reload persistence, actual purchases/expenses/departure/arrival/partial sales, undo audit and explicit cargo loss",
+    "Quota failure preserves previous book; another tab update withdraws stale confirmation and cannot duplicate or overwrite transactions",
+    "Close only after cargo clears, exact final realized result, same-owner backup restores in a fresh browser, existing records cannot be overwritten; English mobile and reopen via audited undo",
+    "Synthetic owner boundary hides old-owner records and preserves the guest book; real Firebase login was not exercised"
+  ],
+  "errors": []
+}

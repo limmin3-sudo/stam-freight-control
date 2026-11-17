@@ -1,0 +1,477 @@
+[
+  {
+    "tag": "INPUT",
+    "id": "main_search_query",
+    "name": "q",
+    "type": "search",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "",
+    "checked": false
+  },
+  {
+    "tag": "INPUT",
+    "id": "id_vehicle",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. C2",
+    "text": "",
+    "value": "Cutlass Black",
+    "checked": false,
+    "label": "Vehicle "
+  },
+  {
+    "tag": "INPUT",
+    "id": "investment",
+    "name": "investment",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. 20,000",
+    "text": "",
+    "value": "1,000,000",
+    "checked": false,
+    "label": "Investment (UEC) "
+  },
+  {
+    "tag": "INPUT",
+    "id": "orbit_origin",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. Hurston",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Orbit: Start "
+  },
+  {
+    "tag": "INPUT",
+    "id": "orbit_destination",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. microTech",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Orbit: End "
+  },
+  {
+    "tag": "INPUT",
+    "id": "terminal_origin",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. Everus Harbor",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Terminal: Start "
+  },
+  {
+    "tag": "SELECT",
+    "id": "stops",
+    "name": "stops",
+    "type": "select-one",
+    "role": null,
+    "placeholder": null,
+    "text": "— None\n1\n2\n3\n4",
+    "value": "0",
+    "label": "Stops \n— None\n1\n2\n3\n4",
+    "options": [
+      {
+        "v": "0",
+        "t": "— None"
+      },
+      {
+        "v": "1",
+        "t": "1"
+      },
+      {
+        "v": "2",
+        "t": "2"
+      },
+      {
+        "v": "3",
+        "t": "3"
+      },
+      {
+        "v": "4",
+        "t": "4"
+      }
+    ]
+  },
+  {
+    "tag": "INPUT",
+    "id": "terminal_destination",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. Port Tressler",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Terminal: End "
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_origin_55",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "55",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "55"
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_origin_64",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "64",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "64"
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_origin_68",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "68",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "68"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_destination_55",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "55",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "55"
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_destination_64",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "64",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "64"
+  },
+  {
+    "tag": "INPUT",
+    "id": "ss_destination_68",
+    "name": "",
+    "type": "checkbox",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "68",
+    "checked": true,
+    "label": ""
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "68"
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "button",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "scu",
+    "name": "scu",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. 64",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "SCU "
+  },
+  {
+    "tag": "INPUT",
+    "id": "commodity",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. Laranite",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Commodity "
+  },
+  {
+    "tag": "INPUT",
+    "id": "distance",
+    "name": "distance",
+    "type": "text",
+    "role": null,
+    "placeholder": "e.g. 60",
+    "text": "",
+    "value": "",
+    "checked": false,
+    "label": "Distance (Gm) "
+  },
+  {
+    "tag": "SELECT",
+    "id": "mcs",
+    "name": "mcs",
+    "type": "select-one",
+    "role": null,
+    "placeholder": null,
+    "text": "— All\n1 SCU\n2 SCU\n4 SCU\n8 SCU\n16 SCU\n24 SCU\n32 SCU",
+    "value": "",
+    "label": "Container Size \n— All\n1 SCU\n2 SCU\n4 SCU\n8 SCU\n16 SCU\n24 SCU\n32 SCU",
+    "options": [
+      {
+        "v": "",
+        "t": "— All"
+      },
+      {
+        "v": "1",
+        "t": "1 SCU"
+      },
+      {
+        "v": "2",
+        "t": "2 SCU"
+      },
+      {
+        "v": "4",
+        "t": "4 SCU"
+      },
+      {
+        "v": "8",
+        "t": "8 SCU"
+      },
+      {
+        "v": "16",
+        "t": "16 SCU"
+      },
+      {
+        "v": "24",
+        "t": "24 SCU"
+      },
+      {
+        "v": "32",
+        "t": "32 SCU"
+      }
+    ]
+  },
+  {
+    "tag": "SELECT",
+    "id": "id_faction",
+    "name": "id_faction",
+    "type": "select-one",
+    "role": null,
+    "placeholder": null,
+    "text": "— All\nAdagio Holdings\nBit Zeros\nCitizens For Prosperity\nCivilian Defense Force\nCovalex Independent Holdings\nDusters\nEckhart Security\nFoxwell",
+    "value": "",
+    "label": "Faction \n— All\nAdagio Holdings\nBit Zeros\nCitizens For Prosperity\nCivilian Defense Force\nCovalex Independent Holdings\nDusters\nEckhart Security\nFoxwell Enforcement\nHeadhunters\nHigh Point Wilderness Specialists\nHurston Dynamics\nLing Family Hauling\nNine Tails\nPeople's Alliance\nRayari Holdings\nRed Wind Linehaul\nRough & Ready\nSlicers\nTar Pits\nUnited Empire of Earth\nWikelo\nXenoThreat",
+    "options": [
+      {
+        "v": "",
+        "t": "— All"
+      },
+      {
+        "v": "41",
+        "t": "Adagio Holdings"
+      },
+      {
+        "v": "31",
+        "t": "Bit Zeros"
+      },
+      {
+        "v": "35",
+        "t": "Citizens For Prosperity"
+      },
+      {
+        "v": "44",
+        "t": "Civilian Defense Force"
+      },
+      {
+        "v": "42",
+        "t": "Covalex Independent Holdings"
+      },
+      {
+        "v": "7",
+        "t": "Dusters"
+      },
+      {
+        "v": "36",
+        "t": "Eckhart Security"
+      },
+      {
+        "v": "34",
+        "t": "Foxwell Enforcement"
+      },
+      {
+        "v": "9",
+        "t": "Headhunters"
+      },
+      {
+        "v": "39",
+        "t": "High Point Wilderness Specialists"
+      },
+      {
+        "v": "45",
+        "t": "Hurston Dynamics"
+      },
+      {
+        "v": "47",
+        "t": "Ling Family Hauling"
+      },
+      {
+        "v": "12",
+        "t": "Nine Tails"
+      },
+      {
+        "v": "19",
+        "t": "People's Alliance"
+      },
+      {
+        "v": "43",
+        "t": "Rayari Holdings"
+      },
+      {
+        "v": "46",
+        "t": "Red Wind Linehaul"
+      },
+      {
+        "v": "20",
+        "t": "Rough & Ready"
+      },
+      {
+        "v": "29",
+        "t": "Slicers"
+      },
+      {
+        "v": "28",
+        "t": "Tar Pits"
+      },
+      {
+        "v": "23",
+        "t": "United Empire of Earth"
+      },
+      {
+        "v": "40",
+        "t": "Wikelo"
+      },
+      {
+        "v": "24",
+        "t": "XenoThreat"
+      }
+    ]
+  },
+  {
+    "tag": "BUTTON",
+    "id": "",
+    "name": "",
+    "type": "submit",
+    "role": null,
+    "placeholder": null,
+    "text": "Search",
+    "value": ""
+  },
+  {
+    "tag": "INPUT",
+    "id": "mini-calculator-input",
+    "name": "",
+    "type": "text",
+    "role": null,
+    "placeholder": null,
+    "text": "",
+    "value": "",
+    "checked": false
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "verifiedAt": "2026-11-16T15:44:30.946835+00:00",
+  "appTests": {
+    "passed": 149,
+    "failed": 0
+  },
+  "rootTests": {
+    "passed": 271,
+    "failed": 0,
+    "note": "Completed earlier in this task; root code unchanged after the run"
+  },
+  "typescript": {
+    "passed": true
+  },
+  "productionBuild": {
+    "passed": true,
+    "note": "Build emits existing bundle-size advice; output is local only"
+  },
+  "browser": {
+    "report": {
+      "passed": true,
+      "checkCount": 9,
+      "path": "runtime-review/report.json"
+    },
+    "extras-report": {
+      "passed": true,
+      "checkCount": 2,
+      "path": "runtime-review/extras-report.json"
+    },
+    "legacy-report": {
+      "passed": true,
+      "checkCount": 4,
+      "path": "runtime-review/legacy-report.json"
+    },
+    "price-intake-report": {
+      "passed": true,
+      "checkCount": 5,
+      "path": "runtime-review/price-intake-report.json"
+    }
+  },
+  "performance": "performance.json",
+  "sourceSha256": {
+    "apps/control-room/src/TradeSuite.tsx": "635a84144e53fdd32c647d55e4466558c09501dd7499f30e31d239796332c35c",
+    "apps/control-room/src/trade-suite.ts": "a08ab259bf81478dd8056e4450f73cfdf55b49aea3a96911a0ec80aaeeae16fd",
+    "apps/control-room/src/trade-suite-runtime.mjs": "fadf11348d889bc4139928caac7e1820f26359cd9a28000b7850d4f41fcb8be8",
+    "apps/control-room/src/trade-expedition.ts": "a2a87cc07c90bd98c484ce319043d6e5dcdd0c782354f1cfda35e0f15ffad7ec",
+    "apps/control-room/src/personal-market.ts": "78c11335f2c498d129d30dae9eedb7a8b137c0110e12514247d3c3081a03d9af",
+    "apps/control-room/src/TradePriceDesk.tsx": "7e67350e25b436728130ad6205cad4624026adb8d18487540e3970a7fdadd996",
+    "apps/control-room/src/TradePriceIntake.tsx": "f475584286da92134f22e3db576dde0d86e1a2e24adb4f35fedc0a4da38c01a7",
+    "apps/control-room/src/TradePlanning.tsx": "fcf46527addbdc91064dacc70b1355d7120b6983c90a129df054fedb07a9d971",
+    "data/trade-market.json": "81911cc4db55a272c36a8808416354b8a627d8585c848550e7aab8bb050f9e00"
+  },
+  "limitations": [
+    "Real game transactions not tested",
+    "Real Firebase account and cloud trade sync not tested",
+    "OCR exercised against synthetic kiosk screenshot with real Tesseract, not game screenshots",
+    "Third-party report submission and Windows overlay not connected",
+    "No commit, push or deployment"
+  ]
+}

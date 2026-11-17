@@ -7,9 +7,9 @@ import {currentLocationData} from './personal-locations.mjs';
 import {chartAppearance} from './chart-appearance';
 
 export type ChartCommand={serial:number;kind:'focus'|'leg'|'home'|'top'|'galaxy'|'system'|'zoom';id?:string;value?:number};
-export function NavigationChart({locale,plan,index=0,command,orbits=true,quality,look:requestedLook,onSelect}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void}){
+export function NavigationChart({locale,plan,index=0,command,orbits=true,quality,look:requestedLook,onSelect,data:sourceData}:{locale:Locale;plan:FlightPlan|null;index?:number;command?:ChartCommand;orbits?:boolean;quality?:string;look?:'physical'|'hologram';onSelect?:(point:Point)=>void;data?:ReturnType<typeof currentLocationData>}){
  const preference=useChartLook(),look=requestedLook??preference.look;
- const locations=currentLocationData();
+ const locations=sourceData??currentLocationData();
  const host=useRef<HTMLDivElement>(null),map=useRef<StarMap|null>(null),latest=useRef({plan,index,onSelect,orbits,quality});latest.current={plan,index,onSelect,orbits,quality};
  const savedView=useRef<ReturnType<StarMap['snapshotView']>|null>(null),lastCommand=useRef<number|undefined>(undefined);
  const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);

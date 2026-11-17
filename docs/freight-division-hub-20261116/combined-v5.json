@@ -1,0 +1,19 @@
+{
+  "file": "facility-combined-v5.png",
+  "status": "awaiting-user-approval",
+  "dimensions": [
+    1672,
+    941
+  ],
+  "method": "Two-reference generation with instructions to rerender the entire scene; not text-only and not a manual pixel composite.",
+  "referenceRoles": {
+    "facility-fresh-harbor-v3.png": "camera, composition, photoreal light and materials",
+    "facility-original-architecture-v4.png": "ground building forms and single-ring station"
+  },
+  "constraints": [
+    "Two construction sites",
+    "No multi-ring station",
+    "Preserve approved panel separately",
+    "Runtime unapplied"
+  ]
+}

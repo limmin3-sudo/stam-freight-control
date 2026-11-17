@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "Navigator: six confirmed contracts, Worker calculation, map/cargo, every task and jump, undo, finish and real console; all stored values unchanged",
+    "Operator route-only with no cargo viewport; Escape stays at desk and preserves all storage",
+    "Hauling procedure advances to existing user manual",
+    "Ships/cargo dialogue opens the corresponding real archive page",
+    "First-time reply opens division overview and continues into existing lounge tour",
+    "Quick preparation and approved lounge return remain functional",
+    "390px KO/EN/mixed guide, contracts, Escape; no horizontal overflow"
+  ],
+  "errors": [],
+  "missing": [],
+  "practiceActions": 16,
+  "productionWrites": 0
+}

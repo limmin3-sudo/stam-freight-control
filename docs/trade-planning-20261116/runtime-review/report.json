@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "priceMode": "Saved real-source snapshot; refresh responses explicitly mocked",
+  "checks": [
+    "Both lobby advisors open the correct internal/interstellar planning scope",
+    "Default 10% reserve, capital/container limits, review and downloaded estimate; failed refresh retains plan, successful refresh recalculates and requires reselection",
+    "100% reserve yields no spend; Nyx/Stanton candidates explicitly cross Pyro; freight/account/contract storage remains unchanged",
+    "Escape and focus restoration; English 1366 desktop / 390 mobile input, scrollable results, review and lobby return without document overflow"
+  ],
+  "errors": []
+}

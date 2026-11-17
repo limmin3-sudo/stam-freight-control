@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "Price comparison exports a downloadable CSV with explicit SCU price units",
+    "CSV UNIT→SCU scaling, explicit review gate, ID-bound confirmed report stored only in session; source snapshot unchanged",
+    "Invalid price unit rejected without changing prior confirmed reports",
+    "Actual Tesseract OCR reads a synthetic kiosk image; draft recognition cannot overwrite confirmed prices without review",
+    "Final bundle can clear and reselect a ship without an exception; reserve toggle retains 21%"
+  ],
+  "errors": [],
+  "ocrText": "Agricium\n\nAdmin - ARC-L1\nBUY: 10 aUEC/SCU\nSELL: 20 aUEC/SCU\nSTOCK: 42 SCU\n\nDEMAND: 12 SCU\n",
+  "source": "Synthetic screenshot, real OCR engine and CDN model via verified Node TLS proxy; no game screenshot accuracy claim",
+  "cdnRequests": [
+    "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js",
+    "https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js",
+    "https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm.js",
+    "https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz"
+  ]
+}

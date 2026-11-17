@@ -1,0 +1,468 @@
+{
+  "checkedAt": "2026-11-16T12:55:21.008107+00:00",
+  "method": "Public fresh Chromium via TLS-verifying Node fetch bridge; no source mocks, account login or submissions",
+  "files": [
+    {
+      "path": "evidence/arkanis-text.txt",
+      "bytes": 12647,
+      "capturedAt": "2026-11-16T12:42:22.340724+00:00",
+      "sha256": "37bb9f4280985e2227f5bb7053a5d974e8b095f2eeb50efa4fb937f638db1d59"
+    },
+    {
+      "path": "evidence/citizenpad-text.txt",
+      "bytes": 2140,
+      "capturedAt": "2026-11-16T12:42:22.344466+00:00",
+      "sha256": "d3b998ff5118a28a3ef70b0880c6d4c60232b49a5a22c171e615073ecd8a6840"
+    },
+    {
+      "path": "evidence/datarunner-readme-excerpt.txt",
+      "bytes": 6325,
+      "capturedAt": "2026-11-16T12:51:37.769069+00:00",
+      "sha256": "79e83dea34161e1e2e5ea3e281b413a44803b0d5052a9ea9873deab72e741827"
+    },
+    {
+      "path": "evidence/gallog-cutlass-1m-body.txt",
+      "bytes": 2073,
+      "capturedAt": "2026-11-16T12:38:44.810696+00:00",
+      "sha256": "843f384b94e3e0ad9e7c996a1132223e808b139ed2145afadaf5ef84b554af4f"
+    },
+    {
+      "path": "evidence/gallog-cutlass-1m-controls.json",
+      "bytes": 1264,
+      "capturedAt": "2026-11-16T12:38:44.838694+00:00",
+      "sha256": "981f716b403695a31f6dc4527c5110a2658d5da3719d3e211af75de72120dccd"
+    },
+    {
+      "path": "evidence/gallog-cutlass-1m.png",
+      "bytes": 380586,
+      "capturedAt": "2026-11-16T12:38:45.090684+00:00",
+      "sha256": "4057edbd91e9132c298773cb1105d060423fff535d62f68c39b7dffd41ffc531"
+    },
+    {
+      "path": "evidence/gallog-cutlass-2stops-body.txt",
+      "bytes": 302,
+      "capturedAt": "2026-11-16T12:43:04.011727+00:00",
+      "sha256": "7b732e15e6048513175808f14fe7a71d9eaafae1e448d5b365fb74aa8d23695d"
+    },
+    {
+      "path": "evidence/gallog-cutlass-2stops-controls.json",
+      "bytes": 1064,
+      "capturedAt": "2026-11-16T12:43:04.055725+00:00",
+      "sha256": "47d3eb3ea04394cc4bbdb5e3d80cd62f7db58b175eefc7e4a72ca811b7b230be"
+    },
+    {
+      "path": "evidence/gallog-cutlass-2stops.png",
+      "bytes": 549529,
+      "capturedAt": "2026-11-16T12:43:04.415710+00:00",
+      "sha256": "d86b18b7072623496e3905e28dda99451214ea19af84e2784ff67fae51791889"
+    },
+    {
+      "path": "evidence/gallog-filters-body.txt",
+      "bytes": 4326,
+      "capturedAt": "2026-11-16T12:39:17.841294+00:00",
+      "sha256": "25f5bbb63159b231ccc6599f4564344f549e0d587a6a3fd5f65270af8cb24050"
+    },
+    {
+      "path": "evidence/gallog-filters-controls.json",
+      "bytes": 42536,
+      "capturedAt": "2026-11-16T12:39:17.917290+00:00",
+      "sha256": "94098d8031ccc18754736190a26df75dc625434bcfda3ca7ff2f7a01b80f419a"
+    },
+    {
+      "path": "evidence/gallog-filters.png",
+      "bytes": 390305,
+      "capturedAt": "2026-11-16T12:39:18.141281+00:00",
+      "sha256": "070f6dbeec007567c89691867b0d98b196647748f462f354f71e6ba99d2e9da8"
+    },
+    {
+      "path": "evidence/gallog-reinvest-body.txt",
+      "bytes": 4326,
+      "capturedAt": "2026-11-16T12:40:06.367234+00:00",
+      "sha256": "25f5bbb63159b231ccc6599f4564344f549e0d587a6a3fd5f65270af8cb24050"
+    },
+    {
+      "path": "evidence/gallog-reinvest-controls.json",
+      "bytes": 42536,
+      "capturedAt": "2026-11-16T12:40:06.711220+00:00",
+      "sha256": "94098d8031ccc18754736190a26df75dc625434bcfda3ca7ff2f7a01b80f419a"
+    },
+    {
+      "path": "evidence/gallog-reinvest.png",
+      "bytes": 368586,
+      "capturedAt": "2026-11-16T12:40:07.227198+00:00",
+      "sha256": "f7acc57c7a072d9c07663379fe122f560142b822bbdc10633e0f7d59d15d65bd"
+    },
+    {
+      "path": "evidence/regolith-body.txt",
+      "bytes": 690,
+      "capturedAt": "2026-11-16T12:43:11.475411+00:00",
+      "sha256": "e2ae6fa4ffafe447a8d4d853963d9b30ca5104edeb95f2b91b56f884d039b730"
+    },
+    {
+      "path": "evidence/regolith-controls.json",
+      "bytes": 2,
+      "capturedAt": "2026-11-16T12:43:11.515409+00:00",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "evidence/regolith.png",
+      "bytes": 641847,
+      "capturedAt": "2026-11-16T12:43:11.979390+00:00",
+      "sha256": "f4952b4c3294e52aa1583e4ea910e0f7bd6cbfb918751fc71fcbecda5f7a2000"
+    },
+    {
+      "path": "evidence/sc-cargo-cutlass-body.txt",
+      "bytes": 195,
+      "capturedAt": "2026-11-16T12:46:16.171068+00:00",
+      "sha256": "1b24f4d24bf3d10aec29ac0010d4a5c5ed069f28547d1cca4649fa16ee294d2d"
+    },
+    {
+      "path": "evidence/sc-cargo-cutlass-controls.json",
+      "bytes": 3563,
+      "capturedAt": "2026-11-16T12:46:16.187068+00:00",
+      "sha256": "6df3b68518a322e5288848d97fa4ac50e233bf089da9580854d6e0a6cc413c0a"
+    },
+    {
+      "path": "evidence/sc-cargo-cutlass.png",
+      "bytes": 652965,
+      "capturedAt": "2026-11-16T12:46:16.507053+00:00",
+      "sha256": "48cbff3fafca4b596499818e3885f52e1599c5b075cf8c0185a6042d05ce6db4"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32-body.txt",
+      "bytes": 1651,
+      "capturedAt": "2026-11-16T12:41:14.916343+00:00",
+      "sha256": "5701d0751ca0740e28db4a5b44edda7e98ba9b1bc83c9b4faecfaf0a4d482a24"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32-controls.json",
+      "bytes": 1979,
+      "capturedAt": "2026-11-16T12:41:14.924343+00:00",
+      "sha256": "493417e3fa3d52b3e2fbe0c29e0f64af32e65810365d731fa52238d2e507831f"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32-stolen-body.txt",
+      "bytes": 1593,
+      "capturedAt": "2026-11-16T12:41:43.975114+00:00",
+      "sha256": "dffd9bb6a58ede43a6c101e6ba188cd92086e88e1d9952da70b1bb0f14afd571"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32-stolen-controls.json",
+      "bytes": 1978,
+      "capturedAt": "2026-11-16T12:41:44.115108+00:00",
+      "sha256": "efab92396f9065a8d8827342ccef1a65316c7ab12a968c8dc0f995ec8a52a2c0"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32-stolen.png",
+      "bytes": 130504,
+      "capturedAt": "2026-11-16T12:41:44.251103+00:00",
+      "sha256": "ffc5827bc905e91cb096cae13331b271983b133e1036f84bb514ea3903cdc55f"
+    },
+    {
+      "path": "evidence/sct-buyer-laranite32.png",
+      "bytes": 130801,
+      "capturedAt": "2026-11-16T12:41:15.044338+00:00",
+      "sha256": "d5424ce556dafbf5c6f8b34b250164bb491209fadab4c7fe595de71cb31e5e08"
+    },
+    {
+      "path": "evidence/sct-calculations.json",
+      "bytes": 79815,
+      "capturedAt": "2026-11-16T12:46:17.663067+00:00",
+      "sha256": "51f399e801765a78687d59d0be0c60e9406468bfc58736f48f8bb0b81b0f0fab"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-autoload-body.txt",
+      "bytes": 4057,
+      "capturedAt": "2026-11-16T12:40:44.897611+00:00",
+      "sha256": "b28223f2ec599070372917321116acc0d1545e54715ddba8244de76d2091c498"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-autoload-controls.json",
+      "bytes": 12295,
+      "capturedAt": "2026-11-16T12:40:44.957608+00:00",
+      "sha256": "aa649d29325c4314882e00e65750b93c5f43e67bb06bb6d396477a22c824bbb9"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-autoload.png",
+      "bytes": 184130,
+      "capturedAt": "2026-11-16T12:40:45.109602+00:00",
+      "sha256": "7740b73cb2e6e85699b6836a10b27f018d0c973bf2487402f745405464091341"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-pure-body.txt",
+      "bytes": 4043,
+      "capturedAt": "2026-11-16T12:38:16.675889+00:00",
+      "sha256": "37d64e651efaabac77f83a109b597ca32fa22c0ebbbfb51141b62da79cb682ed"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-pure-controls.json",
+      "bytes": 12296,
+      "capturedAt": "2026-11-16T12:38:16.771885+00:00",
+      "sha256": "9c94a66270488d0a02d275c36ee3c7b02a60791e577c648243ac2724c96ed115"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-pure.png",
+      "bytes": 175160,
+      "capturedAt": "2026-11-16T12:38:16.947878+00:00",
+      "sha256": "0b963f176a4636d7c9c51dc2290c57acfd895fd0bfc224649ac5ddb6e1f5053e"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-time-body.txt",
+      "bytes": 4047,
+      "capturedAt": "2026-11-16T12:37:27.149992+00:00",
+      "sha256": "dd4fcbd93d04898aa8532fd03d65c8e12361ac8298f79552ee0c1fa040fe2701"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-time-controls.json",
+      "bytes": 12296,
+      "capturedAt": "2026-11-16T12:37:27.181990+00:00",
+      "sha256": "3ae1a5e93eddaf0d3f2fc98a23445dac806e92a6265dda5c5b0f91baa0c4a8da"
+    },
+    {
+      "path": "evidence/sct-cutlass-1m-time.png",
+      "bytes": 174724,
+      "capturedAt": "2026-11-16T12:37:27.337984+00:00",
+      "sha256": "40d058e40e017e2a9dc5bdd3243a9ff0f2507c13ff2ea9706b202f17ff44c2d9"
+    },
+    {
+      "path": "evidence/sct-enroute-everus-seraphim-body.txt",
+      "bytes": 1734,
+      "capturedAt": "2026-11-16T12:43:40.242193+00:00",
+      "sha256": "690fb082797c0db1a1aa612f5bbb4eae1c47074dac484318cae62f4360f66245"
+    },
+    {
+      "path": "evidence/sct-enroute-everus-seraphim-controls.json",
+      "bytes": 3919,
+      "capturedAt": "2026-11-16T12:43:40.330189+00:00",
+      "sha256": "93022c707738e577852869358691a6b8a3282374ae51338395d3c703fc5bafe1"
+    },
+    {
+      "path": "evidence/sct-enroute-everus-seraphim.png",
+      "bytes": 139242,
+      "capturedAt": "2026-11-16T12:43:40.510181+00:00",
+      "sha256": "de7c2cfbd4ac0d6911b4da1855f898736e33655a701c3ecf15634574f150629a"
+    },
+    {
+      "path": "evidence/sct-filters-body.txt",
+      "bytes": 1509,
+      "capturedAt": "2026-11-16T12:35:55.757873+00:00",
+      "sha256": "18412299d49c8b16f2888e05553bc748facd87e0fe85510d8d8743e8cdaa057e"
+    },
+    {
+      "path": "evidence/sct-filters-controls.json",
+      "bytes": 8000,
+      "capturedAt": "2026-11-16T12:35:55.781872+00:00",
+      "sha256": "d1652a162847de4fb7fa4bc53db10ee3dc96081104025cf3c60468734d45766d"
+    },
+    {
+      "path": "evidence/sct-filters.png",
+      "bytes": 115657,
+      "capturedAt": "2026-11-16T12:35:55.937865+00:00",
+      "sha256": "d5ad496e4e0936e11802e67660e5bdac10b270cedf3746aec11c173d41da190a"
+    },
+    {
+      "path": "evidence/sct-help-body.txt",
+      "bytes": 4480,
+      "capturedAt": "2026-11-16T12:40:14.846878+00:00",
+      "sha256": "ac1b309a2042d5ea06fe25f16861200d46eb35d22a9262e0c027aa17ebd94ec3"
+    },
+    {
+      "path": "evidence/sct-hullc-10m-autoload-body.txt",
+      "bytes": 4161,
+      "capturedAt": "2026-11-16T12:46:16.523053+00:00",
+      "sha256": "a653253ec726f8d176ed606cf5150d6ca88eb19c97a9b1821f840082bda8eafe"
+    },
+    {
+      "path": "evidence/sct-hullc-10m-autoload-controls.json",
+      "bytes": 12289,
+      "capturedAt": "2026-11-16T12:46:16.579050+00:00",
+      "sha256": "8550fc0fe2ecd802f3e86bcfd9f1d26c5fbcda55d1269a7c77d86a8a308bbb1f"
+    },
+    {
+      "path": "evidence/sct-hullc-10m-autoload.png",
+      "bytes": 181226,
+      "capturedAt": "2026-11-16T12:46:16.843038+00:00",
+      "sha256": "c45f0438f2b29946a2a8ccfe77762297eb2b8646ff7a3c3f9eda25055a0363d1"
+    },
+    {
+      "path": "evidence/sct-spec.txt",
+      "bytes": 107806,
+      "capturedAt": "2026-11-16T12:37:33.733712+00:00",
+      "sha256": "221d1dd32ce0444522b25d2d074c7a1020ebd04addbbe7623b3d6d75524bf361"
+    },
+    {
+      "path": "evidence/starhead-calculations.json",
+      "bytes": 17694,
+      "capturedAt": "2026-11-16T12:54:56.034366+00:00",
+      "sha256": "ea86b57d34c17082a02f95530f8b7e76475cf317ac117b4b688c976274fc0d9e"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1day-body.txt",
+      "bytes": 717,
+      "capturedAt": "2026-11-16T12:53:59.119015+00:00",
+      "sha256": "3119cb0b1c0faf2ea398be6deec443ec53a8b4f4767864b992f7b8ae804b6033"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1day-controls.json",
+      "bytes": 4037,
+      "capturedAt": "2026-11-16T12:53:59.135014+00:00",
+      "sha256": "799a0f061f8ea1f1e2d4ecd1e28caae7c7aeeaf57eb4dcd4bc149ffdc4efcaab"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1day.png",
+      "bytes": 317459,
+      "capturedAt": "2026-11-16T12:53:59.570995+00:00",
+      "sha256": "6bea6561648003d0a0886cf5b2e5722f4ed09cbe2a04acae11a44db5bd5de960"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1m-body.txt",
+      "bytes": 1308,
+      "capturedAt": "2026-11-16T12:51:56.080287+00:00",
+      "sha256": "1d8cfd2a9f45371d502428f59835075d37d54851f56dcc9207d69a8e7caad1d4"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1m-controls.json",
+      "bytes": 6177,
+      "capturedAt": "2026-11-16T12:51:56.180283+00:00",
+      "sha256": "2ca2538f4744daf0db1d176ae3154a078bdd79c036ea755a045e8403043ec9a4"
+    },
+    {
+      "path": "evidence/starhead-cutlass-hurston-1m.png",
+      "bytes": 344967,
+      "capturedAt": "2026-11-16T12:51:56.896252+00:00",
+      "sha256": "4052b88dca7841108eff378f7df27b1f81ba311018385094549bdc018713cad3"
+    },
+    {
+      "path": "evidence/starhead-home-body.txt",
+      "bytes": 4202,
+      "capturedAt": "2026-11-16T12:44:52.303120+00:00",
+      "sha256": "56b855b294a2f95399389e13665a1fca8c5a48693cf363ddd55d1984fe307cca"
+    },
+    {
+      "path": "evidence/starhead-home-controls.json",
+      "bytes": 667,
+      "capturedAt": "2026-11-16T12:44:52.347118+00:00",
+      "sha256": "6f96b855509d38c21febc9bd8df1b1886a2f34e1b189fc0db9fd64272ce4be7e"
+    },
+    {
+      "path": "evidence/starhead-home.png",
+      "bytes": 1194269,
+      "capturedAt": "2026-11-16T12:44:53.323076+00:00",
+      "sha256": "8f25e87a844571c1601fb24a2e003f8f4cc7328f3f03a241e1e65e9cf507f65c"
+    },
+    {
+      "path": "evidence/starhead-planner-ready-body.txt",
+      "bytes": 925,
+      "capturedAt": "2026-11-16T12:47:15.412448+00:00",
+      "sha256": "82d37a7f34c1d4b201165388b1d2843dfd3bbcb376eb7ed5cd9c1d9ea9e98a0e"
+    },
+    {
+      "path": "evidence/starhead-planner-ready-controls.json",
+      "bytes": 4197,
+      "capturedAt": "2026-11-16T12:47:15.428448+00:00",
+      "sha256": "8d7aebb52bf267aaddb60e269abd4b52299a0576392085653c2f082025b41d59"
+    },
+    {
+      "path": "evidence/starhead-planner-ready.png",
+      "bytes": 354009,
+      "capturedAt": "2026-11-16T12:47:15.844430+00:00",
+      "sha256": "cad9277ecd8bca7a078b815d092f67f363085efb181d79b2819f1fda5fcb9cee"
+    },
+    {
+      "path": "evidence/uex-assumptions.json",
+      "bytes": 5178,
+      "capturedAt": "2026-11-16T12:47:30.727606+00:00",
+      "sha256": "1906612f7d7f2bed37c9a330c2066eb7ac046fce5c6d5af2ee51d22e5e0c450e"
+    },
+    {
+      "path": "evidence/uex-community-text.txt",
+      "bytes": 7966,
+      "capturedAt": "2026-11-16T12:40:07.035766+00:00",
+      "sha256": "3ac34f04e9ce667af26a657464712781664dae4186bd49d1ac0432c694eec7c7"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m-body.txt",
+      "bytes": 6510,
+      "capturedAt": "2026-11-16T12:38:16.995876+00:00",
+      "sha256": "55d9b3bb320e15805d08f54d7c5644672e7eb4d795c9a26f254f7dd05282359e"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m-controls.json",
+      "bytes": 8822,
+      "capturedAt": "2026-11-16T12:38:17.151869+00:00",
+      "sha256": "b10630992675b9ce4588ab089c642108bf4b1a08c37b37aee09ab4d95455ada6"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m-legal-body.txt",
+      "bytes": 6515,
+      "capturedAt": "2026-11-16T12:39:18.213278+00:00",
+      "sha256": "eca292030c7777d06b810370d49c5f078ba0cab78488bdc052764d7dfd2da10b"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m-legal-controls.json",
+      "bytes": 8822,
+      "capturedAt": "2026-11-16T12:39:18.301274+00:00",
+      "sha256": "b10630992675b9ce4588ab089c642108bf4b1a08c37b37aee09ab4d95455ada6"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m-legal.png",
+      "bytes": 346838,
+      "capturedAt": "2026-11-16T12:39:18.473267+00:00",
+      "sha256": "f55aaf9b767fb2a1c1d40e196ae130600e4ec46e6908c26327c52e78aa7ad662"
+    },
+    {
+      "path": "evidence/uex-cutlass-1m.png",
+      "bytes": 357350,
+      "capturedAt": "2026-11-16T12:38:17.403858+00:00",
+      "sha256": "4e03dcbf97b690d625901a30ee66b7357d440983d8deb1eb9d59a37d60982fc3"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted-body.txt",
+      "bytes": 6436,
+      "capturedAt": "2026-11-16T12:41:15.228330+00:00",
+      "sha256": "838ececcdbb9f2a42ef81de8360f8c2e7add64c822674dc28cc3626a0464e309"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted-controls.json",
+      "bytes": 8822,
+      "capturedAt": "2026-11-16T12:41:15.312326+00:00",
+      "sha256": "b10630992675b9ce4588ab089c642108bf4b1a08c37b37aee09ab4d95455ada6"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted-loop-body.txt",
+      "bytes": 6495,
+      "capturedAt": "2026-11-16T12:46:16.899036+00:00",
+      "sha256": "1ecf980b17a6a18c585f7e22b6039e53bc19fee64f9f1f016d4883fce33d173a"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted-loop-controls.json",
+      "bytes": 8822,
+      "capturedAt": "2026-11-16T12:46:17.027030+00:00",
+      "sha256": "b10630992675b9ce4588ab089c642108bf4b1a08c37b37aee09ab4d95455ada6"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted-loop.png",
+      "bytes": 359797,
+      "capturedAt": "2026-11-16T12:46:17.455011+00:00",
+      "sha256": "f1f0cbaa7382ca1d21a37e094dedab072b9708c6f5f5b05daa347117f118e819"
+    },
+    {
+      "path": "evidence/uex-cutlass-legal-predicted.png",
+      "bytes": 359133,
+      "capturedAt": "2026-11-16T12:41:15.552316+00:00",
+      "sha256": "225f7fef336f0850d940162b31a1eb569749a9ec4d90fec794f5573115a0861e"
+    },
+    {
+      "path": "evidence/uex-tooltips.json",
+      "bytes": 242863,
+      "capturedAt": "2026-11-16T12:39:40.744321+00:00",
+      "sha256": "6c110f8b01ee36a654b563313dc79e6834b3a0862dba3fa63385ee32180023e0"
+    },
+    {
+      "path": "evidence/wingman-text.txt",
+      "bytes": 22760,
+      "capturedAt": "2026-11-16T12:42:22.358927+00:00",
+      "sha256": "7ce3243f024602d9da3140e0f99bb8ef7a293e9c4e840e532ca00e3cf30b8dea"
+    }
+  ]
+}

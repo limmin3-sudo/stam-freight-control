@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "All three staff: portraits, introductions, keyboard close/focus restoration, real room links; seeded flight storage unchanged",
+    "English, 1366×768 and 390×844 layouts, full portraits and usable close controls, no horizontal overflow",
+    "Normal-motion exit completes before removal; mixed locale preserves Korean staff names"
+  ],
+  "errors": [],
+  "missing": []
+}

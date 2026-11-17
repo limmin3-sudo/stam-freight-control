@@ -5,13 +5,17 @@ import {loungeTourStops} from './lounge-tour-content';
 import {createLoungeTourRenderer,tourGuideImages} from './lounge-tour-renderer';
 import logo from '../../../assets/stam-logo-transparent.png';
 import fallbackLounge from './assets/lounge-original-composite.png';
+import './tour-readability.css';
+import {useTourCaptionSpace} from './use-tour-caption-space';
 
-type Props={locale:Locale;motion:boolean;screen:SpaceScreen;onNavigate:(screen:SpaceScreen)=>void;onClose:()=>void;onTravelChange:(busy:boolean)=>void};
+type Props={locale:Locale;motion:boolean;screen:SpaceScreen;onNavigate:(screen:SpaceScreen)=>void;onClose:()=>void;onComplete?:()=>void;onTravelChange:(busy:boolean)=>void};
 type Phase='travel'|'logo'|'ignition'|'intro';
 type Renderer=Awaited<ReturnType<typeof createLoungeTourRenderer>>;
 const smooth=(a:number,b:number,t:number)=>{const n=Math.max(0,Math.min(1,(t-a)/(b-a)));return n*n*(3-2*n);};
 
 export function LoungeTour(props:Props){
+ const root=useRef<HTMLElement>(null),caption=useRef<HTMLElement>(null);
+ useTourCaptionSpace(root,caption);
  const [step,setStep]=useState(0),[phase,setPhase]=useState<Phase>('travel'),[paused,setPaused]=useState(false),[ready,setReady]=useState(false),[fallback,setFallback]=useState(false);
  const host=useRef<HTMLDivElement>(null),label=useRef<HTMLDivElement>(null),shade=useRef<HTMLDivElement>(null),plasma=useRef<HTMLDivElement>(null),api=useRef<Renderer|null>(null);
  const time=useRef(0),requested=useRef<SpaceScreen|null>(null),callbacks=useRef(props),stepRef=useRef(step),nextButton=useRef<HTMLButtonElement>(null),closeButton=useRef<HTMLButtonElement>(null),phaseRef=useRef<Phase>('travel');
@@ -66,9 +70,9 @@ export function LoungeTour(props:Props){
   return()=>{window.removeEventListener('keydown',onKey);document.removeEventListener('visibilitychange',visibility);};
  },[]);
 
- const advance=()=>{if(gate){props.onClose();return;}time.current=0;requested.current=null;phaseRef.current='travel';setPhase('travel');setPaused(false);setStep(step+1);};
+ const advance=()=>{if(gate){(props.onComplete??props.onClose)();return;}time.current=0;requested.current=null;phaseRef.current='travel';setPhase('travel');setPaused(false);setStep(step+1);};
  const skip=()=>{time.current=9.3;requested.current=stop.screen;callbacks.current.onNavigate(stop.screen);phaseRef.current='intro';setPhase('intro');setPaused(false);if(!ready){setFallback(true);setReady(true);}api.current?.render(step,9.3);if(shade.current)shade.current.style.opacity='0';if(plasma.current)plasma.current.style.opacity='0';};
- return <section className="lounge-tour" aria-label={en?'Guided lounge tour':'가이드와 라운지 투어'} data-stop={stop.id} data-phase={phase} data-ready={ready} data-paused={paused}>
+ return <section ref={root} className="lounge-tour" aria-label={en?'Guided lounge tour':'가이드와 라운지 투어'} data-stop={stop.id} data-phase={phase} data-ready={ready} data-paused={paused}>
   <div className="lounge-tour-stage" hidden={showMenu}>
    <div className="lounge-tour-photo">
     <div className="lounge-tour-world" ref={host}/>
@@ -85,10 +89,10 @@ export function LoungeTour(props:Props){
    <button type="button" onClick={props.onClose} ref={closeButton}>{en?'End tour':'투어 종료'}</button>
   </nav>
   {showMenu&&<div className="lounge-tour-portrait" aria-hidden="true"><img src={tourGuideImages[stop.guide]} alt=""/></div>}
-  <section className="lounge-tour-caption" aria-label={en?'Guide introduction':'가이드 안내'}>
+  <section ref={caption} className="lounge-tour-caption" aria-label={en?'Guide introduction':'가이드 안내'}>
    <header><span>FLIGHT DIRECTOR</span><small>{word(stop.name)} · {step+1} / 4</small></header>
    <p aria-live="polite">{word(arrived?stop.intro:stop.travel)}</p>
-   {arrived&&menuReady&&<button type="button" onClick={advance} ref={nextButton}>{gate?(en?'Finish lounge tour':'라운지 투어 마치기'):(en?`Continue to ${word(loungeTourStops[step+1]!.name)}`:`${word(loungeTourStops[step+1]!.name)}로 가시죠`)} <span aria-hidden="true">→</span></button>}
+   {arrived&&menuReady&&<button type="button" onClick={advance} ref={nextButton}>{gate?(props.onComplete?(en?'Board shuttle to control centre':'셔틀 타고 관제센터로'):(en?'Finish lounge tour':'라운지 투어 마치기')):(en?`Continue to ${word(loungeTourStops[step+1]!.name)}`:`${word(loungeTourStops[step+1]!.name)}로 가시죠`)} <span aria-hidden="true">→</span></button>}
    {arrived&&!menuReady&&<span role="status">{en?'Opening the screen…':'화면을 열고 있어요…'}</span>}
   </section>
  </section>;

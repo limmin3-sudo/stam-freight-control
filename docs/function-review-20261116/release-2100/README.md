@@ -19,3 +19,12 @@
 개발 integration/freight-division-20261113 → 인계 handoff/local-studio-20261110/main에 같은 커밋을 반영한다. 공개 Actions·HTML/version.json·실제 경로 확인 결과는 배포 완료 후 기록한다.
 
 상위 시설 메뉴는 다음 작업이며 이 릴리스의 기본 진입이나 기존 라운지·관제센터를 바꾸지 않는다.
+
+## 공개 확인 완료
+
+- 최종 SHA: `9ae749824e76b67fdbfcb5785fa03ec05fe2bd76`.
+- [Pages 실행](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/43785929975): 성공.
+- [공개 사이트](https://limmin3-sudo.github.io/stam-freight-control/).
+- `published-check.json`: 공개 version.json/HTML의 SHA와 beta 2.10.0 일치, 5개 안내 주제/실제 이미지 경로/앱 1.4 설치 링크/안내데스크 진입/인증 설명/업데이트/고정 메뉴·390px 확인. 페이지 오류·누락 응답 0건.
+- 클라우드 Chromium의 프록시 인증서 신뢰 경계 때문에 공개 HTTPS 응답을 환경 프록시와 CA를 검증하는 Playwright API 요청으로 받아 실제 공개 origin에서 렌더링했다. TLS 검증을 끄지 않았다. 첫 직접 요청의 IPv6 접근 오류와 Chromium 인증서 오류는 검사 환경 문제였으며 이 경로로 해소했다.
+- 사용자 계정 로그인/서버 데이터 쓰기 없음. 이번 배포 후 문서/캡처만 로컬에 추가했으며 문서만을 위한 재배포는 하지 않는다.

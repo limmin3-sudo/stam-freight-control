@@ -1,0 +1,28 @@
+{
+  "file": "facility-fresh-harbor-v3.png",
+  "status": "awaiting-user-approval",
+  "method": "fresh text-to-image generation; no raster references or edit input",
+  "dimensions": [
+    1672,
+    941
+  ],
+  "sources": [
+    {
+      "name": "Seraphim Station",
+      "url": "https://starcitizen.tools/Seraphim_Station"
+    },
+    {
+      "name": "Everus Harbor",
+      "url": "https://starcitizen.tools/Everus_Harbor"
+    }
+  ],
+  "referenceUse": "Public reference images inspected for architecture; not used as product assets or as raster input to final generation.",
+  "requirements": [
+    "STAM FREIGHT DIVISION starting facility overview",
+    "Lounge, orbital control station, trade center, guide center",
+    "Two construction sites for future replacement",
+    "Long axial station spine, separated rings, industrial docking arms",
+    "Do not iteratively edit the raster; generate a fresh original"
+  ],
+  "implementation": "Not applied to runtime or deployed; construction sites and buildings still share one concept image. Separate product layers remain to be made."
+}

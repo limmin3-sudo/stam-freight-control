@@ -1,0 +1,66 @@
+/* Functional screen endpoint. Approved frame/materials only; room travel belongs
+   to the cinematic handoff. Shared frame/type rules also serve the academy; trade controls keep their own classes. */
+.facility-lobby[data-monitor=true]{justify-content:stretch;align-items:stretch;padding:12px;background:#040c15;container-type:inline-size}
+.facility-lobby[data-monitor=true]>.lobby-stage{position:relative;display:flex;flex:1;min-height:0;height:100%;width:100%;max-width:none;aspect-ratio:auto;padding:0;overflow:hidden;isolation:isolate;border:14px solid transparent;border-image:url('./assets/console-screen-only.png') 32 / 14px stretch;background:radial-gradient(ellipse at 48% 0,#102936,#040e18 75%)}
+.facility-lobby[data-monitor=true]>.lobby-stage>:is(.lobby-camera,.lobby-heading,.lobby-loading,.lobby-regions,.lobby-leaders,.lobby-places,.lobby-exit),.facility-lobby[data-monitor=true]>.lobby-hint{display:none}
+.facility-lobby[data-monitor=true] .lobby-detail.market-room{position:relative;inset:auto;flex:1;min-width:0;min-height:0;width:100%;height:100%;max-height:none;margin:0;padding:20px 26px 28px;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none;font:500 17px/1.65 BarlowAirReview,Barlow,SUIT,sans-serif}
+.facility-lobby[data-monitor=true] .market-header{align-items:center;gap:20px;padding-bottom:16px}
+.facility-lobby[data-monitor=true] .market-header h2{font-size:28px;margin:0;color:#e5f1f5;font-weight:500}
+.facility-lobby[data-monitor=true] .market-header .market-eyebrow{font-size:10px;letter-spacing:.2em;margin:0 0 4px;color:#c6dce6}
+.facility-lobby[data-monitor=true] .market-header p:not(.market-eyebrow){font-size:15px;line-height:1.6;margin-top:6px;max-width:70ch;color:#b5ccd6}
+.facility-lobby[data-monitor=true] .market-header>button{flex:none;min-width:156px;width:auto;min-height:48px;margin:0;font-size:16px}
+.facility-lobby[data-monitor=true] :is(h3,h4){font-weight:500}
+.facility-lobby[data-monitor=true] :is(button,input,select,textarea){font-family:BarlowAirReview,Barlow,SUIT,sans-serif;font-weight:500}
+.facility-lobby[data-monitor=true] .market-action{font-size:16px;min-height:46px}
+.facility-lobby[data-monitor=true] .trade-monitor-tools{display:flex;align-items:start;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #82bac52b}
+.facility-lobby[data-monitor=true] .trade-monitor-tools .suite-controls{margin:0;gap:10px}
+.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel{margin:0;padding:0;border:0;min-width:260px}
+.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel>summary{padding:10px 0;font-size:16px;text-align:right}
+.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel[open]{flex-basis:100%}
+.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel[open]>summary{text-align:left}
+.facility-lobby[data-monitor=true] .market-tabs{gap:10px;margin:18px 0}
+.facility-lobby[data-monitor=true] .trade-plan-inputs{padding:20px 22px;background:#10263188;border:1px solid #7db3bf44;border-radius:8px;margin:18px 0}
+.facility-lobby[data-monitor=true] .trade-plan-inputs>h3{font-size:22px;color:#efd49c;margin:0 0 12px}
+.facility-lobby[data-monitor=true] .trade-advisors{grid-template-columns:1fr 1fr minmax(170px,.8fr);gap:14px;margin:18px 0}
+.facility-lobby[data-monitor=true] .trade-advisors button{min-height:134px;padding:8px 20px}
+.facility-lobby[data-monitor=true] .trade-advisors button>img{height:118px;width:80px;object-fit:contain}
+.facility-lobby[data-monitor=true] .trade-advisors strong{font-size:20px}
+.facility-lobby[data-monitor=true] .trade-current-status{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.7fr);gap:4px 24px;align-items:center;margin:18px 0;padding:18px 22px;border-color:#b5c6bf55;background:linear-gradient(105deg,#293e4266,#10232e66)}
+.facility-lobby[data-monitor=true] .trade-current-status h3{grid-column:1;font-size:18px;margin:0}
+.facility-lobby[data-monitor=true] .trade-current-status>p{grid-column:1/-1;color:#efd6a3;font-size:22px;line-height:1.4;margin:6px 0 14px}
+.facility-lobby[data-monitor=true] .trade-current-status>p:first-of-type{grid-column:1;grid-row:2;font-size:20px;margin:0}
+.facility-lobby[data-monitor=true] .trade-current-status .suite-metrics{grid-column:2;grid-row:1/3;justify-content:space-between;gap:12px 24px}
+.facility-lobby[data-monitor=true] .trade-current-status .suite-metrics>span{display:flex;flex-direction:column;font-size:15px}
+.facility-lobby[data-monitor=true] .trade-current-status .suite-metrics strong{font-size:22px;font-weight:500}
+.facility-lobby[data-monitor=true] .trade-visuals{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;margin:18px 0 24px}
+.facility-lobby[data-monitor=true] .trade-map-canvas{height:clamp(350px,42vh,500px)}
+.facility-lobby[data-monitor=true] .trade-cargo-view{min-height:0}
+.facility-lobby[data-monitor=true] .trade-cargo-panel .cargo-stage:not(:fullscreen){height:clamp(350px,42vh,500px);min-height:350px}
+.facility-lobby[data-monitor=true] .trade-workbench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;align-items:start;margin-top:24px}
+.facility-lobby[data-monitor=true] .trade-workbench>section{min-width:0;padding:20px;background:#11273388;border:1px solid #87b4c344;border-radius:8px}
+.facility-lobby[data-monitor=true] .trade-workbench>section>h3{font-size:24px;margin:0 0 18px;color:#efd49c}
+.facility-lobby[data-monitor=true] .trade-workbench .suite-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.facility-lobby[data-monitor=true] .trade-history{border-top:1px solid #8ab7c344;padding-top:20px;margin-top:24px}
+.facility-lobby[data-monitor=true] .market-layout{grid-template-columns:minmax(180px,230px) minmax(0,1fr);align-items:start;gap:24px}
+.facility-lobby[data-monitor=true] .market-commodities{position:sticky;top:0;max-height:62vh;padding-top:10px;background:#091b26;border:1px solid #7da5b33d;border-radius:6px}
+.facility-lobby[data-monitor=true] .market-results{padding:20px;border:1px solid #7da5b33d;border-radius:8px;background:#10243088}
+.facility-lobby[data-monitor=true] .market-table table{font-size:16px}
+.facility-lobby[data-monitor=true] .suite-return{position:static;flex:none;align-self:flex-end;margin:4px 20px;background:transparent;border:0;isolation:isolate}
+.facility-lobby[data-monitor=true]:has(.suite-return)>.lobby-stage{flex-direction:column}
+@container(max-width:1100px){.facility-lobby[data-monitor=true] .trade-current-status{display:block}.facility-lobby[data-monitor=true] .trade-current-status>p:first-of-type{margin:6px 0 14px}.facility-lobby[data-monitor=true] .trade-workbench{grid-template-columns:1fr}.facility-lobby[data-monitor=true] .trade-advisors{grid-template-columns:1fr 1fr}.facility-lobby[data-monitor=true] .trade-advisors>p{grid-column:1/-1;margin:0}.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel>summary{text-align:left}}
+@container(max-width:900px){.facility-lobby[data-monitor=true] .trade-visuals{grid-template-columns:1fr}.facility-lobby[data-monitor=true] .suite-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.facility-lobby[data-monitor=true] .market-layout{grid-template-columns:160px minmax(0,1fr);gap:14px}}
+@media(max-width:760px){
+ .facility-lobby[data-monitor=true]{padding:4px;overflow:auto;container-type:normal}
+ .facility-lobby[data-monitor=true]>.lobby-stage{height:auto;min-height:100%;overflow:visible;border-width:7px;border-image-width:7px;display:block}
+ .facility-lobby[data-monitor=true] .lobby-detail.market-room{height:auto;padding:16px 12px 24px;overflow:visible;scrollbar-gutter:auto}
+ .facility-lobby[data-monitor=true] .market-header{display:flex;flex-wrap:wrap;gap:10px}.facility-lobby[data-monitor=true] .market-header h2{font-size:26px}.facility-lobby[data-monitor=true] .market-header>button{min-width:140px}
+ .facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel{min-width:0;width:100%}.facility-lobby[data-monitor=true] .trade-monitor-tools>.trade-cloud-panel>summary{text-align:left}
+ .facility-lobby[data-monitor=true] .trade-plan-inputs{padding:16px 12px}.facility-lobby[data-monitor=true] .trade-advisors{grid-template-columns:1fr 1fr;gap:10px}.facility-lobby[data-monitor=true] .trade-advisors>p{grid-column:1/-1}.facility-lobby[data-monitor=true] .trade-advisors button{padding:12px 8px}.facility-lobby[data-monitor=true] .trade-advisors strong{font-size:17px}
+ .facility-lobby[data-monitor=true] :is(.suite-fields,.trade-workbench,.trade-workbench .suite-fields,.trade-visuals,.market-layout){grid-template-columns:1fr}
+ .facility-lobby[data-monitor=true] .trade-current-status{display:block;padding:16px}.facility-lobby[data-monitor=true] .trade-current-status>p:first-of-type{margin:6px 0 14px}.facility-lobby[data-monitor=true] .trade-current-status>p{font-size:20px}.facility-lobby[data-monitor=true] .trade-workbench>section{padding:16px}
+ .facility-lobby[data-monitor=true] .market-commodities{position:static;max-height:180px;overflow:auto;display:flex;flex-wrap:wrap;gap:3px;padding:8px}.facility-lobby[data-monitor=true] .market-commodities>p{display:block;flex-basis:100%}.facility-lobby[data-monitor=true] .market-commodities button{white-space:normal;width:auto;flex:1 0 40%}
+ .facility-lobby[data-monitor=true] .market-results{padding:14px 10px}.facility-lobby[data-monitor=true] .market-table{overflow-x:auto}.facility-lobby[data-monitor=true] .trade-map-canvas{height:350px}.facility-lobby[data-monitor=true] .suite-return{display:block;margin:10px 12px}
+}
+
+.facility-lobby[data-monitor=true] .trade-suite label{font-size:16px}
+@media(max-width:760px){.facility-lobby[data-monitor=true] .trade-monitor-tools .suite-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.facility-lobby[data-monitor=true] .trade-monitor-tools .suite-controls>button{min-height:50px;padding:10px 14px}.facility-lobby[data-monitor=true] .trade-monitor-tools .suite-controls>button:last-child{grid-column:1/-1}}
