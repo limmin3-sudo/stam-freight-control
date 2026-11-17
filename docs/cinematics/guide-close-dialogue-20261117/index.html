@@ -1,0 +1,23 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STAM · 인물 자산 검토</title>
+<style>
+@font-face{font-family:SUIT;src:url('../../../apps/control-room/src/assets/fonts/SUIT-Variable.woff2')}*{box-sizing:border-box}body{margin:0;background:#071018;color:#e6eff1;font-family:SUIT,system-ui,sans-serif}header{padding:24px 32px;border-bottom:1px solid #d5ba7940}small{color:#d7c18f;letter-spacing:.18em}h1{font-size:25px;font-weight:500;margin:8px 0}header p{color:#a7bdc6;font-size:13px;margin:6px 0}nav{display:flex;gap:8px;flex-wrap:wrap;padding:18px 32px}button,a{color:#e6eff1;background:#14232c;border:1px solid #75949c66;border-radius:4px;padding:10px 16px;cursor:pointer;font:inherit;font-size:13px}button[aria-pressed=true]{border-color:#e5c477;background:#51432d;color:#ffe9b8}main{padding:0 32px 28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}figure{margin:0;position:relative;height:670px;overflow:hidden;border:1px solid #76959d44;border-radius:8px;background:linear-gradient(120deg,#163040,#07121a)}figure img{height:calc(100% - 48px);max-width:100%;object-fit:contain;display:block;margin:0 auto}figcaption{height:48px;padding:14px 20px;background:#060e16c9;color:#cfdee0;font-size:13px}.close img{height:calc(100% - 48px)}.light figure{background:#c2cbd0}.light figure img{filter:none}footer{padding:0 32px 28px;display:flex;gap:12px;flex-wrap:wrap}a{text-decoration:none}@media(max-width:760px){main{padding:0 12px 16px;gap:8px}figure{height:450px}header,nav{padding:16px}figcaption{font-size:11px;padding:9px;height:48px}}
+</style>
+<header><small>STAM / CHARACTER ASSETS</small><h1>파트너 근접 대화 · 가이드 인솔</h1><p>왼쪽: 기존 인물 원본 / 오른쪽: 신규 자산. 생성 결과 검토용이며 얼굴이 픽셀 단위로 동일하다는 의미는 아닙니다.</p></header>
+<nav id="nav"></nav><main><figure><figcaption id="source-label">기존 원본</figcaption><img id="source" alt="기존 승인 인물"></figure><figure class="close"><figcaption id="new-label">신규 자산</figcaption><img id="result" alt="신규 인물 자산"></figure></main>
+<footer><button id="background">밝은 배경에서 확인</button><a href="../../../#/bridge?lang=ko">실제 관제센터에서 클릭해 보기 ↗</a><a id="asset" href="#" download>선택 자산 PNG</a></footer>
+<script>
+const root='../../../apps/control-room/src/assets/',guide='../desk-cinema-25d-20261113/assets/guide-entrance.png';
+const entries=[
+ ['오퍼레이터',root+'operator-identity-v2.png',root+'partner-close/operator.png','실제 연결 · 인사말 / 확대 / 복귀'],
+ ['항해사',root+'navigator-standing.png',root+'partner-close/navigator.png','실제 연결 · 인사말 / 확대 / 복귀'],
+ ['가이드',guide,root+'partner-close/director.png','근접 자산 준비 · 기존 데스크 영상 유지'],
+ ['수석 무역관',root+'facility-staff/senior-trade-officer.png','assets/senior-trade-officer-close.png','근접 자산 준비 · 기존 계획실 진입 유지'],
+ ['링 가문 중개인',root+'facility-staff/ling-broker.png','assets/ling-broker-close.png','근접 자산 준비 · 기존 계획실 진입 유지'],
+ ['지도 교수',root+'facility-staff/academic-advisor.png','assets/academic-advisor-close.png','근접 자산 준비 · 기존 방 선택 유지'],
+ ['가이드 · 앞서 안내',guide,'assets/guide-lead-lookback.png','실제 투어 연결 · 앞서서 돌아보는 정지 자세'],
+ ['가이드 · 시네마 소개',guide,'assets/guide-cinema-present.png','실제 투어 연결 · 입구 소개 자세']
+];
+const nav=document.querySelector('#nav');entries.forEach((entry,i)=>{const button=document.createElement('button');button.textContent=entry[0];button.onclick=()=>select(i);nav.append(button)});
+function select(i){const e=entries[i];document.querySelector('#source').src=e[1];document.querySelector('#result').src=e[2];document.querySelector('#source-label').textContent=e[0]+' / 기존 원본';document.querySelector('#new-label').textContent=e[3];document.querySelector('#asset').href=e[2];[...nav.children].forEach((b,n)=>b.setAttribute('aria-pressed',String(n===i)))}
+document.querySelector('#background').onclick=e=>{document.body.classList.toggle('light');e.target.textContent=document.body.classList.contains('light')?'어두운 배경에서 확인':'밝은 배경에서 확인'};select(0);
+</script></html>

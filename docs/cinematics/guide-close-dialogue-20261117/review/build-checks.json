@@ -1,0 +1,13 @@
+{
+  "typescript": "passed",
+  "productionBuild": "passed",
+  "buildWarning": "Existing chunks exceed 500KB; no build failure",
+  "appTestFiles": 34,
+  "appTestFailures": 0,
+  "commands": [
+    "npm run check --prefix apps/control-room",
+    "node apps/control-room/node_modules/vite/bin/vite.js build apps/control-room --outDir /tmp/stam-facility-build --emptyOutDir",
+    "npm run test --prefix apps/control-room"
+  ],
+  "recording": "Actual production browser: partner click, approach, dialogue, return; no generated video or synthetic UI screenshot."
+}
