@@ -1,0 +1,37 @@
+{
+  "base": "2c637afa21c9de904b3ad58b289215f3508670ec",
+  "typecheck": "pass",
+  "productionBuild": "pass",
+  "appTestFiles": 33,
+  "appTestFailures": 0,
+  "rootTests": "not repeated; no server/calculation/storage changes",
+  "buildWarning": "Existing large main chunk warning",
+  "assetsUnmodified": [
+    {
+      "path": "apps/control-room/src/assets/facility-lobbies/trade-lobby-approved.png",
+      "sha256": "a911d0e57151afde0003cb62aaff82a3f74cc5d5a9eb1b79bae1812c55d61507"
+    },
+    {
+      "path": "apps/control-room/src/assets/facility-lobbies/academy-lobby-approved.png",
+      "sha256": "9e77e13ab7722691942a3fa66867b54b9168e872af18ab900be1e004a1b05c24"
+    },
+    {
+      "path": "apps/control-room/src/assets/facility-staff/senior-trade-officer.png",
+      "sha256": "2766bd955c67d666fb18692852a8b8c4361fdddfd66ef37ef7a46496e33e65b2"
+    },
+    {
+      "path": "apps/control-room/src/assets/facility-staff/ling-broker.png",
+      "sha256": "84bbeae274100ee156cddadca5a137fd591c173d9333dd2ba7fcf34920773134"
+    },
+    {
+      "path": "apps/control-room/src/assets/facility-staff/academic-advisor.png",
+      "sha256": "48141beca7699731dfd9b8ad10bc95994863204b88c92f1585cfdad9e48b072c"
+    }
+  ],
+  "preview": {
+    "durationSeconds": 18.6,
+    "source": "actual Chromium browser recording",
+    "audio": false,
+    "newVideoGeneration": false
+  }
+}

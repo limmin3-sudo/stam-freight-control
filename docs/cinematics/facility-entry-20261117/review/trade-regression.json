@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "Approved bezel and glass assets, Barlow/SUIT 500, one site masthead/sidebar; planner inputs survive control navigation and reserve toggle",
+    "Control shows current cash/cargo and prices with optional map/cargo; transaction confirmation Escape stays in room, confirmed expense preserves cargo and freight",
+    "Cloud/backup controls accessible, refresh preserves ledger; all market tabs and Escape-to-lobby/focus work",
+    "1366×768 and English 390px: three screens fit, scroll, and return to lobby; reduced motion supported"
+  ],
+  "errors": [],
+  "liveGame": false
+}

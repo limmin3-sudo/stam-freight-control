@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "base": "http://127.0.0.1:5201/stam-freight-control/",
+  "checks": [
+    "Both approved traders -> distinct scope in existing single TradeWorkspace, approach/return and character focus restoration",
+    "Three trade places preserve existing market/planner/price-first control, 4 SCU ledger, Escape return",
+    "Escape cancels pending route; sidebar same-lobby and other-facility clicks cancel timers without a delayed reroute",
+    "Professor introduces and selects all three existing academy rooms; lessons, archive and six-contract study remain reachable",
+    "Browser back/forward and deep-link reload retain route without replaying camera travel",
+    "Actual transaction dialog retains Escape priority; unconfirmed review and all lobby navigation preserve seeded ledger/flight/account storage",
+    "1366 short desktop and 390px mobile: full-body proportions preserved, readable room selection, no horizontal overflow",
+    "English/mixed-language routes and reduced-motion immediate navigation without flash"
+  ],
+  "errors": [],
+  "missing": [],
+  "liveAccount": false,
+  "liveGame": false
+}

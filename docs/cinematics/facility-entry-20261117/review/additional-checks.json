@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Direct architectural region click reaches existing market",
+    "Sidebar room navigation bypasses camera and ignition",
+    "App motion toggle immediately bypasses travel independently of OS preference",
+    "Enabling OS reduced motion mid-approach cancels the pending navigation"
+  ],
+  "errors": []
+}

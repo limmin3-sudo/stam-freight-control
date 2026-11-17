@@ -1,0 +1,19 @@
+import {chromium} from '/opt/codex/cua_node/lib/node_modules/playwright-core/index.mjs';
+import {writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const base=process.env.STAM_FACILITY_URL||'http://127.0.0.1:5201/stam-freight-control/';
+const out=new URL('./review/',import.meta.url).pathname;
+const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
+const c=await b.newContext({viewport:{width:1440,height:900},recordVideo:{dir:'/workspace/stam-intro-production/facility-entry-20261117',size:{width:1440,height:900}}});const p=await c.newPage();const checks=[],errors=[];p.on('pageerror',e=>errors.push(e.message));await p.route(/https:\/\/(?:www.gstatic.com|[^/]*googleapis.com)\//,r=>r.abort());
+const idle=()=>p.waitForFunction(()=>document.querySelector('.facility-lobby')?.getAttribute('data-travel')==='idle');
+const go=async(facility)=>{await p.goto(base+`#/division?lang=ko&facility=${facility}`);await p.locator('.lobby-stage[data-loaded=true]').waitFor();await p.locator('.lobby-person img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));};
+try{
+ await go('trade');await p.waitForTimeout(1300);await p.locator('[data-staff=ling-broker]').click();await p.waitForURL('**advisor=interstellar');await idle();await p.getByLabel('함선',{exact:true}).waitFor();await p.waitForTimeout(1200);await p.getByRole('button',{name:'로비 전체 보기',exact:true}).click();await p.waitForTimeout(1100);
+ // Direct architecture hit, outside the character cutouts and text buttons.
+ const stage=await p.locator('.lobby-stage').boundingBox();await p.mouse.click(stage.x+stage.width*.23,stage.y+stage.height*.5);await p.waitForURL('**room=market');await idle();await p.waitForTimeout(900);await p.getByRole('button',{name:'로비 전체 보기',exact:true}).click();await p.waitForTimeout(1000);checks.push('Direct architectural region click reaches existing market');
+ await go('guide-center');await p.waitForTimeout(1000);await p.locator('[data-staff=academic-advisor]').click();await p.waitForTimeout(1300);await p.locator('.lobby-staff-rooms').getByRole('button',{name:'교육실',exact:true}).click();await p.waitForURL('**room=education');await idle();await p.locator('.academy-lesson').first().waitFor();await p.waitForTimeout(1100);await p.getByRole('button',{name:'로비 전체 보기',exact:true}).click();await p.waitForTimeout(1100);
+ await p.locator('.space-sidebar a[href*="facility=guide-center"]').first().click();await p.locator('.space-sidebar a[href*="room=operations-study"]').click();await p.getByText('6 계약 · 363 SCU',{exact:true}).waitFor();assert.equal(await p.locator('.facility-lobby').getAttribute('data-travel'),'idle');checks.push('Sidebar room navigation bypasses camera and ignition');
+ await go('trade');await p.locator('.space-settings summary').click();await p.getByRole('button',{name:'이동 연출 켜짐',exact:true}).click();await p.locator('[data-staff=senior-trade-officer]').click();await p.waitForURL('**advisor=intrasystem');await idle();assert.equal(await p.locator('.facility-arrival').evaluate(e=>getComputedStyle(e).opacity),'0');await p.getByRole('button',{name:'로비 전체 보기',exact:true}).click();await p.waitForFunction(()=>!location.hash.includes('room='));await idle();checks.push('App motion toggle immediately bypasses travel independently of OS preference');
+ await p.getByRole('button',{name:'이동 연출 꺼짐',exact:true}).click();await p.locator('[data-place=market]').click();await p.emulateMedia({reducedMotion:'reduce'});await p.waitForTimeout(950);assert(!p.url().includes('room='));await idle();checks.push('Enabling OS reduced motion mid-approach cancels the pending navigation');assert.deepEqual(errors,[]);
+ await writeFile(out+'additional-checks.json',JSON.stringify({passed:true,checks,errors},null,2));
+}finally{await c.close();console.log('RAW_VIDEO',await p.video().path());await b.close();}

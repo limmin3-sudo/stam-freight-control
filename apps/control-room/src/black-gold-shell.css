@@ -1,0 +1,73 @@
+/* Approved D material shared by two distinct navigation button families. */
+.space-experience{--shell-gold:#e2cda5;--shell-ink:#070d12;--shell-sidebar-width:clamp(248px,16.4vw,320px);--shell-frame:url('./assets/navigation/black-gold-d-frame.png')}
+.space-experience>header.space-topbar{background:linear-gradient(110deg,#060b10,#101b22 55%,#070d12);border-bottom:1px solid #bba0784d;box-shadow:0 5px 18px #0005}
+.space-experience .space-sidebar{background:linear-gradient(100deg,#080e14,#101b22 75%,#070c12);border-right-color:#bba0784d;box-shadow:8px 0 24px #0006,inset -1px 0 #e5c78e18;scrollbar-color:#b99c634d transparent}
+.space-sidebar:after{background:linear-gradient(transparent,#d9bf8c77,transparent)}
+.space-sidebar-caption{color:#c7b58f}
+/* Top bar: reuse the original slanted teal sidebar image, uniform controls. */
+.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language){position:relative;isolation:isolate;min-height:48px;padding:10px 16px;border:0;background:transparent;color:#eee6d9;font-family:BarlowAirReview,SUIT,sans-serif;text-shadow:0 1px 3px #000}
+.space-topbar .pilot-connections button>.approved-glass{display:none}
+.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language):before{content:'';position:absolute;inset:0 -2px;z-index:-1;pointer-events:none;background:url('./assets/hologram-button.png') center/100% 135% no-repeat;border:0;filter:brightness(.9) saturate(.85);transition:filter .2s}
+.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language):hover:before{filter:brightness(1.22)}
+.space-topbar .pilot-connections :is(svg,.pilot-connection-arrow){color:#b7e4ed;filter:none}
+.space-topbar .pilot-connection-copy small{color:#c7bba7}
+.space-experience .space-topbar .space-download{display:flex;align-items:center;justify-content:center;font-size:12px}
+.space-experience .space-topbar .space-language{display:flex;align-items:center;padding:8px 12px}
+.space-experience .space-topbar .space-language select{min-height:32px;max-width:110px;padding:4px;border:0;background:transparent;color:#eee6d9;font:500 12px BarlowAirReview,SUIT,sans-serif}
+.space-experience .space-topbar .space-language option{background:#101820;color:#eee6d9}
+/* Sidebar: all five destinations share one frontal frame and one type scale. */
+.space-sidebar :is(.space-group-button,.space-division-button){height:88px;min-height:88px;box-sizing:border-box;padding:12px 18px;gap:10px;transform:none;font-family:BarlowAirReview,SUIT,sans-serif;color:#e9e3d8;text-shadow:0 1px 3px #000}
+.space-sidebar :is(.space-group-button,.space-division-button):before{content:'';position:absolute;inset:-2px -4px;z-index:-1;pointer-events:none;background:none;border:12px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 22px stretch;filter:brightness(.88);transition:filter .2s}
+.space-sidebar :is(.space-group-button,.space-division-button)>svg{width:30px;height:32px;flex:none;stroke:var(--shell-gold);stroke-width:1.15;filter:none}
+.space-sidebar :is(.space-group-button,.space-division-button) small{font-size:8px;letter-spacing:.16em;color:#c3b69e}
+.space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:18px;line-height:1.2;letter-spacing:.025em;font-weight:500}
+.space-sidebar :is(.space-group-button,.space-division-button):is(:hover,[aria-current]){transform:none;filter:none;color:#ffe6b5}
+.space-sidebar :is(.space-group-button,.space-division-button):is(:hover,[aria-current]):before{filter:brightness(1.23) drop-shadow(0 0 4px #dcbb754d)}
+.space-sidebar .space-group-chevron{color:#dfc493}
+.space-sidebar .space-group-description{color:#bfb9ac}.space-sidebar .space-group-description small{color:#ad9a77}
+.space-sidebar .space-nav-links:before{background:linear-gradient(#dfc48c88,#dfc48c11)}
+.space-sidebar .space-nav-links>.space-room-link>a{color:#ddd9d0;font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;text-shadow:0 1px 3px #000}
+.space-sidebar .space-nav-links>.space-room-link>a:before{background:none;border:8px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 13px stretch;filter:brightness(.75)}
+.space-sidebar .space-nav-links>.space-room-link>a:is(:hover,[aria-current]):before{filter:brightness(1.18)}
+.space-sidebar :is(.space-link-index,.space-link-arrow){color:#d6c198}
+.space-sidebar :is(.space-settings summary,.space-settings button,.space-menu-toggle){color:#e3d8c2;font-family:BarlowAirReview,SUIT,sans-serif;text-shadow:0 1px 3px #000}
+.space-sidebar :is(.space-settings summary,.space-settings button,.space-menu-toggle):before{background:none;border:8px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 13px stretch;filter:brightness(.85)}
+.space-sidebar .space-settings>div{background:#0a1119f5;border-color:#d4b37840}
+.space-sidebar :is(a,button,summary):focus-visible,.space-topbar :is(a,button,select):focus-visible{outline:2px solid #f0d39d;outline-offset:2px}
+@media(max-width:760px){
+ .space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language){min-height:44px;padding:8px 12px}
+ .space-experience .space-topbar .space-download{font-size:10px;padding:8px}
+ .space-experience .space-topbar .space-language{padding:6px 8px}
+ .space-experience .space-topbar .space-language select{max-width:82px;font-size:11px}
+ .space-sidebar .space-dock{background:linear-gradient(110deg,#080e14fa,#121d25fa);border-color:#c5ab744d}
+}
+/* A single atlas image preserves the entire original L junction. */
+.space-experience{position:relative;isolation:isolate;padding:7px;box-sizing:border-box;--shell-sidebar-width:18.3%;background:#060e14}
+.shell-material{position:absolute;inset:7px;width:calc(100% - 14px);height:calc(100% - 14px);z-index:-1;pointer-events:none}
+.space-experience>header.space-topbar{position:relative;background:transparent;border:0;box-shadow:none;height:calc((100svh - 14px)*.12);min-height:74px;padding:10px 26px}
+.space-experience .space-main{grid-template-columns:var(--shell-sidebar-width) minmax(0,1fr)}
+.space-experience .space-sidebar{isolation:isolate;background:transparent;border:0;box-shadow:none;padding:5px clamp(25px,2.5vw,40px) 18px}
+.space-sidebar:after{display:none}
+.space-experience .space-overview{background:transparent;margin:calc((100svh - 14px)*.068) 6px 7px 0;border-radius:0 0 12px 0}
+.space-sidebar .space-dock{gap:clamp(10px,1.6vh,18px)}
+.space-sidebar :is(.space-group-button,.space-division-button){height:clamp(60px,9.8vh,88px);min-height:clamp(60px,9.8vh,88px);padding:10px 14px;gap:8px}
+.space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:clamp(14px,1.2vw,18px)}
+.space-sidebar :is(.space-group-button,.space-division-button)>svg{width:25px;height:28px}
+.space-sidebar .space-settings{margin:8px 4px 0}
+.space-sidebar-caption{font-size:8px;letter-spacing:.18em;margin-inline:4px}
+.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]:before{filter:sepia(.55) saturate(1.5) brightness(1.28) drop-shadow(0 0 5px #e5b66b66)}
+.space-sidebar :is(.space-group-button,.space-division-button):after{content:'';position:absolute;inset:12px 8px;z-index:-1;pointer-events:none;border-radius:12px;background:linear-gradient(110deg,#b46b172b,#e5b45a19 55%,#7a450812);opacity:0;transition:opacity .2s}
+.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]:after{opacity:1}
+.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]>svg{stroke:#ffe0a0;filter:drop-shadow(0 0 4px #f0b65455)}
+.space-sidebar .space-nav-links>.space-room-link>a[aria-current]:before{filter:sepia(.6) saturate(1.4) brightness(1.25)}
+@media(max-width:760px){
+ .space-experience>header.space-topbar{height:auto;padding:10px 12px;min-height:110px}
+ .space-experience .space-main{grid-template-columns:minmax(0,1fr)}
+ .space-experience .space-overview{margin:0}
+ .space-experience{padding:4px;--shell-sidebar-width:18.3%}
+ .space-experience .space-sidebar{padding:6px 16px 10px}
+ .shell-material{inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
+ .space-sidebar :is(.space-group-button,.space-division-button){height:72px;min-height:72px}
+ .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:17px}
+ .space-sidebar .space-dock{background:#080f15;border:1px solid #c5ab7480;border-radius:0 0 14px 14px}
+}

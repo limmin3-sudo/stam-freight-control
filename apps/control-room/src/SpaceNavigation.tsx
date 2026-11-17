@@ -39,6 +39,12 @@ export function SpaceNavigation({screen,locale,pending,view,facility,lobbyRoom,h
     <nav id="space-navigation" className="space-dock" data-mobile-open={mobileOpen} inert={pending}
       aria-label={en?'Spaces and shortcuts':'공간과 바로가기'}>
       <p className="space-sidebar-caption">STAM / DESTINATIONS</p>
+      <div className="space-nav-group space-division-home">
+        <a className="space-division-button" href={href('division')} aria-current={screen==='division'&&!facility?'page':undefined} onClick={event=>onNavigate(event,'division')}>
+          <svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="m20 4 15 9-15 9-15-9Z" fill="#d2b87a44"/><path d="m5 13 15 9v15L5 28Z" fill="#d2b87a16"/><path d="m35 13-15 9v15l15-9Z" fill="#d2b87a30"/><path d="M10 19v9m5-6v9m10-9v9m5-12v9"/></svg>
+          <span><small>STAM / FREIGHT</small><strong>{en?'FREIGHT DIVISION':'운송사업부'}</strong></span><span aria-hidden="true">↗</span>
+        </a>
+      </div>
       {groups.map(group=>{
         const open=expanded===group.id;
         return <div className="space-nav-group" key={group.id} data-active={scene===group.id}>

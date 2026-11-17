@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "trade 1440px: 34% scene height, original 2:3 image ratio, no horizontal overflow",
+    "guide-center 1440px: 34% scene height, original 2:3 image ratio, no horizontal overflow",
+    "trade 1366px: 34% scene height, original 2:3 image ratio, no horizontal overflow",
+    "guide-center 1366px: 34% scene height, original 2:3 image ratio, no horizontal overflow",
+    "trade 390px: 34% scene height, original 2:3 image ratio, no horizontal overflow",
+    "guide-center 390px: 34% scene height, original 2:3 image ratio, no horizontal overflow"
+  ],
+  "errors": [],
+  "interaction": "Broker scope/return focus/direct planner label and professor room selection passed"
+}
