@@ -27,6 +27,7 @@ internal static class Launcher {
             Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
             using(var window=new BridgeWindow(args[0]=="--capture-ui-en")) {window.Show();Application.DoEvents();using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(args[1],System.Drawing.Imaging.ImageFormat.Png);}window.Close();}return 0;
         }
+        if(args.Length==2&&args[0]=="--self-test-overlay"){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);return CompanionOverlay.CheckNative(args[1]);}
         bool created;
         using (var mutex = new Mutex(true, "Local\\STAM-Freight-Control", out created)) {
             if (!created) { if(WakeExisting())return 0;MessageBox.Show(BridgeWindow.ReadEnglish()?"STAM is already running. Open it from the STAM system tray icon.":"STAM이 이미 실행 중입니다. 트레이의 STAM 아이콘으로 연결 창을 열어 주십시오.", "STAM"); return 0; }
@@ -103,12 +104,16 @@ internal sealed class BridgeWindow : Form {
     readonly HoloLabel title=new HoloLabel(),subtitle=new HoloLabel(),state=new HoloLabel(),detail=new HoloLabel(),fileLabel=new HoloLabel(),filePath=new HoloLabel(),bytes=new HoloLabel(),updated=new HoloLabel(),footer=new HoloLabel();
     readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton();
     readonly string settings,languageSettings;
+    CompanionOverlay overlay;
+    CompanionOverlay Overlay(){if(overlay==null||overlay.IsDisposed)overlay=new CompanionOverlay(SendCommand,english,Path.GetDirectoryName(settings));return overlay;}
+    void SendCommand(string command){try{if(child!=null&&!child.HasExited){child.StandardInput.WriteLine(new JavaScriptSerializer().Serialize(new{type="command",command=command}));child.StandardInput.Flush();}}catch{}}
     static readonly string languageFile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","ui-language.txt");
     static readonly Color Ink=Color.FromArgb(223,240,244),Muted=Color.FromArgb(144,177,188),Cyan=Color.FromArgb(129,224,234),Gold=Color.FromArgb(240,205,142);
     internal static bool ReadEnglish(string file=null){try{return File.ReadAllText(file??languageFile).Trim()=="en";}catch{return false;}}
     string T(string ko,string en){return english?en:ko;}
     static HoloLabel Label(string text,float size,Color colour){return new HoloLabel{Text=text,Font=HoloFonts.At(size),ForeColor=colour,Dock=DockStyle.Fill,Margin=Padding.Empty};}
     void ApplyLanguage(){
+        if(overlay!=null){overlay.Dispose();overlay=null;}
         Text="STAM · "+T("로그 연결","Log companion");
         title.Text=T("운항의 시작, 자동으로","Your flight, connected");subtitle.Text=T("게임에서 수주한 계약을 미션콘솔로 연결합니다.","Bring accepted game contracts into your mission console.");
         choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
@@ -143,16 +148,16 @@ internal sealed class BridgeWindow : Form {
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};foreach(float width in new[]{50f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
         open.Warm=true;foreach(var b in new[]{open,search,choose}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,10,14);actions.Controls.Add(b);}choose.Margin=new Padding(0,0,0,14);layout.Controls.Add(actions);
         var utility=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty};utility.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));utility.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));
-        utility.Controls.Add(Label("COMPANION  1.4  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
+        utility.Controls.Add(Label("COMPANION  1.5  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
         Setup(footer,10,Muted);layout.Controls.Add(footer);
         korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
         retry.Tick+=(s,e)=>{retry.Stop();if(!manualStop&&!quitting)Start(selected,false);};
         tray.Icon=Icon;tray.DoubleClick+=(s,e)=>Reveal();ApplyLanguage();
-        Shown+=(s,e)=>{if(preview)return;tray.Visible=true;try{string prior=File.ReadAllText(settings).Trim();if(Path.IsPathRooted(prior)&&prior.EndsWith(".log",StringComparison.OrdinalIgnoreCase))selected=prior;}catch{}Start(selected);};
+        Shown+=(s,e)=>{if(preview)return;Overlay();tray.Visible=true;try{string prior=File.ReadAllText(settings).Trim();if(Path.IsPathRooted(prior)&&prior.EndsWith(".log",StringComparison.OrdinalIgnoreCase))selected=prior;}catch{}Start(selected);};
         FormClosing+=(s,e)=>{if(Environment.GetEnvironmentVariable("STAM_WINDOW_QA")=="1")Console.Error.WriteLine("Closing: reason="+e.CloseReason+" preview="+preview+" quitting="+quitting);if(!preview&&!quitting&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();return;}quitting=true;StopChild();tray.Visible=false;};
     }
     static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
-    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
+    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var voiceItem=new ToolStripMenuItem(T("음성 인식 · 마이크","Voice recognition · Microphone"));voiceItem.Checked=overlay!=null&&overlay.VoiceEnabled;voiceItem.Click+=(s,e)=>{Overlay().ToggleVoice();voiceItem.Checked=Overlay().VoiceEnabled;};menu.Items.Add(voiceItem);menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
     internal void ShowFromLauncher(){UI(Reveal);}
     void Quit(){if(IsDisposed)return;quitting=true;Close();}
     void Reveal(){Show();WindowState=FormWindowState.Normal;Activate();}
@@ -171,6 +176,7 @@ internal sealed class BridgeWindow : Form {
     void Receive(string line){
         try{
             var data=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(line);string type=Convert.ToString(data["type"]);
+            if(type=="display"){if(overlay!=null)overlay.UpdateDisplay(data["display"]);return;}
             if(type=="ready"){
                 Launcher.ReadUrl(line);failures=0;selected=Convert.ToString(data["file"]);phase="starting";
                 try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,selected);}catch{}
@@ -230,7 +236,7 @@ internal sealed class BridgeWindow : Form {
     [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
     [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
     protected override void OnHandleCreated(EventArgs e){base.OnHandleCreated(e);try{int dark=1;DwmSetWindowAttribute(Handle,20,ref dark,4);}catch{}}
-    protected override void Dispose(bool disposing){if(disposing){StopChild();retry.Dispose();tray.Dispose();hints.Dispose();}base.Dispose(disposing);}
+    protected override void Dispose(bool disposing){if(disposing){StopChild();if(overlay!=null)overlay.Dispose();retry.Dispose();tray.Dispose();hints.Dispose();}base.Dispose(disposing);}
 }
 
 internal static class HoloFonts {

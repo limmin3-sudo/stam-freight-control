@@ -1,3 +1,4 @@
+import {createCompanionState} from './companion-state.mjs';
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {randomBytes,timingSafeEqual,createHash} from 'node:crypto';
@@ -16,6 +17,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
   const token = randomBytes(32).toString('hex');
+  const companion=createCompanionState();
   const allowed=new Set(apiOnly?[]:await webFiles());
   // Load once locally; failure leaves allocation unresolved without stopping logs.
   let locations = null;
@@ -70,7 +72,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+    return { protocol: 1, capabilities:{display:2,commands:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
       lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
@@ -81,17 +83,17 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
       const map=type.startsWith('text/html')?String(body).match(/<script\s+type="importmap"[^>]*>([\s\S]*?)<\/script>/):null;
       const embeddedDocument=/^\/(?:guide|patch-notes|download)\.html(?:\?|$)/.test(req.url||'');
       const importPolicy=map?"'sha256-"+createHash('sha256').update(map[1]).digest('base64')+"'":'';
-      res.writeHead(code, { ...(req.headers.origin===PUBLIC_SITE_ORIGIN&&/^\/api\/(?:status|snapshot|pair)(?:\?|$)/.test(req.url||'')?{'Access-Control-Allow-Origin':PUBLIC_SITE_ORIGIN,'Vary':'Origin','Access-Control-Allow-Methods':'GET','Access-Control-Allow-Headers':/^\/api\/pair(?:\?|$)/.test(req.url||'')?'X-STAM-Client':'Authorization','Access-Control-Allow-Private-Network':'true','Access-Control-Max-Age':'600'}:{}), 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+      res.writeHead(code, { ...(req.headers.origin===PUBLIC_SITE_ORIGIN&&/^\/api\/(?:status|snapshot|pair|display|commands)(?:\?|$)/.test(req.url||'')?{'Access-Control-Allow-Origin':PUBLIC_SITE_ORIGIN,'Vary':'Origin','Access-Control-Allow-Methods':/^\/api\/display(?:\?|$)/.test(req.url||'')?'POST':'GET','Access-Control-Allow-Headers':/^\/api\/pair(?:\?|$)/.test(req.url||'')?'X-STAM-Client':/^\/api\/display(?:\?|$)/.test(req.url||'')?'Authorization, Content-Type':'Authorization','Access-Control-Allow-Private-Network':'true','Access-Control-Max-Age':'600'}:{}), 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': embeddedDocument?'SAMEORIGIN':'DENY',
         'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors "+(embeddedDocument?"'self'":"'none'") });
       res.end(body);
     };
     try {
-      const url = new URL(req.url, origin), publicRead=req.headers.origin===PUBLIC_SITE_ORIGIN&&['/api/status','/api/snapshot','/api/pair'].includes(url.pathname)&&['GET','OPTIONS'].includes(req.method);
+      const url = new URL(req.url, origin), publicRead=req.headers.origin===PUBLIC_SITE_ORIGIN&&(['/api/status','/api/snapshot','/api/pair','/api/commands'].includes(url.pathname)&&['GET','OPTIONS'].includes(req.method)||url.pathname==='/api/display'&&['POST','OPTIONS'].includes(req.method));
       if(req.headers.host!==new URL(origin).host||(!publicRead&&((req.headers.origin&&req.headers.origin!==origin)||(req.headers['sec-fetch-site']&&!['same-origin','none'].includes(req.headers['sec-fetch-site']))))){send(403,'{"error":"origin-denied"}');return;}
       if(req.method==='OPTIONS'){
         const requestedHeaders=String(req.headers['access-control-request-headers']||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean);
-        if(!publicRead||req.headers['access-control-request-method']!=='GET'||requestedHeaders.some(h=>h!==(url.pathname==='/api/pair'?'x-stam-client':'authorization'))){send(403,'{"error":"preflight-denied"}');return;}
+        if(!publicRead||req.headers['access-control-request-method']!==(url.pathname==='/api/display'?'POST':'GET')||requestedHeaders.some(h=>!(url.pathname==='/api/pair'?['x-stam-client']:url.pathname==='/api/display'?['authorization','content-type']:['authorization']).includes(h))){send(403,'{"error":"preflight-denied"}');return;}
         send(204,'');return;
       }
       if(url.pathname==='/api/pair'){
@@ -103,6 +105,16 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         const expected = Buffer.from('Bearer ' + token);
         const received = Buffer.from(typeof credential === 'string' ? credential : '');
         if (received.length !== expected.length || !timingSafeEqual(received, expected)) { send(401, '{"error":"pairing-required"}'); return; }
+        if(req.method==='POST'&&url.pathname==='/api/display'){
+          if(![origin,PUBLIC_SITE_ORIGIN].includes(req.headers.origin)){send(403,'{"error":"origin-required"}');return;}
+          if(!String(req.headers['content-type']||'').startsWith('application/json')){send(415,'{"error":"json-required"}');return;}
+          let raw='',size=0;for await(const chunk of req){size+=chunk.length;if(size>4096){send(413,'{"error":"display-too-large"}');return;}raw+=chunk;}
+          try{send(200,JSON.stringify(companion.publish(JSON.parse(raw))));}catch(e){send(409,JSON.stringify({error:e.message==='display-in-use'?'display-in-use':'invalid-display'}));}return;
+        }
+        if(req.method==='GET'&&url.pathname==='/api/commands'){
+          if(req.headers['transfer-encoding']||Number(req.headers['content-length']||0)){send(413,'{"error":"body-not-allowed"}');return;}
+          try{send(200,JSON.stringify(companion.poll({session:url.searchParams.get('session'),after:url.searchParams.get('after')})));}catch{send(409,'{"error":"display-session"}');}return;
+        }
         if (req.headers['transfer-encoding'] || Number(req.headers['content-length'] || 0) !== 0) { req.resume(); send(413, '{"error":"body-not-allowed"}'); return; }
         if (req.method === 'GET' && url.pathname === '/api/status') { send(200, JSON.stringify(status())); return; }
         if (req.method === 'GET' && url.pathname === '/api/snapshot') { send(200, published); return; }
@@ -136,7 +148,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   origin = `http://127.0.0.1:${server.address().port}`;
   schedule(0);
   return {
-    origin, url: origin + '/index.html#token=' + token, token, status,
+    origin, url: origin + '/index.html#token=' + token, token, status, companion,
     async close() {
       stopped = true;
       clearTimeout(timer);

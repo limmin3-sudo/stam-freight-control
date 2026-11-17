@@ -7,7 +7,7 @@ let service,closing=false,timer;
 const send=value=>{if(!closing)process.stdout.write(JSON.stringify(value)+'\n');};
 async function stop(){if(closing)return;closing=true;clearTimeout(timer);if(service)await service.close();process.exit(0);}
 process.stdin.setEncoding('utf8');
-createInterface({input:process.stdin,crlfDelay:Infinity}).on('line',line=>{if(line==='stop')void stop();});
+createInterface({input:process.stdin,crlfDelay:Infinity}).on('line',line=>{if(line==='stop')void stop();else if(line.length<300){try{const m=JSON.parse(line);if(m.type==='command')service?.companion.enqueue(m.command);}catch{}}});
 process.stdin.on('end',()=>void stop());
 process.on('SIGINT',()=>void stop());process.on('SIGTERM',()=>void stop());
 const selfTest=process.argv.includes('--self-test');
@@ -22,7 +22,7 @@ async function start(){
   service=await startLogService({file,port:selfTest?0:DEFAULT_LOG_PORT,apiOnly:true});
   if(closing){await service.close();process.exit(0);}
   send({type:'ready',url:service.url,file});
-  const report=()=>{if(closing)return;send({type:'status',...service.status()});timer=setTimeout(report,1000);};report();
+  const report=()=>{if(closing)return;send({type:'status',...service.status()});send({type:'display',display:service.companion.snapshot()});timer=setTimeout(report,1000);};report();
  }catch(e){send({type:'error',code:e.code==='EADDRINUSE'?'port-busy':'startup-failed'});process.exitCode=1;process.stdin.destroy();clearTimeout(timer);}
 }
 void start();
