@@ -1,0 +1,73 @@
+{
+  "source": "3ddc89bf8c62f6cb68b63b59d19b63a1035f727b",
+  "verifiedRun": 44060734263,
+  "sourceFiles": 35,
+  "reviewedDifferences": [
+    {
+      "file": "scripts/web-files.mjs",
+      "reason": "Web-only packaging exclusion of cancelled modules; companion uses API-only service and contains neither module."
+    }
+  ],
+  "release": {
+    "status": "published",
+    "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.5.0/STAM-app.1.5.0-win-x64.zip",
+    "version": "app.1.5.0",
+    "bytes": 37032236,
+    "sha256": "2360321bd65223445fad7f5f1974c6c1a1b5795a398490205b8a39dfaa6ca617",
+    "installer": {
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.5.0/STAM-app.1.5.0-setup-win-x64.exe",
+      "sha256": "656d34b2c7c908410a77feb41c8a288d5653e250618a3e54c09c582e507dd9bc",
+      "bytes": 28138499
+    }
+  },
+  "files": [
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 194,
+      "sha256": "84fbb357e0a65808071b294216e5f843c746f54694b6e53eeafbdb20e1c080ce",
+      "blob": "12b80654cd57760091b0859d991482aa526cdce8"
+    },
+    {
+      "name": "desktop-release.json",
+      "bytes": 635,
+      "sha256": "445e55466facdb4e1de80add374de20474fabd2fbbd4bea3b195cc1887acd5e3",
+      "blob": "81f134414e9af27730bf4371cc6b152af506a5e3"
+    },
+    {
+      "name": "installer-check.json",
+      "bytes": 391,
+      "sha256": "da96cfb9a7910c17607465f7d56cb2f50763bea0ce05c4ea901bfb1131fd78f8",
+      "blob": "ef97d894c05ed7401b7fa3dfa64a85be31320527"
+    },
+    {
+      "name": "launcher-preview-en.png",
+      "bytes": 60925,
+      "sha256": "da36ffa80568a364c4d413082f66d5123d75c5b859288b9a47c47d020abcc79a",
+      "blob": "0ed36c49edbfeb37b8b9d78bdf8ddb89500ed9ef"
+    },
+    {
+      "name": "launcher-preview.png",
+      "bytes": 52176,
+      "sha256": "f5011b17a7d8b914913ad6835dc50692b21eb7e8ffe7e807b5011ee9555ca2f5",
+      "blob": "6dff9735a57d14c90e0e3877a5ab90c2d3858e24"
+    },
+    {
+      "name": "overlay-en-windows.png",
+      "bytes": 9994,
+      "sha256": "aac2ba962e29572d1a53ef105fd7c1c4df5080725a29984028b299c019ab14b1",
+      "blob": "011eac6889c63a0feca369aeb027bf7466556a5a"
+    },
+    {
+      "name": "overlay-ko-windows.png",
+      "bytes": 8060,
+      "sha256": "345817f28586f648d9d22bea697ec65558665f1a3d457157a7ade454348f04b3",
+      "blob": "3111c1defe4699bdaa82f85c716ef71655c91b80"
+    },
+    {
+      "name": "overlay-native-check.json",
+      "bytes": 822,
+      "sha256": "f8097a8694a17497a8910509318380fffd55fb457dc7b61edd323bbeea0ddbe4",
+      "blob": "3203748c95e12a1c978f10cafa83ab31c08ec0df"
+    }
+  ]
+}

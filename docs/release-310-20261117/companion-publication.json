@@ -1,0 +1,23 @@
+{
+  "published": true,
+  "version": "app.1.5.0",
+  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/tag/app.1.5.0",
+  "workflow": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44076038719",
+  "publicDownloadCheckPassed": true,
+  "metadata": {
+    "status": "published",
+    "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.5.0/STAM-app.1.5.0-win-x64.zip",
+    "version": "app.1.5.0",
+    "bytes": 37032236,
+    "sha256": "2360321bd65223445fad7f5f1974c6c1a1b5795a398490205b8a39dfaa6ca617",
+    "installer": {
+      "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.5.0/STAM-app.1.5.0-setup-win-x64.exe",
+      "sha256": "656d34b2c7c908410a77feb41c8a288d5653e250618a3e54c09c582e507dd9bc",
+      "bytes": 28138499
+    },
+    "launcherBlobSha": "6dff9735a57d14c90e0e3877a5ab90c2d3858e24",
+    "launcherSha256": "f5011b17a7d8b914913ad6835dc50692b21eb7e8ffe7e807b5011ee9555ca2f5"
+  },
+  "liveGameTested": false,
+  "microphoneCaptureTested": false
+}

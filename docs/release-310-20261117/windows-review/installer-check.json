@@ -1,0 +1,11 @@
+﻿{
+    "checks":  [
+                   "single STAM shortcut",
+                   "installed runtime",
+                   "second icon restores existing window without duplicate watcher",
+                   "settings restored on restart",
+                   "upgrade preserves settings",
+                   "uninstall preserves settings"
+               ],
+    "passed":  true
+}
