@@ -19,6 +19,7 @@ import {useFlight} from './use-flight';
 import {GuideDesk} from './GuideDesk';
 import {ShuttleBoarding} from './ShuttleBoarding';
 import {ConsoleArrival} from './ConsoleArrival';
+import {divisionFacilities} from './division-facilities';
 import {isReturnTravel} from './travel-direction';
 import type {GuideTopic} from './guide-journey-content';
 import {PilotConnections} from './PilotConnections';
@@ -65,8 +66,8 @@ const revealMs = 180;
 // Keep the previous 850ms approach + 180ms reveal budget, with a brief ignition.
 const departureMs = Math.round(spaceConfig.approachMs * .82);
 const ignitionMs = spaceConfig.approachMs + revealMs - departureMs;
-type ArrivalView = {screen:SpaceScreen;returning:boolean;focus:readonly [number,number]};
-type Entry = { screen: SpaceScreen; kind: 'short' | 'long' | 'boarding'; target?: SceneTarget; returning?:boolean };
+type ArrivalView = {screen:SpaceScreen;returning:boolean;focus:readonly [number,number];facilityTravel?:boolean;facility?:DivisionFacility};
+type Entry = { screen: SpaceScreen; kind: 'short' | 'long' | 'boarding'; target?: SceneTarget; returning?:boolean; facilityTravel?:boolean; focus?:readonly[number,number] };
 const appDownload = desktopRelease.installer?.url || desktopRelease.url;
 // Full-body director in front of the desk: keep selection/approach tied to her,
 // rather than to the separate receptionist seated in the background.
@@ -134,7 +135,7 @@ export function SpaceExperience() {
       if(tourDestination.current===next.screen)tourDestination.current=null;
       else {setTour(false);setTourTravelling(false);}
       const arrival = arrivalDestination.current;
-      const ignite = arrival?.screen === next.screen;
+      const ignite = arrival?.screen === next.screen && (!arrival.facilityTravel || arrival.facility === next.facility);
       if (hoverTimer.current !== null) clearTimeout(hoverTimer.current);
       hoverTimer.current = null; hoveredTarget.current = null;
       cancel(); setConversation(null); setActive(null); setPlaying(false); setMediaError(false);
@@ -194,7 +195,7 @@ export function SpaceExperience() {
     document.documentElement.lang = en ? 'en' : 'ko';
     document.title = `${route.facility?(route.facility==='trade'?(en?'Trade centre':'무역센터'):(en?'Academy':'아카데미')):word(names[route.screen])} · STAM FREIGHT DIVISION`;
     const escape = (event: KeyboardEvent) => {
-      if(route.screen==='division')return;
+      if(route.screen==='division'){if(event.key==='Escape'&&!event.defaultPrevented&&destination.current&&!document.querySelector('dialog[open]')){event.preventDefault();cancel();}return;}
       if(tour)return; // The tutorial owns Escape; real dialogs retain priority.
       if (event.key !== 'Escape' || event.defaultPrevented || isStation(route.screen) && route.screen !== 'map') return;
       if (document.querySelector('dialog[open]:not([data-inline])')) return;
@@ -252,6 +253,21 @@ export function SpaceExperience() {
   function openDivisionFacility(facility?:DivisionFacility,lobbyRoom?:LobbyRoom,tradeScope?:TradeScope){
     cancel();setTour(false);setTourTravelling(false);tourDestination.current=null;setConversation(null);
     location.hash=spaceHash({screen:'division',locale:route.locale,facility,lobbyRoom,tradeScope});
+  }
+  // Scene clicks use the same departure/arrival curtain as lounge and bridge.
+  // Sidebar callbacks deliberately continue to call openDivisionFacility directly.
+  function enterDivisionFacility(facility?:DivisionFacility){
+    if(destination.current)return;
+    if(!motion){openDivisionFacility(facility);return;}
+    const returning=!facility,place=divisionFacilities.find(p=>p.id===(facility??route.facility));
+    if(!place){openDivisionFacility(facility);return;}
+    cancel();setTour(false);setTourTravelling(false);tourDestination.current=null;setConversation(null);
+    destination.current='division';setPending({screen:'division',kind:'short',returning,facilityTravel:true,focus:place.marker});
+    timer.current=setTimeout(()=>{
+      timer.current=null;
+      arrivalDestination.current={screen:'division',returning,focus:place.marker,facilityTravel:true,facility};
+      location.hash=spaceHash({screen:'division',locale:route.locale,facility});
+    },returning?ignitionMs:departureMs);
   }
   function openArchive(view?:ArchiveView){
     if(archivePulseTimer.current!==null)clearTimeout(archivePulseTimer.current);
@@ -346,7 +362,7 @@ export function SpaceExperience() {
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
   const approaching = pending?.kind === 'short';
-  return <><div data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-guiding={guideJourneyOpen||!!guideFollowup} data-moving={approaching} data-entry={pending?.kind} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
+  return <><div data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-guiding={guideJourneyOpen||!!guideFollowup} data-moving={approaching} data-entry={pending?.kind} data-facility-travel={pending?.facilityTravel||arrivalView?.facilityTravel||undefined} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--facility-focus-x':`${pending?.focus?.[0]??50}%`,'--facility-focus-y':`${pending?.focus?.[1]??50}%`,'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button,.guide-desk button:not([disabled])')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
@@ -367,7 +383,7 @@ export function SpaceExperience() {
 
     <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
-      {route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>openDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={openDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
+      {route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={tourTravelling||undefined}>
         <h1 className="sr-only" id="space-title" ref={heading} tabIndex={-1}>{word(names[scene])}</h1>
@@ -471,7 +487,7 @@ export function SpaceExperience() {
       {route.screen==='guide'&&!tour&&<button type="button" className="lounge-tour-entry" onClick={()=>startTour()}>{en?'Lounge tour · Follow your guide':'라운지 투어 · 가이드 따라가기'} <span aria-hidden="true">→</span></button>}
       {(route.screen!=='guide'||guideJourneyOpen) && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
-        <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();setFacilityNavigationKey(key=>key+1);openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending} href={href} onNavigate={enterShortcut}/>
+        <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();setFacilityNavigationKey(key=>key+1);openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending&&!pending.facilityTravel} href={href} onNavigate={enterShortcut}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {
           if (sound) { setSound(false); return; }

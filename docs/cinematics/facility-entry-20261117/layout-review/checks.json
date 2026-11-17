@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "trade: overview approach -> common ignition -> lobby -> room common ignition -> lobby pullback -> overview pullback; 34% bodies and names above heads",
+    "guide-center: overview approach -> common ignition -> lobby -> room common ignition -> lobby pullback -> overview pullback; 34% bodies and names above heads",
+    "Overview approach Escape/sidebar interruption cancels delayed navigation",
+    "Moved character retains trade scope and return focus",
+    "390px names fit; reduced-motion bypasses both shared curtains"
+  ],
+  "errors": []
+}

@@ -28,8 +28,8 @@ export function useLobbyTravel({host,room,scope,motion,navigationKey,locale,onRo
   previous.current={room,scope};
   const destination=expected.current;expected.current=null;
   if(destination&&destination.room===room&&destination.scope===scope){
-   if(room){setPhase('ignite');later(finish,250);}
-   else{setPhase('return');later(finish,650);}
+   if(room){setPhase('ignite');later(finish,333);}
+   else{setPhase('return');later(finish,697);}
   }else{cancel();}
  },[room,scope]);
  useEffect(()=>{
@@ -42,14 +42,14 @@ export function useLobbyTravel({host,room,scope,motion,navigationKey,locale,onRo
   origin.current=source;setFocus(point);
   if(!motion){callback.current(next,nextScope);return;}
   busy.current=true;setPhase('approach');
-  later(()=>{expected.current={room:next,scope:nextScope};setPhase('ignite');callback.current(next,nextScope);},720);
+  later(()=>{expected.current={room:next,scope:nextScope};setPhase('ignite');callback.current(next,nextScope);},697);
  };
  const leave=(point:readonly[number,number])=>{
   if(busy.current)return;
   if(!origin.current){origin.current=room??null;setFocus(point);}
   if(!motion){callback.current();return;}
   busy.current=true;setPhase('blackout');
-  later(()=>{expected.current={};callback.current();},180);
+  later(()=>{expected.current={};callback.current();},333);
  };
  return {phase,focus,enter,leave,cancel,busy:phase!=='idle'};
 }

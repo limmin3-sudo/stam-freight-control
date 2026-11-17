@@ -8,8 +8,7 @@ import './facility-lobby.css';
 import './trade-monitor.css';
 import './academy-monitor.css';
 import {useLobbyTravel} from './use-lobby-travel';
-import standby from './assets/arrival/stam-standby.png';
-import plasma from './assets/arrival/ignition-plasma.png';
+import {ConsoleArrival} from './ConsoleArrival';
 import './facility-travel.css';
 
 const TradeWorkspace=lazy(()=>import('./TradeWorkspace'));
@@ -42,7 +41,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
   if(event.key==='Escape'&&!event.defaultPrevented&&!document.querySelector('dialog[open]')&&(active||travel.busy)){event.preventDefault();event.stopPropagation();if(travel.busy)travel.cancel();else reset();}
  }}>
   <div className="lobby-stage" data-loaded={loaded} inert={travel.busy}>
-   <div className="lobby-camera" style={{'--lobby-focus-x':`${travel.focus[0]}%`,'--lobby-focus-y':`${travel.focus[1]}%`,'--lobby-zoom':travel.phase==='approach'?3.8:1} as CSSProperties}>
+   <div className="lobby-camera" style={{'--lobby-focus-x':`${travel.focus[0]}%`,'--lobby-focus-y':`${travel.focus[1]}%`,'--lobby-zoom':travel.phase==='approach'?5.2:1} as CSSProperties}>
     <img className="lobby-plate" src={plates[facility]} alt={t(data.alt)} width="1672" height="941" fetchPriority="high" onLoad={()=>setLoaded(true)} onError={()=>setFailed(true)}/>
     <svg className="lobby-spotlight" viewBox="0 0 1672 941" aria-hidden="true" data-active={!!lit&&!failed}>
      <defs><filter id="lobby-feather"><feGaussianBlur stdDeviation="22"/></filter><mask id="lobby-mask"><rect width="1672" height="941" fill="white"/>{lit&&<path d={lit.contour} fill="black" filter="url(#lobby-feather)"/>}</mask></defs>
@@ -65,7 +64,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
    {!active&&<LobbyStaff key={`${navigationKey}-${locale}`} facility={facility} locale={locale} travelling={travel.busy} onRoom={enter}/>}
    <a className="lobby-exit" href={spaceHash({screen:'division',locale})} onClick={exit}><span aria-hidden="true">◇ ─</span> {en?'Division grounds':'사업부 전경'} <span aria-hidden="true">↗</span></a>
   </div>
-  <div className="facility-arrival" aria-hidden="true"><img className="facility-standby" src={standby} alt=""/><img className="facility-plasma" src={plasma} alt=""/></div>
+  <div className="facility-arrival" aria-hidden="true"><ConsoleArrival departing={travel.phase==='approach'} powerOn={travel.phase==='ignite'} returning={false} departureMs={697} ignitionMs={333}/></div>
   {travel.busy&&<button className="facility-travel-cancel" onClick={()=>travel.cancel()}>{en?'Cancel transition':'이동 연출 취소'}</button>}
   <p className="lobby-travel-status" role="status">{travel.busy?(en?'Moving through the lobby…':'공간을 이동하고 있습니다…'):''}</p>
   <p className="lobby-hint">{en?'Select a place to look closer. Use the sidebar to move between facilities.':'장소를 누르면 가까이 살펴봅니다. 다른 시설은 사이드바로 이동하세요.'}</p>
