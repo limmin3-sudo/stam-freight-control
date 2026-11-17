@@ -20,7 +20,6 @@ internal sealed partial class CompanionOverlay : Form {
     readonly List<int> registered=new List<int>();
     SpeechRecognitionEngine speech;
     DateTime received=DateTime.MinValue;
-    Image material;
     bool interactive=false,disposing=false;
     int keyOverlay=(int)Keys.O,keyPrices=(int)Keys.P,keyWork=(int)Keys.W;
     string T(string ko,string en){return english?en:ko;}
@@ -30,14 +29,13 @@ internal sealed partial class CompanionOverlay : Form {
         Text="STAM";ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.SizableToolWindow;TopMost=true;
         StartPosition=FormStartPosition.Manual;Size=new Size(420,310);MinimumSize=new Size(330,240);MaximumSize=new Size(700,600);
         BackColor=Color.FromArgb(8,23,33);ForeColor=Color.FromArgb(224,241,245);Opacity=.96;
-        var layout=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(24),ColumnCount=1,RowCount=4};
+        var layout=new DeckSurface{Dock=DockStyle.Fill,Padding=new Padding(22),ColumnCount=1,RowCount=4};
         layout.RowStyles.Add(new RowStyle(SizeType.Absolute,34));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,40));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,32));Controls.Add(layout);
         heading.Dock=body.Dock=status.Dock=DockStyle.Fill;heading.Font=HoloFonts.At(15);body.Font=HoloFonts.At(12);status.Font=HoloFonts.At(9);heading.ForeColor=Color.FromArgb(240,205,142);
         heading.Text="STAM / FREIGHT DIVISION";body.Text=T("웹 관제실에서 ‘로그 앱에 표시’를 켜세요.","Enable companion display in the web console.");
         layout.Controls.Add(heading);layout.Controls.Add(body);
-        var actions=new FlowLayoutPanel{Dock=DockStyle.Fill};
-        foreach(string action in new[]{"show-prices","show-my-work"}){string a=action;var b=new DeckButton{Text=a=="show-prices"?T("가격 보기","Prices"):T("내 작업","My work"),Size=new Size(140,34)};b.Click+=(s,e)=>send(a);actions.Controls.Add(b);}layout.Controls.Add(actions);layout.Controls.Add(status);
-        try{using(var image=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","overlay-material.png"))){material=new Bitmap(653,776);using(var g=Graphics.FromImage(material))g.DrawImage(image,new Rectangle(0,0,653,776),new Rectangle(867,116,653,776),GraphicsUnit.Pixel);}BackgroundImage=material;BackgroundImageLayout=ImageLayout.Stretch;}catch{}
+        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,BackColor=Color.Transparent};actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));
+        foreach(string action in new[]{"show-prices","show-my-work"}){string a=action;var b=new DeckButton{Text=a=="show-prices"?T("가격 보기","Prices"):T("내 작업","My work"),Dock=DockStyle.Fill,Margin=new Padding(0,0,6,0)};b.Click+=(s,e)=>send(a);actions.Controls.Add(b);}layout.Controls.Add(actions);layout.Controls.Add(status);
         try{var saved=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(File.ReadAllText(settings));Location=new Point(Convert.ToInt32(saved["x"]),Convert.ToInt32(saved["y"]));keyOverlay=Key(saved,"overlay",keyOverlay);keyPrices=Key(saved,"prices",keyPrices);keyWork=Key(saved,"work",keyWork);}catch{Location=new Point(Screen.PrimaryScreen.WorkingArea.Right-450,70);}
         Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if((DateTime.UtcNow-received).TotalSeconds>12){body.Text=T("웹 화면 연결 대기","Waiting for the web view");heading.Text="STAM / FREIGHT DIVISION";}};expiry.Start();
         FormClosing+=(s,e)=>{if(!disposing&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();}};
@@ -59,7 +57,7 @@ internal sealed partial class CompanionOverlay : Form {
     internal void Configure(){using(var dialog=new Form{Text=T("STAM 단축키","STAM shortcuts"),Size=new Size(420,270),StartPosition=FormStartPosition.CenterScreen,BackColor=BackColor,ForeColor=ForeColor,Font=HoloFonts.At(11),FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false}){
         var panel=new FlowLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(18),FlowDirection=FlowDirection.TopDown};dialog.Controls.Add(panel);var boxes=new List<ComboBox>();int[] keys={keyOverlay,keyPrices,keyWork};string[] labels={T("오버레이","Overlay"),T("가격 보기","Prices"),T("내 작업","My work")};
         for(int i=0;i<3;i++){var row=new FlowLayoutPanel{Width=360,Height=40};row.Controls.Add(new Label{Text=labels[i]+" · Ctrl+Alt+",Width=220});var box=new ComboBox{DropDownStyle=ComboBoxStyle.DropDownList,Width=70};for(char c='A';c<='Z';c++)box.Items.Add(c.ToString());box.SelectedIndex=keys[i]-(int)Keys.A;boxes.Add(box);row.Controls.Add(box);panel.Controls.Add(row);}
-        var save=new Button{Text=T("저장","Save"),Width=140};save.Click+=(s,e)=>{if(boxes[0].SelectedIndex==boxes[1].SelectedIndex||boxes[0].SelectedIndex==boxes[2].SelectedIndex||boxes[1].SelectedIndex==boxes[2].SelectedIndex){MessageBox.Show(T("서로 다른 키를 선택하세요.","Choose different keys."));return;}keyOverlay=boxes[0].SelectedIndex+(int)Keys.A;keyPrices=boxes[1].SelectedIndex+(int)Keys.A;keyWork=boxes[2].SelectedIndex+(int)Keys.A;Save();RegisterKeys();dialog.Close();};panel.Controls.Add(save);dialog.ShowDialog();}}
+        var save=new DeckButton{Text=T("저장","Save"),Width=140};save.Click+=(s,e)=>{if(boxes[0].SelectedIndex==boxes[1].SelectedIndex||boxes[0].SelectedIndex==boxes[2].SelectedIndex||boxes[1].SelectedIndex==boxes[2].SelectedIndex){MessageBox.Show(T("서로 다른 키를 선택하세요.","Choose different keys."));return;}keyOverlay=boxes[0].SelectedIndex+(int)Keys.A;keyPrices=boxes[1].SelectedIndex+(int)Keys.A;keyWork=boxes[2].SelectedIndex+(int)Keys.A;Save();RegisterKeys();dialog.Close();};panel.Controls.Add(save);dialog.ShowDialog();}}
     static string VoiceCommand(string word,float confidence){if(confidence<.8f)return null;return word=="STAM prices"||word=="스탐 가격"?"show-prices":word=="STAM my work"||word=="스탐 내 작업"?"show-my-work":word=="STAM trade"||word=="스탐 무역"?"open-trade":word=="STAM flight"||word=="스탐 운송"?"open-flight":word=="STAM overlay"||word=="스탐 오버레이"?"toggle-overlay":null;}
     static Grammar CommandGrammar(RecognizerInfo engine){var phrases=new Choices(engine.Culture.TwoLetterISOLanguageName=="en"?new[]{"STAM prices","STAM my work","STAM overlay","STAM trade","STAM flight"}:new[]{"스탐 가격","스탐 내 작업","스탐 오버레이","스탐 무역","스탐 운송"});var builder=new GrammarBuilder{Culture=engine.Culture};builder.Append(phrases);return new Grammar(builder);}
     internal void ToggleVoice(){if(speech!=null){StopVoice();return;}try{
@@ -70,5 +68,5 @@ internal sealed partial class CompanionOverlay : Form {
         next.RecognizeAsync(RecognizeMode.Multiple);status.Text=T("마이크 켜짐 · 스탐 가격 / 내 작업 / 오버레이 / 무역 / 운송","Microphone on · STAM prices / my work / overlay / trade / flight");
     }catch(Exception error){StopVoice();MessageBox.Show(error.Message,"STAM");}}
     void StopVoice(){if(speech!=null){try{speech.RecognizeAsyncCancel();speech.Dispose();}catch{}speech=null;}status.Text=T("마이크 꺼짐","Microphone off");}
-    protected override void Dispose(bool value){if(value){disposing=true;StopVoice();expiry.Dispose();foreach(int id in registered)if(IsHandleCreated)UnregisterHotKey(Handle,id);registered.Clear();if(material!=null)material.Dispose();}base.Dispose(value);}
+    protected override void Dispose(bool value){if(value){disposing=true;StopVoice();expiry.Dispose();foreach(int id in registered)if(IsHandleCreated)UnregisterHotKey(Handle,id);registered.Clear();}base.Dispose(value);}
 }

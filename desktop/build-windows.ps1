@@ -29,7 +29,7 @@ if (!(Test-Path $speechReference)) {
 }
 if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is required to compile the optional voice feature' }
 
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 $languageTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-language' -Wait -PassThru
 if ($languageTest.ExitCode -ne 0) { throw 'Launcher language switching failed' }
@@ -53,6 +53,8 @@ if ($capture.ExitCode -ne 0 -or !(Test-Path $previewPath)) { throw 'Launcher UI 
 $englishPreview = Join-Path (Resolve-Path dist) 'launcher-preview-en.png'
 $captureEnglish = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui-en', ('"' + $englishPreview + '"')) -Wait -PassThru
 if ($captureEnglish.ExitCode -ne 0 -or !(Test-Path $englishPreview)) { throw 'English launcher UI capture failed' }
+$designCapture = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-design', ('"' + (Resolve-Path dist).Path + '"')) -Wait -PassThru
+if ($designCapture.ExitCode -ne 0) { throw 'Companion design capture failed' }
 $destination = Join-Path (Resolve-Path dist) "STAM-$version-win-x64.zip"
 Compress-Archive -Path $out -DestinationPath $destination
 $hash=(Get-FileHash $destination -Algorithm SHA256).Hash.ToLowerInvariant()
