@@ -3,9 +3,8 @@ import {createRoot} from 'react-dom/client';
 import {CrewEncounter} from '../../src/CrewEncounter';
 import background from './lobby-master.png';
 import officer from './officer-lobby.webp';
-import broker from './broker-lobby.webp';
+import broker from '../../src/assets/facility-staff/ling-broker.png';
 import officerClose from '../../../../docs/cinematics/guide-close-dialogue-20261117/assets/senior-trade-officer-close.png';
-import brokerClose from '../../../../docs/cinematics/guide-close-dialogue-20261117/assets/ling-broker-close.png';
 import prices from './prices.webp';
 import records from './records.webp';
 import './preview.css';
@@ -16,7 +15,7 @@ const rooms = {
 };
 const partners = {
  officer:{name:'수석 무역관',image:officer,portrait:officerClose,x:56.5,line:'같은 행성계 안의 거래처를 살펴보겠습니다. 함선과 가용 자본에 맞춰 이동 경로를 함께 검토하시죠.',scope:'행성계 내부'},
- broker:{name:'링 가문 중개인',image:broker,portrait:brokerClose,x:63.8,line:'행성계를 오가는 거래를 맡고 있어요. 출발지부터 목적지까지, 자금과 이동 계획을 함께 살펴보죠.',scope:'행성계 간'}
+ broker:{name:'링 가문 중개인',image:broker,portrait:broker,x:63.8,line:'행성계를 오가는 거래를 맡고 있어요. 출발지부터 목적지까지, 자금과 이동 계획을 함께 살펴보죠.',scope:'행성계 간'}
 };
 type Room=keyof typeof rooms;
 type Person=keyof typeof partners;
@@ -65,7 +64,7 @@ function Lobby(){
    <div ref={power} className="power" aria-hidden="true">STAM</div>
   </div>
   {screen==='lobby'&&!person&&<aside><button className="quick-toggle" aria-expanded={quick} onClick={()=>setQuick(!quick)}>☰　빠른 이동</button>{quick&&(Object.keys(rooms) as Room[]).map(key=><button key={key} onClick={e=>enter(key,e.currentTarget,true)}>{rooms[key].name}</button>)}</aside>}
-  {person&&source.current&&<CrewEncounter id={person} name={partners[person].name} image={partners[person].portrait} background={background} focus={partners[person].x} line={partners[person].line} en={false} motion={!reduced()} origin={source.current} onClose={()=>setPerson(null)} actions={[{label:partners[person].scope+' 경로 계획',onSelect:()=>{setScope(partners[person].scope);setScreen('plan');requestAnimationFrame(()=>back.current?.focus());}}]}/>}
+  {person&&source.current&&<CrewEncounter id={person==='broker'?'ling-broker':person} name={partners[person].name} image={partners[person].portrait} background={background} focus={partners[person].x} line={partners[person].line} en={false} motion={!reduced()} origin={source.current} onClose={()=>setPerson(null)} actions={[{label:partners[person].scope+' 경로 계획',onSelect:()=>{setScope(partners[person].scope);setScreen('plan');requestAnimationFrame(()=>back.current?.focus());}}]}/>}
  </main>;
 }
 createRoot(document.getElementById('root')!).render(<Lobby/>);

@@ -22,6 +22,7 @@
 .crew-encounter-shade{background:linear-gradient(90deg,#020b1226 20%,#020b1266 56%,#020b12bf),linear-gradient(0deg,#020b1299,transparent 30%)}
 .crew-encounter-person{position:absolute;left:31%;top:2.5%;height:110%;aspect-ratio:2/3;transform:translateX(-50%) translate(var(--crew-start-x,0px),var(--crew-start-y,0px)) scale(var(--crew-start-scale,.2));transform-origin:50% 17%;opacity:0;transition:transform 780ms cubic-bezier(.18,.7,.18,1),opacity 260ms ease;pointer-events:none;will-change:transform}
 .crew-encounter-person img{display:block;width:100%;height:100%;object-fit:contain;object-position:top center}
+.crew-encounter[data-partner="ling-broker"] .crew-encounter-person img{transform:scale(1.9);transform-origin:50% 0}
 /* Navigator eyes sit at 14.3% of his source, operator at 17%. Shift the
    entire asset, without stretching it, to share the same conversation eye line. */
 .crew-encounter[data-partner=navigator] .crew-encounter-person{top:5.47%;transform-origin:50% 14.3%}
