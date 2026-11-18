@@ -276,7 +276,7 @@ function refreshAideButton(){$('map-partner-photo').src=VOICE_PORTRAITS[voiceId(
 function makeAssistant(){return createAssistant({
  prepareDeck(){flightDeck?.prepare();},
  mountDrivePicker:(host,onChange)=>performancePanel.mountChoices(host,{onChange}),driveSetup:()=>performancePanel.choices(),setDriveSetup:(mode,speed)=>performancePanel.setMode(mode,speed),
- voiceChanged(){settings.routePolicy=routePolicy();execution?.refresh();refreshAideButton();save();if(missions.length)replan();},openFlightSettings(){const d=$('flight-dialog');d.querySelector('.desk-dialog-notice').textContent='';if(!d.open)d.showModal();},closed(){guide?.openOnce();},showGuide(){guide?.open();},showTutorial(){if(beforePageChange()!==false)location.href=isEn?'./tutorial.html?lang=en':'./tutorial.html?lang=ko';},
+ voiceChanged(){settings.routePolicy=routePolicy();execution?.refresh();refreshAideButton();save();if(missions.length)replan();},openFlightSettings(){const d=$('flight-dialog');d.querySelector('.desk-dialog-notice').textContent='';if(!d.open)d.showModal();},closed(){guide?.openOnce();},showGuide(){guide?.open();},
  mountInbox:(host,onChange)=>inbox.mount(host,{onChange}),reviewReceived,
  missions:()=>missions,clearMissions:()=>planReset.open(),
  ship:()=>({id:ship.id,name:ship.name,capacity:capacity(ship),activeGrids:ship.grids.filter(g=>!g.disabled).length,totalGrids:ship.grids.length}),shipOptions:()=>$('ship-select')?.innerHTML||'',setShip(id){const sel=$('ship-select');if(!sel)return;sel.value=id;sel.dispatchEvent(new Event('change'));},

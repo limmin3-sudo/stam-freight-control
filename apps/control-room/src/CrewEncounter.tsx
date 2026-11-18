@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {CSSProperties} from 'react';
+import {useDialoguePortrait} from './dialogue-poses';
 import './hologram-glass.css';
 import './partner-conversation.css';
 
@@ -10,6 +11,8 @@ type Props={id:string;name:string;line:string;image:string;background:string;foc
 // Shared presentation only. Caller owns existing room/scope/partner callbacks.
 export function CrewEncounter({id,name,line,image,background,focus,en,motion,origin,onClose,actions=[],note}:Props){
  const dialog=useRef<HTMLDialogElement>(null);
+ const portrait=useDialoguePortrait(id,image);
+ const [useOriginal,setUseOriginal]=useState(false);
  const [ready,setReady]=useState(false),[closing,setClosing]=useState(false),[departing,setDeparting]=useState(false),[failed,setFailed]=useState(false);
  const closeTimer=useRef<ReturnType<typeof setTimeout>|null>(null),closingRef=useRef(false);
  const callbacks=useRef({onClose,motion,ready});callbacks.current={onClose,motion,ready};
@@ -59,7 +62,10 @@ export function CrewEncounter({id,name,line,image,background,focus,en,motion,ori
  return createPortal(<dialog ref={dialog} className="crew-encounter" data-partner={id} data-actions={actions.length>0} data-departing={departing} data-ready={ready} data-closing={closing} data-motion={motion} aria-labelledby="partner-conversation-title" aria-describedby="partner-conversation-line" onCancel={event=>{event.preventDefault();finish();}} style={{'--crew-focus-x':`${focus}%`} as CSSProperties}>
   <div className="crew-encounter-background" aria-hidden="true"><img src={background} alt=""/></div>
   <div className="crew-encounter-shade" aria-hidden="true"/>
-  {!failed&&<div className="crew-encounter-person" aria-hidden="true"><img src={image} alt="" draggable={false} onLoad={()=>setReady(true)} onError={()=>{setFailed(true);setReady(true);}}/></div>}
+  {!failed&&<div className="crew-encounter-person" aria-hidden="true"><img src={useOriginal?image:portrait} alt="" draggable={false} onLoad={()=>setReady(true)} onError={()=>{
+   if(!useOriginal&&portrait!==image){setUseOriginal(true);return;}
+   setFailed(true);setReady(true);
+  }}/></div>}
   <section className="partner-conversation asset-hologram" data-glass-panel="crew">
    <p className="partner-conversation-channel">STAM / CREW</p>
    <h2 id="partner-conversation-title">{name}</h2>

@@ -6,7 +6,6 @@ import {L,tr,isEn} from './i18n.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n));
 import {V,VOICE_LIST,VOICE_PORTRAITS,voiceId,setVoice} from './voice.mjs';
-import {tutorialInfo} from './tutorial-info.mjs';
 import {missionSCU} from './delivery-totals.mjs';
 import {systemLabel} from './aliases.mjs';
 const SIZES=[1,2,4,8,16,24,32];
@@ -30,14 +29,14 @@ export function createAssistant(app){
  function go(s){if(preview==='broker'&&!['choose','welcome'].includes(s))return;root.onpaste=null;step=s;clearInterval(poll);({choose,welcome,ship,start,shots,confirm,boxes,brief})[s]();}
 
  function choose(){
-  const tutorial=tutorialInfo(),entries=[['tutorial',tutorial.name,tutorial.description],...VOICE_LIST],points=id=>id==='tutorial'?tutorial.points:V(id).profile.points.map(([label])=>label),picture=id=>id==='tutorial'?tutorial.portrait:VOICE_PORTRAITS[id];
-  frame('오늘 함께할 파트너를 선택하세요.',L('운송을 도와줄 파트너를 고르거나, 튜토리얼 소개를 살펴보세요.','Choose your hauling partner or preview the upcoming tutorial.'),
-   `<div class="partner-preview-tabs" role="group" aria-label="${L('살펴볼 파트너','Preview a partner')}">${entries.map(([id,name])=>`<button type="button" data-partner-tab="${id}" aria-label="${esc(name)}" aria-pressed="${id===voiceId()}">${({tutorial:L('튜토리얼','Tutorial'),aide:L('오퍼레이터','Operator'),standard:L('항해사','Navigator'),broker:L('브로커','Broker')})[id]}</button>`).join('')}</div><div class="aide-voices aide-choose" role="group" aria-label="${L('파트너·튜토리얼 선택','Choose partner or tutorial')}">${entries.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="partner-choice ${id===voiceId()?'is-preview':''} ${['broker','tutorial'].includes(id)?'partner-coming':''}" aria-label="${esc(name)} ${L('선택','select')}"><span class="partner-photo-frame"><img class="partner-photo" src="${picture(id)}" alt="${esc(name)}"></span><span class="partner-copy"><b>${esc(name)}</b><small>${esc(desc)}</small><span class="partner-capabilities">${points(id).map(label=>`<span>${esc(label)}</span>`).join('')}</span><span class="aide-choose-link">${id==='tutorial'?tutorial.preview:id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
+  const entries=VOICE_LIST,points=id=>V(id).profile.points.map(([label])=>label),picture=id=>VOICE_PORTRAITS[id];
+  frame('오늘 함께할 파트너를 선택하세요.',L('운송을 도와줄 파트너를 고르세요.','Choose your hauling partner.'),
+   `<div class="partner-preview-tabs" role="group" aria-label="${L('살펴볼 파트너','Preview a partner')}">${entries.map(([id,name])=>`<button type="button" data-partner-tab="${id}" aria-label="${esc(name)}" aria-pressed="${id===voiceId()}">${({aide:L('오퍼레이터','Operator'),standard:L('항해사','Navigator'),broker:L('브로커','Broker')})[id]}</button>`).join('')}</div><div class="aide-voices aide-choose" role="group" aria-label="${L('파트너 선택','Choose partner')}">${entries.map(([id,name,desc])=>`<button type="button" data-voice="${id}" class="partner-choice ${id===voiceId()?'is-preview':''} ${id==='broker'?'partner-coming':''}" aria-label="${esc(name)} ${L('선택','select')}"><span class="partner-photo-frame"><img class="partner-photo" src="${picture(id)}" alt="${esc(name)}"></span><span class="partner-copy"><b>${esc(name)}</b><small>${esc(desc)}</small><span class="partner-capabilities">${points(id).map(label=>`<span>${esc(label)}</span>`).join('')}</span><span class="aide-choose-link">${id==='broker'?L('소개 보기 · 무역 준비 중','Preview · trading coming soon'):L('함께 시작 →','Start together →')}</span></span></button>`).join('')}</div>`,
    '<button class="quiet" id="a-skip">전체 화면으로 바로 가기</button>');
   root.querySelector('.aide-role').textContent='STAM FREIGHT CONTROL · '+L('운항 파트너','Hauling partners');
   root.querySelector('.aide-steps').hidden=true;
   root.querySelectorAll('[data-partner-tab]').forEach(tab=>tab.onclick=()=>{root.querySelectorAll('[data-partner-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b===tab)));root.querySelectorAll('[data-voice]').forEach(b=>b.classList.toggle('is-preview',b.dataset.voice===tab.dataset.partnerTab));});
-  root.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{if(b.dataset.voice==='tutorial'){app.showTutorial?.();return;}preview=b.dataset.voice;if(preview!=='broker'){setVoice(preview);app.voiceChanged?.();}go('welcome');});on('#a-skip',close);
+  root.querySelectorAll('[data-voice]').forEach(b=>b.onclick=()=>{preview=b.dataset.voice;if(preview!=='broker'){setVoice(preview);app.voiceChanged?.();}go('welcome');});on('#a-skip',close);
  }
 
  function welcome(){const n=app.missions().length;

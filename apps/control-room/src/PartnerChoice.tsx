@@ -1,5 +1,5 @@
-import operator from '../../../assets/partners/aide-portrait.webp';
-import navigator from '../../../assets/partners/navigator.jpg';
+import operator from './assets/partner-close/operator.png';
+import navigator from './assets/partner-close/navigator.png';
 import type {Draft} from './mission-trial';
 import type {Locale} from './navigation';
 

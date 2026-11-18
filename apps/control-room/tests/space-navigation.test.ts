@@ -57,3 +57,13 @@ test('trade advisor scope is preserved only inside trade planning',()=>{
  assert.equal(parseSpaceRoute('#/division?facility=guide-center&room=education&advisor=interstellar').tradeScope,undefined);
  assert.equal(parseSpaceRoute('#/division?facility=trade&room=planning&advisor=invalid').tradeScope,undefined);
 });
+
+test('guided visit starts explicitly at the welcome desk and stays out of other routes',()=>{
+  for (const locale of ['ko','mix','en'] as const) {
+    const visit={screen:'guide',locale,guidedVisit:true} as const;
+    assert.deepEqual(parseSpaceRoute(spaceHash(visit)),visit);
+    assert.equal(spaceHash({...visit,screen:'bridge'}),'#/bridge?lang='+locale);
+  }
+  assert.deepEqual(parseSpaceRoute('#/division?lang=en&tour=1'),{screen:'division',locale:'en'});
+  assert.deepEqual(parseSpaceRoute('#/guide?lang=ko&tour=0'),{screen:'guide',locale:'ko'});
+});

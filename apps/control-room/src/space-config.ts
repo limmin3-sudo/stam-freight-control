@@ -16,11 +16,11 @@ export const spaceConfig = {
   // Travel video is being made separately. No paid service or placeholder video.
   scenes: {
     lounge: { image: lounge, targets: [
-      { id: 'desk', to: 'guide', label: ['안내 데스크', 'Welcome desk'], detail: ['첫 운송 튜토리얼', 'First haul tutorial'], x: 22, y: 73, focus: [32.9, 57], anchor: [32.9, 55], marker: [27.5, 47], contour: sceneContours.desk },
+      { id: 'desk', to: 'guide', label: ['안내 데스크', 'Welcome desk'], detail: ['운송 준비 · 자료 안내', 'Haul preparation · Resources'], x: 22, y: 73, focus: [36.3, 57], anchor: [36.3, 55], marker: [27.5, 47], contour: sceneContours.desk },
       { id: 'gate', to: 'bridge', label: ['탑승 게이트', 'Boarding gate'], detail: ['CONTROL CENTER', 'CONTROL CENTER'], x: 47, y: 76, focus: [37, 49], anchor: [42.3, 62], marker: [42.3, 62], contour: sceneContours.gate },
       { id: 'service', to: 'service', label: ['서비스센터', 'Service centre'], detail: ['계정 · 운송기록 · 고객지원', 'Account · History · Support'], x: 63, y: 62, focus: [55, 47], anchor: [55.6, 51.1], marker: [55.6, 51.1], contour: sceneContours.service },
       { id: 'information', to: 'information', label: ['아카이브', 'Archive'], detail: ['함선 · 미션 · 화물 자료', 'Ships · Missions · Cargo'], x: 72, y: 76, focus: [75, 50], anchor: [74.4, 62.2], marker: [74.4, 62.2], contour: sceneContours.information },
-      { id: 'cinema', to: 'cinema', label: ['시네마', 'Cinema'], detail: ['STAM 소개영상', 'Discover STAM'], x: 88, y: 82, focus: [91, 48], anchor: [91.3, 68.1], marker: [91.3, 68.1], contour: sceneContours.cinema },
+      { id: 'cinema', to: 'cinema', label: ['시네마', 'Cinema'], detail: ['상영 일정', 'Screenings'], x: 88, y: 82, focus: [91, 48], anchor: [91.3, 68.1], marker: [91.3, 68.1], contour: sceneContours.cinema },
     ] satisfies SceneTarget[] },
     bridge: { image: bridge, targets: [
       { id: 'mission', to: 'mission', label: ['미션 콘솔', 'Mission console'], detail: ['함선 · 출발지 · 계약', 'Ship · Departure · Contracts'], x: 12, y: 73, focus: [8, 55], anchor: [8, 55], marker: [8, 48], contour: sceneContours.mission },

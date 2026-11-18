@@ -8,8 +8,8 @@ const CargoViewport=lazy(()=>import('./CargoWorkspace').then(m=>({default:m.Carg
 import {cargoShip} from './cargo-plan.mjs';
 const OperationsMap=lazy(()=>import('./OperationsMap').then(module=>({default:module.OperationsMap})));
 import {flightVoice} from '../../../voice.mjs';
-import operatorPortrait from '../../../assets/partners/aide-portrait.webp';
-import navigatorPortrait from '../../../assets/partners/navigator.jpg';
+import operatorPortrait from './assets/partner-close/operator.png';
+import navigatorPortrait from './assets/partner-close/navigator.png';
 import korean from '../../../data/stam-korean.json';
 import {InterfaceGlyph} from './InterfaceGlyph';
 import './operations-desk.css';
