@@ -11,12 +11,12 @@ import records from './records.webp';
 import './preview.css';
 
 const rooms = {
- control: {name:'무역관제실',title:'시세 검색',x:38,y:54,rx:20,ry:11},
+ control: {name:'무역관제실',title:'시세 검색',x:46.5,y:54,rx:15,ry:11},
  records: {name:'거래기록실',title:'매입 · 판매 · 잔량 · 정산',x:81.7,y:54,rx:5.8,ry:8}
 };
 const partners = {
- officer:{name:'수석 무역관',image:officer,portrait:officerClose,x:59,line:'같은 행성계 안의 거래처를 살펴보겠습니다. 함선과 가용 자본에 맞춰 이동 경로를 함께 검토하시죠.',scope:'행성계 내부'},
- broker:{name:'링 가문 중개인',image:broker,portrait:brokerClose,x:69,line:'행성계를 오가는 거래를 맡고 있어요. 출발지부터 목적지까지, 자금과 이동 계획을 함께 살펴보죠.',scope:'행성계 간'}
+ officer:{name:'수석 무역관',image:officer,portrait:officerClose,x:56.5,line:'같은 행성계 안의 거래처를 살펴보겠습니다. 함선과 가용 자본에 맞춰 이동 경로를 함께 검토하시죠.',scope:'행성계 내부'},
+ broker:{name:'링 가문 중개인',image:broker,portrait:brokerClose,x:63.8,line:'행성계를 오가는 거래를 맡고 있어요. 출발지부터 목적지까지, 자금과 이동 계획을 함께 살펴보죠.',scope:'행성계 간'}
 };
 type Room=keyof typeof rooms;
 type Person=keyof typeof partners;

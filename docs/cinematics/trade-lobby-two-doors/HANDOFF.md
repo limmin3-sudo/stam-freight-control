@@ -4,6 +4,8 @@
 
 [로비 전경](review/lobby.png) · [무역관제실 강조](review/control-focus.png) · [거래기록실 강조](review/records-focus.png) · [진입과 복귀 MP4](review/control-roundtrip.mp4)
 
+새 원본에는 상담 직원과 방문객, 금속 난간 뒤에서 대화하는 정장·칵테일드레스 차림의 방문객, 관제실 근무자가 포함돼 있다. 수석 무역관과 링 가문 중개인은 상담대 앞의 독립된 선택 영역에 전신 자산을 배치한다.
+
 ## 승인 후 기능 연결
 
 | 진입 방식 | 연결할 기존 기능 |
