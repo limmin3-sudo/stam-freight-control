@@ -13,13 +13,13 @@
   "rendering": "Preserved earlier material; no longer imported by ShellMaterial.",
   "accent": {
     "asset": "apps/control-room/src/assets/navigation/shell-gold-gunmetal.png",
-    "source": "/workspace/generated_images/exec-b70798fc-6552-40a3-8128-0aad3b63c08e.png",
-    "sha256": "e71e87c1ff3681548616b17e053101e2253f5ecf8fa7c396866f9d1ef5b5b9ac",
+    "source": "/workspace/generated_images/exec-6b323f54-03a4-4b51-9653-3e6736ce2f8e.png",
+    "sha256": "0cbb7eea3ede3bce6540edfede16fdfa6e6e57a8d92d8e8e7ba8fcc034766b62",
     "nativeSize": [
       1536,
       1024
     ],
-    "creation": "image_gen edit: extended warm champagne gold nameplate, straight diagonal chamfer, twin recessed machining grooves and corner marks; gunmetal lower sidebar",
+    "creation": "image_gen edit: black titanium molding wrapping actual champagne housing perimeter; convex rounded cross section with sharp mitered corners; no inset ornamental line",
     "zone2Source": "0 102 216 300",
     "zone3Source": "0 402 216 616",
     "geometryChanged": false,
