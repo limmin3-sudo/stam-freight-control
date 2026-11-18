@@ -45,11 +45,31 @@
       "sweep",
       "connector"
     ],
-    "unchangedSourceFor": [
-      "top",
-      "top-end",
-      "side",
-      "side-end"
-    ]
-  }
+    "unchangedSourceFor": [],
+    "rendering": "Gold join/sweep/connector retained; sweep clipped to gold silhouette over continuous new glass. Zone1 and3 use dedicated new materials."
+  },
+  "dedicatedMaterials": [
+    {
+      "asset": "apps/control-room/src/assets/navigation/shell-top-glass.png",
+      "source": "/workspace/generated_images/exec-bc27001d-b04e-4741-b91d-e26c2e181ab7.png",
+      "sha256": "ee095faa7e8950a378f277c188d1c73b185cbb4ddb0749934a94f8735b475312",
+      "nativeSize": [
+        1536,
+        1024
+      ],
+      "usedRegion": "top strip 1536x102",
+      "creation": "image_gen dedicated material, no software upscaling"
+    },
+    {
+      "asset": "apps/control-room/src/assets/navigation/shell-side-gunmetal.png",
+      "source": "/workspace/generated_images/exec-ebe723d4-b5b3-4d5a-b5d4-4c1d81eab9ec.png",
+      "sha256": "deabca9f3b8503517879ee812e2d0655d48d44fd558a927d2a8aba78155a8993",
+      "nativeSize": [
+        1024,
+        1536
+      ],
+      "usedRegion": "left strip 384x1536",
+      "creation": "image_gen dedicated material, no software upscaling"
+    }
+  ]
 }

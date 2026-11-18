@@ -47,7 +47,7 @@
 .shell-piece{position:absolute;display:block;overflow:hidden}
 .shell-join{left:0;top:0;width:var(--shell-sidebar-width);height:67px}
 .shell-sweep{left:var(--shell-sidebar-width);top:0;width:400px;height:67px}
-.shell-top{left:calc(var(--shell-sidebar-width) + 400px);right:4px;top:0;width:calc(100% - var(--shell-sidebar-width) - 404px);height:67px}
+.shell-top{left:var(--shell-sidebar-width);right:4px;top:0;width:calc(100% - var(--shell-sidebar-width) - 4px);height:67px}
 .shell-top-end{right:0;top:0;width:4px;height:67px}
 .shell-connector{left:0;top:67px;width:var(--shell-sidebar-width);height:var(--shell-connector-height,164px)}
 .shell-side{left:0;top:calc(67px + var(--shell-connector-height,164px));width:var(--shell-sidebar-width);height:max(0px,calc(100% - 73px - var(--shell-connector-height,164px)))}
@@ -88,7 +88,7 @@
  .shell-piece{height:120px}
  .shell-join{width:240px}
  .shell-sweep{left:240px;width:110px}
- .shell-top{left:350px;right:4px;width:max(0px,calc(100% - 354px))}
+ .shell-top{left:240px;right:4px;width:max(0px,calc(100% - 244px))}
  .shell-top-end{width:4px}
  .space-sidebar :is(.space-group-button,.space-division-button){height:72px;min-height:72px}
  .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:17px}
@@ -104,7 +104,6 @@
  .space-experience .space-topbar .pilot-connections button{min-width:105px;padding-inline:8px;gap:5px}
  .space-experience .space-topbar .space-download{padding-inline:8px}
  .shell-sweep{width:200px}
- .shell-top{left:calc(var(--shell-sidebar-width) + 200px);width:calc(100% - var(--shell-sidebar-width) - 204px)}
 }
 
 /* Guide playback occupies the same scene cell as the lounge, including while
