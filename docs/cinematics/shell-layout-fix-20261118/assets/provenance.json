@@ -10,18 +10,25 @@
   "creation": "image_gen; square-corner revision of clean material, no baked text or room image",
   "reference": "approved option 2 black glass / thin champagne-gold trim",
   "upscaled": false,
-  "rendering": "Five source rectangles; the image is only painted in the header/sidebar, never over the content cell.",
+  "rendering": "Preserved earlier material; no longer imported by ShellMaterial.",
   "accent": {
     "asset": "apps/control-room/src/assets/navigation/shell-gold-gunmetal.png",
-    "source": "/workspace/generated_images/exec-201753d0-2dcc-436b-a996-fc16cc253e0b.png",
-    "sha256": "694f520b4543006be18b9d4bb1bc7c9fa4c51ff08221f37a030303a2d1ea6122",
+    "source": "/workspace/generated_images/exec-6dacd686-aad4-46b2-a917-2edb62bae12d.png",
+    "sha256": "3ad89081761b491a944b766c5270b4e3b74d13cc5df482cc1f80ad5930d4cd27",
     "nativeSize": [
       1536,
       1024
     ],
-    "creation": "image_gen, raised champagne-gold connector and brushed gunmetal; preserve original header source",
+    "creation": "image_gen; continuous raised gold casting with curved header boundary and straight horizontal sidebar step; blue glass header and gunmetal lower sidebar",
     "zone2Source": "0 102 216 300",
     "zone3Source": "0 402 216 616",
-    "geometryChanged": false
+    "geometryChanged": false,
+    "headerSources": [
+      "0 0 216 102",
+      "216 0 384 102",
+      "600 0 930 102",
+      "1530 0 6 102"
+    ],
+    "placement": "Step tracks the gap below Flight Console and above navigation caption/Freight Division; scene geometry unchanged"
   }
 }

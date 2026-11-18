@@ -1,21 +1,48 @@
-import material from './assets/navigation/clean-shell-material.png';
+import {useLayoutEffect,useRef} from 'react';
 import accent from './assets/navigation/shell-gold-gunmetal.png';
 
 /** A clean material asset, with no baked-in controls or room screenshot.
  * The corner and edge heights stay fixed; the plain strips fill the existing
  * navigation area without setting the dimensions of the live scene.
- * Zone 1 keeps the original glass; zone 2 is a raised gold housing and zone 3
- * is brushed gunmetal. The curved detail stays inside the sidebar cell. */
+ * A single casting spans the header and console surround. The header uses a
+ * curved material boundary; the sidebar ends the housing in a straight step.
+ * Curves stay in the chrome and never round or cover the scene aperture. */
 export function ShellMaterial(){
+ const root=useRef<HTMLDivElement>(null);
+ useLayoutEffect(()=>{
+  const material=root.current,shell=material?.closest('.space-experience');
+  const sidebar=shell?.querySelector<HTMLElement>('.space-sidebar');
+  const console=shell?.querySelector<HTMLElement>('.pilot-desk');
+  const destination=shell?.querySelector<HTMLElement>('.space-division-button');
+  const caption=shell?.querySelector<HTMLElement>('.space-sidebar-caption');
+  const header=shell?.querySelector<HTMLElement>('.space-topbar');
+  if(!material||!sidebar||!console||!destination||!header)return;
+  let frame=0;
+  const align=()=>{
+   frame=0;
+   if(window.innerWidth<=760)return;
+   const bottom=console.getBoundingClientRect().bottom;
+   const next=(caption??destination).getBoundingClientRect().top;
+   const height=Math.max(0,(bottom+next)/2-header.getBoundingClientRect().bottom);
+   material.style.setProperty('--shell-connector-height',`${height}px`);
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(align);};
+  const observer=new ResizeObserver(schedule);
+  observer.observe(console);observer.observe(sidebar);observer.observe(header);
+  sidebar.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);align();
+  return()=>{observer.disconnect();cancelAnimationFrame(frame);sidebar.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
+ },[]);
  const pieces=[
-  ['join','0 0 216 102',material],
-  ['top','216 0 1314 102',material],
-  ['top-end','1530 0 6 102',material],
+  ['join','0 0 216 102',accent],
+  ['sweep','216 0 384 102',accent],
+  ['top','600 0 930 102',accent],
+  ['top-end','1530 0 6 102',accent],
   ['connector','0 102 216 300',accent],
   ['side','0 402 216 616',accent],
   ['side-end','0 1018 216 6',accent],
  ];
- return <div className="shell-material" aria-hidden="true">
+ return <div ref={root} className="shell-material" aria-hidden="true">
   {pieces.map(([part,viewBox,source])=><svg key={part} className={`shell-piece shell-${part}`} viewBox={viewBox} preserveAspectRatio="none" focusable="false">
    <image href={source} x="0" y="0" width="1536" height="1024"/>
   </svg>)}

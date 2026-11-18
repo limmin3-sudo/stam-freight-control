@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "state": "collapsed",
+      "consoleBottom": 206.828125,
+      "step": 214.828125,
+      "captionTop": 222.828125,
+      "buttonTop": 252.828125
+    },
+    {
+      "state": "expanded",
+      "consoleBottom": 206.828125,
+      "step": 214.828125,
+      "captionTop": 222.828125,
+      "buttonTop": 252.828125
+    },
+    {
+      "state": "scrolled",
+      "consoleBottom": 145.9375,
+      "step": 153.9375,
+      "captionTop": 161.9375,
+      "buttonTop": 185.9375
+    },
+    {
+      "state": "collapsed-again",
+      "consoleBottom": 206.828125,
+      "step": 214.828125,
+      "captionTop": 222.828125,
+      "buttonTop": 252.828125
+    }
+  ],
+  "errors": []
+}
