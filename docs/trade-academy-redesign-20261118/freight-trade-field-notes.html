@@ -1,0 +1,116 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>운송·무역 현장 노트 | STAM 아카데미</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0c1620;color:#f2efe6;font:17px/1.7 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:38px clamp(18px,4vw,52px) 72px}header{border-bottom:1px solid #837354}h1{font-size:2.2rem;line-height:1.2}h2{font-size:1.55rem;margin:2em 0 .5em;color:#e7c98b}h3{font-size:1.08rem;margin:1.3em 0 .15em}p{margin:.35em 0 .8em}nav{display:flex;gap:18px;flex-wrap:wrap;margin:1em 0}a{color:#aaddf1;text-underline-offset:3px}.sources{font-size:.86rem}.sources a{margin-right:9px}li{margin-bottom:.6em}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #42505a}th{color:#e7c98b}small{color:#c6d2d3}@media print{body{background:white;color:black}main{max-width:none;padding:0}a,h2,th{color:#244053}nav{display:none}h3{break-after:avoid}}
+</style><main><header><h1>운송·무역 현장 노트</h1><p>조사일 2026년 11월 18일 · Star Citizen 4.10.3 LIVE.13165946</p></header>
+<p>게임 규칙은 CIG 안내로, 보상·물량은 빌드가 표시된 계약 정의로 확인했다. 도구의 예상 시간과 이용자 경험은 각각의 조건을 붙였다. STAM 사례는 저장 자료로 다시 계산했다. 4.10.3 서버에서 직접 운항하거나 현재 수주·재고를 실측한 조사는 아니다.</p><p class="sources"><a href="https://status.robertsspaceindustries.com/issues/2026-11-12_live-deployment/">공식 배포</a> <a href="https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/star-citizen-alpha-4-10-3-live-release-notes">공식 패치 노트</a></p>
+<p><strong>현장에서 바로 찾기</strong>　계약 두 건이 뜨면 실제 픽업지와 동시 적재량을, 거래소에 도착하면 단가와 지금 받아주는 수량을 확인한다. 이번 보강에서는 같은 296 SCU를 두 함선으로 돌려 보고, 티타늄 절반만 팔린 경우의 선택을 계산했다.</p>
+<nav><a href="#rep">평판·조합</a><a href="#ops">적재·인계</a><a href="#case">Hull B 사례</a><a href="#market">무역 판단</a><a href="#math">티타늄 정산</a><a href="#exceptions">패치·속설</a></nav>
+<section id="rep"><h2>어떤 계약을 같이 받으면 평판에 유리할까?</h2></section>
+<p>Covalex 신입(Rookie) 계약 정의에서 성공 시 Hauling 평판이 +50으로 표시되는 사례 다섯 개를 대조했다. 표의 보상은 정의에 표시된 금액이다. 실제로 뜬 계약의 가용 여부, 목적지, 수량, 보상은 수주 화면에서 확인한다.</p>
+<table><thead><tr><th>계약 정의</th><th>물량 / 최대 상자</th><th>동선</th><th>기본 보상</th></tr></thead><tbody>
+<tr><td><a href="https://api.star-citizen.wiki/missions/ato-b-non-metal-carbon-stanton4-small-grade">탄소 계약</a></td><td>6–12 / 1 SCU</td><td>직송</td><td>45,750 aUEC</td></tr>
+<tr><td><a href="https://api.star-citizen.wiki/missions/single-to-multi2-refined-ore-aluminium-stanton4-small-grade">알루미늄 계약</a></td><td>3–6씩 두 건 / 1 SCU</td><td>한 픽업 → 두 배송지</td><td>61,500 aUEC</td></tr>
+<tr><td><a href="https://api.star-citizen.wiki/missions/98e38fe4-3c96-49e5-b54e-17caf212b9be">라라나이트 계약</a></td><td>14–32 / 4 SCU</td><td>직송</td><td>63,000 aUEC</td></tr>
+<tr><td><a href="https://api.star-citizen.wiki/missions/single-to-multi2-processed-stims-stanton4-small-grade2">자극제 계약</a></td><td>4–8씩 두 건 / 4 SCU</td><td>한 픽업 → 두 배송지</td><td>50,250 aUEC</td></tr>
+<tr><td><a href="https://api.star-citizen.wiki/missions/ato-b-processed-agricultural-supplies-interstellar-small-grade">게이트웨이 계약</a></td><td>8–16 / 4 SCU</td><td>농업 보급품 → Pyro Gateway</td><td>40,000 aUEC</td></tr>
+</tbody></table>
+<h3>첫 평판은 한 발주처에서 비교</h3>
+<p>REP에서 키울 회사와 단계를 고른다. 같은 +50이라면 내 함선으로 한 번에 끝낼 수 있고 착륙·상하차가 적은 계약부터 후보로 둔다. 별도 발주처의 평판이나 다른 등급 계약에 이 수치를 그대로 적용할 근거는 없다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-non-metal-carbon-stanton4-small-grade">탄소 계약</a> <a href="https://api.star-citizen.wiki/missions/single-to-multi2-refined-ore-aluminium-stanton4-small-grade">알루미늄 계약</a> <a href="https://www.outflierssc.com/cargo/basics-of-cargo">Outfliers 운송 가이드</a></p>
+<h3>공통 정차가 있는 두 건부터</h3>
+<p>탄소와 알루미늄의 실제 픽업이 같고 탄소 배송지가 알루미늄 배송지 하나와 겹친다면, 한 번 픽업해 두 곳에 배송할 후보가 된다. 두 계약 합산 12–24 SCU, 최대 상자 1 SCU, 정의 보상 107,250 aUEC, 평판 표기 합계 +100. 같은 시점에 두 건이 뜨거나 정차지가 일치한다고 가정하지 않는다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-non-metal-carbon-stanton4-small-grade">탄소 계약</a> <a href="https://api.star-citizen.wiki/missions/single-to-multi2-refined-ore-aluminium-stanton4-small-grade">알루미늄 계약</a></p>
+<h3>평판이 목표인지 현금이 목표인지 먼저 결정</h3>
+<p>두 건의 평판/시간은 100을 내 완료시간(분)으로 나눈 뒤 60을 곱해 비교한다. 예를 들어 단독 15분과 두 건 25분이면 시간당 200과 240이다. 두 건에 35분이 걸리면 약 171로 순위가 뒤집힌다. 시간은 설명용 가정이다.</p>
+<h3>두 번째 상자는 같은 장소에서 내리는지 보기</h3>
+<p>최대 12 SCU의 탄소 직송과 최대 12 SCU의 알루미늄 두 배송은 총량이 같아도 착륙·엘리베이터 사용 횟수가 다르다. 기존 동선에 들어 있는 하차지는 추가 정차로 세지 않는다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-non-metal-carbon-stanton4-small-grade">탄소 계약</a> <a href="https://api.star-citizen.wiki/missions/single-to-multi2-refined-ore-aluminium-stanton4-small-grade">알루미늄 계약</a></p>
+<h3>픽업지가 하나만 확정돼 있을 때</h3>
+<p>아크코프 신입 자극제 직송은 Riker Memorial Spaceport 픽업이 명시돼 있다. 80–112 SCU, 최대 상자 8 SCU, 평판 +50이다. 반면 가공식품 2곳 배송은 7–16 SCU씩 두 곳, 최대 상자 4 SCU, +50이며 픽업지는 계약 생성 때 정해진다. 실제 가공식품 픽업지도 Riker이면 두 건의 동시 적재 후보는 94–144 SCU다. 96 SCU가 빈 함장은 실제 수량 합계가 96 이하고 상자 배치까지 가능한 경우에만 한 번에 출발한다. 두 계약이 동시에 뜬다는 보장은 없다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-processed-stims-stanton3-supply-grade">Riker 자극제 직송</a> <a href="https://api.star-citizen.wiki/missions/single-to-multi2-processed-processed-food-stanton3-small-grade">가공식품 분할 배송</a></p>
+<h3>지도에 찍힌 마지막 목표까지 읽기</h3>
+<p>이름에 Interstellar가 붙은 농업 보급품 계약 중에는 Pyro Gateway에 인계하면 다른 운송인이 점프를 맡는 정의가 있다. 행성계 간 분류만 보고 내 운항에 점프 시간을 더하면 과대 계산이다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-processed-agricultural-supplies-interstellar-small-grade">게이트웨이 계약</a></p>
+<h3>세라핌 → 오리슨은 검색할 후보</h3>
+<p>세라핌에서 오리슨으로 가는 신입 계약을 묶었다는 운항자 경험이 있다. 현재 서버에서 같은 방향 두 건이 있는지 먼저 확인한다. 옛 후기의 동시 수주 건수나 보상으로 오늘의 시간당 평판을 계산하지 않는다.</p><p class="sources"><a href="https://www.reddit.com/r/starcitizen/comments/1kzfu3j/">세라핌 운항자 후기</a></p>
+<h3>세 번째 계약은 새로 생기는 일만 계산</h3>
+<p>보상을 더한 뒤 추가되는 도킹, 지상 접근, 상하차, 최대 동시 적재량, 마감 시각을 센다. 예를 들어 픽업을 먼저 하면 30+20 SCU가 동시에 필요하지만, 첫 배송 뒤 두 번째 픽업이 가능하면 최고치는 30 SCU다. 순서는 각 계약의 픽업 선행 조건을 따라야 한다.</p><p class="sources"><a href="https://sc-hauling.tools/">SC Hauling Tools</a></p>
+<section id="ops"><h2>수주한 화물을 잃지 않고 내리는 순서</h2></section>
+<h3>계약에서 네 가지를 옮겨 적기</h3>
+<p>픽업 거점, 배송 거점별 수량, 최대 상자, 완료 조건을 확인한다. 같은 품목을 요구하는 두 계약은 계약별로 따로 체크한다. 목적지가 같은 행성이어도 도시·정거장·지상 시설은 각각 다른 방문이다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/single-to-multi2-processed-stims-stanton4-small-grade2">자극제 계약</a> <a href="https://docs.sc/topics/careers/missions/hauling/">Star Docs 운송 절차</a></p>
+<h3>총 SCU와 상자 한 개의 크기를 따로 보기</h3>
+<p>4 SCU 공간이 여러 군데 흩어져 있으면 큰 상자 한 개가 들어간다는 보장이 없다. 화물칸 입구와 그리드 치수, 들 수 있는 트랙터 도구, 거점의 취급 규격을 함께 확인한다.</p><p class="sources"><a href="https://scanz.space/new-player-guide/your-first-cargo-mission">SCANZ 첫 운송</a> <a href="https://cryon.rocks/ops/trade">Motherlode 경로 조건</a></p>
+<h3>같은 함선도 모듈에 따라 다시 계산</h3>
+<p>갤럭시 기본형 64 SCU와 화물 모듈형 720 SCU를 구분한다. 화물형은 기존 64에 모듈 656이 더해진다. 계약 비교에는 실제 장착 구성과 그리드별 남은 공간을 쓴다.</p><p class="sources"><a href="https://api.star-citizen.wiki/vehicles/rsi-galaxy-temp-cargo">갤럭시 화물형</a> <a href="https://starcitizen.tools/RSI_Galaxy">갤럭시 모듈 변경 이력</a></p>
+<h3>대형 화물선은 거점부터 확인</h3>
+<p>Hull C처럼 외부 화물 취급 설비가 중요한 함선은 매입·배송 양끝의 카고 도크 지원부터 본다. 일반 함선용 격납고 엘리베이터를 그대로 쓸 수 있다고 가정하면 시세가 좋아도 실행할 수 없다. Hull B에는 자신의 함선 조건을 별도로 적용한다.</p><p class="sources"><a href="https://sc-hauling.tools/">SC Hauling Tools</a> <a href="https://cryon.rocks/ops/trade">Motherlode 경로 조건</a></p>
+<h3>계약 화물은 지정된 창고에서 호출</h3>
+<p>Freight Manager에서 계약 화물과 수량을 선택해 플랫폼으로 올린다. 같은 아이콘의 묶음 수를 읽고 실제 상자 수를 센다. 같은 이름의 상품을 따로 구입해 계약 화물을 대신하는 방식에 기대지 않는다.</p><p class="sources"><a href="https://api.star-citizen.wiki/comm-links/20040">CIG 화물 가이드 보존본</a> <a href="https://docs.sc/topics/careers/missions/hauling/">Star Docs 운송 절차</a></p>
+<h3>첫 배송분을 꺼낼 통로 남기기</h3>
+<p>뒤쪽에만 문이 있다면 마지막에 내릴 상자를 안쪽에, 첫 배송분은 문 쪽에 둔다. 옆문·엘리베이터가 있는 함선은 실제 하역 경로에 따라 구역을 나눈다. 목적지별 배치가 재취급을 줄이는지가 기준이다.</p><p class="sources"><a href="https://sc-hauling.tools/">SC Hauling Tools</a> <a href="https://scanz.space/new-player-guide/your-first-cargo-mission">SCANZ 첫 운송</a></p>
+<h3>트랙터가 작동하지 않거나 상자가 문에 걸릴 때</h3>
+<p>출발 전에 멀티툴 본체에 TruHold 트랙터 부착물이 장착됐는지 확인한다. 상자를 잡을 수 있는데 문턱에 걸리면 억지로 밀기보다 상자를 회전해 긴 변을 진입 방향으로 놓고 그리드 배치 표시를 확인한다. 최대 상자를 똑같은 동선으로 한 번 실었다가 뺄 수 있으면 나머지를 올린다. 패치·장비별 최대 취급량은 이 확인과 별개다.</p><p class="sources"><a href="https://docs.sc/topics/fps/equipment/tractor-beam/">트랙터 장비 구성</a> <a href="https://scanz.space/new-player-guide/your-first-cargo-mission">실제 적재 절차</a></p>
+<h3>격자에 붙었는지 확인</h3>
+<p>플랫폼 위에 올려둔 뒤 Freight Manager에 상자로 잡히는지 본다. 엘리베이터가 내려가지 않을 때는 느슨한 물체와 스냅 상태부터 확인한다. 한 번에 못 싣는 잔량은 현장에서 창고로 되돌리고 남은 수량을 기록한다.</p><p class="sources"><a href="https://docs.sc/topics/careers/missions/hauling/">Star Docs 운송 절차</a></p>
+<h3>여러 계약이면 내릴 때도 분리</h3>
+<p>하차 전에 목적지·계약별 수량을 읽고 해당 화물만 빼낸다. 엘리베이터를 내린 뒤 제출 확인창에서 부족분과 계약 추적기의 진행량을 확인한다. 운송 계약 화물과 자기 자본으로 산 상품은 장부에서도 나눈다.</p><p class="sources"><a href="https://docs.sc/topics/careers/missions/hauling/">Star Docs 운송 절차</a> <a href="https://api.star-citizen.wiki/comm-links/20040">CIG 화물 가이드 보존본</a></p>
+<h3>남은 시간은 계약 설명대로</h3>
+<p>기한 만료 시 미인도 화물의 취급이 달라진다고 명시하는 계약이 있다. 여러 건 수주할 때 만료 예정 건과 실제 남은 하역 횟수를 함께 본다. 단순 창고 보관으로 완료 처리됐다고 가정하지 않는다.</p><p class="sources"><a href="https://api.star-citizen.wiki/missions/ato-b-non-metal-carbon-stanton4-small-grade">탄소 계약</a> <a href="https://api.star-citizen.wiki/missions/ato-b-processed-agricultural-supplies-interstellar-small-grade">게이트웨이 계약</a></p>
+<h3>함께 실었는데 팀원 계약창이 비어 있다면</h3>
+<p>공유 가능한 계약은 함장이 계약창에서 Share를 누른 뒤, 각 팀원이 초대를 수락하고 자기 계약 목록에서 같은 임무를 확인한다. RSI는 공유 임무의 완료 보상을 균등 분배한다고 안내한다. 76,500 aUEC 계약을 2명이 균등 분배한다면 각 38,250 aUEC다. 이 산술로 개인별 평판 분배량까지 계산하지 않는다.</p><p class="sources"><a href="https://support.robertsspaceindustries.com/hc/en-us/articles/360008918933-Missions-and-Contracts">RSI 임무 공유 절차</a> <a href="https://api.star-citizen.wiki/missions/ato-b-processed-stims-stanton3-supply-grade">금액 예시의 계약 정의</a></p>
+<h3>함대는 운항표 하나로 맞추기</h3>
+<p>조종자는 다음 거점, 상하역 담당자는 계약별 상자 수, 기록 담당자는 제출 여부를 확인한다. 계획 공유 링크는 사본일 수 있으므로, 출발 표시를 누가 할지와 팀원이 같은 수정본을 보는지를 정한다.</p><p class="sources"><a href="https://sc-hauling.tools/">SC Hauling Tools</a></p>
+<section id="case"><h2>같은 Hull B 6계약을 합치면 무엇이 바뀔까?</h2></section>
+<p>사용자가 확인한 오리슨 출발 사례를 STAM 계산기로 다시 비교했다. 계약별 수량은 9·48·6·128·4·168 SCU, 총 363 SCU다. 128과 168 SCU 계약은 오리슨 픽업이 겹치고, 네 계약이 Sunset Mesa에 내릴 물량을 포함한다. 일곱 번째 계약은 픽업별 수량이 미확정이라 계산에서 제외했다.</p><p class="sources"><a href="../../apps/control-room/src/guide-practice.ts">STAM 사례 입력</a></p>
+<table><tr><th>계산 방식</th><th>작업 방문</th><th>행성계 점프</th><th>최대 동시 적재</th></tr><tr><td>6건 통합</td><td>14회</td><td>1회</td><td>363 SCU</td></tr><tr><td>등록 순서대로 1건씩</td><td>20회</td><td>11회</td><td>168 SCU</td></tr></table>
+<p>개별 비교는 직전 배송지에서 다음 계약 픽업지로 이어간다. 방문은 실제 픽업·배송 작업이 있는 정차만 셌다. 통합은 점프 10회를 줄인 대신 한 번에 195 SCU를 더 실어야 한다. 작은 함선은 둘 중 하나를 그대로 따르기보다 공통 픽업 두세 건씩 묶어 다시 계산하는 편이 좋다. 점프·방문 횟수는 모델 결과이며 당시 운항 시간이나 보상 실측은 없다.</p><p class="sources"><a href="../../apps/control-room/src/academy-study.ts">STAM 사례 계산</a></p>
+<h3>같은 계약도 함선에 따라 묶을 가치가 달라진다</h3>
+<p>오리슨에서 출발하는 4번·6번 계약(128+168 SCU)만 따로 선정해 같은 계산기로 비교했다. 두 계약을 묶어도 컷러스 블랙에서는 다회 운반이 필요했다. 이 함선은 목적지가 Sunset Mesa로 겹치는 1번·5번(9+4 SCU)을 묶었을 때 오히려 점프가 줄었다.</p>
+<table><thead><tr><th>테스트한 계약·함선</th><th>행성계 점프<br>개별 → 통합</th><th>작업 방문<br>개별 → 통합</th></tr></thead><tbody><tr><td>4+6 · Hull B · 296 SCU</td><td>3 → 1</td><td>6 → 5</td></tr><tr><td>4+6 · 컷러스 블랙 · 296 SCU</td><td>17 → 17</td><td>19 → 19</td></tr><tr><td>1+5 · 컷러스 블랙 · 13 SCU</td><td>3 → 1</td><td>7 → 6</td></tr></tbody></table>
+<p>수치가 적용되는 범위는 저장 사례, 현재 계산기의 상자 가정과 경로 선택이다. 게임 최소 점프 수를 증명한 값은 아니다.</p><p class="sources"><a href="../../apps/control-room/src/guide-practice.ts">계약별 원자료</a> <a href="../../apps/control-room/src/academy-study.ts">조합 비교 계산</a></p><section id="market"><h2>어디서 사고팔지 결정하는 순서</h2></section>
+<h3>품목명·코드·가공 상태 맞추기</h3>
+<p>티타늄(TITA)을 찾을 때 정제 상품과 Titanium (Ore)을 구분한다. 품목에서 출발하면 양쪽 거래소를, 이미 실은 화물에서 출발하면 구매처 후보만 찾는다.</p><p class="sources"><a href="https://uexcorp.space/trade/price_finder?set_lang=en_US">UEX 시세 검색</a> <a href="https://sc-trade.tools/">SC Trade Tools</a></p>
+<h3>판매처의 창고 재고와 내가 팔 수 있는 양은 어떻게 다른가?</h3>
+<p>UEX의 scu_sell_stock은 판매처에 있다고 보고된 현지 재고이고, scu_sell은 UEX가 예측한 매입 수요다. STAM의 저장 시세는 후자를 demand로 읽는다. 예측치 77을 보면 77 SCU까지 파는 후보로 검토하되, 출발 전에는 차선 구매처도 고르고 실제 판매량은 거래 완료 화면을 기준으로 기록한다.</p><p class="sources"><a href="https://uexcorp.space/api/documentation/id/get_commodities_prices/?set_lang=en_US">UEX 필드 정의</a> <a href="../../apps/control-room/src/trade-data.ts">STAM 시세 변환</a></p>
+<h3>가장 비싼 줄에서 수요부터 보기</h3>
+<p>11월 16일 수집본에서 티타늄 판매가는 Starlight 9,000, New Babbage 8,300 aUEC/SCU였다. UEX 예측 수요는 각각 0과 77 SCU였다. 현장 키오스크에서 바로 팔 수 있는 수량은 도착 후 확인한다. 앞쪽의 높은 단가를 화물 전체에 곱해 기대 매출로 적으면 과대 계산이다.</p><p class="sources"><a href="../../data/trade-market.json">STAM 저장 시세</a></p>
+<h3>수요 0과 수요 미확인은 별도로 읽기</h3>
+<p>0은 UEX 수요 예측값이 0이라는 뜻이고, 공란은 값이 없다는 뜻이다. 둘 다 전량 판매의 근거가 되지 않는다. 11월 16일 저장본에서 정확히 4.10.3인 행 2,174개 중 판매가가 양수인 1,561개를 세면 예측 수요 양수 270개, 0은 1,291개였다. 행 단위 집계이며 게임 전체 거래소의 품절률을 뜻하지 않는다.</p><p class="sources"><a href="../../data/trade-market.json">STAM 저장 시세</a> <a href="https://schaulers.com/tools/route-profit">SC Haulers 수익 계산</a></p>
+<h3>지역보다 단말을 지정</h3>
+<p>같은 도시나 정거장 안에서도 어느 키오스크가 해당 품목을 받는지 확인한다. 가격, 소속 행성계, 터미널 이름을 함께 적으면 이름이 비슷한 게이트웨이의 반대편으로 가는 실수를 줄인다.</p><p class="sources"><a href="https://uexcorp.space/trade/price_finder?set_lang=en_US">UEX 시세 검색</a> <a href="https://uexcorp.space/trade/routes?commodity=titanium&amp;terminal_destination=admin-arc-l5">UEX 티타늄 경로</a></p>
+<h3>마지막 가격·주간 평균·행 수정 시각을 구분</h3>
+<p>가격표에서 패치·해당 가격 행의 수정 시각·수량을 확인한다. STAM의 UEX 행 시각은 date_modified이므로 개별 구매자가 마지막으로 거래를 성사시킨 시각과는 다를 수 있다. 사이트를 방금 새로고침해도 며칠 전의 현장 보고가 오늘 가격이 되는 것은 아니다. 같은 UEX 데이터를 사용하는 여러 사이트의 일치는 독립 실측 한 건을 더한 것으로 세지 않는다.</p><p class="sources"><a href="https://uexcorp.space/trade/price_finder?set_lang=en_US">UEX 시세 검색</a> <a href="https://schaulers.com/tools/route-profit">SC Haulers 수익 계산</a></p>
+<h3>살 수 있는 양은 네 한도의 최솟값</h3>
+<p>빈 공간, 자금으로 살 수 있는 수량, 매입처 재고, 목적지 수요를 비교한다. 그다음 구입 가능한 상자 단위로 내림하고 실제 적재를 확인한다. 가령 8 SCU 상자만 있고 구매 한도 19 SCU라면 최대 후보는 16 SCU다.</p><p class="sources"><a href="https://cryon.rocks/ops/trade">Motherlode 경로 조건</a> <a href="https://schaulers.com/tools/route-profit">SC Haulers 수익 계산</a></p>
+<h3>수동·자동 상하역을 가격 비교에 포함</h3>
+<p>수동은 현지 창고를 선택해 물건을 산 뒤 화물 엘리베이터로 불러 싣는다. 자동 지원 거점에서 함선을 구매 대상으로 고르면 시간·비용이 든다. 함선이 목록에 없으면 합법 착륙·보관 여부와 자동 지원 거점을 확인한다.</p><p class="sources"><a href="https://api.star-citizen.wiki/comm-links/20040">CIG 화물 가이드 보존본</a></p>
+<h3>합법 여부와 노출 위험을 따로 보기</h3>
+<p>상품이 합법이어도 노출된 지상 하역이나 장거리 운송은 부담이 된다. 도난품·규제품은 일반 매입처와 조건이 다르므로 NQA 등 취급처, 현장 수요와 수락 여부를 확인한다. 합법·저위험을 원하는 사람에게는 두 조건 모두 필요하다.</p><p class="sources"><a href="https://api.star-citizen.wiki/comm-links/20040">CIG 화물 가이드 보존본</a> <a href="https://schaulers.com/tools/route-profit">SC Haulers 수익 계산</a></p>
+<h3>수익률과 시간당 이익을 따로 비교</h3>
+<p>자금이 적으면 매입원금 대비 순이익을, 시간이 짧으면 시간당 순이익을 본다. 시간에는 접근·도킹·상하역·창고 이동·대기와 다음 거래 시작점까지 필요한 복귀를 같은 기준으로 포함한다.</p><p class="sources"><a href="https://cargodeck.onrender.com/en/routes">Cargo Deck 왕복 비교</a> <a href="https://schaulers.com/tools/route-profit">SC Haulers 수익 계산</a></p>
+<h3>무료 복귀를 가정하지 않기</h3>
+<p>편도 종점에서 다음 일감을 바로 잡을 수 있는지 확인한다. 빈 배로 돌아와야 하면 복귀 연료와 시간을 넣고, 복귀 화물은 실제 매입처·재고·판매 수요가 잡힐 때만 왕복 수익에 넣는다.</p><p class="sources"><a href="https://cargodeck.onrender.com/en/routes">Cargo Deck 왕복 비교</a> <a href="https://schaulers.com/tools/commodity-route-planner">SC Haulers 순환 경로</a></p>
+<h3>다른 도구의 분당 수익이 유난히 높아 보일 때</h3>
+<p>SC Haulers 순환 경로 도구는 자동 하역에는 추출된 게임 규칙을 쓰지만 수동 하역·대기권 비행·도킹·플레이어 지연은 시간에 포함하지 않는다고 명시한다. 수동 하역 경로라면 타이머를 첫 매입 준비부터 마지막 판매 확인까지 재서 비교한다. 같은 출발점으로 반복할 계획이라면 복귀까지 잰다.</p><p class="sources"><a href="https://schaulers.com/tools/commodity-route-planner">SC Haulers 순환 경로 시간 기준</a></p>
+<h3>보충을 기다릴지 다른 곳에 팔지 계산</h3>
+<p>SC Haulers 순환 도구는 경과 시간 15분당 25%의 보충을 가정한다고 명시한다. 게임 전체에 적용되는 재입고 보장이 아니다. 추가 매출에서 우회 비용을 뺀 금액을 추가 대기·이동 시간으로 나눠 기존 시간당 수익과 비교한다.</p><p class="sources"><a href="https://schaulers.com/tools/commodity-route-planner">SC Haulers 순환 경로</a></p>
+<h3>남은 운송 공간에 무역 화물을 실을 때</h3>
+<p>지금 비어 있는 양과 다음 픽업 뒤에도 비어 있을 양 중 작은 쪽을 본다. 예를 들어 지금 18 SCU가 비고 다음 정차에서 먼저 12 SCU를 더 실어야 하면, 그 전까지 팔 수 없는 자기 상품은 최대 6 SCU 후보다.</p><p class="sources"><a href="https://sc-hauling.tools/">SC Hauling Tools</a></p>
+<h3>가격 이력이 드물면 거래량도 확인</h3>
+<p>높은 보고 한 번, 당일 여러 보고, 주간 평균은 신뢰도가 서로 다르다. 구간 사이 가격을 임의로 채워 추세를 판단하지 말고, 대량 매입 전에 현장 단가와 수량을 확인한다.</p><p class="sources"><a href="https://uexcorp.space/trade/price_finder?set_lang=en_US">UEX 시세 검색</a> <a href="https://uexcorp.space/commodities/?set_lang=en_US">UEX 품목 지표</a></p>
+<h3>함대 수익은 외부 현금과 나눠 기록</h3>
+<p>예상값은 계획에, 실제 수량·금액은 거래 시점에 기록한다. 연료·수수료를 누가 냈는지 적고 원금 반환과 이익 분배를 나눈다. 시간당 수익도 함대 전체인지 1인 몫인지 표기한다. 이는 STAM 공동 작업을 위한 운영 권장사항이다.</p>
+<section id="math"><h2>티타늄으로 검산하는 순이익과 하차 판단</h2></section>
+<p>11월 16일 수집 시세의 Everus Harbor 매입 7,315와 ARC-L5 판매 7,900 aUEC/SCU를 사용했다. 저장된 매입처 수량은 175 SCU, 판매처 예측 수요는 3,745 SCU다. 다음은 STAM 테스트 장부 사례다. 현재 시세나 게임 수익 보장값으로 쓰지 않는다.</p><p class="sources"><a href="../../data/trade-market.json">STAM 저장 시세</a> <a href="https://uexcorp.space/trade/routes?commodity=titanium&amp;terminal_destination=admin-arc-l5">UEX 티타늄 경로</a></p>
+<h3>단위 차익과 손익분기 판매가</h3>
+<p>단위 차익은 585 aUEC. 16 SCU의 매입원금은 117,040, 예상 매출은 126,400, 비용은 164, 순이익은 9,196 aUEC다. 같은 비용으로 전량 팔 때 손익분기 판매가는 (117,040+164)÷16 = 7,325.25 aUEC/SCU다.</p><p class="sources"><a href="trade-settlement/titanium-plan.png">계산 화면</a></p>
+<h3>왕복 시간을 포함하면 순위가 바뀐다</h3>
+<p>기준 모델 약 33분 26초에서 시간당 약 16,505 aUEC. 같은 수익에 빈 복귀 20분을 더하면 약 10,327 aUEC/h다. 복귀 연료비를 추가하면 더 낮아진다.</p><p class="sources"><a href="trade-settlement/titanium-plan.png">계산 화면</a></p>
+<h3>반만 팔면 남은 절반은 재고다</h3>
+<p>8 SCU 판매금 63,200에서 판매분 원가 58,520을 빼면 4,680 aUEC. 비용 164를 기록하면 실현 손익은 4,516이다. 남은 8 SCU의 원가 58,520은 계속 재고다. 전량 마감 후 실현 손익 9,196과 잔액 129,196을 구분한다.</p><p class="sources"><a href="trade-settlement/titanium-partial-sale.png">부분 판매 화면</a> <a href="trade-settlement/titanium-closed.png">정산 화면</a></p>
+<h3>도착했는데 절반만 사 줄 때</h3>
+<p>16 SCU를 7,315에 샀고 A가 8 SCU만 7,900에 받는다고 하자. 우선 판 8 SCU의 매출은 63,200이다. 나머지 8을 B에서 7,700에 전량 팔 수 있고 기존 비용 164 외에 우회비 300이 들면 최종 순이익은 63,200 + 61,600 − 117,040 − 164 − 300 = 7,296 aUEC다. 기다리면 7,900에 전량 팔린다는 조건에서만 대기로 얻는 이점이 1,900 aUEC다. 대안 수익을 16,505 aUEC/h로 잡으면 약 6분 54초의 시간 가치다. 두 선택의 총 소요시간 차이와 비교하고, 재입고 시각이 불명확하면 이 시간을 보장 대기시간처럼 쓰지 않는다.</p><p class="sources"><a href="trade-settlement/titanium-plan.png">예시의 기준 거래</a> <a href="https://uexcorp.space/api/documentation/id/get_commodities_prices/?set_lang=en_US">UEX 예측 수요 정의</a></p>
+<h3>추가 단가가 우회할 만큼 큰가</h3>
+<p>남은 8 SCU를 다른 곳에서 300 aUEC/SCU 더 받는다면 추가 매출은 2,400이다. 기준 수익 16,505 aUEC/h와 비교하면 추가 비용이 없어도 약 8분 43초가 손익 비교의 경계다. 대기·우회가 15분이고 원래 구매처가 즉시 받아 준다면 그 프리미엄만으로는 부족하다.</p>
+<section id="exceptions"><h2>패치가 바뀌면 다시 확인할 조언</h2></section>
+<h3>890 Jump와 지상 차량</h3>
+<p>4.10.3 공식 알려진 문제에는 웜홀 강제 이탈 뒤 890 Jump의 충돌·상호작용이 사라질 수 있어 화물 수송을 피하라는 안내가 있다. 일부 지상 차량은 화물 그리드가 어긋나며 당시 공지 기준 우회책이 없다. 이 두 경고는 패치별로 갱신해야 한다.</p><p class="sources"><a href="https://support.robertsspaceindustries.com/hc/en-us/articles/360056254754-Star-Citizen-Alpha-4-10-3-Known-Issues">RSI 알려진 문제</a></p>
+<h3>부분 제출·파티 평판</h3>
+<p>4.8.2에서 상자 하나만 제출해도 평판을 다 받았다는 이용자 보고가 있다. 4.10.3에서의 부분 제출·포기·파티 평판 분배는 이번에 확인할 재현 기록이 부족하다. 신입 수업의 권장 절차는 전량 인도 및 완료 확인으로 둔다.</p><p class="sources"><a href="https://www.reddit.com/r/starcitizen/comments/1ucsexa/do_you_get_the_full_rep_for_partial_hauling/">부분 제출 경험담</a> <a href="https://docs.sc/topics/careers/missions/hauling/">Star Docs 운송 절차</a></p>
+<h3>정의와 실측의 차이를 채울 최소 기록</h3>
+<p>다음 실제 운항 때 계약 ID 대신 발주처·공개 계약명, 실제 픽업/배송·수량·최대 상자, 수주/마감 시각, 개인/파티와 완료 여부를 남기면 시간당 평판 비교가 가능하다. 무역은 양끝 단말의 관측 시각·단가·거래량·총비용·복귀 여부를 함께 적는다. 시장 시세를 다시 낼 때는 같은 패치끼리만 비교한다.</p>
+</main></html>

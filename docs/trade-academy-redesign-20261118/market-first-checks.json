@@ -1,0 +1,97 @@
+{
+  "checks": [
+    {
+      "name": "default market with no ship or capital inputs",
+      "pass": true
+    },
+    {
+      "name": "both sides price and location visible without setup",
+      "pass": true
+    },
+    {
+      "name": "reserve feature absent from preview",
+      "pass": true
+    },
+    {
+      "name": "abbreviation query",
+      "pass": true
+    },
+    {
+      "name": "location token search",
+      "pass": true
+    },
+    {
+      "name": "spread sort",
+      "pass": true
+    },
+    {
+      "name": "ticker filters pairs",
+      "pass": true
+    },
+    {
+      "name": "English symbols",
+      "pass": true
+    },
+    {
+      "name": "handoff retains selected commodity",
+      "pass": true
+    },
+    {
+      "name": "full capital no reserve subtraction",
+      "pass": true
+    },
+    {
+      "name": "stale calculation cleared",
+      "pass": true
+    },
+    {
+      "name": "unknown quantity stays visible with prices",
+      "pass": true
+    },
+    {
+      "name": "unknown quantity not guaranteed route",
+      "pass": true
+    },
+    {
+      "name": "empty search feedback",
+      "pass": true
+    },
+    {
+      "name": "no outer overflow 1024",
+      "pass": true
+    },
+    {
+      "name": "no outer overflow 736",
+      "pass": true
+    },
+    {
+      "name": "no outer overflow 390",
+      "pass": true
+    },
+    {
+      "name": "no outer overflow 320",
+      "pass": true
+    },
+    {
+      "name": "two room entrances",
+      "pass": true
+    },
+    {
+      "name": "record room separate from planning",
+      "pass": true
+    },
+    {
+      "name": "return to control preserves market",
+      "pass": true
+    },
+    {
+      "name": "table text readable",
+      "pass": true
+    },
+    {
+      "name": "no script errors",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

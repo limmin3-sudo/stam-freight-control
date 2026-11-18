@@ -18,7 +18,7 @@ for(const lang of ['ko','en'])for(const viewport of sizes){
  if(viewport.width>900&&viewport.height>850){
   const frame=await page.locator('.aide-card').boundingBox();assert.ok(frame.width>=Math.min(1760,viewport.width-48)-2,'Use available horizontal space');
   await page.locator('.partner-photo').evaluateAll(nodes=>Promise.all(nodes.map(n=>n.decode())));
-  const heads=await page.locator('[data-voice]').evaluateAll(cards=>{const marks={aide:[32,350],standard:[17,250],broker:[48,270]};return cards.map(card=>{const img=card.querySelector('img'),photo=card.querySelector('.partner-photo-frame').getBoundingClientRect(),box=img.getBoundingClientRect(),[top,bottom]=marks[card.dataset.voice];return {id:card.dataset.voice,head:(bottom-top)/img.naturalHeight*box.height,top:box.y+top/img.naturalHeight*box.height-photo.y,photo:{width:photo.width,height:photo.height},ratio:box.width/box.height,sourceRatio:img.naturalWidth/img.naturalHeight};});});
+  const heads=await page.locator('[data-voice]').evaluateAll(cards=>{const marks={aide:[15,435],standard:[8,420],broker:[48,270]};return cards.map(card=>{const img=card.querySelector('img'),photo=card.querySelector('.partner-photo-frame').getBoundingClientRect(),box=img.getBoundingClientRect(),[top,bottom]=marks[card.dataset.voice];return {id:card.dataset.voice,head:(bottom-top)/img.naturalHeight*box.height,top:box.y+top/img.naturalHeight*box.height-photo.y,photo:{width:photo.width,height:photo.height},ratio:box.width/box.height,sourceRatio:img.naturalWidth/img.naturalHeight};});});
   for(const h of heads){assert.ok(h.photo.height<=h.photo.width*1.25+1,'Photo must not grow into a long strip: '+JSON.stringify(h));assert.ok(h.top+h.head<=h.photo.height+1,'Keep the whole head visible: '+JSON.stringify(h));assert.ok(h.top>=0&&h.top<h.photo.width*.08,'Keep full heads at a shared top margin: '+JSON.stringify(h));assert.ok(Math.abs(h.ratio-h.sourceRatio)<.002,'Preserve image proportions');}
   assert.ok(Math.max(...heads.map(h=>h.head))/Math.min(...heads.map(h=>h.head))<1.06,'Match portrait camera distance: '+JSON.stringify(heads));
  }
@@ -36,9 +36,11 @@ for(const lang of ['ko','en'])for(const viewport of sizes){
   }
   const footer=await page.locator('.aide-actions').boundingBox();assert.ok(footer.y+footer.height<=viewport.height,'Footer outside viewport');
   assert.equal(await page.locator('.aide-actions').evaluate(n=>['auto','scroll'].includes(getComputedStyle(n).overflowY)),false);
-  if(id==='aide'){
-   assert.match(await card.locator('img').getAttribute('src'),/aide-portrait\.webp/);
-   const alpha=await card.locator('img').evaluate(img=>{const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);return [[0,0],[canvas.width-1,0],[0,canvas.height-1],[canvas.width-1,canvas.height-1]].map(([x,y])=>ctx.getImageData(x,y,1,1).data[3]);});assert.deepEqual(alpha,[255,255,255,255]);
+  if(id!=='broker'){
+   const file=id==='aide'?'operator':'navigator';
+   assert.equal(await card.locator('img').getAttribute('src'),`assets/partners/${file}-approved.png`);
+   const dimensions=await card.locator('img').evaluate(img=>[img.naturalWidth,img.naturalHeight]);
+   assert.deepEqual(dimensions,[1024,1536]);
   }
   await page.screenshot({path:`/tmp/stam-partner-picker-${lang}-${viewport.width}-${id}.png`});
   const before=await page.evaluate(()=>localStorage.getItem('sfc-voice'));await card.click();await page.waitForSelector('.partner-intro');assert.equal(await page.locator('.partner-functions li').count(),3,'Full partner details remain available');if(id==='broker')assert.equal(await page.evaluate(()=>localStorage.getItem('sfc-voice')),before,'Broker preview must not change the hauling policy');assert.equal(await page.locator('.aide-intro-portrait img').getAttribute('src'),await page.evaluate(async id=>(await import('/voice.mjs')).VOICE_PORTRAITS[id],id));

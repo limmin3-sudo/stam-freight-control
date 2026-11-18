@@ -1,0 +1,43 @@
+{
+  "partner": "operator",
+  "motion": "reduce",
+  "renderer": "Chromium SwiftShader",
+  "visits": 23,
+  "jumps": 15,
+  "picked": 363,
+  "delivered": 363,
+  "jumpMs": [
+    1470,
+    2290,
+    2430,
+    2820,
+    4750,
+    5590,
+    3680,
+    13300,
+    3690,
+    5400,
+    3610,
+    2440,
+    2530,
+    1760,
+    2390
+  ],
+  "jumpClickToMutationMs": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    5,
+    1
+  ]
+}

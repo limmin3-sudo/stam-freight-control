@@ -73,4 +73,10 @@
  .crew-encounter[data-actions=true] .crew-encounter-close{margin-top:6px}
 }
 
+.partner-question{display:grid;gap:7px;margin-block:12px}
+.partner-question label{display:grid;gap:4px}
+.partner-question input{box-sizing:border-box;width:100%;padding:8px;color:inherit;background:#0d1d29;border:1px solid #71818b;font:inherit}
+.partner-question p{margin:0;line-height:1.5}
+.partner-question p:empty{display:none}
+.crew-encounter[data-actions=true] .partner-conversation:has(.partner-question){overflow:auto}
 .partner-hit[data-partner=director]{clip-path:polygon(35% 0,64% 0,64% 14%,76% 20%,82% 50%,92% 100%,70% 100%,49% 69%,49% 100%,34% 100%,30% 53%,35% 35%,25% 36%,0 31%,0 27%,28% 30%,31% 18%,39% 14%)}

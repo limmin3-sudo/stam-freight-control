@@ -1,0 +1,73 @@
+/* Raster corner cuts and destination widths are fixed across panel and button sizes. */
+.facility-lobby[data-facility-lobby] {
+  --midnight-panel: url('./assets/midnight-glass/panel.webp');
+  --midnight-button: url('./assets/midnight-glass/default.webp');
+  --midnight-hover: url('./assets/midnight-glass/hover.webp');
+  --midnight-selected: url('./assets/midnight-glass/selected.webp');
+}
+.facility-lobby[data-facility-lobby][data-monitor=true] > .lobby-stage,
+.facility-lobby[data-facility-lobby] .lobby-heading {
+  border: 12px solid transparent;
+  border-image: var(--midnight-panel) 32 fill / 12px stretch;
+  background: #050c18;
+  border-radius: 0;
+  text-shadow: none;
+}
+.facility-lobby[data-facility-lobby] .lobby-heading { padding: 4px 12px; }
+.facility-lobby[data-facility-lobby] :is(.lobby-heading h1,.market-header h2) {
+  font-family: BarlowAirReview, SUIT, sans-serif;
+  font-weight: 600;
+  color: #edeae4;
+}
+.facility-lobby[data-facility-lobby][data-monitor=true] :is(.trade-plan-inputs,.academy-learning-filters,.freight-reference-cards article,.academy-study-setup,.suite-card) {
+  border: 5px solid transparent;
+  border-image: var(--midnight-panel) 32 fill / 5px stretch;
+  border-radius: 0;
+  background: #080f1a;
+}
+/* Dense lists, filters and tabs use their native layout and a quiet selection mark. */
+.facility-lobby[data-monitor=true] :is(button,.market-action) > .approved-glass {
+  display: none;
+}
+.facility-lobby[data-monitor=true] .approved-glass[data-material=panel] {
+  border-image: var(--midnight-panel) 32 fill / 12px stretch;
+}
+.facility-lobby[data-monitor=true] .approved-glass[data-material=panel] > img { display: none; }
+.facility-lobby[data-monitor=true] :is(.market-action,.lobby-reset,.market-tabs button) {
+  color: #e4e8ec;
+  background: #17222e;
+  border: 1px solid #53606c;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.facility-lobby[data-monitor=true] :is(button,.market-action):where(:hover,:focus-visible):not(:disabled) {
+  color: #fff5dc;
+}
+.facility-lobby[data-monitor=true] button:is([aria-pressed=true],[aria-selected=true],:has(> .approved-glass[data-material=gold])) {
+  color: #ffdfa0;
+  background-color: #24303a;
+  box-shadow: inset 0 -2px #d9b975;
+}
+/* Only explicitly marked, single workflow actions get the full material. */
+.facility-lobby[data-monitor=true] button.midnight-primary {
+  --button-face: var(--midnight-button);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  isolation: isolate;
+}
+.facility-lobby[data-monitor=true] button.midnight-primary:is(:hover,:focus-visible):not(:disabled) {
+  --button-face: var(--midnight-hover);
+}
+.facility-lobby[data-monitor=true] button.midnight-primary:active:not(:disabled) {
+  --button-face: var(--midnight-selected);
+}
+.facility-lobby[data-monitor=true] button.midnight-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-image: var(--button-face) 58 132 fill / 12px 28px stretch;
+  clip-path: inset(0 round 26px);
+}

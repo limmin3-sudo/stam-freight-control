@@ -19,7 +19,7 @@ export function NavigationChart({locale,plan,index=0,command,orbits=true,quality
   void Promise.all([import('../../../starmap.mjs'),Promise.all([document.fonts.load('500 14px SUIT'),document.fonts.load('500 14px BarlowAirReview')])]).then(([{createStarMap}])=>{
    if(cancelled||!host.current)return;
    try{
-    appearance=chartAppearance(locale,look);
+    appearance=chartAppearance(locale,look,()=>{if(!cancelled)map.current?.invalidate();});
     const view=createStarMap(host.current,null,locations,p=>latest.current.onSelect?.(p),appearance);map.current=view;
     view.setRoute(latest.current.plan,latest.current.index);view.setOrbits(latest.current.orbits);
     // A console without a quality control inherits the renderer's saved choice.

@@ -14,6 +14,18 @@ export async function publishLounge(directory,dist){
  if(!legacy.includes(Buffer.from('app.mjs')))throw Error('expected-legacy-flight-entry');
  // Preserve same-origin account, local storage and module URLs for real flights.
  await fs.writeFile(path.join(out,'flight.html'),legacy);
+ // Direct links to older browser tools share the main site's phone notice.
+ // These HTML pages are published after the immutable desktop snapshot is built.
+ const phoneRedirect = `<script>if (Math.min(screen.width, screen.height) < 600) {
+   const lang = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'ko';
+   location.replace('./#/division?lang=' + lang);
+ }</script>`;
+ for (const name of await fs.readdir(out)) {
+   if (name === 'index.html' || !name.endsWith('.html')) continue;
+   const page = path.join(out, name);
+   const sourceHtml = await fs.readFile(page, 'utf8');
+   await fs.writeFile(page, sourceHtml.replace(/<head(?:\s[^>]*)?>/i, head => head + phoneRedirect));
+ }
  async function copy(dir,prefix=''){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const rel=prefix+entry.name;if(rel==='index.html')continue;const from=path.join(dir,entry.name),to=path.join(out,rel);if(entry.isDirectory()){await fs.mkdir(to,{recursive:true});await copy(from,rel+'/');}else await fs.copyFile(from,to,constants.COPYFILE_EXCL);}}
  await copy(source);
  await fs.writeFile(path.join(out,'index.html'),html.replace('</head>',`<meta name="app-version" content="${version}"></head>`));

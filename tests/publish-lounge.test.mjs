@@ -13,7 +13,9 @@ test('public lounge preserves the real flight entry and immutable desktop releas
   await writeFile(path.join(out,'index.html'),legacy);await writeFile(path.join(out,'version.json'),JSON.stringify({version}));await writeFile(path.join(out,'web-release.json'),'immutable-flight-snapshot');
   await writeFile(path.join(out,'assets','legacy.png'),'original');await writeFile(path.join(dist,'index.html'),'<html><head></head><script src="./assets/lounge.js"></script></html>');await writeFile(path.join(dist,'assets','lounge.js'),'lounge');
   await publishLounge(out,dist);
-  assert.equal(await readFile(path.join(out,'flight.html'),'utf8'),legacy);
+  const browserFlight=await readFile(path.join(out,'flight.html'),'utf8');
+  assert.match(browserFlight,/Math.min\(screen.width, screen.height\) < 600/);
+  assert.equal(browserFlight.replace(/<script>if \(Math.min[\s\S]*?<\/script>/,''),legacy);
   assert.match(await readFile(path.join(out,'index.html'),'utf8'),/lounge.js/);
   assert.ok((await readFile(path.join(out,'index.html'),'utf8')).includes(version));
   assert.equal(await readFile(path.join(out,'web-release.json'),'utf8'),'immutable-flight-snapshot');assert.equal(await readFile(path.join(out,'assets','legacy.png'),'utf8'),'original');

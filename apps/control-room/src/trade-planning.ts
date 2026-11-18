@@ -18,7 +18,7 @@ function locationAllowed(t:Terminal,risk:TradeInputs['risk'],now:number){
 export function planTrades(data:MarketSnapshot,input:TradeInputs,context:TradeContext,now=Date.now()):PlanningResult{
  const rejected:Record<string,number>={},out:PlanningResult={candidates:[],rejected,error:null};const reject=(why:string)=>{rejected[why]=(rejected[why]||0)+1;};
  if(!['intrasystem','interstellar'].includes(input.scope)||!['legal','known','all'].includes(input.legality)||!['low','known','all'].includes(input.risk)||!['current','stale'].includes(input.prices)||!validMoney(input.budget)||input.budget<=0||!validMoney(input.costs)||!Number.isFinite(input.reservePercent)||input.reservePercent<0||input.reservePercent>100||!Number.isSafeInteger(input.cargoLimit)||input.cargoLimit<1||input.cargoLimit>context.capacity||!Number.isSafeInteger(context.capacity)||context.capacity>10000||input.shipId!==context.shipId){out.error='inputs';return out;}
- const budget=centsDown(input.budget),reserve=Math.ceil(budget*input.reservePercent/100),fees=centsUp(input.costs),spend=budget-reserve-fees;if(spend<=0){out.error='capital';return out;}
+ const budget=centsDown(input.budget),fees=centsUp(input.costs),spend=budget-fees;if(spend<=0){out.error='capital';return out;}
  const origin=data.terminals.find(t=>t.id===input.originId);if(!origin){out.error='origin';return out;}
  const allowedPrice=(q:Quote)=>{const state=quoteFreshness(q,data.liveVersion,now);return state==='current'||(input.prices==='stale'&&state==='stale');};
  const goods=new Map(data.commodities.map(c=>[c.id,c])),terminals=new Map(data.terminals.map(t=>[t.id,t]));
@@ -47,7 +47,7 @@ export function planTrades(data:MarketSnapshot,input:TradeInputs,context:TradeCo
     if(amount>quantity||amount===quantity&&size>boxSize){quantity=amount;boxSize=size;fit=capacity;}
    }
    if(quantity<1){reject('quantity');continue;}const purchase=quantity*unitBuy,revenue=quantity*unitSell,gross=revenue-purchase,profit=gross-fees;
-   if(!Number.isSafeInteger(purchase)||!Number.isSafeInteger(revenue)||purchase+fees+reserve>budget||profit<=0){reject('margin');continue;}
+   if(!Number.isSafeInteger(purchase)||!Number.isSafeInteger(revenue)||purchase+fees>budget||profit<=0){reject('margin');continue;}
    const limits=[];const limiting=Math.min(input.cargoLimit,Math.floor(buy.stock),Math.floor(sell.demand),capitalQty,fit);
    for(const [key,value] of [['cargo',input.cargoLimit],['stock',Math.floor(buy.stock)],['demand',Math.floor(sell.demand)],['budget',capitalQty],['packing',fit]] as const)if(value===limiting)limits.push(key);
    if(quantity<limiting)limits.push('boxMultiple');
@@ -56,7 +56,7 @@ export function planTrades(data:MarketSnapshot,input:TradeInputs,context:TradeCo
    if([origin,dest].some(t=>!t.security?.updatedAt))warnings.push('unknownSecurityDate');
    if(quoteFreshness(buy,data.liveVersion,now)==='stale'||quoteFreshness(sell,data.liveVersion,now)==='stale')warnings.push('stalePrices');
    if(commodity.illegal===true)warnings.push('illegal');if(commodity.illegal===null)warnings.push('unknownLegality');if(commodity.hazards.length||!commodity.riskKnown)warnings.push('cargoRisk');
-   out.candidates.push({key:`${buy.id}:${sell.id}`,commodity,origin,destination:dest,buy,sell,quantity,boxSize,boxCount:quantity/boxSize,purchase:purchase/100,revenue:revenue/100,gross:gross/100,profit:profit/100,reserve:reserve/100,remaining:(budget-purchase-fees)/100,systemPath:path,limits,warnings});
+   out.candidates.push({key:`${buy.id}:${sell.id}`,commodity,origin,destination:dest,buy,sell,quantity,boxSize,boxCount:quantity/boxSize,purchase:purchase/100,revenue:revenue/100,gross:gross/100,profit:profit/100,reserve:0,remaining:(budget-purchase-fees)/100,systemPath:path,limits,warnings});
   }
  }
  out.candidates.sort((a,b)=>b.profit-a.profit||a.purchase-b.purchase||a.key.localeCompare(b.key));return out;

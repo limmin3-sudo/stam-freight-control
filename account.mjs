@@ -200,5 +200,13 @@ export function createAccount(button,{notify=()=>{},shipName=id=>id,openHistory,
   if(scope==='crew')return createCrewCloud(fb,uid,assert);
   return {uid,read:knownRevision=>readCloudFlight(fb,uid,{assertCurrent:assert,knownRevision,scope}),save:(expected,value)=>writeCloudFlight(fb,uid,expected,value,{assertCurrent:assert,device:device(),scope})};
  }
- return {open,user:()=>user,freightCloud:()=>flightCloud('freight'),crewCloud:()=>flightCloud('crew'),flightCloud:()=>flightCloud(),tradeCloud:()=>flightCloud('trade'),mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
+ async function partnerIdToken(){
+  const {auth}=await load();
+  await auth.authStateReady();
+  const current=auth.currentUser;
+  if(!current||current.isAnonymous)return null;
+  const idToken=await current.getIdToken();
+  return auth.currentUser===current?idToken:null;
+ }
+ return {open,user:()=>user,partnerIdToken,freightCloud:()=>flightCloud('freight'),crewCloud:()=>flightCloud('crew'),flightCloud:()=>flightCloud(),tradeCloud:()=>flightCloud('trade'),mount(host){dialog.close();dialog.dataset.inline='true';host.append(dialog);open(pending?.view||(user?'account':'login'));return()=>{delete dialog.dataset.inline;dialog.close();document.body.append(dialog);};}};
 }

@@ -25,3 +25,30 @@
 @keyframes lobby-panel-left-out{to{opacity:0;transform:translateX(-35px)}}
 @media(prefers-reduced-motion:reduce){.lobby-detail[data-closing=true]{animation:none}}
 .space-experience[data-motion=false] .lobby-detail[data-closing=true]{animation:none}
+
+/* Keep the floor and both doors on the approved plate's coordinate system. */
+.facility-lobby[data-facility-lobby=trade]:not([data-monitor=true]) .lobby-stage {
+  padding:0; min-height:0; aspect-ratio:1672/941;
+}
+.facility-lobby[data-facility-lobby=trade]:not([data-monitor=true]) .lobby-camera,
+.facility-lobby[data-facility-lobby=trade] .lobby-staff {height:100%}
+.facility-lobby[data-facility-lobby=trade] :is(.lobby-regions,.lobby-leaders) {display:none}
+.facility-lobby[data-facility-lobby=trade] .lobby-places {position:absolute;inset:0;padding:0}
+.facility-lobby[data-facility-lobby=trade] .lobby-place {
+  position:absolute;left:var(--place-x);top:var(--place-y);transform:translateX(-50%);
+  min-height:0;height:18%;min-width:0;width:15%;padding:0;border:0;background:transparent;
+}
+.facility-lobby[data-facility-lobby=trade] .lobby-place[data-place=trade-operations] {width:10%}
+.facility-lobby[data-facility-lobby=trade] .lobby-place strong {
+  position:absolute;bottom:108%;left:50%;transform:translateX(-50%);white-space:nowrap;
+  padding:3px 9px;color:#ffe4ab;text-shadow:0 1px 3px #14120c;
+  background:linear-gradient(90deg,transparent,#16120bbd 18%,#16120bbd 82%,transparent);
+}
+.facility-lobby[data-facility-lobby=trade] .lobby-place::after {
+  content:'';position:absolute;left:50%;top:0;height:45%;border-left:1px solid #f2ca7d;
+}
+.facility-lobby[data-facility-lobby=trade] .lobby-place::before {
+  content:'';position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  width:5px;height:5px;border-radius:50%;background:#f2ca7d;outline:1px solid #f2ca7d;outline-offset:2px;
+}
+.facility-lobby[data-facility-lobby=trade] .lobby-place[data-lit=true] strong {color:#fff9df}

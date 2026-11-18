@@ -1,0 +1,73 @@
+{
+  "results": [
+    {
+      "name": "eight commodity tiles",
+      "pass": true
+    },
+    {
+      "name": "abbreviation search",
+      "pass": true
+    },
+    {
+      "name": "tile opens price table",
+      "pass": true
+    },
+    {
+      "name": "English ticker symbol",
+      "pass": true
+    },
+    {
+      "name": "capacity limits quantity",
+      "pass": true
+    },
+    {
+      "name": "cost-aware profit",
+      "pass": true
+    },
+    {
+      "name": "context handed to review",
+      "pass": true
+    },
+    {
+      "name": "missing stock stays unknown",
+      "pass": true
+    },
+    {
+      "name": "missing stock prevents plan",
+      "pass": true
+    },
+    {
+      "name": "no-result explanation",
+      "pass": true
+    },
+    {
+      "name": "academy purpose search",
+      "pass": true
+    },
+    {
+      "name": "lesson to relevant tool",
+      "pass": true
+    },
+    {
+      "name": "no page overflow 1024",
+      "pass": true
+    },
+    {
+      "name": "no page overflow 736",
+      "pass": true
+    },
+    {
+      "name": "no page overflow 390",
+      "pass": true
+    },
+    {
+      "name": "no page overflow 320",
+      "pass": true
+    },
+    {
+      "name": "no script errors",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

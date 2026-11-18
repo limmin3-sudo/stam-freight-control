@@ -16,3 +16,5 @@ dist/
 server/cloud/lib/
 server/cloud/node_modules/
 server/cloud/.secret.local
+
+/.stam-private/

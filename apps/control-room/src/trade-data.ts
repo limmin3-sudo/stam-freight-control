@@ -1,6 +1,6 @@
 // UEX reference data only. No accepted contracts, cargo or account state are written.
 export type Raw = Record<string,unknown>;
-export type Commodity={id:number;name:string;kind:string;illegal:boolean|null;hazards:string[];riskKnown:boolean};
+export type Commodity={id:number;code?:string;name:string;kind:string;illegal:boolean|null;hazards:string[];riskKnown:boolean};
 export type Terminal={id:number;name:string;system:string;planet:string;location:string;version:string|null;updatedAt:string|null;maxContainerScu:number|null;elevator:boolean|null;docking:boolean|null;autoLoad:boolean|null;playerOwned:boolean|null;loadingDock?:boolean|null;faction?:string;space?:boolean|null;ground?:boolean|null;refuel?:boolean|null;nqa?:boolean|null;hidden?:boolean|null;security?:{monitored:boolean|null;armistice:boolean|null;source:string;updatedAt:string|null}|null};
 export type Quote={id:number;commodityId:number;terminalId:number;buy:number|null;sell:number|null;stock:number|null;demand:number|null;version:string|null;updatedAt:string|null;containers:number[];personal?:boolean;averages?:{buy:number|null;sell:number|null;stock:number|null;demand:number|null};range?:{buyMin:number|null;buyMax:number|null;sellMin:number|null;sellMax:number|null};};
 export type MarketSnapshot={schema:1;source:'UEX';retrievedAt:string;liveVersion:string;commodities:Commodity[];terminals:Terminal[];quotes:Quote[];coverage:{rawCommodities:number;rawTerminals:number;rawQuotes:number;excludedQuotes:number;queriedTerminals:number};evidence:{url:string;sha256:string;checkedAt:string;rows:number}[]};
@@ -19,7 +19,7 @@ export function normalizeMarket(input:{commodities:unknown;terminals:unknown;quo
  if(!cr.length||!tr.length)throw Error('Empty reference catalogue');
  const commodities=unique(cr.filter(r=>flag(r.is_available_live)===true&&flag(r.is_visible)===true).map(r=>{
   if(!id(r.id)||!text(r.name))throw Error('Invalid commodity identity');
-  const hazards=['is_volatile_qt','is_volatile_time','is_explosive','is_buggy'];return {id:r.id as number,name:text(r.name),kind:text(r.kind),illegal:flag(r.is_illegal),hazards:hazards.filter(k=>flag(r[k])===true),riskKnown:hazards.every(k=>flag(r[k])!==null)};
+  const hazards=['is_volatile_qt','is_volatile_time','is_explosive','is_buggy'];return {id:r.id as number,name:text(r.name),...(text(r.code)?{code:text(r.code)}:{}),kind:text(r.kind),illegal:flag(r.is_illegal),hazards:hazards.filter(k=>flag(r[k])===true),riskKnown:hazards.every(k=>flag(r[k])!==null)};
  }));
  const sites={stations:rows(input.sites?.stations??[]),outposts:rows(input.sites?.outposts??[]),cities:rows(input.sites?.cities??[])};
  const security=(r:Raw)=>{

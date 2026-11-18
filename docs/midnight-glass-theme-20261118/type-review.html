@@ -1,0 +1,24 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STAM 글자 재질 시안</title>
+<style>
+@font-face{font-family:Barlow;src:url('../../apps/control-room/src/assets/fonts/Barlow-Light.ttf');font-weight:300}
+@font-face{font-family:SUIT;src:url('../../apps/control-room/src/assets/fonts/SUIT-Variable.woff2');font-weight:100 900}
+*{box-sizing:border-box}body{margin:0;background:#030609;color:#e7ecf3;font:500 16px SUIT,sans-serif}
+main{max-width:960px;margin:auto;padding:24px 18px}
+.panel,button{position:relative;isolation:isolate;background:none;border:0}
+.panel::before,button::before{position:absolute;inset:0;content:'';z-index:-1;background-image:url(static-glass.png);background-repeat:no-repeat}
+.panel{padding:clamp(22px,5vw,64px);margin-bottom:16px}
+.panel::before{background-size:104.63% 165.16%;background-position:50% 20.05%}
+h1,.symbol{font:300 clamp(18px,3vw,32px) Barlow,SUIT,sans-serif;letter-spacing:.21em}
+h1{margin:0 0 32px}.symbol{font-size:15px}h2{font-weight:450;font-size:24px;letter-spacing:.05em}
+.platinum{color:#e2e2df;text-shadow:0 -1px 0 #fff,0 1px 0 #878c93,0 2px 0 #404953,0 3px 3px #02060b}
+table{width:100%;border-collapse:collapse;font-size:17px;font-variant-numeric:tabular-nums;text-align:left}
+th{font-size:14px;font-weight:450;color:#bdcbd9}td,th{padding:8px 0;border-bottom:1px solid #62718155}td{color:#edf0f1;text-shadow:0 1px 1px #101319}
+nav{display:flex;gap:1.4%}button{flex:1;padding:16px 5px;cursor:pointer;color:#e3e4e2;text-shadow:0 -1px #fff,0 1px #626a72,0 2px 2px #03070d;font:500 18px SUIT,sans-serif;letter-spacing:.06em}
+button::before{background-size:323.4% 678%;background-position:3.1% 90.25%}
+button:is(:hover,:focus-visible)::before{background-position:50% 90.25%}
+button[aria-pressed=true]{color:#1c2026;text-shadow:0 -1px 0 #080a0c,0 1px 0 #f5e1b8,0 2px 1px #8b7156}
+button[aria-pressed=true]::before{background-position:96.9% 90.25%}button:focus-visible{outline:2px solid white;outline-offset:3px}
+footer{margin-top:15px;color:#b4bdc8;font-size:14px}
+</style><main><section class="panel"><h1 class="platinum">STAM / MIDNIGHT GLASS</h1><h2 class="platinum">무역관제실</h2><p class="symbol platinum">TITA</p><table><thead><tr><th>품목</th><th>매입가</th><th>판매가</th></tr></thead><tbody><tr><td>티타늄</td><td>1,000</td><td>1,250</td></tr></tbody></table></section>
+<nav aria-label="버튼 글자 재질 비교"><button aria-pressed="true">시세 검색</button><button aria-pressed="false">최적 경로</button><button aria-pressed="false">거래 기록</button></nav><footer>글자 재질 시안 · 예시 가격(aUEC/SCU)</footer></main>
+<script>const buttons=document.querySelectorAll('button');for(const b of buttons)b.onclick=()=>{for(const other of buttons)other.setAttribute('aria-pressed',String(other===b))}</script></html>

@@ -1,0 +1,103 @@
+/* Give the shared monitor's inner area to the price board. */
+.facility-lobby[data-room=market][data-monitor=true] .lobby-detail.market-room {
+  padding: 10px clamp(12px, 1.4vw, 24px) 16px;
+}
+.facility-lobby[data-room=market] .market-header.market-entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  align-items: center;
+  justify-content: start;
+  padding: 0 0 8px;
+}
+.facility-lobby[data-room=market] .market-entry-header h2 {font-size: 24px}
+.facility-lobby[data-room=market] .market-entry-header > .lobby-reset {
+  min-width: 0; width: auto; min-height: 36px; padding: 4px 12px; margin: 0 0 0 auto;
+}
+.market-entry-nav,.market-board-search,.board-ticker {display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.market-entry-nav > button,.board-reference > summary,.market-board-search > button,.board-ticker button {
+  background: #11202b; border: 1px solid #415362; border-radius: 4px;
+  color: #e1e8ed; font: inherit; cursor: pointer; padding: 5px 12px;
+}
+.market-entry-nav > button[aria-pressed=true],.market-board-search > button[aria-expanded=true] {color:#f2d89e;border-color:#ac946c}
+.board-reference {position:relative}
+.facility-lobby[data-room=market] .board-reference .market-tabs {
+  position:absolute;z-index:6;inset-inline-end:0;top:100%;margin:4px 0 0;padding:8px;
+  width:max-content;max-width:70vw;display:grid;background:#091523;border:1px solid #64788a;border-radius:4px;
+}
+.board-reference:not([open]) > nav {visibility:hidden}
+.trade-market-board {font-variant-numeric:tabular-nums;margin-top:8px;line-height:1.35}
+.market-board-search input,.market-board-search select {
+  min-width:0;padding:7px 10px;border:1px solid #566b7a;border-radius:4px;background:#0b1923;color:#eef1f3;font:inherit;
+}
+.market-board-search input {flex:1 1 205px}
+.market-board-search :is(button,input,select) {min-height:38px}
+.board-ticker {padding:8px 0}
+.board-ticker[hidden] {display:none}
+.board-ticker b {color:#edcd96}
+#trade-board-filters input[type=checkbox] {width:auto;min-height:0}
+.board-table {overflow-x:auto}
+.board-table table {width:100%;border-spacing:0;table-layout:fixed;text-align:left}
+.board-table caption {text-align:left;color:#bfccd6;font-size:14px;padding:8px 0}
+.board-table caption > span:first-child {color:#ddc797}
+.board-units {float:right}
+.board-table thead th {background:#1b2b37;color:#e3e9ee;font-weight:600;font-size:15px;border-block:1px solid #53606b;padding:8px 10px}
+.board-table th:first-child {width:17%}
+.board-table th:last-child {width:15%}
+.board-table tbody :is(th,td) {padding:8px 10px;border-bottom:1px solid #34434f;vertical-align:middle;overflow-wrap:anywhere}
+.board-table tbody tr:nth-child(even) {background:#11223170}
+.board-table tbody tr:is(:hover,:focus-within) {background:#263240}
+.board-table button {padding:3px 0;border:0;background:transparent;color:#e8dec7;text-align:left;font:inherit;cursor:pointer}
+.board-table button:is(:hover,:focus-visible) {text-decoration:underline}
+.board-code {font:500 .86em BarlowAirReview,SUIT,sans-serif;letter-spacing:.03em;color:#bcc9d2}
+.board-quote,.board-report {display:flex;align-items:baseline;gap:2px 8px;flex-wrap:wrap}
+.board-quote strong,.board-spread strong {font-size:18px;color:#eff2f4;line-height:1.25}
+.board-quote span {font-size:15px;color:#dce5eb}
+.board-report {margin-top:3px;color:#becad3;font-size:14px}
+.board-report time[data-stale=true] {color:#dbc39f}
+.board-spread[data-positive=true] strong {color:#a9dec9}
+.board-table .board-spread button {display:block;font-size:14px}
+@container(max-width:690px) {
+  .facility-lobby[data-room=market] .market-header.market-entry-header {gap:4px 8px}
+  .market-board-search input {flex-basis:45%}
+  .board-table :is(thead,tbody) :is(th,td) {padding:6px}
+  .board-table th:last-child {width:17%}
+}
+.ticker-toolbar,.ticker-modes,.ticker-detail header,.pair-toolbar {display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.ticker-toolbar {justify-content:space-between;margin:12px 0 4px}
+.ticker-toolbar>span,.ticker-legend {font-size:14px;color:#b9c9d4}
+.ticker-modes button,.ticker-detail header button,.pair-toolbar select {
+  font:inherit;padding:4px 10px;color:#e4e9ec;background:#0c1c27;border:1px solid #3b505f;border-radius:4px;cursor:pointer;
+}
+.ticker-modes button[aria-pressed=true] {color:#efd79f;border-color:#b19767}
+.trade-market-board .board-ticker {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:4px;padding:8px 0 12px;
+}
+.trade-market-board .board-ticker:lang(en) {grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.trade-market-board .board-ticker button {
+  display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0;min-height:36px;
+  text-align:left;padding:3px 6px;background:#0e1d28;border:1px solid #334a59;border-radius:3px;
+  font:600 14px/1.12 BarlowAirReview,SUIT,sans-serif;color:#e0e8ed;
+}
+.board-ticker .ticker-name {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board-ticker .ticker-name[data-shared-code] {white-space:normal;overflow-wrap:anywhere}
+.ticker-name small {display:block;font-size:12px;letter-spacing:.035em;color:#b1c0cc}
+.board-ticker button b {flex:none;font-size:15px}
+.board-ticker [data-tone=buy],.trade-market-board .price-buy,.board-ticker [data-tone=low] {color:#ffac9d}
+.board-ticker [data-tone=sell],.trade-market-board .price-sell,.board-ticker [data-tone=high] {color:#9ad4ff}
+.board-ticker [data-tone=neutral] {color:#e1d9c3}
+.board-ticker [data-tone=missing] {color:#8698a3}
+@media(prefers-reduced-motion:no-preference) {
+  .ticker-value {animation:ticker-turn .19s ease-out}
+  @keyframes ticker-turn {from {transform:perspective(70px) rotateX(-64deg);opacity:.55} to {transform:none;opacity:1}}
+}
+.trade-market-board .board-ticker button:hover,.trade-market-board .board-ticker button[aria-pressed=true] {border-color:#ccaf76;background:#1c2b36}
+.ticker-detail {padding:10px 0 14px;border-block:1px solid #455564}
+.ticker-detail header {margin-bottom:8px}
+.ticker-detail h3,.pair-toolbar h3 {margin:0 auto 0 0;font-size:19px;color:#e9dfc7}
+.ticker-terminals {overflow:auto;max-height:19rem}
+.ticker-terminals table {border-collapse:separate;border-spacing:0;width:100%;font-size:15px}
+.ticker-terminals :is(th,td) {text-align:right;padding:6px 8px;border-bottom:1px solid #34434f}
+.ticker-terminals th:first-child {text-align:left}
+.ticker-terminals thead th {position:sticky;top:0;background:#192a37;color:#dfd5bd}
+.pair-toolbar {padding-top:10px}

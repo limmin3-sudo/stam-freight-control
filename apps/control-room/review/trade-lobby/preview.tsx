@@ -1,8 +1,8 @@
 import React, {useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {CrewEncounter} from '../../src/CrewEncounter';
-import background from './lobby-master.png';
-import officer from './officer-lobby.webp';
+import background from '../../src/assets/facility-lobbies/trade-two-door.png';
+import officer from '../../src/assets/facility-staff/officer-lobby.webp';
 import broker from '../../src/assets/facility-staff/ling-broker.png';
 import brokerClose from '../../src/assets/dialogue-originals/ling-broker.webp';
 import officerClose from '../../../../docs/cinematics/guide-close-dialogue-20261117/assets/senior-trade-officer-close.png';

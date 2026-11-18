@@ -4,8 +4,8 @@ import type {Locale} from './navigation';
 import type {Point} from './flight-types';
 
 // A presentation layer for the original star map. Coordinates and camera stay in starmap.mjs.
-export function chartAppearance(locale:Locale,look:'physical'|'hologram'='physical'){
- const celestial=createCelestialMaterials({hologram:look==='hologram'});
+export function chartAppearance(locale:Locale,look:'physical'|'hologram'='physical',onTextureLoad?:()=>void){
+ const celestial=createCelestialMaterials({hologram:look==='hologram',onTextureLoad});
  const en=locale==='en';
  return {
   compact:true,fontWeight:500,fontFamily:'BarlowAirReview, SUIT, sans-serif',gameEn:locale!=='ko',

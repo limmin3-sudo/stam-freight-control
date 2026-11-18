@@ -128,8 +128,8 @@
  .partner-picker .partner-choice{container-type:inline-size}
  .partner-picker .partner-photo-frame{flex:none;height:min(125cqw,max(110px,calc(min(1000px,100dvh - 48px) - 576px)));min-height:0}
  .partner-picker .partner-copy{flex:0 0 266px}
- .partner-picker [data-voice=aide]{--portrait-width:111%;--portrait-y:-1.6%;--portrait-x:-3.2%}
- .partner-picker [data-voice=standard]{--portrait-width:100%;--portrait-y:0%;--portrait-x:1.2%}
+ .partner-picker [data-voice=aide]{--portrait-width:112%;--portrait-y:0%;--portrait-x:0%}
+ .partner-picker [data-voice=standard]{--portrait-width:114%;--portrait-y:0%;--portrait-x:0%}
  .partner-picker [data-voice=tutorial]{--portrait-width:111%;--portrait-y:-1.6%;--portrait-x:0%}
  .partner-picker [data-voice=broker]{--portrait-width:159%;--portrait-y:-6.9%;--portrait-x:4%}
  .partner-picker .partner-photo-frame>.partner-photo{position:absolute;top:0;left:50%;width:var(--portrait-width);height:auto;max-width:none;min-height:0;margin-top:var(--portrait-y);margin-left:var(--portrait-x);transform:translateX(-50%);transform-origin:initial}

@@ -12,11 +12,11 @@ async function json(url:URL){const r=await fetch(url);if(!r.ok)throw Error('refe
 function load(view:'ships'|'cargo'){
  return pending[view]??=(view==='ships'?Promise.all([json(new URL('../../../data/ships.json',import.meta.url)),json(new URL('../../../data/ship-performance.json',import.meta.url)),json(new URL('../../../data/ship-grid-audit.json',import.meta.url))]).then(([ships,performance,audit])=>({ships,profiles:performance.profiles,goods:{},audits:Object.fromEntries(audit.profiles.map((p:{id:string;status:string})=>[p.id,p.status]))})):Promise.all([loadMissionArchive(),json(new URL('../../../data/stam-korean.json',import.meta.url))]).then(([missions,korean])=>({ships:[],profiles:{},goods:korean.goods,missions}))).catch(e=>{delete pending[view];throw e;});
 }
-export default function FreightArchive({locale,view,embedded=false,onMissionSearch}:{locale:Locale;view:'ships'|'cargo';embedded?:boolean;onMissionSearch?:(q:string)=>void}){
+export default function FreightArchive({locale,view,embedded=false,onMissionSearch,shipLookup}:{shipLookup?:{ship?:string};locale:Locale;view:'ships'|'cargo';embedded?:boolean;onMissionSearch?:(q:string)=>void}){
  const en=locale==='en',t=(ko:string,english:string)=>en?english:ko;
  const [data,setData]=useState<Data>(),[error,setError]=useState(false),[retry,setRetry]=useState(0),[query,setQuery]=useState(''),[selection,setSelection]=useState(''),[minimum,setMinimum]=useState('');
  useEffect(()=>{let alive=true;setError(false);setData(undefined);load(view).then(d=>{if(alive)setData(d);}).catch(()=>{if(alive)setError(true);});return()=>{alive=false;};},[retry,view]);
- useEffect(()=>{setQuery('');setSelection('');setMinimum('');},[view]);
+ useEffect(()=>{setQuery('');setSelection(shipLookup?.ship??'');setMinimum('');},[view,shipLookup]);
  const goods=useMemo(()=>{const map=new Map<string,{name:string;label:string;missions:Set<string>;sizes:Set<number>;units:Set<string>}>();for(const mission of data?.missions?.filter({})||[])for(const order of mission.orders){let row=map.get(order.name);if(!row){row={name:order.name,label:data?.goods[order.name]||order.label,missions:new Set(),sizes:new Set(),units:new Set()};map.set(order.name,row);}row.missions.add(mission.id);if(order.maxBoxScu>0)row.sizes.add(order.maxBoxScu);if(order.quantity.unit)row.units.add(order.quantity.unit);}return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));},[data]);
  const volume=(s:Vessel)=>s.grids.reduce((n,g)=>n+g.w*g.h*g.l,0),search=query.trim().toLowerCase();
  const ships=data?.ships.filter(s=>shipMatches(query,s.id,s.name)&&volume(s)>=Math.max(0,Number(minimum)||0))||[];

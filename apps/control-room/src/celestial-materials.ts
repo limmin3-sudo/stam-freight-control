@@ -56,11 +56,11 @@ const end=`
 }`;
 const hashName=(name:string)=>Array.from(name).reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>0,7)/4294967296;
 
-export function createCelestialMaterials({hologram=false}={}){
+export function createCelestialMaterials({hologram=false,onTextureLoad}:{hologram?:boolean;onTextureLoad?:()=>void}={}){
  const textures=new Map<string,THREE.Texture>();
  const load=(url:string,data=false)=>{
   if(textures.has(url))return textures.get(url)!;
-  const t=new THREE.TextureLoader().load(url);t.colorSpace=data?THREE.NoColorSpace:THREE.SRGBColorSpace;
+  const t=new THREE.TextureLoader().load(url,onTextureLoad);t.colorSpace=data?THREE.NoColorSpace:THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;t.anisotropy=8;
   textures.set(url,t);return t;
  };

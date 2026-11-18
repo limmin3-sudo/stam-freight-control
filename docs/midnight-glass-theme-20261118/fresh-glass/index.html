@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무역센터 유리 패널 · 에셋 검토</title>
+<style>
+@font-face {font-family:SUIT;src:url('../../../apps/control-room/src/assets/fonts/SUIT-Variable.woff2');font-weight:100 900}
+@font-face {font-family:Barlow;src:url('../../../apps/control-room/src/assets/fonts/Barlow-Medium.ttf');font-weight:500}
+* {box-sizing:border-box}
+body {margin:0;background:#060c18;color:#eae9e5;font:500 16px/1.5 SUIT,sans-serif}
+main {max-width:1000px;margin:auto;padding:clamp(16px,4vw,40px)}
+section,button {position:relative;isolation:isolate}
+section::before,button::before {content:'';position:absolute;inset:0;z-index:-1;pointer-events:none}
+section::before {border-image:url(panel.png) 32 fill / 12px stretch}
+section {padding:clamp(24px,5vw,54px)}
+header {font:500 clamp(16px,2.3vw,23px) Barlow,SUIT,sans-serif;letter-spacing:.17em;color:#ddd7c8}
+h1 {margin:28px 0 0;font-size:clamp(24px,4vw,34px);font-weight:600}
+p {margin:4px 0 20px;color:#c8cfda}
+table {width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td {text-align:right;padding:10px 0;border-bottom:1px solid #8f9aa53d;font-weight:600}
+th {font-size:14px;color:#c8cfda}
+th:first-child,td:first-child {text-align:left}
+nav {display:flex;gap:8px;margin-top:14px}
+button {flex:1;height:54px;padding:0 4px;background:none;border:0;color:#f1ede6;font:600 clamp(15px,2vw,18px) SUIT,sans-serif;cursor:pointer}
+button::before {border-image:url(default.png) 58 132 fill / 12px 28px stretch;border-radius:26px;clip-path:inset(0 round 26px)}
+button:is(:hover,:focus-visible)::before {border-image-source:url(hover.png)}
+button[aria-pressed=true]::before {border-image-source:url(selected.png)}
+button:focus-visible {outline:2px solid #faf4de;outline-offset:2px;border-radius:26px}
+</style>
+<main>
+<section><header>STAM / MIDNIGHT GLASS</header><h1>무역관제실</h1><p>시세 예시 · aUEC/SCU</p>
+<table><thead><tr><th>품목</th><th>매입가</th><th>판매가</th></tr></thead><tbody><tr><td>티타늄</td><td>1,000</td><td>1,250</td></tr></tbody></table>
+</section>
+<nav aria-label="버튼 재질 검토"><button aria-pressed="true">시세 검색</button><button aria-pressed="false">최적 경로</button><button aria-pressed="false">거래 기록</button></nav>
+</main>
+<script>
+const buttons = document.querySelectorAll('button');
+for (const button of buttons) {
+  button.addEventListener('click', () => {
+    for (const item of buttons) item.setAttribute('aria-pressed', String(item === button));
+  });
+}
+</script>
+</html>

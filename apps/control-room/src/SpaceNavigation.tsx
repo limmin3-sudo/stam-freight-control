@@ -86,7 +86,7 @@ export function SpaceNavigation({screen,locale,pending,view,facility,lobbyRoom,h
         <div className="space-group-reveal" id={`space-links-${id}`} data-open={open} inert={!open} aria-hidden={!open}>
           <div className="space-group-content"><p className="space-group-description"><small>{facilityLobbies[id].code}</small>{en?'Explore the lobby spaces.':'로비의 공간을 살펴보세요.'}</p>
             <div className="space-nav-links">{facilityLobbies[id].places.map((place,index)=><div className="space-room-link" key={place.id}>
-              <a href={spaceHash({screen:'division',locale,facility:id,lobbyRoom:place.id})} aria-current={scene===id&&lobbyRoom===place.id?'page':undefined} onClick={event=>onFacility(event,id,place.id)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{place.name[en?1:0]}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>
+              <a href={spaceHash({screen:'division',locale,facility:id,lobbyRoom:place.id})} aria-current={scene===id&&(lobbyRoom==='planning'?'market':lobbyRoom)===place.id?'page':undefined} onClick={event=>onFacility(event,id,place.id)}><span className="space-link-index" aria-hidden="true">0{index+1}</span><span>{place.name[en?1:0]}</span><span className="space-link-arrow" aria-hidden="true">›</span></a>
             </div>)}</div>
           </div>
         </div>

@@ -2,12 +2,24 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {answerAccountQuestion} from './partner-account.mjs';
 import {handle} from './worker.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),port=Number(process.env.PORT||4173),localOrigin=`http://127.0.0.1:${port}`;
 try{const env=await fs.readFile(path.join(root,'.env'),'utf8');for(const line of env.split(/\r?\n/)){const m=line.match(/^([A-Z_]+)\s*=\s*(.*)$/);if(m&&!process.env[m[1]])process.env[m[1]]=m[2].replace(/^(['"])(.*)\1$/,'$2');}}catch{}
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.jpg':'image/jpeg','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml'};
 http.createServer(async(req,res)=>{
  try{const url=new URL(req.url,localOrigin);
+  if(url.pathname==='/api/partner-guide'){
+   res.setHeader('Cache-Control','no-store');
+   const host=req.headers.host;
+   if(req.method!=='POST'||![`127.0.0.1:${port}`,`localhost:${port}`].includes(host)||req.headers.origin!=='http://'+host){res.writeHead(403);res.end();return;}
+   if(req.headers['content-type']?.split(';')[0]!=='application/json'){res.writeHead(415);res.end();return;}
+   const chunks=[];let size=0;
+   for await(const chunk of req){size+=chunk.length;if(size>4096){res.writeHead(413);res.end();return;}chunks.push(chunk);}
+   let body;try{body=JSON.parse(Buffer.concat(chunks).toString());}catch{res.writeHead(400);res.end();return;}
+   const {status,...reply}=await answerAccountQuestion(body,req.headers.authorization,process.env);
+   res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(reply));return;
+  }
   if(['/analyze','/health'].includes(url.pathname)){
    const chunks=[];let size=0;for await(const c of req){size+=c.length;if(size>22*1024*1024){res.writeHead(413);res.end('Too large');return;}chunks.push(c);}
    const request=new Request(url,{method:req.method,headers:req.headers,...(['GET','HEAD'].includes(req.method)?{}:{body:Buffer.concat(chunks)})});

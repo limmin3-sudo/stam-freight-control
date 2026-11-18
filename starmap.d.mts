@@ -1,7 +1,7 @@
 import type {FlightPlan,Point} from './apps/control-room/src/flight-types';
 export type StarMap = {
  snapshotView():{level:string;system:string;selected:string|null;focusId:string|null;focusR:number;camera:Record<string,number>};restoreView(view:ReturnType<StarMap['snapshotView']>):void;
- dispose():void;setRoute(plan:FlightPlan|null,index:number):void;setSystem(id:string):void;selectedSystem():string;flyTo(id:string):void;
+ invalidate():void;dispose():void;setRoute(plan:FlightPlan|null,index:number):void;setSystem(id:string):void;selectedSystem():string;flyTo(id:string):void;
  focus(id:string):void;focusLeg(index:number):void;home(top?:boolean):void;galaxy():void;
  zoomBy(factor:number):void;setOrbits(value:boolean):void;setQuality(value:string):void;quality():string;
 };

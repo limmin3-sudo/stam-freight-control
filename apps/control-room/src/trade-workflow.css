@@ -1,2 +1,9 @@
 .trade-source-history,.trade-settlement,.trade-run-history{border-top:1px solid #385360;padding:12px 0;margin-top:12px}.trade-source-history summary,.trade-settlement summary,.trade-run-history summary{cursor:pointer;color:#efd18b}.trade-report-chart{display:block;width:100%;max-height:130px;background:#08172180;border-radius:4px}.trade-history-range{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.trade-source-history .market-table{max-height:260px;overflow:auto}.trade-next-step{margin:12px 0;padding:12px 16px;border-left:2px solid #d9c18a;background:#10273580}.trade-next-step h3{margin:0 0 8px}.trade-next-step p{margin:6px 0}.trade-purchase-progress{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trade-run-history .market-table{max-height:360px;overflow:auto}.trade-run-history td,.trade-run-history th{white-space:normal}.trade-settlement .suite-metrics{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}.trade-search-reset{margin:6px 0}.trade-record-receipt{padding:10px 14px;border-left:2px solid #9bd5dd;background:#10273580}
 @media(max-width:600px){.trade-next-step{padding:10px}.trade-history-range{font-size:14px}.trade-run-history .market-table{font-size:14px}}
+
+.trade-settlement .suite-metrics{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));
+ gap:12px 20px;
+}
+.trade-settlement .suite-metrics strong{display:block;font-variant-numeric:tabular-nums}

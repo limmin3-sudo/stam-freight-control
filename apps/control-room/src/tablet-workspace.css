@@ -1,0 +1,12 @@
+dialog.screen-notice {
+  box-sizing: border-box;
+  width: min(30rem, calc(100% - 32px));
+  padding: 1.6rem;
+  border: 1px solid #a78a5e;
+  background: #080f1b;
+  color: #f1ece3;
+  font: 500 1rem/1.6 SUIT, system-ui, sans-serif;
+}
+.screen-notice::backdrop { background: #050b15; }
+.screen-notice h1 { margin: 0 0 .7rem; font: 600 1.4rem/1.4 SUIT, system-ui, sans-serif; }
+.screen-notice p { margin: 0; color: #d2d5d9; }

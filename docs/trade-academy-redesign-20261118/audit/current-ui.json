@@ -1,0 +1,400 @@
+{
+  "at": "2026-11-18T00:13:32.750Z",
+  "baseline": "1fdce17",
+  "findings": [
+    {
+      "name": "planning",
+      "visibleFields": [
+        {
+          "label": "무역 방식",
+          "type": "SELECT",
+          "options": 5
+        },
+        {
+          "label": "함선 검색",
+          "type": "INPUT"
+        },
+        {
+          "label": "함선",
+          "type": "SELECT",
+          "options": 98
+        },
+        {
+          "label": "가용 자본 · aUEC",
+          "type": "INPUT"
+        },
+        {
+          "label": "거점 검색",
+          "type": "INPUT"
+        },
+        {
+          "label": "현재 출발 거래소",
+          "type": "SELECT",
+          "options": 115
+        },
+        {
+          "label": "목적 거래소 · 선택",
+          "type": "SELECT",
+          "options": 115
+        },
+        {
+          "label": "이 탭에서 확정한 개인 시세 사용",
+          "type": "INPUT"
+        },
+        {
+          "label": "예비금 사용",
+          "type": "INPUT"
+        },
+        {
+          "label": "예비금 비율 · %",
+          "type": "INPUT"
+        },
+        {
+          "label": "우선 기준",
+          "type": "SELECT",
+          "options": 4
+        },
+        {
+          "label": "위법 분류",
+          "type": "SELECT",
+          "options": 3
+        },
+        {
+          "label": "위험 허용",
+          "type": "SELECT",
+          "options": 3
+        },
+        {
+          "label": "무역 적재 한도 · SCU",
+          "type": "INPUT"
+        }
+      ],
+      "tabs": [
+        "새 계획",
+        "저장한 경로",
+        "시세·즐겨찾기·알림"
+      ],
+      "visibleSummaries": [
+        "로그 앱 오버레이",
+        "계정 저장 · 다른 기기에서 이어하기",
+        "세부 조건 · 경유·상자·설비·비용"
+      ],
+      "scrollHeight": 2101,
+      "clientHeight": 630
+    },
+    {
+      "name": "control",
+      "visibleFields": [
+        {
+          "label": "가격 조회 위치",
+          "type": "SELECT",
+          "options": 115
+        },
+        {
+          "label": "행성계",
+          "type": "SELECT",
+          "options": 1
+        },
+        {
+          "label": "지역",
+          "type": "SELECT",
+          "options": 1
+        },
+        {
+          "label": "거래처·품목 검색",
+          "type": "INPUT"
+        },
+        {
+          "label": "가격 비교 정렬",
+          "type": "SELECT",
+          "options": 2
+        }
+      ],
+      "tabs": [],
+      "visibleSummaries": [
+        "로그 앱 오버레이",
+        "계정 저장 · 다른 기기에서 이어하기",
+        "가격·그래프 읽는 법과 적용 조건"
+      ],
+      "scrollHeight": 707,
+      "clientHeight": 630
+    },
+    {
+      "name": "control-before-location",
+      "rows": 0
+    },
+    {
+      "name": "control-after-location",
+      "rows": 17
+    },
+    {
+      "name": "market",
+      "visibleFields": [
+        {
+          "label": "검색",
+          "type": "INPUT"
+        },
+        {
+          "label": "행성계전체닉스파이로스탠턴",
+          "type": "SELECT",
+          "options": 4
+        },
+        {
+          "label": "위법 분류합법 분류만불법 분류 포함미확인까지 모두",
+          "type": "SELECT",
+          "options": 3
+        },
+        {
+          "label": "화물 취급 위험낮음 · 주의 화물 제외주의 화물 포함미확인까지 모두",
+          "type": "SELECT",
+          "options": 3
+        },
+        {
+          "label": "현재 패치 · 24시간 내 수정 자료만",
+          "type": "INPUT"
+        }
+      ],
+      "tabs": [
+        "품목·시세",
+        "거점·적재 조건",
+        "시세 기록·관심 가격",
+        "매입·판매 게시판",
+        "출처·검증",
+        "AcryliPlex Composite",
+        "아그리슘",
+        "Agricium (Ore)",
+        "농업 물자",
+        "알루미늄",
+        "알루미늄 (원광)",
+        "아마시오 역병",
+        "암모니아",
+        "Anti-Hydrogen",
+        "아포라이트",
+        "Apoxygenite",
+        "아르곤",
+        "Arsenic",
+        "Aslarite",
+        "Aslarite (Raw)",
+        "Astatine",
+        "Atacamite",
+        "아틀라슘",
+        "Audio-Visual Equipment",
+        "베라돔",
+        "베릴",
+        "Beryl (Raw)",
+        "벡살라이트",
+        "Bexalite (Raw)",
+        "Bioplastic",
+        "Blue Bilva",
+        "보라스",
+        "Borase (Ore)",
+        "Cadmium Allinide",
+        "Caranite",
+        "Caranite (Raw)",
+        "탄소",
+        "Carbon-Silk",
+        "카리나이트",
+        "카르나이트 (순도)",
+        "동굴 코피아 혼",
+        "Chlorine",
+        "CK13-GID Seed Blend",
+        "Coal",
+        "코발트",
+        "Cobalt (Raw)",
+        "Compboard",
+        "Construction Material Pebbles",
+        "Construction Material Rubble",
+        "Construction Material Salvage",
+        "건설 자재",
+        "구리",
+        "구리 (원광)",
+        "커런덤",
+        "커런덤 (원광)",
+        "Crude Oil",
+        "냉동 캡슐",
+        "데카리 포드",
+        "Degnous Root",
+        "다이아몬드",
+        "Diamond (Raw)",
+        "Diamond Laminate",
+        "증류주",
+        "돌리빈",
+        "Dymantium",
+        "DynaFlex",
+        "Elespo",
+        "페인말린",
+        "Fireworks",
+        "Fluorine",
+        "신선한 음식",
+        "글라코사이트",
+        "금",
+        "Gold (Ore)",
+        "골든 메드몬",
+        "하다나이트",
+        "숲의 심장",
+        "Helium",
+        "헤파에스타나이트",
+        "Hephaestanite (Raw)",
+        "HexaPolyMesh Coating",
+        "수소",
+        "수소 연료",
+        "Ice (Raw)",
+        "Inert Materials",
+        "요오드 (Iodine)",
+        "철",
+        "철 (원광)",
+        "방사능에 오염된 코피아론 뿔",
+        "Jaclium",
+        "자클리움 (원광)",
+        "Jahlium",
+        "Janalite",
+        "Jumping Limes",
+        "Kopion Horn",
+        "Krypton",
+        "라라나이트",
+        "Laranite (Raw)",
+        "Lastaphrene",
+        "린디늄",
+        "Lindinium (Ore)",
+        "Luminalia Gift",
+        "Lunes",
+        "Lycara",
+        "Magnesium",
+        "모로크 젬",
+        "의료 물자",
+        "수은",
+        "Methane",
+        "몰리나 곰팡이 샘플",
+        "몰리나 곰팡이 치료",
+        "몰리나 환기 필터",
+        "Neograph",
+        "질소",
+        "Omnapoxy",
+        "유기물",
+        "Ouratite",
+        "Ouratite (Raw)",
+        "Partillium",
+        "파티 선물",
+        "Phosphorus",
+        "Pitambu",
+        "칼륨",
+        "압축 얼음",
+        "가공 식품",
+        "프로타",
+        "퀀타니움",
+        "양자 연료",
+        "석영",
+        "석영 (원광)",
+        "란다 똥",
+        "재활용 소재 복합재",
+        "레벤넌트 포드",
+        "레벤넌트 나무 꽃가루",
+        "리사이트",
+        "Riccite (Ore)",
+        "사다릭스",
+        "Sadaryx (Raw)",
+        "살디늄 (원광)",
+        "Sarilus",
+        "사브리움",
+        "Savrilium (Ore)",
+        "스크랩",
+        "Selenium",
+        "함선 탄약",
+        "Ship Ammunition - Size 1",
+        "Ship Ammunition - Size 2",
+        "Ship Ammunition - Size 3",
+        "Ship Ammunition - Size 4",
+        "Ship Ammunition - Size 5",
+        "Ship Ammunition - Size 6",
+        "Ship Ammunition - Size 7",
+        "Ship Decoy Countermeasures",
+        "Ship Noise Countermeasures",
+        "실리콘",
+        "Silicon (Raw)",
+        "Silnex",
+        "기념품",
+        "Steel",
+        "스틸레론",
+        "Stileron (Raw)",
+        "자극(Stims)",
+        "Stone Bug Shell",
+        "일몰 딸기",
+        "타라나이트",
+        "Taranite (Raw)",
+        "Tellurium",
+        "Thermalfoam",
+        "주석",
+        "Tin (Ore)",
+        "티타늄",
+        "티타늄 (원광)",
+        "토라이트",
+        "Torite (Ore)",
+        "트리튬",
+        "툰드라 코피아 뿔",
+        "텅스텐",
+        "텅스텐 (원광)",
+        "폐기물",
+        "Wuotan Seed",
+        "Xa'Pyen",
+        "Xenon",
+        "Year of the Dog Envelope",
+        "Year of the Monkey Envelope",
+        "Year of the Pig Envelope",
+        "Year of the Rat Envelope",
+        "Year of the Rooster Envelope"
+      ],
+      "visibleSummaries": [],
+      "scrollHeight": 4279,
+      "clientHeight": 728
+    },
+    {
+      "name": "education",
+      "visibleFields": [
+        {
+          "label": "학습 내용 검색",
+          "type": "INPUT"
+        },
+        {
+          "label": "학습 주제",
+          "type": "SELECT",
+          "options": 12
+        }
+      ],
+      "tabs": [
+        "운송 기초·노하우",
+        "초반 미션 조합"
+      ],
+      "visibleSummaries": [
+        "공동 교역함장·함대원은 무엇을 맡을까?",
+        "시장 판단가격은 좋아도 전부 팔 수 있을까?",
+        "평판초반에는 무엇부터 받을까?",
+        "미션 조합같이 받을 계약을 고르는 기준",
+        "경로수주 순서와 운송 순서는 다릅니다",
+        "적재SCU만 보고 함선을 고르지 않기",
+        "계약 관리같은 품목도 계약별로 구분하기",
+        "무역운송 계약과 개인 무역을 구분하기",
+        "이용 방법빠른 이동과 공간 이동",
+        "시장 판단가격이 좋아도 전량 팔 수 있는 것은 아닙니다",
+        "부분 판매·정산부분 판매 뒤 현금과 이익 읽기"
+      ],
+      "scrollHeight": 1919,
+      "clientHeight": 728
+    },
+    {
+      "name": "information",
+      "visibleFields": [],
+      "tabs": [
+        "운송 자료",
+        "미션 검색",
+        "함선 자료",
+        "화물 자료",
+        "운송 노하우",
+        "패치 유의사항",
+        "출처 대조"
+      ],
+      "visibleSummaries": [],
+      "scrollHeight": 1127,
+      "clientHeight": 728
+    }
+  ]
+}

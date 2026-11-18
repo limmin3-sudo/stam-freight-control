@@ -60,3 +60,21 @@ test('security joins the exact facility; ambiguous or missing stations do not in
  assert.equal(data({...input,sites:{stations:[station,station],cities:[city]}}).terminals[0]!.security,null);
  assert.equal(data({...input,sites:{stations:[{...station,date_modified:0}]}}).terminals[0]!.security?.updatedAt,null);
 });
+
+test('UEX lookup retains official codes and separates shared tickers before place matching',async()=>{
+ const {commodityCodeVariants,matchingCommodityCodes,commoditySearchTerms,tradeMatches}=await import('../src/trade-labels.ts');
+ const make=(id:number,code:string,name:string)=>({...data().commodities[0]!,id,code,name});
+ const items=[make(1,'TITA','Titanium'),make(2,'TITA','Titanium (Ore)'),
+  make(3,'YTRO','Year of the Rat Envelope'),make(4,'YTRO','Year of the Rooster Envelope'),make(5,'AGRS','Agricultural Supplies')];
+ const variants=commodityCodeVariants(items);
+ assert.deepEqual([...variants.values()],['','Ore','Rat','Rooster']);
+ const ids=(q:string)=>[...matchingCommodityCodes(q,items,variants)];
+ assert.deepEqual(ids('tita'),[1,2]);
+ assert.deepEqual(ids('TITA · Ore'),[2]);
+ assert.deepEqual(ids('ytro rooster'),[4]);
+ assert.deepEqual(ids('AGRS'),[5]);
+ assert.deepEqual(ids('TITA Bezdek'),[]);
+ assert(tradeMatches('ytro',commoditySearchTerms(items[2])));
+ assert(tradeMatches('티타늄',commoditySearchTerms(items[0])));
+ assert(tradeMatches('archived',commoditySearchTerms(undefined,'Archived name')));
+});

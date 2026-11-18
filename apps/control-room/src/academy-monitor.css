@@ -57,3 +57,48 @@
  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .freight-reference-list{position:static;max-height:240px}
  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .market-tabs button{padding:10px 14px;font-size:16px}
 }
+
+.academy-finder-launch,.academy-finder button{font:inherit;color:inherit;cursor:pointer}
+.academy-finder-launch{display:block;pointer-events:auto;font-weight:600;padding:8px 12px;background:#101d2c;color:#f5da9e;border:1px solid #807552;border-radius:4px}
+.lobby-heading .academy-finder-launch{margin-top:8px}
+.academy-finder{box-sizing:border-box;width:min(34rem,90vw);max-height:74dvh;overflow:auto;padding:20px;color:#f1eee6;background:#0b1523;border:7px solid transparent;border-image:var(--midnight-panel) 32 fill / 7px stretch;pointer-events:auto;text-shadow:none;font:500 16px/1.45 BarlowAirReview,SUIT,sans-serif}
+.academy-finder::backdrop{background:#030912ba}
+.academy-finder header,.academy-finder li button{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.academy-finder header h2{font:600 24px/1.35 BarlowAirReview,SUIT,sans-serif;margin:0;color:#f0e5cf}
+.academy-finder header button{border:0;background:transparent;padding:8px}
+.academy-finder input{box-sizing:border-box;margin-top:14px;width:100%;padding:12px;background:#070f1b;color:#fff;border:1px solid #869baa;border-radius:3px;font:inherit}
+.academy-finder p{margin:14px 0 6px;color:#c6d3de;font:inherit;letter-spacing:normal}
+.academy-finder ul{list-style:none;margin:0;padding:0}
+.academy-finder li button{width:100%;min-height:48px;padding:9px 4px;border:0;border-top:1px solid #354251;background:transparent;text-align:left}
+.academy-finder li button:hover,.academy-finder li button:focus-visible{background:#192a38}
+.academy-finder li small{white-space:nowrap;color:#dfc591}
+.facility-lobby[data-facility-lobby=guide-center][data-monitor=false] .lobby-heading{z-index:2}
+.market-header .academy-finder-launch{align-self:center;margin-left:auto;flex:none}
+
+.academy-example{border-collapse:collapse;margin:1em 0;max-width:100%;font-variant-numeric:tabular-nums}
+.academy-example caption{text-align:left;color:#e7ce9d;padding-bottom:.5em}
+.academy-example :is(th,td){text-align:left;padding:.4em .7em;border-bottom:1px solid #66839166}
+.academy-example tr>:last-child{text-align:right;white-space:nowrap}
+
+@media (max-width:1100px){
+  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-layout{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters{
+    position:static;
+    padding:14px 18px;
+  }
+  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters .academy-fields{
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));
+    gap:12px;
+  }
+  .facility-lobby[data-facility-lobby=guide-center][data-monitor=true] .academy-learning-filters :is(h3,[role=status]){
+    margin:6px 0;
+  }
+  .academy-room .market-header:has(.academy-finder-launch){
+    display:grid;
+    grid-template-columns:1fr auto;
+  }
+  .academy-room .market-header:has(.academy-finder-launch)>div{grid-column:1/-1}
+  .academy-room .market-header .academy-finder-launch{justify-self:start;margin-left:0}
+}

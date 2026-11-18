@@ -2,7 +2,7 @@ import {useTradeView} from './use-trade-view';
 import './trade-unified.css';
 import {ApprovedGlass} from './ApprovedGlass';
 import {useTradeCloud} from './use-trade-cloud';
-import {lazy,Suspense,useState} from 'react';
+import {lazy,Suspense,useEffect,useState} from 'react';
 import type {Locale} from './navigation';
 import type {TradeScope} from './trade-planning';
 import type {LobbyRoom} from './space-navigation';
@@ -15,8 +15,11 @@ const FleetWorkspace=lazy(()=>import('./FleetWorkspace'));
 const TradeSuite=lazy(()=>import('./TradeSuite'));
 const TradePlanning=lazy(()=>import('./TradePlanning'));
 const TradeOperations=lazy(()=>import('./TradeOperations'));
-export default function TradeWorkspace({locale,room,scope,initialShip,onRoom,onExit,closing}:{locale:Locale;room:'planning'|'trade-operations';scope:TradeScope;initialShip?:string;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void;closing:boolean}){
+export default function TradeWorkspace({locale,room,advisor,initialShip,onRoom,onExit,closing}:{locale:Locale;room:'planning'|'trade-operations';advisor?:TradeScope;initialShip?:string;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void;closing:boolean}){
  const store=useTradeBook(),cloud=useTradeCloud();const [mode,setMode]=useTradeView<'personal'|'fleet'>('mode','personal');const [legacy,setLegacy]=useState(false);
+ const scope=advisor??'intrasystem';
+ // An advisor opens their personal planner even after a previous fleet session.
+ useEffect(()=>{if(room==='planning'&&advisor)setMode('personal');},[room,advisor,setMode]);
  const planScope=store.book?.runs.find(r=>tradeSummary(r).status==='active')?.plan.inputs.scope??store.book?.runs.at(-1)?.plan.inputs.scope??scope;
  const handover=async(plan:TradePlan)=>{if(!store.book)throw new TradeError(store.error||'storage');const owner=readyTradeOwner(),raw=localStorage.getItem(suiteBookKey(owner));if(raw&&validateSuiteBook(JSON.parse(raw),owner).runs.some(r=>expeditionSummary(r).status==='active'))throw new TradeError('active');await store.dispatch({kind:'start',plan,id:crypto.randomUUID()});onRoom('trade-operations');};
  return <div className="trade-workspace-shell" data-closing={closing} inert={closing}><nav className="trade-mode-switch" aria-label={locale==='en'?'Trading mode':'무역 모드'}>{(['personal','fleet'] as const).map(v=><button type="button" className="market-action" key={v} aria-pressed={mode===v} onClick={()=>setMode(v)}><ApprovedGlass kind={mode===v?'gold':'normal'}/><span>{v==='personal'?(locale==='en'?'Personal':'개인'):(locale==='en'?'Fleet':'함대')}</span></button>)}</nav>{mode==='fleet'?<Suspense fallback={<p>…</p>}><FleetWorkspace locale={locale} onExit={onExit} closing={closing}/></Suspense>:<>{legacy&&<button className="suite-return market-action" onClick={()=>setLegacy(false)}><ApprovedGlass/>{locale==='en'?'Expanded trade workspace':'통합 무역 화면'}</button>}<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{locale==='en'?'Opening trade workspace…':'무역 화면을 열고 있습니다…'}</p></aside>}>{!legacy?<TradeSuite cloud={cloud} locale={locale} room={room} scope={scope} initialShip={initialShip} onRoom={onRoom} onScope={s=>onRoom('planning',s)} onExit={onExit} closing={closing} onLegacy={()=>{setLegacy(true);onRoom('trade-operations');}} legacyActive={!!store.book?.runs.some(r=>tradeSummary(r).status==='active')}/>:room==='planning'?<TradePlanning cloud={cloud} locale={locale} scope={scope} initialShip={initialShip} onScope={s=>onRoom('planning',s)} onExit={onExit} closing={closing} onStart={handover} onOperations={()=>onRoom('trade-operations')}/>:<TradeOperations cloud={cloud} key={store.owner} locale={locale} store={store} onPlanning={()=>onRoom('planning',planScope)} onExit={onExit} closing={closing}/>}</Suspense></>}</div>;

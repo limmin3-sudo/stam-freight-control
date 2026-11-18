@@ -10,7 +10,7 @@ export type TradeLine=PackedItem&{lotId?:string;name:string;buy:number;sell:numb
 export type SuiteLeg={originId:number;destinationId:number;lines:TradeLine[];purchase:number;revenue:number;costs:number;profit:number;seconds:number|null;meters:number;waitMinutes:number;systems:string[];drive?:{name:string;version:string|null};empty:boolean};
 export type SuiteRoute={id:string;legs:SuiteLeg[];profit:number;purchase:number;costs:number;cash:number;reserve:number;seconds:number|null;profitPerHour:number|null;roi?:number|null;unsold:CargoLot[];warnings:string[]};
 export type SuiteResult={routes:SuiteRoute[];rejected:Record<string,number>;examined:number;approximate:boolean;error:string|null};
-export const defaultSuiteOptions:SuiteOptions={mode:'direct',goal:'profit',shipId:'',originId:0,destinationId:0,budget:0,reservePercent:10,reserveEnabled:true,capacity:0,scope:'intrasystem',maxLegs:3,detourPercent:25,reinvest:true,mixed:true,maxAgeHours:24,legality:'legal',risk:'low',commodityIds:[],excludeCommodityIds:[],excludeTerminalIds:[],system:'',faction:'',facilities:[],maxBoxSize:32,minStock:0,maxDistanceGm:0,allowWait:false,restockScuPerMinute:0,maxWaitMinutes:0,loading:'manual',handlingMinutes:10,feePerScu:0,fixedCosts:0,fuelCostPerGm:0,approachMinutes:5,jumpMinutes:5,waypoints:[],driveId:'',nearbyGm:0,priceBasis:'reported',stockBasis:'reported',excludeSystems:[],excludeFactions:[],excludePlanets:[],cargo:[]};
+export const defaultSuiteOptions:SuiteOptions={mode:'direct',goal:'profit',shipId:'',originId:0,destinationId:0,budget:0,reservePercent:0,reserveEnabled:false,capacity:0,scope:'intrasystem',maxLegs:3,detourPercent:25,reinvest:true,mixed:true,maxAgeHours:24,legality:'legal',risk:'low',commodityIds:[],excludeCommodityIds:[],excludeTerminalIds:[],system:'',faction:'',facilities:[],maxBoxSize:32,minStock:0,maxDistanceGm:0,allowWait:false,restockScuPerMinute:0,maxWaitMinutes:0,loading:'manual',handlingMinutes:10,feePerScu:0,fixedCosts:0,fuelCostPerGm:0,approachMinutes:5,jumpMinutes:5,waypoints:[],driveId:'',nearbyGm:0,priceBasis:'reported',stockBasis:'reported',excludeSystems:[],excludeFactions:[],excludePlanets:[],cargo:[]};
 const sizes=[32,24,16,8,4,2,1],cents=(n:number)=>Math.round(n*100),safe=(n:number,max=1e12)=>Number.isFinite(n)&&n>=0&&n<=max;
 export function validateSuiteOptions(o:SuiteOptions){
  if(!o||!['direct','buyers','destination','loop','chain'].includes(o.mode)||!['profit','time','capital','roi'].includes(o.goal)||!['intrasystem','interstellar'].includes(o.scope)||!['legal','known','all'].includes(o.legality)||!['low','known','all'].includes(o.risk)||!['manual','auto'].includes(o.loading)||typeof o.shipId!=='string'||!o.shipId||o.shipId.length>200||!Number.isSafeInteger(o.originId)||o.originId<1||!Number.isSafeInteger(o.destinationId)||o.destinationId<0||!Number.isInteger(o.capacity)||o.capacity<1||o.capacity>10000||!Number.isInteger(o.maxLegs)||o.maxLegs<1||o.maxLegs>5||!sizes.includes(o.maxBoxSize))throw Error('inputs');
@@ -37,10 +37,13 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
  try{validateSuiteOptions(o);}catch(e){return {...out,error:(e as Error).message};}
  if(o.cargo.some(l=>!data.commodities.some(c=>c.id===l.commodityId))||!ctx.pack(o.cargo))return {...out,error:'cargo'};
  const origin=data.terminals.find(t=>t.id===o.originId);if(!origin)return {...out,error:'origin'};
- const reserve=o.reserveEnabled?cents(o.budget)*o.reservePercent/100:0,heldReserve=Math.ceil(reserve),initialCash=cents(o.budget);
+ const initialCash=cents(o.budget);
  const goods=new Map(data.commodities.map(c=>[c.id,c])),terms=new Map(data.terminals.map(t=>[t.id,t]));
  const quotes=new Map<number,Quote[]>();for(const original of data.quotes){const q={...original,...(o.priceBasis==='weekly'?{buy:original.averages?.buy??null,sell:original.averages?.sell??null}:{}),...(o.stockBasis==='weekly'?{stock:original.averages?.stock??null,demand:original.averages?.demand??null}:{})};const list=quotes.get(q.terminalId)??[];list.push(q);quotes.set(q.terminalId,list);}
  const terminals=data.terminals.filter(t=>suiteTerminalAllowed(t,o,now));
+ if(o.mode==='direct'&&o.destinationId&&!terminals.some(t=>t.id===o.destinationId)){
+  reject('destinationPolicy');return out;
+ }
  if(o.mode==='destination'&&!terms.has(o.destinationId))return {...out,error:'connection'};
  if(o.mode==='chain'&&o.waypoints?.some(id=>!terms.has(id)))return {...out,error:'connection'};
  const manual=o.mode==='chain'&&!!o.waypoints?.length;
@@ -72,7 +75,7 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
    let stock=Math.floor(buy.stock)-(state.supply.get(buy.id)??0);
    if(o.allowWait&&o.restockScuPerMinute>0&&stock<o.capacity){const extra=Math.min(o.capacity-stock,Math.floor(o.restockScuPerMinute*o.maxWaitMinutes));if(extra>0){stock+=extra;}}
    if(stock<=0)continue;
-   const spend=Math.max(0,Math.min(state.cash,o.reinvest?state.cash:initialCash)-heldReserve-costs(metric,0));
+   const spend=Math.max(0,Math.min(state.cash,o.reinvest?state.cash:initialCash)-costs(metric,0));
    const unit=cents(buy.buy)+Math.ceil(o.feePerScu*200),raw=Math.min(o.capacity,stock,demand,Math.floor(spend/unit));
    const allowed=sizes.filter(s=>buy.containers.includes(s)&&s<=o.maxBoxSize&&s<=(state.at.maxContainerScu??0)&&s<=(to.maxContainerScu??0));
    for(const size of allowed){let qty=Math.floor(raw/size)*size;while(qty>0&&!ctx.pack([{commodityId:buy.commodityId,quantity:qty,boxSize:size}]))qty-=size;
@@ -85,15 +88,15 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
    let waiting=0;if(o.mode!=='buyers'&&o.allowWait&&o.restockScuPerMinute>0)for(const [id,qty] of totals){const q=buyRows.find(q=>q.commodityId===id)!;waiting=Math.max(waiting,Math.max(0,qty-Math.max(0,(q.stock??0)-(state.supply.get(q.id)??0)))/o.restockScuPerMinute);}
    const qty=items.reduce((s,l)=>s+l.quantity,0);if(!qty||!ctx.pack(items))return null;const purchase=items.reduce((s,l)=>s+cents(l.purchase),0),revenue=items.reduce((s,l)=>s+cents(l.revenue),0),fee=costs(metric,qty),basis=o.mode==='buyers'?items.reduce((s,l)=>s+Math.round(l.buy*l.quantity*100),0):purchase;
    if([purchase,revenue,fee,basis].some(n=>!Number.isSafeInteger(n)||Math.abs(n)>1e14)){reject('amount');return null;}
-   if(o.mode==='buyers'&&state.cash-fee+revenue<heldReserve){reject('capital');return null;}
-   if(o.mode!=='buyers'&&(purchase+fee+heldReserve>Math.min(state.cash,o.reinvest?state.cash:initialCash)||revenue-purchase-fee<=0))return null;
+   if(o.mode==='buyers'&&state.cash-fee+revenue<0){reject('capital');return null;}
+   if(o.mode!=='buyers'&&(purchase+fee>Math.min(state.cash,o.reinvest?state.cash:initialCash)||revenue-purchase-fee<=0))return null;
    return {originId:state.at.id,destinationId:to.id,lines:items,purchase:purchase/100,revenue:revenue/100,costs:fee/100,profit:(revenue-basis-fee)/100,meters:metric.meters,seconds:legTime(metric,waiting),waitMinutes:waiting,systems:metric.systems,...(metric.drive?{drive:metric.drive}:{}),empty:false};};
   const results=lines.map(l=>make([l])).filter((l):l is SuiteLeg=>!!l);
   if(o.mixed&&lines.length>1){for(const rank of [(l:TradeLine)=>l.sell-l.buy,(l:TradeLine)=>(l.sell-l.buy)/Math.max(l.buy,.01)]){
    const basket:TradeLine[]=[];let used=0,spent=0;const picked=new Map<string,number>();
    for(const l of [...lines].sort((a,b)=>rank(b)-rank(a))){const key=l.lotId??String(l.commodityId),existing=picked.get(key)??0,commodityUsed=basket.filter(x=>x.commodityId===l.commodityId).reduce((s,x)=>s+x.quantity,0);let qty=Math.floor(Math.min(l.quantity,l.available-existing,l.demand-commodityUsed,o.capacity-used)/l.boxSize)*l.boxSize;
     while(qty>0){const item={...l,quantity:qty,purchase:cents(l.buy)*qty/100,revenue:cents(l.sell)*qty/100};if(o.mode==='buyers')item.purchase=0;
-     if((o.mode==='buyers'||spent+cents(item.purchase)+costs(metric,used+qty)+heldReserve<=Math.min(state.cash,o.reinvest?state.cash:initialCash))&&ctx.pack([...basket,item])){basket.push(item);used+=qty;spent+=cents(item.purchase);picked.set(key,existing+qty);break;}qty-=l.boxSize;
+     if((o.mode==='buyers'||spent+cents(item.purchase)+costs(metric,used+qty)<=Math.min(state.cash,o.reinvest?state.cash:initialCash))&&ctx.pack([...basket,item])){basket.push(item);used+=qty;spent+=cents(item.purchase);picked.set(key,existing+qty);break;}qty-=l.boxSize;
     }
    }
    const mixed=make(basket);if(mixed)results.push(mixed);
@@ -103,12 +106,12 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
   if(o.scope==='interstellar'&&!state.legs.some(l=>new Set(l.systems.map(s=>s.toLowerCase())).size>1))return;
   const seconds=state.legs.some(l=>l.seconds===null)?null:state.legs.reduce((s,l)=>s+l.seconds!,0),profit=state.profit/100;
   const basis=state.legs.reduce((s,l)=>s+l.lines.reduce((n,x)=>n+x.buy*x.quantity,0),0),roi=o.mode==='buyers'&&o.cargo.some(l=>l.cost===null)||basis<=0?null:profit/basis;
-  const route:SuiteRoute={roi,id:state.legs.map(l=>`${l.originId}-${l.destinationId}:`+l.lines.map(x=>`${x.commodityId}/${x.quantity}/${x.boxSize}/${x.lotId??''}`).join(',')).join('|'),legs:state.legs,profit,purchase:state.legs.reduce((s,l)=>s+l.purchase,0),costs:state.legs.reduce((s,l)=>s+l.costs,0),cash:state.cash/100,reserve:heldReserve/100,seconds,profitPerHour:seconds&&seconds>0?profit*3600/seconds:null,unsold:state.remaining,warnings:['community','timeAssumptions','boundedSearch',...(state.legs.some(l=>[l.originId,l.destinationId].some(id=>patch(terms.get(id)?.version)!==data.liveVersion))?['oldFacilities']:[]),...(state.legs.some(l=>l.drive&&patch(l.drive.version)!==data.liveVersion)?['oldDrive']:[]),...(o.priceBasis==='weekly'||o.stockBasis==='weekly'?['weeklyAverage']:[]),...(!o.feePerScu&&!o.fixedCosts&&!o.fuelCostPerGm?['noCostsEntered']:[]),...(o.allowWait?['restockAssumption']:[]),...(o.mode==='buyers'&&o.cargo.some(l=>l.cost===null)?['unknownCost']:[])]};
+  const route:SuiteRoute={roi,id:state.legs.map(l=>`${l.originId}-${l.destinationId}:`+l.lines.map(x=>`${x.commodityId}/${x.quantity}/${x.boxSize}/${x.lotId??''}`).join(',')).join('|'),legs:state.legs,profit,purchase:state.legs.reduce((s,l)=>s+l.purchase,0),costs:state.legs.reduce((s,l)=>s+l.costs,0),cash:state.cash/100,reserve:0,seconds,profitPerHour:seconds&&seconds>0?profit*3600/seconds:null,unsold:state.remaining,warnings:['community','timeAssumptions','boundedSearch',...(state.legs.some(l=>[l.originId,l.destinationId].some(id=>patch(terms.get(id)?.version)!==data.liveVersion))?['oldFacilities']:[]),...(state.legs.some(l=>l.drive&&patch(l.drive.version)!==data.liveVersion)?['oldDrive']:[]),...(o.priceBasis==='weekly'||o.stockBasis==='weekly'?['weeklyAverage']:[]),...(!o.feePerScu&&!o.fixedCosts&&!o.fuelCostPerGm?['noCostsEntered']:[]),...(o.allowWait?['restockAssumption']:[]),...(o.mode==='buyers'&&o.cargo.some(l=>l.cost===null)?['unknownCost']:[])]};
   if(o.goal==='roi'&&route.roi===null){reject('costUnknown');return;}
   if(o.goal==='time'&&route.profitPerHour===null){reject('timeUnknown');return;}out.routes.push(route);
  };
  let frontier:State[]=[{at:origin,cash:initialCash,profit:0,legs:[],supply:new Map(),demand:new Map(),remaining:structuredClone(o.cargo).map((l,i)=>({...l,lotId:l.lotId??`source:${i}`}))}];
- if(o.nearbyGm>0&&o.mode!=='buyers'&&!manual)for(const t of terminals){if(t.id===origin.id||t.system!==origin.system)continue;const m=transport(origin,t);if(!m||m.meters>o.nearbyGm*1e9)continue;const fee=costs(m,0);if(initialCash-fee<=heldReserve)continue;frontier.push({at:t,cash:initialCash-fee,profit:-fee,legs:[{originId:origin.id,destinationId:t.id,lines:[],purchase:0,revenue:0,costs:fee/100,profit:-fee/100,seconds:legTime(m,0,true),meters:m.meters,waitMinutes:0,systems:m.systems,...(m.drive?{drive:m.drive}:{}),empty:true}],supply:new Map(),demand:new Map(),remaining:[]});}
+ if(o.nearbyGm>0&&o.mode!=='buyers'&&!manual)for(const t of terminals){if(t.id===origin.id||t.system!==origin.system)continue;const m=transport(origin,t);if(!m||m.meters>o.nearbyGm*1e9)continue;const fee=costs(m,0);if(initialCash-fee<=0)continue;frontier.push({at:t,cash:initialCash-fee,profit:-fee,legs:[{originId:origin.id,destinationId:t.id,lines:[],purchase:0,revenue:0,costs:fee/100,profit:-fee/100,seconds:legTime(m,0,true),meters:m.meters,waitMinutes:0,systems:m.systems,...(m.drive?{drive:m.drive}:{}),empty:true}],supply:new Map(),demand:new Map(),remaining:[]});}
  const depth=manual?o.waypoints!.length:o.mode==='direct'?1:o.maxLegs;
  for(let step=0;step<depth&&frontier.length;step++){
   const next:State[]=[];
@@ -119,7 +122,7 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
    if(out.examined>=16000){reject('searchBound');break;}out.examined++;
    const options=offers(state,to);
    if(!options.length&&(manual||state.legs.length>0)&&(manual||o.mode==='loop'&&to.id===origin.id||o.mode==='destination'&&to.id===o.destinationId)){
-    const m=transport(state.at,to);if(m){const fee=costs(m,0);if(state.cash-fee>=heldReserve)options.push({originId:state.at.id,destinationId:to.id,lines:[],purchase:0,revenue:0,costs:fee/100,profit:-fee/100,seconds:legTime(m,0,true),meters:m.meters,waitMinutes:0,systems:m.systems,...(m.drive?{drive:m.drive}:{}),empty:true});}
+    const m=transport(state.at,to);if(m){const fee=costs(m,0);if(state.cash-fee>=0)options.push({originId:state.at.id,destinationId:to.id,lines:[],purchase:0,revenue:0,costs:fee/100,profit:-fee/100,seconds:legTime(m,0,true),meters:m.meters,waitMinutes:0,systems:m.systems,...(m.drive?{drive:m.drive}:{}),empty:true});}
    }
    for(const leg of options){const s:State={at:to,cash:state.cash-cents(leg.purchase)-cents(leg.costs)+cents(leg.revenue),profit:state.profit+cents(leg.profit),legs:[...state.legs,leg],supply:new Map(state.supply),demand:new Map(state.demand),remaining:structuredClone(state.remaining)};
     for(const line of leg.lines){const buy=(quotes.get(state.at.id)??[]).find(q=>q.commodityId===line.commodityId),sell=(quotes.get(to.id)??[]).find(q=>q.commodityId===line.commodityId)!;if(buy&&o.mode!=='buyers')s.supply.set(buy.id,(s.supply.get(buy.id)??0)+line.quantity);s.demand.set(sell.id,(s.demand.get(sell.id)??0)+line.quantity);

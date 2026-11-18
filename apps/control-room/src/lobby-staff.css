@@ -90,3 +90,15 @@
 .facility-lobby .lobby-person[data-staff=senior-trade-officer]{--staff-height:42%}
 .facility-lobby .lobby-person[data-staff=academic-advisor]{--staff-height:40%}
 @media(max-width:760px){.facility-lobby .lobby-person-label strong{font-size:16px}}
+
+.facility-lobby[data-facility-lobby=trade] .lobby-staff .lobby-person {
+  left:var(--staff-x);bottom:26%;height:25%;width:7%;min-width:44px;
+}
+.facility-lobby[data-facility-lobby=trade] .lobby-person img {
+  width:auto;height:100%;left:50%;inset-inline-end:auto;transform:translateX(-50%);max-width:none;
+}
+/* The two staff stand close together. Anchor each name toward its outer side. */
+.facility-lobby[data-facility-lobby=trade] .lobby-person-label {width:max-content;max-width:none}
+.facility-lobby[data-facility-lobby=trade] [data-staff=senior-trade-officer] .lobby-person-label {left:85%;transform:translateX(-100%)}
+.facility-lobby[data-facility-lobby=trade] [data-staff=ling-broker] .lobby-person-label {left:15%;transform:none}
+.facility-lobby[data-facility-lobby=trade] .lobby-person-label strong {font-size:clamp(12px,1.13vw,21px)}

@@ -8,7 +8,7 @@ import {suiteContext} from './trade-suite-runtime.mjs';
 import {controlPriceRows,type ControlPriceRow,type SaleAllocation} from './trade-control-prices';
 import {ApprovedGlass} from './ApprovedGlass';
 import './trade-control-prices.css';
-import {tradeMatches,tradeLabel} from './trade-labels';
+import {commoditySearchTerms,tradeMatches,tradeLabel} from './trade-labels';
 const PriceHistory=lazy(()=>import('./TradePriceHistory'));
 
 const Visuals=lazy(()=>import('./TradeSuiteVisuals'));
@@ -25,7 +25,7 @@ export default function TradeControlPrices({market,holdings,options,position,can
  const context=useMemo(()=>{try{return suiteContext(options);}catch{return null;}},[options]);
  const rows=useMemo(()=>controlPriceRows(market,holdings,options,currentPosition,chosenCommodity,(a,b)=>context?.route(a,b)??null),[market,holdings,options,currentPosition,chosenCommodity,context]);
  const systems=[...new Set(rows.map(r=>r.terminal.system))].sort(),regions=[...new Set(rows.filter(r=>!system||r.terminal.system===system).map(r=>r.terminal.planet||r.terminal.location))].sort();
- const filtered=rows.filter(r=>(!system||r.terminal.system===system)&&(!region||(r.terminal.planet||r.terminal.location)===region)&&tradeMatches(search,[market.commodities.find(c=>c.id===r.quote.commodityId)?.name??''],[r.terminal.name,r.terminal.location,r.terminal.planet,r.terminal.system])).sort((a,b)=>{
+ const filtered=rows.filter(r=>(!system||r.terminal.system===system)&&(!region||(r.terminal.planet||r.terminal.location)===region)&&tradeMatches(search,commoditySearchTerms(market.commodities.find(c=>c.id===r.quote.commodityId)),[r.terminal.name,r.terminal.location,r.terminal.planet,r.terminal.system])).sort((a,b)=>{
   const effectiveSort=!selling&&!['price','recent'].includes(sort)?'price':sort;
   const val=(r:ControlPriceRow)=>effectiveSort==='price'?(selling?r.quote.sell:r.quote.buy):effectiveSort==='time'?(r.metric?.seconds==null?null:-r.metric.seconds):effectiveSort==='recent'?(r.quote.updatedAt?Date.parse(r.quote.updatedAt):null):r.profit;
   const av=val(a),bv=val(b);return (av===null?1:0)-(bv===null?1:0)||(selling||effectiveSort!=='price'?(bv??0)-(av??0):(av??0)-(bv??0))||a.terminal.name.localeCompare(b.terminal.name);

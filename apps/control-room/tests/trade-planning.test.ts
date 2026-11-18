@@ -12,8 +12,8 @@ const data=():MarketSnapshot=>({schema:1,source:'UEX',retrievedAt:new Date(now).
 const input:TradeInputs={shipId:'misc-hull-b',budget:1000,reservePercent:10,costs:10,cargoLimit:512,originId:1,scope:'intrasystem',legality:'legal',risk:'low',prices:'current'};
 const context:TradeContext={shipId:'misc-hull-b',capacity:512,boxCapacities:{1:512,2:512,4:512,8:512,16:512,24:384,32:512},systemEdges:[['Stanton','Pyro'],['Pyro','Nyx']]};
 const run=(d=data(),i:Partial<TradeInputs>={},c:Partial<TradeContext>={})=>planTrades(d,{...input,...i},{...context,...c},now);
-test('10% reserve and entered costs constrain purchases; reserve is not an expense',()=>{
- const [p]=run().candidates;assert(p);assert.equal(p.quantity,123);assert.equal(p.reserve,100);assert.equal(p.purchase,886.83);assert.equal(p.revenue,1242.3);assert.equal(p.profit,345.47);assert.equal(p.remaining,103.17);assert(p.purchase+input.costs+p.reserve<=input.budget);assert(p.limits.includes('budget'));
+test('old reserve settings do not reduce capital; entered costs constrain purchases',()=>{
+ const [p]=run().candidates;assert(p);assert.equal(p.quantity,137);assert.equal(p.reserve,0);assert.equal(p.purchase,987.77);assert.equal(p.revenue,1383.7);assert.equal(p.profit,385.93);assert.equal(p.remaining,2.23);assert(p.purchase+input.costs+p.reserve<=input.budget);assert(p.limits.includes('budget'));
 });
 test('supply, demand, capital and uniform container multiples all cap cargo',()=>{
  const d=data();d.quotes=[{...buy,stock:70,containers:[32]},{...sell,demand:50}];const p=run(d,{budget:10000}).candidates[0]!;assert.equal(p.quantity,32);assert.equal(p.boxCount,1);assert.equal(p.boxSize,32);assert(p.limits.includes('demand'));assert(p.limits.includes('boxMultiple'));
@@ -43,7 +43,7 @@ test('Hull C requires loading docks at both ends; a generic docking port is insu
 });
 test('invalid financial/capacity input cannot produce infinite, negative or unsafe proposals',()=>{
  for(const change of [{budget:NaN},{budget:Infinity},{budget:-1},{costs:-1},{reservePercent:101},{reservePercent:NaN},{cargoLimit:513},{cargoLimit:1.5},{shipId:'other'}])assert.equal(run(data(),change).error,'inputs');
- assert.equal(run(data(),{reservePercent:100}).error,'capital');assert.equal(run(data(),{costs:1000}).error,'capital');
+ assert.equal(run(data(),{reservePercent:100}).error,null);assert.equal(run(data(),{costs:1000}).error,'capital');
  const d=data();d.quotes=[{...buy,buy:10},{...sell,sell:10}];assert.equal(run(d).candidates.length,0);
 });
 test('real normalized grid profiles use the existing upright restrictions and respect disabled grids',()=>{

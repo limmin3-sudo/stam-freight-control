@@ -1,4 +1,5 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {PartnerQuestion,type GuideDestination} from './PartnerQuestion';
 import {createPortal} from 'react-dom';
 import type {CSSProperties} from 'react';
 import {useDialoguePortrait} from './dialogue-poses';
@@ -6,10 +7,10 @@ import './hologram-glass.css';
 import './partner-conversation.css';
 
 type Action={label:string;onSelect:()=>void};
-type Props={id:string;name:string;line:string;image:string;background:string;focus:number;en:boolean;motion:boolean;origin:HTMLElement;onClose:()=>void;actions?:readonly Action[];note?:string};
+type Props={id:string;name:string;line:string;image:string;background:string;focus:number;en:boolean;motion:boolean;origin:HTMLElement;onClose:()=>void;actions?:readonly Action[];note?:string;guide?:GuideDestination[]};
 
 // Shared presentation only. Caller owns existing room/scope/partner callbacks.
-export function CrewEncounter({id,name,line,image,background,focus,en,motion,origin,onClose,actions=[],note}:Props){
+export function CrewEncounter({id,name,line,image,background,focus,en,motion,origin,onClose,actions=[],note,guide}:Props){
  const dialog=useRef<HTMLDialogElement>(null);
  const portrait=useDialoguePortrait(id,image);
  const [useOriginal,setUseOriginal]=useState(false);
@@ -71,6 +72,8 @@ export function CrewEncounter({id,name,line,image,background,focus,en,motion,ori
    <h2 id="partner-conversation-title">{name}</h2>
    <p id="partner-conversation-line">{line}</p>
    <p className="partner-conversation-note">{failed?(en?'The portrait could not load. You can still read the greeting.':'인물 이미지를 불러오지 못했습니다. 인사말은 확인하실 수 있습니다.'):note}</p>
+   {guide&&['localhost','127.0.0.1'].includes(location.hostname)&&location.pathname.startsWith('/apps/control-room/dist/')&&
+    <PartnerQuestion partner={id} en={en} disabled={closing} destinations={guide.map(d=>({...d,open:()=>finish(d.open)}))}/>}
    {actions.length>0&&<div className="crew-encounter-actions">{actions.map(action=><button key={action.label} type="button" disabled={closing} onClick={()=>finish(action.onSelect)}>{action.label}<span aria-hidden="true">↗</span></button>)}</div>}
    <button className="crew-encounter-close" type="button" onClick={()=>finish()} disabled={closing}>{en?'End conversation':'대화 마치기'} <span aria-hidden="true">↗</span></button>
   </section>

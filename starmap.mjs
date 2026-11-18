@@ -39,13 +39,19 @@ class Rig{
  lo(){return Math.max(this.minR,this.minFor?.(this.goal)||0);}
  keepIn(){const g=this.goal,d=Math.hypot(g.x,g.y,g.z);if(d>this.bound){const k=this.bound/d;g.x*=k;g.y*=k;g.z*=k;}}
  update(dt){const c=this.cur,g=this.goal,v=this.vel;if(this.minFor)g.r=Math.max(g.r,this.lo());for(const k of ['x','y','z'])c[k]=damp(c[k],g[k],v,k,.34,dt);c.theta=damp(c.theta,g.theta,v,'t',.22,dt);c.phi=damp(c.phi,g.phi,v,'p',.22,dt);c.r=Math.exp(damp(Math.log(c.r),Math.log(g.r),v,'r',.32,dt));
-  const sp=Math.sin(c.phi);this.camera.position.set(c.x+c.r*sp*Math.sin(c.theta),c.y+c.r*Math.cos(c.phi),c.z+c.r*sp*Math.cos(c.theta));this.camera.lookAt(c.x,c.y,c.z);this.camera.near=Math.max(1e-5,c.r*.001);this.camera.far=30000;this.camera.updateProjectionMatrix();}
+  const sp=Math.sin(c.phi);this.camera.position.set(c.x+c.r*sp*Math.sin(c.theta),c.y+c.r*Math.cos(c.phi),c.z+c.r*sp*Math.cos(c.theta));this.camera.lookAt(c.x,c.y,c.z);this.camera.near=Math.max(1e-5,c.r*.001);this.camera.far=30000;this.camera.updateProjectionMatrix();
+  // Labels are projected before renderer.render(), including on the last frame before idle.
+  this.camera.updateMatrixWorld();}
 }
 
 export function createStarMap(container,labelContainer,data,onSelect,appearance={}){
  // Optional presentation adapters leave the original camera, hierarchy and route logic intact.
  const L=appearance.text||legacyL,tr=appearance.translate||legacyTr,gameEn=appearance.gameEn??legacyGameEn;
- const labelSprite=(name,sub,color,options={})=>baseLabelSprite(name,sub,color,{...options,fontFamily:appearance.fontFamily,fontWeight:appearance.fontWeight,font:options.font||(appearance.compact?(options.big?34:30):undefined),subFont:options.subFont||(appearance.compact?20:undefined)});
+ const labelSprite=(name,sub,color,options={})=>{
+  const sprite=baseLabelSprite(name,sub,color,{...options,fontFamily:appearance.fontFamily,fontWeight:appearance.fontWeight,font:options.font||(appearance.compact?(options.big?34:30):undefined),subFont:options.subFont||(appearance.compact?20:undefined)});
+  sprite.material.userData.ownedMap=true;
+  return sprite;
+ };
  const routeRibbon=(points,opts)=>baseRouteRibbon(points,{...opts,...appearance.routeStyle,width:(opts.width||5)*(appearance.routeStyle?.widthScale||1)});
  const markerTexture=appearance.marker||iconTexture;
  const displayName=appearance.name||((l)=>gameEn?l.name:koName(l)||l.name);
@@ -132,12 +138,12 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
    const hop=rootBody(a.id)&&rootBody(a.id)===rootBody(b.id),len=from.distanceTo(to),path=avoidBodies(from,to),curve=new THREE.CurvePath();for(let k=1;k<path.length;k++)curve.add(new THREE.LineCurve3(path[k-1],path[k]));
    const pts=[];for(let k=1;k<path.length;k++){const n=Math.max(8,Math.ceil(path[k-1].distanceTo(path[k])/Math.max(len,1e-6)*120));for(let q=k===1?0:1;q<=n;q++)pts.push(path[k-1].clone().lerp(path[k],q/n));}
    const rb=routeRibbon(pts,{color:active?(appearance.selectionColor||'#ffb35c'):hop?(appearance.selectionColor?'#91c5ce':'#ffd75e'):'#5fe6ff',width:active?4.5:hop?2.4:3.2,flow:active?1.4:.7,dashed:hop});rb.userData={order:order++,active};routeGroup.add(rb);ribbons.push(rb);
-   if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(appearance.compact?fmtDist(v.leg.meters):tr(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분`),v.leg.jumps?tr((v.leg.gateways||[]).join(' → ')+' 경유'):'','#f5deac',{pill:'#0b1929',ink:'#f5deac',backed:true,border:'#d7b67b',font:52,subFont:26,upper:false});lab.visible=false;labelGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
+   if(active&&(!legLabel||len>legLabel.len)){if(!legLabel){const lab=labelSprite(appearance.compact?fmtDist(v.leg.meters):tr(`${fmtDist(v.leg.meters)} · 약 ${Math.max(1,Math.round(v.seconds/60))}분`),v.leg.jumps?tr((v.leg.gateways||[]).join(' → ')+' 경유'):'','#f5deac',{pill:'#0b1929',ink:'#f5deac',backed:true,border:'#d7b67b',font:52,subFont:26,upper:false});lab.visible=false;routeGroup.add(lab);legLabel={sprite:lab};}legLabel.pos=curve.getPoint(.5);legLabel.len=len;}}
    const p=posOf(v.locationId);if(p&&byId.get(v.locationId)?.system===system){const ring=new THREE.Sprite(new THREE.SpriteMaterial({map:markerTexture('waypoint',i===activeIndex?(appearance.selectionColor||'#ffb35c'):'#64dfe2'),transparent:true,depthWrite:false,sizeAttenuation:false}));ring.position.copy(p);ring.renderOrder=7;routeGroup.add(ring);markers.push({sprite:ring,i,active:i===activeIndex});}});
   revealStart=time;}
 
  // ---- labels -----------------------------------------------------------------------------------
- function clearLabels(){for(const s of labels.values()){s.material.map.dispose();s.material.dispose();}clearGroup(labelGroup);labels.clear();}
+ function clearLabels(){clearGroup(labelGroup);labels.clear();}
  // Same step numbers as the run panel: stops plus the gateway each jump starts from.
  let stepCache=null;
  const visitNums=id=>{if(!route)return [];if(appearance.compact)return route.visits.flatMap((v,i)=>v.locationId===id?[i+1]:[]);if(stepCache?.route!==route)stepCache={route,steps:stepNumbers(route.visits,byId)};const st=stepCache.steps,out=[];
@@ -151,7 +157,8 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
  function priority(it){const l=it.loc;if(l.id===selected||l===hovered)return 10;if(visitNums(l.id).length)return 9;if(l.type==='Star')return 8;if(l.type==='Planet')return 7;if(l.isGateway)return 6;if(l.type==='Moon')return 5;if(l.type==='LandingZone')return 4.5;if(isStation(it))return 5.5;if(it.icon==='outpost')return 2;return 1;}
 
  // ---- navigation -------------------------------------------------------------------------------
- function crumbsRender(){routeReadoutRender();const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([systemLabel(system),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([displayName(c),()=>focus(c.id)]);}}
+ let renderLoop;
+ function crumbsRender(){renderLoop?.invalidate();routeReadoutRender();const parts=[['STARMAP',()=>goGalaxy()]];if(level==='system'){parts.push([systemLabel(system),()=>home()]);if(focusId){const chain=[];let l=byId.get(focusId);while(l&&l.type!=='Star'&&l.type!=='Manmade'){chain.unshift(l);l=byId.get(l.parentId);}for(const c of chain)parts.push([displayName(c),()=>focus(c.id)]);}}
   crumbs.replaceChildren(...parts.flatMap(([t,fn],i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.className=i===parts.length-1?'current':'';b.onclick=fn;return i?[Object.assign(document.createElement('span'),{textContent:'›'}),b]:[b];}));}
  function goGalaxy(instant=false){level='galaxy';focusId=null;selected=null;galaxyGroup.visible=true;systemGroup.visible=false;routeGroup.visible=false;clearLabels();backdrop.paint('galaxy');buildGalaxy();
   for(const [sys,p] of Object.entries(GALAXY)){const s=labelSprite(sys.toUpperCase(),tr('항성계 · 더블클릭'),STAR_COLORS[sys],{big:true,glow:true});s.userData.anchor=p;labelGroup.add(s);}
@@ -185,10 +192,12 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
 
  // ---- frame loop -------------------------------------------------------------------------------
  const tmp=V(),res=new THREE.Vector2();let cameraStamp=performance.now();
- function frame(dt){time+=dt;const now=performance.now();rig.update(Math.min(.25,Math.max(0,(now-cameraStamp)/1000)));cameraStamp=now;el.dataset.view=JSON.stringify([rig.cur.x,rig.cur.y,rig.cur.z,rig.cur.theta,rig.cur.phi,rig.cur.r].map(n=>+n.toFixed(4)));el.dataset.settled=String(['x','y','z','theta','phi','r'].every(k=>Math.abs(rig.cur[k]-rig.goal[k])<.002));el.dataset.level=level;el.dataset.system=system;el.dataset.focus=focusId||selected||'';const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+ function frame(dt){time+=dt;const now=performance.now();rig.update(Math.min(.25,Math.max(0,(now-cameraStamp)/1000)));cameraStamp=now;el.dataset.view=JSON.stringify([rig.cur.x,rig.cur.y,rig.cur.z,rig.cur.theta,rig.cur.phi,rig.cur.r].map(n=>+n.toFixed(4)));const settled=['x','y','z','theta','phi','r'].every(k=>Math.abs(rig.cur[k]-rig.goal[k])<.002);el.dataset.settled=String(settled);el.dataset.level=level;el.dataset.system=system;el.dataset.focus=focusId||selected||'';const h=H(),w=W(),P11=camera.projectionMatrix.elements[5],pxPerUnit=d=>h*P11/(2*d),spriteScale=(s,pxW,pxH)=>s.scale.set(2*pxW/(P11*h),2*pxH/(P11*h),1);
+  // Reduced motion freezes the scene effects. Once the camera settles, draw again on input or a scene change.
+  const nextFps=reducedMotion.matches&&settled?0:60;
   renderer.getDrawingBufferSize(res);const pr=renderer.getPixelRatio();
   scene.traverse(o=>{const u=o.material?.uniforms;if(!u)return;if(u.uTime)u.uTime.value=reducedMotion.matches?0:time;if(u.uMotion)u.uMotion.value=reducedMotion.matches?0:1;if(u.uRes)u.uRes.value.set(res.x/pr,res.y/pr);});
-  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return 60;}
+  if(level==='galaxy'){for(const s of labelGroup.children){const sc=s.userData.px;if(!sc)continue;s.position.copy(s.userData.anchor);const zoom=clamp(1+Math.log2(210/rig.cur.r)*.22,1,1.5),scale=.8*zoom;spriteScale(s,sc[0]*scale,sc[1]*scale);s.center.set(.5,1+26/(sc[1]*scale));s.visible=true;}bloom.render(scene,camera);return nextFps;}
   if(focusId&&rig.goal.r>focusR*3.2&&!rig.ptrs.size){focusId=null;crumbsRender();}
   const camPos=camera.position;
   for(const it of items)if(it.mesh){it.mesh.traverse(o=>{const u=o.material?.uniforms;if(u?.uHighlight)u.uHighlight.value=it.loc.id===selected?1:0;});const d=camPos.distanceTo(it.pos),px=it.r*pxPerUnit(d),k=px<it.minPx?it.minPx/px:1;it.mesh.scale.setScalar(it.r*k);it.px=px*k;if(!reducedMotion.matches){if(it.loc.type!=='Star')it.mesh.rotation.y+=dt*.006;if(it.clouds&&!it.clouds.userData.shaderDrift)it.clouds.rotation.y+=dt*.004;}}
@@ -214,15 +223,16 @@ export function createStarMap(container,labelContainer,data,onSelect,appearance=
   const t=time-revealStart;for(const rb of ribbons){const k=reducedMotion.matches?1:clamp((t-rb.userData.order*.22)/.75,0,1);rb.material.uniforms.uReveal.value=k<1?1-Math.pow(1-k,3):1;}
   for(const m of markers){m.sprite.visible=screen(m.sprite.position).front;const pulse=m.active&&!reducedMotion.matches?1+.07*Math.sin(time*2):1;spriteScale(m.sprite,(m.active?34:22)*pulse,(m.active?34:22)*pulse);}
   if(legLabel){const [pw,ph]=legLabel.sprite.userData.px;legLabel.sprite.position.copy(legLabel.pos);const scale=Math.min(1,(w-28)/pw);spriteScale(legLabel.sprite,pw*scale,ph*scale);legLabel.sprite.userData.displayPx=[pw*scale,ph*scale];legLabel.sprite.center.set(.5,-.5);legLabel.sprite.visible=(reducedMotion.matches||t>.6)&&screen(legLabel.pos).front;}
-  bloom.render(scene,camera);return 60;}
- goGalaxy(true);enterSystem('stanton',true);const renderLoop=observeRenderLoop(el,frame);
- return {dispose(){
+  bloom.render(scene,camera);return nextFps;}
+ goGalaxy(true);enterSystem('stanton',true);renderLoop=observeRenderLoop(el,frame);
+ reducedMotion.addEventListener('change',renderLoop.invalidate,{signal:keys.signal});
+ return {invalidate:renderLoop.invalidate,dispose(){
    renderLoop.dispose();resizeObserver.disconnect();keys.abort();
    clearLabels();clearGroup(scene);sphereGeo.dispose();bloom.dispose();
    renderer.dispose();renderer.forceContextLoss();el.remove();tip.remove();crumbs.remove();routeReadout.remove();
-  },setSystem(s){enterSystem(s);},setRoute(p,index){const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
-  focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);home(false,top);},zoomBy(factor){rig.set({r:rig.goal.r/factor});},setOrbits(value){orbits=!!value;systemGroup.traverse(o=>{if(o.userData.orbit)o.visible=orbits;});},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
-  setQuality(q){if(!QUALITY[q]||q===qualityName)return;quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
+  },setSystem(s){enterSystem(s);},setRoute(p,index){renderLoop.invalidate();const fresh=p!==route;route=p;activeIndex=index;routeReadoutRender();if(level==='system'){if(fresh||!appearance.compact)clearLabels();buildRoute();if(!fresh)revealStart=time-99;}else buildGalaxy();},
+  focus(id){focus(id);},focusLeg:frameLeg,home(top=false){if(level!=='system')enterSystem(system);home(false,top);},zoomBy(factor){rig.set({r:rig.goal.r/factor});renderLoop.invalidate();},setOrbits(value){renderLoop.invalidate();orbits=!!value;systemGroup.traverse(o=>{if(o.userData.orbit)o.visible=orbits;});},selectedSystem:()=>system,flyTo(id){focus(id);},galaxy:()=>goGalaxy(),
+  setQuality(q){if(!QUALITY[q]||q===qualityName)return;renderLoop.invalidate();quality=QUALITY[q];qualityName=q;try{localStorage.setItem('vh-map-quality',q);}catch{}renderer.setPixelRatio(Math.min(devicePixelRatio,quality.ratio));bloom.strength(quality.bloom);sphereGeo=new THREE.SphereGeometry(1,...quality.seg);if(level==='system')buildSystem(system);},quality:()=>qualityName,
   snapshotView:()=>({level,system,selected,focusId,focusR,camera:{...rig.goal}}),
   restoreView(view){if(!view||!GALAXY[view.system]||!['system','galaxy'].includes(view.level)||!['x','y','z','theta','phi','r'].every(k=>Number.isFinite(view.camera?.[k])))return;if(view.level==='galaxy')goGalaxy(true);else enterSystem(view.system,true);selected=byId.has(view.selected)?view.selected:null;focusId=byId.has(view.focusId)?view.focusId:null;focusR=Number.isFinite(view.focusR)?view.focusR:0;rig.set(view.camera,true);crumbsRender();},
   _debug:()=>({renderLoop:renderLoop.stats(),reducedMotion:reducedMotion.matches,post:{bloom:quality.bloom>0},level,system,route:!!route,galaxyLinks:galaxyGroup.children.filter(c=>c.userData.systemLink).length,ribbons:ribbons.length,reveal:ribbons.map(r=>+r.material.uniforms.uReveal.value.toFixed(2)),res:ribbons[0]?.material.uniforms.uRes.value.toArray(),routeLabelPx:legLabel?.sprite.userData.displayPx||null,routeKids:routeGroup.children.length,visible:routeGroup.visible,zoom:rig.cur.r,stations:items.filter(it=>it.shown&&isStation(it)).map(it=>({id:it.loc.id,name:it.loc.name,x:it.screen.x,y:it.screen.y,px:it.displayPx,hitRadius:Math.max(24,(it.displayPx||it.px)/2+7)})),labels:[...labels].filter(([,s])=>s.visible).map(([id,s])=>({id,name:byId.get(id)?.name,displayName:mapLocationName(byId.get(id)),px:s.userData.displayPx,station:isStation(itemById.get(id)),icon:itemById.get(id)?.icon}))}),
