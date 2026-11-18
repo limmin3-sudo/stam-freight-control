@@ -71,5 +71,25 @@
       "usedRegion": "left strip 384x1536",
       "creation": "image_gen dedicated material, no software upscaling"
     }
-  ]
+  ],
+  "currentFinishes": {
+    "gold": {
+      "generatedSource": "/workspace/generated_images/exec-725b5dfc-24d8-4aa0-af57-cc3163329745.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-gold.webp",
+      "sha256": "679cf9037d8297b9f5595e6146b6d56ed95eb0793b047df2c0e0d93099580dc9",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    },
+    "graphite": {
+      "generatedSource": "/workspace/generated_images/exec-1a1be493-b1d8-4201-a52a-a78ae72fe3b0.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-graphite.webp",
+      "sha256": "8c64c344ddadb4399e82b87d871ce42c8b698ff38c5cd2f42bfa5f1d5b448d9a",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    },
+    "midnight": {
+      "generatedSource": "/workspace/generated_images/exec-1a1be493-b1d8-4201-a52a-a78ae72fe3b0.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-midnight.webp",
+      "sha256": "ee8811a2a37d111a3c189c3078de33f8403df1efb78ecde9d7ed284ca3886ec5",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    }
+  }
 }
