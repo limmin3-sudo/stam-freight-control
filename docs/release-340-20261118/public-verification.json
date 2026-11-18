@@ -1,0 +1,31 @@
+{
+  "sha": "e8bd1a5ca3791ad69e64a97110b14dc564df16d6",
+  "version": "3.4.0",
+  "url": "https://limmin3-sudo.github.io/stam-freight-control/",
+  "workflow": "https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44294882755",
+  "checkedAt": "2026-11-18T11:33:57.180Z",
+  "checks": [
+    "Public version.json matches beta 3.4.0 and deployment SHA",
+    "Public UEX snapshot: {\"retrievedAt\":\"2026-11-18T11:31:42.164Z\",\"quotes\":2578,\"terminals\":114}",
+    "Public trade lobby loads both doors, both staff and common shell",
+    "Trade control door opens market, UEX symbol TITA opens terminal quotes and selected quote opens route planner",
+    "Records door opens live guest trade ledger",
+    "Public flight.html loads approved operator and navigator PNGs, byte-for-byte",
+    "Public guide desk plays all 52 Korean lines across four stops and returns to facility map"
+  ],
+  "publicRequests": 221,
+  "marketCoverage": {
+    "retrievedAt": "2026-11-18T11:31:42.164Z",
+    "quotes": 2578,
+    "terminals": 114
+  },
+  "stops": [
+    "01 / 04라운지",
+    "02 / 04관제센터",
+    "03 / 04무역센터",
+    "04 / 04아카데미"
+  ],
+  "lines": 52,
+  "errors": [],
+  "scope": "Chromium, verified public HTTPS responses, isolated guest browser"
+}
