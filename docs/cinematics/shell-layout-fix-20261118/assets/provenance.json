@@ -30,5 +30,26 @@
       "1530 0 6 102"
     ],
     "placement": "Step tracks the gap below Flight Console and above navigation caption/Freight Division; scene geometry unchanged"
+  },
+  "ornament": {
+    "asset": "apps/control-room/src/assets/navigation/shell-gold-ornament.png",
+    "source": "/workspace/generated_images/exec-51bc0099-c9a9-4295-812b-76d3e0b6467d.png",
+    "sha256": "808d8b3f91cfd690a81b83e1ded1ca98144fe9ff39c72a34534b08d3c09ac1bb",
+    "nativeSize": [
+      1536,
+      1024
+    ],
+    "creation": "image_gen edit; slim glossy rectangular-section black rail, petite corner clasps and diagonal collar on gold zone2 only",
+    "usedFor": [
+      "join",
+      "sweep",
+      "connector"
+    ],
+    "unchangedSourceFor": [
+      "top",
+      "top-end",
+      "side",
+      "side-end"
+    ]
   }
 }

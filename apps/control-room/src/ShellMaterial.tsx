@@ -1,5 +1,6 @@
 import {useLayoutEffect,useRef} from 'react';
 import accent from './assets/navigation/shell-gold-gunmetal.png';
+import ornament from './assets/navigation/shell-gold-ornament.png';
 
 /** A clean material asset, with no baked-in controls or room screenshot.
  * The corner and edge heights stay fixed; the plain strips fill the existing
@@ -34,11 +35,11 @@ export function ShellMaterial(){
   return()=>{observer.disconnect();cancelAnimationFrame(frame);sidebar.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
  },[]);
  const pieces=[
-  ['join','0 0 216 102',accent],
-  ['sweep','216 0 504 102',accent],
+  ['join','0 0 216 102',ornament],
+  ['sweep','216 0 504 102',ornament],
   ['top','720 0 810 102',accent],
   ['top-end','1530 0 6 102',accent],
-  ['connector','0 102 216 300',accent],
+  ['connector','0 102 216 300',ornament],
   ['side','0 402 216 616',accent],
   ['side-end','0 1018 216 6',accent],
  ];
