@@ -13,20 +13,20 @@
   "rendering": "Preserved earlier material; no longer imported by ShellMaterial.",
   "accent": {
     "asset": "apps/control-room/src/assets/navigation/shell-gold-gunmetal.png",
-    "source": "/workspace/generated_images/exec-6dacd686-aad4-46b2-a917-2edb62bae12d.png",
-    "sha256": "3ad89081761b491a944b766c5270b4e3b74d13cc5df482cc1f80ad5930d4cd27",
+    "source": "/workspace/generated_images/exec-b70798fc-6552-40a3-8128-0aad3b63c08e.png",
+    "sha256": "e71e87c1ff3681548616b17e053101e2253f5ecf8fa7c396866f9d1ef5b5b9ac",
     "nativeSize": [
       1536,
       1024
     ],
-    "creation": "image_gen; continuous raised gold casting with curved header boundary and straight horizontal sidebar step; blue glass header and gunmetal lower sidebar",
+    "creation": "image_gen edit: extended warm champagne gold nameplate, straight diagonal chamfer, twin recessed machining grooves and corner marks; gunmetal lower sidebar",
     "zone2Source": "0 102 216 300",
     "zone3Source": "0 402 216 616",
     "geometryChanged": false,
     "headerSources": [
       "0 0 216 102",
-      "216 0 384 102",
-      "600 0 930 102",
+      "216 0 504 102",
+      "720 0 810 102",
       "1530 0 6 102"
     ],
     "placement": "Step tracks the gap below Flight Console and above navigation caption/Freight Division; scene geometry unchanged"

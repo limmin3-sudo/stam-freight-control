@@ -5,8 +5,8 @@ import accent from './assets/navigation/shell-gold-gunmetal.png';
  * The corner and edge heights stay fixed; the plain strips fill the existing
  * navigation area without setting the dimensions of the live scene.
  * A single casting spans the header and console surround. The header uses a
- * curved material boundary; the sidebar ends the housing in a straight step.
- * Curves stay in the chrome and never round or cover the scene aperture. */
+ * straight diagonal material boundary; the sidebar ends the housing in a straight step.
+ * The material stays in the chrome and never covers the scene aperture. */
 export function ShellMaterial(){
  const root=useRef<HTMLDivElement>(null);
  useLayoutEffect(()=>{
@@ -35,8 +35,8 @@ export function ShellMaterial(){
  },[]);
  const pieces=[
   ['join','0 0 216 102',accent],
-  ['sweep','216 0 384 102',accent],
-  ['top','600 0 930 102',accent],
+  ['sweep','216 0 504 102',accent],
+  ['top','720 0 810 102',accent],
   ['top-end','1530 0 6 102',accent],
   ['connector','0 102 216 300',accent],
   ['side','0 402 216 616',accent],

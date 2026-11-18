@@ -46,8 +46,8 @@
 .shell-material{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .shell-piece{position:absolute;display:block;overflow:hidden}
 .shell-join{left:0;top:0;width:var(--shell-sidebar-width);height:67px}
-.shell-sweep{left:var(--shell-sidebar-width);top:0;width:320px;height:67px}
-.shell-top{left:calc(var(--shell-sidebar-width) + 320px);right:4px;top:0;width:calc(100% - var(--shell-sidebar-width) - 324px);height:67px}
+.shell-sweep{left:var(--shell-sidebar-width);top:0;width:400px;height:67px}
+.shell-top{left:calc(var(--shell-sidebar-width) + 400px);right:4px;top:0;width:calc(100% - var(--shell-sidebar-width) - 404px);height:67px}
 .shell-top-end{right:0;top:0;width:4px;height:67px}
 .shell-connector{left:0;top:67px;width:var(--shell-sidebar-width);height:var(--shell-connector-height,164px)}
 .shell-side{left:0;top:calc(67px + var(--shell-connector-height,164px));width:var(--shell-sidebar-width);height:max(0px,calc(100% - 73px - var(--shell-connector-height,164px)))}
@@ -56,8 +56,8 @@
 /* Live Barlow lettering stays sharp at any scale on the gold casting. */
 .space-experience .space-topbar .room-brand{gap:12px;text-decoration:none}
 .space-experience .space-topbar .brand-emblem{width:60px;height:60px;flex:none;filter:contrast(1.12) drop-shadow(0 1px 1px #0005)}
-.space-experience .space-topbar .brand-wordmark{font:500 29px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.2em;color:#171a1c;text-shadow:0 -1px 0 #fff4d9b3,0 1px 0 #080b0e,0 2px 1px #33271c55}
-.space-experience .space-topbar .brand-wordmark small{margin-top:5px;font:500 9px/1.4 BarlowAirReview,SUIT,sans-serif;letter-spacing:.14em;color:#342b20;text-shadow:0 1px 0 #fff4d970}
+.space-experience .space-topbar .brand-wordmark{display:flex;align-items:baseline;gap:12px;white-space:nowrap;font:500 38px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.12em;color:#171a1c;text-shadow:0 -1px 0 #fff4d9b3,0 1px 0 #080b0e,0 2px 1px #33271c55}
+.space-experience .space-topbar .brand-wordmark small{display:inline;margin-top:0;font:500 16px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.08em;color:#342b20;text-shadow:0 1px 0 #fff4d970}
 .space-experience .space-main{grid-template-columns:var(--shell-sidebar-width) minmax(0,1fr)}
 .space-experience .space-sidebar{isolation:isolate;background:transparent;border:0;box-shadow:none;padding:16px 20px 18px}
 .space-sidebar:after{display:none}
@@ -77,8 +77,8 @@
  .space-experience>header.space-topbar{height:auto;padding:10px 12px;min-height:110px}
  .space-experience .space-topbar .room-brand{gap:8px}
  .space-experience .space-topbar .brand-emblem{width:40px;height:40px}
- .space-experience .space-topbar .brand-wordmark{font-size:22px;letter-spacing:.16em}
- .space-experience .space-topbar .brand-wordmark small{font-size:8px;letter-spacing:.08em;margin-top:4px}
+ .space-experience .space-topbar .brand-wordmark{font-size:27px;letter-spacing:.08em;gap:8px}
+ .space-experience .space-topbar .brand-wordmark small{font-size:10px;letter-spacing:.04em;margin-top:0}
  .space-experience .space-main{grid-template-columns:minmax(0,1fr)}
  .space-experience .space-overview{margin:0}
  .space-experience{padding:0;--shell-sidebar-width:clamp(248px,16.4vw,320px)}
@@ -86,13 +86,25 @@
  .shell-material{inset:0;mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
  .shell-connector,.shell-side,.shell-side-end{display:none}
  .shell-piece{height:120px}
- .shell-join{width:150px}
- .shell-sweep{left:150px;width:110px}
- .shell-top{left:260px;right:4px;width:calc(100% - 264px)}
+ .shell-join{width:240px}
+ .shell-sweep{left:240px;width:110px}
+ .shell-top{left:350px;right:4px;width:max(0px,calc(100% - 354px))}
  .shell-top-end{width:4px}
  .space-sidebar :is(.space-group-button,.space-division-button){height:72px;min-height:72px}
  .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:17px}
  .space-sidebar .space-dock{background:#080f15;border:1px solid #c5ab7480;border-radius:0 0 14px 14px}
+}
+
+@media(min-width:761px) and (max-width:1000px){
+ .space-experience>header.space-topbar{padding-inline:12px;gap:12px}
+ .space-experience .space-topbar .room-brand{gap:8px}
+ .space-experience .space-topbar .brand-emblem{width:44px;height:44px}
+ .space-experience .space-topbar .brand-wordmark{font-size:30px;gap:8px;letter-spacing:.08em}
+ .space-experience .space-topbar .brand-wordmark small{font-size:12px;letter-spacing:.04em}
+ .space-experience .space-topbar .pilot-connections button{min-width:105px;padding-inline:8px;gap:5px}
+ .space-experience .space-topbar .space-download{padding-inline:8px}
+ .shell-sweep{width:200px}
+ .shell-top{left:calc(var(--shell-sidebar-width) + 200px);width:calc(100% - var(--shell-sidebar-width) - 204px)}
 }
 
 /* Guide playback occupies the same scene cell as the lounge, including while

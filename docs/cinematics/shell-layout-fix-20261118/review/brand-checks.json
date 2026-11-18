@@ -7,10 +7,10 @@
       "brand": {
         "x": 24,
         "y": 3.5,
-        "width": 165.703125,
+        "width": 342.3125,
         "height": 60,
         "top": 3.5,
-        "right": 189.703125,
+        "right": 366.3125,
         "bottom": 63.5,
         "left": 24
       },
@@ -35,7 +35,7 @@
         "left": 24
       },
       "font": "BarlowAirReview, SUIT, sans-serif",
-      "size": "29px",
+      "size": "38px",
       "color": "rgb(23, 26, 28)",
       "subtitleColor": "rgb(52, 43, 32)"
     },
@@ -45,10 +45,10 @@
       "brand": {
         "x": 24,
         "y": 3.5,
-        "width": 165.703125,
+        "width": 342.3125,
         "height": 60,
         "top": 3.5,
-        "right": 189.703125,
+        "right": 366.3125,
         "bottom": 63.5,
         "left": 24
       },
@@ -73,7 +73,7 @@
         "left": 24
       },
       "font": "BarlowAirReview, SUIT, sans-serif",
-      "size": "29px",
+      "size": "38px",
       "color": "rgb(23, 26, 28)",
       "subtitleColor": "rgb(52, 43, 32)"
     },
@@ -81,14 +81,14 @@
       "width": 768,
       "scroll": 768,
       "brand": {
-        "x": 24,
-        "y": 3.5,
-        "width": 165.703125,
-        "height": 60,
-        "top": 3.5,
-        "right": 189.703125,
-        "bottom": 63.5,
-        "left": 24
+        "x": 12,
+        "y": 11.5,
+        "width": 245.625,
+        "height": 44,
+        "top": 11.5,
+        "right": 257.625,
+        "bottom": 55.5,
+        "left": 12
       },
       "header": {
         "x": 0,
@@ -101,17 +101,17 @@
         "left": 0
       },
       "emblem": {
-        "x": 24,
-        "y": 3.5,
-        "width": 60,
-        "height": 60,
-        "top": 3.5,
-        "right": 84,
-        "bottom": 63.5,
-        "left": 24
+        "x": 12,
+        "y": 11.5,
+        "width": 44,
+        "height": 44,
+        "top": 11.5,
+        "right": 56,
+        "bottom": 55.5,
+        "left": 12
       },
       "font": "BarlowAirReview, SUIT, sans-serif",
-      "size": "29px",
+      "size": "30px",
       "color": "rgb(23, 26, 28)",
       "subtitleColor": "rgb(52, 43, 32)"
     },
@@ -120,59 +120,21 @@
       "scroll": 390,
       "brand": {
         "x": 12,
-        "y": 14,
-        "width": 121.84375,
-        "height": 40,
-        "top": 14,
-        "right": 133.84375,
-        "bottom": 54,
-        "left": 12
-      },
-      "header": {
-        "x": 0,
-        "y": 0,
-        "width": 390,
-        "height": 140,
-        "top": 0,
-        "right": 390,
-        "bottom": 140,
-        "left": 0
-      },
-      "emblem": {
-        "x": 12,
-        "y": 14,
-        "width": 40,
-        "height": 40,
-        "top": 14,
-        "right": 52,
-        "bottom": 54,
-        "left": 12
-      },
-      "font": "BarlowAirReview, SUIT, sans-serif",
-      "size": "22px",
-      "color": "rgb(23, 26, 28)",
-      "subtitleColor": "rgb(52, 43, 32)"
-    },
-    {
-      "width": 320,
-      "scroll": 320,
-      "brand": {
-        "x": 12,
         "y": 12,
-        "width": 121.84375,
+        "width": 216.1875,
         "height": 40,
         "top": 12,
-        "right": 133.84375,
+        "right": 228.1875,
         "bottom": 52,
         "left": 12
       },
       "header": {
         "x": 0,
         "y": 0,
-        "width": 320,
+        "width": 390,
         "height": 212,
         "top": 0,
-        "right": 320,
+        "right": 390,
         "bottom": 212,
         "left": 0
       },
@@ -187,7 +149,45 @@
         "left": 12
       },
       "font": "BarlowAirReview, SUIT, sans-serif",
-      "size": "22px",
+      "size": "27px",
+      "color": "rgb(23, 26, 28)",
+      "subtitleColor": "rgb(52, 43, 32)"
+    },
+    {
+      "width": 320,
+      "scroll": 320,
+      "brand": {
+        "x": 12,
+        "y": 10,
+        "width": 216.1875,
+        "height": 40,
+        "top": 10,
+        "right": 228.1875,
+        "bottom": 50,
+        "left": 12
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 208,
+        "top": 0,
+        "right": 320,
+        "bottom": 208,
+        "left": 0
+      },
+      "emblem": {
+        "x": 12,
+        "y": 10,
+        "width": 40,
+        "height": 40,
+        "top": 10,
+        "right": 52,
+        "bottom": 50,
+        "left": 12
+      },
+      "font": "BarlowAirReview, SUIT, sans-serif",
+      "size": "27px",
       "color": "rgb(23, 26, 28)",
       "subtitleColor": "rgb(52, 43, 32)"
     }
