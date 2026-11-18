@@ -1,8 +1,16 @@
-# 웹 셸 크기·가이드 영상 위치 복구 / 직각 바 자산
+# 웹 셸 크기·가이드 영상 위치 복구 / 직각 경계·3구역 재질
 
 - 기준: 최신 기능 인계 `1fdce17` (웹 3.3.0, #35/#37/#38 통합 후).
 - 작업 브랜치: `cinematic/shell-layout-fix-20261118`.
 - 기능 담당이 최신 기능 변경을 보존하면서 통합한다. main·공통 인계 직접 병합/배포 없음.
+
+## 최신 디자인 확정 — 상단 유리 / 볼록한 금색 연결부 / 건메탈
+
+사용자 표시의 1번은 기존 청남색 유리 상단바, 2번은 플라이트 콘솔 주변의 황금빛 연결부, 3번은 메뉴 뒤 건메탈로 반영했다. 2번은 얕게 볼록한 금속 면·곡선 베벨·미세한 결·반사광을 가진 별도 생성 자산이며 실제 A 콘솔은 그 앞에 기존 크기로 유지한다. 곡선은 바 내부 장식이고 본문과 맞닿는 경계는 여전히 직각이다.
+
+`clean-shell-material.png`와 상단 3개 source rectangle은 그대로 사용한다. 새 `shell-gold-gunmetal.png`의 금색 연결부만 고정 높이 164px, 아래 건메탈과 끝 테두리는 남는 사이드바 높이에 배치한다. 모바일은 기존 상단만 사용하며 데스크톱 장식을 별도 공간으로 추가하지 않는다. 본문·폰트·버튼·콘솔 크기 및 전환 좌표 변경 없음.
+
+이번 재질 수정 뒤 타입/생산 빌드와 `verify-layout.mjs` 12개 결과를 다시 통과했고 최종 캡처를 갱신했다. 아래 앱175개·루트282/283 결과는 직전 기하 수정 시의 검사이며 이번 재질 교체만으로 전체 검사를 반복하지 않았다.
 
 ## 문제와 수정
 
@@ -17,7 +25,7 @@
 ## 변경 파일
 
 - `apps/control-room/src/ShellMaterial.tsx`: 예전 비교 시안 마스크 대신 새 직각 재질의 구간 렌더링.
-- `apps/control-room/src/assets/navigation/clean-shell-material.png`: 신규 자산. 생성 원본은 별도 제작 폴더에 보존.
+- `apps/control-room/src/assets/navigation/clean-shell-material.png`, `shell-gold-gunmetal.png`: 바 전용 자산. 생성 원본은 별도 제작 폴더에 보존.
 - `apps/control-room/src/black-gold-shell.css`: 본문 이전 위치 복구, 바 영역 분리, 가이드 동일 셀 및 작은 화면 전환 기하 보정.
 - `apps/control-room/src/SpaceExperience.tsx`: 안내데스크에서 사이드바를 제거하던 조건만 제거. 공유 파일 전체 교체 금지.
 - 이 문서, `verify-layout.mjs`, `review/`, `assets/provenance.json`, `PROJECT_STATUS.md`.

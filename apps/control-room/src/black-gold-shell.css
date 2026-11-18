@@ -48,7 +48,8 @@
 .shell-join{left:0;top:0;width:var(--shell-sidebar-width);height:67px}
 .shell-top{left:var(--shell-sidebar-width);right:4px;top:0;width:calc(100% - var(--shell-sidebar-width) - 4px);height:67px}
 .shell-top-end{right:0;top:0;width:4px;height:67px}
-.shell-side{left:0;top:67px;width:var(--shell-sidebar-width);height:calc(100% - 73px)}
+.shell-connector{left:0;top:67px;width:var(--shell-sidebar-width);height:164px}
+.shell-side{left:0;top:231px;width:var(--shell-sidebar-width);height:calc(100% - 237px)}
 .shell-side-end{left:0;bottom:0;width:var(--shell-sidebar-width);height:6px}
 .space-experience>header.space-topbar{position:relative;background:transparent;border:0;box-shadow:none;height:67px;min-height:67px;padding:8px 24px;box-sizing:border-box;gap:28px}
 .space-experience .space-main{grid-template-columns:var(--shell-sidebar-width) minmax(0,1fr)}
@@ -73,7 +74,7 @@
  .space-experience{padding:0;--shell-sidebar-width:clamp(248px,16.4vw,320px)}
  .space-experience .space-sidebar{padding:6px 16px 10px}
  .shell-material{inset:0;mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
- .shell-side,.shell-side-end{display:none}
+ .shell-connector,.shell-side,.shell-side-end{display:none}
  .shell-piece{height:120px}
  .shell-join{width:150px}
  .shell-top{left:150px;right:4px;width:calc(100% - 154px)}
