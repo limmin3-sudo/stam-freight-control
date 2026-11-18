@@ -1,0 +1,95 @@
+{
+  "asset": "apps/control-room/src/assets/navigation/clean-shell-material.png",
+  "sha256": "86a33f42baa1b9df1d3eb3577ab263ddd616ccdf3096c85b2f0e02905fee4000",
+  "nativeSize": [
+    1536,
+    1024
+  ],
+  "format": "RGBA PNG",
+  "source": "/workspace/generated_images/exec-3f9a8821-a470-42c3-b4a6-11ca7925a7c9.png",
+  "creation": "image_gen; square-corner revision of clean material, no baked text or room image",
+  "reference": "approved option 2 black glass / thin champagne-gold trim",
+  "upscaled": false,
+  "rendering": "Preserved earlier material; no longer imported by ShellMaterial.",
+  "accent": {
+    "asset": "apps/control-room/src/assets/navigation/shell-gold-gunmetal.png",
+    "source": "/workspace/generated_images/exec-6b323f54-03a4-4b51-9653-3e6736ce2f8e.png",
+    "sha256": "0cbb7eea3ede3bce6540edfede16fdfa6e6e57a8d92d8e8e7ba8fcc034766b62",
+    "nativeSize": [
+      1536,
+      1024
+    ],
+    "creation": "image_gen edit: black titanium molding wrapping actual champagne housing perimeter; convex rounded cross section with sharp mitered corners; no inset ornamental line",
+    "zone2Source": "0 102 216 300",
+    "zone3Source": "0 402 216 616",
+    "geometryChanged": false,
+    "headerSources": [
+      "0 0 216 102",
+      "216 0 504 102",
+      "720 0 810 102",
+      "1530 0 6 102"
+    ],
+    "placement": "Step tracks the gap below Flight Console and above navigation caption/Freight Division; scene geometry unchanged"
+  },
+  "ornament": {
+    "asset": "apps/control-room/src/assets/navigation/shell-gold-ornament.png",
+    "source": "/workspace/generated_images/exec-51bc0099-c9a9-4295-812b-76d3e0b6467d.png",
+    "sha256": "808d8b3f91cfd690a81b83e1ded1ca98144fe9ff39c72a34534b08d3c09ac1bb",
+    "nativeSize": [
+      1536,
+      1024
+    ],
+    "creation": "image_gen edit; slim glossy rectangular-section black rail, petite corner clasps and diagonal collar on gold zone2 only",
+    "usedFor": [
+      "join",
+      "sweep",
+      "connector"
+    ],
+    "unchangedSourceFor": [],
+    "rendering": "Gold join/sweep/connector retained; sweep clipped to gold silhouette over continuous new glass. Zone1 and3 use dedicated new materials."
+  },
+  "dedicatedMaterials": [
+    {
+      "asset": "apps/control-room/src/assets/navigation/shell-top-glass.png",
+      "source": "/workspace/generated_images/exec-bc27001d-b04e-4741-b91d-e26c2e181ab7.png",
+      "sha256": "ee095faa7e8950a378f277c188d1c73b185cbb4ddb0749934a94f8735b475312",
+      "nativeSize": [
+        1536,
+        1024
+      ],
+      "usedRegion": "top strip 1536x102",
+      "creation": "image_gen dedicated material, no software upscaling"
+    },
+    {
+      "asset": "apps/control-room/src/assets/navigation/shell-side-gunmetal.png",
+      "source": "/workspace/generated_images/exec-ebe723d4-b5b3-4d5a-b5d4-4c1d81eab9ec.png",
+      "sha256": "deabca9f3b8503517879ee812e2d0655d48d44fd558a927d2a8aba78155a8993",
+      "nativeSize": [
+        1024,
+        1536
+      ],
+      "usedRegion": "left strip 384x1536",
+      "creation": "image_gen dedicated material, no software upscaling"
+    }
+  ],
+  "currentFinishes": {
+    "gold": {
+      "generatedSource": "/workspace/generated_images/exec-725b5dfc-24d8-4aa0-af57-cc3163329745.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-gold.webp",
+      "sha256": "679cf9037d8297b9f5595e6146b6d56ed95eb0793b047df2c0e0d93099580dc9",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    },
+    "graphite": {
+      "generatedSource": "/workspace/generated_images/exec-1a1be493-b1d8-4201-a52a-a78ae72fe3b0.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-graphite.webp",
+      "sha256": "8c64c344ddadb4399e82b87d871ce42c8b698ff38c5cd2f42bfa5f1d5b448d9a",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    },
+    "midnight": {
+      "generatedSource": "/workspace/generated_images/exec-1a1be493-b1d8-4201-a52a-a78ae72fe3b0.png",
+      "asset": "apps/control-room/src/assets/navigation/finish-midnight.webp",
+      "sha256": "ee8811a2a37d111a3c189c3078de33f8403df1efb78ecde9d7ed284ca3886ec5",
+      "packing": "Mirrored horizontally and vertically without resampling. CSS sets the tile pitch."
+    }
+  }
+}

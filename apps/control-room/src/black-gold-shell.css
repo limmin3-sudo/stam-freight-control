@@ -41,16 +41,65 @@
  .space-experience .space-topbar .space-language select{max-width:82px;font-size:11px}
  .space-sidebar .space-dock{background:linear-gradient(110deg,#080e14fa,#121d25fa);border-color:#c5ab744d}
 }
-/* A single atlas image preserves the entire original L junction. */
-.space-experience{position:relative;isolation:isolate;padding:7px;box-sizing:border-box;--shell-sidebar-width:18.3%;background:#060e14}
-.shell-material{position:absolute;inset:7px;width:calc(100% - 14px);height:calc(100% - 14px);z-index:-1;pointer-events:none}
-.space-experience>header.space-topbar{position:relative;background:transparent;border:0;box-shadow:none;height:calc((100svh - 14px)*.12);min-height:74px;padding:10px 26px}
+/* Fixed shell geometry; only plain edge strips grow with the viewport. */
+.space-experience{position:relative;isolation:isolate;padding:0;box-sizing:border-box;--shell-sidebar-width:clamp(248px,16.4vw,320px);background:#060e14}
+/* Fixed-pitch, mirrored material tiles. The machined edges are drawn at
+   device resolution, independently of the length of either navigation bar. */
+.shell-material {
+ position:absolute; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
+ --bar-height:67px; --plate-width:calc(var(--shell-sidebar-width) + 365px);
+ --step:var(--shell-connector-height,164px);
+ --rim:inset 1px 1px #fff0be, inset -1px -1px #735231, inset 0 0 0 2px #ae8957;
+}
+.shell-top,.shell-nameplate,.shell-connector,.shell-side {position:absolute; box-sizing:border-box}
+.shell-top {
+ inset:0 0 auto; height:var(--bar-height); box-shadow:var(--rim);
+ background:#041420 url('./assets/navigation/finish-midnight.webp') center 12% / 1024px 214px repeat;
+}
+.shell-side {
+ left:0; bottom:0; top:calc(var(--bar-height) + var(--step)); width:var(--shell-sidebar-width);
+ box-shadow:var(--rim);
+ background:linear-gradient(90deg,#11141955,transparent 50%,#11141955),
+  url('./assets/navigation/finish-graphite.webp') 0 0 / 682px 214px repeat;
+}
+.shell-gold {
+ background:#c9a873 url('./assets/navigation/finish-gold.webp') 0 var(--gold-y,0px) / 768px 512px;
+}
+.shell-nameplate {
+ inset:0 auto auto 0; width:var(--plate-width); height:var(--bar-height);
+ clip-path:polygon(0 0,100% 0,calc(100% - var(--bar-height)*1.5) 100%,0 100%);
+ box-shadow:inset 2px 2px #f9dfac;
+}
+.shell-nameplate::after {
+ content:''; position:absolute; bottom:0; left:var(--shell-sidebar-width); right:0;
+ height:4px; background:linear-gradient(#ffe8b4,#ad8956 40%,#624626);
+}
+.shell-cut {
+ position:absolute; top:0; right:0; bottom:0; width:15px;
+ transform:skewX(-56.31deg); transform-origin:right top;
+ background:linear-gradient(90deg,#ffebbc,#a8814e 12%,#654421 23%,#ffdc97 32%,#aa804e 45%,#6d4827 58%,#f7d9a4 65%,#a78551 81%,#49331e);
+}
+.shell-connector {
+ --gold-y:calc(0px - var(--bar-height)); top:var(--bar-height); left:0;
+ width:var(--shell-sidebar-width); height:var(--step);
+ box-shadow:inset 2px 0 #f9dfac,inset -2px -2px #725333,inset -4px -4px #e1c18c;
+}
+.shell-connector::after {
+ content:''; position:absolute; bottom:5px; left:7px; width:7px; height:10px;
+ border-inline:2px solid #936c3f; box-shadow:1px 0 #ffe6b0,-1px 0 #ffe6b0;
+}
+.space-experience>header.space-topbar{position:relative;background:transparent;border:0;box-shadow:none;height:67px;min-height:67px;padding:8px 24px;box-sizing:border-box;gap:28px}
+/* Live Barlow lettering stays sharp at any scale on the gold casting. */
+.space-experience .space-topbar .room-brand{gap:12px;text-decoration:none}
+.space-experience .space-topbar .brand-emblem{width:60px;height:60px;flex:none;filter:contrast(1.12) drop-shadow(0 1px 1px #0005)}
+.space-experience .space-topbar .brand-wordmark{display:flex;align-items:baseline;gap:12px;white-space:nowrap;font:500 38px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.12em;color:#171a1c;text-shadow:0 -1px 0 #fff4d9b3,0 1px 0 #080b0e,0 2px 1px #33271c55}
+.space-experience .space-topbar .brand-wordmark small{display:inline;margin-top:0;font:500 16px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.08em;color:#342b20;text-shadow:0 1px 0 #fff4d970}
 .space-experience .space-main{grid-template-columns:var(--shell-sidebar-width) minmax(0,1fr)}
-.space-experience .space-sidebar{isolation:isolate;background:transparent;border:0;box-shadow:none;padding:5px clamp(25px,2.5vw,40px) 18px}
+.space-experience .space-sidebar{isolation:isolate;background:transparent;border:0;box-shadow:none;padding:16px 20px 18px}
 .space-sidebar:after{display:none}
-.space-experience .space-overview{background:transparent;margin:calc((100svh - 14px)*.068) 6px 7px 0;border-radius:0 0 12px 0}
-.space-sidebar .space-dock{gap:clamp(10px,1.6vh,18px)}
-.space-sidebar :is(.space-group-button,.space-division-button){height:clamp(60px,9.8vh,88px);min-height:clamp(60px,9.8vh,88px);padding:10px 14px;gap:8px}
+.space-experience .space-overview{background:transparent;margin:0;border-radius:0}
+.space-sidebar .space-dock{gap:12px}
+.space-sidebar :is(.space-group-button,.space-division-button){height:68px;min-height:68px;padding:10px 14px;gap:8px}
 .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:clamp(14px,1.2vw,18px)}
 .space-sidebar :is(.space-group-button,.space-division-button)>svg{width:25px;height:28px}
 .space-sidebar .space-settings{margin:8px 4px 0}
@@ -62,12 +111,53 @@
 .space-sidebar .space-nav-links>.space-room-link>a[aria-current]:before{filter:sepia(.6) saturate(1.4) brightness(1.25)}
 @media(max-width:760px){
  .space-experience>header.space-topbar{height:auto;padding:10px 12px;min-height:110px}
+ .space-experience .space-topbar .room-brand{gap:8px}
+ .space-experience .space-topbar .brand-emblem{width:40px;height:40px}
+ .space-experience .space-topbar .brand-wordmark{font-size:27px;letter-spacing:.08em;gap:8px}
+ .space-experience .space-topbar .brand-wordmark small{font-size:10px;letter-spacing:.04em;margin-top:0}
  .space-experience .space-main{grid-template-columns:minmax(0,1fr)}
  .space-experience .space-overview{margin:0}
- .space-experience{padding:4px;--shell-sidebar-width:18.3%}
+ .space-experience{padding:0;--shell-sidebar-width:clamp(248px,16.4vw,320px)}
  .space-experience .space-sidebar{padding:6px 16px 10px}
- .shell-material{inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
+ .shell-material{inset:0;mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
+ .shell-material{--bar-height:120px;--plate-width:350px}
+ .shell-connector,.shell-side{display:none}
  .space-sidebar :is(.space-group-button,.space-division-button){height:72px;min-height:72px}
  .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:17px}
  .space-sidebar .space-dock{background:#080f15;border:1px solid #c5ab7480;border-radius:0 0 14px 14px}
+}
+
+@media(min-width:761px) and (max-width:1000px){
+ .space-experience>header.space-topbar{padding-inline:12px;gap:12px}
+ .space-experience .space-topbar .room-brand{gap:8px}
+ .space-experience .space-topbar .brand-emblem{width:44px;height:44px}
+ .space-experience .space-topbar .brand-wordmark{font-size:30px;gap:8px;letter-spacing:.08em}
+ .space-experience .space-topbar .brand-wordmark small{font-size:12px;letter-spacing:.04em}
+ .space-experience .space-topbar .pilot-connections button{min-width:105px;padding-inline:8px;gap:5px}
+ .space-experience .space-topbar .space-download{padding-inline:8px}
+ .shell-material{--plate-width:calc(var(--shell-sidebar-width) + 190px)}
+}
+
+/* Guide playback occupies the same scene cell as the lounge, including while
+   approaching/returning. Keeping navigation mounted prevents a width jump. */
+.space-experience[data-screen=guide] .space-main{display:grid;overflow:clip;background:transparent}
+.space-experience .guide-desk{grid-area:1 / 2;width:auto;min-width:0;min-height:0;height:100%;container-type:size;display:flex;align-items:center;justify-content:center;overflow:hidden;background:transparent;margin:0}
+.space-experience .guide-desk .stage{width:min(100%,calc(100cqh * 1672 / 941));aspect-ratio:1672/941;flex:none;margin:0}
+@media(max-width:760px){
+ .space-experience .guide-desk{grid-area:2 / 1;display:block;overflow:auto;container-type:normal;margin:0;height:100%}
+ .space-experience .guide-desk .stage{width:100%;aspect-ratio:13/20}
+ /* Keep the full lounge frame while the camera video is travelling. The
+    portrait crop belongs only to the arrived conversation, not the cut. */
+ .space-experience .guide-desk .stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge]){aspect-ratio:1672/941}
+ .space-experience .guide-desk .stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge]) .scene{object-fit:contain;object-position:center}
+}
+
+@media(min-width:761px) and (max-width:900px){
+ .space-experience .guide-desk{display:block;overflow:auto}
+ .space-experience .guide-desk:has(.stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge])){display:flex;overflow:hidden}
+}
+@media(max-width:900px){
+ .space-experience .guide-desk .stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge]){padding:0;aspect-ratio:1672/941}
+ .space-experience .guide-desk .stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge]) .scene{height:100%;object-fit:contain;object-position:center}
+ .space-experience .guide-desk .stage:is([data-state=ready],[data-state=playing],[data-state=returning],[data-state=lounge]) .unified{display:none}
 }

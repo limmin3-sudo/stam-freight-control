@@ -1,23 +1,39 @@
-import {useId} from 'react';
-import atlas from './assets/navigation/approved-shell-atlas.png';
+import {useLayoutEffect,useRef} from 'react';
 
-/** One continuous, unmodified option-2 bitmap. The mask removes only the
- * demonstration controls and room image; the L-shaped join is never sliced. */
 export function ShellMaterial(){
- const id=useId().replaceAll(':','');
- return <svg className="shell-material" viewBox="75 518 934 499" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-  <defs>
-   <filter id={`${id}-soft`} x="-10%" y="-20%" width="120%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>
-   <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="75" y="518" width="934" height="499" style={{maskType:'luminance'}}>
-    <rect x="75" y="518" width="934" height="499" fill="white"/>
-    <g fill="black" filter={`url(#${id}-soft)`}>
-     <rect x="91" y="525" width="142" height="38" rx="5"/>
-     <rect x="609" y="528" width="388" height="36" rx="5"/>
-     <rect x="102" y="586" width="130" height="423" rx="5"/>
-    </g>
-    <rect x="246" y="611" width="759" height="402" rx="5" fill="black"/>
-   </mask>
-  </defs>
-  <image href={atlas} x="0" y="0" width="1024" height="1536" mask={`url(#${id}-mask)`}/>
- </svg>;
+ const root=useRef<HTMLDivElement>(null);
+ useLayoutEffect(()=>{
+  const material=root.current,shell=material?.closest('.space-experience');
+  const sidebar=shell?.querySelector<HTMLElement>('.space-sidebar');
+  const console=shell?.querySelector<HTMLElement>('.pilot-desk');
+  const destination=shell?.querySelector<HTMLElement>('.space-division-button');
+  const caption=shell?.querySelector<HTMLElement>('.space-sidebar-caption');
+  const header=shell?.querySelector<HTMLElement>('.space-topbar');
+  if(!material||!sidebar||!console||!destination||!header)return;
+  let frame=0;
+  const align=()=>{
+   frame=0;
+   if(window.innerWidth<=760)return;
+   const bottom=console.getBoundingClientRect().bottom;
+   const next=(caption??destination).getBoundingClientRect().top;
+   const height=Math.max(0,(bottom+next)/2-header.getBoundingClientRect().bottom);
+   material.style.setProperty('--shell-connector-height',`${height}px`);
+  };
+  const schedule=()=>{if(!frame)frame=requestAnimationFrame(align);};
+  const observer=new ResizeObserver(schedule);
+  observer.observe(console);observer.observe(sidebar);observer.observe(header);
+  sidebar.addEventListener('scroll',schedule,{passive:true});
+  window.addEventListener('resize',schedule);align();
+  return()=>{observer.disconnect();cancelAnimationFrame(frame);sidebar.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
+ },[]);
+ return (
+  <div ref={root} className="shell-material" aria-hidden="true">
+   <div className="shell-top" />
+   <div className="shell-side" />
+   <div className="shell-connector shell-gold" />
+   <div className="shell-nameplate shell-gold">
+    <span className="shell-cut" />
+   </div>
+  </div>
+ );
 }

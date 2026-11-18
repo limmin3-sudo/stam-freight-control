@@ -493,7 +493,7 @@ export function SpaceExperience() {
         </div><div className="space-cinema-caption"><span>STAM / FREIGHT DIVISION</span><p>{en ? 'Freight operations, with the STAM fleet.' : 'STAM 함대와 함께하는 운송.'}</p></div>{mediaError && <p role="alert">{en ? 'Playback failed. Please reopen the cinema and try again.' : '영상 재생에 실패했습니다. 영상관을 다시 열어 시도해주세요.'}</p>}</div>}
       </section>}
       {route.screen==='guide'&&!tour&&<button type="button" className="lounge-tour-entry" onClick={()=>startTour()}>{en?'Lounge tour · Follow your guide':'라운지 투어 · 가이드 따라가기'} <span aria-hidden="true">→</span></button>}
-      {(route.screen!=='guide'||guideJourneyOpen) && <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
+      <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
         <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();setFacilityNavigationKey(key=>key+1);openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending&&!pending.facilityTravel} href={href} onNavigate={enterShortcut}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
@@ -504,7 +504,7 @@ export function SpaceExperience() {
         <label>{en ? 'Volume' : '음량'}<input aria-label={en ? 'Effect volume' : '효과음 크기'} type="range" min="0" max="50" value={volume} onChange={event => setVolume(Number(event.target.value))} /></label>
         <button aria-pressed={motion} onClick={() => { setMotion(!motion); cancel(); }}>{en ? `Transitions ${motion ? 'on' : 'off'}` : `이동 연출 ${motion ? '켜짐' : '꺼짐'}`}</button>
       </div></details>
-      </aside>}
+      </aside>
       {pending?.kind === 'long' && <div className="space-transition" role="status"><span>{word(names[pending.screen])} · {en ? 'Approaching' : '접근 중'}</span><button onClick={finish}>{en ? 'Skip transition' : '연출 건너뛰기'}</button><button onClick={cancel}>{en ? 'Cancel' : '취소'}</button></div>}
       {cloud.status==='review'&&route.screen!=='service'&&<div className="flight-cloud-notice" role="status"><a href={`#/service?lang=${route.locale}&section=account`}>{en?'Account flight available · Compare and continue':'계정 운항이 있습니다 · 비교하고 이어하기'} →</a></div>}
       {!!archivePulse&&<div key={archivePulse} className="archive-view-pulse" aria-hidden="true"><img src={archivePlasma} alt=""/></div>}
