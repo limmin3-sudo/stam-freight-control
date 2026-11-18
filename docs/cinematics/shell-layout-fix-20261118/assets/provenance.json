@@ -1,0 +1,14 @@
+{
+  "asset": "apps/control-room/src/assets/navigation/clean-shell-material.png",
+  "sha256": "86a33f42baa1b9df1d3eb3577ab263ddd616ccdf3096c85b2f0e02905fee4000",
+  "nativeSize": [
+    1536,
+    1024
+  ],
+  "format": "RGBA PNG",
+  "source": "/workspace/generated_images/exec-3f9a8821-a470-42c3-b4a6-11ca7925a7c9.png",
+  "creation": "image_gen; square-corner revision of clean material, no baked text or room image",
+  "reference": "approved option 2 black glass / thin champagne-gold trim",
+  "upscaled": false,
+  "rendering": "Five source rectangles; the image is only painted in the header/sidebar, never over the content cell."
+}
