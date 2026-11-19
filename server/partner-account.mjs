@@ -1,9 +1,10 @@
+import {Buffer} from 'node:buffer';
 import {FIREBASE_CONFIG} from '../firebase-config.mjs';
 import {answerPartner} from './partner-guide.mjs';
 
 // accounts:lookup authenticates the ID token with Firebase. Only forward the
 // verified localId to the quota ledger; the token never goes to the AI service.
-export async function answerAccountQuestion(body,authorization,env,send=fetch){
+export async function answerAccountQuestion(body,authorization,env,send,reservePartnerCall){
  const denied={status:401,reason:'sign-in'};
  const token=/^Bearer ([^\s]+)$/.exec(authorization??'')?.[1];
  if(!token||token.length>12000)return denied;
@@ -15,7 +16,7 @@ export async function answerAccountQuestion(body,authorization,env,send=fetch){
  }catch{return denied;}
  try{
   const lookup=await send('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+FIREBASE_CONFIG.apiKey,{
-   method:'POST',redirect:'error',signal:AbortSignal.timeout(8000),
+   method:'POST',redirect:'manual',signal:AbortSignal.timeout(8000),
    headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:token})
   });
   if(!lookup.ok){
@@ -27,6 +28,6 @@ export async function answerAccountQuestion(body,authorization,env,send=fetch){
   const account=users?.[0];
   if(users?.length!==1||account?.localId!==claims.sub||account.disabled||
      !Number.isFinite(claims.auth_time)||claims.auth_time<Number(account.validSince??0))return denied;
-  return answerPartner(body,env,send,'firebase:'+account.localId);
+  return answerPartner(body,env,send,'firebase:'+account.localId,reservePartnerCall);
  }catch{return {status:503,reason:'auth-unavailable'};}
 }

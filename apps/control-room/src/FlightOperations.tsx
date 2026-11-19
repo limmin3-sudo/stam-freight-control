@@ -32,6 +32,7 @@ export function FlightOperations({flight, locale, controlMode}:{
   const t = (ko:string,eng:string)=>en?eng:ko;
   const [selected,select] = useState<string|null>(null);
   const [cargoPhase,setCargoPhase]=useState<'aboard'|'before'|'after'>('aboard');
+  const holdPanel=useRef<HTMLElement>(null);
   const heading=useRef<HTMLHeadingElement>(null);
   useEffect(()=>{setCargoPhase('aboard');select(null);},[run?.index,run?.jump]);
   useEffect(()=>{heading.current?.focus({preventScroll:true});},[controlMode]);
@@ -51,7 +52,7 @@ export function FlightOperations({flight, locale, controlMode}:{
   const where=(id:string)=>placeName(id,locale==='ko'?0:1);
   const cargoName=(name:string)=>locale==='ko'?(korean.goods as Record<string,string>)[name]||draft.jobs.flatMap(job=>job.shipments).find(row=>row.cargo[1]===name)?.cargo[0]||name:name;
   const actionLabel=jump?t('점프 완료','Complete jump'):visit?.events.some(e=>e.type==='departure')?t('출발 완료','Departed'):
-    visit?.events.every(e=>e.type==='pickup')?t('접수 완료','Confirm pickup'):visit?.events.every(e=>e.type==='delivery')?t('배송 완료','Confirm delivery'):t('거점 작업 완료','Complete stop');
+    visit?.events.every(e=>e.type==='pickup')?t('픽업 완료','Confirm pickup'):visit?.events.every(e=>e.type==='delivery')?t('배송 완료','Confirm delivery'):t('거점 작업 완료','Complete stop');
   useEffect(()=>{
     if(!controlMode||!run?.started||run.finished||flight.busy||flight.blocked||flight.receiptChanges.length||!visit)return;
     const key=(e:KeyboardEvent)=>{
@@ -105,6 +106,11 @@ export function FlightOperations({flight, locale, controlMode}:{
       {visit&&<p className="flight-next">{t('다음','Next')} · {nextStepName(plan,run,where)??t('이 단계에서 운송 완료','Haul complete after this step')}</p>}
       <div className="flight-actions">
         {!run.started && <button className="manifest-primary" disabled={flight.busy||flight.blocked} onClick={()=>flight.progress('start')}>{t('운항 시작','Start run')}</button>}
+        {controlMode&&!simple&&run.started&&!run.finished&&visit&&<div className="ops-current-cargo">
+          <span>{t('현재 선적','Recorded aboard')} {boxes.length}{t('상자',' boxes')} · {used} SCU</span>
+          {visit.packing&&<span>{t('작업 후 예상','After this stop')} {visit.packing.boxes.length}{t('상자',' boxes')} · {visit.load} SCU</span>}
+          <button onClick={()=>{setCargoPhase('after');select(null);holdPanel.current?.focus({preventScroll:true});holdPanel.current?.scrollIntoView({block:'nearest'});}}>{t('예상 적재 보기','Inspect planned load')}</button>
+        </div>}
         {run.started && !run.finished && <><button key={actionLabel} className="manifest-primary" disabled={flight.busy||!visit||!!flight.receiptChanges.length} onClick={()=>flight.progress('complete')}>{actionLabel}{controlMode && <kbd>Space</kbd>}</button>
           <details className="ops-run-menu"><summary>{t('운항 관리','Run options')}</summary><div>
           <button disabled={flight.busy} onClick={()=>flight.progress('pause')}>{run.since===null?t('타이머 재개','Resume timer'):t('타이머 일시정지','Pause timer')}</button>
@@ -128,7 +134,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     <FlightBackup flight={flight} locale={locale}/>
     </div>
     {controlMode && <aside className="ops-partner"><div className="ops-portrait"><img src={simple?operatorPortrait:navigatorPortrait} alt=""/></div><div className="ops-transmission"><small>{t('파트너 통신','Partner comms')}</small><h2>{voice.role}</h2><p aria-live="polite">{instruction}</p>{!simple&&cargoLines}</div></aside>}
-    {controlMode&&!simple&&<section className="ops-hold ops-live-cargo" tabIndex={0} onPointerDownCapture={event=>{
+    {controlMode&&!simple&&<section ref={holdPanel} className="ops-hold ops-live-cargo" tabIndex={0} onPointerDownCapture={event=>{
       if(event.target instanceof Element&&!event.target.closest('button,a,input,select,textarea'))event.currentTarget.focus({preventScroll:true});
     }} aria-label={t('화물 적재','Cargo hold')}>
       <header className="ops-panel-head"><InterfaceGlyph kind="operations"/><h2>{t('적재 3D','Cargo in 3D')}</h2><span>{used} / {plan?.capacity??'—'} SCU</span><a className="ops-return" href={'#/operations?lang='+locale+'&mode=workspace'}>{t('적재 설정','Cargo settings')}</a></header>

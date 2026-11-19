@@ -1,22 +1,38 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {partnerEndpoint} from './partner-endpoint';
 import {PartnerQuestion,type GuideDestination} from './PartnerQuestion';
 import {createPortal} from 'react-dom';
-import type {CSSProperties} from 'react';
-import {useDialoguePortrait} from './dialogue-poses';
+import directorStill from '../../../docs/cinematics/lounge-guide-dialogue-20261119/02-approach-end.png';
+import {loadPartnerPlayback} from './partner-playback';
 import './hologram-glass.css';
 import './partner-conversation.css';
 
-type Action={label:string;onSelect:()=>void};
-type Props={id:string;name:string;line:string;image:string;background:string;focus:number;en:boolean;motion:boolean;origin:HTMLElement;onClose:()=>void;actions?:readonly Action[];note?:string;guide?:GuideDestination[]};
+type Props={id:string;name:string;line:string;image:string;background:string;en:boolean;motion:boolean;sound:boolean;volume:number;origin:HTMLElement;onClose:()=>void;destinations:GuideDestination[]};
 
 // Shared presentation only. Caller owns existing room/scope/partner callbacks.
-export function CrewEncounter({id,name,line,image,background,focus,en,motion,origin,onClose,actions=[],note,guide}:Props){
+export function CrewEncounter({id,name,line,image,background,en,motion,sound,volume,origin,onClose,destinations}:Props){
+ const endpoint=partnerEndpoint(location,import.meta.env.VITE_PARTNER_API_ORIGIN);
  const dialog=useRef<HTMLDialogElement>(null);
- const portrait=useDialoguePortrait(id,image);
- const [useOriginal,setUseOriginal]=useState(false);
- const [ready,setReady]=useState(false),[closing,setClosing]=useState(false),[departing,setDeparting]=useState(false),[failed,setFailed]=useState(false);
- const closeTimer=useRef<ReturnType<typeof setTimeout>|null>(null),closingRef=useRef(false);
- const callbacks=useRef({onClose,motion,ready});callbacks.current={onClose,motion,ready};
+ const [media,setMedia]=useState<Awaited<ReturnType<typeof loadPartnerPlayback>>>();
+ const [phase,setPhase]=useState<'loading'|'approach'|'idle'|'return'>('loading');
+ const [idleReady,setIdleReady]=useState(false),[idleFailed,setIdleFailed]=useState(false);
+ const transition=useRef<HTMLVideoElement>(null),idleVideo=useRef<HTMLVideoElement>(null);
+ const nextAction=useRef<(()=>void)|undefined>(undefined),completed=useRef(false);
+ const useDirectorStill=id==='director'&&!motion;
+ const ready=phase==='idle'&&(idleReady||idleFailed);
+ const restoreFocus=useRef(false);
+ // Hold the approach's last frame until the preloaded idle media can be shown.
+ const clip=phase==='return'?'return':phase==='approach'||(phase==='idle'&&!ready)?'approach':null;
+ const closeCallback=useRef(onClose);
+ closeCallback.current=onClose;
+
+ useEffect(()=>{
+  let active=true;
+  loadPartnerPlayback(id).then(entry=>{
+   if(active){setMedia(entry);setPhase('approach');}
+  }).catch(()=>{if(active){setIdleFailed(true);setPhase('idle');}});
+  return ()=>{active=false;};
+ },[id]);
 
  useLayoutEffect(()=>{
   const node=dialog.current!,overview=origin.closest('.space-overview,.facility-lobby');
@@ -26,57 +42,95 @@ export function CrewEncounter({id,name,line,image,background,focus,en,motion,ori
    const width=Math.max(1,Math.min(bounds?.width??innerWidth,innerWidth-x));
    const height=Math.max(1,Math.min(bounds?.height??innerHeight-y,innerHeight-y));
    Object.assign(node.style,{left:`${x}px`,top:`${y}px`,width:`${width}px`,height:`${height}px`});
-   // Match the standing character's eye line and head size, then approach.
-   const from=origin.getBoundingClientRect(),center=width<760?.5:.31,personHeight=width<760?height*.70:height*1.10;
-   node.style.setProperty('--crew-start-x',`${from.left+from.width*.5-(x+width*center)}px`);
-   node.style.setProperty('--crew-start-y',`${from.top+from.height*.09-(y+height*.025+personHeight*.17)}px`);
-   node.style.setProperty('--crew-start-scale',String(Math.max(.08,Math.min(.6,from.height*.14/(personHeight*.25)))));
   };
   measure();node.show();
   const observer=new ResizeObserver(measure);if(overview)observer.observe(overview);
   window.addEventListener('resize',measure);window.addEventListener('scroll',measure,true);
-  return()=>{observer.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true);node.close();};
+  return()=>{observer.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true);node.close();
+   if(restoreFocus.current)requestAnimationFrame(()=>{if(origin.isConnected&&!origin.closest('[inert]'))origin.focus({preventScroll:true});});
+  };
  },[origin]);
 
- const finish=useCallback((next?:()=>void)=>{
-  if(closingRef.current)return;closingRef.current=true;setClosing(true);setDeparting(!!next);
-  const complete=()=>{
-   closeTimer.current=null;
-   const restore=dialog.current?.contains(document.activeElement)||document.activeElement===document.body;
-   callbacks.current.onClose();
-   if(next)next();
-   else if(restore)requestAnimationFrame(()=>{if(origin.isConnected&&!origin.closest('[inert]'))origin.focus({preventScroll:true});});
-  };
-  if(callbacks.current.motion&&callbacks.current.ready)closeTimer.current=setTimeout(complete,420);else complete();
- },[origin]);
+ const complete=useCallback(()=>{
+  if(completed.current)return;
+  completed.current=true;
+  restoreFocus.current=!nextAction.current && (!!dialog.current?.contains(document.activeElement)||document.activeElement===document.body);
+  closeCallback.current();
+  if(nextAction.current)nextAction.current();
+ },[]);
+
+ const finish=(next?:()=>void)=>{
+  if(phase==='return'||completed.current)return;
+  nextAction.current=next;
+  if(phase==='idle'&&media&&motion)setPhase('return');
+  else complete();
+ };
+ const finishRef=useRef(finish);
+ finishRef.current=finish;
 
  useEffect(()=>{
-  dialog.current?.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});
+  if(phase!=='approach'&&phase!=='return')return;
+  const advance=phase==='return'?complete:()=>setPhase('idle');
+  if(!motion){advance();return;}
+  const video=transition.current;
+  if(!video)return;
+  let active=true;
+  const done=()=>{if(active)advance();};
+  // A stalled network or unsupported codec must not trap the conversation.
+  let timer=setTimeout(done,12000);
+  const progress=()=>{clearTimeout(timer);timer=setTimeout(done,12000);};
+  video.addEventListener('timeupdate',progress);
+  video.addEventListener('ended',done);
+  video.addEventListener('error',done);
+  video.play().catch(done);
+  return ()=>{active=false;clearTimeout(timer);video.removeEventListener('timeupdate',progress);video.removeEventListener('ended',done);video.removeEventListener('error',done);video.pause();};
+ },[phase,motion,complete]);
+
+ useLayoutEffect(()=>{
+  if(transition.current){transition.current.muted=!sound;transition.current.volume=volume/100;}
+ },[phase,sound,volume]);
+ useEffect(()=>{
+  const video=idleVideo.current;
+  if(!video)return;
+  if(phase==='idle'&&motion)video.play().catch(()=>{if(video.readyState<2)setIdleFailed(true);});
+  else video.pause();
+ },[phase,motion,media]);
+ useEffect(()=>{
+  if(phase!=='idle'||idleReady||idleFailed)return;
+  const timer=setTimeout(()=>setIdleFailed(true),10000);
+  return ()=>clearTimeout(timer);
+ },[phase,idleReady,idleFailed]);
+
+ useEffect(()=>{
+  if(phase==='return'||!ready)dialog.current?.focus({preventScroll:true});
+  else dialog.current?.querySelector<HTMLElement>('.partner-conversation input,.partner-conversation button')?.focus({preventScroll:true});
+ },[ready,phase]);
+ useEffect(()=>{
   const escape=(event:KeyboardEvent)=>{
    if(event.key!=='Escape'||event.defaultPrevented||document.querySelector('dialog:modal,.space-dock[data-mobile-open=true]'))return;
-   event.preventDefault();event.stopPropagation();finish();
+   event.preventDefault();event.stopPropagation();if(phase==='return')complete();else finishRef.current();
   };
   window.addEventListener('keydown',escape,true);
-  return()=>{window.removeEventListener('keydown',escape,true);if(closeTimer.current!==null)clearTimeout(closeTimer.current);};
- },[finish]);
+  return()=>{window.removeEventListener('keydown',escape,true);};
+ },[phase,complete]);
 
- return createPortal(<dialog ref={dialog} className="crew-encounter" data-partner={id} data-actions={actions.length>0} data-departing={departing} data-ready={ready} data-closing={closing} data-motion={motion} aria-labelledby="partner-conversation-title" aria-describedby="partner-conversation-line" onCancel={event=>{event.preventDefault();finish();}} style={{'--crew-focus-x':`${focus}%`} as CSSProperties}>
-  <div className="crew-encounter-background" aria-hidden="true"><img src={background} alt=""/></div>
-  <div className="crew-encounter-shade" aria-hidden="true"/>
-  {!failed&&<div className="crew-encounter-person" aria-hidden="true"><img src={useOriginal?image:portrait} alt="" draggable={false} onLoad={()=>setReady(true)} onError={()=>{
-   if(!useOriginal&&portrait!==image){setUseOriginal(true);return;}
-   setFailed(true);setReady(true);
-  }}/></div>}
-  <section className="partner-conversation asset-hologram" data-glass-panel="crew">
+ const shortcut=(destination:GuideDestination)=><button key={destination.id} type="button" onClick={()=>finish(destination.open)}>{destination.label}<span aria-hidden="true">↗</span></button>;
+ return createPortal(<dialog ref={dialog} className="crew-encounter" data-partner={id} data-actions={destinations.length>0} data-phase={phase} data-ready={ready} data-motion={motion} tabIndex={-1} aria-label={name} onCancel={event=>{event.preventDefault();finish();}}>
+  <div className="crew-playback" aria-hidden="true">
+   {idleFailed&&phase==='idle'&&<div className="crew-playback-fallback" style={{backgroundImage:`url(${background})`}}><img src={image} alt=""/></div>}
+   {media&&!idleFailed&&(media.idle.type==='video'&&!useDirectorStill
+    ? <video className="crew-idle" ref={idleVideo} src={media.idle.src} preload="auto" muted={media.idle.muted} loop={media.idle.loop} playsInline onLoadedData={()=>setIdleReady(true)} onError={()=>setIdleFailed(true)}/>
+    : <img className="crew-idle" src={useDirectorStill?directorStill:media.idle.src} alt="" onLoad={event=>event.currentTarget.decode().then(()=>setIdleReady(true),()=>setIdleFailed(true))} onError={()=>setIdleFailed(true)}/>)}
+   {media&&motion&&clip&&<video key={clip} ref={transition} className="crew-transition" src={media[clip]} preload="auto" muted={!sound} playsInline/>}
+  </div>
+  {ready&&<section className="partner-conversation asset-hologram" data-glass-panel="crew" aria-labelledby="partner-conversation-title">
    <p className="partner-conversation-channel">STAM / CREW</p>
    <h2 id="partner-conversation-title">{name}</h2>
    <p id="partner-conversation-line">{line}</p>
-   <p className="partner-conversation-note">{failed?(en?'The portrait could not load. You can still read the greeting.':'인물 이미지를 불러오지 못했습니다. 인사말은 확인하실 수 있습니다.'):note}</p>
-   {guide&&['localhost','127.0.0.1'].includes(location.hostname)&&location.pathname.startsWith('/apps/control-room/dist/')&&
-    <PartnerQuestion partner={id} en={en} disabled={closing} destinations={guide.map(d=>({...d,open:()=>finish(d.open)}))}/>}
-   {actions.length>0&&<div className="crew-encounter-actions">{actions.map(action=><button key={action.label} type="button" disabled={closing} onClick={()=>finish(action.onSelect)}>{action.label}<span aria-hidden="true">↗</span></button>)}</div>}
-   <button className="crew-encounter-close" type="button" onClick={()=>finish()} disabled={closing}>{en?'End conversation':'대화 마치기'} <span aria-hidden="true">↗</span></button>
-  </section>
-  {!ready&&<p className="crew-loading" role="status">{en?'Preparing conversation…':'대화를 준비하고 있습니다…'} <button type="button" onClick={()=>finish()}>{en?'Cancel':'취소'}</button></p>}
+   {destinations.length>0&&<div className="crew-encounter-actions">{destinations.map(shortcut)}</div>}
+   {endpoint&&<PartnerQuestion endpoint={endpoint} key={id+':'+en} partner={id} en={en} disabled={false} destinations={destinations.map(d=>({...d,open:()=>finish(d.open)}))}/>}
+   <button className="crew-encounter-close" type="button" onClick={()=>finish()}>{en?'End conversation':'대화 마치기'} <span aria-hidden="true">↗</span></button>
+  </section>}
+  {!ready&&<div className="crew-loading"><button type="button" onClick={()=>phase==='return'?complete():phase==='approach'?setPhase('idle'):complete()}>{phase==='approach'||phase==='return'?(en?'Skip transition':'연출 건너뛰기'):(en?'Cancel':'취소')}</button></div>}
  </dialog>,origin.closest('.space-experience')??document.body);
 }

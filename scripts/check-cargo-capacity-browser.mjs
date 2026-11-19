@@ -47,7 +47,7 @@ try{
  await page.evaluate(()=>location.hash='#/operations?lang=ko');
  await page.getByRole('button',{name:'운항 시작',exact:true}).click();
  await page.getByRole('button',{name:/^출발 완료/}).click();
- await page.getByRole('button',{name:/^접수 완료/}).click();
+ await page.getByRole('button',{name:/^픽업 완료/}).click();
  const loaded=await saved();assert(loaded.run.aboard.length>0);
  await page.evaluate(key=>sessionStorage.setItem(key,JSON.stringify({shipId:'drake-cutlass-black',disabled:{'drake-cutlass-black':[]}})),cargoPreferenceKey);
  await page.evaluate(()=>location.hash='#/mission?lang=ko');await expectCapacity(40);

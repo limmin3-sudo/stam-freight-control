@@ -15,7 +15,7 @@
   min-width: 0; width: auto; min-height: 36px; padding: 4px 12px; margin: 0 0 0 auto;
 }
 .market-entry-nav,.market-board-search,.board-ticker {display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.market-entry-nav > button,.board-reference > summary,.market-board-search > button,.board-ticker button {
+.market-entry-nav > button,.board-reference > summary,.market-board-search > button,.ticker-expand,.board-ticker button {
   background: #11202b; border: 1px solid #415362; border-radius: 4px;
   color: #e1e8ed; font: inherit; cursor: pointer; padding: 5px 12px;
 }
@@ -101,3 +101,8 @@
 .ticker-terminals th:first-child {text-align:left}
 .ticker-terminals thead th {position:sticky;top:0;background:#192a37;color:#dfd5bd}
 .pair-toolbar {padding-top:10px}
+
+.trade-market-board .board-ticker[data-expanded=false] {max-height:8rem;overflow-y:auto;align-content:start;scrollbar-gutter:stable}
+.board-policy,.board-spread > small {display:block;font-size:.86rem;line-height:1.35}
+.board-policy {color:#f3cb8d}
+.ticker-detail summary {cursor:pointer;padding:.45rem}

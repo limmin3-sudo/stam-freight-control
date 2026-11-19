@@ -37,7 +37,7 @@ try{
  });
  await p.keyboard.press('Escape');await quality();
  await p.evaluate(()=>location.hash='#/operations?lang=ko');await p.waitForSelector('.ops-live-cargo .cargo-render-surface[data-ready=true]');await quality();
- await p.getByRole('button',{name:'운항 시작',exact:true}).click();await p.getByRole('button',{name:/^출발 완료/}).click();await p.getByRole('button',{name:/^접수 완료/}).click();
+ await p.getByRole('button',{name:'운항 시작',exact:true}).click();await p.getByRole('button',{name:/^출발 완료/}).click();await p.getByRole('button',{name:/^픽업 완료/}).click();
  await selectionDoesNotRebuild('operations',async()=>{
   const r=await p.locator('.cargo-render-surface canvas').boundingBox();
   for(const [x,y] of [[.6,.6],[.65,.7],[.55,.65],[.5,.6],[.5,.5],[.65,.6]]){

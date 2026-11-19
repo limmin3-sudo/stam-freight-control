@@ -25,6 +25,15 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
  const current=Math.min(run?.index||0,Math.max(0,(plan?.visits.length||1)-1));
  useEffect(()=>{setSelected(current);setLocation('');setCargo(false);setBox(null);},[plan,current]);
  useEffect(()=>{stops.current?.querySelector('[data-active=true]')?.scrollIntoView({block:'nearest'});},[selected]);
+ const stopGroups=useMemo(()=>{
+  const groups:{locationId:string;indices:number[]}[]=[];
+  plan?.visits.forEach((visit,index)=>{
+   const last=groups.at(-1);
+   if(last?.locationId===visit.locationId)last.indices.push(index);
+   else groups.push({locationId:visit.locationId,indices:[index]});
+  });
+  return groups;
+ },[plan]);
  const visit=plan?.visits[selected];
  const previewPacking=useMemo(()=>visit?{...visit.packing,capacity:plan?.capacity||0,used:visit.load} as Packing:null,[visit,plan?.capacity]);
  const minutes=(seconds:number)=>`${Math.max(0,Math.round(seconds/60)).toLocaleString()} ${t('분','min')}`;
@@ -53,19 +62,21 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
     <p className="chart-help">{t('드래그 회전 · 우클릭/Shift 이동 · 휠 확대 · 더블클릭 진입 · Esc 상위 보기','Drag to orbit · Right/Shift-drag to pan · Scroll to zoom · Double-click to enter · Esc to go up')}</p>
    </section>
    <aside className="chart-itinerary" aria-label={t('운항 순서','Flight itinerary')}>
-    <header><small>FLIGHT / ITINERARY</small><h2>{t('방문 순서','Stop order')} <span>{plan?.visits.length||0}</span></h2><p>{plan?t('거점 선택으로 지도와 작업을 함께 확인하세요.','Select a stop to inspect its route and tasks.'):t('미션을 선택하면 계산한 항로가 여기에 표시됩니다.','Your calculated route appears here after selecting contracts.')}</p>{plan&&<div className="chart-route-summary"><span>{t('총 예상','Estimated total')} <b>{minutes(plan.seconds)}</b></span><span>{plan.mode==='simple'?t('경로 전용','Route only'):t('경로 · 적재','Route & cargo')}</span></div>}{plan&&plan.visits.length>0&&<button className="chart-current-stop" onClick={()=>go(current)}>{run?.finished?t('마지막 방문 보기','View final stop'):run?.started?t('현재 작업으로','Current task'):t('출발지로','Departure')} ↗</button>}</header>
+    <header><small>FLIGHT / ITINERARY</small><h2>{t('방문 순서','Stop order')} <span>{stopGroups.length}</span></h2><p>{plan?t('거점 선택으로 지도와 작업을 함께 확인하세요.','Select a stop to inspect its route and tasks.'):t('미션을 선택하면 계산한 항로가 여기에 표시됩니다.','Your calculated route appears here after selecting contracts.')}</p>{plan&&<div className="chart-route-summary"><span>{t('작업 단계','Task steps')} <b>{plan.visits.length}</b></span><span>{t('총 예상','Estimated total')} <b>{minutes(plan.seconds)}</b></span><span>{plan.mode==='simple'?t('경로 전용','Route only'):t('경로 · 적재','Route & cargo')}</span></div>}{plan&&plan.visits.length>0&&<button className="chart-current-stop" onClick={()=>go(current)}>{run?.finished?t('마지막 방문 보기','View final stop'):run?.started?t('현재 작업으로','Current task'):t('출발지로','Departure')} ↗</button>}</header>
     <button className="chart-explore-toggle" aria-expanded={explore} onClick={()=>setExplore(!explore)}>{t('거점 검색 · 항성계 탐색','Search · Explore systems')} <span>{explore?'−':'＋'}</span></button>
     {explore&&<section className="chart-explore"><PortSearch locale={locale} label={t('거점 검색','Search locations')} onSelect={id=>{chooseLocation(id);send({kind:'focus',id});}}/>
      <div className="chart-systems">{['stanton','pyro','nyx'].map((id,i)=><button key={id} onClick={()=>send({kind:'system',id})}>{locale==='ko'?['스탠턴','파이로','닉스'][i]:id.toUpperCase()}</button>)}<button onClick={()=>send({kind:'galaxy'})}>{t('항성계 전체','All systems')}</button></div>
      <label>{t('화질','Quality')}<select value={quality} onChange={e=>setQuality(e.target.value)}><option value="normal">{t('보통','Normal')}</option><option value="high">{t('높음','High')}</option><option value="ultra">{t('최고','Ultra')}</option></select></label><small>{t('천체 크기와 근접 간격은 식별을 위한 표시 축척입니다.','Body sizes and nearby spacing use a readable display scale.')}</small>
     </section>}
-    <ol className="chart-stops" ref={stops}>{plan?.visits.map((v,index)=><li key={index} data-active={selected===index} data-current={!!run?.started&&!run.finished&&current===index} data-complete={!!run?.started&&index<run.index}>
-     <button className="chart-stop-select" aria-pressed={selected===index} aria-expanded={selected===index} aria-controls={`chart-stop-details-${index}`} onClick={()=>go(index)}><span className="chart-stop-number">{String(index+1).padStart(2,'0')}</span><span><strong>{where(v.locationId)}</strong><small>{index===0?t('출발','Departure'):v.leg.meters>=1e9?`${(v.leg.meters/1e9).toFixed(1)} Gm`:`${Math.round(v.leg.meters/1000).toLocaleString()} km`}{index>0?' · '+t('약 ','~')+minutes(v.seconds):''}{run?.started&&index<run.index?' · '+t('완료','Complete'):run?.started&&index===run.index?' · '+t('현재 작업','Current task'):''}</small></span></button>
+    <ol className="chart-stops" ref={stops}>{plan&&stopGroups.map(group=><li className="chart-stop-group" key={group.indices[0]}>
+     <strong>{where(group.locationId)}</strong>
+     <ol>{group.indices.map(index=>{const v=plan.visits[index]!;return <li key={index} data-active={selected===index} data-current={!!run?.started&&!run.finished&&current===index} data-complete={!!run?.started&&index<run.index}>
+     <button className="chart-stop-select" aria-pressed={selected===index} aria-expanded={selected===index} aria-controls={`chart-stop-details-${index}`} onClick={()=>go(index)}><span className="chart-stop-number">{String(index+1).padStart(2,'0')}</span><span><strong>{v.events.map(e=>e.type==='pickup'?t('픽업','Pickup'):e.type==='delivery'?t('배송','Delivery'):t('출발','Departure')).filter((name,i,list)=>list.indexOf(name)===i).join(' · ')}</strong><small>{index===0?t('출발','Departure'):v.leg.meters>=1e9?`${(v.leg.meters/1e9).toFixed(1)} Gm`:`${Math.round(v.leg.meters/1000).toLocaleString()} km`}{index>0?' · '+t('약 ','~')+minutes(v.seconds):''}{run?.started&&index<run.index?' · '+t('완료','Complete'):run?.started&&index===run.index?' · '+t('현재 작업','Current task'):''}</small></span></button>
      <div className="chart-stop-details" id={`chart-stop-details-${index}`} hidden={selected!==index}><p className="chart-stop-arrival">{t('누적 예상','Estimated elapsed')} {minutes(v.elapsed)}</p><ul className="chart-stop-events">{v.events.filter(e=>e.type!=='departure').map((event,i)=><li key={i} data-kind={event.type}><span>{event.type==='pickup'?'↑':'↓'}</span><div>{event.type==='pickup'?t('픽업','Pickup'):t('배송','Delivery')} · {cargoName(event.commodity)}<small>{event.reservationContinuation||event.reservationScu?t('배송 총량으로 공간 예약','Space reserved by delivery total'):event.pickupQuantityUnknown||plan.mode==='simple'&&!event.scu?t('수량 미확인','Quantity unknown'):`${event.scu} SCU`}{event.estimatedBoxes?' · '+t('상자 예상','Estimated boxes'):''}</small><small>{t('계약','Contract')} {event.missionId?.slice(-7)} · {quantityBasis(flight.session.draft.jobs.find(job=>job.id===event.missionId),locale)}</small>{event.type==='pickup'&&event.deliveryId&&<small>→ {where(event.deliveryId)}</small>}</div></li>)}</ul>
      {!!v.jumps.length&&<p className="chart-jumps">{v.jumps.map(j=>`${where(j.entryId)} → ${where(j.exitId)}`).join(' / ')}</p>}
      {plan.mode!=='simple'&&<div className="chart-load"><span>{t('작업 후','After stop')} <b>{v.load} SCU</b></span><meter min={0} max={Math.max(1,plan.capacity||0)} value={v.load}/>{selected===index&&<button onClick={()=>{setCargo(true);setBox(null);}}>{t('적재 3D 보기','Inspect cargo 3D')} ↗</button>}</div>}
      </div>{selected!==index&&<p className="chart-stop-counts">{v.events.filter(e=>e.type==='pickup').length>0&&<span>↑ {t('픽업','Pickup')} {v.events.filter(e=>e.type==='pickup').length}</span>}{v.events.filter(e=>e.type==='delivery').length>0&&<span>↓ {t('배송','Delivery')} {v.events.filter(e=>e.type==='delivery').length}</span>}</p>}
-    </li>)}</ol>
+    </li>;})}</ol></li>)}</ol>
     <footer>{plan?.mode==='simple'&&<p>{t('오퍼레이터는 경로만 안내합니다. 적재는 직접 진행하세요.','The operator guides your route. Loading is up to you.')}</p>}<a className="chart-primary" href={href(plan?'operations':'mission')}>{plan?t('관제에서 운항 진행','Continue in control console'):t('계약 선택하러 가기','Select contracts')} ↗</a></footer>
    </aside>
   </div>

@@ -41,6 +41,8 @@ jobs:
         run: node scripts/build-ai-korean.mjs
       - run: npm test
       - name: Build STAM lounge
+        env:
+          VITE_PARTNER_API_ORIGIN: ${{ vars.STAM_PARTNER_API_ORIGIN }}
         run: npm ci --prefix apps/control-room && npm run build:control-room && npm run test:control-room
       - name: Assemble public files only
         run: node scripts/build-public.mjs public

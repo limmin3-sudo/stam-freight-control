@@ -5,32 +5,12 @@ import {mkdirSync} from 'node:fs';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {partnerLimits,maxPerMinute} from './partner-limits.mjs';
+
 const defaultFile=fileURLToPath(new URL('../.stam-private/partner-budget.sqlite',import.meta.url));
-const standardMini={inputRate:750,outputRate:4500,maxInput:400000};
-const maxPerMinute=5;
-
-function usd(value){
- if(!/^\d{1,6}(\.\d{1,2})?$/.test(value))throw Error('Invalid partner budget');
- return Math.round(Number(value)*100)*10000000;
-}
-
-function pricing(model,env){
- if(model==='gpt-5.4-mini')return standardMini;
- const config={
-  inputRate:Number(env.STAM_PARTNER_INPUT_NANODOLLARS),
-  outputRate:Number(env.STAM_PARTNER_OUTPUT_NANODOLLARS),
-  maxInput:Number(env.STAM_PARTNER_MAX_INPUT_TOKENS)
- };
- if(!Object.values(config).every(n=>Number.isSafeInteger(n)&&n>0))throw Error('Missing model pricing');
- return config;
-}
 
 export async function reservePartnerCall({env,model,maxOutput,actor,now=Date.now()}){
- const rates=pricing(model,env);
- const ceiling=rates.maxInput*rates.inputRate+maxOutput*rates.outputRate;
- const funded=usd(env.STAM_PARTNER_FUNDED_USD??'8');
- const monthly=usd(env.STAM_PARTNER_MONTHLY_USD??'8');
- if(!Number.isSafeInteger(ceiling))throw Error('Invalid partner request ceiling');
+ const {rates,ceiling,funded,monthly}=partnerLimits(env,model,maxOutput);
  const file=env.STAM_PARTNER_BUDGET_DB||defaultFile;
  if(file===':memory:'||file.startsWith('file:'))throw Error('Persistent budget database required');
  mkdirSync(dirname(file),{recursive:true,mode:0o700});

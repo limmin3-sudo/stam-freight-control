@@ -137,7 +137,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
     setForm(null);setPendingForms([]);setTotals({});setQuickError('');
     onReview({...d,jobs,partner:'operator',partnerSelected:true,allowUpperBounds:false,reviewed:false});
   }
-  const newRow = ():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:d.start==='microtech'?'arccorp':'microtech',scu:simple?0:1});
+  const newRow = ():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:'',scu:0});
   const editingReceipt=form?.state==='incomplete' || form?.state==='ready';
   const manifestJob=form && d.jobs.find(job=>job.id===form.id);
   const cargoOnly=!!manifestJob && form?.state==='ready';
@@ -209,7 +209,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
           <ScreenshotIntake locale={locale} locked={locked||!!form} simple={simple} jobs={d.jobs} onAdd={job=>edit({jobs:[...d.jobs,job]})} onRouteOnly={routeOnly}/>
         </div>
         <div className="mission-source"><h3>{t('직접 입력','Manual entry')}</h3><p>{t('새 계약을 작성하거나 계약 원문을 가져옵니다.','Create a contract or import its original text.')}</p>
-          <div className="source-actions"><button type="button" disabled={!!form} onClick={()=>setForm({id:crypto.randomUUID(),title:['',''],shipments:[newRow()],pay:0})}>{t('+ 직접 입력','+ Manual entry')}</button>
+          <div className="source-actions"><button type="button" disabled={!!form} onClick={()=>setForm({id:crypto.randomUUID(),title:['',''],shipments:[newRow()],pay:0,rewardUnknown:true})}>{t('+ 직접 입력','+ Manual entry')}</button>
           <button type="button" disabled={!!form} aria-controls="mission-text-import" onClick={()=>{if(manualEntry.current){manualEntry.current.open=!manualEntry.current.open;if(manualEntry.current.open)manualEntry.current.querySelector('textarea')?.focus();}}}>{t('텍스트 가져오기','Import text')}</button></div>
         </div>
       </div>

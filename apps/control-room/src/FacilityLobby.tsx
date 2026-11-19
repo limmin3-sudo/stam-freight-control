@@ -28,7 +28,7 @@ const plates={
  trade:new URL('./assets/facility-lobbies/trade-two-door.png',import.meta.url).href,
  'guide-center':new URL('./assets/facility-lobbies/academy-lobby-approved.png',import.meta.url).href,
 };
-export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motion=true,navigationKey=0,onRoom,onExit}:{facility:DivisionFacility;locale:Locale;room?:LobbyRoom;tradeScope?:TradeScope;initialShip?:string;motion?:boolean;navigationKey?:number;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void}){
+export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motion=true,sound,volume,navigationKey=0,onRoom,onExit}:{facility:DivisionFacility;locale:Locale;room?:LobbyRoom;tradeScope?:TradeScope;initialShip?:string;motion?:boolean;sound:boolean;volume:number;navigationKey?:number;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void}){
  const data=facilityLobbies[facility],en=locale==='en',t=(copy:LobbyCopy)=>copy[en?1:0];
  const [academyTarget,setAcademyTarget]=useState<AcademyDestination>();
  const previousRoom=useRef(room);
@@ -58,19 +58,21 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
   const place=data.places.find(p=>p.id===(next==='planning'?'market':next));if(!place)return;
   setHovered(null);travel.enter(next,scope,point??place.point,person??next);
  };
- const planFromQuote:PlanFromQuote=(origin,commodity,destination=0,scope='intrasystem',policy)=>{
+ const planFromQuote:PlanFromQuote=(origin,commodity,destination=0,scope,policy)=>{
+  let nextScope=scope??'intrasystem';
   try {
    const owner=readyTradeOwner(),key=tradeViewKey(owner,'personal-options');
    const shipId=shipIdFor(initialShip||'');
    const capacity=tradeShips.find(ship=>ship.id===shipId)?.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)??0;
    const old=JSON.parse(sessionStorage.getItem(key)||'null');
+   if(!scope&&old?.scope==='interstellar')nextScope='interstellar';
    sessionStorage.setItem(key,JSON.stringify({...defaultSuiteOptions,shipId,capacity,...old,...policy,mode:'direct',
-    originId:origin,commodityIds:[commodity],destinationId:destination,scope,
+    originId:commodity?origin:(old?.originId??0),commodityIds:commodity?[commodity]:[],destinationId:destination,scope:nextScope,waypoints:[],
     priceBasis:'reported',stockBasis:'reported',nearbyGm:0,cargo:[],reserveEnabled:false,reservePercent:0}));
    sessionStorage.setItem(tradeViewKey(owner,'mode'),JSON.stringify('personal'));
   } catch {setHandoffError(true);return;}
   setHandoffError(false);
-  onRoom('planning',scope);
+  onRoom('planning',nextScope);
  };
  const reset=()=>{setHovered(null);travel.leave(active?.point??[50,50]);};
  const exit=(event:MouseEvent)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();onExit();};
@@ -94,11 +96,11 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
    <nav className="lobby-places" aria-label={en?'Explore the lobby':'로비 둘러보기'} data-hidden={!!active} inert={!!active}>
     {data.places.map(p=><button type="button" key={p.id} className="lobby-place" data-place={p.id} data-lit={lit?.id===p.id} style={{'--place-x':`${p.label[0]}%`,'--place-y':`${p.label[1]}%`} as CSSProperties} onMouseEnter={()=>setHovered(p.id)} onMouseLeave={()=>setHovered(null)} onFocus={()=>setHovered(p.id)} onBlur={()=>setHovered(null)} onClick={()=>{enter(p.id);}}><strong>{t(p.name)}</strong>{facility!=='trade'&&<small>{t(p.summary)}</small>}</button>)}
    </nav>
-   {room==='planning'||room==='trade-operations'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening trade planning…':'무역 화면을 열고 있습니다…'}</p></aside>}><TradeWorkspace locale={locale} room={room} advisor={tradeScope} initialShip={initialShip} onRoom={onRoom} onExit={reset} closing={closing}/></Suspense>:active?.id==='market'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening market information…':'무역관제실을 열고 있습니다…'}</p></aside>}><MarketInformation locale={locale} onExit={reset} closing={closing} onOpenPlan={()=>onRoom('planning')} onPlan={planFromQuote}/></Suspense>:active?.id==='freight-information'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening freight information…':'운송 정보실을 열고 있습니다…'}</p></aside>}><FreightInformation finder={finder} target={academyTarget?.room==='freight-information'?academyTarget:undefined} locale={locale} onExit={reset} closing={closing}/></Suspense>:active?.id==='education'||active?.id==='operations-study'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening academy…':'아카데미 자료를 열고 있습니다…'}</p></aside>}><AcademyRoom finder={finder} target={academyTarget?.room==='education'?academyTarget:undefined} room={active.id} locale={locale} initialShip={initialShip} onExit={reset} closing={closing}/></Suspense>:active&&<aside className="lobby-detail" data-closing={closing} inert={closing} data-align={active.point[0]>50?'left':'right'} key={active.id} role="region" aria-label={t(active.name)}>
+   {room==='planning'||room==='trade-operations'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening trade planning…':'무역 화면을 열고 있습니다…'}</p></aside>}><TradeWorkspace locale={locale} room={room} advisor={tradeScope} initialShip={initialShip} onRoom={onRoom} onExit={reset} closing={closing}/></Suspense>:active?.id==='market'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening market information…':'무역관제실을 열고 있습니다…'}</p></aside>}><MarketInformation locale={locale} onExit={reset} closing={closing} onPlan={planFromQuote}/></Suspense>:active?.id==='freight-information'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening freight information…':'운송 정보실을 열고 있습니다…'}</p></aside>}><FreightInformation finder={finder} target={academyTarget?.room==='freight-information'?academyTarget:undefined} locale={locale} onExit={reset} closing={closing}/></Suspense>:active?.id==='education'||active?.id==='operations-study'?<Suspense fallback={<aside className="lobby-loading-panel"><p role="status">{en?'Opening academy…':'아카데미 자료를 열고 있습니다…'}</p></aside>}><AcademyRoom finder={finder} target={academyTarget?.room==='education'?academyTarget:undefined} room={active.id} locale={locale} initialShip={initialShip} onExit={reset} closing={closing}/></Suspense>:active&&<aside className="lobby-detail" data-closing={closing} inert={closing} data-align={active.point[0]>50?'left':'right'} key={active.id} role="region" aria-label={t(active.name)}>
     <ApprovedGlass kind="panel"/><p className="lobby-detail-code">{en?'SPACE / INTRODUCTION':'공간 소개'}</p><h2>{t(active.name)}</h2><p>{t(active.description)}</p>
     <button autoFocus type="button" className="lobby-reset" onClick={reset}><ApprovedGlass/><span>{en?'Lobby overview':'로비 전체 보기'}</span></button>
    </aside>}
-   {!active&&<LobbyStaff key={`${navigationKey}-${locale}`} facility={facility} locale={locale} motion={motion} background={plates[facility]} onConversationChange={setStaffTalking} onRoom={enter}/>}
+   {!active&&<LobbyStaff sound={sound} volume={volume} key={`${navigationKey}-${locale}`} facility={facility} locale={locale} motion={motion} background={plates[facility]} onConversationChange={setStaffTalking}/>}
    <a className="lobby-exit" href={spaceHash({screen:'division',locale})} onClick={exit}><span aria-hidden="true">◇ ─</span> {en?'Division grounds':'사업부 전경'} <span aria-hidden="true">↗</span></a>
   </div>
   {handoffError&&room==='market'&&<p className="trade-handoff-error" role="alert">{en?'Could not transfer this quote. Check session storage and try again.':'시세를 계획에 전달하지 못했습니다. 브라우저 저장 공간을 확인하고 다시 시도하세요.'}</p>}
