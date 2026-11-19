@@ -1,0 +1,59 @@
+name: Verify partner Worker via Cloudflare MCP
+on: workflow_dispatch
+permissions: {}
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Install the MCP client
+        run: |
+          python3 -m venv "$RUNNER_TEMP/partner-mcp"
+          "$RUNNER_TEMP/partner-mcp/bin/pip" --disable-pip-version-check install --quiet mcp==1.26.0
+      - name: Read the latest production deployment
+        env:
+          CF_MCP_TOKEN: ${{ secrets.STAM_CLOUDFLARE_MCP_TOKEN }}
+        run: |
+          "$RUNNER_TEMP/partner-mcp/bin/python" - <<'PY'
+          import asyncio
+          import os
+          from uuid import UUID
+
+          from mcp import ClientSession
+          from mcp.client.streamable_http import streamablehttp_client
+
+          async def verify():
+              token = os.environ.get("CF_MCP_TOKEN")
+              if not token:
+                  raise SystemExit("STAM_CLOUDFLARE_MCP_TOKEN is missing.")
+              endpoint = "https://mcp.cloudflare.com/mcp"
+              headers = {"Authorization": f"Bearer {token}"}
+              account = "5fb0f6d0fa99c783973d667151b868aa"
+              async with streamablehttp_client(endpoint, headers=headers) as (read, write, _):
+                  async with ClientSession(read, write) as session:
+                      await session.initialize()
+                      reply = await session.call_tool("execute", {
+                          "account_id": account,
+                          "code": """async () => {
+                              const reply = await cloudflare.request({
+                                  method: "GET",
+                                  path: `/accounts/${accountId}/workers/scripts/stam-partner-chat/deployments`
+                              });
+                              return reply.result?.deployments?.[0]?.id ?? "unavailable";
+                          }""",
+                      })
+                      if reply.isError:
+                          raise SystemExit("Cloudflare MCP could not read the partner Worker deployment.")
+                      for block in reply.content:
+                          if block.type == "text":
+                              try:
+                                  deployment = UUID(block.text.strip().strip('"'))
+                              except ValueError:
+                                  continue
+                              print(f"Verified stam-partner-chat deployment {deployment} via Cloudflare MCP.")
+                              return
+                      raise SystemExit("Cloudflare MCP did not return a deployment ID.")
+
+          asyncio.run(verify())
+          PY

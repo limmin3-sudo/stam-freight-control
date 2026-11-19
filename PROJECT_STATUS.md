@@ -1,3 +1,7 @@
+## 파트너 Worker 운영 연결 검증
+
+GitHub Actions의 수동 `Verify partner Worker via Cloudflare MCP` 워크플로는 main에서 저장소 비밀 `STAM_CLOUDFLARE_MCP_TOKEN`으로 공식 MCP에 인증하고 `stam-partner-chat`의 배포 ID를 조회한다.
+
 ## 웹 베타 3.5.0 · 2026-11-19
 
 `493197f`의 여섯 파트너 재생 자료와 `c149d28`의 탐색 셸·둘러보기를 통합했다. 가이드와 지도 교수의 메뉴는 같은 아카데미 운송·무역 실습을 연다. 나머지 네 파트너는 질문 중심이다. 실제 입력 시에만 Worker를 호출한다. 운영 Worker의 고정 빌드 소스는 `2689ada`로 갱신해야 한다. 사이트에서 서버로 보내는 값은 로그인한 사용자의 질문이며, OpenAI 키는 Worker에만 둔다. 가이드에서 교수에게 이동하는 신규 연출은 후속 제작이다.
