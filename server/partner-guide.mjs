@@ -23,9 +23,12 @@ const academyRooms={
  'operations-study':'작전 연구실 / Operations study. The historical Hull B case starts at Orison and covers six verified contracts totalling 363 SCU across Stanton and Pyro. Use the study to compare pickup and delivery sequences. It is a case study, not a live mission bundle.'
 };
 const partners={
+ director:{role:'Flight guide at the lounge welcome desk',rooms:greetings.director.rooms},
+ operator:{role:'Bridge operator for mission preparation and flight operations',rooms:greetings.operator.rooms},
+ navigator:{role:'Senior navigator for route planning and cargo reference',rooms:greetings.navigator.rooms},
  'senior-trade-officer':{role:'Senior trade officer for routes within one star system',rooms:tradeRooms},
  'ling-broker':{role:'Ling family broker for interstellar trade',rooms:tradeRooms},
- 'academic-advisor':{role:'Academy advisor for new captains',rooms:academyRooms}
+ 'academic-advisor':{role:'Academy advisor for new captains',rooms:{...academyRooms,...greetings['academic-advisor'].rooms}}
 };
 
 export async function answerPartner(body,env,send,actor,reservePartnerCall) {
@@ -67,6 +70,8 @@ export async function answerPartner(body,env,send,actor,reservePartnerCall) {
      'Use the previous exchange only to resolve follow-up references. The STAM room reference is authoritative.',
      'Use only the following STAM reference. If it does not answer the question, say so. You cannot see a user account, current prices or cargo, or execute trades. Never invent values.',
      'Use the room names in the reference. Choose one room that lets the user take the next step; choose none for unrelated questions. When asked for a live value, explain where to check it. Navigation requires the user to press a button.',
+     body.partner==='director'?'Refer both tutorials to the academic advisor. The guide introduces the facilities and manual.':'',
+     ['operator','navigator','senior-trade-officer','ling-broker'].includes(body.partner)?'This panel answers questions only. Name relevant locations in the answer; there are no navigation buttons in this panel.':'',
      JSON.stringify(partner.rooms)
     ].join('\n')})
   });

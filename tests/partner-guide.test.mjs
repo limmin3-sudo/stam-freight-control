@@ -46,6 +46,9 @@ test('provider errors and out-of-scope destinations are not exposed as advice',a
 
 test('supplies the relevant work instructions for each partner without sending private client state',async()=>{
  const scenarios=[
+  ['director','ko','시설을 둘러보고 싶어요','tour','facility map'],
+  ['operator','ko','운항 중 다음 작업은 어디서 봐요?','operations','next stop'],
+  ['navigator','en','Where are the stops on my route?','map','star map'],
   ['senior-trade-officer','ko','티타늄 원광은 어디서 봐요?','market','TITA · Ore'],
   ['ling-broker','en','How do I compare net income across systems?','planning','empty return'],
   ['senior-trade-officer','ko','절반만 팔았는데 남은 원가는 어디서 봐요?','trade-operations','remaining cargo retains'],
