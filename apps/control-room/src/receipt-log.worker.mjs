@@ -68,5 +68,9 @@ self.onmessage=async ({data})=>{
     if(live)tail=await file.slice(Math.max(0,offset-128),offset).text();else stream.lines.finish();
     const result=inboxCards(stream.evidence.snapshot(),points,index,catalog,db);
     self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});
-  }catch{stream=null;offset=0;tail='';self.postMessage({phase:'error',cards:[]});}
+  }catch(error){
+    stream=null;offset=0;tail='';
+    const fileUnavailable=!data.snapshot&&['NotReadableError','NotFoundError','SecurityError','NotAllowedError'].includes(error?.name);
+    self.postMessage({phase:'error',cards:[],fileUnavailable});
+  }
 };

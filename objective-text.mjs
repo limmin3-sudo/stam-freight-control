@@ -24,6 +24,7 @@ export function deliveryNotice(notification){
  else if(m=line.match(/^(.+?)(?:을\(를\)|을|를)\s*\d+\/(\d+)\s*SCU\s+(.+?)에\s*배송(?:하십시오|하세요)[.!]?$/))[,commodity,scu,dropoffText]=m;
  else if(m=line.match(/^(.+?)에\s*\d+\/(\d+)\s*SCU의\s+(.+?)(?:을\(를\)|을|를)\s*(?:배달|배송)(?:하십시오|하세요)[.!]?$/))[,dropoffText,scu,commodity]=m;
  else if(m=line.match(/^(.+?)에\s+(.+?)\s+\d+\/(\d+)\s*SCU\s+전달[.!]?$/))[,dropoffText,commodity,scu]=m;
+ else if(m=line.match(/^\d+\/(\d+)\s*SCU의\s+(.+?)(?:을\(를\)|을|를)\s+(.+?)에\s*전달(?:하십시오|하세요)[.!]?$/))[,scu,commodity,dropoffText]=m;
  else return null;
  return {commodity:canonicalObjectiveGood(commodity),scu:Number(scu),dropoffText:dropoffText.trim()};
 }
