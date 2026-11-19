@@ -19,7 +19,7 @@ try{
  assert.equal(await page.locator('.pilot-desk').getAttribute('data-open'),'false');
  await page.locator('.pilot-summary').hover();assert.equal(await page.locator('.pilot-desk').getAttribute('data-open'),'true');
  await page.locator('.space-topbar .room-brand').hover();await page.waitForTimeout(250);assert.equal(await page.locator('.pilot-desk').getAttribute('data-open'),'false');
- await page.locator('[data-facility=trade]').hover();assert.equal(await page.locator('.division-spotlight').getAttribute('data-active'),'true');assert.equal(await page.locator('.division-details').count(),0);
+ await page.locator('[data-facility=trade]').hover();assert.equal(await page.locator('[data-facility=trade]').getAttribute('data-lit'),'true');assert.equal(await page.locator('.division-details').count(),0);
  await page.screenshot({path:out+'/hover.png'});await page.locator('.space-topbar .room-brand').hover();
  checks.push('Compact flight console retains hover details; account and log use assets in header; building hover highlights without opening a panel');
  await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:out+'/desktop.png'});

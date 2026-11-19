@@ -38,7 +38,7 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails}:{data:Ma
   const en=locale==='en', t=(ko:string,english:string)=>en?english:ko;
   const [filters,setFilters]=useTradeView('market-search',{query:'',commodity:0,sort:'spread',risk:'low',legality:'legal',fresh:false,available:true});
   const [limit,setLimit]=useState(16), [showFilters,setShowFilters]=useState(false);
-  const [expanded,setExpanded]=useState(false);
+  const [expanded,setExpanded]=useState(true);
   const [savedPlan]=useTradeView('personal-options',defaultSuiteOptions);
   const policy={risk:filters.risk as Policy['risk'],legality:filters.legality as Policy['legality']};
   const planOptions={...defaultSuiteOptions,...savedPlan,...policy};

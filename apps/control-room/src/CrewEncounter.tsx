@@ -123,8 +123,7 @@ export function CrewEncounter({id,name,line,image,background,en,motion,sound,vol
     : <img className="crew-idle" src={useDirectorStill?directorStill:media.idle.src} alt="" onLoad={event=>event.currentTarget.decode().then(()=>setIdleReady(true),()=>setIdleFailed(true))} onError={()=>setIdleFailed(true)}/>)}
    {media&&motion&&clip&&<video key={clip} ref={transition} className="crew-transition" src={media[clip]} preload="auto" muted={!sound} playsInline/>}
   </div>
-  {ready&&<section className="partner-conversation asset-hologram" data-glass-panel="crew" aria-labelledby="partner-conversation-title">
-   <p className="partner-conversation-channel">STAM / CREW</p>
+  {ready&&<section className="partner-conversation crew-dialogue" aria-labelledby="partner-conversation-title">
    <h2 id="partner-conversation-title">{name}</h2>
    <p id="partner-conversation-line">{line}</p>
    {destinations.length>0&&<div className="crew-encounter-actions">{destinations.map(shortcut)}</div>}
