@@ -1,0 +1,20 @@
+name = "stam-partner-chat"
+main = "server/partner-worker.mjs"
+compatibility_date = "2025-10-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+[vars]
+STAM_WEB_ORIGIN = "https://limmin3-sudo.github.io"
+STAM_PARTNER_MODEL = "gpt-5.4-mini"
+STAM_PARTNER_FUNDED_USD = "8"
+STAM_PARTNER_MONTHLY_USD = "8"
+
+[[durable_objects.bindings]]
+name = "PARTNER_BUDGET"
+class_name = "PartnerBudget"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["PartnerBudget"]

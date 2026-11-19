@@ -4,9 +4,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {reservePartnerCall} from '../server/partner-budget.mjs';
 import assert from 'node:assert/strict';
-import {answerAccountQuestion} from '../server/partner-account.mjs';
+import {answerAccountQuestion as accountQuestion} from '../server/partner-account.mjs';
 import {FIREBASE_CONFIG} from '../firebase-config.mjs';
-import {answerPartner} from '../server/partner-guide.mjs';
+import greetings from '../data/partner-greetings.json' with {type:'json'};
+import {answerPartner as partnerReply} from '../server/partner-guide.mjs';
+
+const answerPartner=(body,env,send,actor='local')=>partnerReply(body,env,send,actor,reservePartnerCall);
+const answerAccountQuestion=(body,authorization,env,send)=>accountQuestion(body,authorization,env,send,reservePartnerCall);
 
 const input={partner:'senior-trade-officer',language:'ko',question:'어디에서 가격을 비교해요?'};
 let env,dir;
@@ -53,6 +57,11 @@ test('supplies the relevant work instructions for each partner without sending p
   const reply=await answerPartner({partner,language,question,ledger:'PRIVATE_LEDGER'},env,async(_url,options)=>{
    const req=JSON.parse(options.body);
    assert(!options.body.includes('PRIVATE_LEDGER'));
+   assert(req.instructions.includes(greetings[partner].voice));
+   assert(req.instructions.includes(greetings[partner][language]));
+   for(const [id,profile] of Object.entries(greetings)){
+    if(id!==partner)assert(!req.instructions.includes(profile.voice));
+   }
    const rooms=JSON.parse(req.instructions.split('\n').at(-1));
    assert(rooms[room].includes(fact));
    assert(req.text.format.schema.properties.room.enum.includes(room));
@@ -156,4 +165,21 @@ test('only a current Firebase account may start a billable answer',async()=>{
  }
  assert.equal((await ask(header,()=>Response.json({error:{message:'TOKEN_EXPIRED'}},{status:400}))).status,401);
  assert.equal((await ask(header,()=>{throw Error('offline');})).reason,'auth-unavailable');
+});
+
+test('follow-up keeps the last exchange as dialogue and uses the selected partner greeting',async()=>{
+ const previous={question:'어디서 가격을 봐요?',answer:'시세표를 열어 주세요.'};
+ const body={...input,partner:'ling-broker',question:'거기서 뭘 봐요?',previous};
+ const reply=await answerPartner(body,env,async(_url,options)=>{
+  const request=JSON.parse(options.body);
+  assert(request.instructions.includes(greetings['ling-broker'].ko));
+  assert.deepEqual(request.input,[
+   {role:'user',content:previous.question},{role:'assistant',content:previous.answer},{role:'user',content:body.question}
+  ]);
+  return completed('매입가와 판매가를 비교해 보세요.','market');
+ });
+ assert.equal(reply.status,200);
+ for(const invalid of [{question:'',answer:'ok'},{question:'ok',answer:'a'.repeat(1001)},'hi']){
+  assert.equal((await answerPartner({...body,previous:invalid},env,()=>assert.fail('unexpected call'))).status,400);
+ }
 });

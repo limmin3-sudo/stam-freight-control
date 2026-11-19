@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {reservePartnerCall} from './partner-budget.mjs';
 import {answerAccountQuestion} from './partner-account.mjs';
 import {handle} from './worker.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),port=Number(process.env.PORT||4173),localOrigin=`http://127.0.0.1:${port}`;
@@ -15,9 +16,9 @@ http.createServer(async(req,res)=>{
    if(req.method!=='POST'||![`127.0.0.1:${port}`,`localhost:${port}`].includes(host)||req.headers.origin!=='http://'+host){res.writeHead(403);res.end();return;}
    if(req.headers['content-type']?.split(';')[0]!=='application/json'){res.writeHead(415);res.end();return;}
    const chunks=[];let size=0;
-   for await(const chunk of req){size+=chunk.length;if(size>4096){res.writeHead(413);res.end();return;}chunks.push(chunk);}
+   for await(const chunk of req){size+=chunk.length;if(size>12288){res.writeHead(413);res.end();return;}chunks.push(chunk);}
    let body;try{body=JSON.parse(Buffer.concat(chunks).toString());}catch{res.writeHead(400);res.end();return;}
-   const {status,...reply}=await answerAccountQuestion(body,req.headers.authorization,process.env);
+   const {status,...reply}=await answerAccountQuestion(body,req.headers.authorization,process.env,fetch,reservePartnerCall);
    res.writeHead(status,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(reply));return;
   }
   if(['/analyze','/health'].includes(url.pathname)){
@@ -30,4 +31,4 @@ http.createServer(async(req,res)=>{
   if(rel.split(/[\\/]/).some(p=>p.startsWith('.'))||/^(server|scripts|tests)(\/|\\|$)/.test(rel)||/^(package|wrangler)/.test(rel)){res.writeHead(404);res.end();return;}
   const file=path.resolve(root,rel);if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return;}const content=await fs.readFile(file);res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:content);
  }catch{res.writeHead(404);res.end('Not found');}
-}).listen(port,'127.0.0.1',()=>console.log(`STAM FREIGHT CONTROL · ${localOrigin}`));
+}).listen(port,'127.0.0.1',()=>console.log(`STAM FREIGHT CONTROL · ${localOrigin}\nPartner chat · ${localOrigin}/apps/control-room/dist/index.html#/division?facility=trade&lang=ko`));

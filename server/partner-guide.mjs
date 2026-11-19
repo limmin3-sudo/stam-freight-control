@@ -1,4 +1,4 @@
-import {reservePartnerCall} from './partner-budget.mjs';
+import greetings from '../data/partner-greetings.json' with {type:'json'};
 // Guidance follows the price board, planner, ledger and Academy field lessons.
 // These are navigation and reading instructions. No account or quote snapshot is sent.
 const tradeRooms={
@@ -28,11 +28,19 @@ const partners={
  'academic-advisor':{role:'Academy advisor for new captains',rooms:academyRooms}
 };
 
-export async function answerPartner(body,env,send=fetch,actor='local') {
+export async function answerPartner(body,env,send,actor,reservePartnerCall) {
  const partner=typeof body?.partner==='string'&&Object.hasOwn(partners,body.partner)?partners[body.partner]:null;
  const question=typeof body?.question==='string'?body.question.trim():'';
  if(!partner||!question||question.length>600||!['ko','en'].includes(body.language))
   return {status:400};
+ const previous=body.previous;
+ if(previous!==undefined&&(!previous||typeof previous.question!=='string'||!previous.question.trim()||previous.question.length>600||
+    typeof previous.answer!=='string'||!previous.answer.trim()||previous.answer.length>1000))return {status:400};
+ const input=previous?[
+  {role:'user',content:previous.question},
+  {role:'assistant',content:previous.answer},
+  {role:'user',content:question},
+ ]:question;
  if(!env.OPENAI_API_KEY) return {status:503,reason:'missing-key'};
  const destinations=['none',...Object.keys(partner.rooms)];
  const format={type:'json_schema',name:'partner_guidance',strict:true,schema:{
@@ -48,12 +56,15 @@ export async function answerPartner(body,env,send=fetch,actor='local') {
  let usage;
  try {
   const response=await send('https://api.openai.com/v1/responses',{
-   method:'POST',redirect:'error',headers:{Authorization:'Bearer '+env.OPENAI_API_KEY,'Content-Type':'application/json'},
+   method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+env.OPENAI_API_KEY,'Content-Type':'application/json'},
    signal:AbortSignal.timeout(20000),
    body:JSON.stringify({model,service_tier:'default',store:false,max_output_tokens:maxOutput,
-    reasoning:{effort:'low'},text:{format},input:question,
+    reasoning:{effort:'low'},text:{format},input,
     instructions:[
      'You are the STAM '+partner.role+'. Answer the question in '+(body.language==='en'?'English':'polite Korean')+' in at most three concise sentences.',
+     greetings[body.partner].voice,
+     'Match the register and pacing of this partner greeting in your answer: '+greetings[body.partner][body.language],
+     'Use the previous exchange only to resolve follow-up references. The STAM room reference is authoritative.',
      'Use only the following STAM reference. If it does not answer the question, say so. You cannot see a user account, current prices or cargo, or execute trades. Never invent values.',
      'Use the room names in the reference. Choose one room that lets the user take the next step; choose none for unrelated questions. When asked for a live value, explain where to check it. Navigation requires the user to press a button.',
      JSON.stringify(partner.rooms)
@@ -74,6 +85,6 @@ export async function answerPartner(body,env,send=fetch,actor='local') {
  }catch{return {status:502};}
  finally{
   // A failed settlement keeps the durable pre-charge in place.
-  try{reservation.finish(usage);}catch{console.error('Partner budget settlement unavailable');}
+  try{await reservation.finish(usage);}catch{console.error('Partner budget settlement unavailable');}
  }
 }
