@@ -1,0 +1,52 @@
+{
+  "director": {
+    "approach": "director/approach.mp4",
+    "idle": {
+      "src": "director/idle.mp4",
+      "type": "video",
+      "loop": true,
+      "muted": true
+    },
+    "return": "director/return.mp4"
+  },
+  "operator": {
+    "approach": "operator/approach.mp4",
+    "idle": {
+      "src": "operator/idle.png",
+      "type": "image"
+    },
+    "return": "operator/return.mp4"
+  },
+  "navigator": {
+    "approach": "navigator/approach.mp4",
+    "idle": {
+      "src": "navigator/idle.png",
+      "type": "image"
+    },
+    "return": "navigator/return.mp4"
+  },
+  "senior-trade-officer": {
+    "approach": "senior-trade-officer/approach.mp4",
+    "idle": {
+      "src": "senior-trade-officer/idle.png",
+      "type": "image"
+    },
+    "return": "senior-trade-officer/return.mp4"
+  },
+  "ling-broker": {
+    "approach": "ling-broker/approach.mp4",
+    "idle": {
+      "src": "ling-broker/idle.png",
+      "type": "image"
+    },
+    "return": "ling-broker/return.mp4"
+  },
+  "academic-advisor": {
+    "approach": "academic-advisor/approach.mp4",
+    "idle": {
+      "src": "academic-advisor/idle.png",
+      "type": "image"
+    },
+    "return": "academic-advisor/return.mp4"
+  }
+}
