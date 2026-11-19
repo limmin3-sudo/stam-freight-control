@@ -87,7 +87,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
      <rect width="1672" height="941" fill="#020b13" mask="url(#lobby-mask)"/>
     </svg>
    </div>
-   <header className="lobby-heading"><p>{data.code}</p><h1 id="lobby-title" ref={heading} tabIndex={-1}>{t(data.name)}</h1><span>{t(data.intro)}</span>{!active&&finder}</header>
+   <header className="lobby-heading space-location-heading"><p>{data.code}</p><h1 id="lobby-title" ref={heading} tabIndex={-1}>{t(data.name)}</h1><span>{t(data.intro)}</span>{!active&&finder}</header>
    {(!loaded||failed)&&<p className="lobby-loading" role="status">{failed?(en?'The lobby image could not load. Navigation remains available.':'로비 배경을 불러오지 못했습니다. 공간 메뉴는 사용할 수 있습니다.'):(en?'Opening the lobby…':'로비를 불러오고 있습니다…')}</p>}
    <svg className="lobby-regions" viewBox="0 0 1672 941" aria-hidden="true" data-hidden={!!active||!loaded} onMouseLeave={()=>setHovered(null)}>{data.places.map(p=><path key={p.id} d={p.contour} onMouseEnter={()=>setHovered(p.id)} onClick={()=>{enter(p.id);}}/> )}</svg>
    <svg className="lobby-leaders" viewBox="0 0 1672 941" aria-hidden="true" data-hidden={!!active}>

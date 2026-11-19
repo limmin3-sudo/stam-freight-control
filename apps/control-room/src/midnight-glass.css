@@ -5,16 +5,14 @@
   --midnight-hover: url('./assets/midnight-glass/hover.webp');
   --midnight-selected: url('./assets/midnight-glass/selected.webp');
 }
-.facility-lobby[data-facility-lobby][data-monitor=true] > .lobby-stage,
-.facility-lobby[data-facility-lobby] .lobby-heading {
+.facility-lobby[data-facility-lobby][data-monitor=true] > .lobby-stage {
   border: 12px solid transparent;
   border-image: var(--midnight-panel) 32 fill / 12px stretch;
   background: #050c18;
   border-radius: 0;
   text-shadow: none;
 }
-.facility-lobby[data-facility-lobby] .lobby-heading { padding: 4px 12px; }
-.facility-lobby[data-facility-lobby] :is(.lobby-heading h1,.market-header h2) {
+.facility-lobby[data-facility-lobby] .market-header h2 {
   font-family: BarlowAirReview, SUIT, sans-serif;
   font-weight: 600;
   color: #edeae4;
