@@ -57,7 +57,9 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Prop
  return <form className="partner-question" onSubmit={ask}>
   <label>{en?'Ask the partner':'파트너에게 질문'}<input value={question} maxLength={600} disabled={disabled||busy} placeholder={example} onChange={e=>setQuestion(e.target.value)}/></label>
   <button type="submit" disabled={disabled||busy||!question.trim()}>{busy?(en?'Answering…':'답변 중…'):(en?'Ask':'질문하기')}</button>
-  <p role="status">{answer}</p>
+  <p role="status">{answer.split(/(\*\*[^*\n]+\*\*)/g).map((part,index)=>
+   index%2===1 ? <strong key={index}>{part.slice(2,-2)}</strong> : part
+  )}</p>
   {destination&&<button type="button" disabled={disabled} onClick={destination.open}>{destination.label} ↗</button>}
  </form>;
 }

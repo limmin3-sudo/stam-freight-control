@@ -1,3 +1,7 @@
+## 파트너 대화 표시 및 자동 빌드 확인
+
+대화 패널은 답변의 짝지어진 별표 두 개를 강조로 표시한다. 운영 빌드 소스 검사는 Workers Builds API의 `git_repository.branch`에서 운영 브랜치를 확인한다.
+
 ## 파트너 Worker 운영 연결 검증
 
 GitHub Actions의 수동 `Verify partner Worker via Cloudflare MCP` 워크플로는 main에서 저장소 비밀 `STAM_CLOUDFLARE_MCP_TOKEN`으로 공식 MCP에 인증하고 `stam-partner-chat`의 배포 ID를 조회한다. 이어 운영 번들의 여섯 파트너 역할과 빌드 소스를 검사한다. 선택적인 복구 실행은 확인된 이전 세 파트너 번들을 테스트 후 교체하며, 대시보드 변수와 기존 비밀을 보존한다.
