@@ -22,4 +22,4 @@ export const bridgePatches=[
 ];
 
 // Standing positions are percentages of the authored scene.
-export const loungeGuide = {x:36.3,y:40,height:39};
+export const loungeGuide = {x:32,y:46.2,height:45.8};

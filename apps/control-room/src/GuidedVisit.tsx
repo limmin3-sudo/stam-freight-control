@@ -1,5 +1,7 @@
 import {useEffect, useReducer, useRef, useState, type CSSProperties} from 'react';
-import {visitChapters, speakers} from './guided-visit-content';
+import greetingGuide from './assets/dialogue-poses/director/02.webp';
+import gateGuide from './assets/dialogue-poses/director/04.webp';
+import {boardingGate, visitChapters, speakers} from './guided-visit-content';
 import directory from './assets/division/overview-approved.png';
 import './guided-visit.css';
 
@@ -25,10 +27,9 @@ export default function GuidedVisit({en,motion,sound,volume,onComplete}:Props) {
   const section=visitChapters[position.chapter]!;
   const nextSection=visitChapters[position.chapter+1];
   const cue=section.lines[position.line]!;
-  const {plate,person,x,y,scale}=cue.shot;
+  const {plate}=cue;
   const [readyPlate,setReadyPlate]=useState('');
   const [missingPlate,setMissingPlate]=useState('');
-  const fallbackPlate=section.lines[0]!.shot.plate===plate ? section.lines[1]!.shot.plate : section.lines[0]!.shot.plate;
   const ready=readyPlate===plate || missingPlate===plate;
   const language=en?1:0;
   const text=cue.text[language];
@@ -44,9 +45,9 @@ export default function GuidedVisit({en,motion,sound,volume,onComplete}:Props) {
 
   useEffect(()=>{
     const next=section.lines[position.line+1]??nextSection?.lines[0];
-    if (next) for (const src of [next.shot.plate,next.shot.person]) if(src) new Image().src=src;
+    if (next && next.plate!==plate) new Image().src=next.plate;
     new Image().src=directory;
-  },[section,nextSection,position.line]);
+  },[section,nextSection,position.line,plate]);
 
   useEffect(()=>{
     if (!visible) return;
@@ -80,21 +81,25 @@ export default function GuidedVisit({en,motion,sound,volume,onComplete}:Props) {
   },[position,ready,visible,en,text,duration,sound,volume,cue.speaker,travelMs,nextSection,onComplete]);
 
   const vars={
-    '--visit-origin':x+'% '+y+'%', '--visit-scale':scale, '--visit-duration':duration+'ms',
+    '--visit-duration':duration+'ms',
     '--visit-from':section.marker.join('% ')+'%', '--visit-to':(nextSection?.marker??section.marker).join('% ')+'%',
     '--visit-travel':travelMs+'ms',
   } as CSSProperties;
   return <section className="guided-visit" aria-label={en?'Guided facility tour':'가이드와 둘러보기'} style={vars} data-motion={motion} data-visible={visible}>
     <div className="visit-frame">
-      <div className="visit-picture" key={position.chapter+'-'+position.line}>
+      <div className="visit-picture" data-lounge-view={cue.loungeView} key={cue.loungeView ?? plate}>
         <div className="visit-camera">
-          <img className="visit-plate" src={missingPlate===plate?fallbackPlate:plate} alt="" onLoad={()=>setReadyPlate(plate)} onError={()=>setMissingPlate(plate)}/>
+          <img className="visit-plate" src={missingPlate===plate?directory:plate} alt="" onLoad={()=>setReadyPlate(plate)} onError={()=>setMissingPlate(plate)}/>
+          {cue.loungeView==='guide' && <img className="visit-greeting-guide" src={greetingGuide} alt=""/>}
+          {cue.loungeView==='gate' && missingPlate!==plate && <>
+            <img className="visit-gate-guide" src={gateGuide} alt=""/>
+            <span className="visit-gate-label" style={{left:boardingGate.anchor[0]+'%',top:boardingGate.anchor[1]+'%'}}>{boardingGate.label[language]}</span>
+          </>}
         </div>
-        {person && <img className="visit-speaker-portrait" src={person} alt=""/>}
       </div>
       <div className="visit-marker"><span>{String(position.chapter+1).padStart(2,'0')} / 04</span>{section.name[language]}</div>
       {position.traveling && <div className="visit-travel" data-final={!nextSection} aria-hidden="true"><img src={directory} alt=""/><i/></div>}
-      <div className="visit-panel" data-clear-hand={cue.shot.clearLeftHand} data-travel={position.traveling}>
+      <div className="visit-panel" data-travel={position.traveling}>
         <div className="visit-speech" aria-live="polite" aria-atomic="true">
           <strong><span aria-hidden="true">╵╿╵</span> {speakers[cue.speaker][language]}</strong><p>{text}</p>
         </div>

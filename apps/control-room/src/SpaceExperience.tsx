@@ -32,7 +32,7 @@ import archivePlasma from './assets/arrival/ignition-plasma.png';
 import type { Locale } from './navigation';
 import logo from '../../../assets/stam-logo-transparent.png';
 import receptionPlate from '../../../docs/cinematics/desk-cinema-25d-20261113/assets/desk-clean.png';
-import standingDirector from './assets/director-standing.png';
+import standingDirector from './assets/lounge-guide-welcome.webp';
 import bridgeOperator from './assets/operator-identity-v2.png';
 import bridgeNavigator from './assets/navigator-standing.png';
 import './space-experience.css';
@@ -392,7 +392,7 @@ export function SpaceExperience() {
               <span className="bridge-partner-name operator-name">{en ? 'Bridge operator' : '브리지 오퍼레이터'}</span>
               <span className="bridge-partner-name navigator-name">{en ? 'Senior navigator' : '수석 항해사'}</span>
           </div>}
-          {scene === 'lounge' && <span className="director-partner-name" style={{left:guidePlacement.left,bottom:`calc(${100-loungeGuide.y}% + 4px)`}}>{word(partnerDialogue.director.name)}</span>}
+          {scene === 'lounge' && <span className="director-partner-name" style={{left:guidePlacement.left,top:`calc(${loungeGuide.y+loungeGuide.height}% + 2px)`}}>{word(partnerDialogue.director.name)}</span>}
           {(scene==='lounge'?['director'] as const:['operator','navigator'] as const).map(id=>{
             const at=id==='director'?loungeGuide:bridgePartners[id];
             return <button key={id} type="button" className="partner-hit" data-partner={id}

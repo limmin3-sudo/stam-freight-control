@@ -1,162 +1,324 @@
-/* Approved D material shared by two distinct navigation button families. */
-.space-experience{--shell-gold:#e2cda5;--shell-ink:#070d12;--shell-sidebar-width:clamp(248px,16.4vw,320px);--shell-frame:url('./assets/navigation/black-gold-d-frame.png')}
-.space-experience>header.space-topbar{background:linear-gradient(110deg,#060b10,#101b22 55%,#070d12);border-bottom:1px solid #bba0784d;box-shadow:0 5px 18px #0005}
-.space-experience .space-sidebar{background:linear-gradient(100deg,#080e14,#101b22 75%,#070c12);border-right-color:#bba0784d;box-shadow:8px 0 24px #0006,inset -1px 0 #e5c78e18;scrollbar-color:#b99c634d transparent}
-.space-sidebar:after{background:linear-gradient(transparent,#d9bf8c77,transparent)}
-.space-sidebar-caption{color:#c7b58f}
-/* Top bar: reuse the original slanted teal sidebar image, uniform controls. */
-.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language){position:relative;isolation:isolate;min-height:48px;padding:10px 16px;border:0;background:transparent;color:#eee6d9;font-family:BarlowAirReview,SUIT,sans-serif;text-shadow:0 1px 3px #000}
-.space-topbar .pilot-connections button>.approved-glass{display:none}
-.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language):before{content:'';position:absolute;inset:0 -2px;z-index:-1;pointer-events:none;background:url('./assets/hologram-button.png') center/100% 135% no-repeat;border:0;filter:brightness(.9) saturate(.85);transition:filter .2s}
-.space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language):hover:before{filter:brightness(1.22)}
-.space-topbar .pilot-connections :is(svg,.pilot-connection-arrow){color:#b7e4ed;filter:none}
-.space-topbar .pilot-connection-copy small{color:#c7bba7}
-.space-experience .space-topbar .space-download{display:flex;align-items:center;justify-content:center;font-size:12px}
-.space-experience .space-topbar .space-language{display:flex;align-items:center;padding:8px 12px}
-.space-experience .space-topbar .space-language select{min-height:32px;max-width:110px;padding:4px;border:0;background:transparent;color:#eee6d9;font:500 12px BarlowAirReview,SUIT,sans-serif}
-.space-experience .space-topbar .space-language option{background:#101820;color:#eee6d9}
-/* Sidebar: all five destinations share one frontal frame and one type scale. */
-.space-sidebar :is(.space-group-button,.space-division-button){height:88px;min-height:88px;box-sizing:border-box;padding:12px 18px;gap:10px;transform:none;font-family:BarlowAirReview,SUIT,sans-serif;color:#e9e3d8;text-shadow:0 1px 3px #000}
-.space-sidebar :is(.space-group-button,.space-division-button):before{content:'';position:absolute;inset:-2px -4px;z-index:-1;pointer-events:none;background:none;border:12px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 22px stretch;filter:brightness(.88);transition:filter .2s}
-.space-sidebar :is(.space-group-button,.space-division-button)>svg{width:30px;height:32px;flex:none;stroke:var(--shell-gold);stroke-width:1.15;filter:none}
-.space-sidebar :is(.space-group-button,.space-division-button) small{font-size:8px;letter-spacing:.16em;color:#c3b69e}
-.space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:18px;line-height:1.2;letter-spacing:.025em;font-weight:500}
-.space-sidebar :is(.space-group-button,.space-division-button):is(:hover,[aria-current]){transform:none;filter:none;color:#ffe6b5}
-.space-sidebar :is(.space-group-button,.space-division-button):is(:hover,[aria-current]):before{filter:brightness(1.23) drop-shadow(0 0 4px #dcbb754d)}
-.space-sidebar .space-group-chevron{color:#dfc493}
-.space-sidebar .space-group-description{color:#bfb9ac}.space-sidebar .space-group-description small{color:#ad9a77}
-.space-sidebar .space-nav-links:before{background:linear-gradient(#dfc48c88,#dfc48c11)}
-.space-sidebar .space-nav-links>.space-room-link>a{color:#ddd9d0;font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;text-shadow:0 1px 3px #000}
-.space-sidebar .space-nav-links>.space-room-link>a:before{background:none;border:8px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 13px stretch;filter:brightness(.75)}
-.space-sidebar .space-nav-links>.space-room-link>a:is(:hover,[aria-current]):before{filter:brightness(1.18)}
-.space-sidebar :is(.space-link-index,.space-link-arrow){color:#d6c198}
-.space-sidebar :is(.space-settings summary,.space-settings button,.space-menu-toggle){color:#e3d8c2;font-family:BarlowAirReview,SUIT,sans-serif;text-shadow:0 1px 3px #000}
-.space-sidebar :is(.space-settings summary,.space-settings button,.space-menu-toggle):before{background:none;border:8px solid transparent;border-image:var(--shell-frame) 200 250 200 250 fill / 13px stretch;filter:brightness(.85)}
-.space-sidebar .space-settings>div{background:#0a1119f5;border-color:#d4b37840}
-.space-sidebar :is(a,button,summary):focus-visible,.space-topbar :is(a,button,select):focus-visible{outline:2px solid #f0d39d;outline-offset:2px}
-@media(max-width:760px){
- .space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language){min-height:44px;padding:8px 12px}
- .space-experience .space-topbar .space-download{font-size:10px;padding:8px}
- .space-experience .space-topbar .space-language{padding:6px 8px}
- .space-experience .space-topbar .space-language select{max-width:82px;font-size:11px}
- .space-sidebar .space-dock{background:linear-gradient(110deg,#080e14fa,#121d25fa);border-color:#c5ab744d}
-}
-/* Fixed shell geometry; only plain edge strips grow with the viewport. */
-.space-experience{position:relative;isolation:isolate;padding:0;box-sizing:border-box;--shell-sidebar-width:clamp(248px,16.4vw,320px);background:#060e14}
-/* Fixed-pitch, mirrored material tiles. The machined edges are drawn at
-   device resolution, independently of the length of either navigation bar. */
-.shell-material {
- position:absolute; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
- --bar-height:67px; --plate-width:calc(var(--shell-sidebar-width) + 365px);
- --step:var(--shell-connector-height,164px);
- --rim:inset 1px 1px #fff0be, inset -1px -1px #735231, inset 0 0 0 2px #ae8957;
-}
-.shell-top,.shell-nameplate,.shell-connector,.shell-side {position:absolute; box-sizing:border-box}
-.shell-top {
- inset:0 0 auto; height:var(--bar-height);
- box-shadow:var(--rim), inset 0 4px 3px #afc5d44a, inset 0 -10px 8px #000a;
- background:#041420 url('./assets/navigation/finish-midnight.webp') center 12% / 1024px 214px repeat;
-}
-.shell-top::before {
- content:''; position:absolute; inset:2px 3px 8px;
- background:radial-gradient(ellipse at 42% 0%,#a6d9f847,transparent 35%),
-  linear-gradient(170deg,transparent 26%,#bbdaec1f 36%,transparent 37%);
-}
-.shell-top::after,.shell-nameplate::after {
- content:''; position:absolute; bottom:0; right:0; height:7px;
-}
-.shell-top::after {
- left:0;
- background:linear-gradient(100deg,transparent 33%,#ffe2af80 48%,transparent 58%),
-  linear-gradient(#17232b,#76818a 20%,#c2aa83 34%,#755e44 50%,#241e18 78%,#060b0e);
-}
-.shell-side {
- left:0; bottom:0; top:calc(var(--bar-height) + var(--step)); width:var(--shell-sidebar-width);
- box-shadow:var(--rim),inset 0 9px 8px -3px #090805cc;
- background:linear-gradient(90deg,#13191f 2px,#75828b 3px,#38434d 5px,#151b21 8px,
-   #070b10bb 10px,transparent 22px,transparent calc(100% - 22px),
-   #10161ca6 calc(100% - 12px),#222c33 calc(100% - 9px),#8a9296 calc(100% - 7px),
-   #505a62 calc(100% - 5px),#171d24 calc(100% - 2px)),
-  linear-gradient(120deg,#58657522,transparent 42%,#0c131d70),
-  url('./assets/navigation/finish-graphite.webp') 0 0 / 682px 214px repeat;
-}
-.shell-gold {
- background-color:#c9a873;
- background-image:linear-gradient(110deg,#71513742 0%,#ffdfaa35 23%,transparent 43%,#7c562f3b 72%,#ffdfa450),
-  url('./assets/navigation/finish-gold.webp');
- background-position:0 var(--gold-y,0px);
- background-size:var(--plate-width) 512px,768px 512px;
-}
-.shell-nameplate {
- inset:0 auto auto 0; width:var(--plate-width); height:var(--bar-height);
- clip-path:polygon(0 0,100% 0,calc(100% - var(--bar-height)*1.5) 100%,0 100%);
- box-shadow:inset 1px 1px #634729, inset 3px 3px #f6dfb7, inset 5px 5px 4px #e7bf8766;
-}
-.shell-nameplate::after {
- left:var(--shell-sidebar-width);
- background:linear-gradient(#fff0c5,#dfba87 24%,#9b7348 44%,#785634 70%,#322518);
-}
-.shell-cut {
- position:absolute; top:0; right:0; bottom:0; width:15px;
- transform:skewX(-56.31deg); transform-origin:right top;
- background:linear-gradient(90deg,#ffebbc,#a8814e 12%,#654421 23%,#ffdc97 32%,#aa804e 45%,#6d4827 58%,#f7d9a4 65%,#a78551 81%,#49331e);
-}
-.shell-connector {
- --gold-y:calc(0px - var(--bar-height)); top:var(--bar-height); left:0;
- width:var(--shell-sidebar-width); height:var(--step);
- box-shadow:inset 1px 0 #634729,inset 3px 0 #f6dfb7,inset 5px 0 4px #e7bf8766,
-  inset -1px -1px #322518,inset -4px -4px #88623d,inset -6px -6px #dbb782,inset -7px -7px #fff0c5;
-}
-.shell-connector::after {
- content:''; position:absolute; bottom:5px; left:7px; width:7px; height:10px;
- border-inline:2px solid #936c3f; box-shadow:1px 0 #ffe6b0,-1px 0 #ffe6b0;
-}
-.space-experience>header.space-topbar{position:relative;background:transparent;border:0;box-shadow:none;height:67px;min-height:67px;padding:8px 24px;box-sizing:border-box;gap:28px}
-/* Live Barlow lettering stays sharp at any scale on the gold casting. */
-.space-experience .space-topbar .room-brand{gap:12px;text-decoration:none}
-.space-experience .space-topbar .brand-emblem{width:60px;height:60px;flex:none;filter:contrast(1.12) drop-shadow(0 1px 1px #0005)}
-.space-experience .space-topbar .brand-wordmark{display:flex;align-items:baseline;gap:12px;white-space:nowrap;font:500 38px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.12em;color:#171a1c;text-shadow:0 -1px 0 #fff4d9b3,0 1px 0 #080b0e,0 2px 1px #33271c55}
-.space-experience .space-topbar .brand-wordmark small{display:inline;margin-top:0;font:500 16px/1 BarlowAirReview,SUIT,sans-serif;letter-spacing:.08em;color:#342b20;text-shadow:0 1px 0 #fff4d970}
-.space-experience .space-main{grid-template-columns:var(--shell-sidebar-width) minmax(0,1fr)}
-.space-experience .space-sidebar{isolation:isolate;background:transparent;border:0;box-shadow:none;padding:16px 20px 18px}
-.space-sidebar:after{display:none}
-.space-experience .space-overview{background:transparent;margin:0;border-radius:0}
-.space-sidebar .space-dock{gap:12px}
-.space-sidebar :is(.space-group-button,.space-division-button){height:68px;min-height:68px;padding:10px 14px;gap:8px}
-.space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:clamp(14px,1.2vw,18px)}
-.space-sidebar :is(.space-group-button,.space-division-button)>svg{width:25px;height:28px}
-.space-sidebar .space-settings{margin:8px 4px 0}
-.space-sidebar-caption{font-size:8px;letter-spacing:.18em;margin-inline:4px}
-.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]:before{filter:sepia(.55) saturate(1.5) brightness(1.28) drop-shadow(0 0 5px #e5b66b66)}
-.space-sidebar :is(.space-group-button,.space-division-button):after{content:'';position:absolute;inset:12px 8px;z-index:-1;pointer-events:none;border-radius:12px;background:linear-gradient(110deg,#b46b172b,#e5b45a19 55%,#7a450812);opacity:0;transition:opacity .2s}
-.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]:after{opacity:1}
-.space-sidebar :is(.space-group-button,.space-division-button)[aria-current]>svg{stroke:#ffe0a0;filter:drop-shadow(0 0 4px #f0b65455)}
-.space-sidebar .space-nav-links>.space-room-link>a[aria-current]:before{filter:sepia(.6) saturate(1.4) brightness(1.25)}
-@media(max-width:760px){
- .space-experience>header.space-topbar{height:auto;padding:10px 12px;min-height:110px}
- .space-experience .space-topbar .room-brand{gap:8px}
- .space-experience .space-topbar .brand-emblem{width:40px;height:40px}
- .space-experience .space-topbar .brand-wordmark{font-size:27px;letter-spacing:.08em;gap:8px}
- .space-experience .space-topbar .brand-wordmark small{font-size:10px;letter-spacing:.04em;margin-top:0}
- .space-experience .space-main{grid-template-columns:minmax(0,1fr)}
- .space-experience .space-overview{margin:0}
- .space-experience{padding:0;--shell-sidebar-width:clamp(248px,16.4vw,320px)}
- .space-experience .space-sidebar{padding:6px 16px 10px}
- .shell-material{inset:0;mask-image:linear-gradient(to bottom,#000 96px,transparent 132px)}
- .shell-material{--bar-height:120px;--plate-width:350px}
- .shell-connector,.shell-side{display:none}
- .space-sidebar :is(.space-group-button,.space-division-button){height:72px;min-height:72px}
- .space-sidebar :is(.space-group-button,.space-division-button) strong{font-size:17px}
- .space-sidebar .space-dock{background:#080f15;border:1px solid #c5ab7480;border-radius:0 0 14px 14px}
+.space-experience {
+  --shell-sidebar-width: clamp(248px, 16.4vw, 320px);
+  --shell-header-height: 67px;
+  --shell-gold: #dbc094;
+  --shell-type: BarlowAirReview, SUIT, sans-serif;
+  --shell-destination-art: url('./assets/navigation/black-gold-d-frame.png');
+  --shell-action-art: url('./assets/hologram-button.png');
+  position: relative;
+  isolation: isolate;
+  padding: 0;
+  background: #080e13;
 }
 
-@media(min-width:761px) and (max-width:1000px){
- .space-experience>header.space-topbar{padding-inline:12px;gap:12px}
- .space-experience .space-topbar .room-brand{gap:8px}
- .space-experience .space-topbar .brand-emblem{width:44px;height:44px}
- .space-experience .space-topbar .brand-wordmark{font-size:30px;gap:8px;letter-spacing:.08em}
- .space-experience .space-topbar .brand-wordmark small{font-size:12px;letter-spacing:.04em}
- .space-experience .space-topbar .pilot-connections button{min-width:105px;padding-inline:8px;gap:5px}
- .space-experience .space-topbar .space-download{padding-inline:8px}
- .shell-material{--plate-width:calc(var(--shell-sidebar-width) + 190px)}
+/* The two legs of the casting share the same horizontal finish at the joint. */
+.shell-material {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  --step: var(--shell-connector-height, 164px);
+  --plate-width: clamp(390px, 38vw, 680px);
+}
+.shell-material > div { position: absolute; box-sizing: border-box; }
+.shell-top {
+  inset: 0 0 auto;
+  height: var(--shell-header-height);
+  background: radial-gradient(ellipse at 55% -25%, #37526a 0, transparent 48%),
+    linear-gradient(174deg, #1a2934, #071119 48%, #101b23 82%, #071016);
+  box-shadow: inset 0 1px #677782, inset 0 -1px #090c0f, inset 0 -3px #5a5246, inset 0 -5px #111c22;
+}
+.shell-side {
+  inset: calc(var(--shell-header-height) + var(--step)) auto 0 0;
+  width: var(--shell-sidebar-width);
+  background: linear-gradient(90deg, #20262b, #11171b 9%, #12171c 85%, #080c10);
+  box-shadow: inset 1px 0 #444d53, inset -1px 0 #05080a, inset -3px 0 #576068, inset -6px 0 #222a30;
+}
+.shell-gold {
+  background-color: #514335;
+  background-image: linear-gradient(102deg, #382f28, #786449 27%, #574736 54%, #302923 85%, #5d4b37);
+  background-size: var(--plate-width) var(--shell-header-height);
+}
+.shell-nameplate {
+  inset: 0 auto auto 0;
+  width: var(--plate-width);
+  height: var(--shell-header-height);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 84px) 100%, 0 100%);
+  box-shadow: inset 0 1px #deca9e, inset 0 3px #776753, inset 2px 0 #ab9676;
+}
+.shell-nameplate::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 var(--shell-sidebar-width);
+  height: 4px;
+  background: linear-gradient(#af9470, #584634 45%, #231e19);
+}
+.shell-cut {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 9px;
+  transform: skewX(-51.43deg);
+  transform-origin: right top;
+  background: linear-gradient(90deg, #c2aa83, #302a25 22%, #120f0d 57%, #b49a73 75%, #5b4c3c);
+}
+.shell-connector {
+  left: 0;
+  top: var(--shell-header-height);
+  width: var(--shell-sidebar-width);
+  height: var(--step);
+  box-shadow: inset 2px 0 #ab9676, inset -1px 0 #231c17, inset -4px 0 #887458, inset 0 -2px #201b16, inset 0 -4px #ae9470;
+}
+
+.space-experience > header.space-topbar {
+  --action-width: clamp(155px, 13vw, 196px);
+  --action-height: 52px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) repeat(4, minmax(0, var(--action-width)));
+  align-items: center;
+  height: var(--shell-header-height);
+  min-height: var(--shell-header-height);
+  box-sizing: border-box;
+  padding: 5px 18px;
+  gap: 10px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.space-experience .space-topbar .room-brand { justify-self: start; gap: 12px; text-decoration: none; }
+.space-experience .space-topbar .brand-emblem {
+  width: 60px;
+  height: 60px;
+  flex: none;
+  filter: drop-shadow(0 2px 1px #100e0e);
+}
+.space-experience .space-topbar .brand-wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  white-space: nowrap;
+  color: #fff4df;
+  font: 600 40px/1 var(--shell-type);
+  letter-spacing: .085em;
+  text-shadow: 0 1px #332a22, 0 2px 1px #1a1714;
+}
+.space-experience .space-topbar .brand-wordmark small {
+  display: inline;
+  margin: 0;
+  font: 600 14px/1 var(--shell-type);
+  letter-spacing: .11em;
+  color: #f2e2c6;
+}
+.space-experience .space-topbar .pilot-connections { display: contents; }
+.space-experience .space-topbar :is(.pilot-connections :where(button), .space-download, .space-language) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--action-height);
+  min-height: var(--action-height);
+  margin: 0;
+  padding: 4px 16px;
+  position: relative;
+  isolation: isolate;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  color: #f1eee7;
+  font: 600 15px/1.2 var(--shell-type);
+  text-shadow: none;
+}
+.space-experience .space-topbar .pilot-connections button { justify-content: flex-start; gap: 6px; }
+.space-topbar .pilot-connections button > .approved-glass { display: none; }
+/* Preserve the slanted ends and keep the transparent canvas outside the hit box. */
+.space-experience .space-topbar :is(.pilot-connections :where(button), .space-download, .space-language)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: none;
+  border: solid transparent;
+  border-image: var(--shell-action-art) 232 320 232 320 fill / 14px 21px / 10px 0 stretch;
+  filter: saturate(.76) brightness(.88);
+}
+.space-experience .space-topbar .pilot-connection-copy strong { font: 600 15px/1.15 var(--shell-type); }
+.space-topbar .pilot-log .pilot-connection-copy strong { white-space: normal; }
+.space-topbar .pilot-account .pilot-connection-copy strong { display: block; }
+.space-experience .space-topbar .pilot-connection-copy small { font-size: 10px; color: #bac1c5; }
+.space-experience .space-topbar .pilot-connections svg { color: var(--shell-gold); }
+.space-experience .space-topbar .pilot-connection-arrow { margin-inline-start: auto; }
+.space-experience .space-topbar .space-language { padding: 0; }
+.space-topbar .space-language select {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  text-align: center;
+  padding-inline: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.space-topbar .space-language option { background: #12191f; color: white; }
+.space-experience .space-topbar :is(button, .space-download, .space-language):is(:hover, :focus-within)::before {
+  filter: brightness(1.12);
+}
+
+.space-experience .space-main { grid-template-columns: var(--shell-sidebar-width) minmax(0, 1fr); }
+.space-experience .space-overview { margin: 0; border-radius: 0; background: transparent; }
+.space-experience .space-sidebar {
+  padding: 12px 14px 18px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  scrollbar-color: #665e52 #11171c;
+}
+.space-sidebar::after { display: none; }
+.space-sidebar .space-dock { gap: 9px; }
+.space-sidebar .space-sidebar-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 2px;
+  font: 600 10px/1.5 var(--shell-type);
+  letter-spacing: .16em;
+  color: #c1b29b;
+}
+.space-sidebar-caption::after { content: ''; height: 1px; flex: 1; background: #464542; }
+.space-sidebar :is(.space-group-button, .space-division-button) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 12px;
+  min-height: 80px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #eeeae4;
+  font-family: var(--shell-type);
+  text-shadow: none;
+  transform: none;
+  filter: none;
+}
+/* Nine slices keep the machined corners the same size on wide and narrow keys. */
+.space-sidebar :is(.space-group-button, .space-division-button, .space-room-link > a, .space-settings summary, .space-settings button, .space-menu-toggle)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: none;
+  border: solid transparent;
+  border-image: var(--shell-destination-art) 196 240 196 240 fill / var(--shell-rim, 17px 21px) / var(--shell-bleed, 9px 5px) stretch;
+  filter: brightness(.88);
+}
+.space-sidebar :is(.space-group-button, .space-division-button) > svg {
+  width: 30px;
+  height: 34px;
+  flex: none;
+  stroke: #c4b79e;
+  stroke-width: 1.45;
+  filter: none;
+}
+.space-sidebar :is(.space-group-button, .space-division-button) strong {
+  font: 600 clamp(19px, 1.45vw, 23px)/1.18 var(--shell-type);
+  color: inherit;
+  letter-spacing: .015em;
+}
+.space-sidebar :is(.space-group-button, .space-division-button) small {
+  color: #b4b9bc;
+  font: 500 10px/1.2 var(--shell-type);
+  letter-spacing: .14em;
+}
+.space-sidebar :is(.space-group-button, .space-division-button):is(:hover, [aria-current]) {
+  color: #fff1d7;
+  transform: none;
+  filter: none;
+}
+.space-sidebar :is(.space-group-button, .space-division-button, .space-room-link > a, .space-settings summary, .space-settings button, .space-menu-toggle):is(:hover, :focus-visible)::before {
+  filter: brightness(1.18);
+}
+.space-sidebar :is(.space-group-button, .space-division-button, .space-room-link > a)[aria-current]::before {
+  filter: sepia(.85) saturate(1.6) brightness(1.28);
+}
+.space-sidebar :is(.space-group-button, .space-division-button)[aria-current]::after {
+  content: '';
+  position: absolute;
+  inset: 3px 5px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 8px;
+  background: linear-gradient(110deg, #bd934136, #a07a3014);
+}
+.space-sidebar :is(.space-group-button, .space-division-button)[aria-current] > svg { stroke: #f1ce92; }
+.space-sidebar :is(.space-group-chevron, .space-link-arrow, .space-link-index) { color: var(--shell-gold); }
+.space-sidebar .space-nav-links > .space-room-link > a,
+.space-sidebar :is(.space-settings summary, .space-settings button, .space-menu-toggle) {
+  min-height: 44px;
+  box-sizing: border-box;
+  --shell-rim: 11px 15px;
+  --shell-bleed: 6px 3px;
+  isolation: isolate;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #ede8df;
+  font: 500 14px/1.35 var(--shell-type);
+  text-shadow: none;
+}
+.space-sidebar .space-settings { margin: 12px 0 0; }
+.space-sidebar .space-settings > div { background: #131a1f; border-color: #595449; }
+.space-experience :is(.space-sidebar, .space-topbar) :is(a, button, select, summary):focus-visible {
+  outline: 2px solid #ffe3aa;
+  outline-offset: 2px;
+}
+
+@media (min-width: 761px) and (max-width: 1050px) {
+  .space-experience > header.space-topbar { gap: 6px; padding-inline: 9px; }
+  .space-experience .space-topbar .room-brand { gap: 7px; }
+  .space-experience .space-topbar .brand-emblem { width: 44px; height: 44px; }
+  .space-experience .space-topbar .brand-wordmark { font-size: 30px; gap: 6px; }
+  .space-experience .space-topbar .brand-wordmark small { font-size: 11px; }
+  .space-experience .space-topbar .pilot-connections button { padding-inline: 8px; gap: 4px; }
+  .space-experience .space-topbar .space-download { padding-inline: 6px; }
+  .space-experience .space-topbar .pilot-connection-copy strong { font-size: 13px; }
+  .space-experience .space-topbar .pilot-connection-arrow { display: none; }
+}
+
+@media (max-width: 760px) {
+  .space-experience > header.space-topbar {
+    --action-height: 46px;
+    --action-width: min(29vw, 190px);
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, var(--action-width)));
+    height: auto;
+    gap: 6px;
+    padding: 6px 10px;
+    background: linear-gradient(115deg, #43382d, #2d2722 34%, #101920 68%);
+    border-bottom: 1px solid #76644e;
+  }
+  .shell-material { display: none; }
+  .space-experience .space-topbar .room-brand { grid-row: 1 / span 2; gap: 6px; }
+  .space-experience .space-topbar .brand-emblem { width: 32px; height: 32px; }
+  .space-experience .space-topbar .brand-wordmark { font-size: 22px; gap: 4px; letter-spacing: .04em; }
+  .space-experience .space-topbar .brand-wordmark small { font-size: 9px; letter-spacing: .03em; }
+  .space-experience .space-topbar .pilot-connections button { padding: 0 10px; }
+  .space-experience .space-topbar .pilot-connection-copy strong { max-width: none; font-size: 13px; }
+  .space-experience .space-topbar :is(.space-download, .space-language) { font-size: 13px; }
+  .space-experience .space-topbar .space-download { padding-inline: 8px; }
+  .space-topbar .space-language select { padding-inline: 8px; }
+  .space-experience .space-main { grid-template-columns: minmax(0, 1fr); }
+  .space-experience .space-sidebar { padding: 6px 10px; gap: 6px; background: #10161b; }
+  .space-sidebar .space-settings { margin: 0; }
+  .space-sidebar .space-dock {
+    background: #10161b;
+    border-color: #6c604f;
+    max-height: calc(100svh - 100% - 110px);
+  }
 }

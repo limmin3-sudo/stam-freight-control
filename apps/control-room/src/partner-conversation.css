@@ -79,4 +79,7 @@
 .partner-question p{margin:0;line-height:1.5}
 .partner-question p:empty{display:none}
 .crew-encounter[data-actions=true] .partner-conversation:has(.partner-question){overflow:auto}
-.partner-hit[data-partner=director]{clip-path:polygon(35% 0,64% 0,64% 14%,76% 20%,82% 50%,92% 100%,70% 100%,49% 69%,49% 100%,34% 100%,30% 53%,35% 35%,25% 36%,0 31%,0 27%,28% 30%,31% 18%,39% 14%)}
+.partner-hit[data-partner=director]{
+  aspect-ratio:3/10;
+  clip-path:polygon(32% 0,68% 0,72% 14%,88% 19%,98% 41%,85% 55%,70% 77%,62% 100%,38% 100%,30% 77%,15% 55%,2% 41%,12% 19%,28% 14%);
+}
