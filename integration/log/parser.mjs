@@ -1,5 +1,5 @@
 import {parseNavigationLine} from './navigation.mjs';
-// Observed Game.log formats, build 12913470. No localization tables or game writes.
+// Observed Game.log formats and STAM 2.6.8 notification text (build 13165946).
 // These are observations, not a complete cargo manifest or a position tracker.
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const OBJECTIVE = /^[\w-]{1,200}$/;
@@ -55,7 +55,7 @@ export function parseLogLine(line, provenance) {
     const text = line.match(/Added notification "(.*)" \[\d+\] to queue\./)?.[1];
     if (text === undefined) return fail();
     const plain=clean(text);
-    const award=plain.match(/^(?:Awarded\s+((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC|((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC\s+지급)\s*:?\s*$/i);
+    const award=plain.match(/^(?:Awarded\s+((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC|((?:\d{1,3}(?:,\d{3})+|\d+))(?:\s+aUEC\s+지급|에게\s+aUEC\s+수여됨))\s*:?\s*$/i);
     if(award){
       const amount=Number((award[1]||award[2]).replaceAll(',',''));
       if(!UUID.test(missionId)||!Number.isSafeInteger(amount)||amount<=0)return fail();
@@ -64,7 +64,7 @@ export function parseLogLine(line, provenance) {
       return {event:{...base,type:'credit-award-observed',amount,currency:'aUEC',notificationId,
         missionId:/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId)?null:missionId.toLowerCase()}};
     }
-    const terminal=plain.match(/^(Contract Complete|계약 완료|Contract Failed|계약 실패):\s*\S/i);
+    const terminal=plain.match(/^(Contract Complete|의뢰 완료|계약 완료|Contract Failed|계약 실패):\s*\S/i);
     if(terminal){
       if(/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId))return fail();
       return emit('terminal-notice-observed',missionId,{completion:/Complete|완료/i.test(terminal[1])?'Complete':'Fail'});
@@ -76,7 +76,7 @@ export function parseLogLine(line, provenance) {
     }
     const amounts = [...text.matchAll(/(?<![\w.,+−-])([\d]+(?:\.\d+)?)\s*\/\s*([\d]+(?:\.\d+)?)\s*SCU\b/gi)];
     if (!/SCU/i.test(text)) {
-      const pod=plain.match(/^(?:New Objective|Objective Complete|새 목표|새로운 목표|목표 완료):.*?(?<![\w.,+−-])(\d+)\s*\/\s*(\d+)\s*(?:개(?:의)?\s*)?CryoPods?\b/i);
+      const pod=plain.match(/^(?:New Objective|Objective Complete|새 목표|새로운 목표|목표 달성|목표 완료):.*?(?<![\w.,+−-])(\d+)\s*\/\s*(\d+)\s*(?:개(?:의)?\s*)?(?:CryoPods?\b|냉동 포드(?=[을를\s:.,]|$))/i);
       if(pod){const objectiveId=field(line,'ObjectiveId'),current=Number(pod[1]),total=Number(pod[2]);if(!OBJECTIVE.test(objectiveId||'')||!Number.isSafeInteger(current)||!Number.isSafeInteger(total)||total<1||total>2048||current>total)return fail();return emit('quantity-observed',missionId,{objectiveId,current,total,unit:'count',notification:plain.replace(/CryoPods\b/gi,'CryoPod')});}
       // Return/visit instructions can coexist with a later successful delivery.
       // Preserve the notice; its wording does not prove a mandatory route leg.
