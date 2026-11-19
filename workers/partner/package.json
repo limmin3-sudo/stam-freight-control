@@ -1,0 +1,14 @@
+{
+  "name": "stam-partner-worker-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test worker.test.mjs",
+    "deploy": "wrangler deploy --config ../../wrangler.partner.toml",
+    "secret": "wrangler secret put OPENAI_API_KEY --config ../../wrangler.partner.toml"
+  },
+  "devDependencies": {
+    "miniflare": "5.20261118.0-beta",
+    "wrangler": "4.165.0"
+  }
+}
