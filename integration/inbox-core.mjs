@@ -34,9 +34,10 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   if(reference&&!useOriginal&&!reference.multipleDropoffs&&!reference.multiplePickups){
    const observed=rows;
    rows=observed.filter(row=>{
-    if(!row.dropoffId||observed.filter(r=>key(r.commodity)===key(row.commodity)).length!==1)return true;
+    const destination=row.dropoffId||reference.dropoffId;
+    if(!destination||row._locationConflict||observed.filter(r=>key(r.commodity)===key(row.commodity)).length!==1)return true;
     const orders=reference.rows.filter(r=>key(r.commodity)===key(row.commodity));
-    return !(orders.length>1&&orders.every(r=>r.dropoffId===row.dropoffId&&actualQuantity(r))&&
+    return !(orders.length>1&&orders.every(r=>r.dropoffId===destination&&actualQuantity(r))&&
      orders.reduce((sum,r)=>sum+Number(r.scu),0)===row.scu);
    });
   }

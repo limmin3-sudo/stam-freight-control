@@ -48,3 +48,15 @@ test('Korean delivery counters remain aggregate evidence when multiple pickup qu
 });
 
 test('every resource order in the current released catalogue has a fixed quantity or an explicit upper SCU bound',()=>{let count=0;for(const d of catalog.definitions.filter(d=>d.released&&!d.notForRelease))for(const o of d.rules?.orders||[]){if(o.kind!=='Resource'||!o.name)continue;count++;assert.ok(Number.isSafeInteger(o.fixedQuantity)&&o.fixedQuantity>0||Number.isSafeInteger(o.maxScu)&&o.maxScu>0,`${d.id}: ${o.name} has no resource upper bound`);}assert.equal(count,3074);});
+
+test('one delivery counter matching two fixed orders at the same stop is counted once',()=>{
+ const objective='55555555-5555-4555-8555-555555555555';
+ const order={name:'Nitrogen',kind:'Resource',fixedQuantity:12,maxBoxScu:4,pickupPool:'pickup',dropoffPool:'dropoff'};
+ const data={definitions:[{id:accepted.definitionId,title:'Sample',released:true,rules:{orders:[{...order,orderIndex:0},{...order,orderIndex:1}],haulingObjectives:[objective]}}]};
+ const dropoff=places.find(p=>p.name==='Baijini Point').id;
+ const index={match:()=>({status:'coordinate-match',candidates:[places.find(p=>p.id===dropoff)]})};
+ const observed={objectiveId:'dropoff_'+objective+'_0',total:24,at:'2026-11-19T00:00:00Z',notification:'새로운 목표: 0/24 SCU의 질소를 파이로 시스템에 전달하세요: '};
+ const contract={...accepted,markerObservations:[{role:'dropoff',hauling:true,objectiveId:'dropoff_'+objective+'_1',position:{}}],quantityObservations:[observed]};
+ const [card]=inboxCards({contracts:[contract]},places,index,data,db).cards;
+ assert.deepEqual(card.rows.map(row=>row.scu),[12,12]);
+});
