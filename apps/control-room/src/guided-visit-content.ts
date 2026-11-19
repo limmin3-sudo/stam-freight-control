@@ -1,4 +1,4 @@
-import welcomeDesk from './assets/guide/lounge-start.png';
+import welcomeDesk from '../../../docs/cinematics/lounge-guide-dialogue-20261119/01-approach-start.png';
 import {spaceConfig} from './space-config';
 import bridgeArrival from './assets/guided-visit/arrival.webp';
 import operator from './assets/guided-visit/contractlist.webp';
