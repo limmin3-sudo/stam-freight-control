@@ -45,7 +45,7 @@ async function checkBuildSource(repair) {
     console.log('Production build uses the checked-out Git revision.');
     return;
   }
-  if (config.production_branch !== 'main' || config.production_settings?.build_command !== pin) {
+  if (config.git_repository?.branch !== 'main' || config.production_settings?.build_command !== pin) {
     console.log('Build configuration differs from the known main-branch pin. Manual review required.');
     return;
   }
