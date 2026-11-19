@@ -20,6 +20,7 @@ jobs:
           import os
           from uuid import UUID
 
+          import httpx
           from mcp import ClientSession
           from mcp.client.streamable_http import streamablehttp_client
 
@@ -55,5 +56,17 @@ jobs:
                               return
                       raise SystemExit("Cloudflare MCP did not return a deployment ID.")
 
-          asyncio.run(verify())
+          try:
+              asyncio.run(verify())
+          except* httpx.HTTPStatusError:
+              # Compare the MCP server's two identity probes without logging response bodies.
+              headers = {"Authorization": "Bearer " + os.environ["CF_MCP_TOKEN"]}
+              with httpx.Client(base_url="https://api.cloudflare.com/client/v4/", headers=headers) as api:
+                  for label, path in [
+                      ("User identity", "user"),
+                      ("Account discovery", "accounts?per_page=1"),
+                      ("Partner deployment", "accounts/5fb0f6d0fa99c783973d667151b868aa/workers/scripts/stam-partner-chat/deployments"),
+                  ]:
+                      print(f"{label}: HTTP {api.get(path).status_code}", flush=True)
+              raise SystemExit("Cloudflare refused MCP authentication. Review the read checks above.")
           PY
