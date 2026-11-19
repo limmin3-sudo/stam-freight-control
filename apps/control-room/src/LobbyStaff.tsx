@@ -1,7 +1,10 @@
+import greetings from '../../../data/partner-greetings.json';
 import {useLayoutEffect,useState,type CSSProperties} from 'react';
-import type {DivisionFacility,LobbyRoom,TradeScope} from './space-navigation';
+import type {DivisionFacility} from './space-navigation';
 import type {Locale} from './navigation';
-import {facilityLobbies,type LobbyCopy} from './facility-lobby-content';
+import {academyTutorials} from './partner-tutorials';
+import {spaceHash} from './space-navigation';
+import type {LobbyCopy} from './facility-lobby-content';
 import {CrewEncounter} from './CrewEncounter';
 import seniorClose from '../../../docs/cinematics/guide-close-dialogue-20261117/assets/senior-trade-officer-close.png';
 import lingBroker from './assets/facility-staff/ling-broker.png';
@@ -9,14 +12,14 @@ import professorClose from './assets/dialogue-originals/academic-advisor.webp';
 import brokerClose from './assets/dialogue-originals/ling-broker.webp';
 import './lobby-staff.css';
 
-type Staff={id:string;name:LobbyCopy;role:LobbyCopy;intro:LobbyCopy;image:string;x:number;room:LobbyRoom;action:LobbyCopy;scope?:TradeScope};
+type Staff={id:string;name:LobbyCopy;intro:LobbyCopy;image:string;x:number;};
 const staff:Record<DivisionFacility,readonly Staff[]>={
  trade:[
-  {id:'senior-trade-officer',scope:'intrasystem',name:['수석 무역관','Senior trade officer'],role:['행성계 내부 무역','In-system trade'],intro:['같은 행성계 안에서 거래처와 이동 동선을 살피는 일을 맡고 있습니다. 함선과 가용 자본에 맞는 거래를 함께 검토하겠습니다.','I focus on trading locations and routes within a single star system. Together we will assess trades suited to your ship and available capital.'],image:new URL('./assets/facility-staff/officer-lobby.webp',import.meta.url).href,x:56.5,room:'planning',action:['무역 계획하기','Plan a trade']},
-  {id:'ling-broker',scope:'interstellar',name:['링 가문 중개인','Ling family broker'],role:['행성계 간 무역','Interstellar trade'],intro:['행성계를 오가는 거래를 맡고 있어요. 출발지와 목적지뿐 아니라 이동 구간과 자금 계획까지 함께 살펴보죠. 위험도와 합법성은 각각 선택하는 기준이에요.','I handle trades between star systems. Let’s consider the journey and your budget alongside the origin and destination. Risk and legality are separate choices.'],image:lingBroker,x:63.8,room:'planning',action:['무역 계획하기','Plan a trade']},
+  {id:'senior-trade-officer',name:['수석 무역관','Senior trade officer'],intro:[greetings['senior-trade-officer'].ko,greetings['senior-trade-officer'].en],image:new URL('./assets/facility-staff/officer-lobby.webp',import.meta.url).href,x:56.5},
+  {id:'ling-broker',name:['링 가문 중개인','Ling family broker'],intro:[greetings['ling-broker'].ko,greetings['ling-broker'].en],image:lingBroker,x:63.8},
  ],
  'guide-center':[
-  {id:'academic-advisor',name:['지도 교수','Academic advisor'],role:['운송 교육 · 실전 노하우','Freight education · Practical guidance'],intro:['미션을 어떻게 조합하고 어떤 순서로 운송할지 함께 살펴볼게요. 초반 평판을 쌓는 방법부터 경로 설계와 실제 운송 사례까지 차근차근 다룹니다.','We’ll explore which missions work together and how to order your deliveries, from building early reputation to route planning and real freight case studies.'],image:new URL('./assets/facility-staff/academic-advisor.png',import.meta.url).href,x:63,room:'education',action:['교육실 둘러보기','Explore education']},
+  {id:'academic-advisor',name:['지도 교수','Academic advisor'],intro:[greetings['academic-advisor'].ko,greetings['academic-advisor'].en],image:new URL('./assets/facility-staff/academic-advisor.png',import.meta.url).href,x:63},
  ],
 };
 
@@ -24,14 +27,14 @@ const portraits:Record<string,string>={'senior-trade-officer':seniorClose,'ling-
 
 // Room and scope still use the existing facility entry controller. Meeting a
 // staff member never selects a flight partner or edits a plan or stored run.
-export function LobbyStaff({facility,locale,motion,background,onConversationChange,onRoom}:{facility:DivisionFacility;locale:Locale;motion:boolean;background:string;onConversationChange:(open:boolean)=>void;onRoom:(room:LobbyRoom,scope?:TradeScope,person?:string,point?:readonly[number,number])=>void}){
+export function LobbyStaff({facility,locale,motion,sound,volume,background,onConversationChange}:{facility:DivisionFacility;locale:Locale;motion:boolean;sound:boolean;volume:number;background:string;onConversationChange:(open:boolean)=>void}){
  const en=locale==='en',t=(copy:LobbyCopy)=>copy[en?1:0],people=staff[facility];
  const [selected,setSelected]=useState<{person:Staff;origin:HTMLButtonElement}|null>(null);
  useLayoutEffect(()=>{onConversationChange(!!selected);return()=>onConversationChange(false);},[!!selected,onConversationChange]);
  const person=selected?.person;
- const actions=person?(facility==='trade'?[{label:t(person.action),onSelect:()=>onRoom(person.room,person.scope,person.id,[person.x,56])}]:facilityLobbies[facility].places.map(place=>({label:t(place.name),onSelect:()=>onRoom(place.id,undefined,person.id,place.point)}))):[];
- const guide=person?facilityLobbies[facility].places.map(place=>({id:String(place.id),label:t(place.name),open:()=>onRoom(place.id,person.scope,person.id,place.point)})):[];
- if(person&&facility==='trade')guide.push({id:'planning',label:t(person.action),open:()=>onRoom(person.room,person.scope,person.id,[person.x,56])});
+ const destinations=person?.id==='academic-advisor'
+  ? academyTutorials(en,route=>{location.hash=spaceHash({...route,locale});})
+  : [];
  return <div className="lobby-staff">
   <div className="lobby-staff-people" aria-label={en?'Meet the staff':'담당자 안내'}>
    {people.map(person=><button key={person.id} type="button" className="lobby-person" data-staff={person.id} data-selected={false} aria-haspopup="dialog" aria-expanded={selected?.person.id===person.id} style={{'--staff-x':`${person.x}%`} as CSSProperties} onClick={event=>setSelected({person,origin:event.currentTarget})}>
@@ -39,6 +42,6 @@ export function LobbyStaff({facility,locale,motion,background,onConversationChan
     <span className="lobby-person-label"><strong>{t(person.name)}</strong></span>
    </button>)}
   </div>
-  {selected&&<CrewEncounter id={selected.person.id} name={t(selected.person.name)} line={t(selected.person.intro)} image={portraits[selected.person.id]!} background={background} focus={selected.person.x} en={en} motion={motion} origin={selected.origin} actions={actions} guide={guide} onClose={()=>setSelected(null)}/>}
+  {selected&&<CrewEncounter id={selected.person.id} name={t(selected.person.name)} line={t(selected.person.intro)} image={portraits[selected.person.id]!} background={background} key={selected.person.id} sound={sound} volume={volume} en={en} motion={motion} origin={selected.origin} destinations={destinations} onClose={()=>setSelected(null)}/>}
  </div>;
 }

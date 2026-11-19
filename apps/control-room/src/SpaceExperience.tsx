@@ -41,6 +41,7 @@ import './lounge-labels.css';
 import './content-optics.css';
 import './mission-archive.css';
 const GuidedVisit=lazy(()=>import('./GuidedVisit'));
+const ProfessorLesson=lazy(()=>import('./GuideJourney').then(module=>({default:module.GuideJourney})));
 const FacilityLobby=lazy(()=>import('./FacilityLobby').then(module=>({default:module.FacilityLobby})));
 const DivisionHub=lazy(()=>import('./DivisionHub').then(module=>({default:module.DivisionHub})));
 const FreightArchive=lazy(()=>import('./FreightArchive'));
@@ -351,7 +352,7 @@ export function SpaceExperience() {
 
     <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
-      {route.guidedVisit?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading tour…':'둘러보기를 여는 중…'}</p>}><GuidedVisit en={en} motion={motion} sound={sound} volume={volume} onComplete={finishVisit}/></Suspense>:route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
+      {route.guidedVisit?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading tour…':'둘러보기를 여는 중…'}</p>}><GuidedVisit en={en} motion={motion} sound={sound} volume={volume} onComplete={finishVisit}/></Suspense>:route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby sound={sound} volume={volume} key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={!!conversation||undefined}>
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
@@ -398,8 +399,8 @@ export function SpaceExperience() {
             return <button key={id} type="button" className="partner-hit" data-partner={id}
               style={{left:`${at.x}%`,top:`${at.y}%`,height:`${at.height}%`}}
               aria-label={en?`Talk to ${partnerDialogue[id].name[1]}`:`${partnerDialogue[id].name[0]}와 대화`}
-              aria-haspopup={id==='director'?undefined:'dialog'} disabled={!!pending||route.screen==='map'}
-              onClick={event=>{if(id==='director'){enter(event,'guide',configuration.targets.find(target=>target.id==='desk'));return;}event.currentTarget.focus();cancel();setActive(null);tone(true);setConversation({partner:id,variant:greetingVisits.current[id]++,origin:event.currentTarget});}}/>;
+              aria-haspopup="dialog" disabled={!!pending||route.screen==='map'}
+              onClick={event=>{event.currentTarget.focus();cancel();setActive(null);tone(true);setConversation({partner:id,variant:greetingVisits.current[id]++,origin:event.currentTarget});}}/>;
           })}
           <div className="space-markers" inert={!!pending}>
             {configuration.targets.map(target => <a key={target.id} id={`space-marker-${target.id}`} className={`space-marker ${active === target.id ? 'is-lit' : ''}`} data-marker={target.id}
@@ -478,7 +479,14 @@ export function SpaceExperience() {
       <ConsoleArrival departing={approaching} powerOn={powerOn} returning={!!(pending?.returning||arrivalView?.returning)} departureMs={departureMs} ignitionMs={ignitionMs}/>
     </main>
 
-    {conversation && <PartnerConversation partner={conversation.partner} variant={conversation.variant} origin={conversation.origin} motion={motion} en={en} onClose={()=>setConversation(null)}/>}
+    {route.lesson&&<Suspense fallback={<p role="status">{en?'Opening the professor’s tutorial…':'교수님의 수업을 여는 중…'}</p>}>
+      <ProfessorLesson key={route.lesson} topic={route.lesson} locale={route.locale} motion={motion}
+        onClose={()=>openDivisionFacility('guide-center')}
+        onTour={()=>{location.hash=spaceHash({screen:'guide',guidedVisit:true,locale:route.locale});}}
+        onTopic={topic=>{if(topic==='trade'||topic==='practice')location.hash=spaceHash({screen:'division',facility:'guide-center',lesson:topic,locale:route.locale});}}
+        onNavigate={(screen,serviceView,view)=>{location.hash=spaceHash({screen,serviceView,view,locale:route.locale});}}/>
+    </Suspense>}
+    {conversation && <PartnerConversation key={conversation.partner} sound={sound} volume={volume} navigate={destination=>{location.hash=spaceHash({...destination,locale:route.locale});}} partner={conversation.partner} variant={conversation.variant} origin={conversation.origin} motion={motion} en={en} onClose={()=>setConversation(null)}/>}
     <footer className="space-footer" aria-hidden="true" />
   </div>
   </>;

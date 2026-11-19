@@ -2,6 +2,7 @@ import type { Locale, Station } from './navigation';
 
 export const spaceScreens = ['division', 'lounge', 'guide', 'information', 'cinema', 'service', 'bridge', 'mission', 'map', 'operations'] as const;
 export type SpaceScreen = typeof spaceScreens[number];
+export type AcademyLesson='practice'|'trade';
 export type TradeScope='intrasystem'|'interstellar';
 export type DivisionFacility='trade'|'guide-center';
 export const lobbyRoomIds={trade:['market','planning','trade-operations'],'guide-center':['freight-information','education','operations-study']} as const;
@@ -10,7 +11,7 @@ export function validLobbyRoom(facility:DivisionFacility|undefined,room:string|u
 export type ArchiveView = 'missions'|'ships'|'cargo';
 export const serviceViews=['account','history','feedback','updates','manual'] as const;
 export type ServiceView=typeof serviceViews[number];
-export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView; guidedVisit?:true; facility?:DivisionFacility; lobbyRoom?:LobbyRoom;tradeScope?:TradeScope }>;
+export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView; guidedVisit?:true; facility?:DivisionFacility; lobbyRoom?:LobbyRoom;tradeScope?:TradeScope;lesson?:AcademyLesson }>;
 
 export function parseSpaceRoute(hash: string): SpaceRoute {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
@@ -20,6 +21,7 @@ export function parseSpaceRoute(hash: string): SpaceRoute {
   const room=params.get('room');
   return {
     screen,
+    ...(facility==='guide-center'&&!room&&(params.get('lesson')==='practice'||params.get('lesson')==='trade')?{lesson:params.get('lesson') as AcademyLesson}:{}),
     ...(screen==='guide'&&params.get('tour')==='1'?{guidedVisit:true as const}:{}),
     ...(facility==='trade'&&room==='planning'&&['intrasystem','interstellar'].includes(params.get('advisor')||'')?{tradeScope:params.get('advisor') as TradeScope}:{}),
     ...(validLobbyRoom(facility,room)?{lobbyRoom:room}:{}),
@@ -30,7 +32,7 @@ export function parseSpaceRoute(hash: string): SpaceRoute {
   };
 }
 
-export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='guide'&&route.guidedVisit?'&tour=1':''}${route.screen==='information'&&route.view?'&view='+route.view:''}${route.screen==='service'&&route.serviceView?'&section='+route.serviceView:''}${route.screen==='division'&&route.facility?'&facility='+route.facility:''}${route.screen==='division'&&validLobbyRoom(route.facility,route.lobbyRoom)?'&room='+route.lobbyRoom:''}${route.screen==='division'&&route.facility==='trade'&&route.lobbyRoom==='planning'&&route.tradeScope?'&advisor='+route.tradeScope:''}`; }
+export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='guide'&&route.guidedVisit?'&tour=1':''}${route.screen==='information'&&route.view?'&view='+route.view:''}${route.screen==='service'&&route.serviceView?'&section='+route.serviceView:''}${route.screen==='division'&&route.facility?'&facility='+route.facility:''}${route.screen==='division'&&validLobbyRoom(route.facility,route.lobbyRoom)?'&room='+route.lobbyRoom:''}${route.screen==='division'&&route.facility==='trade'&&route.lobbyRoom==='planning'&&route.tradeScope?'&advisor='+route.tradeScope:''}${route.screen==='division'&&route.facility==='guide-center'&&!route.lobbyRoom&&route.lesson?'&lesson='+route.lesson:''}`; }
 export function isStation(screen: SpaceScreen): screen is Station {
   return screen === 'mission' || screen === 'map' || screen === 'operations';
 }
