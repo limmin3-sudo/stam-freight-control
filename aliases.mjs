@@ -1,8 +1,9 @@
 import AI from './data/ai-korean.json' with {type:'json'};
+import priorPatchNames from './data/stam-place-aliases.json' with {type:'json'};
 import {aiPlace,lexPlace} from './data/ai-korean-lexicon.mjs';
 import {gameEn} from './i18n.mjs';
 // Fleet-patch names first; earlier AI-authored names stay searchable as extra aliases.
-export const KO_NAMES=Object.fromEntries([...Object.keys(AI.places).map(en=>[lexPlace(en).replace(/\s/g,''),en]),...Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en])]);
+export const KO_NAMES=Object.fromEntries([...Object.entries(priorPatchNames).map(([ko,en])=>[ko.replace(/\s/g,''),en]),...Object.keys(AI.places).map(en=>[lexPlace(en).replace(/\s/g,''),en]),...Object.entries(AI.places).map(([en,ko])=>[ko.replace(/\s/g,''),en])]);
 Object.assign(KO_NAMES,{'마지막착륙장':'Last Landings','마지막착륙지':'Last Landings','브리오함선폐기장':"Brio's Breaker Yard",'브레오함선폐기장':"Brio's Breaker Yard",'티사우주공항':'Lorville','티사스페이스포트':'Lorville','teasaspaceport':'Lorville','로빌':'Lorville','로어빌':'Lorville'});
 Object.assign(KO_NAMES,{'nbint스페이스포트':'New Babbage','nbintspaceport':'New Babbage','사쿠라선골든로드워크센터':'Sakura Sun Goldenrod Workcenter'});
 Object.assign(KO_NAMES,{'rikermemorialspaceport':'Area18','라이커메모리얼':'Area18','라이커메모리얼스페이스포트':'Area18','라이커메모리얼우주공항':'Area18','newbabbageinterstellarspaceport':'New Babbage'});

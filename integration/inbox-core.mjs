@@ -53,6 +53,7 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
   const card={id:c.missionId,title:text((reference?.basis==='exact-template-name'?c.title:null)||reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length||rows.some(r=>r._locationConflict),rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
+  if (/[가-힣]/.test(c.title || '')) card.koreanTitle = text(c.title);
   if(quantityHints.length)card.quantityHints=quantityHints;
   card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints]);unique.set(card.id,card);
  }

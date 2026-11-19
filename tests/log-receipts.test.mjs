@@ -48,3 +48,26 @@ test('Korean request acceptance and quantity-first delivery notifications form o
  assert.equal(cards[0].rows[0].scu,24);
  assert.equal(cards[0].rows[0]._dropoffText,'파이로 시스템');
 });
+
+test('STAM 2.6.8 distinguishes acceptance, goal completion, contract endings and credit awards',()=>{
+ const notice=label=>accepted.replace('Contract Accepted: Junior small haul | from Ashland',label);
+ const e=new LogEvidence();
+ for(const prefix of ['의뢰 가능','계약 철회','목표 달성']) e.ingest(notice(prefix+': 테스트'));
+ assert.equal(inboxCards(e.snapshot()).cards.length,0);
+ e.ingest(notice('의뢰 수락: 시험 의뢰'));
+ e.ingest(notice('목표 달성: 8/8 SCU의 질소를 로어빌( LORVILLE )에 전달하세요'));
+ const card=inboxCards(e.snapshot(),[{id:'l',name:'Lorville'}]).cards[0];
+ assert.equal(card.koreanTitle,'시험 의뢰');
+ assert.equal(card.ended,false);
+ assert.equal(card.rows[0].dropoffId,'l');
+ assert.equal(card.rows[0].scu,8);
+ e.ingest(notice('의뢰 완료: 시험 의뢰'));
+ assert.equal(inboxCards(e.snapshot()).cards[0].ended,true);
+ assert.equal(parseLogLine(notice('계약 실패: 시험 의뢰'),{}).event.completion,'Fail');
+ const award=parseLogLine(notice('12,000에게 aUEC 수여됨'),{}).event;
+ assert.equal(award.type,'credit-award-observed');
+ assert.equal(award.amount,12000);
+ const pods=parseLogLine(notice('새로운 목표: 0/4 냉동 포드를 로어빌로 운송하세요'),{}).event;
+ assert.equal(pods.unit,'count');
+ assert.equal(pods.total,4);
+});
