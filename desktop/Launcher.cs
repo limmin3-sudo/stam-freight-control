@@ -95,6 +95,8 @@ internal static class Launcher {
     }
 }
 internal sealed class BridgeWindow : Form {
+    // Present the glass surfaces and their transparent child controls in one repaint.
+    protected override CreateParams CreateParams {get{var p=base.CreateParams;p.ExStyle|=0x02000000;return p;}}
     readonly bool preview;
     bool english,quitting,manualStop;
     Process child;string selected="--auto",phase="idle";

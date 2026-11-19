@@ -4,7 +4,7 @@ import type {Job} from './mission-trial';
 import {correctReceipt,decodeReceiptCache,effectiveReceipts,receiptCacheKey,receiveReceipts} from './receipt-cache';
 import type {ReceiptCache,ReceiptResult} from './receipt-cache';
 
-type Result={phase:ReceiptResult['phase']|'error';cards:Job[]};
+type Result={phase:ReceiptResult['phase']|'error';cards:Job[];fileUnavailable?:boolean};
 function restore(){
  try{return {cache:decodeReceiptCache(sessionStorage.getItem(receiptCacheKey)),failed:false};}
  catch{return {cache:null,failed:true};}
@@ -14,6 +14,7 @@ export function useLogReceipts(){
  const [cache,setCache]=useState(initial.cache),current=useRef(cache);current.current=cache;
  const [storageError,setStorageError]=useState(initial.failed?'restore':'');
  const [phase,setPhase]=useState<Result['phase']|'idle'|'reading'>(cache?.phase||'idle');
+ const [fileUnavailable,setFileUnavailable]=useState(false);
  const [cached,setCached]=useState(!!cache);
  const worker=useRef<Worker|null>(null),watch=useRef<ReturnType<typeof setInterval>|undefined>(undefined);
  const generation=useRef(0),readingLive=useRef(false);
@@ -62,9 +63,9 @@ export function useLogReceipts(){
   });
   if(companion.current){setSource('companion');setConnection('offline');}
  }
- function failed(){setPhase('error');setCached(!!current.current);}
+ function failed(unavailable=false){setFileUnavailable(unavailable);setPhase('error');setCached(!!current.current);}
  function accept(value:Result){
-  if(value.phase==='error'){failed();return false;}
+  if(value.phase==='error'){failed(value.fileUnavailable);return false;}
   try{const next=receiveReceipts({phase:value.phase,cards:value.cards},current.current);persist(next);setPhase(value.phase);setCached(false);return true;}
   catch{failed();return false;}
  }
@@ -102,5 +103,5 @@ export function useLogReceipts(){
    setSource('browser');setPhase('reading');setCached(!!current.current);setWatching(true);watch.current=setInterval(()=>void poll(),2000);await poll();
   }catch(error){if(serial===generation.current&&(error as Error).name!=='AbortError'){stopWatching();failed();}}
  }
- return {phase,rawCards:cache?.cards||[],cards:effectiveReceipts(cache),cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
+ return {phase,fileUnavailable,rawCards:cache?.cards||[],cards:effectiveReceipts(cache),cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
 }

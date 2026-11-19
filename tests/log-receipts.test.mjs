@@ -37,3 +37,14 @@ test('both observed hauling template families are recognised without a company r
  for(const template of ['HaulCargo_SingleToMulti_Interstellar_Bulk_AltUnpro_Trit','RedWind_Pyro_SmallGrade_Solar_HH_TradepostToStation_Silicon_CargoHauling_Multi2ToSingle','RedWind_Pyro_SmallGrade_Solar_HH_TradepostToOutpost_ProcessedFood_CargoHauling_SingleToMulti3','OtherCompany_CargoHauling_SingleToMulti'])assert.equal(parseLogLine(marker().replace('Unrecognised_Template',template),{}).event.hauling,true,template);
  for(const template of ['SalvageCargo','Combat_Template','NotCargoHauling'])assert.equal(parseLogLine(marker().replace('Unrecognised_Template',template),{}).event.hauling,false,template);
 });
+
+test('Korean request acceptance and quantity-first delivery notifications form one receipt',()=>{
+ const e=new LogEvidence();
+ e.ingest(accepted.replace('Contract Accepted: Junior small haul | from Ashland','의뢰 수락: 테스트 운송: '));
+ e.ingest(accepted.replace('Contract Accepted: Junior small haul | from Ashland','새로운 목표: 0/24 SCU의 질소를 파이로 시스템에 전달하세요: ').replace('pickup_test_0','dropoff_test_0'));
+ const cards=inboxCards(e.snapshot()).cards;
+ assert.equal(cards.length,1);
+ assert.equal(cards[0].title,'테스트 운송');
+ assert.equal(cards[0].rows[0].scu,24);
+ assert.equal(cards[0].rows[0]._dropoffText,'파이로 시스템');
+});

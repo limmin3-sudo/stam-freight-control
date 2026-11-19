@@ -29,6 +29,18 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    }
   }
   const reference=definitionDraft(c,places,catalog,missionDb,{markers:markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)})),pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
+  // A single delivery counter can cover several fixed catalogue orders even
+  // when all orders use one location pool. Keep their quantities exactly once.
+  if(reference&&!useOriginal&&!reference.multipleDropoffs&&!reference.multiplePickups){
+   const observed=rows;
+   rows=observed.filter(row=>{
+    const destination=row.dropoffId||reference.dropoffId;
+    if(!destination||row._locationConflict||observed.filter(r=>key(r.commodity)===key(row.commodity)).length!==1)return true;
+    const orders=reference.rows.filter(r=>key(r.commodity)===key(row.commodity));
+    return !(orders.length>1&&orders.every(r=>r.dropoffId===destination&&actualQuantity(r))&&
+     orders.reduce((sum,r)=>sum+Number(r.scu),0)===row.scu);
+   });
+  }
   if(reference?.multiplePickups&&!reference.multipleDropoffs&&!useOriginal){
    const matchesOrder=(row,base)=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`);
    // A single delivery counter can aggregate several pickup orders. Show that

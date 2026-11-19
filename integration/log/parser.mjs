@@ -69,7 +69,7 @@ export function parseLogLine(line, provenance) {
       if(/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId))return fail();
       return emit('terminal-notice-observed',missionId,{completion:/Complete|완료/i.test(terminal[1])?'Complete':'Fail'});
     }
-    const accepted = plain.match(/^(?:계약 수락|Contract Accepted):\s*(.+)$/i);
+    const accepted = plain.match(/^(?:계약 수락|의뢰 수락|Contract Accepted):\s*(.+)$/i);
     if (accepted) {
       const title = clean(accepted[1]).replace(/:\s*$/, '').trim();
       return title ? emit('accepted', missionId, { title }) : fail();

@@ -18,7 +18,7 @@ internal static class DeckTheme {
     }
     internal static void Panorama(Graphics g,Rectangle bounds){
         try{var image=Get("panorama");float scale=Math.Max((float)bounds.Width/image.Width,(float)bounds.Height/image.Height);
-            var state=g.Save();g.SetClip(bounds);g.DrawImage(image,bounds.X+(bounds.Width-image.Width*scale)/2,bounds.Y+(bounds.Height-image.Height*scale)/2,image.Width*scale,image.Height*scale);
+            var state=g.Save();g.SetClip(bounds,System.Drawing.Drawing2D.CombineMode.Intersect);g.DrawImage(image,bounds.X+(bounds.Width-image.Width*scale)/2,bounds.Y+(bounds.Height-image.Height*scale)/2,image.Width*scale,image.Height*scale);
             using(var shade=new SolidBrush(Color.FromArgb(135,3,12,19)))g.FillRectangle(shade,bounds);g.Restore(state);
         }catch(IOException){}catch(ArgumentException){}
     }
