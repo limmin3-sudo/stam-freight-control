@@ -1,5 +1,11 @@
 name: Verify partner Worker via Cloudflare MCP
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      repair:
+        description: Repair the known three-partner production Worker and its old build pin
+        type: boolean
+        default: false
 permissions: {}
 jobs:
   verify:
@@ -70,3 +76,49 @@ jobs:
                       print(f"{label}: HTTP {api.get(path).status_code}", flush=True)
               raise SystemExit("Cloudflare refused MCP authentication. Review the read checks above.")
           PY
+
+  production:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    concurrency: partner-worker-maintenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            workers/partner
+            server
+            data
+            tests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect production worker and build source
+        id: inspect
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STAM_CLOUDFLARE_MCP_TOKEN }}
+          REPAIR: ${{ inputs.repair }}
+        run: node workers/partner/check-production.mjs inspect
+      - name: Test the replacement Worker
+        if: inputs.repair && steps.inspect.outputs.roster == 'three'
+        run: |
+          npm ci --prefix workers/partner
+          node --test tests/partner-guide.test.mjs
+          npm test --prefix workers/partner
+      - name: Publish tested partner code
+        if: inputs.repair && steps.inspect.outputs.roster == 'three'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: 5fb0f6d0fa99c783973d667151b868aa
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STAM_CLOUDFLARE_MCP_TOKEN }}
+        run: |
+          # Preserve the dashboard's current budget, model and origin across the code release.
+          sed '/^\[vars\]/,/^$/d' wrangler.partner.toml > wrangler.partner.release.toml
+          workers/partner/node_modules/.bin/wrangler deploy --keep-vars --config wrangler.partner.release.toml
+      - name: Verify deployed partner roster
+        if: inputs.repair
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.STAM_CLOUDFLARE_MCP_TOKEN }}
+        run: node workers/partner/check-production.mjs verify
