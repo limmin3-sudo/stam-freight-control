@@ -6,7 +6,7 @@ export type SuiteOptions={mode:TradeMode;goal:TradeGoal;shipId:string;originId:n
 export type RouteMetric={meters:number;seconds:number|null;jumps:number;systems:string[];drive?:{name:string;version:string|null}};
 export type PackedItem={commodityId:number;quantity:number;boxSize:number};
 export type SuiteContext={route:(from:Terminal,to:Terminal)=>RouteMetric|null;pack:(items:PackedItem[])=>boolean};
-export type TradeLine=PackedItem&{lotId?:string;name:string;buy:number;sell:number;purchase:number;revenue:number;buyAt:string|null;sellAt:string|null;available:number;demand:number;ownership:CargoLot['ownership'];costKnown:boolean;buySource?:'UEX'|'personal'|'holding';sellSource?:'UEX'|'personal'};
+export type TradeLine=PackedItem&{quantityLimit?:'capital'|'capacity'|'stock'|'demand'|'packing';lotId?:string;name:string;buy:number;sell:number;purchase:number;revenue:number;buyAt:string|null;sellAt:string|null;available:number;demand:number;ownership:CargoLot['ownership'];costKnown:boolean;buySource?:'UEX'|'personal'|'holding';sellSource?:'UEX'|'personal'};
 export type SuiteLeg={originId:number;destinationId:number;lines:TradeLine[];purchase:number;revenue:number;costs:number;profit:number;seconds:number|null;meters:number;waitMinutes:number;systems:string[];drive?:{name:string;version:string|null};empty:boolean};
 export type SuiteRoute={id:string;legs:SuiteLeg[];profit:number;purchase:number;costs:number;cash:number;reserve:number;seconds:number|null;profitPerHour:number|null;roi?:number|null;unsold:CargoLot[];warnings:string[]};
 export type SuiteResult={routes:SuiteRoute[];rejected:Record<string,number>;examined:number;approximate:boolean;error:string|null};
@@ -23,12 +23,24 @@ export function validateSuiteOptions(o:SuiteOptions){
  if(!Array.isArray(o.facilities)||o.facilities.some(x=>!['dock','loadingDock','elevator','auto','space','ground','refuel','monitored','nqa','hidden','player'].includes(x)))throw Error('inputs');
  if(!Array.isArray(o.cargo)||o.cargo.length>100||o.cargo.some(l=>!Number.isSafeInteger(l.commodityId)||l.commodityId<1||!Number.isInteger(l.quantity)||l.quantity<1||!sizes.includes(l.boxSize)||l.quantity%l.boxSize!==0||!['owned','stolen','unknown'].includes(l.ownership)||l.cost!==null&&!safe(l.cost))||o.cargo.reduce((s,l)=>s+l.quantity,0)>o.capacity||new Set(o.cargo.filter(l=>l.lotId).map(l=>l.lotId)).size!==o.cargo.filter(l=>l.lotId).length||o.cargo.some(l=>l.lotId!==undefined&&(typeof l.lotId!=='string'||!l.lotId||l.lotId.length>200))||o.mode==='buyers'&&!o.cargo.length)throw Error('cargo');
 }
-export function suiteTerminalAllowed(t:Terminal,o:SuiteOptions,now=Date.now()){
- if(o.excludeSystems.includes(t.system)||o.excludeFactions.includes(t.faction??'')||o.excludePlanets.includes(t.planet)||o.excludeTerminalIds.includes(t.id)||o.system&&t.system!==o.system||o.faction&&t.faction!==o.faction)return false;
- if(o.risk!=='all'&&(!t.security?.updatedAt||!Number.isFinite(Date.parse(t.security.updatedAt))||Date.parse(t.security.updatedAt)>now+300000||!t.security.source?.startsWith('https://api.uexcorp.uk/2.0/')))return false;
- if(o.risk==='low'&&(!t.security?.monitored||!t.security.armistice)||o.risk==='known'&&(t.security?.monitored==null||t.security?.armistice==null))return false;
+export function suiteTerminalIssue(t:Terminal,o:SuiteOptions,now=Date.now()){
+ if(o.excludeSystems.includes(t.system)||o.excludeFactions.includes(t.faction??'')||o.excludePlanets.includes(t.planet)||o.excludeTerminalIds.includes(t.id)||o.system&&t.system!==o.system||o.faction&&t.faction!==o.faction)return 'location' as const;
+ if(o.risk!=='all'&&(!t.security?.updatedAt||!Number.isFinite(Date.parse(t.security.updatedAt))||Date.parse(t.security.updatedAt)>now+300000||!t.security.source?.startsWith('https://api.uexcorp.uk/2.0/')))return 'securityReport' as const;
+ if(o.risk==='low'&&(!t.security?.monitored||!t.security.armistice)||o.risk==='known'&&(t.security?.monitored==null||t.security?.armistice==null))return 'securityPolicy' as const;
  const flags:Record<string,boolean|null|undefined>={dock:t.docking,loadingDock:t.loadingDock,elevator:t.elevator,auto:t.autoLoad,space:t.space,ground:t.ground,refuel:t.refuel,monitored:t.security?.monitored,nqa:t.nqa,hidden:t.hidden,player:t.playerOwned};
- return o.facilities.every(k=>flags[k]===true)&&(!(o.shipId==='misc-hull-c')||t.loadingDock===true)&&(o.loading!=='auto'||t.autoLoad===true);
+ return o.facilities.every(k=>flags[k]===true)&&(!(o.shipId==='misc-hull-c')||t.loadingDock===true)&&(o.loading!=='auto'||t.autoLoad===true)?null:'facilities';
+}
+export function suiteTerminalAllowed(t:Terminal,o:SuiteOptions,now=Date.now()){
+ return suiteTerminalIssue(t,o,now)===null;
+}
+export function terminalIssueLabel(issue:NonNullable<ReturnType<typeof suiteTerminalIssue>>,en:boolean){
+ const labels={
+  location:['지역·거점 조건 제외','Excluded by location filters'],
+  securityReport:['검증 가능한 보안 보고 없음','No verified security report'],
+  securityPolicy:['보안 설정 불충족','Security policy mismatch'],
+  facilities:['함선·시설 조건 불충족','Ship or facility mismatch'],
+ };
+ return labels[issue][en?1:0];
 }
 export function suiteQuoteAllowed(q:Quote,version:string,o:SuiteOptions,now:number){return patch(q.version)===version&&q.updatedAt!==null&&Number.isFinite(Date.parse(q.updatedAt))&&Date.parse(q.updatedAt)<=now+300000&&now-Date.parse(q.updatedAt)<=o.maxAgeHours*3600000;}
 const routeScore=(r:SuiteRoute,goal:TradeGoal)=>goal==='time'?(r.profitPerHour??-Infinity):goal==='capital'?-r.purchase:goal==='roi'?(r.roi??-Infinity):r.profit;
@@ -74,13 +86,16 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
    if(sell.sell<=buy.buy||cents(buy.buy)<=0)continue;
    let stock=Math.floor(buy.stock)-(state.supply.get(buy.id)??0);
    if(o.allowWait&&o.restockScuPerMinute>0&&stock<o.capacity){const extra=Math.min(o.capacity-stock,Math.floor(o.restockScuPerMinute*o.maxWaitMinutes));if(extra>0){stock+=extra;}}
-   if(stock<=0)continue;
+   if(stock<=0){reject('supply');continue;}
    const spend=Math.max(0,Math.min(state.cash,o.reinvest?state.cash:initialCash)-costs(metric,0));
    const unit=cents(buy.buy)+Math.ceil(o.feePerScu*200),raw=Math.min(o.capacity,stock,demand,Math.floor(spend/unit));
    const allowed=sizes.filter(s=>buy.containers.includes(s)&&s<=o.maxBoxSize&&s<=(state.at.maxContainerScu??0)&&s<=(to.maxContainerScu??0));
+   if(!raw){reject('capital');continue;}
+   if(!allowed.length){reject('containers');continue;}
    for(const size of allowed){let qty=Math.floor(raw/size)*size;while(qty>0&&!ctx.pack([{commodityId:buy.commodityId,quantity:qty,boxSize:size}]))qty-=size;
-    if(qty<=0)continue;
-    lines.push({commodityId:buy.commodityId,name:goods.get(buy.commodityId)!.name,quantity:qty,boxSize:size,buy:buy.buy,sell:sell.sell,purchase:cents(buy.buy)*qty/100,revenue:cents(sell.sell)*qty/100,buyAt:buy.updatedAt,sellAt:sell.updatedAt,available:stock,demand,ownership:'owned',costKnown:true,buySource:buy.personal?'personal':'UEX',sellSource:sell.personal?'personal':'UEX'});
+    if(qty<=0){reject('containers');continue;}
+    const quantityLimit=qty<raw?'packing':raw===o.capacity?'capacity':raw===stock?'stock':raw===demand?'demand':'capital';
+    lines.push({quantityLimit,commodityId:buy.commodityId,name:goods.get(buy.commodityId)!.name,quantity:qty,boxSize:size,buy:buy.buy,sell:sell.sell,purchase:cents(buy.buy)*qty/100,revenue:cents(sell.sell)*qty/100,buyAt:buy.updatedAt,sellAt:sell.updatedAt,available:stock,demand,ownership:'owned',costKnown:true,buySource:buy.personal?'personal':'UEX',sellSource:sell.personal?'personal':'UEX'});
    }
   }
   const make=(items:TradeLine[]):SuiteLeg|null=>{const totals=new Map<number,number>();for(const l of items)totals.set(l.commodityId,(totals.get(l.commodityId)??0)+l.quantity);

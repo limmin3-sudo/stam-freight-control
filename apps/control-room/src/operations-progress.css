@@ -84,3 +84,5 @@
 .at-console .workspace-operations .operations-desk .ops-tasks { padding-left:0;counter-reset:none; }
 .at-console .workspace-operations .operations-desk .ops-tasks li { display:block;padding:0;border:0; }
 .at-console .workspace-operations .operations-desk .ops-tasks li::before { display:none; }
+
+.ops-current-cargo {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem}

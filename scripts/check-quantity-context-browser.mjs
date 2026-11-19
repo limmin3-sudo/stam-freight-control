@@ -29,7 +29,7 @@ try {
  assert.match(instructions,/배송 총량 · 22 SCU/,'only the confirmed delivery total is reserved');
  assert.match(instructions,/총량 확인 · 상자 예상/);
  assert.doesNotMatch(instructions,/32 SCU|최대치 기준/);
- await page.getByRole('button',{name:/^접수 완료/}).click();
+ await page.getByRole('button',{name:/^픽업 완료/}).click();
  const state=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
  assert.equal(state.run.aboard.reduce((sum,b)=>sum+b.size,0),22);
  assert(state.run.aboard.every(b=>b._reservation),'reserved boxes are not promoted to actual pickup quantities');

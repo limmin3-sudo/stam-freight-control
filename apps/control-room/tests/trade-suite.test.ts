@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {calculateSuite,defaultSuiteOptions,type SuiteOptions,type SuiteContext} from '../src/trade-suite.ts';
+import {calculateSuite,defaultSuiteOptions,suiteTerminalIssue,type SuiteOptions,type SuiteContext} from '../src/trade-suite.ts';
 import {packSuite,suiteContext,fittingTradeShips} from '../src/trade-suite-runtime.mjs';
 import {blankSuiteBook,changeSuiteBook,expeditionSummary,validateSuiteBook,type TradeEvent} from '../src/trade-expedition.ts';
 import {normalizeMarket,type MarketSnapshot,type Terminal,type Quote} from '../src/trade-data.ts';
@@ -19,6 +19,30 @@ test('a selected buyer excluded by terminal policy explains the empty direct rou
  assert.deepEqual(result.routes,[]);
  assert.equal(result.rejected.destinationPolicy,1);
  assert(calc({destinationId:2,risk:'all'},market).routes.length>0);
+});
+test('market quote policy gives the same security reason that blocks the planner',()=>{
+ const market=data(),terminal=market.terminals[1]!;
+ terminal.security={...base.security!,updatedAt:null};
+ assert.equal(suiteTerminalIssue(terminal,input,now),'securityReport');
+ assert.equal(calc({destinationId:terminal.id},market).routes.length,0);
+ terminal.security={...base.security!,monitored:false};
+ assert.equal(suiteTerminalIssue(terminal,input,now),'securityPolicy');
+ assert.equal(suiteTerminalIssue(terminal,{...input,risk:'known'},now),null);
+});
+test('single commodity plans explain the cargo quantity in the context of the chosen box',()=>{
+ const options={destinationId:2,maxBoxSize:1};
+ const first=(overrides:Partial<SuiteOptions>,market=data())=>calc({...options,...overrides},market).routes[0]?.legs[0]?.lines[0];
+ assert.equal(first({budget:30})?.quantityLimit,'capital');
+ assert.equal(first({capacity:3})?.quantityLimit,'capacity');
+ const market=data();
+ market.quotes[0]!.stock=2;
+ assert.equal(first({},market)?.quantityLimit,'stock');
+ market.quotes[1]!.demand=1;
+ assert.equal(first({},market)?.quantityLimit,'demand');
+ market.quotes[0]!.containers=[2];market.quotes[0]!.stock=10;market.quotes[1]!.demand=3;
+ const packed=first({maxBoxSize:2},market);
+ assert.equal(packed?.quantity,2);
+ assert.equal(packed?.quantityLimit,'packing');
 });
 test('specified stops preserve order, include empty travel and emit only a complete itinerary',()=>{
  const ordered=calc({mode:'chain',waypoints:[2,3,1],fixedCosts:1});assert.equal(ordered.error,null);assert(ordered.routes.length);

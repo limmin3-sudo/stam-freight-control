@@ -43,7 +43,7 @@ try {
  await page.getByRole('button',{name:'선적 기록',exact:true}).click();
  assert.equal(Number(await surface.getAttribute('data-boxes')),beforePreview.aboard.length);
  await page.getByRole('button',{name:'작업 후 예상',exact:true}).click();
- await page.getByRole('button',{name:/^접수 완료/}).click();
+ await page.getByRole('button',{name:/^픽업 완료/}).click();
  const loaded=(await saved(page)).run;assert(loaded.aboard.length>0);
  assert.equal(await page.getByRole('button',{name:'선적 기록',exact:true}).getAttribute('aria-pressed'),'true','new step returns to actual recorded cargo');
  await page.waitForFunction(count=>Number(document.querySelector('.ops-live-cargo .cargo-render-surface')?.getAttribute('data-boxes'))===count,loaded.aboard.length);

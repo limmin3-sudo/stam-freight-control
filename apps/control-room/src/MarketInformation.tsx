@@ -11,7 +11,7 @@ const TradeBoard=lazy(()=>import('./TradeBoard'));
 const PriceDesk=lazy(()=>import('./TradePriceDesk'));
 import {matchingCommodityCodes,commodityCodeVariants,commoditySearchTerms,tradeMatches,tradeLabel} from './trade-labels';
 const statusNames:Record<Freshness,[string,string]>={current:['24시간 내 수정','Updated within 24h'],'old-patch':['이전 패치 자료','Older patch'],stale:['24시간 이상 경과','Over 24h old'],unknown:['버전·시점 미확인','Version/date unknown']};
-export default function MarketInformation({locale,onExit,closing,onPlan,onOpenPlan}:{locale:Locale;onExit:()=>void;closing:boolean;onPlan?:PlanFromQuote;onOpenPlan:()=>void}){
+export default function MarketInformation({locale,onExit,closing,onPlan}:{locale:Locale;onExit:()=>void;closing:boolean;onPlan?:PlanFromQuote}){
  const suiteStore=useTradeSuite();const en=locale==='en',t=(ko:string,english:string)=>en?english:ko;
  const [data,setData]=useState<MarketSnapshot|null>(null),[error,setError]=useState(false),[retry,setRetry]=useState(0);
  const [tab,setTab]=useState<'search'|'prices'|'terminals'|'tools'|'sources'|'board'>('search'),[query,setQuery]=useState(''),[selected,setSelected]=useState<number|null>(null),[system,setSystem]=useState(''),[legality,setLegality]=useState('legal'),[risk,setRisk]=useState('low'),[freshOnly,setFreshOnly]=useState(false);
@@ -46,7 +46,7 @@ export default function MarketInformation({locale,onExit,closing,onPlan,onOpenPl
     <h2 ref={title} tabIndex={-1}>{t('무역관제실','Trade control')}</h2>
     <nav className="market-entry-nav" aria-label={t('무역관제실 보기','Trade views')}>
       <button aria-pressed={tab==='search'} onClick={()=>setTab('search')}>{t('시세표','Price board')}</button>
-      <button onClick={onOpenPlan}>{t('최적 경로','Route planner')}</button>
+      {(tab!=='search'||!boardData)&&onPlan&&<button onClick={()=>onPlan(0,0)}>{t('내 함선·자금으로 거래 찾기','Find trades for my ship and budget')}</button>}
       <details className="board-reference"><summary>{t('시장 자료','Market research')}</summary>
         <nav className="market-tabs" aria-label={t('시장 자료','Market reference')}>{(['prices','terminals','tools','board','sources'] as const).map((value,i)=><button key={value} aria-pressed={tab===value} onClick={event=>{setTab(value);setQuery('');event.currentTarget.closest('details')?.removeAttribute('open');}}><ApprovedGlass kind={tab===value?'gold':'normal'}/><span>{[t('거래소별 시세','Terminal prices'),t('거점·적재 조건','Locations & cargo'),t('시세 기록·관심 가격','Reports & price watches'),t('매입·판매 게시판','Buy / sell board'),t('출처·검증','Sources & checks')][i]}</span></button>)}</nav>
       </details>
