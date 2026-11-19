@@ -1,6 +1,6 @@
 ## 파트너 Worker 운영 연결 검증
 
-GitHub Actions의 수동 `Verify partner Worker via Cloudflare MCP` 워크플로는 main에서 저장소 비밀 `STAM_CLOUDFLARE_MCP_TOKEN`으로 공식 MCP에 인증하고 `stam-partner-chat`의 배포 ID를 조회한다.
+GitHub Actions의 수동 `Verify partner Worker via Cloudflare MCP` 워크플로는 main에서 저장소 비밀 `STAM_CLOUDFLARE_MCP_TOKEN`으로 공식 MCP에 인증하고 `stam-partner-chat`의 배포 ID를 조회한다. 이어 운영 번들의 여섯 파트너 역할과 빌드 소스를 검사한다. 선택적인 복구 실행은 확인된 이전 세 파트너 번들을 테스트 후 교체하며, 대시보드 변수와 기존 비밀을 보존한다.
 
 ## 웹 베타 3.5.0 · 2026-11-19
 
