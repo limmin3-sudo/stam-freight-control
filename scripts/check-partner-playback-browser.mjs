@@ -57,12 +57,22 @@ try {
   page.on('request',request=>{
     if(request.url().endsWith('/director/return.mp4'))returns.push(request.url());
   });
+  await page.evaluate(()=>{
+    window.visitEntryRooms=[];
+    const record=()=>{
+      const room=document.querySelector('.visit-room-entry')?.dataset.room;
+      if(room&&window.visitEntryRooms.at(-1)!==room)window.visitEntryRooms.push(room);
+    };
+    new MutationObserver(record).observe(document.body,{childList:true,subtree:true});
+  });
   await dialog.getByRole('button',{name:'Facility tour'}).click();
   await page.locator('.visit-room-entry[data-room=cinema]').waitFor({timeout:3000});
   assert.deepEqual(returns,[]);
   assert(await page.locator('.visit-next').isDisabled());
   await page.keyboard.press('Enter');
   assert.match(await page.locator('.visit-speech p').innerText(),/cinema/i);
+  let previousLine="";
+  const expectedEntries=[];
   for(const rooms of [
     ['cinema','information','service',null,null],
     [null,null,'mission','map','operations'],
@@ -70,8 +80,17 @@ try {
     [null,'freight-information','education','operations-study',null],
   ]){
     for(const room of rooms){
-      if(room)await page.locator('.visit-room-entry[data-room="'+room+'"]').waitFor();
-      await page.locator('.visit-panel[data-travel=false] .visit-next').click();
+      if(room)expectedEntries.push(room);
+      // Observe transient door animations independently of Playwright's click timing.
+      const next=await page.waitForFunction(previous=>{
+        const line=document.querySelector('.visit-speech p')?.textContent;
+        const button=document.querySelector('.visit-next:enabled');
+        if(!button||!line||line===previous)return false;
+        button.click();
+        return line;
+      },previousLine);
+      previousLine=await next.jsonValue();
+      await next.dispose();
     }
     if(rooms[0]==='cinema'){
       const shuttle=page.locator('.shuttle-boarding');
@@ -83,6 +102,7 @@ try {
     await page.locator('.visit-travel').waitFor({state:'detached'});
   }
   await page.waitForURL(/#\/division/);
+  assert.deepEqual(await page.evaluate(()=>window.visitEntryRooms),expectedEntries);
   await page.emulateMedia({reducedMotion:'reduce'});
   await open('#/lounge?lang=en');
   await page.locator('.partner-hit[data-partner=director]').click();
