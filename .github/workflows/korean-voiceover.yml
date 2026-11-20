@@ -1,0 +1,29 @@
+name: Korean dialogue recordings
+on:
+  workflow_dispatch:
+  push:
+    branches: [audio/elevenlabs-ko]
+    paths: ['tools/voiceover/generate.py', 'apps/control-room/src/voiceover-ko.json', '.github/workflows/korean-voiceover.yml']
+permissions:
+  contents: read
+concurrency:
+  group: korean-dialogue-recordings
+  cancel-in-progress: false
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Generate missing Korean dialogue
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 tools/voiceover/generate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: korean-dialogue
+          path: apps/control-room/src/assets/voiceover-ko/*.mp3
+          if-no-files-found: ignore
