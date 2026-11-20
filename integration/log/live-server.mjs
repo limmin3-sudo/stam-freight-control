@@ -25,6 +25,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   const evidence = new LogEvidence({locations});
   let timer, busy = false, stopped = false, paused = false, fatal = false;
   let phase = 'starting', revision = 0, dirty = false, lastReadAt = null, lastChangeAt = null, lastError = null;
+  let contractCount=0,lastSnapshotReadAt=null;
   let published = JSON.stringify({ revision, snapshot: evidence.snapshot() });
   const reader = new ReadOnlyLog(file, {
     onLine: (line, n) => {
@@ -53,9 +54,10 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
       phase = paused ? 'paused' : progress.backlog ? 'catching-up' : 'watching';
       if (progress.backlog) next = 0; // Yield between bounded chunks, not one blocking full-file read.
       if (!progress.backlog && dirty) {
-        const candidate = JSON.stringify({ revision: revision + 1, snapshot: evidence.snapshot() });
+        const snapshot=evidence.snapshot();
+        const candidate = JSON.stringify({ revision: revision + 1, snapshot });
         if (Buffer.byteLength(candidate) > 8 * 1024 * 1024) throw new Error('snapshot-limit');
-        published = candidate;
+        published = candidate;contractCount=snapshot.contracts.length;
         revision++;
         dirty = false;
         lastChangeAt = new Date().toISOString();
@@ -72,8 +74,8 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
-      lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
+    return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1,copilot:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+      contractCount,lastSnapshotReadAt,lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
   let origin;
@@ -127,7 +129,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         }
         if (req.headers['transfer-encoding'] || Number(req.headers['content-length'] || 0) !== 0) { req.resume(); send(413, '{"error":"body-not-allowed"}'); return; }
         if (req.method === 'GET' && url.pathname === '/api/status') { send(200, JSON.stringify(status())); return; }
-        if (req.method === 'GET' && url.pathname === '/api/snapshot') { send(200, published); return; }
+        if (req.method === 'GET' && url.pathname === '/api/snapshot') { lastSnapshotReadAt=new Date().toISOString();send(200, published); return; }
         if (req.method === 'POST' && ['/api/pause', '/api/resume'].includes(url.pathname)) {
           if (req.headers.origin !== origin) { send(403, '{"error":"origin-required"}'); return; }
           if (fatal) { send(409, '{"error":"restart-required"}'); return; }

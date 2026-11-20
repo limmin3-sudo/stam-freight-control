@@ -114,6 +114,43 @@ export function useFlight(){
    next.postMessage(source==='saved'?{saved:savedFlight()}:{draft:prior.draft,context:{...context,...(from?{startId:from}:{}),manualStops}});
   }catch{worker.current?.terminate();worker.current=null;setBusy(false);setError('항로 계산기를 시작하지 못했습니다.');}
  }
+ // Preview on the planner worker. Nothing is written until the pilot accepts this exact result.
+ async function previewCopilotEdit(edit:{stops?:string[];add?:Job;manualJob?:Job;exclude?:string;deferUntil?:number}){
+  const prior=current.current,run=prior.run,oldPlan=prior.plan;
+  if(!run?.started||run.finished||!oldPlan||worker.current||pendingReceiptChanges(prior).length||!writable())throw Error('운항 상태와 수신 계약 변경을 먼저 확인하세요.');
+  const review=structuredClone(prior.receiptReview??receiptBaseline(prior.draft,receiptSource.current.rawCards));
+  let draft=prior.draft;
+  const evidence=()=>edit.add?JSON.stringify(receiptSource.current.cards.find(j=>j.id===edit.add!.id)):null;
+  const expected=evidence();
+  const addition=edit.add??edit.manualJob;
+  if(addition){
+   if(edit.add&&(!expected||JSON.stringify(edit.add)!==expected))throw Error('추가할 수신 계약을 다시 확인하세요.');
+   if(draft.jobs.some(j=>j.id===addition.id)||!routeReady(addition))throw Error('추가할 계약의 상태와 거점을 다시 확인하세요.');
+   draft={...draft,jobs:[...draft.jobs,addition]};
+   const raw=edit.add&&receiptSource.current.rawCards.find(j=>j.id===addition.id);
+   if(raw){review.observed.push(raw);review.accepted[raw.id]=receiptEvidence(raw);}
+  }
+  if(edit.exclude){
+   if(!draft.jobs.some(j=>j.id===edit.exclude)||review.excluded.includes(edit.exclude))throw Error('계약 상태가 바뀌었습니다.');
+   if(oldPlan.mode==='simple'&&oldPlan.visits.slice(run.index).some(v=>v.events.some(e=>e.type==='delivery'&&e.missionId===edit.exclude&&run.picked.includes(e.shipmentId))))throw Error('이미 실은 계약 화물이 있습니다. 배송 또는 보류 화물 처리를 먼저 확인하세요.');
+   review.excluded.push(edit.exclude);
+  }
+  const plan=await new Promise<FlightPlan>((resolve,reject)=>{
+   const planner=new Worker(new URL('./flight.worker.mjs',import.meta.url),{type:'module'});
+   const finish=()=>{clearTimeout(timer);planner.terminate();};
+   const timer=setTimeout(()=>{finish();reject(Error('항로 계산 시간이 초과되었습니다.'));},30000);
+   planner.onmessage=({data})=>{finish();if(data.plan)resolve(data.plan);else reject(Error(data.error||'항로 계산에 실패했습니다.'));};
+   planner.onerror=()=>{finish();reject(Error('항로 계산에 실패했습니다.'));};
+   planner.postMessage({draft,context:{...contextOf(run),ship:oldPlan.ship,mode:oldPlan.mode,excludedMissionIds:review.excluded,manualStops:edit.stops,deferPickup:addition&&edit.deferUntil?{missionId:addition.id,until:edit.deferUntil}:undefined,showDeparture:oldPlan.visits[run.index]?.events.some(e=>e.type==='departure')}});
+  });
+  const next={...prior,draft,receiptReview:review,plan,run:adoptReplan(run,plan)};
+  const save=(from:Session,to:Session)=>{
+   if(current.current!==from||worker.current||!writable()||expected!==evidence())throw Error('운항이나 계약이 바뀌었습니다. 다시 요청하세요.');
+   validateFlight(to);persistRestoredFlight(localStorage,to,exportFlight(from));
+   savedRaw.current=JSON.stringify(to);current.current=to;setSession(to);setStorageError('');setError('');
+  };
+  return {plan,apply:()=>save(prior,next),undo:()=>save(next,prior)};
+ }
  function progress(action:'start'|'complete'|'undo'|'pause',expected?:Session){
   const s=current.current;if(busy||!writable()||!s.plan||!s.run)return false;
   if(expected&&(expected.plan!==s.plan||expected.run!==s.run))return false;
@@ -202,5 +239,5 @@ export function useFlight(){
   catch{setError('개인 장소 또는 현재 위치의 좌표를 확인할 수 없습니다. 기존 운항을 유지합니다. 장소 관리에서 확인하세요.');}
  }
  function stop(){if(worker.current||!writable())return;const s=current.current;commit({...s,draft:{...s.draft,reviewed:false},plan:null,run:null});}
- return {session,receipts,locationUpdate,refreshLocations,receiptChanges,confirmReceiptChanges,dischargeHeld,change,appendContracts,calculate,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup,prepareRestore,previousBackup,loginBackup};
+ return {session,receipts,locationUpdate,refreshLocations,receiptChanges,confirmReceiptChanges,dischargeHeld,change,appendContracts,calculate,previewCopilotEdit,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup,prepareRestore,previousBackup,loginBackup};
 }

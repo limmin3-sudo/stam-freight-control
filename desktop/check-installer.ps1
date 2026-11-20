@@ -6,8 +6,8 @@ $ErrorActionPreference = 'Stop'
 # Run only in a clean build profile, never over an installed user copy.
 $registry = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{D372A120-919A-4477-8362-37E8FA39E863}_is1'
 $settings = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'STAM'
-$desktopLink = Join-Path ([Environment]::GetFolderPath('Desktop')) 'STAM.lnk'
-$menuLink = Join-Path ([Environment]::GetFolderPath('Programs')) 'STAM/STAM.lnk'
+$desktopLink = Join-Path ([Environment]::GetFolderPath('Desktop')) 'STAM Navigator.lnk'
+$menuLink = Join-Path ([Environment]::GetFolderPath('Programs')) 'STAM/STAM Navigator.lnk'
 foreach ($existing in @($registry,$settings,$desktopLink,$menuLink)) {
     if (Test-Path $existing) { throw 'Installer QA needs a clean build profile; existing STAM data was not touched' }
 }

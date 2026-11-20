@@ -1,6 +1,14 @@
 import {validateSuiteOptions,type SuiteOptions,type SuiteRoute,type CargoLot} from './trade-suite.ts';
 export type TradeEvent={id:string;at:string;kind:'buy'|'cargo'|'sell'|'loss'|'store'|'withdraw'|'expense'|'balance'|'depart'|'arrive'|'finish'|'cancel';lotId?:string;commodityId?:number;quantity?:number;boxSize?:number;amount?:number|null;terminalId?:number;ownership?:CargoLot['ownership'];note:string;tags?:string[];voidedAt?:string};
-export type Expedition={id:string;at:string;options:SuiteOptions;route:SuiteRoute;routeHistory?:{at:string;route:SuiteRoute}[];events:TradeEvent[]};
+export type Expedition={id:string;at:string;options:SuiteOptions;route:SuiteRoute;saleGoal?:SaleGoal;routeHistory?:{at:string;route:SuiteRoute}[];events:TradeEvent[]};
+export type SaleGoal={lotId:string;terminalId:number;quantity:number;sinceEvent:number};
+export function remainingSaleGoal(run:Expedition,summary:ExpeditionSummary){
+ const goal=run.saleGoal;if(!goal||summary.status!=='active')return null;
+ const sold=run.events.slice(goal.sinceEvent).filter(e=>!e.voidedAt&&e.kind==='sell'&&e.lotId===goal.lotId&&e.terminalId===goal.terminalId).reduce((n,e)=>n+(e.quantity??0),0);
+ const lot=summary.holdings.find(l=>l.id===goal.lotId&&l.terminalId===null);
+ const quantity=Math.min(lot?.quantity??0,goal.quantity-sold);
+ return quantity>0?{...goal,quantity}:null;
+}
 export type Holding=CargoLot&{id:string;terminalId:number|null;tags?:string[]};
 export type ExpeditionSummary={status:'active'|'finished'|'cancelled';position:number;target:number|null;holdings:Holding[];cash:number;expenses:number;purchase:number;sales:number;realized:number;unknownCost:boolean;lost:number;capitalAdjustment:number};
 export type PriceWatch={id:string;commodityId:number;terminalId:number;side:'buy'|'sell';threshold:number};
@@ -69,10 +77,10 @@ export function validateSuiteBook(value:unknown,owner:string):SuiteBook{
  const b=value as SuiteBook;if(!b||b.schema!==1||b.owner!==owner||!Number.isSafeInteger(b.revision)||b.revision<0||!Array.isArray(b.plans)||b.plans.length>100||!Array.isArray(b.runs)||b.runs.length>1000||!Array.isArray(b.watches)||b.watches.length>100||!Array.isArray(b.favorites)||b.favorites.length>1000||b.favorites.some(n=>!terminal(n)))fail('book');
  const unique=(items:{id:string}[])=>{if(items.some(i=>!id(i.id))||new Set(items.map(i=>i.id)).size!==items.length)fail('identity');};unique(b.plans);unique(b.runs);unique(b.watches);
  for(const p of b.plans){if(typeof p.name!=='string'||p.name.length>100)fail('plan');validateSuiteOptions(p.options);validateSuiteRoute(p.route);}
- let active=0;for(const r of b.runs){if(!Number.isFinite(Date.parse(r.at))||!Array.isArray(r.events)||r.events.length>10000)fail('run');unique(r.events);validateSuiteRoute(r.route);if(r.routeHistory){if(!Array.isArray(r.routeHistory)||r.routeHistory.length>1000)fail('history');for(const h of r.routeHistory){if(!Number.isFinite(Date.parse(h.at)))fail('history');validateSuiteRoute(h.route);}}if(expeditionSummary(r).status==='active')active++;}if(active>1)fail('active');
+ let active=0;for(const r of b.runs){if(!Number.isFinite(Date.parse(r.at))||!Array.isArray(r.events)||r.events.length>10000)fail('run');unique(r.events);if(r.saleGoal){const g=r.saleGoal;if(!id(g.lotId)||!terminal(g.terminalId)||!Number.isSafeInteger(g.quantity)||g.quantity<=0||!Number.isInteger(g.sinceEvent)||g.sinceEvent<0||g.sinceEvent>r.events.length)fail('saleGoal');}validateSuiteRoute(r.route);if(r.routeHistory){if(!Array.isArray(r.routeHistory)||r.routeHistory.length>1000)fail('history');for(const h of r.routeHistory){if(!Number.isFinite(Date.parse(h.at)))fail('history');validateSuiteRoute(h.route);}}if(expeditionSummary(r).status==='active')active++;}if(active>1)fail('active');
  for(const w of b.watches)if(!terminal(w.commodityId)||!terminal(w.terminalId)||!['buy','sell'].includes(w.side)||!validAmount(w.threshold))fail('watch');return b;
 }
-export type SuiteCommand={kind:'save';id:string;name:string;options:SuiteOptions;route:SuiteRoute}|{kind:'remove';id:string}|{kind:'start';id:string;options:SuiteOptions;route:SuiteRoute}|{kind:'event';runId:string;event:TradeEvent}|{kind:'undo';runId:string}|{kind:'events';runId:string;events:TradeEvent[]}|{kind:'replan';runId:string;route:SuiteRoute;options:SuiteOptions}|{kind:'favorite';terminalId:number}|{kind:'watch';watch:PriceWatch}|{kind:'unwatch';id:string};
+export type SuiteCommand={kind:'saleGoal';runId:string;goal:SaleGoal|null}|{kind:'save';id:string;name:string;options:SuiteOptions;route:SuiteRoute}|{kind:'remove';id:string}|{kind:'start';id:string;options:SuiteOptions;route:SuiteRoute}|{kind:'event';runId:string;event:TradeEvent}|{kind:'undo';runId:string}|{kind:'events';runId:string;events:TradeEvent[]}|{kind:'replan';runId:string;route:SuiteRoute;options:SuiteOptions}|{kind:'favorite';terminalId:number}|{kind:'watch';watch:PriceWatch}|{kind:'unwatch';id:string};
 export function changeSuiteBook(book:SuiteBook,command:SuiteCommand,at=new Date().toISOString()):SuiteBook{
  validateSuiteBook(book,book.owner);const b=structuredClone(book);
  if(command.kind==='save')b.plans.push({id:command.id,name:command.name,options:structuredClone(command.options),route:structuredClone(command.route)});
@@ -80,6 +88,11 @@ export function changeSuiteBook(book:SuiteBook,command:SuiteCommand,at=new Date(
  else if(command.kind==='start'){
   if(b.runs.some(r=>expeditionSummary(r).status==='active'))fail('active');
   b.runs.push({id:command.id,at,options:structuredClone(command.options),route:structuredClone(command.route),events:[]});
+ }else if(command.kind==='saleGoal'){
+  const r=b.runs.find(r=>r.id===command.runId);if(!r)throw Error('run');
+  const summary=expeditionSummary(r);if(summary.status!=='active')fail('closed');
+  if(command.goal){const g=command.goal,lot=summary.holdings.find(l=>l.id===g.lotId&&l.terminalId===null);if(!lot||g.quantity>lot.quantity||g.quantity%lot.boxSize||g.sinceEvent>r.events.length)fail('quantity');r.saleGoal={...g};}
+  else delete r.saleGoal;
  }else if(command.kind==='replan'){
   const r=b.runs.find(r=>r.id===command.runId);if(!r)fail('run');const summary=expeditionSummary(r!);validateSuiteOptions(command.options);if(summary.status!=='active'||summary.target!==null||command.options.shipId!==r!.options.shipId||command.options.originId!==summary.position||Math.abs(command.options.budget-Math.max(0,summary.cash))>.005)fail('changed');const aboard=summary.holdings.filter(l=>l.terminalId===null);if(aboard.length&&(command.options.mode!=='buyers'||command.options.cargo.length!==aboard.length||aboard.some(l=>!command.options.cargo.some(c=>c.lotId===l.id&&c.commodityId===l.commodityId&&c.quantity===l.quantity&&c.boxSize===l.boxSize&&c.ownership===l.ownership&&c.cost===l.cost))))fail('cargoChanged');r!.routeHistory=[...r!.routeHistory??[],{at,route:r!.route}];r!.route=structuredClone(command.route);
  }else if(command.kind==='events'){

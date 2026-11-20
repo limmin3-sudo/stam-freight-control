@@ -27,7 +27,7 @@ export function AccountSaveGuide({locale,shot}:Props){
   <article className="manual-step"><header><span>04</span><div><small>REVIEW & RESUME</small><h3>{t('목적지와 화물을 확인한 뒤 운항을 이어가세요','Check the destination and cargo, then continue')}</h3></div></header>
    {shot('account-restored','불러오기 완료 메시지 — 운항 시간은 일시정지 상태','Restore confirmation — the flight clock is paused')}
    <p>{t('관제 콘솔에서 현재 목적지·작업 단계·선적 기록을 확인합니다. 진행 중이던 운항의 시간은 일시정지 상태로 복원됩니다. 계속 운항할 준비가 되면 「운항 관리」 → 「타이머 재개」를 누르세요. 출발 전 운항이라면 「운항 시작」으로 시작합니다.','Check the current destination, task and recorded cargo in the control console. An ongoing flight restores with its clock paused. When ready, use “Run options” → “Resume timer”. For a flight that has not started, use “Start run”.')}</p>
-   <p>{t('로그 앱 연결은 기기마다 따로 설정합니다. 이 기기에서도 게임을 먼저 실행한 뒤 STAM 로그 앱을 켜고 해당 Game.log를 연결하세요.','Log-app connections are configured separately on each device. Start the game on this device first, then open the STAM log app and connect this device’s Game.log.')}</p>
+   <p>{t('네비게이터 연결은 기기마다 따로 설정합니다. 이 기기에서도 게임을 먼저 실행한 뒤 네비게이터를 켜고 해당 Game.log를 연결하세요.','Log-app connections are configured separately on each device. Start the game on this device first, then open STAM Navigator and connect this device’s Game.log.')}</p>
    <a className="manual-action" href={`#/operations?lang=${locale}`}>{t('관제 콘솔 열기','Open control console')} ↗</a>
   </article>
   <section className="manual-import-help"><h3>{t('충돌·잘못 불러오기·오프라인','Conflicts, recovery and offline use')}</h3><dl>

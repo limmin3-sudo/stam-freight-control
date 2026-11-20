@@ -204,7 +204,7 @@ export function planRoute(data,missions,startId,settings={}){
   const visited=new Set(state.visited);visited.add(to);const revisits=state.revisits+Number(to!==state.at&&state.visited.has(to));
   return {status,...regionStep(nav,state,to),at:to,cost,meters:state.meters+leg.meters,jumps:state.jumps+leg.jumps,deferred:state.deferred+Number(!!opt.avoidFirst&&!state.actions.length&&to===opt.avoidFirst),visited,revisits,packing:packed,actions:[...state.actions,{shipmentId:s.id,shipmentIndex:i,type:st===0?'pickup':'delivery',locationId:to,leg,seconds,packing:packed,...event,boxIds:moving.map(b=>b.boxId)}]};
  }
- const manual=Array.isArray(opt.manualStops),manualBest=manual?replayManualStops(opt.manualStops,shipments,nav,initial,(state,i,id)=>advance(state,i,opt.ship,id)):null;
+ const manual=Array.isArray(opt.manualStops),manualBest=manual?replayManualStops(opt.manualStops,shipments,nav,initial,(state,i,id)=>advance(state,i,opt.ship,id),opt.deferPickup):null;
  const operator=!manual&&opt.routePolicy==='delivery-first';
  const operatorBest=operator?deliveryFirstRoute(shipments,nav,initial,(state,i)=>advance(state,i),{avoidFirst:opt.avoidFirst}):null;
  const proposed=manual||operator?null:planActionRoute(shipments,startId,nav,{initialStatus:startStatus});

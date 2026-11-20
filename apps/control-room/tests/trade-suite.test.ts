@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {calculateSuite,defaultSuiteOptions,suiteTerminalIssue,type SuiteOptions,type SuiteContext} from '../src/trade-suite.ts';
 import {packSuite,suiteContext,fittingTradeShips} from '../src/trade-suite-runtime.mjs';
-import {blankSuiteBook,changeSuiteBook,expeditionSummary,validateSuiteBook,type TradeEvent} from '../src/trade-expedition.ts';
+import {blankSuiteBook,changeSuiteBook,expeditionSummary,remainingSaleGoal,validateSuiteBook,type TradeEvent} from '../src/trade-expedition.ts';
 import {normalizeMarket,type MarketSnapshot,type Terminal,type Quote} from '../src/trade-data.ts';
 const now=Date.parse('2026-11-16T12:00:00Z'),stamp=new Date(now).toISOString();
 const base:Terminal={id:1,name:'A',location:'A',system:'Stanton',planet:'Hurston',version:'4.10.3',updatedAt:stamp,maxContainerScu:32,elevator:true,docking:true,autoLoad:true,playerOwned:false,loadingDock:true,security:{monitored:true,armistice:true,source:'https://api.uexcorp.uk/2.0/cities?id=1',updatedAt:stamp},nqa:true};
@@ -93,3 +93,22 @@ test('owned-cargo ROI uses known acquisition cost, never a zero purchase divisor
 test('buyer route partial cost rounding releases the exact original cents once across destinations',()=>{const d=data();d.quotes=[quote(1,2,1,null,10,0,1),quote(2,3,1,null,9,0,1)];const route=calc({mode:'buyers',budget:0,cargo:[{commodityId:1,quantity:2,boxSize:1,ownership:'owned',cost:3.33}]},d).routes.find(r=>r.unsold.length===0)!;assert(route);assert.equal(route.profit,15.67);assert.equal(route.cash,19);assert.equal(route.legs.reduce((s,l)=>s+Math.round(l.profit*100),0),1567);});
 
 test('old and new ledgers cannot both transition to active; existing records remain editable',async()=>{const {assertTradeExclusivity,suiteBookKey,tradeKey}=await import('../src/trade-storage.ts');const {blankTradeBook,changeTradeBook,makeTradePlan}=await import('../src/trade-operations.ts');const {planTrades}=await import('../src/trade-planning.ts');const map=new Map<string,string>(),storage={getItem:(k:string)=>map.get(k)??null,setItem:(k:string,v:string)=>map.set(k,v)};const suite=changeSuiteBook(blankSuiteBook('guest'),{kind:'start',id:'r',options:input,route:calc().routes[0]!},stamp);map.set(suiteBookKey('guest'),JSON.stringify(suite));assert.throws(()=>assertTradeExclusivity(storage,'guest','legacy',false,true));assert.doesNotThrow(()=>assertTradeExclusivity(storage,'guest','legacy',true,true));assert.doesNotThrow(()=>assertTradeExclusivity(storage,'guest','legacy',true,false));map.clear();const inputs={shipId:input.shipId,budget:1000,reservePercent:10,costs:0,cargoLimit:46,originId:1,scope:'intrasystem' as const,legality:'legal' as const,risk:'low' as const,prices:'current' as const};const candidate=planTrades(data(),inputs,{capacity:46,shipId:input.shipId,boxCapacities:{1:46},systemEdges:[]},now).candidates[0]!;const old=changeTradeBook(blankTradeBook('guest'),{kind:'start',id:'old',plan:makeTradePlan(candidate,inputs,{id:input.shipId,name:'Cutlass',capacity:46},'4.10.3')});map.set(tradeKey('guest'),JSON.stringify(old));assert.throws(()=>assertTradeExclusivity(storage,'guest','suite',false,true));assert.doesNotThrow(()=>assertTradeExclusivity(storage,'guest','suite',false,false));});
+
+test('a copilot sale goal only decreases for actual sales of its lot at its terminal; undo restores the goal',()=>{
+ let book=changeSuiteBook(blankSuiteBook('guest'),{kind:'start',id:'run',options:input,route:calc().routes[0]!},stamp);
+ const append=(event:TradeEvent)=>{book=changeSuiteBook(book,{kind:'event',runId:'run',event});};
+ append({kind:'cargo',id:'load',lotId:'lot',commodityId:1,quantity:12,boxSize:2,ownership:'owned',amount:null,terminalId:1,at:stamp,note:''});
+ const goal={lotId:'lot',quantity:8,terminalId:2,sinceEvent:1};
+ book=changeSuiteBook(book,{kind:'saleGoal',runId:'run',goal});
+ const state=()=>expeditionSummary(book.runs[0]!);
+ const remaining=()=>remainingSaleGoal(book.runs[0]!,state())?.quantity;
+ assert.equal(remaining(),8);assert.equal(state().holdings[0]?.quantity,12);assert.equal(state().sales,0);
+ assert.throws(()=>changeSuiteBook(book,{kind:'saleGoal',runId:'run',goal:{...goal,quantity:13}}));
+ append({kind:'sell',id:'elsewhere',lotId:'lot',terminalId:1,quantity:2,amount:5,note:'',at:stamp});
+ assert.equal(remaining(),8);
+ append({kind:'depart',id:'depart',terminalId:2,at:stamp,note:''});
+ append({kind:'arrive',id:'arrive',terminalId:2,at:stamp,note:''});
+ append({kind:'sell',id:'sold',lotId:'lot',terminalId:2,quantity:6,amount:60,note:'',at:stamp});
+ assert.equal(remaining(),2);assert.equal(state().holdings[0]?.quantity,4);assert.equal(state().sales,65);
+ book=changeSuiteBook(book,{kind:'undo',runId:'run'});assert.equal(remaining(),8);
+});

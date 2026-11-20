@@ -12,8 +12,15 @@ export function createCompanionState({clock=Date.now}={}){
   if(value.clear){session='';sequence=-1;display=null;queue=[];return {accepted:true};}
   const d=value.display;if(!d||!['personal','fleet','flight'].includes(d.mode)||!Array.isArray(d.lines)||d.lines.length>6)fail('invalid-display');
   const next={mode:d.mode,title:text(d.title,100),lines:d.lines.map(v=>text(v,180)),at:clock()};
+  if(d.partner==='operator'||d.partner==='navigator')next.partner=d.partner;
   if(d.mode==='flight'&&typeof d.stepId==='string'&&/^[0-9a-f-]{36}$/.test(d.stepId)&&['departure','pickup','delivery','jump','stop'].includes(d.step)){
    next.stepId=d.stepId;next.step=d.step;
+  }
+  if(d.copilot===true){
+   next.copilot=true;
+   if(d.awaitingDetails===true)next.awaitingDetails=true;
+   if(typeof d.proposal==='string'&&/^[a-f0-9-]{36}$/.test(d.proposal))next.proposal=d.proposal;
+   if(next.proposal&&d.proposalText!==undefined)next.proposalText=text(d.proposalText,210);
   }
   if(d.guidance){
    next.guidance={};
@@ -28,8 +35,13 @@ export function createCompanionState({clock=Date.now}={}){
   enqueue(command){
    const d=current(),flight=typeof command==='string'&&command.startsWith('complete-flight:');
    const quote=typeof command==='string'&&/^quote-(buy|sell):[1-9][0-9]{0,8}(:[1-9][0-9]{0,5})?$/.test(command);
-   if(quote&&(!d||d.mode==='flight'))return false;
-   if(!flight&&!quote&&!commands.has(command))fail('unsupported-command');
+   const speech=typeof command==='string'&&/^copilot-say:[^\x00-\x1f\x7f]{1,160}$/u.test(command);
+   const decision=typeof command==='string'&&/^copilot-(apply|cancel):[a-f0-9-]{36}$/.test(command);
+   if(speech&&/^(?:적용해줘|적용해|적용|확정해|확정|confirm|apply)[.! ]*$/i.test(command.slice(12).trim()))return false;
+   if((speech||decision)&&!d?.copilot)return false;
+   if(decision&&(command.split(':')[1]!==d.proposal||queue.some(x=>x.command===command)))return false;
+   if(quote&&(!d||d.mode==='flight'&&!d.copilot))return false;
+   if(!flight&&!quote&&!speech&&!decision&&!commands.has(command))fail('unsupported-command');
    if(!d)return false;
    if(flight&&(!d.stepId||command!=='complete-flight:'+d.stepId||queue.some(x=>x.command===command)))return false;
    queue.push({id:++commandSequence,command,at:clock()});queue=queue.slice(-20);return true;

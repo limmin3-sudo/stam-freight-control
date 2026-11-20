@@ -69,7 +69,7 @@ export function calculateFlight(draft,context){
  }
  const plan=calculate(locations,missions,startId,{
   ...draft.settings,ship,heldCargo,performance:draft.settings?.performance||flightPerformance,routePolicy:draft.partner==='operator'?'delivery-first':'batch',
-  includeReturn:false,...(context?.manualStops?{manualStops:context.manualStops}:{}),...(context?.resume?{resume:context.resume,avoidFirst:context.avoidFirst,showDeparture:context.showDeparture}:{}),
+  includeReturn:false,...(context?.manualStops?{manualStops:context.manualStops,deferPickup:context.deferPickup}:{}),...(context?.resume?{resume:context.resume,avoidFirst:context.avoidFirst,showDeparture:context.showDeparture}:{}),
  });
  // The legacy engine may recover missing coordinates by repacking; an active console must fail closed instead.
  if(!simple && context?.resume){const actual=new Map(plan.initialPacking.boxes.map(b=>[b.boxId,b]));

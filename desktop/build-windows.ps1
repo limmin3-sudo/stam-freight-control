@@ -29,7 +29,7 @@ if (!(Test-Path $speechReference)) {
 }
 if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is required to compile the optional voice feature' }
 
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.Net.Http.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionGuidance.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.Net.Http.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionGuidance.cs').Path (Resolve-Path 'desktop/HeldMicrophone.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 # The test executable owns its bridge lifecycle. Waiting for its entire process tree
 # can hang a CI runner after the executable itself has already returned a result.

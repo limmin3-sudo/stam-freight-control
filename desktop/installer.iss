@@ -4,7 +4,7 @@
 #endif
 [Setup]
 AppId={{D372A120-919A-4477-8362-37E8FA39E863}
-AppName=STAM Log Companion
+AppName=STAM Navigator
 AppMutex=Local\STAM-Freight-Control
 AppVersion={#AppVersion}
 AppPublisher=STAM FREIGHT DIVISION
@@ -30,8 +30,11 @@ Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"
 [Files]
 Source: "{#PackageRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+[InstallDelete]
+Type: files; Name: "{group}\STAM.lnk"
+Type: files; Name: "{autodesktop}\STAM.lnk"
 [Icons]
-Name: "{group}\STAM"; Filename: "{app}\STAM.exe"
-Name: "{autodesktop}\STAM"; Filename: "{app}\STAM.exe"; Tasks: desktopicon
+Name: "{group}\STAM Navigator"; Filename: "{app}\STAM.exe"
+Name: "{autodesktop}\STAM Navigator"; Filename: "{app}\STAM.exe"; Tasks: desktopicon
 [Run]
-Filename: "{app}\STAM.exe"; Description: "{cm:LaunchProgram,STAM Log Companion}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\STAM.exe"; Description: "{cm:LaunchProgram,STAM Navigator}"; Flags: nowait postinstall skipifsilent

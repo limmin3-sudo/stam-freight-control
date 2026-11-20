@@ -8,8 +8,8 @@ export function LogAppGuide({locale,shot}:Props){
  const installer=desktopRelease.installer?.url||desktopRelease.url;
  const filename=installer.split('/').pop();
  return <div className="manual-import-guide">
-  <p className="manual-start-order">{t('게임 실행 → STAM 로그 앱 실행 → 미션 콘솔 연결','Start the game → Open the STAM log app → Connect the mission console')}</p>
-  <p className="manual-note">{t('게임을 실행하는 Windows PC에서 진행하세요. 모바일에서는 안내를 읽을 수 있지만 Windows 로그 앱을 설치하거나 이 PC의 로그에 연결할 수는 없습니다.','Use the Windows PC where you play the game. You can read this guide on mobile, but cannot install the Windows log app or connect to that PC’s log from your phone.')}</p>
+  <p className="manual-start-order">{t('게임 실행 → 네비게이터 실행 → 미션 콘솔 연결','Start the game → Open STAM Navigator → Connect the mission console')}</p>
+  <p className="manual-note">{t('게임을 실행하는 Windows PC에서 진행하세요. 모바일에서는 안내를 읽을 수 있지만 Windows 네비게이터를 설치하거나 이 PC의 로그에 연결할 수는 없습니다.','Use the Windows PC where you play the game. You can read this guide on mobile, but cannot install STAM Navigator or connect to that PC’s log from your phone.')}</p>
   <article className="manual-step" id="manual-download"><header><span>01</span><div><small>DOWNLOAD</small><h3>{t('상단 「앱 다운로드」를 누르세요','Select “Download app” in the top bar')}</h3></div></header>
    <p>{t('사이트 오른쪽 위의 「앱 다운로드」에서 Windows 설치 파일을 받습니다. 아래 버튼도 같은 파일로 연결됩니다. 다운로드가 끝나면 브라우저의 다운로드 목록에서 파일을 여세요.','Use “Download app” at the top right to get the Windows installer. The button below links to the same file. Once the download finishes, open it from your browser’s downloads.')}</p>
    <a className="manual-action manual-installer-link" href={installer} target="_blank" rel="noopener noreferrer">{t('Windows 앱 다운로드','Download Windows app')} ↗</a>
@@ -37,7 +37,7 @@ export function LogAppGuide({locale,shot}:Props){
   </article>
   <section className="manual-import-help" aria-labelledby="manual-log-help"><h3 id="manual-log-help">{t('여기서 막혔다면','If you get stuck')}</h3>
    <dl>
-    <div><dt>{t('앱은 켜져 있는데 연결이 안 돼요','The app is open but not connected')}</dt><dd>{t('브라우저의 이 사이트 로컬 네트워크 권한을 확인한 뒤 「로그 앱 연결」을 누르세요. 「앱 연결 중지」가 보이면 이미 앱 연결 방식이 켜진 상태이므로 아래 상태 문구를 먼저 확인하세요.','Check this site’s local network permission, then select “Connect log app”. If the button says “Disconnect app”, app reception is already enabled; check the status beneath it first.')}</dd></div>
+    <div><dt>{t('앱은 켜져 있는데 연결이 안 돼요','The app is open but not connected')}</dt><dd>{t('브라우저의 이 사이트 로컬 네트워크 권한을 확인한 뒤 「네비게이터 연결」을 누르세요. 「앱 연결 중지」가 보이면 이미 앱 연결 방식이 켜진 상태이므로 아래 상태 문구를 먼저 확인하세요.','Check this site’s local network permission, then select “Connect STAM Navigator”. If the button says “Disconnect app”, app reception is already enabled; check the status beneath it first.')}</dd></div>
     <div><dt>{t('연결됐는데 계약이 없어요','Connected, but no contracts appear')}</dt><dd>{t('현재 게임 채널의 Game.log인지, 수주가 로그에 기록됐는지 확인하세요. 로그에 없는 내용은 스크린샷이나 직접 입력으로 보완할 수 있습니다.','Check that this is the active channel’s Game.log and that the accepted contract was recorded. Use screenshots or manual entry for information the log does not contain.')}</dd></div>
     <div><dt>{t('설치 파일을 못 찾겠어요','I cannot find the downloaded installer')}</dt><dd>{t('브라우저 다운로드 목록에서 위 파일명을 찾으세요. 다운로드가 실패했다면 다시 받습니다. 설치 파일과 게임의 Game.log는 서로 다른 파일입니다.','Look for the filename above in your browser’s downloads. Retry if the download failed. The installer and the game’s Game.log are different files.')}</dd></div>
    </dl>

@@ -39,7 +39,7 @@ export const academyLessons:AcademyLesson[]=[
  {id:'access',topic:['이용 방법','Navigation'],title:['빠른 이동과 공간 이동','Quick navigation and scene navigation'],summary:['사이드바와 장소 직접 선택을 목적에 맞게 사용합니다.','Use the sidebar or the scene according to your needs.'],steps:[
  ['다른 시설로 빠르게 갈 때는 사이드바를 사용하세요. 사업부 전경이나 로비에서 장소를 직접 누르면 공간을 보며 이동할 수 있습니다.','Use the sidebar to move quickly between facilities. Select places in the division grounds or lobby to navigate through the scene.'],
  ['세부 화면의 로비 전체 보기 또는 Escape로 돌아갈 수 있습니다. 확인 창이 열려 있을 때는 해당 창의 확인·취소를 먼저 처리하세요.','Use Lobby overview or Escape to return. Resolve an open confirmation dialog before leaving its workflow.'],
- ['로그 연결은 게임을 실행한 뒤 로그 앱을 켜는 순서로 준비합니다. 실제 받은 계약과 수신 내용을 확인한 뒤 운항에 넣으세요.','Launch the game before starting the log companion. Review accepted contracts and received data before adding them to a flight.'],
+ ['로그 연결은 게임을 실행한 뒤 네비게이터를 켜는 순서로 준비합니다. 실제 받은 계약과 수신 내용을 확인한 뒤 운항에 넣으세요.','Launch the game before starting the log companion. Review accepted contracts and received data before adding them to a flight.'],
  ],check:['빠른 이동이 필요한지, 공간을 보며 이동할지 골라보세요.','Choose quick navigation or movement through the scene.'],sources:[]},
  {id:'market-evidence',topic:['시장 판단','Market decisions'],title:['가격이 좋아도 전량 팔 수 있는 것은 아닙니다','A good price does not guarantee a full sale'],summary:['현재 보고가·예측 수요·과거 가격 이력의 역할을 구분합니다.','Separate the roles of reported prices, forecast demand and price history.'],steps:[
  ['거래처의 판매 단가가 높더라도 UEX 예측 수요가 적으면 일부만 비교할 수 있습니다. 수요 미확인은 무제한, 수요 0은 미확인으로 바꾸지 않습니다.','A high sale price with low UEX forecast demand only supports a partial comparison. Unknown demand is not unlimited and zero demand is not unknown.'],

@@ -1,8 +1,7 @@
 /* Shared optical materials. Nine-slice values are in the source images' pixels. */
 :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) {
-  --projection-panel: url('./panel.webp') 91 90 96 90 fill / 13px 15px / 8px 0 stretch;
-  --projection-key: url('./button.webp') 78 62 76 62 fill / 10px 11px / 6px 2px stretch;
-  --projection-emblem: url('../../../../assets/stam-logo-transparent.png');
+  --projection-panel: var(--stam-glass-panel);
+  --projection-key: var(--stam-glass-key);
   --projection-type: Barlow, SUIT, system-ui, sans-serif;
   --data-goods: #dfbdff;
   --data-place: #8edfff;
@@ -25,8 +24,8 @@
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass[data-material=gold] {filter:sepia(.92) saturate(1.8)}
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass img {display:none}
 
-#root :is(.persistent-console-content,.facility-lobby[data-monitor=true]) {
-  background: linear-gradient(110deg, #081821f5, #081821d9), var(--projection-emblem) 90% 52% / min(48%, 540px) auto no-repeat, #081821;
+#root :is(.persistent-console-content,.facility-lobby[data-monitor=true],.room-service,.room-information) {
+  background: var(--stam-monitor);
 }
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.control-room,.control-room #main-content,.control-room .console-workspace,.console-display-content,.workspace-layout,.mission-screen,.trade-workspace-shell) {
   background: transparent;
@@ -189,11 +188,8 @@
 #root .persistent-console-content .dispatch-setup:not([hidden]) {
   display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,.8fr); gap:20px 36px; align-items:start; padding-block:28px;
 }
-.dispatch-ship {margin:0; grid-column:1; grid-row:1 / span 2; border-bottom:1px solid #537783}
-.dispatch-ship .pilot-ship-image {width:100%; height:clamp(160px,32vh,420px); background:#081923}
-.dispatch-ship img {object-fit:contain}
-.dispatch-ship figcaption {padding-block:12px; color:#d3dae0; font-size:18px}
-#root .dispatch-setup .mission-preflight {display:grid; grid-template-columns:1fr; grid-column:2; grid-row:auto; padding:0; gap:14px; background:none}
+.dispatch-ship {margin:0;min-width:0}
+#root .dispatch-setup .mission-preflight {display:grid}
 #root .dispatch-setup .mission-preflight label {gap:4px; font-size:14px}
 #root .dispatch-setup .dispatch-next, #root .map-monitor button.chart-primary {
   background:#e3c48c; color:#131d22; border:0; border-image:none; border-radius:3px; padding:12px 22px;
@@ -222,7 +218,7 @@
 }
 @container (max-width:750px) {
   #root .dispatch-contracts .manifest-cols {grid-template-columns:1fr}
-  #root .dispatch-setup:not([hidden]) {grid-template-columns:1fr}
+  #root .persistent-console-content .dispatch-setup:not([hidden]) {grid-template-columns:minmax(0,1fr)}
   #root .dispatch-setup :is(.dispatch-ship,.mission-preflight,.dispatch-next) {grid-row:auto;grid-column:1}
   #root .dispatch-setup .pilot-ship-image {height:145px}
 }
@@ -284,3 +280,226 @@
 #root .space-experience .shell-nameplate .shell-cut,
 #root .space-experience .shell-nameplate::after {display:none}
 #root .space-topbar .brand-emblem {filter:drop-shadow(0 0 5px #89c5d233)}
+
+/* The large nameplate and the reusable edge are sampled from the same plate.
+   Keep the backing and edge separate so scene dialogue can transmit light. */
+@font-face {
+  font-family: Michroma;
+  src: url('../../../../desktop/theme/optics/Michroma-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+:root {
+  --stam-rim: url('../../../../desktop/theme/optics/glass-edge.png');
+  --stam-monitor: linear-gradient(115deg,#0a0e13e8,#101921d8 65%,#0b1015db),
+    url('../../../../assets/stam-logo-transparent.png') center / min(78%,78svh,880px) auto no-repeat,#0c1117;
+  --monitor-surface: linear-gradient(136deg,#53768636,transparent 24%,#223e4f28 65%,#3655693d),
+    linear-gradient(16deg,#10202bd9,#102634d9 55%,#193548d9);
+  --monitor-edge: var(--stam-rim) 35 / 9px round;
+  --stam-face: url('../../../../desktop/theme/optics/glass-face.jpg');
+  --stam-glass-panel: var(--stam-rim) 35 / 13px stretch;
+  --stam-glass-key: var(--stam-rim) 25 / 5px stretch;
+  --stam-display: Michroma, SUIT, system-ui, sans-serif;
+  --stam-glass: #101f2b var(--stam-face) center / cover no-repeat;
+  --stam-ink: #e8f4f8;
+  --stam-gold: #f0ce91;
+}
+#root .ship-plate {
+  container-type: inline-size;
+  background: transparent;
+  width: 100%;
+  min-height: clamp(130px,20vh,245px);
+  display: grid;
+  align-items: center;
+  box-sizing: border-box;
+}
+#root .ship-plate-type {
+  margin: 0;
+  color: #f2f7f7;
+  text-shadow: 0 2px 4px #050c13ab;
+}
+#root .ship-plate .ship-plate-type h2 {
+  margin: 0;
+  color: inherit;
+  font: 400 clamp(18px,8.1cqi,84px)/1.17 var(--stam-display);
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+#root .ship-plate .ship-plate-type h2[data-long=true] {font-size:clamp(16px,4.65cqi,58px)}
+#root .ship-plate .ship-plate-type h2 small {
+  display: block;
+  color: #bccfd6;
+  font: 400 clamp(10px,1.82cqi,21px)/1.4 var(--stam-display);
+  letter-spacing: .26em;
+  margin: 0 0 .65em;
+}
+.ship-plate-capacity {
+  display:flex;
+  align-items:center;
+  gap:.5em;
+  margin-top:.88em;
+  color: var(--stam-gold);
+  font: 400 clamp(12px,2.8cqi,32px)/1.4 var(--stam-display);
+  font-variant-numeric:tabular-nums;
+}
+.ship-plate-capacity::before {content:'';width:1.55em;height:2px;background:currentColor}
+.ship-plate-sr {position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+#root .freight-reference-detail > .ship-plate {margin:0 0 18px}
+#root .space-experience :is(.mission-screen .mission-preflight,.mission-screen .mission-intake,
+  .mission-screen .manifest-summary,.ops-progress,.ops-partner,.chart-detail,.trade-map-panel,
+  .trade-cargo-panel,.suite-card,.trade-plan-controls,.trade-plan-candidates,.trade-review,
+  .trade-transaction,.trade-price-console,.market-filters,.market-results,.academy-lesson,
+  .academy-selection,.manual-feature,.manual-step,.manual-issue,.manual-movement,.manual-ready,
+  .manual-topics>a,.freight-reference-detail,.freight-reference-list button,.archive-filters,
+  .archive-card,.trade-market-board,.ticker-detail,.board-table,.market-terminal-grid article,
+  .market-source-list,.space-information>a,.service-record),
+dialog.copilot-dialog {
+  border:1px solid transparent;
+  border-image:var(--stam-glass-panel);
+  border-radius:6px;
+  background:var(--stam-glass);
+  color:var(--stam-ink);
+  box-shadow:0 4px 16px #02091138;
+}
+#root .space-experience :is(.archive-filters,.manual-step,.manual-issue,.manual-movement,.manual-ready) {padding:clamp(14px,2vw,30px)}
+#root .space-experience :is(.mission-screen .source-actions button,.mission-screen .mission-toolbar button,
+  .mission-screen .dispatch-next,.mission-screen .dispatch-launch,.map-monitor .chart-primary,
+  .mission-screen .shot-upload button,.manual-page-controls a,.manual-step-index a,
+  .freight-reference-cards .market-action,.crew-dialogue button,.copilot-open,
+  .market-board-search button,.market-entry-nav button,.board-reference>summary,.ticker-expand),
+dialog.copilot-dialog button {
+  border:1px solid transparent;
+  border-image:var(--stam-glass-key);
+  background:var(--stam-glass);
+  color:var(--stam-ink);
+  border-radius:3px;
+}
+#root .space-experience :is(.mission-screen .dispatch-next,.mission-screen .dispatch-launch,.map-monitor .chart-primary):enabled,
+#root .space-experience .freight-reference-list button[aria-pressed=true] {
+  color:var(--stam-gold);
+  box-shadow:inset 3px 0 var(--stam-gold);
+}
+#root .space-experience .crew-encounter .crew-dialogue {
+  background:linear-gradient(105deg,rgb(6 20 31 / 94%),rgb(13 34 49 / 79%) 70%,rgb(12 28 44 / 86%));
+  border-image:var(--stam-glass-panel);
+}
+#root .space-experience :is(.manual-intro,.manual-step,.freight-reference-detail,.crew-dialogue,.dispatch-header) :is(h1,h2,h3),
+dialog.copilot-dialog h2 {font-family:var(--stam-display);font-weight:550;letter-spacing:-.025em}
+#root .space-experience :is(.manual-step header small,.market-eyebrow,.dispatch-header p) {color:var(--stam-gold)}
+#root .space-experience :is(.market-room,.mission-screen,.freight-archive) select option {background:#102331;color:#edf6f8}
+#root .space-experience :is(.crew-dialogue,.mission-screen,.market-room,.freight-archive,.service-center) :is(button,a):focus-visible,
+dialog.copilot-dialog :focus-visible {outline:2px solid var(--stam-gold);outline-offset:2px}
+#root .ship-plate .ship-plate-type h2 > span,
+#root .ship-plate .ship-plate-capacity > span {font-family:inherit;letter-spacing:inherit}
+#root .space-experience .trade-market-board {padding:clamp(12px,1.6vw,24px)}
+#root .space-experience .board-table {padding:8px}
+#root .trade-market-board .board-ticker button {background:rgb(5 18 29 / 75%);border:1px solid #496273}
+#root .trade-market-board .board-ticker button[aria-pressed=true] {border-color:var(--stam-gold);background:#253039}
+#root .space-experience .ticker-detail:not([hidden]) {padding:14px}
+#root .space-experience .archive-metrics>div:first-child dd {color:var(--data-price)}
+#root .space-experience .archive-metrics>div:nth-child(2) dd {color:var(--data-quantity)}
+#root .space-experience .archive-goods {color:var(--data-goods)}
+.screen-notice[open] {background:var(--stam-glass);border:1px solid transparent;border-image:var(--stam-glass-panel);color:var(--stam-ink)}
+
+/* Leave clear space around independently sized instruments. */
+#root .persistent-console-content,
+#root .facility-lobby[data-monitor=true] {
+  box-sizing:border-box;
+  padding:clamp(12px,2vh,28px) clamp(12px,1.7vw,32px);
+}
+#root .space-experience :is(.room-service,.room-information) {
+  padding:clamp(12px,2vh,28px) clamp(12px,1.7vw,32px);
+}
+#root :is(.room-service,.room-information)>.space-room-background {display:none}
+#root .facility-lobby[data-monitor=true]>.lobby-stage {border:0;background:none}
+#root .facility-lobby[data-monitor=true] .lobby-detail.market-room,
+#root .persistent-console-content :is(.map-monitor,.flight-operations.operations-desk) {
+  background:transparent;border-image:none;box-shadow:none;
+}
+#root .space-experience .persistent-console-content .console-display-content {
+  padding:clamp(12px,2vh,28px) clamp(8px,1.5vw,32px);
+}
+.dispatch-controls {border:0;padding:0;margin:0;min-inline-size:0}
+#root .persistent-console-content .dispatch-header {
+  gap:12px;align-items:center;padding:6px 0 14px;border:0;background:none;
+}
+#root .persistent-console-content .dispatch-header h1 {
+  font:550 clamp(19px,2.1vw,30px)/1.3 var(--stam-display);letter-spacing:-.025em;
+  text-shadow:0 1px 4px #071521;
+}
+.dispatch-tools {display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#root .dispatch-tools button,#mission-backups header button {
+  border:1px solid #a6c2d06e;background:#081924b8;border-radius:4px;
+  padding:7px 12px;color:#e7f2f8;cursor:pointer;font:inherit;
+}
+#root .persistent-console-content .dispatch-setup:not([hidden]) {
+  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  align-items:stretch;gap:clamp(16px,2vw,32px);padding-block:8px;
+}
+#root .space-experience .dispatch-setup .dispatch-ship {
+  grid-area:auto;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(20px,3vw,48px);min-width:0;
+}
+#root .dispatch-setup .dispatch-ship .pilot-ship-image {
+  display:flex;align-self:center;justify-content:center;width:100%;height:auto;background:none;
+}
+#root .dispatch-setup .dispatch-ship img {width:auto;height:auto;max-width:100%;max-height:190px;object-fit:contain;
+  mask-image:radial-gradient(ellipse farthest-side,#000 68%,transparent 100%);
+}
+#root .space-experience .dispatch-setup .mission-preflight {
+  grid-area:auto;grid-template-columns:minmax(0,1fr);align-content:center;
+  padding:clamp(20px,2.5vw,44px);gap:18px;
+}
+#root .dispatch-setup .mission-preflight .dispatch-next {grid-column:1;justify-self:start}
+#root .space-experience :is(.persistent-console-content,.facility-lobby[data-monitor=true],.room-service,.room-information)
+  :is(.dispatch-ship,.dispatch-setup .mission-preflight,.mission-intake,.manifest-inbox,.manifest-summary,
+  .chart-space,.chart-itinerary,.ops-map,.ops-hold,.ops-progress,.ops-partner,.suite-card,
+  .trade-cargo-panel,.trade-map-panel,.trade-price-console,.market-results,.freight-reference-detail,
+  .archive-filters,.manual-step,.manual-feature),
+#root .facility-lobby[data-monitor=true][data-room=market]>.lobby-stage {
+  background:var(--monitor-surface);
+  border:2px solid transparent;border-image:var(--monitor-edge);border-radius:6px;
+  box-shadow:0 5px 16px #03070a40;
+}
+#root .dispatch-contracts .manifest-inbox,#root .map-monitor .chart-itinerary {padding:16px}
+#root .space-experience .facility-lobby[data-room=market] .lobby-detail.market-room {
+  background:transparent;padding:clamp(14px,1.8vw,28px);
+}
+#root .facility-lobby[data-room=market] :is(.trade-market-board,.market-filters,.market-results,
+  .board-table,.ticker-detail,.market-source-list) {
+  background:none;border:0;border-image:none;border-radius:0;box-shadow:none;padding:0;
+}
+#root .facility-lobby[data-room=market] .market-board-search {padding-block:10px}
+#root .facility-lobby[data-room=market] .market-board-search input {
+  background:#08192563;border:0;border-bottom:1px solid #8eaab7;border-radius:0;
+}
+#root .facility-lobby[data-room=market] .trade-market-board :is(.market-board-search button,.ticker-expand,.ticker-modes button) {
+  border:0;border-bottom:1px solid #7893a36b;border-image:none;background:none;box-shadow:none;
+}
+#root .facility-lobby[data-room=market] .trade-market-board .board-ticker button {
+  border:0;border-bottom:1px solid #8ca9bd40;background:none;box-shadow:none;border-radius:0;
+}
+#root .facility-lobby[data-room=market] .trade-market-board .board-ticker button:is(:hover,[aria-pressed=true]),
+#root .facility-lobby[data-room=market] .ticker-modes button[aria-pressed=true] {
+  background:#d1ae7620;border-bottom-color:var(--stam-gold);
+}
+#root .operations-desk :is(.ops-progress .trial-brief,.ops-itinerary li,.ops-portrait),
+#root .chart-itinerary .chart-stops>li {
+  background:none;border:0;border-radius:0;box-shadow:none;
+}
+#root .chart-itinerary .chart-stops>li,#root .operations-desk .ops-itinerary li {
+  border-bottom:1px solid #829dad40;
+}
+#root .operations-desk .ops-itinerary li[aria-current=step] {box-shadow:inset 2px 0 var(--stam-gold)}
+#mission-backups {
+  width:min(32rem,90vw);max-height:80vh;overflow:auto;margin:auto;padding:24px;
+  border:1px solid #8caab7;border-radius:8px;background:#0e2130;color:#e6f1f5;
+}
+#mission-backups::backdrop {background:#030a1175}
+#mission-backups header {display:flex;align-items:center;justify-content:space-between;gap:16px}
+#mission-backups header h2 {margin:0;font-size:20px}
+#mission-backups details {padding:12px 0;margin:8px 0;border:0;border-bottom:1px solid #68859665}
+#mission-backups summary {cursor:pointer}
+@container(max-width:750px) {
+  #root .persistent-console-content .dispatch-setup:not([hidden]) {grid-template-columns:minmax(0,1fr);min-height:0;gap:16px}
+  #root .dispatch-setup .ship-plate {min-height:100px}
+}

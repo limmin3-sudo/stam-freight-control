@@ -18,7 +18,7 @@ export const places:Record<string,Name>=Object.fromEntries(currentLocationData()
 for(const [id,p]of referencePlaces)places[id]=[translations[p.name]||p.name,p.name];
 for(const id of ['hurston','crusader','arccorp','microtech'])places[id]=[placeName(id,0),placeName(id,1)];
 export const navigablePlaces=currentLocationData().locations.filter(p=>p.type!=='Star').map(p=>p.id);
-export type Shipment = { id:string; cargo:Name; from:Place; to:Place; scu:number; cargoShape?:string; maxBoxSize?:number; boxes?:{size:number;count:number}[] };
+export type Shipment = { id:string; cargo:Name; from:Place; to:Place; pickupFacility?:Name; deliveryFacility?:Name; scu:number; cargoShape?:string; maxBoxSize?:number; boxes?:{size:number;count:number}[] };
 export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; signature?:string; reviewedReceipt?:boolean; reservations?:Record<string,number>;
   referenceInfo?:{values:Record<string,unknown>;provenance:Record<string,string[]>;sources:Record<string,{name:string;version:string;url?:string}>};
   mission?:Partial<import('./flight-types').Mission>&Pick<import('./flight-types').Mission,'cargo'>;

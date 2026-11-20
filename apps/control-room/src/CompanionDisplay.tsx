@@ -1,34 +1,15 @@
-import {useEffect,useRef,useState} from 'react';
+import {createContext,useContext,useEffect,useRef} from 'react';
 import type {Locale} from './navigation';
-import {ApprovedGlass} from './ApprovedGlass';
-import {useTradeView} from './use-trade-view';
 import type {MarketSnapshot} from './trade-data';
-import {priceAnswer} from './companion-guidance';
-import {refreshCommodity,marketWithRecentQuotes} from './market-reference';
-export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
-export default function CompanionDisplay({summary,locale,onCommand,market}:{market?:MarketSnapshot|null;summary:CompanionSummary;locale:Locale;onCommand:(command:string)=>void}){
- const t=(k:string,e:string)=>locale==='en'?e:k,[enabled,setEnabled]=useTradeView('companion-enabled',false),[status,setStatus]=useState(''),current=useRef(summary),command=useRef(onCommand);
- const lookup=useRef({market,locale});lookup.current={market,locale};
- current.current=summary;command.current=onCommand;
- useEffect(()=>{if(!enabled)return;let stopped=false,flightVoice=false,token='',sequence=0,after=0,timer:ReturnType<typeof setTimeout>,abort:AbortController|null=null;let latestQuote=0;let answer:{id:number;text:string}|undefined;const session=crypto.randomUUID(),endpoint='http://127.0.0.1:23458';
-  const request=async(path:string,body?:unknown,pair=false)=>{const controller=new AbortController();abort=controller;const timeout=setTimeout(()=>controller.abort(),4000);try{const response=await fetch(endpoint+path,{method:body?'POST':'GET',headers:pair?{'X-STAM-Client':'flight-deck'}:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal,credentials:'omit',redirect:'error'});const value=await response.json();if(!response.ok)throw Error(value.error||'offline');return value;}finally{clearTimeout(timeout);}};
-  const poll=async()=>{let repeat=false;try{if(!token){const p=await request('/api/pair',undefined,true);if(stopped)return;if(!/^[a-f0-9]{64}$/.test(p.token))throw Error('offline');token=p.token;const s=await request('/api/status');if(s.capabilities?.display!==2)throw Error('upgrade');flightVoice=s.capabilities?.flightVoice===1;}
-   if(stopped)return;await request('/api/display',{session,sequence:++sequence,display:{...current.current,answer}});if(stopped)return;
-   const result=await request('/api/commands?session='+encodeURIComponent(session)+'&after='+after+(flightVoice&&current.current.mode==='flight'?'&wait=1':''));if(stopped)return;
-   for(const row of result.commands??[]){if(Number.isSafeInteger(row.id)&&row.id>after){after=row.id;const quote=/^quote-(buy|sell):([1-9][0-9]{0,8})(?::([1-9][0-9]{0,5}))?$/.exec(row.command);
-     if(quote&&current.current.mode!=='flight'){
-       const {market,locale:language}=lookup.current;
-       const mode=current.current.mode,id=Number(quote[2]),side=quote[1] as 'buy'|'sell';
-       latestQuote=row.id;
-       const reply=()=>{if(!stopped&&latestQuote===row.id&&current.current.mode===mode)answer={id:row.id,text:priceAnswer(market?marketWithRecentQuotes(market):null,side,id,language==='en',quote[3]?Number(quote[3]):undefined).slice(0,240)};};
-       if(market?.commodities.some(item=>item.id===id))void refreshCommodity(market,id).then(reply,reply);
-       else reply();
-       continue;}
-     if(current.current.stepId&&row.command==='complete-flight:'+current.current.stepId&&Date.now()-row.at<=10000&&Date.now()>=row.at)command.current(row.command);else if(['open-trade','open-flight','show-prices','show-my-work'].includes(row.command))command.current(row.command);}}
-   repeat=flightVoice&&current.current.mode==='flight';setStatus('connected');
-  }catch(e){if(!stopped){const code=e instanceof Error?e.message:'offline';setStatus(code==='display-in-use'?'busy':code==='upgrade'?'upgrade':'offline');if(code!=='display-in-use')token='';}}finally{if(!stopped){if(repeat)void poll();else timer=setTimeout(poll,2000);}}};
-  void poll();return()=>{stopped=true;clearTimeout(timer);abort?.abort();if(token){void fetch(endpoint+'/api/display',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({session,sequence:++sequence,clear:true}),credentials:'omit',keepalive:true}).catch(()=>{});}};
- },[enabled]);
- useEffect(()=>{const stop=()=>setEnabled(false);window.addEventListener('stam-account-boundary',stop);return()=>window.removeEventListener('stam-account-boundary',stop);},[]);
- return <details className="companion-display"><summary>{t('로그 앱 오버레이','Companion overlay')}{enabled?' · '+({connected:t('연결됨','Connected'),busy:t('다른 탭 사용 중','In use by another tab'),upgrade:t('새 앱 필요','App update required'),offline:t('앱 연결 대기','Waiting for app')}[status]||t('연결 중','Connecting')):''}</summary><p>{t('로그 앱을 켜고 이 화면을 연결하세요. 운송에서는 “얼마나 실어야 해?”나 “배송 완료”, 무역에서는 “금 어디서 팔아?”처럼 말하세요. 트레이의 음성 안내에서 목소리를 고르고 미리 들을 수 있습니다.','Connect this view to the running companion. Ask “how much should I load” or say “delivery complete” in freight. In trade, ask “where can I sell gold”. Choose and preview a voice in the tray.')}</p><button type="button" className="market-action" aria-pressed={enabled} onClick={()=>setEnabled(v=>!v)}><ApprovedGlass/>{enabled?t('표시 연결 해제','Disconnect display'):t('이 화면을 로그 앱에 표시','Show this view in companion')}</button><p className="suite-note">{t('앱 트레이의 오버레이·단축키·음성 설정에서 켜고 끌 수 있습니다. 웹 화면을 닫으면 표시가 자동 해제됩니다.','Use the app tray for overlay, shortcut and voice settings. The display clears when the web view closes.')}</p></details>;
+export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
+export type DisplayView={market?:MarketSnapshot|null;summary:CompanionSummary;locale:Locale;onCommand:(command:string)=>void};
+export function createCompanionDock(){
+ const slots=new Set<()=>DisplayView>();
+ return {register(read:()=>DisplayView){slots.add(read);return ()=>{slots.delete(read);};},read:()=>Array.from(slots).at(-1)?.(),open:()=>{}};
+}
+export const CompanionDock=createContext<ReturnType<typeof createCompanionDock>|null>(null);
+export default function CompanionDisplay(props:DisplayView){
+ const dock=useContext(CompanionDock),current=useRef(props);current.current=props;
+ useEffect(()=>dock?.register(()=>current.current),[dock]);
+ return <button type="button" className="market-action" onClick={()=>dock?.open()}>{props.locale==='en'?'Open flight copilot':'운항 부조종사 열기'}</button>;
 }

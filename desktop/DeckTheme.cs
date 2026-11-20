@@ -1,25 +1,38 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
-// Original approved PNG materials, nine-sliced at runtime. No website runtime
-// or generated labels are embedded in the native companion.
 internal static class DeckTheme {
-    static readonly Dictionary<string,Image> images=new Dictionary<string,Image>();
-    static DeckTheme(){AppDomain.CurrentDomain.ProcessExit+=(s,e)=>{foreach(var image in images.Values)image.Dispose();images.Clear();};}
-    static Image Get(string name){
-        Image result;if(images.TryGetValue(name,out result))return result;
-        string file=name=="panorama"?"division-overview.png":name=="instrument"?"flight-console-a-frame.png":name=="button"?"hologram-button.png":"black-gold-d-frame.png";
-        string path=name=="emblem"?Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png"):Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","theme",file);
-        using(var source=Image.FromFile(path))result=new Bitmap(source);
-        images[name]=result;return result;
+    internal static readonly Color Housing=Color.FromArgb(46,53,59);
+    internal static readonly Color Ink=Color.FromArgb(233,234,233);
+    internal static readonly Color Muted=Color.FromArgb(173,177,180);
+    internal static readonly Color Platinum=Color.FromArgb(213,216,217);
+    internal static readonly Color Gilt=Color.FromArgb(176,148,92);
+    internal static readonly Color OperatorInk=Color.FromArgb(244,207,133);
+    internal static readonly Color NavigatorInk=Color.FromArgb(161,206,246);
+    static Image emblem;
+
+    static DeckTheme(){AppDomain.CurrentDomain.ProcessExit+=(s,e)=>{if(emblem!=null)emblem.Dispose();};}
+
+    internal static LinearGradientBrush Key(Rectangle bounds,bool active){
+        if(!active)return new LinearGradientBrush(bounds,Color.FromArgb(52,54,57),Color.FromArgb(26,27,29),76f);
+        var metal=new LinearGradientBrush(bounds,Platinum,Muted,16f);
+        metal.InterpolationColors=new ColorBlend {
+            Colors=new[]{Color.FromArgb(169,174,177),Color.FromArgb(235,236,234),Color.FromArgb(188,192,194),Color.FromArgb(215,218,219)},
+            Positions=new[]{0f,.3f,.69f,1f}
+        };
+        return metal;
     }
     internal static void Emblem(Graphics g,Rectangle bounds){
         try{
-            var image=Get("emblem");
+            if(emblem==null){
+                var path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png");
+                using(var source=Image.FromFile(path))emblem=new Bitmap(source);
+            }
+            var image=emblem;
             int size=Math.Min(bounds.Width/2,bounds.Height)-12;
             if(size<1)return;
             using(var attributes=new ImageAttributes()){
@@ -28,45 +41,66 @@ internal static class DeckTheme {
             }
         }catch(IOException){}catch(ArgumentException){}
     }
-    internal static void Panorama(Graphics g,Rectangle bounds){
-        try{var image=Get("panorama");float scale=Math.Max((float)bounds.Width/image.Width,(float)bounds.Height/image.Height);
-            var state=g.Save();g.SetClip(bounds,System.Drawing.Drawing2D.CombineMode.Intersect);g.DrawImage(image,bounds.X+(bounds.Width-image.Width*scale)/2,bounds.Y+(bounds.Height-image.Height*scale)/2,image.Width*scale,image.Height*scale);
-            using(var shade=new SolidBrush(Color.FromArgb(135,3,12,19)))g.FillRectangle(shade,bounds);g.Restore(state);
-        }catch(IOException){}catch(ArgumentException){}
-    }
-    internal static void Draw(Graphics g,string name,Rectangle target,float brightness){
-        if(target.Width<4||target.Height<4)return;
-        try{
-            var image=Get(name);bool instrument=name=="instrument",button=name=="button";
-            // Remove the transparent production-sheet margin when sampling.
-            int left=(int)(image.Width*(instrument ? .008 : button ? .005 : .022));
-            int top=(int)(image.Height*(instrument ? .02 : button ? .15 : .13));
-            int width=(int)(image.Width*(instrument ? .984 : button ? .99 : .956));
-            int height=(int)(image.Height*(instrument ? .96 : button ? .69 : .74));
-            int sx=Math.Max(1,(int)(width*(instrument ? .12 : .13))),sy=Math.Max(1,(int)(height*(instrument ? .19 : .27)));
-            int edge=Math.Max(2,(int)((instrument?20:button?10:13)*g.DpiX/96));
-            int dx=Math.Min(edge,target.Width/3),dy=Math.Min(edge,target.Height/3);
-            int[] xs={left,left+sx,left+width-sx,left+width},ys={top,top+sy,top+height-sy,top+height};
-            int[] tx={target.Left,target.Left+dx,target.Right-dx,target.Right},ty={target.Top,target.Top+dy,target.Bottom-dy,target.Bottom};
-            using(var attributes=new ImageAttributes()){
-                attributes.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
-                var matrix=new ColorMatrix();matrix.Matrix00=matrix.Matrix11=matrix.Matrix22=brightness;attributes.SetColorMatrix(matrix);
-                for(int y=0;y<3;y++)for(int x=0;x<3;x++)g.DrawImage(image,new Rectangle(tx[x],ty[y],tx[x+1]-tx[x],ty[y+1]-ty[y]),xs[x],ys[y],xs[x+1]-xs[x],ys[y+1]-ys[y],GraphicsUnit.Pixel,attributes);
+    internal static void Panel(Graphics g,Rectangle r){
+        if(r.Width<2||r.Height<2)return;
+        using(var baseMetal=new LinearGradientBrush(r,Color.FromArgb(59,66,73),Color.FromArgb(42,48,54),25f)){
+            g.FillRectangle(baseMetal,r);
+        }
+        // Short, low-contrast strokes give the surface a fixed-scale brushed finish.
+        var state=g.Save();
+        g.SetClip(r,CombineMode.Intersect);
+        using(var grain=new Pen(Color.FromArgb(7,255,255,255))){
+            for(int row=1;row<r.Height;row+=3){
+                int offset=(row*47)%149;
+                for(int x=r.Left-offset;x<r.Right;x+=149)
+                    g.DrawLine(grain,x,r.Top+row,x+24+(row*11)%67,r.Top+row);
             }
-        }catch(IOException){g.Clear(Color.FromArgb(8,18,24));}catch(ArgumentException){g.Clear(Color.FromArgb(8,18,24));}
+        }
+        g.Restore(state);
+        using(var edge=new Pen(Gilt))g.DrawRectangle(edge,r.X,r.Y,r.Width-1,r.Height-1);
     }
 }
 internal sealed class DeckSurface : TableLayoutPanel {
-    public bool ShowDivision {get;set;}
     public bool ShowEmblem {get;set;}
-    public DeckSurface(){BackColor=Color.FromArgb(8,18,24);SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
-    protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(BackColor);if(ShowEmblem){
-        if(Width<2||Height<2)return;
-        using(var glass=new System.Drawing.Drawing2D.LinearGradientBrush(ClientRectangle,Color.FromArgb(22,42,58),BackColor,70f))
-            e.Graphics.FillRectangle(glass,ClientRectangle);
-        DeckTheme.Emblem(e.Graphics,ClientRectangle);
-        using(var edge=new Pen(Color.FromArgb(65,110,127)))e.Graphics.DrawRectangle(edge,0,0,Width-1,Height-1);
-        using(var accent=new SolidBrush(Color.FromArgb(214,184,123)))e.Graphics.FillRectangle(accent,18,0,Math.Min(76,Width-1),2);
-        return;
-    }DeckTheme.Draw(e.Graphics,"gold",ClientRectangle,1f);if(ShowDivision){int edge=(int)(14*e.Graphics.DpiX/96);DeckTheme.Panorama(e.Graphics,Rectangle.Inflate(ClientRectangle,-edge,-edge));}}
+    public DeckSurface(){BackColor=DeckTheme.Housing;SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
+    protected override void OnPaintBackground(PaintEventArgs e){
+        DeckTheme.Panel(e.Graphics,ClientRectangle);
+        if(ShowEmblem)DeckTheme.Emblem(e.Graphics,ClientRectangle);
+    }
+}
+
+internal sealed class PartnerPortrait : PictureBox {
+    readonly bool compact;
+    bool? current;
+    internal PartnerPortrait(bool compact){
+        this.compact=compact;
+        SizeMode=PictureBoxSizeMode.Zoom;
+        BackColor=Color.Transparent;
+        Dock=DockStyle.Fill;
+    }
+    internal static string Title(bool navigator,bool english){
+        if(navigator)return english?"Senior Navigator":"수석항해사";
+        return english?"Bridge Operator":"브리지 오퍼레이터";
+    }
+    internal void SelectPartner(bool navigator,bool english){
+        AccessibleName=Title(navigator,english);
+        if(current==navigator)return;
+        current=navigator;
+        var old=Image;Image=null;if(old!=null)old.Dispose();
+        var path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","portraits",navigator?"male.png":"female.png");
+        try{
+            using(var source=new Bitmap(path)){
+                if(compact){
+                    // Keep the face legible in the overlay's short identification row.
+                    int side=Math.Min(source.Width,source.Height)*3/4;
+                    Image=source.Clone(new Rectangle((source.Width-side)/2,0,side,side),PixelFormat.Format32bppArgb);
+                }else Image=new Bitmap(source);
+            }
+        }catch(IOException){}catch(ArgumentException){}
+        Visible=Image!=null;
+    }
+    protected override void Dispose(bool disposing){
+        if(disposing){var old=Image;Image=null;if(old!=null)old.Dispose();}
+        base.Dispose(disposing);
+    }
 }

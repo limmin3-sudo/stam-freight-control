@@ -1,3 +1,4 @@
+import {ShipPlate} from './ShipPlate';
 import {ShipThumbnail} from './ShipThumbnail';
 import ShipSelect from './ShipSelect';
 import { useEffect, useRef, useState } from 'react';
@@ -206,27 +207,33 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       stepTitle.current?.scrollIntoView({block:'nearest'});
     }
   },[contractsOpen]);
-  return <fieldset disabled={locked} className="manifest flight-manifest mission-screen">
+  const customShip=d.customShip?.id===d.ship?d.customShip:undefined;
+  const currentShipName=customShip?.name??shipName(d.ship);
+  const currentCapacity=customShip?customShip.grids.reduce((total,grid)=>total+grid.w*grid.h*grid.l,0):ships[d.ship];
+  return <section className="manifest flight-manifest mission-screen">
     <header className="dispatch-header">
-      <div><p>{contractsOpen?t('2 / 2 · 미션 콘솔','2 / 2 · Mission console'):t('1 / 2 · 미션 콘솔','1 / 2 · Mission console')}</p>
-        <h1 ref={stepTitle} tabIndex={-1}>{contractsOpen?t('운송 계약','Freight contracts'):t('운항 준비','Flight setup')}</h1></div>
-      {contractsOpen&&<button type="button" className="dispatch-back" disabled={!!form} onClick={()=>onContractsOpen(false)}>{t('← 운항 준비','← Flight setup')}</button>}
+      <h1 ref={stepTitle} tabIndex={-1}>{contractsOpen?t('운송 계약','Freight contracts'):t('운항 준비','Flight setup')}</h1>
+      <div className="dispatch-tools">
+        {contractsOpen&&<button type="button" className="dispatch-back" disabled={locked||!!form} onClick={()=>onContractsOpen(false)}>{t('← 운항 준비','← Flight setup')}</button>}
+        <button type="button" popoverTarget="mission-backups">{t('백업·복원','Backup & restore')}</button>
+      </div>
     </header>
+    <fieldset disabled={locked} className="dispatch-controls" aria-label={contractsOpen?t('운송 계약','Freight contracts'):t('운항 준비','Flight setup')}>
     <div hidden={contractsOpen} className="dispatch-setup">
-      <figure className="dispatch-ship">
-        <ShipThumbnail id={d.ship} name={d.customShip?.id===d.ship?d.customShip.name:shipName(d.ship)} en={locale==='en'}/>
-        <figcaption>{d.customShip?.id===d.ship?d.customShip.name:shipName(d.ship)}</figcaption>
-      </figure>
+      <div className="dispatch-ship">
+        <ShipThumbnail id={d.ship} name={currentShipName} en={locale==='en'}/>
+        <ShipPlate name={currentShipName} capacity={currentCapacity} capacityLabel={t('총 적재 용량','Cargo capacity')}/>
+      </div>
       <div className="mission-preflight">
-      <ShipSelect locale={locale} value={d.ship} onChange={id=>edit({ship:id})} options={[...(d.customShip?.id===d.ship&&!ships[d.ship]?[{id:d.customShip.id,name:d.customShip.name,capacity:d.customShip.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)}]:[]),...Object.keys(ships).map(id=>({id,name:shipName(id),capacity:ships[id]!}))]}/>
-      <PortSearch locale={locale} label={t('출발지','Departure')} value={d.start} onSelect={start=>edit({start})}/>
-      <label>{t('운항 파트너','Flight partner')}<select aria-label={t('운항 파트너','Flight partner')} value={d.partner} onChange={e=>edit({partner:e.target.value as Draft['partner']})}><option value="operator">{t('브리지 오퍼레이터 · 경로 안내','Bridge operator · Route guidance')}</option><option value="navigator">{t('수석 항해사 · 경로와 적재','Senior navigator · Route & cargo')}</option></select></label>
-      <p className="mission-partner-note">{simple?t('적재는 직접 · 같은 행성권에서 픽업한 뒤 배송합니다.','Load cargo yourself · Pick up within one region, then deliver.'):t('픽업을 묶고, 각 구간의 적재 가능 여부까지 계산합니다.','Batch pickups and check cargo fit at every stop.')}</p>
-    </div>
-      <button type="button" className="dispatch-next" onClick={()=>{
-        if(!d.partnerSelected)edit({partnerSelected:true,allowUpperBounds:false});
-        onContractsOpen(true);
-      }}>{t('다음 · 계약 불러오기','Next · Import contracts')} →</button>
+        <ShipSelect locale={locale} value={d.ship} onChange={id=>edit({ship:id})} options={[...(d.customShip?.id===d.ship&&!ships[d.ship]?[{id:d.customShip.id,name:d.customShip.name,capacity:d.customShip.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)}]:[]),...Object.keys(ships).map(id=>({id,name:shipName(id),capacity:ships[id]!}))]}/>
+        <PortSearch locale={locale} label={t('출발지','Departure')} value={d.start} onSelect={start=>edit({start})}/>
+        <label>{t('운항 파트너','Flight partner')}<select aria-label={t('운항 파트너','Flight partner')} value={d.partner} onChange={e=>edit({partner:e.target.value as Draft['partner']})}><option value="operator">{t('브리지 오퍼레이터 · 경로 안내','Bridge operator · Route guidance')}</option><option value="navigator">{t('수석 항해사 · 경로와 적재','Senior navigator · Route & cargo')}</option></select></label>
+        <p className="mission-partner-note">{simple?t('적재는 직접 · 같은 행성권에서 픽업한 뒤 배송합니다.','Load cargo yourself · Pick up within one region, then deliver.'):t('픽업을 묶고, 각 구간의 적재 가능 여부까지 계산합니다.','Batch pickups and check cargo fit at every stop.')}</p>
+        <button type="button" className="dispatch-next" onClick={()=>{
+          if(!d.partnerSelected)edit({partnerSelected:true,allowUpperBounds:false});
+          onContractsOpen(true);
+        }}>{t('다음 · 계약 불러오기','Next · Import contracts')} →</button>
+      </div>
     </div>
     <div hidden={!contractsOpen} className="dispatch-contracts">
     <details className="dispatch-intake" open={cards.length===0}>
@@ -235,10 +242,10 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       <div className="mission-source-grid">
         <div hidden={!!session?.run?.started&&!session.run.finished} className="mission-source receipt-import"><h3>Game.log</h3><p>{t('수주한 계약을 로그에서 가져옵니다.','Read your accepted contracts from the game log.')}</p>
           <input hidden ref={logInput} type="file" accept=".log" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file){setChecked([]);setSampleMode(false);receipts.read(file);}}}/>
-          <div className="source-actions"><button type="button" disabled={!!form} aria-pressed={receipts.source==='companion'} onClick={()=>{setSampleMode(false);if(receipts.source==='companion')receipts.stopWatching();else receipts.connectCompanion();}}>{receipts.source==='companion'?t('앱 연결 중지','Disconnect app'):t('로그 앱 연결','Connect log app')}</button>
+          <div className="source-actions"><button type="button" disabled={!!form} aria-pressed={receipts.source==='companion'} onClick={()=>{setSampleMode(false);if(receipts.source==='companion')receipts.stopWatching();else receipts.connectCompanion();}}>{receipts.source==='companion'?t('앱 연결 중지','Disconnect app'):t('네비게이터 연결','Connect STAM Navigator')}</button>
           <button type="button" disabled={!!form} onClick={()=>logInput.current?.click()}>{t('Game.log 선택','Choose Game.log')}</button>
           {receipts.canWatch&&<button type="button" disabled={!!form} aria-pressed={receipts.source==='browser'&&receipts.watching} onClick={()=>{if(receipts.source==='browser'&&receipts.watching)receipts.stopWatching();else{setSampleMode(false);void receipts.follow();}}}>{receipts.source==='browser'&&receipts.watching?t('파일 감시 중지','Stop file watching'):t('브라우저로 감시','Watch in browser')}</button>}</div>
-          {receipts.source==='companion'&&<small role="status">{receipts.connection==='watching'?t('앱 자동 수신 중','Receiving from app'):receipts.connection==='catching-up'?t('앱에서 로그를 읽고 있습니다.','App is reading the log.'):receipts.connection==='waiting-file'?t('앱 연결됨 · 게임 로그 생성 대기','App connected · Waiting for Game.log'):receipts.connection==='error'?t('앱 연결을 확인하세요. 이전 수신 기록은 유지됩니다.','Check the app connection. Previous receipts are retained.'):t('로그 앱을 실행하세요. 실행하면 자동 연결됩니다.','Start the log app to connect automatically.')}</small>}
+          {receipts.source==='companion'&&<small role="status">{receipts.connection==='watching'?t('앱 자동 수신 중','Receiving from app'):receipts.connection==='catching-up'?t('앱에서 로그를 읽고 있습니다.','App is reading the log.'):receipts.connection==='waiting-file'?t('앱 연결됨 · 게임 로그 생성 대기','App connected · Waiting for Game.log'):receipts.connection==='error'?t('앱 연결을 확인하세요. 이전 수신 기록은 유지됩니다.','Check the app connection. Previous receipts are retained.'):t('네비게이터를 실행하세요. 실행하면 자동 연결됩니다.','Start STAM Navigator to connect automatically.')}</small>}
         </div>
         <div className="mission-source mission-source-shot"><h3>{t('스크린샷 자동 인식','Screenshot recognition')}</h3><p>{t('OCR로 읽은 내용을 확인·수정한 뒤 추가합니다.','Review and correct the OCR result before adding it.')}</p>
           <ScreenshotIntake locale={locale} locked={locked||!!form} simple={simple} jobs={d.jobs} onAdd={job=>edit({jobs:[...d.jobs,job]})} onRouteOnly={routeOnly}/>
@@ -250,7 +257,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       </div>
       <div className="mission-source-footer"><p role="status">{showLog?(receipts.phase==='reading'?t('로그를 읽고 있습니다.','Reading log…'):receipts.phase==='mixed'?t('여러 플레이어의 기록이 섞였습니다. 현재 Game.log를 선택하세요.','Mixed players. Select the current Game.log.'):receipts.phase==='error'&&receipts.fileUnavailable?t('선택한 파일을 읽는 동안 파일이 변경됐거나 접근할 수 없었습니다. Game.log 사본을 선택하세요.','The selected file changed or could not be accessed during reading. Select a copy of Game.log.'):receipts.phase==='error'?t('로그를 읽지 못했습니다. 이전 수신 기록은 유지됩니다.','Could not read log. Previous receipts are retained.'):receipts.phase==='loaded'?(receipts.cached?t(`저장된 수신 계약 ${receipts.cards.length}건 · 로그 미연결`,`${receipts.cards.length} saved receipts · Log not connected`):t(`수신 계약 ${receipts.cards.length}건`,`${receipts.cards.length} received contracts`)):''):t('예시 계약을 보고 사용법을 확인할 수 있습니다.','Try sample contracts to explore the flow.')}</p>
         <div className="source-actions"><button type="button" disabled={!!form} onClick={()=>{setSampleMode(true);edit({received:true});}}>{t('예시 계약 보기','Show sample contracts')}</button>
-        {showLog&&receipts.phase!=='idle'&&<small>{t('수신함과 저장한 보완 내용은 이 탭에서만 보관됩니다. 로그 앱은 새로고침 후에도 자동 연결됩니다.','Receipts and saved corrections stay in this tab only. The log app reconnects after reloading.')}</small>}
+        {showLog&&receipts.phase!=='idle'&&<small>{t('수신함과 저장한 보완 내용은 이 탭에서만 보관됩니다. 네비게이터는 새로고침 후에도 자동 연결됩니다.','Receipts and saved corrections stay in this tab only. STAM Navigator reconnects after reloading.')}</small>}
         {receipts.storageError&&<p role="alert">{receipts.storageError==='restore'?t('저장된 수신함을 읽지 못했습니다. 로그를 다시 선택하세요. 선택한 운항 계약은 유지됩니다.','Could not restore this tab’s inbox. Select the log again. Selected flight contracts are retained.'):t('수신함을 이 탭에 저장하지 못했습니다. 현재 내용은 화면에 유지되지만 새로고침하면 마지막 저장 상태로 돌아갑니다.','Could not save this tab’s inbox. Current receipts remain on screen; reloading restores the last saved state.')}</p>}
         {!showLog&&receipts.phase!=='idle'&&<button type="button" disabled={!!form} onClick={()=>setSampleMode(false)}>{t('읽은 로그 보기','View log receipts')}</button>}</div>
       </div>
@@ -300,7 +307,8 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       {!simple&&<button type="button" className="cargo-review-toggle" aria-expanded={reviewCargo} onClick={()=>setReviewCargo(!reviewCargo)}>{t('적재 상세 열기','Open cargo details')}</button>}
     </aside></div>{!simple&&reviewCargo&&<div className="departure-cargo-review"><CargoPanel draft={d} locale={locale} session={session}/></div>}
     </div>
-  </fieldset>;
+    </fieldset>
+  </section>;
 }
 
 export function TrialBrief({draft:d,locale,operations=false}:{draft:Draft;locale:Locale;operations?:boolean}) {

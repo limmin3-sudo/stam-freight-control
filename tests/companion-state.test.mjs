@@ -76,3 +76,18 @@ test('read-only commodity questions and bounded spoken guidance respect the curr
  assert.equal(state.enqueue('quote-buy:14'),false);
  assert.equal(state.snapshot().answer,undefined);
 });
+
+test('copilot confirmations belong to the live proposal and cannot be replayed as dictation',()=>{
+ const s=createCompanionState(),session='copilot_session_123',id='43e18be1-1c9a-4187-9861-633706e2c80e';
+ const display={mode:'flight',title:'항행',lines:[],copilot:true};
+ s.publish({session,sequence:1,display});
+ assert.equal(s.enqueue('quote-sell:75:500'),true);
+ assert.equal(s.enqueue('copilot-say:오리슨 들러'),true);
+ assert.equal(s.enqueue('copilot-apply:'+id),false);
+ s.publish({session,sequence:2,display:{...display,proposal:id}});
+ assert.equal(s.enqueue('copilot-say:적용해'),false);
+ assert.equal(s.enqueue('copilot-apply:'+id),true);
+ assert.equal(s.enqueue('copilot-apply:'+id),false);
+ s.publish({session,sequence:3,display});
+ assert.equal(s.enqueue('copilot-cancel:'+id),false);
+});

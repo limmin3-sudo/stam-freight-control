@@ -22,7 +22,7 @@ export const guidePages:Record<GuideTopic,readonly GuidePage[]>={
  ],
  procedure:[
   {title:['운송 준비','Prepare your haul'],body:['관제센터에서 파트너를 고르고, 미션 콘솔에서 함선과 출발지를 확인하세요. 총 SCU를 모르면 오퍼레이터가 경로를 안내하고 적재는 직접 관리해요.','Choose a partner at the control centre, then check your ship and departure in the mission console. If the total SCU is unknown, the operator guides the route and you handle loading.']},
-  {title:['받은 미션을 가져오기','Bring in accepted contracts'],body:['게임을 먼저 실행하고 STAM 로그 앱을 켜세요. 미션 콘솔에서 로그 앱을 연결하거나 파일을 읽을 수 있어요. 스크린샷은 자동 인식 후 검토하고, 직접 입력도 가능해요.','Start the game before the STAM log app. Connect the app or read a log file in the mission console. Screenshots are recognized for review; manual entry is also available.']},
+  {title:['받은 미션을 가져오기','Bring in accepted contracts'],body:['게임을 먼저 실행하고 네비게이터를 켜세요. 미션 콘솔에서 네비게이터를 연결하거나 파일을 읽을 수 있어요. 스크린샷은 자동 인식 후 검토하고, 직접 입력도 가능해요.','Start the game before STAM Navigator. Connect the app or read a log file in the mission console. Screenshots are recognized for review; manual entry is also available.']},
   {title:['선택하고 경로 계산','Select and plan'],body:['실제 수주한 계약의 장소·수량을 확인한 뒤 이번에 운송할 것만 선택하세요. 계산 결과의 방문 순서와 구간별 적재를 살펴보세요. 총 운송량과 동시에 실리는 양은 달라요.','Check locations and quantities against your accepted contracts, then select this haul’s contracts. Review stop order and cargo at each stop. Total freight differs from the amount aboard at once.']},
   {title:['운항과 변경 확인','Fly and review changes'],body:['관제에서 운항을 시작하고 실제 작업 후 완료를 기록하세요. 로그가 계약 변경·종료를 알리면 확인한 뒤 남은 경로를 다시 계산해요. 취소된 계약의 선내 화물은 자동으로 없어지지 않아요.','Start the run and confirm work after doing it in game. Review logged contract changes before recalculating. Cargo already aboard for a cancelled contract is not silently removed.']},
  ],

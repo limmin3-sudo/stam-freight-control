@@ -1,0 +1,161 @@
+/* Give each key one continuous metal surface, including its bevel. */
+.space-experience {
+  --shell-grain: url('./graphite-face.webp');
+  --shell-casting: linear-gradient(108deg,#05070bc2,#080a0deb),var(--shell-grain) center / cover;
+  --shell-legend: #f2eee7;
+  --shell-platinum:
+    linear-gradient(178deg,#ffffff38,transparent 38%,#24323d12 80%,#ffffff22),
+    linear-gradient(106deg,#a8b0b6e0,#e5e8e9ec 18%,#f7f7f3eb 26%,#cbd0d2de 44%,#a9b1b7de 62%,#e2e6e7e8 83%,#bfc5c9df),
+    var(--shell-grain) center / cover no-repeat;
+  --shell-platinum-ink: #182128;
+  --shell-dark-face: linear-gradient(164deg,#434b50e8,#282e32ed 38%,#171d21ee 78%,#272e32ef);
+}
+#root .space-experience .shell-material {display:none}
+#root .space-experience > .space-topbar {
+  display:flex;
+  justify-content:space-between;
+  gap:clamp(8px,2vw,32px);
+  padding-inline:clamp(12px,1.5vw,28px);
+  background:var(--shell-platinum);
+  color:var(--shell-platinum-ink);
+  box-shadow:inset 0 1px #f7fbfd,inset 0 -1px #5b666e,inset 0 -2px #c9cfd3,0 1px 4px #0009;
+}
+#root .space-topbar .shell-brand-tools {gap:clamp(8px,1vw,17px)}
+#root .space-experience .space-topbar .brand-emblem {filter:drop-shadow(0 1px 1px #08090a);width:46px;height:46px}
+#root .space-experience .space-topbar .brand-wordmark {
+  display:flex;align-items:flex-start;flex-direction:column;gap:4px;
+  font:400 clamp(20px,2vw,32px)/1 var(--stam-display);letter-spacing:.08em;color:var(--shell-platinum-ink);text-shadow:0 1px #ffffff73;
+}
+#root .space-experience .space-topbar .brand-wordmark small {
+  color:var(--shell-platinum-ink);
+  font:600 9px/1.1 var(--shell-type);
+  letter-spacing:.26em;
+}
+#root .space-experience .space-topbar .brand-wordmark small::before {
+  content:'';display:inline-block;vertical-align:middle;
+  width:12px;height:2px;margin-right:5px;
+  background:linear-gradient(90deg,#49545b,#727c82);
+}
+#root .space-topbar .shell-control-bank {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  align-items:stretch;gap:3px;
+  flex:0 1 min(55%,790px);
+  min-width:0;
+  padding:4px 8px;
+  border:0;background:transparent;box-shadow:none;
+}
+#root .space-topbar .shell-control-bank :is(button,.space-download,.space-language) {
+  min-height:39px;height:clamp(39px,3.1vw,47px);
+}
+#root .space-experience .space-sidebar {
+  background:var(--shell-casting);
+  color:var(--shell-legend);
+  padding-inline:12px;
+  scrollbar-color:#686764 #17181a;
+  box-shadow:inset -1px 0 #111213,inset -2px 0 #545960,inset -4px 0 #181b1e;
+}
+#root .space-experience :is(.space-sidebar,.space-topbar) :is(button,.space-download,.space-language,
+  .space-division-button,.space-group-button,.space-room-link>a,.space-settings summary) {
+  isolation:isolate;position:relative;
+  background:transparent;border:0;border-image:none;border-radius:5px;
+  color:var(--shell-legend);text-shadow:0 1px 2px #080808;
+  box-shadow:none;filter:none;
+}
+#root .space-experience :is(.space-sidebar,.space-topbar) :is(button,.space-download,.space-language,
+  .space-division-button,.space-group-button,.space-room-link>a,.space-settings summary)::before {
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:var(--shell-dark-face),var(--shell-grain) center / cover;
+  border:0;border-image:none;border-radius:inherit;
+  clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));
+  box-shadow:inset 0 1px #a0a9ae80,inset 0 -1px #080d10;
+  filter:none;
+}
+#root .space-experience .space-sidebar :is(.space-division-button,.space-group-button) {
+  padding-inline:18px 22px;gap:13px;
+}
+#root .space-experience .space-sidebar :is(.space-division-button,.space-group-button) small {
+  color:#b8bbc0;font-size:9px;letter-spacing:.19em;
+}
+#root .space-experience .space-sidebar :is(.space-division-button,.space-group-button) strong {
+  font-size:clamp(17px,1.32vw,21px);line-height:1.32;
+}
+#root .space-experience .space-sidebar :is(.space-division-button,.space-group-button)>svg {
+  padding-right:8px;box-sizing:content-box;stroke:#c9cdd1;
+  border-right:1px solid #9aa4ad38;
+}
+#root .space-sidebar :is(.space-group-chevron,.space-link-arrow,.space-link-index) {color:#b9bdc2}
+#root .space-experience .space-sidebar .space-room-link>a {
+  padding-inline:16px;min-height:38px;
+}
+#root .space-sidebar .space-group-reveal[data-open=true] .space-nav-links {
+  border-left:1px solid #998d7770;padding-left:7px;
+}
+#root .space-experience :is(.space-sidebar,.space-topbar) :is(button:enabled,.space-download,.space-language,
+  .space-division-button,.space-group-button,.space-room-link>a,.space-settings summary):hover::before {filter:brightness(1.16)}
+#root .space-experience :is(.space-sidebar,.space-topbar) :is(button:enabled,a,summary):active::before {
+  transform:translateY(1px);filter:brightness(.96);
+}
+/* Keep the key's machined rim and light the whole face for a latched control. */
+#root .space-experience .space-sidebar :is([aria-current],button[aria-pressed=true],.space-menu-toggle[aria-expanded=true],.space-settings[open]>summary) {
+  color:var(--shell-platinum-ink);
+  text-shadow:0 1px #ffffff63;
+}
+#root .space-experience .space-sidebar :is([aria-current],button[aria-pressed=true],.space-menu-toggle[aria-expanded=true],.space-settings[open]>summary)::before {
+  background:var(--shell-platinum);
+  box-shadow:inset 0 1px #f8fbfc,inset 0 -1px #73818b;
+  filter:none;
+}
+#root .space-experience .space-sidebar :is(.space-group-button,.space-division-button)[aria-current]::after {content:none}
+#root .space-experience .space-sidebar :is([aria-current],button[aria-pressed=true]) :is(small,strong,span,b) {color:inherit}
+#root .space-experience .space-sidebar [aria-current]>svg {stroke:currentColor;border-right-color:#34444e50}
+#root .space-experience :is(.space-sidebar,.space-topbar) button:disabled {opacity:.5}
+#root .space-experience :is(.space-sidebar,.space-topbar) :is(a,button,select,summary):focus-visible {
+  outline:2px solid #ffdf9a;outline-offset:2px;
+}
+#root .space-experience :is(.space-sidebar,.space-topbar) .approved-glass {display:none}
+#root .space-experience .space-sidebar :is(.pilot-desk,.pilot-reveal,.space-settings>div) {
+  border:1px solid #34383d;border-bottom-color:#51565b;
+  border-radius:5px;background:var(--shell-casting);
+  box-shadow:inset 0 2px 4px #0009;filter:none;
+}
+#root .space-experience .space-sidebar .pilot-desk {padding:4px}
+#root .space-experience .space-sidebar .pilot-summary {padding:10px 13px}
+#root .space-experience .space-sidebar .pilot-eyebrow::before {color:#c5b89a}
+#root .space-experience .space-sidebar .space-settings summary,
+#root .space-experience .space-topbar .copilot-open {white-space:nowrap}
+#root .space-experience .space-topbar .copilot-open {padding:7px 13px;min-height:33px}
+#root .space-experience .space-topbar button.shell-menu-control::before {content:none}
+#root .space-experience .space-topbar button.shell-menu-control {color:var(--shell-platinum-ink)}
+#root .space-topbar .shell-menu-control span {
+  width:15px;height:12px;font-size:0;
+  background:linear-gradient(currentColor 0 2px,transparent 2px 5px,currentColor 5px 7px,transparent 7px 10px,currentColor 10px);
+}
+#root .space-experience .space-topbar .space-language select {background:transparent;color:inherit}
+@media (max-width:950px) {
+  #root .space-topbar .shell-brand-tools {gap:6px}
+  #root .space-experience .space-topbar .brand-emblem {width:34px;height:34px}
+  #root .space-experience .space-topbar .room-brand {gap:6px}
+}
+@media (max-width:760px) {
+  #root .space-topbar .shell-control-bank {grid-template-columns:repeat(2,minmax(0,1fr));flex-basis:min(53%,370px);padding:3px 5px}
+  #root .space-experience .space-topbar .brand-wordmark small {font-size:7px;letter-spacing:.15em}
+  #root .space-experience .space-sidebar .space-dock {background:var(--shell-casting)}
+}
+
+@media (min-width:1051px) {
+  #root .space-topbar .shell-brand-tools {flex:1 1 0}
+  /* The shallow cut ends under the control bank at the same angle as a key corner. */
+  #root .space-topbar .shell-brand-tools::after {
+    content:'';flex:1;min-width:0;height:15px;margin-inline:12px 0;
+    background:linear-gradient(174deg,transparent 0 33%,#111213aa 36%,#737d8465 43%,transparent 51%)
+      right center / 25px 100% no-repeat,
+      linear-gradient(#090a0a,#65717a5e) left 80% / calc(100% - 22px) 2px no-repeat;
+  }
+  #root .space-experience .space-sidebar {
+    background:
+      radial-gradient(circle at center,#171716 0 1px,#44433e 1.5px,#121313 2.5px,#858176 3px,transparent 3.8px) 6px calc(100% - 7px) / 10px 10px no-repeat,
+      radial-gradient(circle at center,#171716 0 1px,#44433e 1.5px,#121313 2.5px,#858176 3px,transparent 3.8px) calc(100% - 9px) calc(100% - 7px) / 10px 10px no-repeat,
+      var(--shell-casting);
+  }
+}

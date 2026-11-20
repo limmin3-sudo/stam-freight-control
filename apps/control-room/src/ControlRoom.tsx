@@ -41,6 +41,7 @@ export function ControlRoom({flight,contractsOpen,onContractsOpen}:{flight:Retur
     document.title = `${screenTitle(route.screen, copy)} · STAM FREIGHT DIVISION`;
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isHome && !event.defaultPrevented &&
+          !document.getElementById('mission-backups')?.matches(':popover-open') &&
           !(event.target instanceof Element && event.target.closest('input, select, textarea, [contenteditable], dialog'))) {
         location.hash = routeHash({ ...route, screen: 'bridge' });
       }
@@ -104,7 +105,11 @@ export function ControlRoom({flight,contractsOpen,onContractsOpen}:{flight:Retur
               onReview={next=>{if(next)flight.change(next);flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});});}}/> :
             <>{!controlMode && draft.partner==='navigator' && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
               <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}
-          {route.screen==='mission' && <><ContractBackup flight={flight} locale={route.locale}/><FlightBackup flight={flight} locale={route.locale}/></>}
+          {route.screen==='mission' && <div popover="auto" id="mission-backups" role="dialog" aria-labelledby="mission-backups-title">
+            <header><h2 id="mission-backups-title">{route.locale==='en'?'Backup & restore':'백업·복원'}</h2>
+              <button type="button" popoverTarget="mission-backups" popoverTargetAction="hide">{route.locale==='en'?'Close':'닫기'}</button></header>
+            <ContractBackup flight={flight} locale={route.locale}/><FlightBackup flight={flight} locale={route.locale}/>
+          </div>}
           {route.screen==='mission' && flight.hasSaved && !flight.active && <button type="button" className="return-link" disabled={flight.busy||flight.blocked} onClick={()=>{
             if(!draft.jobs.length||window.confirm(route.locale==='en'?'Replace this manifest with the saved flight?':'현재 계약 목록을 이전에 저장한 운항으로 바꿀까요?'))flight.calculate(undefined,false,'saved');
           }}>{route.locale==='en'?'Load previous flight':'이전 운항 불러오기'}</button>}

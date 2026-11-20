@@ -7,7 +7,7 @@ let service,closing=false,timer;
 const send=value=>{if(!closing)process.stdout.write(JSON.stringify(value)+'\n');};
 async function stop(){if(closing)return;closing=true;clearTimeout(timer);if(service)await service.close();process.exit(0);}
 process.stdin.setEncoding('utf8');
-createInterface({input:process.stdin,crlfDelay:Infinity}).on('line',line=>{if(line==='stop')void stop();else if(line.length<300){try{const m=JSON.parse(line);if(m.type==='command')service?.companion.enqueue(m.command);}catch{}}});
+createInterface({input:process.stdin,crlfDelay:Infinity}).on('line',line=>{if(line==='stop')void stop();else if(line.length<=1536){try{const m=JSON.parse(line);if(m.type==='command'&&typeof m.command==='string'&&m.command.length<=200)service?.companion.enqueue(m.command);}catch{}}});
 process.stdin.on('end',()=>void stop());
 process.on('SIGINT',()=>void stop());process.on('SIGTERM',()=>void stop());
 const selfTest=process.argv.includes('--self-test');

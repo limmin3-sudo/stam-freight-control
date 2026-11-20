@@ -92,7 +92,7 @@ export function validateFlight(value:unknown):asserts value is Session {
  function packing(v:unknown){object(v);boxes(v.boxes,vessel,owners);number(v.used);list(v.bins);requireValue(v.bins.length===(simple?0:vessel.grids.length));v.bins.forEach(b=>{object(b);number(b.used);});requireValue(v.used===v.boxes.reduce((n,b)=>n+b.size,0));if(simple)requireValue(v.boxes.length===0);}
  packing(p.initialPacking);list(p.visits);requireValue(p.visits.length>0||!!value.receiptReview);
  p.visits.forEach(v=>{object(v);string(v.locationId);requireValue(locations.has(v.locationId));packing(v.packing);number(v.load);number(v.seconds);number(v.elapsed);object(v.leg);strings(v.leg.nodes);number(v.leg.meters);
-  list(v.events);v.events.forEach(e=>{object(e);string(e.type);requireValue(['pickup','delivery','departure'].includes(e.type));if(e.type!=='departure'){string(e.shipmentId);string(e.missionId);requireValue(owners.has(e.missionId));string(e.commodity);number(e.scu);}if(e.boxIds!==undefined)strings(e.boxIds);});
+  list(v.events);v.events.forEach(e=>{object(e);string(e.type);requireValue(['pickup','delivery','departure','waypoint'].includes(e.type));if(e.type==='waypoint'){requireValue(e.scu===0&&!e.missionId&&!e.shipmentId);}if(e.type==='pickup'||e.type==='delivery'){string(e.shipmentId);string(e.missionId);requireValue(owners.has(e.missionId));string(e.commodity);number(e.scu);}if(e.boxIds!==undefined)strings(e.boxIds);});
   list(v.jumps);v.jumps.forEach(j=>{object(j);for(const k of ['entryId','exitId','entryName','exitName'])string(j[k]);requireValue(locations.has(j.exitId));});
   if(v.blocked!==undefined){list(v.blocked);v.blocked.forEach(b=>{object(b);string(b.boxId);list(b.blockers);b.blockers.forEach(a=>{object(a);string(a.boxId);});});}
  });

@@ -27,7 +27,35 @@ internal sealed partial class CompanionOverlay {
     volatile bool narrating;
     volatile bool ignoreUtterance;
     DateTime answerUntil=DateTime.MinValue,quoteRequested=DateTime.MinValue;
-    bool readQuote;
+    bool readQuote,copilot,awaitingDetails;
+    string proposalId,heardProposal;
+    void ShowProposalActions(bool confirming){
+        pricesButton.Primary=confirming;pricesButton.Invalidate();
+        pricesButton.Text=confirming?T("변경 적용","Apply change"):T("가격 보기","Prices");
+        workButton.Text=confirming?T("취소","Cancel"):T("내 작업","My work");
+    }
+    internal string NavigationDestination {get{object value;return displayedMode!=null&&facts!=null&&facts.TryGetValue("destination",out value)?Convert.ToString(value):"";}}
+    internal string NavigationText {get{return displayedMode==null?"":body.Text;}}
+    bool CopilotRequest(string phrase,float confidence,string captured){
+        if(!copilot||confidence<.76f||String.IsNullOrWhiteSpace(phrase)||phrase.Length>160||(DateTime.UtcNow-received).TotalSeconds>10)return false;
+        string q=Normal(phrase);
+        bool apply=Regex.IsMatch(q,"^(적용|적용해|적용해줘|확정|확정해|confirm|apply)$");
+        bool cancel=Regex.IsMatch(q,"^(취소|취소해|cancel)$");
+        string request;
+        if(apply||(cancel&&!(awaitingDetails&&captured==null))){
+            if(confidence<.85f||captured==null||captured!=proposalId){Answer(T("확인할 변경안을 먼저 요청하세요.","Request a change to review first."),true);return true;}
+            request="copilot-"+(apply?"apply:":"cancel:")+captured;
+        }else{
+            bool edit=awaitingDetails||ContainsAny(q,"들러","경유","미션추가","계약추가","미션등록","계약등록","newmission","newcontract","createmission","createcontract","픽업지","배송지","넣어","빼줘","제외","팔자","만팔아","샀어","매입완료","매입했","bought","항로에도넣어","항로에추가","팔았","판매계획","판매완료","추천","매입여유","무역출발","무역도착","tradedepart","tradearrive","되돌","먼저가","경로다시","항로다시","경로재계산","항로재계산","reroute","recalculateroute","stopat","addcontract","removecontract","plansale","sold","recommend","undo")
+                ||Regex.IsMatch(q,@"^(?:거기서?)?[0-9]+(?:scu|에스씨유)?만$|^[0-9]+(?:scu|에스씨유)(?:단가|개당|at)[0-9]+|^(?:[1-6]|일|이|삼|사|오|육)번$")
+                ||(ContainsAny(q,"미션","계약","mission","contract")&&ContainsAny(q,"추가","삭제","add","remove"));
+            if(!edit)return false;
+            string[] ordinals={"일번","이번","삼번","사번","오번","육번"};
+            int index=Array.IndexOf(ordinals,q);if(index>=0)phrase=(index+1).ToString()+"번";
+            request="copilot-say:"+phrase;
+        }
+        quoteRequested=DateTime.UtcNow;readQuote=true;send(request);return true;
+    }
     string displayedMode,lastTask,lastReply,summaryLines="";
     Dictionary<string,object> facts;
     readonly Dictionary<string,string> queries=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
@@ -72,6 +100,7 @@ internal sealed partial class CompanionOverlay {
         queries[phrase]=queries.TryGetValue(phrase,out prior)&&prior!=command?"ambiguous":command;
     }
     void LoadQuestions(){
+        foreach(string phrase in english?new[]{"apply","cancel","recommend","undo","add contract","remove contract","new mission","yes","no","recalculate route"}:new[]{"적용해","취소","판매처를 항로에 추가","무역 출발","무역 도착","응","네","아니요","추천해줘","방금 변경 되돌려","받은 미션 추가","새 미션 등록","나 미션 추가 하고싶어","미션 추가해줘","미션 빼줘","미션 삭제해줘","경로 다시 짜줘","1번","2번","3번","4번","5번","6번"})AddPhrase(phrase,"copilot");
         AddQuestion(T("다음 목적지","next destination"),"destination");
         AddQuestion(T("다음 작업","next task"),"task");
         AddQuestion(T("적재 수량","cargo quantity"),"load");
@@ -112,6 +141,7 @@ internal sealed partial class CompanionOverlay {
     internal void SetNarrator(string choice){
         StopNarration();
         Narrator=ValidNarrator(choice)?choice:"off";
+        ShowPartner(linkedPartner);
         Save();
         ReportTalk(Narrator=="off"?T("음성 안내 꺼짐","Spoken guidance off"):T("음성 안내 켜짐","Spoken guidance on"));
     }
@@ -249,7 +279,7 @@ internal sealed partial class CompanionOverlay {
     void ClearGuidance(){
         EndClarification();
         if(displayedMode!=null)StopNarration();
-        displayedMode=null;facts=null;lastTask=null;lastReply=null;
+        if(proposalId!=null)ShowProposalActions(false);copilot=awaitingDetails=false;proposalId=heardProposal=null;displayedMode=null;facts=null;lastTask=null;lastReply=null;
         quoteRequested=answerUntil=DateTime.MinValue;
     }
     void UpdateGuidance(Dictionary<string,object> display){
@@ -257,6 +287,11 @@ internal sealed partial class CompanionOverlay {
         var mode=Convert.ToString(display["mode"]);
         if(displayedMode!=mode)ClearGuidance();
         displayedMode=mode;
+        copilot=display.TryGetValue("copilot",out raw)&&raw is bool&&(bool)raw;
+        awaitingDetails=copilot&&display.TryGetValue("awaitingDetails",out raw)&&raw is bool&&(bool)raw;
+        string nextProposal=copilot&&display.TryGetValue("proposal",out raw)?raw as string:null;
+        if(proposalId!=nextProposal)ShowProposalActions(nextProposal!=null);
+        proposalId=nextProposal;
         facts=display.TryGetValue("guidance",out raw)?raw as Dictionary<string,object>:null;
         string task=facts!=null&&facts.TryGetValue("task",out raw)?Convert.ToString(raw):"";
         if(task!=lastTask){
@@ -270,7 +305,8 @@ internal sealed partial class CompanionOverlay {
             if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)Answer(Convert.ToString(answer["text"]),readQuote);
             quoteRequested=DateTime.MinValue;
         }
-        if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
+        if(proposalId!=null&&display.TryGetValue("proposalText",out raw))body.Text=Convert.ToString(raw)+"\n"+T("적용할까요?","Apply this change?");
+        else if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
     }
     static string SpokenAmount(string phrase,bool followup,out bool invalid){
         invalid=false;
@@ -340,7 +376,7 @@ internal sealed partial class CompanionOverlay {
         key=MatchHelp(q);
         if(key!=null){EndClarification();return key;}
         if(ContainsAny(q,"다실었","다싣고","적재후","적재끝","픽업끝","afterloading","finishedloading")&&ContainsAny(q,"어디","다음","where","next"))return "afterLoad";
-        if(displayedMode=="personal"||displayedMode=="fleet"){
+        if(copilot||displayedMode=="personal"||displayedMode=="fleet"){
             key=MarketQuestion(phrase,q);
             if(key!=null)return key;
         }
@@ -367,7 +403,7 @@ internal sealed partial class CompanionOverlay {
             return true;
         }
         if((DateTime.UtcNow-received).TotalSeconds>10){Answer(T("연결된 화면의 최신 정보가 없습니다.","No current connected view."),aloud);return true;}
-        if(key.StartsWith("quote-")&&(displayedMode=="personal"||displayedMode=="fleet")){
+        if(key.StartsWith("quote-")&&(copilot||displayedMode=="personal"||displayedMode=="fleet")){
             if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)return true;
             quoteRequested=DateTime.UtcNow;readQuote=aloud;send(key);return true;
         }

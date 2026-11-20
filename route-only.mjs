@@ -22,7 +22,7 @@ export function planRoutesOnly(data,missions,startId,settings={}){
  const operatorRoute=operator?deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst:opt.avoidFirst}):null;
  const proposed=operatorRoute||(Array.isArray(opt.manualStops)?null:planActionRoute(shipments,startId,nav,{initialStatus})),estimate=remainingTravelEstimate(shipments,nav),estimateMeters=remainingTravelEstimate(shipments,nav,'meters');
  let best=null;
- if(Array.isArray(opt.manualStops))best=replayManualStops(opt.manualStops,shipments,nav,initial,advance);
+ if(Array.isArray(opt.manualStops))best=replayManualStops(opt.manualStops,shipments,nav,initial,advance,opt.deferPickup);
  if(proposed){let candidate=initial;for(const action of proposed.actions){candidate=advance(candidate,action.shipmentIndex);if(!candidate)break;}best=candidate;}
  let beam=[initial];
  if(!best){

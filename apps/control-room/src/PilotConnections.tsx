@@ -13,7 +13,7 @@ export function PilotConnections({receipts,en,onLog}:{receipts:ReturnType<typeof
  },[]);
  const t=(ko:string,english:string)=>en?english:ko;
  const state=receipts.connection==='error'||receipts.phase==='error'||receipts.phase==='mixed'?'error':receipts.watching&&receipts.phase==='loaded'?'live':receipts.phase==='reading'||receipts.watching?'busy':receipts.phase==='loaded'?(receipts.cached?'cached':'file'):'off';
- const label=receipts.source==='companion'&&receipts.connection==='offline'?t('로그 앱 대기','Waiting for log app'):receipts.source==='companion'&&receipts.connection==='waiting-file'?t('게임 로그 생성 대기','Waiting for Game.log'):state==='live'?t('로그 자동 수신 중','Watching log'):state==='busy'?t('로그 확인 중','Reading log'):state==='cached'?t('저장 기록 · 로그 미연결','Saved receipts · Offline'):state==='file'?t('로그 파일 읽음','Log file read'):state==='error'?t('로그 확인 필요','Check log'):t('로그 미연결','Log not connected');
+ const label=receipts.source==='companion'&&receipts.connection==='offline'?t('네비게이터 대기','Waiting for STAM Navigator'):receipts.source==='companion'&&receipts.connection==='waiting-file'?t('게임 로그 생성 대기','Waiting for Game.log'):state==='live'?t('로그 자동 수신 중','Watching log'):state==='busy'?t('로그 확인 중','Reading log'):state==='cached'?t('저장 기록 · 로그 미연결','Saved receipts · Offline'):state==='file'?t('로그 파일 읽음','Log file read'):state==='error'?t('로그 확인 필요','Check log'):t('로그 미연결','Log not connected');
  const guest=!account.status||account.status==='계정';
  return <div className="pilot-connections">
   <button type="button" className="pilot-account" onClick={()=>serviceControls().accountButton.click()} title={guest?t('계정 로그인','Sign in'):account.status}>

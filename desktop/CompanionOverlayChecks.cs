@@ -16,21 +16,38 @@ internal sealed partial class CompanionOverlay {
     static void Require(bool value,string reason){if(!value)throw new InvalidOperationException(reason);}
     static void PressShortcut(int key){try{keybd_event(0x11,0,0,UIntPtr.Zero);keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event((byte)key,0,0,UIntPtr.Zero);}finally{keybd_event((byte)key,0,2,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);keybd_event(0x11,0,2,UIntPtr.Zero);}Pump(350);}
     static void CaptureEvidence(CompanionOverlay form,string file){using(var bitmap=new Bitmap(form.Width,form.Height)){form.DrawToBitmap(bitmap,new Rectangle(Point.Empty,form.Size));bitmap.Save(file,System.Drawing.Imaging.ImageFormat.Png);}}
+    sealed class EmptyHoldCapture : IHoldCapture {
+        internal int finished;internal bool disposed;
+        public void Drain(){}
+        public MemoryStream Finish(){finished++;Dispose();return new MemoryStream();}
+        public void Dispose(){disposed=true;}
+    }
     internal static int CheckNative(string evidence){
         string directory=Path.Combine(Path.GetTempPath(),"stam-overlay-qa-"+Guid.NewGuid());Directory.CreateDirectory(directory);
         var checks=new List<string>();var recognizers=new List<string>();var voiceChecks=new List<string>();string failure=null;
         try{
             var commands=new List<string>();Size savedSize=Size.Empty;
-            using(var overlay=new CompanionOverlay(c=>commands.Add(c),false,directory)){
+            int starts=0;EmptyHoldCapture recorder=null;
+            using(var overlay=new CompanionOverlay(c=>commands.Add(c),false,directory,()=>{starts++;return recorder=new EmptyHoldCapture();})){
                 overlay.Show();Pump(200);Require(!overlay.VoiceEnabled,"microphone-default");Require(overlay.registered.Count==4,"default-hotkeys-register");
                 int style=GetWindowLong(overlay.Handle,-20);Require((style&0x20)!=0&&(style&0x8000000)!=0,"click-through-default");checks.Add("Native overlay starts click-through with microphone off and four registered shortcuts");
+                Require(overlay.keyTalk==GraveKey&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.M}})==GraveKey&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.J}})==(int)Keys.J,"hold-default-and-legacy-bindings");
+                overlay.Hide();
+                try{
+                    keybd_event(GraveKey,0,0,UIntPtr.Zero);Pump(180);
+                    Require(starts==1&&overlay.Listening&&recorder.finished==0&&commands.Count==0,"hold-starts-hidden-without-sending");
+                    keybd_event(GraveKey,0,0,UIntPtr.Zero);Pump(180);
+                    Require(starts==1&&recorder.finished==0,"repeat-does-not-start-or-send");
+                }finally{keybd_event(GraveKey,0,2,UIntPtr.Zero);Pump(180);}
+                Require(!overlay.Listening&&recorder.disposed&&recorder.finished==1&&commands.Count==0,"release-once-empty-hold-sends-nothing");overlay.Show();
+                checks.Add("Holding the grave key in the background captures once until release; a silent hold sends no commands");
                 PressShortcut(overlay.keyPrices);Require(commands.Count==1&&commands[0]=="show-prices","global-prices-key");PressShortcut(overlay.keyWork);Require(commands.Count==2&&commands[1]=="show-my-work","global-work-key");
                 PressShortcut(overlay.keyOverlay);Require(!overlay.Visible,"global-hide-key");PressShortcut(overlay.keyOverlay);Require(overlay.Visible,"global-show-key");checks.Add("Windows global Ctrl+Alt shortcuts query prices/my work and toggle visibility");
-                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","fleet"},{"title","STAM / 합성 교역 검증"},{"lines",new[]{"담당 화물 · 8 SCU","다음 목적지 · Orison","거래는 웹 화면에서 확인"}}});Pump(150);Require(overlay.body.Text.Contains("8 SCU"),"summary-render");CaptureEvidence(overlay,Path.Combine(Path.GetDirectoryName(evidence),"overlay-ko-windows.png"));
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","fleet"},{"title","STAM / 합성 교역 검증"},{"partner","navigator"},{"lines",new[]{"담당 화물 · 8 SCU","다음 목적지 · Orison","거래는 웹 화면에서 확인"}}});Pump(150);Require(overlay.body.Text.Contains("8 SCU")&&overlay.heading.Text=="수석항해사"&&overlay.portrait.AccessibleName==overlay.heading.Text&&overlay.portrait.Image!=null&&overlay.heading.ForeColor==DeckTheme.NavigatorInk,"summary-render");CaptureEvidence(overlay,Path.Combine(Path.GetDirectoryName(evidence),"overlay-ko-windows.png"));
                 overlay.ToggleInput();Pump(150);Require((GetWindowLong(overlay.Handle,-20)&0x20)==0&&overlay.registered.Count==4,"interactive-handle-keys");
                 overlay.Location=new Point(-30000,-30000);overlay.Clamp();var area=Screen.FromPoint(overlay.Location).WorkingArea;Require(area.Contains(overlay.Bounds),"monitor-clamp");overlay.ToggleInput();Require((GetWindowLong(overlay.Handle,-20)&0x20)!=0,"return-click-through");checks.Add("Input/click-through switching recreates the handle without losing hotkeys; off-screen placement is clamped");
                 overlay.Close();Pump(100);Require(!overlay.IsDisposed&&!overlay.Visible,"close-to-hide");overlay.Toggle();Require(overlay.Visible,"restore-after-close");
-                overlay.received=DateTime.UtcNow.AddSeconds(-14);Pump(1300);Require(!overlay.body.Text.Contains("8 SCU")&&overlay.heading.Text=="STAM / FREIGHT DIVISION","private-summary-expiry");overlay.UpdateDisplay(null);checks.Add("Close hides instead of exiting; stale/disconnected private summaries are cleared");
+                overlay.received=DateTime.UtcNow.AddSeconds(-14);Pump(1300);Require(!overlay.body.Text.Contains("8 SCU")&&overlay.heading.Text=="브리지 오퍼레이터"&&overlay.portrait.AccessibleName==overlay.heading.Text&&overlay.portrait.Image!=null&&overlay.heading.ForeColor==DeckTheme.OperatorInk,"private-summary-expiry");overlay.UpdateDisplay(null);checks.Add("Close hides instead of exiting; stale/disconnected private summaries are cleared");
                 commands.Clear();
                 overlay.SetStep("a","pickup");overlay.received=DateTime.UtcNow;
                 overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("배송 완료",1);
@@ -70,10 +87,20 @@ internal sealed partial class CompanionOverlay {
                 Require(overlay.LookupQuestion("티타늄 오백 에스씨유 시세 알려줘").StartsWith("ask:")&&overlay.LookupQuestion("판매")=="quote-sell:75:500","preserve-commodity-and-lot");
                 Require(overlay.LookupQuestion("지금 어디서 팔지?").StartsWith("ask:")&&overlay.LookupQuestion("질문 취소").StartsWith("ask:")&&overlay.clarifyUntil==DateTime.MinValue,"no-gold-substring-cancel");
                 checks.Add("Read-only cargo and commodity questions preserve flight progress; female Korean phrasing retains destination and quantity");
-                overlay.Size=new Size(660,480);overlay.Clamp();savedSize=overlay.Size;overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.Save();
+                string offerId=Guid.NewGuid().ToString();
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","부조종사"},{"lines",new[]{"로어빌"}},{"copilot",true},{"proposal",offerId},{"proposalText","오리슨 경유"}});
+                Require(overlay.body.Text.Contains("오리슨")&&overlay.CopilotRequest("적용해",1,offerId)&&commands[commands.Count-1]=="copilot-apply:"+offerId,"copilot-confirms-visible-proposal");
+                int sent=commands.Count;
+                Require(overlay.CopilotRequest("적용해",1,"expired")&&commands.Count==sent,"copilot-stale-voice-rejected");
+                Require(overlay.CopilotRequest("오리슨 먼저 들러",1,null)&&commands[commands.Count-1]=="copilot-say:오리슨 먼저 들러","copilot-voice-route-request");
+                Require(!overlay.CopilotRequest("로어빌에서",1,null),"no-free-dictation-outside-mission-entry");
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","운항"},{"lines",new[]{"픽업지를 말해 주세요."}},{"copilot",true},{"awaitingDetails",true}});
+                foreach(string reply in new[]{"허스턴에서 티타늄 40SCU 실어서 오리슨 가는 거야","로어빌에서","응","취소"})
+                    Require(overlay.CopilotRequest(reply,1,null)&&commands[commands.Count-1]=="copilot-say:"+reply,"manual-mission-voice-followup");
+                overlay.Size=new Size(660,480);overlay.Clamp();savedSize=overlay.Size;overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.keyTalk=(int)Keys.F8;overlay.Save();
             }
             using(var reopened=new CompanionOverlay(c=>commands.Add(c),true,directory)){
-                Require(reopened.Size==savedSize,"persist-window-size");Require(reopened.keyOverlay==(int)Keys.K&&reopened.keyPrices==(int)Keys.J&&reopened.keyWork==(int)Keys.L,"persist-shortcuts");Require(reopened.registered.Count==4,"reopen-releases-hotkeys");reopened.Show();reopened.UpdateDisplay(new Dictionary<string,object>{{"mode","fleet"},{"title","STAM / Synthetic operation"},{"lines",new[]{"My cargo: 8 SCU","Destination: Orison","Confirm transactions on the web"}}});Pump(150);CaptureEvidence(reopened,Path.Combine(Path.GetDirectoryName(evidence),"overlay-en-windows.png"));checks.Add("Restart restores configured shortcuts and releases previous registrations; Korean and English captures saved");
+                Require(reopened.Size==savedSize,"persist-window-size");Require(reopened.keyOverlay==(int)Keys.K&&reopened.keyPrices==(int)Keys.J&&reopened.keyWork==(int)Keys.L&&reopened.keyTalk==(int)Keys.F8,"persist-shortcuts");Require(reopened.registered.Count==4,"reopen-releases-hotkeys");reopened.Show();reopened.UpdateDisplay(new Dictionary<string,object>{{"mode","fleet"},{"title","STAM / Synthetic operation"},{"lines",new[]{"My cargo: 8 SCU","Destination: Orison","Confirm transactions on the web"}}});Pump(150);CaptureEvidence(reopened,Path.Combine(Path.GetDirectoryName(evidence),"overlay-en-windows.png"));checks.Add("Restart restores configured shortcuts and releases previous registrations; Korean and English captures saved");
             }
             Require(VoiceCommand("STAM prices",.9f)=="show-prices"&&VoiceCommand("스탐 내 작업",.9f)=="show-my-work","voice-route");Require(VoiceCommand("STAM prices",.7f)==null&&VoiceCommand("confirm trade",1f)==null&&VoiceCommand("send game key",1f)==null,"voice-whitelist");
             Require(FlightCommand("적재 완료",.9f,"a","a","pickup")=="complete-flight:a"&&FlightCommand("delivery complete",.9f,"a","a","delivery")=="complete-flight:a","native-flight-complete");

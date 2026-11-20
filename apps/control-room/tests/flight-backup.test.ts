@@ -70,3 +70,22 @@ test('pooled unknown pickup shares keep reservations and evidence; unknown SCU o
   while(!run.finished){const next=importFlight(exportFlight({version:1,draft,plan,run},2000));assert.deepEqual(next.draft.jobs,draft.jobs);run=completeStep(plan,next.run!,3000);assert.ok(++count<20);}
  }
 });
+
+test('a confirmed detour round-trips without creating a shipment or moving aboard boxes',()=>{
+ const s=flight(),stop=canonicalPlace('crusader'),prior=s.run!;
+ const plan=calculateFlight(s.draft,{...contextOf(prior),manualStops:[stop,...s.plan!.visits.slice(prior.index).map(v=>v.locationId)]});
+ const next={...s,plan,run:adoptReplan(prior,plan)};
+ assert.ok(plan.visits.some(v=>v.events.some(e=>e.type==='waypoint')));
+ assert.deepEqual(importFlight(exportFlight(next)).run!.aboard,prior.aboard);
+});
+
+test('a second pickup at the same port can wait until the original freight has been delivered',()=>{
+ const first=structuredClone(samples[0]!),second=structuredClone(first);
+ second.id='extra';second.shipments[0]!.id='extra-1';second.shipments[0]!.scu=24;
+ const draft={...emptyDraft(),partner:'navigator' as const,jobs:[first,second]};
+ const pickup=canonicalPlace(first.shipments[0]!.from),drop=canonicalPlace(first.shipments[0]!.to);
+ const plan=calculateFlight(draft,{manualStops:[pickup,drop,pickup,drop],deferPickup:{missionId:second.id,until:2}});
+ const stops=plan.visits.filter(v=>!v.events.some(e=>e.type==='departure'));
+ assert.deepEqual(stops.map(v=>v.load),[16,0,24,0]);
+ assert.ok(stops[2]!.events.some(e=>e.missionId===second.id&&e.type==='pickup'));
+});

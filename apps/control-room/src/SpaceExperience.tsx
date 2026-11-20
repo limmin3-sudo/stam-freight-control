@@ -1,3 +1,5 @@
+import {CompanionDock,createCompanionDock} from './CompanionDisplay';
+import {CopilotStation} from './CopilotStation';
 import desktopRelease from '../../../data/desktop-release.json';
 import {useFlightCloud} from './use-flight-cloud';
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -76,6 +78,7 @@ function ReceptionPortrait({name}:{name:string}){
 }
 
 export function SpaceExperience() {
+  const [dock]=useState(createCompanionDock);
   const flight = useFlight();
   const cloud=useFlightCloud(flight);
   const [conversation,setConversation]=useState<{partner:PartnerId;variant:number;origin:HTMLElement}|null>(null);
@@ -340,7 +343,7 @@ export function SpaceExperience() {
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
   const approaching = pending?.kind === 'short';
-  return <><div data-sidebar-collapsed={sidebarCollapsed} data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-facility-travel={pending?.facilityTravel||arrivalView?.facilityTravel||undefined} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--facility-focus-x':`${pending?.focus?.[0]??50}%`,'--facility-focus-y':`${pending?.focus?.[1]??50}%`,'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
+  return <CompanionDock.Provider value={dock}><div data-sidebar-collapsed={sidebarCollapsed} data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-facility-travel={pending?.facilityTravel||arrivalView?.facilityTravel||undefined} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--facility-focus-x':`${pending?.focus?.[0]??50}%`,'--facility-focus-y':`${pending?.focus?.[1]??50}%`,'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
       event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.shell-menu-control,.space-menu-toggle,.space-group-button')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
@@ -354,15 +357,18 @@ export function SpaceExperience() {
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
         <span className="brand-wordmark">STAM<small>FREIGHT DIVISION</small></span>
       </a>
+      <CopilotStation dock={dock} flight={flight} locale={route.locale}/>
       </div>
-      <PilotConnections receipts={flight.receipts} en={en} onLog={event=>{openMissionTool('log');enter(event,'mission');}}/>
-      <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
-      <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
-        cancel();
-        const next = { ...route, locale: event.target.value as Locale };
-        const query=new URLSearchParams(location.hash.split('?')[1]);query.set('lang',next.locale);
-        history.replaceState(null, '', `#/${next.screen}?${query}`);setRoute(next);window.dispatchEvent(new HashChangeEvent('hashchange'));
-      }}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label>
+      <div className="shell-control-bank">
+        <PilotConnections receipts={flight.receipts} en={en} onLog={event=>{openMissionTool('log');enter(event,'mission');}}/>
+        <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
+        <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
+          cancel();
+          const next = { ...route, locale: event.target.value as Locale };
+          const query=new URLSearchParams(location.hash.split('?')[1]);query.set('lang',next.locale);
+          history.replaceState(null, '', `#/${next.screen}?${query}`);setRoute(next);window.dispatchEvent(new HashChangeEvent('hashchange'));
+        }}><option value="ko">한국어</option><option value="mix">한/영</option><option value="en">English</option></select></label>
+      </div>
     </header>
 
     <FlightReceiptReview flight={flight} locale={route.locale}/>
@@ -504,5 +510,5 @@ export function SpaceExperience() {
     {conversation && <PartnerConversation key={conversation.partner} sound={sound} volume={volume} navigate={destination=>{location.hash=spaceHash({...destination,locale:route.locale});}} partner={conversation.partner} variant={conversation.variant} origin={conversation.origin} motion={motion} en={en} onClose={()=>setConversation(null)}/>}
     <footer className="space-footer" aria-hidden="true" />
   </div>
-  </>;
+  </CompanionDock.Provider>;
 }
