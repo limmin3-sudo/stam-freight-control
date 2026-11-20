@@ -48,6 +48,7 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled,onQue
   event.preventDefault();
   if(!question.trim()||controller.current||disabled)return;
   if(localAnswer){
+   onQuestion();
    setAnswer(localAnswer);setRoom('');setQuestion('');previous.current=undefined;return;
   }
   const request=new AbortController();
