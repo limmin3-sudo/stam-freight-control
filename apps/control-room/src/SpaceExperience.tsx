@@ -83,7 +83,12 @@ export function SpaceExperience() {
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const [archivePulse,setArchivePulse]=useState(0);
   const archivePulseTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  const [contractsOpen,setContractsOpen]=useState(!!flight.session.plan||flight.session.draft.jobs.length>0);
   const [pilotAction,setPilotAction]=useState<PilotAction|null>(null);
+  function openMissionTool(action:PilotAction){
+    setContractsOpen(action==='missions'||action==='log');
+    setPilotAction(action);
+  }
   const [active, setActive] = useState<string | null>(null);
   const [pending, setPending] = useState<Entry | null>(null);
   const [powerOn, setPowerOn] = useState(false);
@@ -217,7 +222,7 @@ export function SpaceExperience() {
   useEffect(()=>{
     if(!pilotAction||route.screen!=='mission')return;
     const selectors:Record<PilotAction,string>={ship:'.mission-preflight select[aria-label="함선"],.mission-preflight select[aria-label="Ship"]',partner:'.mission-preflight select[aria-label="운항 파트너"],.mission-preflight select[aria-label="Flight partner"]',missions:'.mission-intake',log:'.receipt-import button'};
-    const focus=()=>{const node=document.querySelector<HTMLElement>(selectors[pilotAction]);if(!node)return;node.tabIndex=node.tabIndex<0?-1:node.tabIndex;node.scrollIntoView({block:'center'});node.focus({preventScroll:true});setPilotAction(null);};
+    const focus=()=>{const node=document.querySelector<HTMLElement>(selectors[pilotAction]);if(!node)return;const disclosure=node.closest('details');if(disclosure)disclosure.open=true;node.tabIndex=node.tabIndex<0?-1:node.tabIndex;node.scrollIntoView({block:'center'});node.focus({preventScroll:true});setPilotAction(null);};
     focus();const observer=new MutationObserver(focus);observer.observe(document.querySelector('.space-main')!,{childList:true,subtree:true});return()=>observer.disconnect();
   },[pilotAction,route.screen,route.locale]);
 
@@ -326,21 +331,31 @@ export function SpaceExperience() {
   // Existing console preview stays reachable by deep links and browser history.
   // It owns no production contract state. Room-sized 3D experiments are retired.
   const consoleOpen = isStation(route.screen);
-  const choosePartner=!flight.blocked&&(consoleOpen||route.screen==='bridge')&&needsPartnerChoice(flight.session);
+  const detailView=consoleOpen||!!route.lobbyRoom||!!route.lesson||!['division','lounge','bridge'].includes(route.screen);
+  const sidebarView=[route.screen,route.facility,route.lobbyRoom,route.lesson].join('/');
+  const [sidebarOverride,setSidebarOverride]=useState<boolean|null>(null);
+  useLayoutEffect(()=>{setSidebarOverride(null);},[sidebarView]);
+  const sidebarCollapsed=sidebarOverride??detailView;
+  const choosePartner=route.screen!=='mission'&&!flight.blocked&&(consoleOpen||route.screen==='bridge')&&needsPartnerChoice(flight.session);
 
   const captureFrame = import.meta.env.DEV && route.screen === scene && new URLSearchParams(location.search).get('capture') === 'frame';
   const approaching = pending?.kind === 'short';
-  return <><div data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-facility-travel={pending?.facilityTravel||arrivalView?.facilityTravel||undefined} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--facility-focus-x':`${pending?.focus?.[0]??50}%`,'--facility-focus-y':`${pending?.focus?.[1]??50}%`,'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
+  return <><div data-sidebar-collapsed={sidebarCollapsed} data-console-shell={consoleOpen||undefined} className={`space-experience space-${scene}`} data-screen={route.screen} data-moving={approaching} data-entry={pending?.kind} data-facility-travel={pending?.facilityTravel||arrivalView?.facilityTravel||undefined} data-travel-direction={pending?.returning?'out':'in'} data-returning={powerOn&&arrivalView?.returning||undefined} style={{'--facility-focus-x':`${pending?.focus?.[0]??50}%`,'--facility-focus-y':`${pending?.focus?.[1]??50}%`,'--return-focus-x':`${arrivalView?.focus[0]??50}%`,'--return-focus-y':`${arrivalView?.focus[1]??50}%`} as CSSProperties} data-motion={motion} data-capture-frame={captureFrame || undefined}>
     <a className="skip-link" href="#space-navigation" onClick={event => {
-      event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.space-menu-toggle,.space-group-button')).find(element=>element.getClientRects().length)?.focus();
+      event.preventDefault(); Array.from(document.querySelectorAll<HTMLElement>('.shell-menu-control,.space-menu-toggle,.space-group-button')).find(element=>element.getClientRects().length)?.focus();
     }}>{en ? 'Skip to navigation' : '주요 메뉴로 건너뛰기'}</a>
     <ShellMaterial/>
     <header className="space-topbar">
+      <div className="shell-brand-tools"><button type="button" className="shell-menu-control" aria-controls="facility-navigation" aria-expanded={!sidebarCollapsed}
+        aria-label={sidebarCollapsed?(en?'Expand facilities menu':'시설 메뉴 펼치기'):(en?'Collapse facilities menu':'시설 메뉴 접기')}
+        title={sidebarCollapsed?(en?'Expand facilities menu':'시설 메뉴 펼치기'):(en?'Collapse facilities menu':'시설 메뉴 접기')}
+        onClick={()=>setSidebarOverride(!sidebarCollapsed)}><span aria-hidden="true">☰</span></button>
       <a className="room-brand" href={href('division')} onClick={event=>enter(event,'division')} aria-label={`STAM FREIGHT DIVISION · ${word(names.division)}`} >
         <img className="brand-emblem" src={logo} alt="" width="54" height="54" />
         <span className="brand-wordmark">STAM<small>FREIGHT DIVISION</small></span>
       </a>
-      <PilotConnections receipts={flight.receipts} en={en} onLog={event=>{setPilotAction('log');enter(event,'mission');}}/>
+      </div>
+      <PilotConnections receipts={flight.receipts} en={en} onLog={event=>{openMissionTool('log');enter(event,'mission');}}/>
       <a className="space-download" href={appDownload} target="_blank" rel="noopener noreferrer">{en ? 'Download app' : '앱 다운로드'}</a>
       <label className="space-language"><span className="sr-only">{en ? 'Display language' : '표시 언어'}</span><select aria-label={en ? 'Display language' : '표시 언어'} value={route.locale} onChange={event => {
         cancel();
@@ -353,7 +368,7 @@ export function SpaceExperience() {
     <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
       {route.guidedVisit?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading tour…':'둘러보기를 여는 중…'}</p>}><GuidedVisit en={en} motion={motion} sound={sound} volume={volume} onComplete={finishVisit}/></Suspense>:route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby sound={sound} volume={volume} key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
-        {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
+        {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight} contractsOpen={contractsOpen||flight.active} onContractsOpen={setContractsOpen}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={!!conversation||undefined}>
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
           <div className="space-camera">
@@ -462,8 +477,8 @@ export function SpaceExperience() {
         </div>}
         {route.screen==='cinema' && <p>{en?'No screenings are scheduled.':'현재 상영 중인 영상이 없습니다.'}</p>}
       </section>}
-      <aside className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
-        <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{setPilotAction(action);enter(event,'mission');}}/>
+      <aside id="facility-navigation" className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
+        <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{openMissionTool(action);enter(event,'mission');}}/>
         <SpaceNavigation facility={route.facility} lobbyRoom={route.lobbyRoom} onFacility={(event,facility,room)=>{if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();setFacilityNavigationKey(key=>key+1);openDivisionFacility(facility,room);}} screen={route.screen} locale={route.locale} view={route.view} pending={!!pending&&!pending.facilityTravel} href={href} onNavigate={enterShortcut}/>
       <details className="space-settings"><summary>{en ? 'Sound & motion' : '소리·연출'}</summary><div>
         <button aria-pressed={sound} onClick={async () => {

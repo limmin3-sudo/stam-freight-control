@@ -77,7 +77,10 @@ export function MapConsole({flight,locale}:{flight:ReturnType<typeof useFlight>;
      {plan.mode!=='simple'&&<div className="chart-load"><span>{t('작업 후','After stop')} <b>{v.load} SCU</b></span><meter min={0} max={Math.max(1,plan.capacity||0)} value={v.load}/>{selected===index&&<button onClick={()=>{setCargo(true);setBox(null);}}>{t('적재 3D 보기','Inspect cargo 3D')} ↗</button>}</div>}
      </div>{selected!==index&&<p className="chart-stop-counts">{v.events.filter(e=>e.type==='pickup').length>0&&<span>↑ {t('픽업','Pickup')} {v.events.filter(e=>e.type==='pickup').length}</span>}{v.events.filter(e=>e.type==='delivery').length>0&&<span>↓ {t('배송','Delivery')} {v.events.filter(e=>e.type==='delivery').length}</span>}</p>}
     </li>;})}</ol></li>)}</ol>
-    <footer>{plan?.mode==='simple'&&<p>{t('오퍼레이터는 경로만 안내합니다. 적재는 직접 진행하세요.','The operator guides your route. Loading is up to you.')}</p>}<a className="chart-primary" href={href(plan?'operations':'mission')}>{plan?t('관제에서 운항 진행','Continue in control console'):t('계약 선택하러 가기','Select contracts')} ↗</a></footer>
+    <footer>{plan?.mode==='simple'&&<p>{t('오퍼레이터는 경로만 안내합니다. 적재는 직접 진행하세요.','The operator guides your route. Loading is up to you.')}</p>}{plan&&run&&!run.started&&!run.finished
+      ? <button type="button" className="chart-primary" disabled={flight.busy||flight.blocked} onClick={()=>{if(flight.progress('start',flight.session))window.location.hash=href('operations');}}>{t('운송 시작','Start haul')} →</button>
+      : <a className="chart-primary" href={href(plan?'operations':'mission')}>{plan?t('관제 콘솔 열기','Open control console'):t('미션 콘솔로','Mission console')} ↗</a>}
+      {flight.error&&<p role="alert">{flight.error}</p>}</footer>
    </aside>
   </div>
   {cargo&&plan&&visit&&plan.mode!=='simple'&&<dialog ref={node=>{if(node&&!node.open)node.showModal();}} className="chart-cargo-overlay" role="dialog" aria-modal="true" aria-label={t('거점 작업 후 적재','Cargo after this stop')} onCancel={e=>{e.preventDefault();setCargo(false);}} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setCargo(false);}}}>

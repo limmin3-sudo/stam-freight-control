@@ -19,7 +19,7 @@ import './mission-screen.css';
 import './mission-material-review.css';
 import './mission-optical-review.css';
 
-export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
+export function ControlRoom({flight,contractsOpen,onContractsOpen}:{flight:ReturnType<typeof useFlight>;contractsOpen:boolean;onContractsOpen:(open:boolean)=>void}) {
   const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
   const heading = useRef<HTMLHeadingElement>(null);
   const lastStation = useRef(route.screen === 'bridge' ? null : route.screen);
@@ -100,7 +100,7 @@ export function ControlRoom({flight}:{flight:ReturnType<typeof useFlight>}) {
         <div className="workspace-layout" data-screen={route.screen}>
           {route.screen==='mission'&&flight.active&&<ActiveFlightLog receipts={receipts} locale={route.locale}/>}
           {route.screen === 'mission' ?
-            <MissionConsole draft={draft} session={flight.session} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
+            <MissionConsole contractsOpen={contractsOpen} onContractsOpen={onContractsOpen} draft={draft} session={flight.session} change={flight.change} locale={route.locale} receipts={receipts} locked={flight.active || flight.busy || flight.blocked}
               onReview={next=>{if(next)flight.change(next);flight.calculate(()=>{if(parseRoute(location.hash).screen==='mission')location.hash=routeHash({...route,screen:'map'});});}}/> :
             <>{!controlMode && draft.partner==='navigator' && plan?.mode!=='simple' && <CargoPanel draft={draft} locale={route.locale} session={flight.session}/>}
               <FlightOperations flight={flight} locale={route.locale} controlMode={controlMode}/></>}

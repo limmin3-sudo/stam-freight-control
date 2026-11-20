@@ -115,12 +115,13 @@ export function useFlight(){
   }catch{worker.current?.terminate();worker.current=null;setBusy(false);setError('항로 계산기를 시작하지 못했습니다.');}
  }
  function progress(action:'start'|'complete'|'undo'|'pause',expected?:Session){
-  const s=current.current;if(busy||!writable()||!s.plan||!s.run)return;
-  if(expected&&(expected.plan!==s.plan||expected.run!==s.run))return;
-  if((action==='complete'||action==='start')&&pendingReceiptChanges(s).length){setError('계약 변경 내용을 먼저 확인하세요. 기존 운항은 유지됩니다.');return;}
+  const s=current.current;if(busy||!writable()||!s.plan||!s.run)return false;
+  if(expected&&(expected.plan!==s.plan||expected.run!==s.run))return false;
+  if((action==='complete'||action==='start')&&pendingReceiptChanges(s).length){setError('계약 변경 내용을 먼저 확인하세요. 기존 운항은 유지됩니다.');return false;}
   const run=action==='start'?startRun(s.run):action==='complete'?completeStep(s.plan,s.run):action==='undo'?undoStep(s.run):pauseRun(s.run);
   const next={...s,run};commit(next);
   try{if(ownerReady())updateFlightHistory(next,s.run);}catch{setStorageError('운항 기록을 저장하지 못했습니다. 운항 백업을 내려받으세요.');}
+  return true;
  }
  function confirmReceiptChanges(actions:Record<string,ReceiptAction>,token:string,expected:string){
   if(worker.current||!writable())return;

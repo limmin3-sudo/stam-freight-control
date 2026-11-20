@@ -1,0 +1,244 @@
+/* Shared optical materials. Nine-slice values are in the source images' pixels. */
+:is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) {
+  --projection-panel: url('./panel.webp') 91 90 96 90 fill / 13px 15px / 8px 0 stretch;
+  --projection-key: url('./button.webp') 78 62 76 62 fill / 10px 11px / 6px 2px stretch;
+  --projection-bridge: url('./bridge.webp');
+  --projection-type: Barlow, SUIT, system-ui, sans-serif;
+  --projection-text: #eef8ff;
+  --projection-muted: #adcde0;
+  --projection-gold: #ffda91;
+  --plot-data: #76e4ff;
+  --plot-axis: #93b9dc;
+  --plot-track: #244253;
+  --plot-loss: #ffa69d;
+  --plot-highlight: var(--projection-gold);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass {
+  border: 1px solid transparent;
+  border-image: var(--projection-key);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass[data-material=panel] {border-image:var(--projection-panel)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass[data-material=gold] {filter:sepia(.92) saturate(1.8)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass img {display:none}
+
+#root :is(.persistent-console-content,.facility-lobby[data-monitor=true]) {
+  background: linear-gradient(110deg, #06151eee 20%, #071923bd 70%, #071720d6), var(--projection-bridge) center / cover no-repeat, #071322;
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.control-room,.control-room #main-content,.control-room .console-workspace,.console-display-content,.workspace-layout,.mission-screen,.trade-workspace-shell) {
+  background: transparent;
+}
+#root .facility-lobby[data-monitor=true]>.lobby-stage {
+  border:1px solid #579abe73;
+  border-radius:8px;
+  background:transparent;
+}
+#root .facility-lobby[data-monitor=true] .lobby-detail.market-room {
+  background:linear-gradient(110deg,#041325db,#07192bbb 58%,#0b203783);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.space-location-heading,.crew-dialogue,.mission-preflight,.mission-intake,.manifest-summary,.receipt-card,.ops-progress,.ops-partner,.chart-detail,.trade-map-panel,.trade-cargo-panel,.suite-card,.trade-plan-controls,.trade-plan-candidates,.academy-learning-filters,.academy-lesson,.academy-selection,.market-filters,.market-results,.trade-price-console,.trade-review,.trade-transaction) {
+  border:1px solid transparent;
+  border-image:var(--projection-panel);
+  border-radius:8px;
+  background-color:rgb(3 20 39 / 67%);
+  background-image:none;
+  box-shadow:none;
+  font-family:var(--projection-type);
+  color:var(--projection-text);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue,.mission-screen,.operations-desk,.market-room,.space-room,.chart-detail) :is(h1,h2,h3,h4,label,button,input,select,summary,th,td) {font-family:var(--projection-type)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue h2,.market-eyebrow,.space-location-heading>p) {color:var(--projection-gold)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.market-meta,.suite-note,.crew-dialogue label) {color:var(--projection-muted)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .crew-dialogue {
+  width:min(790px,calc(100% - 24px));
+  padding:20px 24px;
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue button,.market-action,.market-tabs button,.market-entry-nav button,.ticker-modes button,.ticker-expand,.suite-actions button,.mission-preflight button,.source-actions button,.dispatch-launch,.mission-toolbar button,.manifest-primary,.ops-run-menu button,.academy-fields button,.trade-unified-tabs button) {
+  border:1px solid transparent;
+  border-image:var(--projection-key);
+  border-radius:4px;
+  background:rgb(3 21 41 / 64%);
+  color:var(--projection-text);
+  font-family:var(--projection-type);
+  text-shadow:none;
+  box-shadow:none;
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.market-action,.market-tabs button,.trade-unified-tabs button)>.approved-glass {display:none}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue button,.market-action,.market-tabs button,.source-actions button,.manifest-primary):enabled:hover {background-color:#194566}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.market-tabs button,.market-action,.trade-unified-tabs button,.ticker-modes button)[aria-pressed=true],
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue button[type=submit],.manifest-primary,.dispatch-launch):enabled {
+  color:var(--projection-gold);
+  background-color:#2e322d;
+  box-shadow:inset 0 -2px #f2c777;
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.market-room,.mission-screen,.crew-dialogue,.space-room) :is(input:not([type=checkbox],[type=radio],[type=range],[type=file]),select,textarea) {
+  background-color:rgb(4 24 44 / 90%);border-color:#668da7;color:var(--projection-text);color-scheme:dark;
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue,.market-room,.mission-screen) input::placeholder {color:#a9c3d6}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(button,a,input,select,textarea,summary):focus-visible {outline:2px solid var(--projection-gold);outline-offset:2px}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .control-microchart {
+  background:repeating-linear-gradient(90deg,transparent 0 24%,#79c8f42c 24.5% 25%);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .control-microchart :is(circle,rect:not(:first-child)) {filter:drop-shadow(0 0 1px #60cffe80)}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .console-dial {
+  color:var(--projection-text);
+  font-family:var(--projection-type);
+  background:radial-gradient(circle at 40% 34%,#244f71,#071f34 58%,transparent 60%);
+}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .console-dial::after {background:conic-gradient(from -90deg,var(--plot-highlight) var(--dial-fill),var(--plot-track) var(--dial-fill))}
+#root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.ticker-value,.board-quote,.suite-metrics,.console-dial) {font-variant-numeric:tabular-nums}
+@container (max-width:600px) {
+  #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .crew-dialogue {width:calc(100% - 16px);padding:12px 16px}
+}
+
+/* Flight preparation and the contract inbox occupy separate steps. */
+#root .persistent-console-content .mission-screen {
+  display: block;
+  max-width: 1320px;
+  margin-inline: auto;
+}
+.dispatch-header {
+  padding: 24px 0 18px;
+  border-bottom: 1px solid #68c5d46b;
+}
+#root .dispatch-header h1 {
+  margin: 0;
+  color: #f0fafc;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.14;
+  letter-spacing: -.045em;
+}
+.dispatch-header p {margin: 8px 0 0; color: #aacbd4}
+.dispatch-intake {border-bottom: 1px solid #75b9c532}
+.dispatch-intake > summary {
+  padding: 13px 3px;
+  cursor: pointer;
+  color: #c4e6ea;
+  font-size: 14px;
+}
+.dispatch-intake > summary {color: #e2faff}
+#root .persistent-console-content .mission-screen :is(.mission-preflight,.mission-intake,.manifest-summary,.receipt-card) {
+  border: 0;
+  border-radius: 0;
+  border-image: none;
+  filter: none;
+  box-shadow: none;
+}
+#root .persistent-console-content .mission-screen :is(.mission-intake,.mission-preflight) {margin: 0; padding: 10px 12px 16px; background: #0b222c}
+#root .persistent-console-content .manifest-inbox {padding: 26px 0 0}
+#root .persistent-console-content .receipt-grid {display: grid; grid-template-columns: 1fr; gap: 0}
+#root .persistent-console-content .receipt-card {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.2fr) minmax(130px, 1.4fr) minmax(105px, 1fr) minmax(110px, auto);
+  align-items: center;
+  gap: 8px 18px;
+  padding: 14px 16px;
+  min-height: 70px;
+  background: linear-gradient(100deg,#122f3ad6,#0c222be0);
+  border-bottom: 1px solid #81b7c239;
+}
+#root .persistent-console-content .receipt-card[data-state=checked] {
+  background: linear-gradient(100deg,#344037dd,#132d32df 60%);
+  box-shadow: inset 2px 0 #f1cb82;
+}
+#root .persistent-console-content .receipt-card::after, #root .persistent-console-content .dispatch-launch::before {content: none}
+#root .persistent-console-content .receipt-select {grid-column: 1; grid-row: 1; display:flex; flex-direction:row; align-items:center; gap:11px}
+#root .persistent-console-content .receipt-select strong {order: 1; margin: 0; overflow-wrap: anywhere}
+#root .persistent-console-content .receipt-top {width: auto; flex: none}
+#root .persistent-console-content .receipt-top > span {position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%)}
+#root .persistent-console-content .receipt-card :is(.receipt-route,.shipment-details) {grid-column: 2; grid-row: 1; color: #d4f0f3}
+#root .persistent-console-content .receipt-card .certainty {grid-column: 3; grid-row: 1; padding: 0; background: none; border: 0}
+#root .persistent-console-content .receipt-bottom {grid-column: 4; grid-row: 1; gap: 12px; margin: 0; padding: 0; border: 0; flex-wrap:wrap}
+#root .persistent-console-content .receipt-card :is(.quick-totals,.receipt-reference) {grid-column: 1 / -1}
+#root .persistent-console-content .manifest-summary {
+  align-self: start;
+  position: sticky;
+  top: 8px;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(120deg,#10323ee8,#091b24f0);
+  border-top: 2px solid #bca67e;
+}
+#root .persistent-console-content .manifest-summary h2 {margin:0;font-size:22px}
+#root .persistent-console-content .manifest-summary .selection-count {font-size:36px;margin:8px 0}
+#root .persistent-console-content .manifest-summary dl {margin:10px 0}
+#root .persistent-console-content .manifest-summary .selected-contracts {max-height:135px;overflow:auto}
+#root .persistent-console-content .manifest-summary .selected-contracts:empty {display:none}
+#root .persistent-console-content .manifest-summary .dispatch-launch {padding:10px 15px;min-height:46px}
+#root .persistent-console-content .mission-screen :is(.dispatch-launch,.mission-toolbar button,.source-actions button,.shot-upload button,.receipt-correct,.cargo-review-toggle,.mission-empty button) {
+  border: 1px solid #577c85;
+  border-radius: 3px;
+  border-image:none;
+  color: #d6eef1;
+  background: #0c222b;
+  box-shadow:none !important;
+}
+#root .persistent-console-content .dispatch-launch:enabled {color:#fff0cb; border-color:#c2a36b; background:#37382c}
+#root .persistent-console-content .mission-screen button:enabled:hover {border-color:#a3d9de; background-color:#17343e}
+
+.dispatch-header {display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:14px}
+.dispatch-header p {margin:0 0 .45em; color:#c6ad83; font-size:13px}
+#root .persistent-console-content .dispatch-setup:not([hidden]) {
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,.8fr); gap:20px 36px; align-items:start; padding-block:28px;
+}
+.dispatch-ship {margin:0; grid-column:1; grid-row:1 / span 2; border-bottom:1px solid #537783}
+.dispatch-ship .pilot-ship-image {width:100%; height:clamp(160px,32vh,420px); background:#081923}
+.dispatch-ship img {object-fit:contain}
+.dispatch-ship figcaption {padding-block:12px; color:#d3dae0; font-size:18px}
+#root .dispatch-setup .mission-preflight {display:grid; grid-template-columns:1fr; grid-column:2; grid-row:auto; padding:0; gap:14px; background:none}
+#root .dispatch-setup .mission-preflight label {gap:4px; font-size:14px}
+#root .dispatch-setup .dispatch-next, #root .map-monitor button.chart-primary {
+  background:#e3c48c; color:#131d22; border:0; border-image:none; border-radius:3px; padding:12px 22px;
+  box-shadow:none; font:600 16px/1.35 Barlow,SUIT,sans-serif; cursor:pointer;
+}
+#root .dispatch-setup .dispatch-next {grid-column:2}
+#root .dispatch-contracts .manifest-cols {display:grid;grid-template-columns:minmax(0,1fr) minmax(224px,26%);align-items:start;gap:20px;margin-top:18px}
+#root .dispatch-contracts .manifest-cols > * {grid-column:auto;grid-row:auto}
+#root .dispatch-contracts .manifest-inbox {padding:0}
+#root .dispatch-contracts .receipt-card {
+  grid-template-columns:minmax(100px,1.25fr) minmax(120px,1.4fr) minmax(88px,.8fr) auto;
+  min-height:42px; padding:5px 10px; gap:3px 12px;
+}
+#root .dispatch-contracts .receipt-select strong {font-size:14px;line-height:1.3}
+#root .dispatch-contracts .receipt-bottom {font-size:13px;gap:6px}
+#root .dispatch-contracts .receipt-bottom button {min-height:30px; padding:2px 6px}
+#root .dispatch-contracts .receipt-quantities {grid-column:1/-1}
+#root .dispatch-contracts .inbox-header {margin-bottom:6px}
+#root .dispatch-contracts .quantity-guide {margin:8px 0}
+#root .dispatch-contracts .receipt-card .receipt-route {font-size:14px}
+#root .dispatch-contracts .mission-toolbar button {min-height:32px; padding:4px 10px}
+@container (max-width:1050px) {
+  #root .dispatch-contracts .receipt-card {grid-template-columns:minmax(90px,1fr) minmax(100px,1.3fr) auto}
+  #root .dispatch-contracts .receipt-card .certainty {grid-column:1 / 3;grid-row:2;font-size:10px}
+  #root .dispatch-contracts .receipt-bottom {grid-column:3;grid-row:1 / span 2}
+}
+@container (max-width:750px) {
+  #root .dispatch-contracts .manifest-cols {grid-template-columns:1fr}
+  #root .dispatch-setup:not([hidden]) {grid-template-columns:1fr}
+  #root .dispatch-setup :is(.dispatch-ship,.mission-preflight,.dispatch-next) {grid-row:auto;grid-column:1}
+  #root .dispatch-setup .pilot-ship-image {height:145px}
+}
+
+.shell-brand-tools {display:flex;align-items:center;min-width:0;gap:12px}
+#root .space-topbar .shell-menu-control {
+  display:grid;place-items:center;flex:none;width:38px;height:38px;padding:0;cursor:pointer;
+  border:1px solid #a598745c;border-radius:4px;background:#111a1e;color:#edd4a2;font-size:19px;
+}
+#root .space-experience .shell-top {background:linear-gradient(175deg,#22282b,#10161a 65%);box-shadow:inset 0 -1px #a38a5c80}
+#root .space-experience .shell-nameplate {background:linear-gradient(110deg,#2b2c27,#172023);box-shadow:inset 0 2px #947c56}
+#root .space-experience .space-topbar :is(.pilot-connections button,.space-download,.space-language)::before,
+#root .space-sidebar :is(.space-group-button,.space-division-button,.space-room-link>a)::before {
+  border:1px solid #82918e47; border-image:none; border-radius:4px;
+  background:linear-gradient(135deg,#263032,#141c20 75%);box-shadow:none;filter:none;
+}
+#root .space-sidebar :is(.space-group-button,.space-division-button,.space-room-link>a)[aria-current]::before {
+  border-color:#b8a07491; background:linear-gradient(100deg,#3d392f,#242821);box-shadow:inset 3px 0 #d5b478;
+}
+#root .space-experience:is([data-sidebar-collapsed=true],:has(.crew-encounter)) :is(.space-sidebar,.shell-side,.shell-connector) {display:none}
+#root .space-experience:has(.crew-encounter) .shell-menu-control {visibility:hidden}
+@media (min-width:761px) {
+  #root .space-experience:is([data-sidebar-collapsed=true],:has(.crew-encounter)) .space-main {grid-template-columns:0 minmax(0,1fr);column-gap:0}
+}
+@media (max-width:760px) {
+  .shell-brand-tools {grid-row:1 / span 2;gap:5px}
+  #root .space-experience:is([data-sidebar-collapsed=true],:has(.crew-encounter)) .space-main {grid-template-rows:0 minmax(0,1fr);row-gap:0}
+}
