@@ -47,7 +47,18 @@ internal sealed partial class CompanionOverlay {
                 checks.Add("Continuous listening accepts a fresh utterance per step and rejects stale, repeated or mismatched speech");
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","운송"},{"lines",new[]{"8 SCU"}},{"guidance",new Dictionary<string,object>{{"load","금 8 SCU 적재해 주십시오."}}}});
                 Require(overlay.Query("얼마나 실어야 해",1)&&overlay.body.Text.Contains("8 SCU")&&commands.Count==2,"read-only-cargo-query");
-                Require(Friendly("다음 목적지는 로어빌입니다. 금 8 SCU 적재해 주십시오.")=="좋아! 함장님, 다음은 로어빌이에요. 금 8 SCU 실어 봐요!","korean-character-style");
+                Require(Friendly("다음 목적지는 로어빌입니다. 금 8 SCU 적재해 주십시오.",true)=="앗, 찾았다! 다음은 로어빌이에요. 금 8 SCU, 싣고 가요!","korean-character-opening");
+                Require(Friendly("다음 목적지는 로어빌입니다.")=="다음은 로어빌이에요."&&Friendly("금 8 SCU 배송해 주십시오.")=="금 8 SCU, 여기서 내려요.","korean-short-replies");
+                byte[] demo=File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","voices","partner-female-ko.wav"));
+                Require(demo.Length>44,"female-preview-packaged");
+                // A standard mono PCM header, with an empty optional chunk preceding fmt.
+                byte[] header=new byte[44];
+                System.Text.Encoding.ASCII.GetBytes("JUNK").CopyTo(header,12);
+                System.Text.Encoding.ASCII.GetBytes("fmt ").CopyTo(header,20);
+                BitConverter.GetBytes(16).CopyTo(header,24);header[28]=1;
+                BitConverter.GetBytes(44100).CopyTo(header,32);header[40]=2;
+                RaiseKoreanVoice(header);
+                Require(BitConverter.ToInt32(header,32)==46722&&BitConverter.ToInt32(header,36)==93444,"female-character-pcm-rate");
                 Require(overlay.Query("함장인데 계약을 열 개나 받았거든요 이거 한꺼번에 담을 수 있어요",.85f)&&overlay.body.Text.Contains("카드"),"paraphrased-guide");
                 Require(overlay.Query("항로 어케 짜",.9f)&&overlay.body.Text.Contains("항로 지도"),"short-guide");
                 Require(overlay.Query("적재 완료는 어떻게 해",1)&&commands.Count==2,"guide-never-advances");

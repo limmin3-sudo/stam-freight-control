@@ -120,7 +120,7 @@ internal sealed partial class CompanionOverlay {
         if(!english&&Narrator.StartsWith("supertonic-")){
             PreviewSample();return;
         }
-        Say(T("다음 목적지는 로어빌입니다. 금 8 SCU를 적재해 주십시오.","Your next destination is Lorville. Load eight SCU of gold."));
+        Say(T("다음 목적지는 로어빌입니다. 금 8 SCU를 적재해 주십시오.","Your next destination is Lorville. Load eight SCU of gold."),true);
     }
     async void PreviewSample(){
         StopNarration();
@@ -141,21 +141,29 @@ internal sealed partial class CompanionOverlay {
         if(narrator!=null){try{narrator.SpeakAsyncCancelAll();}catch(InvalidOperationException){}narrator.Dispose();narrator=null;}
         narrating=false;
     }
-    static string Friendly(string text){
-        if(text.Contains("운송이 끝났습니다."))return "야호, 함장님! 이번 운송도 해냈어요!";
-        bool travel=text.StartsWith("다음 목적지는 ")||text.StartsWith("다음 무역 목적지는 ");
-        bool cargo=text.Contains("적재해 주십시오.")||text.Contains("배송해 주십시오.");
-        string lead=travel?"좋아! 함장님, ":cargo?"자자, ":"";
-        return lead+Regex.Replace(text.Replace("다음 목적지는 ","다음은 "),@"(\S)입니다\.",m=>{
+    static string Friendly(string text,bool opening=false){
+        if(text=="운송이 끝났습니다.")return "해냈다! 이번 운송 끝이에요.";
+        bool newRoute=opening&&text.StartsWith("다음 목적지는 ",StringComparison.Ordinal);
+        text=text.Replace("다음 목적지는 ","다음은 ").Replace("다음 무역 목적지는 ","다음 거래처는 ");
+        text=Regex.Replace(text,@"(SCU)(?:를)? 적재해 주십시오\.","$1, 싣고 가요!");
+        text=Regex.Replace(text,@"(SCU)(?:를)? 배송해 주십시오\.","$1, 여기서 내려요.");
+        text=Regex.Replace(text,@"(\S)입니다\.",m=>{
             char c=m.Groups[1].Value[0];
             bool consonant=c>='가'&&c<='힣'&&(c-'가')%28!=0;
             return c+(consonant?"이에요.":"예요.");
-        }).Replace("적재해 주십시오.","실어 봐요!").Replace("배송해 주십시오.","배송해 봐요!")
-          .Replace("하십시오.","해 주세요.").Replace("누르십시오.","눌러 주세요.").Replace("펼치십시오.","펼쳐 주세요.").Replace("물어보십시오.","물어봐 주세요.").Replace("고르십시오.","골라 주세요.").Replace("주십시오.","주세요.").Replace("합니다.","해요.").Replace("됩니다.","돼요.").Replace("있습니다.","있어요.").Replace("없습니다.","없어요.").Replace("입니까?","인가요?").Replace("찾으십니까?","찾아요?").Replace("말씀해 주세요.","말해 주세요!").Replace("살 수 있습니다.","살 수 있어요!").Replace("팔 수 있습니다.","팔 수 있어요!").Replace("도착했습니다.","도착했어요.").Replace("끝났습니다.","끝났어요.");
+        });
+        text=text.Replace("출발해 주십시오.","출발해요!").Replace("점프해 주십시오.","점프해요!")
+          .Replace("도착했습니다.","도착했어요!").Replace("취소했습니다.","취소했어요.").Replace("끝났습니다.","끝났어요.")
+          .Replace("찾으십니까?","찾고 있어요?").Replace("입니까?","인가요?")
+          .Replace("말씀해 주십시오.","말해 줄래요?").Replace("고르십시오.","골라 주세요.").Replace("펼치십시오.","펼쳐 주세요.")
+          .Replace("물어보십시오.","물어봐 주세요.").Replace("누르십시오.","눌러 주세요.").Replace("주십시오.","주세요.")
+          .Replace("하십시오.","해 주세요.").Replace("합니다.","해요.").Replace("됩니다.","돼요.")
+          .Replace("있습니다.","있어요.").Replace("없습니다.","없어요.");
+        return newRoute?"앗, 찾았다! "+text:text;
     }
-    void Say(string text){
+    void Say(string text,bool opening=false){
         if(Narrator=="off"||Listening||String.IsNullOrEmpty(text))return;
-        if(FemaleVoice&&!english)text=Friendly(text);
+        if(FemaleVoice&&!english)text=Friendly(text,opening);
         if(!english)text=text.Replace("SCU","에스씨유").Replace("aUEC","에이유이씨");
         if(Narrator.StartsWith("supertonic-")){SpeakLocal(text);return;}
         try{
@@ -180,18 +188,42 @@ internal sealed partial class CompanionOverlay {
             narrator.SpeakAsync(text);
         }catch(Exception e){StopNarration();status.Text=e.Message;}
     }
+    // Keep the one-semitone lift identical to the bundled Korean preview. Adjust
+    // both PCM rates; the sample data and its block alignment stay unchanged.
+    static void RaiseKoreanVoice(byte[] wav){
+        for(int pos=12;pos<=wav.Length-8;){
+            int size=BitConverter.ToInt32(wav,pos+4);
+            if(size<0||size>wav.Length-pos-8)return;
+            if(size>=16&&Encoding.ASCII.GetString(wav,pos,4)=="fmt "){
+                if(BitConverter.ToUInt16(wav,pos+8)!=1)return;
+                int rate=BitConverter.ToInt32(wav,pos+12);
+                int block=BitConverter.ToUInt16(wav,pos+20);
+                if(rate<8000||rate>192000||block<1||block>32)return;
+                int brighter=(int)Math.Round(rate*Math.Pow(2,1.0/12));
+                Buffer.BlockCopy(BitConverter.GetBytes(brighter),0,wav,pos+12,4);
+                Buffer.BlockCopy(BitConverter.GetBytes(brighter*block),0,wav,pos+16,4);
+                return;
+            }
+            pos+=8+size+(size&1);
+        }
+    }
     async void SpeakLocal(string text){
         StopNarration();
         var request=new CancellationTokenSource();
         localSpeech=request;
         try{
-            var payload=new JavaScriptSerializer().Serialize(new {text=text,voice=FemaleVoice?"F1":"M1",lang=english?"en":"ko",speed=FemaleVoice?1.08:0.97});
+            bool character=FemaleVoice&&!english;
+            var payload=new JavaScriptSerializer().Serialize(new {
+                text=text,voice=character?"F2":FemaleVoice?"F1":"M1",
+                lang=english?"en":"ko",speed=character?1.07:FemaleVoice?1.08:0.97
+            });
             using(var content=new StringContent(payload,Encoding.UTF8,"application/json"))
             using(var response=await localTts.PostAsync("v1/tts",content,request.Token)){
                 response.EnsureSuccessStatusCode();
                 var bytes=await response.Content.ReadAsByteArrayAsync();
                 if(bytes.Length<44||Encoding.ASCII.GetString(bytes,0,4)!="RIFF"||Encoding.ASCII.GetString(bytes,8,4)!="WAVE")throw new InvalidDataException();
                 if(request.IsCancellationRequested)return;
+                if(character)RaiseKoreanVoice(bytes);
                 using(var stream=new MemoryStream(bytes,false))
                 using(var sound=new SoundPlayer(stream)){
                     sound.Load();player=sound;ignoreUtterance=true;narrating=true;
@@ -228,8 +260,9 @@ internal sealed partial class CompanionOverlay {
         facts=display.TryGetValue("guidance",out raw)?raw as Dictionary<string,object>:null;
         string task=facts!=null&&facts.TryGetValue("task",out raw)?Convert.ToString(raw):"";
         if(task!=lastTask){
+            bool firstTask=String.IsNullOrEmpty(lastTask);
             lastTask=task;answerUntil=DateTime.MinValue;
-            if(task.Length!=0)Say(task);
+            if(task.Length!=0)Say(task,firstTask);
         }
         var answer=display.TryGetValue("answer",out raw)?raw as Dictionary<string,object>:null;
         if(answer!=null&&Convert.ToString(answer["id"])!=lastReply){
