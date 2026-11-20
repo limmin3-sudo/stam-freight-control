@@ -11,7 +11,7 @@ export function validLobbyRoom(facility:DivisionFacility|undefined,room:string|u
 export type ArchiveView = 'missions'|'ships'|'cargo';
 export const serviceViews=['account','history','feedback','updates','manual'] as const;
 export type ServiceView=typeof serviceViews[number];
-export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView; guidedVisit?:true; facility?:DivisionFacility; lobbyRoom?:LobbyRoom;tradeScope?:TradeScope;lesson?:AcademyLesson }>;
+export type SpaceRoute = Readonly<{ screen: SpaceScreen; locale: Locale; view?:ArchiveView; serviceView?:ServiceView; guidedVisit?:true; fromDesk?:true; facility?:DivisionFacility; lobbyRoom?:LobbyRoom;tradeScope?:TradeScope;lesson?:AcademyLesson }>;
 
 export function parseSpaceRoute(hash: string): SpaceRoute {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
@@ -21,8 +21,8 @@ export function parseSpaceRoute(hash: string): SpaceRoute {
   const room=params.get('room');
   return {
     screen,
-    ...(facility==='guide-center'&&!room&&(params.get('lesson')==='practice'||params.get('lesson')==='trade')?{lesson:params.get('lesson') as AcademyLesson}:{}),
-    ...(screen==='guide'&&params.get('tour')==='1'?{guidedVisit:true as const}:{}),
+    ...(facility==='guide-center'&&!room&&(params.get('lesson')==='practice'||params.get('lesson')==='trade')?{lesson:params.get('lesson') as AcademyLesson,...(params.get('from')==='desk'?{fromDesk:true as const}:{})}:{}),
+    ...(screen==='guide'&&params.get('tour')==='1'?{guidedVisit:true as const,...(params.get('from')==='desk'?{fromDesk:true as const}:{})}:{}),
     ...(facility==='trade'&&room==='planning'&&['intrasystem','interstellar'].includes(params.get('advisor')||'')?{tradeScope:params.get('advisor') as TradeScope}:{}),
     ...(validLobbyRoom(facility,room)?{lobbyRoom:room}:{}),
     ...(screen==='division'&&['trade','guide-center'].includes(params.get('facility')||'')?{facility:params.get('facility') as DivisionFacility}:{}),
@@ -32,7 +32,7 @@ export function parseSpaceRoute(hash: string): SpaceRoute {
   };
 }
 
-export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='guide'&&route.guidedVisit?'&tour=1':''}${route.screen==='information'&&route.view?'&view='+route.view:''}${route.screen==='service'&&route.serviceView?'&section='+route.serviceView:''}${route.screen==='division'&&route.facility?'&facility='+route.facility:''}${route.screen==='division'&&validLobbyRoom(route.facility,route.lobbyRoom)?'&room='+route.lobbyRoom:''}${route.screen==='division'&&route.facility==='trade'&&route.lobbyRoom==='planning'&&route.tradeScope?'&advisor='+route.tradeScope:''}${route.screen==='division'&&route.facility==='guide-center'&&!route.lobbyRoom&&route.lesson?'&lesson='+route.lesson:''}`; }
+export function spaceHash(route: SpaceRoute) { return `#/${route.screen}?lang=${route.locale}${route.screen==='guide'&&route.guidedVisit?(route.fromDesk?'&tour=1&from=desk':'&tour=1'):''}${route.screen==='information'&&route.view?'&view='+route.view:''}${route.screen==='service'&&route.serviceView?'&section='+route.serviceView:''}${route.screen==='division'&&route.facility?'&facility='+route.facility:''}${route.screen==='division'&&validLobbyRoom(route.facility,route.lobbyRoom)?'&room='+route.lobbyRoom:''}${route.screen==='division'&&route.facility==='trade'&&route.lobbyRoom==='planning'&&route.tradeScope?'&advisor='+route.tradeScope:''}${route.screen==='division'&&route.facility==='guide-center'&&!route.lobbyRoom&&route.lesson?'&lesson='+route.lesson+(route.fromDesk?'&from=desk':''):''}`; }
 export function isStation(screen: SpaceScreen): screen is Station {
   return screen === 'mission' || screen === 'map' || screen === 'operations';
 }

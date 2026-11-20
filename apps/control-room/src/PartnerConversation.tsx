@@ -15,9 +15,9 @@ type Props={partner:PartnerId;variant:number;en:boolean;motion:boolean;sound:boo
 export function PartnerConversation({partner,variant,en,motion,sound,volume,navigate,origin,onClose}:Props){
  const profile=partnerDialogue[partner],greeting=profile.greetings[variant%profile.greetings.length]!;
  const destinations=partner==='director'?[
-  {id:'tour',label:en?'Facility tour':'둘러보기',open:()=>navigate({screen:'guide',guidedVisit:true})},
+  {id:'tour',skipReturn:true,label:en?'Facility tour':'둘러보기',open:()=>navigate({screen:'guide',guidedVisit:true,fromDesk:true})},
   {id:'manual',label:en?'User guide':'이용안내',open:()=>navigate({screen:'service',serviceView:'manual'})},
-  ...academyTutorials(en,navigate),
+  ...academyTutorials(en,navigate,true),
  ]:[];
  return <CrewEncounter id={partner} name={profile.name[en?1:0]} line={greeting[en?1:0]} image={portraits[partner]} background={partner==='director'?lounge:bridge} sound={sound} volume={volume} destinations={destinations} en={en} motion={motion} origin={origin} onClose={onClose}/>;
 }

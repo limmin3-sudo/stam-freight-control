@@ -322,3 +322,21 @@
     max-height: calc(100svh - 100% - 110px);
   }
 }
+
+/* Keep the full-width scene and the existing space menu on portrait tablets. */
+@media (min-width:761px) and (max-width:1100px) and (orientation:portrait) {
+  .space-experience {--shell-sidebar-width:0px}
+  .space-experience .space-main {position:relative;padding-top:56px;grid-template-columns:0 minmax(0,1fr)}
+  .shell-side,.shell-connector {display:none}
+  .space-experience .space-sidebar {position:absolute;grid-area:auto;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;height:56px;box-sizing:border-box;overflow:visible;padding:4px 12px;background:#10161b}
+  .space-sidebar .space-menu-toggle {display:block;min-height:44px;padding:8px 18px}
+  .space-sidebar .space-settings {margin:0}
+  .space-sidebar .space-settings>div {position:absolute;right:8px;top:100%;width:210px}
+  .space-sidebar .space-dock {position:absolute;left:0;top:100%;width:min(320px,85vw);max-height:calc(100svh - 130px);overflow:auto;padding:12px;background:#10161b;visibility:hidden;pointer-events:none}
+  .space-sidebar .space-dock[data-mobile-open=true] {visibility:visible;pointer-events:auto}
+  .space-sidebar .space-dock[data-mobile-open=false] * {visibility:hidden}
+  .space-sidebar .pilot-desk {width:150px;margin:0}
+  .space-sidebar .pilot-summary {height:44px;min-height:0;padding:2px 10px;overflow:hidden}
+  .space-sidebar .pilot-summary .pilot-ship-image,.space-sidebar .pilot-summary-line {display:none}
+  .space-sidebar .pilot-reveal {position:absolute;top:100%;left:0;width:245px;background:#10161b}
+}

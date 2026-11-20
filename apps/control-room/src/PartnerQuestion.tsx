@@ -18,10 +18,10 @@ function localHelp(question:string,en:boolean){
  return answer;
 }
 
-export type GuideDestination={id:string;label:string;open:()=>void};
-type Props={endpoint:string;partner:string;en:boolean;destinations:GuideDestination[];disabled:boolean};
+export type GuideDestination={id:string;label:string;skipReturn?:boolean;introduction?:string;open:()=>void};
+type Props={endpoint:string;partner:string;en:boolean;destinations:GuideDestination[];disabled:boolean;onQuestion:()=>void};
 
-export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Props){
+export function PartnerQuestion({endpoint,partner,en,destinations,disabled,onQuestion}:Props){
  const [question,setQuestion]=useState(''),[answer,setAnswer]=useState(''),[room,setRoom]=useState(''),[busy,setBusy]=useState(false);
  const previous=useRef<{question:string;answer:string}|undefined>(undefined);
  const controller=useRef<AbortController|null>(null);
@@ -57,6 +57,7 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Prop
    const token=await serviceControls().partnerIdToken();
    if(request.signal.aborted)return;
    if(!token){setAnswer(signIn);return;}
+   onQuestion();
    const response=await fetch(endpoint,{method:'POST',redirect:'error',credentials:'omit',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
     signal:request.signal,body:JSON.stringify({partner,question:question.trim(),language:en?'en':'ko',previous:previous.current})});
    const result=await response.json();

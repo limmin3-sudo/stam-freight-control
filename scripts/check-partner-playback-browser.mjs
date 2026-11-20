@@ -49,6 +49,40 @@ try {
     await page.waitForFunction(el=>document.activeElement===el,await trigger.elementHandle());
     console.log(id,'played approach, idle and return; focus restored');
   }
+  await open('#/lounge?lang=en');
+  await page.locator('.partner-hit[data-partner=director]').click();
+  await transition('director','approach');
+  await dialog.getByRole('button',{name:'Facility tour'}).waitFor();
+  const returns=[];
+  page.on('request',request=>{
+    if(request.url().endsWith('/director/return.mp4'))returns.push(request.url());
+  });
+  await dialog.getByRole('button',{name:'Facility tour'}).click();
+  await page.locator('.visit-room-entry[data-room=cinema]').waitFor({timeout:3000});
+  assert.deepEqual(returns,[]);
+  assert(await page.locator('.visit-next').isDisabled());
+  await page.keyboard.press('Enter');
+  assert.match(await page.locator('.visit-speech p').innerText(),/cinema/i);
+  for(const rooms of [
+    ['cinema','information','service',null,null],
+    [null,null,'mission','map','operations'],
+    [null,null,'market',null,'trade-operations'],
+    [null,'freight-information','education','operations-study',null],
+  ]){
+    for(const room of rooms){
+      if(room)await page.locator('.visit-room-entry[data-room="'+room+'"]').waitFor();
+      await page.locator('.visit-panel[data-travel=false] .visit-next').click();
+    }
+    if(rooms[0]==='cinema'){
+      const shuttle=page.locator('.shuttle-boarding');
+      await shuttle.waitFor();
+      await page.waitForFunction(()=>document.querySelector('.shuttle-boarding video')?.currentTime>0);
+      await shuttle.locator('video').evaluate(video=>{video.playbackRate=5;});
+      await shuttle.waitFor({state:'detached'});
+    }
+    await page.locator('.visit-travel').waitFor({state:'detached'});
+  }
+  await page.waitForURL(/#\/division/);
   await page.emulateMedia({reducedMotion:'reduce'});
   await open('#/lounge?lang=en');
   await page.locator('.partner-hit[data-partner=director]').click();
@@ -67,11 +101,11 @@ try {
       if(line<4)await page.waitForFunction(last=>document.querySelector('.visit-speech p')?.textContent!==last,speech);
     }
   }
-  assert.equal(scenes.size,14);
+  assert.equal(scenes.size,18);
   await page.waitForURL(/#\/division/);
   assert.equal(await page.locator('.space-topbar').count(),1);
   assert.equal(await page.locator('.space-sidebar').count(),1);
   assert.deepEqual(errors,[]);
   assert.deepEqual(mediaErrors,[]);
-  console.log('Reduced motion, desk, four-stop tour, 20 lines, 14 scenes, return to facility map');
+  console.log('Reduced motion, desk, four-stop tour, 20 lines from the desk, 18 scenes, return to facility map');
 } finally { await browser.close(); }

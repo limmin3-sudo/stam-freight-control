@@ -62,8 +62,21 @@ test('guided visit starts explicitly at the welcome desk and stays out of other 
   for (const locale of ['ko','mix','en'] as const) {
     const visit={screen:'guide',locale,guidedVisit:true} as const;
     assert.deepEqual(parseSpaceRoute(spaceHash(visit)),visit);
+    const fromDesk={...visit,fromDesk:true} as const;
+    assert.deepEqual(parseSpaceRoute(spaceHash(fromDesk)),fromDesk);
     assert.equal(spaceHash({...visit,screen:'bridge'}),'#/bridge?lang='+locale);
   }
   assert.deepEqual(parseSpaceRoute('#/division?lang=en&tour=1'),{screen:'division',locale:'en'});
   assert.deepEqual(parseSpaceRoute('#/guide?lang=ko&tour=0'),{screen:'guide',locale:'ko'});
+});
+
+test('the desk handoff is scoped to the chosen academy lesson',()=>{
+ for(const lesson of ['practice','trade'] as const){
+  const route={screen:'division',locale:'ko',facility:'guide-center',lesson,fromDesk:true} as const;
+  assert.deepEqual(parseSpaceRoute(spaceHash(route)),route);
+  assert.equal(parseSpaceRoute(spaceHash({...route,fromDesk:undefined})).fromDesk,undefined);
+ }
+ for(const hash of ['#/division?facility=trade&lesson=trade&from=desk','#/division?facility=guide-center&from=desk','#/lounge?from=desk']){
+  assert.equal(parseSpaceRoute(hash).fromDesk,undefined);
+ }
 });
