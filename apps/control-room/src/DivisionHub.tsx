@@ -12,7 +12,7 @@ export function DivisionHub({locale,facility,onNavigate,onFacility}:{locale:Loca
  const [hovered,setHovered]=useState<string|null>(null),[failed,setFailed]=useState(false);
  const title=useRef<HTMLHeadingElement>(null),detailsTitle=useRef<HTMLHeadingElement>(null);
  const controls=useRef(new Map<string,HTMLElement>());
- const selected=visibleFacilities.find(f=>f.id===facility);
+ const selected=visibleFacilities.find(f=>f.id===facility),highlighted=visibleFacilities.find(f=>f.id===hovered);
  useEffect(()=>{title.current?.focus({preventScroll:true});},[]);
  useEffect(()=>{if(!facility)return;detailsTitle.current?.focus({preventScroll:true});if(matchMedia('(max-width:760px)').matches)detailsTitle.current?.closest('aside')?.scrollIntoView({block:'nearest'});},[facility]);
  const close=()=>{const id=selected?.id;onFacility();if(id)requestAnimationFrame(()=>controls.current.get(id)?.focus({preventScroll:true}));};
@@ -24,6 +24,10 @@ export function DivisionHub({locale,facility,onNavigate,onFacility}:{locale:Loca
      <defs>{divisionFacilities.map(f=><clipPath id={`division-clip-${f.id}`} key={f.id}><path d={f.contour}/></clipPath>)}</defs>
      <image href={overview} width="1672" height="941" onError={()=>setFailed(true)}/>
      {divisionFacilities.map(f=><g key={f.id} data-facility-layer={f.id}><image href={f.plate??overview} width="1672" height="941" clipPath={`url(#division-clip-${f.id})`}/></g>)}
+    </svg>
+    <svg className="division-spotlight" viewBox="0 0 1672 941" aria-hidden="true" data-active={!!highlighted}>
+     <defs><filter id="division-soft-edge"><feGaussianBlur stdDeviation="7"/></filter><mask id="division-surround" maskUnits="userSpaceOnUse" x="0" y="0" width="1672" height="941"><rect width="1672" height="941" fill="white"/>{highlighted&&<path d={highlighted.contour} fill="black" filter="url(#division-soft-edge)"/>}</mask></defs>
+     <rect width="1672" height="941" fill="#020910" mask="url(#division-surround)"/>
     </svg>
     <header className="division-brand"><p>FLEET / FACILITY DIRECTORY</p><h1 id="division-title" ref={title} tabIndex={-1}>STAM<span>FREIGHT DIVISION</span></h1><p>{en?'Your next journey starts here.':'다음 항해가 시작되는 곳.'}</p></header>
     <svg className="division-regions" viewBox="0 0 1672 941" aria-hidden="true">

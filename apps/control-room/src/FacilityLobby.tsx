@@ -6,7 +6,7 @@ import {tradeShips} from './trade-cargo.mjs';
 import {shipIdFor} from './ship-profile.mjs';
 import {lazy,Suspense,useEffect,useRef,useState,type CSSProperties,type MouseEvent} from 'react';
 import type {Locale} from './navigation';
-import {spaceHash,type DivisionFacility,type LobbyRoom,type TradeScope} from './space-navigation';
+import {spaceHash,type DivisionFacility,type AcademyLesson,type LobbyRoom,type TradeScope} from './space-navigation';
 import {ApprovedGlass} from './ApprovedGlass';
 import {AcademyFinder,type AcademyDestination} from './AcademyFinder';
 import {LobbyStaff} from './LobbyStaff';
@@ -28,7 +28,7 @@ const plates={
  trade:new URL('./assets/facility-lobbies/trade-two-door.png',import.meta.url).href,
  'guide-center':new URL('./assets/facility-lobbies/academy-lobby-approved.png',import.meta.url).href,
 };
-export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motion=true,sound,volume,navigationKey=0,onRoom,onExit}:{facility:DivisionFacility;locale:Locale;room?:LobbyRoom;tradeScope?:TradeScope;initialShip?:string;motion?:boolean;sound:boolean;volume:number;navigationKey?:number;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void}){
+export function FacilityLobby({facility,guideLesson,locale,room,tradeScope,initialShip,motion=true,sound,volume,navigationKey=0,onIgnitionChange,onRoom,onExit}:{facility:DivisionFacility;guideLesson?:AcademyLesson;locale:Locale;room?:LobbyRoom;tradeScope?:TradeScope;initialShip?:string;motion?:boolean;sound:boolean;volume:number;navigationKey?:number;onIgnitionChange:(igniting:boolean)=>void;onRoom:(room?:LobbyRoom,scope?:TradeScope)=>void;onExit:()=>void}){
  const data=facilityLobbies[facility],en=locale==='en',t=(copy:LobbyCopy)=>copy[en?1:0];
  const [academyTarget,setAcademyTarget]=useState<AcademyDestination>();
  const previousRoom=useRef(room);
@@ -49,6 +49,12 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
  const [loaded,setLoaded]=useState(false),[failed,setFailed]=useState(false);
  const heading=useRef<HTMLHeadingElement>(null);
  const travel=useLobbyTravel({host,room,scope:tradeScope,motion,navigationKey,locale,onRoom});
+ const igniting=travel.phase==='ignite';
+ useEffect(()=>{
+  if(!igniting)return;
+  onIgnitionChange(true);
+  return ()=>onIgnitionChange(false);
+ },[igniting,onIgnitionChange]);
  const placeId=room==='planning'?'market':room;
  const active=data.places.find(p=>p.id===placeId),lit=data.places.find(p=>p.id===(hovered??placeId));
  const closing=travel.phase==='blackout';
@@ -100,7 +106,7 @@ export function FacilityLobby({facility,locale,room,tradeScope,initialShip,motio
     <ApprovedGlass kind="panel"/><p className="lobby-detail-code">{en?'SPACE / INTRODUCTION':'공간 소개'}</p><h2>{t(active.name)}</h2><p>{t(active.description)}</p>
     <button autoFocus type="button" className="lobby-reset" onClick={reset}><ApprovedGlass/><span>{en?'Lobby overview':'로비 전체 보기'}</span></button>
    </aside>}
-   {!active&&<LobbyStaff sound={sound} volume={volume} key={`${navigationKey}-${locale}`} facility={facility} locale={locale} motion={motion} background={plates[facility]} onConversationChange={setStaffTalking}/>}
+   {!active&&<LobbyStaff guideLesson={guideLesson} sound={sound} volume={volume} key={`${navigationKey}-${locale}`} facility={facility} locale={locale} motion={motion} background={plates[facility]} onPlan={(scope,source)=>enter('planning',scope,source)} onConversationChange={setStaffTalking}/>}
    <a className="lobby-exit" href={spaceHash({screen:'division',locale})} onClick={exit}><span aria-hidden="true">◇ ─</span> {en?'Division grounds':'사업부 전경'} <span aria-hidden="true">↗</span></a>
   </div>
   {handoffError&&room==='market'&&<p className="trade-handoff-error" role="alert">{en?'Could not transfer this quote. Check session storage and try again.':'시세를 계획에 전달하지 못했습니다. 브라우저 저장 공간을 확인하고 다시 시도하세요.'}</p>}

@@ -47,3 +47,15 @@
 }
 @media(max-width:760px){.guided-visit{grid-area:2 / 1;container-type:inline-size;align-content:start;display:block}}
 .guided-visit[data-visible=false] *,.guided-visit[data-visible=false] *::after {animation-play-state:paused!important}
+
+.visit-room-entry {position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.visit-room-entry>img {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:inherit}
+.visit-entry-door {animation:visit-room-approach 697ms var(--visit-pullback) cubic-bezier(.42,.02,.76,.28) both}
+.visit-previous-door {animation:visit-room-exit var(--visit-pullback) ease-out forwards}
+@keyframes visit-room-exit {from{transform:scale(5.2)}99%{opacity:1}to{transform:scale(1);opacity:0}}
+@keyframes visit-room-approach {0%{transform:scale(1)}94%{opacity:1}100%{transform:scale(5.2);opacity:0}}
+.visit-room-ignition {position:absolute;inset:0;visibility:hidden;animation:visit-room-power 333ms calc(var(--visit-pullback) + 697ms) step-start forwards}
+@keyframes visit-room-power {to{visibility:visible}}
+.visit-room-ignition .console-arrival[data-state=ignite], .visit-room-ignition .console-arrival[data-state=ignite] > * {animation-delay:calc(var(--visit-pullback) + 697ms)}
+.visit-room-ignition .console-arrival[data-state=ignite] :is(.console-arrival-plasma,.console-arrival-scan) {animation-delay:calc(var(--visit-pullback) + 777ms)}
+@container (max-width:750px){.visit-room-entry{bottom:auto;aspect-ratio:1672/941}}

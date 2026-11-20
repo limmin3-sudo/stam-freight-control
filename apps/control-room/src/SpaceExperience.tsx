@@ -86,6 +86,7 @@ export function SpaceExperience() {
   const [pilotAction,setPilotAction]=useState<PilotAction|null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [pending, setPending] = useState<Entry | null>(null);
+  const [roomIgniting, setRoomIgniting] = useState(false);
   const [powerOn, setPowerOn] = useState(false);
   const [arrivalView,setArrivalView] = useState<ArrivalView|null>(null);
   const arrivalDestination = useRef<ArrivalView | null>(null);
@@ -168,7 +169,7 @@ export function SpaceExperience() {
 
   useEffect(() => {
     const ctx = audio.current;
-    if (!((powerOn&&!arrivalView?.returning)||archivePulse) || !sound || !ctx || ctx.state !== 'running') return;
+    if (!((powerOn&&!arrivalView?.returning)||roomIgniting||archivePulse) || !sound || !ctx || ctx.state !== 'running') return;
     const noise = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * .25), ctx.sampleRate);
     const samples = noise.getChannelData(0);
     for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / samples.length);
@@ -180,7 +181,7 @@ export function SpaceExperience() {
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination); source.start(at);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
     return () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
-  }, [powerOn, archivePulse, arrivalView?.returning, sound, volume]);
+  }, [powerOn, roomIgniting, archivePulse, arrivalView?.returning, sound, volume]);
 
   useEffect(() => () => { void audio.current?.close().catch(() => {}); audio.current = null; }, []);
   useEffect(() => { setImageReady(false); setImageError(false); }, [scene]);
@@ -241,17 +242,21 @@ export function SpaceExperience() {
   }
   // Scene clicks use the same departure/arrival curtain as lounge and bridge.
   // Sidebar callbacks deliberately continue to call openDivisionFacility directly.
-  function enterDivisionFacility(facility?:DivisionFacility){
+  function enterDivisionFacility(id?:DivisionFacility|'lounge'|'bridge'){
     if(destination.current)return;
-    if(!motion){openDivisionFacility(facility);return;}
-    const returning=!facility,place=divisionFacilities.find(p=>p.id===(facility??route.facility));
-    if(!place){openDivisionFacility(facility);return;}
+    const screen=id==='lounge'||id==='bridge'?id:'division';
+    const facility=id==='trade'||id==='guide-center'?id:undefined;
+    const href=spaceHash({screen,facility,locale:route.locale});
+    const returning=!id;
+    const place=divisionFacilities.find(p=>p.id===(id??route.facility??route.screen));
     cancel();setConversation(null);
-    destination.current='division';setPending({screen:'division',kind:'short',returning,facilityTravel:true,focus:place.marker});
+    if(!motion||!place){location.hash=href;return;}
+    destination.current=screen;
+    setPending({screen,kind:'short',returning,facilityTravel:true,focus:place.marker});
     timer.current=setTimeout(()=>{
       timer.current=null;
-      arrivalDestination.current={screen:'division',returning,focus:place.marker,facilityTravel:true,facility};
-      location.hash=spaceHash({screen:'division',locale:route.locale,facility});
+      arrivalDestination.current={screen,returning,focus:place.marker,facilityTravel:true,facility};
+      location.hash=href;
     },returning?ignitionMs:departureMs);
   }
   function openArchive(view?:ArchiveView){
@@ -262,7 +267,8 @@ export function SpaceExperience() {
   const enter = (event: MouseEvent, screen: SpaceScreen, target?: SceneTarget,view?:ArchiveView) => {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    if(screen==='division'&&route.screen==='division'&&route.facility){openDivisionFacility();return;}
+    if(screen==='division'&&(route.facility||route.screen==='lounge'||route.screen==='bridge')){enterDivisionFacility();return;}
+    if(route.screen==='division'&&(screen==='lounge'||screen==='bridge')){enterDivisionFacility(screen);return;}
 
     if(screen==='information'&&route.screen==='information'){
       if(route.view===view)return;
@@ -352,7 +358,7 @@ export function SpaceExperience() {
 
     <FlightReceiptReview flight={flight} locale={route.locale}/>
     <main className="space-main">
-      {route.guidedVisit?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading tour…':'둘러보기를 여는 중…'}</p>}><GuidedVisit en={en} motion={motion} sound={sound} volume={volume} onComplete={finishVisit}/></Suspense>:route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby sound={sound} volume={volume} key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
+      {route.guidedVisit?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading tour…':'둘러보기를 여는 중…'}</p>}><GuidedVisit fromDesk={!!route.fromDesk} en={en} motion={motion} sound={sound} volume={volume} onSound={setSound} onComplete={finishVisit}/></Suspense>:route.screen==='division'?<Suspense fallback={<p className="division-loading" role="status">{en?'Loading freight division…':'운송사업부를 불러오고 있습니다…'}</p>}><>{route.facility?<FacilityLobby guideLesson={route.fromDesk?route.lesson:undefined} onIgnitionChange={setRoomIgniting} sound={sound} volume={volume} key={route.facility} motion={motion} navigationKey={facilityNavigationKey} facility={route.facility} locale={route.locale} room={route.lobbyRoom} tradeScope={route.tradeScope} initialShip={flight.session.draft.ship} onRoom={(room,scope)=>openDivisionFacility(route.facility,room,scope)} onExit={()=>enterDivisionFacility()}/>:<DivisionHub locale={route.locale} onFacility={enterDivisionFacility} onNavigate={(event,screen)=>enter(event,screen)}/>}</></Suspense>:choosePartner?<PartnerChoice locale={route.locale} onChoose={partner=>flight.change({...flight.session.draft,partner,partnerSelected:true,allowUpperBounds:false})}/>:consoleOpen ? <section className="persistent-console-content" aria-label={word(names[route.screen])}>
         {route.screen==='map'?<MapConsole flight={flight} locale={route.locale}/>:<ControlRoom flight={flight}/>}
       </section> : isOverview ? <section className="space-overview" aria-labelledby="space-title" inert={!!conversation||undefined}>
         <div className="space-artwork" data-selected={!!active && !pending} onMouseLeave={leaveTarget} style={{ '--approach-ms': `${departureMs}ms`, '--zoom': spaceConfig.approachScale, '--focus-x': `${pending?.target?.focus[0] ?? 50}%`, '--focus-y': `${pending?.target?.focus[1] ?? 50}%` } as CSSProperties}>
@@ -454,7 +460,7 @@ export function SpaceExperience() {
         {route.screen==='guide' && <div className="reception-content">
           <ReceptionPortrait name={word(partnerDialogue.director.name)}/>
           <nav aria-label={word(names.guide)}>
-            <a href={spaceHash({...route,guidedVisit:true})}>{en?'Tour with the guide':'가이드와 둘러보기'}</a>
+            <a href={spaceHash({...route,guidedVisit:true,fromDesk:true})}>{en?'Tour with the guide':'가이드와 둘러보기'}</a>
             <a href={href('mission')}>{en?'Prepare a haul':'운송 준비'}</a>
             <a href={href('information')}>{word(names.information)}</a>
             <a href={href('lounge')}>{en?'Return to lounge':'라운지로 돌아가기'}</a>
@@ -479,7 +485,7 @@ export function SpaceExperience() {
       <ConsoleArrival departing={approaching} powerOn={powerOn} returning={!!(pending?.returning||arrivalView?.returning)} departureMs={departureMs} ignitionMs={ignitionMs}/>
     </main>
 
-    {route.lesson&&<Suspense fallback={<p role="status">{en?'Opening the professor’s tutorial…':'교수님의 수업을 여는 중…'}</p>}>
+    {route.lesson&&!route.fromDesk&&<Suspense fallback={<p role="status">{en?'Opening the professor’s tutorial…':'교수님의 수업을 여는 중…'}</p>}>
       <ProfessorLesson key={route.lesson} topic={route.lesson} locale={route.locale} motion={motion}
         onClose={()=>openDivisionFacility('guide-center')}
         onTour={()=>{location.hash=spaceHash({screen:'guide',guidedVisit:true,locale:route.locale});}}
