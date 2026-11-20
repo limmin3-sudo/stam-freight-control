@@ -508,7 +508,7 @@ export function SpaceExperience() {
     </main>
 
     {route.lesson&&!route.fromDesk&&<Suspense fallback={<p role="status">{en?'Opening the professor’s tutorial…':'교수님의 수업을 여는 중…'}</p>}>
-      <ProfessorLesson key={route.lesson} topic={route.lesson} locale={route.locale} motion={motion}
+      <ProfessorLesson sound={sound} volume={volume} key={route.lesson} topic={route.lesson} locale={route.locale} motion={motion}
         onClose={()=>openDivisionFacility('guide-center')}
         onTour={()=>{location.hash=spaceHash({screen:'guide',guidedVisit:true,locale:route.locale});}}
         onTopic={topic=>{if(topic==='trade'||topic==='practice')location.hash=spaceHash({screen:'division',facility:'guide-center',lesson:topic,locale:route.locale});}}

@@ -1,4 +1,5 @@
 import {useEffect, useReducer, useRef, useState, type CSSProperties} from 'react';
+import {koreanRecording,stopRecording} from './korean-dialogue';
 import greetingGuide from './assets/dialogue-poses/director/02.webp';
 import gateGuide from './assets/dialogue-poses/director/04.webp';
 import {boardingGate, visitChapters, speakers} from './guided-visit-content';
@@ -75,6 +76,20 @@ export default function GuidedVisit({fromDesk,en,motion,sound,volume,onSound,onC
     if (!ready || entering) return;
     const advance=()=>dispatch({from:position,kind:'line'});
     let timer=window.setTimeout(advance,duration);
+    const recording=sound && !en && koreanRecording(cue.speaker,text);
+    if(recording){
+      const audio=new Audio(recording);
+      audio.volume=volume/50;
+      audio.onplaying=()=>{
+        clearTimeout(timer);
+        const playbackMs=Number.isFinite(audio.duration)?audio.duration*1000:duration*3;
+        timer=window.setTimeout(advance,playbackMs+2500);
+      };
+      audio.onended=advance;
+      audio.onerror=()=>{clearTimeout(timer);timer=window.setTimeout(advance,duration);};
+      void audio.play().catch(()=>{}); // The caption timer also covers blocked autoplay.
+      return ()=>{clearTimeout(timer);stopRecording(audio);};
+    }
     const synth=window.speechSynthesis;
     const voice=sound && synth?.getVoices().find(v=>v.localService && v.lang.toLowerCase().startsWith(en?'en':'ko'));
     let speech:SpeechSynthesisUtterance|undefined;

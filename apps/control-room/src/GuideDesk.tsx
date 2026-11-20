@@ -25,7 +25,7 @@ const english:Record<string,string>={
  '먼저 미션 콘솔에서 이번 운송에 담을 계약을 선택해 주세요. 확인한 계약으로 항로를 계산할 수 있어요.':'Select contracts in the mission console. You can calculate a route from the reviewed contracts.',
  '데스크로 이동 중':'Approaching the desk','데스크 도착':'At the desk','안내 데스크':'Welcome desk','대화 패널 닫힘':'Dialogue closed','대화 패널 닫는 중':'Closing dialogue','라운지로 이동 중':'Returning to lounge','라운지':'Lounge',
 };
-type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean;onNavigate(screen:SpaceScreen,serviceView?:ServiceView,view?:ArchiveView):void;onTour():void;onGuidedChange(open:boolean):void;onLounge():void};
+type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean;volume?:number;onNavigate(screen:SpaceScreen,serviceView?:ServiceView,view?:ArchiveView):void;onTour():void;onGuidedChange(open:boolean):void;onLounge():void};
 // The approved SVG/HTML scene is an isolated DOM island. The controller is shared
 // with the verified cinematic preview; cleanup owns every timer and media element.
 export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(props,ref){
@@ -62,5 +62,5 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
   api.current=mountGuideDesk(root,{...props,menuManaged:true,translate,onGuide:showGuide,onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
   return()=>{removeMenu();api.current?.destroy();api.current=null;root.replaceChildren();};
  },[props.locale,props.startWithApproach,props.motion]);
- return <><div className="guide-desk" data-material="generated-glass" data-guided={!!topic} ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>{topic&&<Suspense fallback={<div className="guide-journey-loading" role="status">{props.locale==='en'?'Preparing your guide…':'안내를 준비하고 있어요…'}<button onClick={close}>{props.locale==='en'?'Cancel':'취소'}</button></div>}><GuideJourney key={topic} topic={topic} locale={props.locale} motion={props.motion} onClose={close} onTopic={setTopic} onTour={props.onTour} onNavigate={(screen,serviceView,view)=>{setTopic(null);props.onNavigate(screen,serviceView,view);}}/></Suspense>}</>;
+ return <><div className="guide-desk" data-material="generated-glass" data-guided={!!topic} ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>{topic&&<Suspense fallback={<div className="guide-journey-loading" role="status">{props.locale==='en'?'Preparing your guide…':'안내를 준비하고 있어요…'}<button onClick={close}>{props.locale==='en'?'Cancel':'취소'}</button></div>}><GuideJourney sound={props.sound} volume={props.volume??20} key={topic} topic={topic} locale={props.locale} motion={props.motion} onClose={close} onTopic={setTopic} onTour={props.onTour} onNavigate={(screen,serviceView,view)=>{setTopic(null);props.onNavigate(screen,serviceView,view);}}/></Suspense>}</>;
 });

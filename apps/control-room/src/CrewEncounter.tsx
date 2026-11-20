@@ -1,4 +1,5 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useKoreanDialogue} from './korean-dialogue';
 import {drawFromPoses} from './dialogue-poses';
 import {partnerEndpoint} from './partner-endpoint';
 import {PartnerQuestion,type GuideDestination} from './PartnerQuestion';
@@ -35,6 +36,7 @@ export function CrewEncounter({id,name,line,image,background,en,motion,sound,vol
  const nextAction=useRef<(()=>void)|undefined>(undefined),completed=useRef(false);
  const useDirectorStill=id==='director'&&!motion;
  const ready=phase==='idle'&&(idleReady||idleFailed);
+ useKoreanDialogue(id,introduction?.introduction??line,ready && sound && !en,volume);
  const [pose,setPose]=useState<ReturnType<typeof drawFromPoses>>();
  const reactionScenes=scenesByPartner.get(id);
  const idleScene=media&&!idleFailed&&media.idle.type==='image'?media.idle.src:reactionScenes?.[0];
