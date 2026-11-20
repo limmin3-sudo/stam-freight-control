@@ -215,9 +215,9 @@ internal sealed class BridgeWindow : Form {
     static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
     ToolStripMenuItem guidanceMenu;
     void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("네비게이터 열기","Open STAM Navigator"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=guidanceMenu=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
-        foreach(var style in new[]{"off","supertonic-female","supertonic-male","female","male"}){
+        foreach(var style in new[]{"off","partner","supertonic-female","supertonic-male","female","male"}){
             string choice=style;
-            var item=new ToolStripMenuItem(style=="off"?T("끄기","Off"):style=="supertonic-female"?T("Supertonic 여성 · 애니풍","Supertonic female · upbeat"):style=="supertonic-male"?T("Supertonic 남성 · 정중한 다나까체","Supertonic male · formal"):style=="female"?T("Windows 여성 · 애니풍","Windows female · upbeat"):T("Windows 남성 · 다나까체","Windows male · formal"));
+            var item=new ToolStripMenuItem(style=="off"?T("끄기","Off"):style=="partner"?T("파트너 음성 · 실시간 정보는 Supertonic","Partner voice · live details via Supertonic"):style=="supertonic-female"?T("Supertonic 여성 · 애니풍","Supertonic female · upbeat"):style=="supertonic-male"?T("Supertonic 남성 · 정중한 다나까체","Supertonic male · formal"):style=="female"?T("Windows 여성 · 애니풍","Windows female · upbeat"):T("Windows 남성 · 다나까체","Windows male · formal"));
             item.Click+=(s,e)=>{var target=Overlay();target.SetNarrator(choice);if(choice!="off")target.PreviewNarrator();};
             guidance.DropDownItems.Add(item);
             guidance.DropDownOpening+=(s,e)=>item.Checked=(Overlay().Narrator==choice);

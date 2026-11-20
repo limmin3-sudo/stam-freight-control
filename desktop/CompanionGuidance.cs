@@ -19,11 +19,12 @@ internal sealed partial class CompanionOverlay {
     SpeechSynthesizer narrator;
     CancellationTokenSource localSpeech;
     SoundPlayer player;
-    static readonly HttpClient localTts=new HttpClient(new HttpClientHandler {UseProxy=false,AllowAutoRedirect=false}) {
+    static readonly HttpClient defaultLocalTts=new HttpClient(new HttpClientHandler {UseProxy=false,AllowAutoRedirect=false}) {
         BaseAddress=new Uri("http://127.0.0.1:7788/"),Timeout=TimeSpan.FromSeconds(18),MaxResponseContentBufferSize=8*1024*1024
     };
-    static bool ValidNarrator(string id){return id=="female"||id=="male"||id=="supertonic-female"||id=="supertonic-male";}
-    bool FemaleVoice {get{return Narrator=="female"||Narrator=="supertonic-female";}}
+    HttpClient localTts=defaultLocalTts;
+    static bool ValidNarrator(string id){return id=="partner"||id=="female"||id=="male"||id=="supertonic-female"||id=="supertonic-male";}
+    bool FemaleVoice {get{return Narrator=="partner"?linkedPartner!="navigator":Narrator=="female"||Narrator=="supertonic-female";}}
     volatile bool narrating;
     volatile bool ignoreUtterance;
     DateTime answerUntil=DateTime.MinValue,quoteRequested=DateTime.MinValue;
@@ -147,6 +148,9 @@ internal sealed partial class CompanionOverlay {
     }
     internal void PreviewNarrator(){
         if(Narrator=="off"){ReportTalk(T("먼저 음성 안내 목소리를 선택하세요.","Choose a guidance voice first."));return;}
+        if(!english&&Narrator=="partner"){
+            Say("다음 목적지는 로어빌입니다. 금 8 SCU를 적재해 주십시오.",false,"pickup");return;
+        }
         if(!english&&Narrator.StartsWith("supertonic-")){
             PreviewSample();return;
         }
@@ -191,11 +195,34 @@ internal sealed partial class CompanionOverlay {
           .Replace("있습니다.","있어요.").Replace("없습니다.","없어요.");
         return newRoute?"앗, 찾았다! "+text:text;
     }
-    void Say(string text,bool opening=false){
+    readonly string recordingFolder=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","voices","flight-ko");
+    Dictionary<string,Dictionary<string,string>> recordings;
+    string PartnerRecording(string cue){
+        if(cue==null)return null;
+        if(recordings==null){
+            var index=Path.Combine(recordingFolder,"index.json");
+            try{recordings=new JavaScriptSerializer().Deserialize<Dictionary<string,Dictionary<string,string>>>(File.ReadAllText(index));}
+            catch(IOException){/* Older or incomplete installation: read the line locally. */}
+            catch(ArgumentException){/* Invalid catalogue: keep live guidance available. */}
+            if(recordings==null)recordings=new Dictionary<string,Dictionary<string,string>>();
+        }
+        Dictionary<string,string> roles;
+        string name;
+        if(!recordings.TryGetValue(cue,out roles)||roles==null||!roles.TryGetValue(FemaleVoice?"operator":"navigator",out name)||name==null||!Regex.IsMatch(name,@"^[a-f0-9]{16}\.wav$"))return null;
+        var path=Path.Combine(recordingFolder,name);
+        return File.Exists(path)?path:null;
+    }
+    void Say(string text,bool opening=false,string flightCue=null){
         if(Narrator=="off"||Listening||String.IsNullOrEmpty(text))return;
-        if(FemaleVoice&&!english)text=Friendly(text,opening);
-        if(!english)text=text.Replace("SCU","에스씨유").Replace("aUEC","에이유이씨");
-        if(Narrator.StartsWith("supertonic-")){SpeakLocal(text);return;}
+        string clip=null;
+        if(Narrator=="partner"&&!english){
+            clip=PartnerRecording(text);
+            if(clip!=null){SpeakLocal(null,clip);return;}
+            clip=PartnerRecording(flightCue);
+        }
+        if(FemaleVoice&&!english)text=Friendly(text,Narrator!="partner"&&opening);
+        if(!english)text=text.Replace("? SCU","수량 미확인").Replace("SCU","에스씨유").Replace("aUEC","에이유이씨");
+        if(Narrator=="partner"||Narrator.StartsWith("supertonic-")){SpeakLocal(text,clip);return;}
         try{
             if(narrator==null){
                 narrator=new SpeechSynthesizer();
@@ -237,31 +264,57 @@ internal sealed partial class CompanionOverlay {
             pos+=8+size+(size&1);
         }
     }
-    async void SpeakLocal(string text){
+    async Task<byte[]> LocalWave(string text,bool female,CancellationToken token){
+        bool character=female&&!english;
+        var payload=new JavaScriptSerializer().Serialize(new {
+            text=text,voice=character?"F2":female?"F1":"M1",
+            lang=english?"en":"ko",speed=character?1.07:female?1.08:0.97
+        });
+        using(var content=new StringContent(payload,Encoding.UTF8,"application/json"))
+        using(var response=await localTts.PostAsync("v1/tts",content,token)){
+            response.EnsureSuccessStatusCode();
+            var bytes=await response.Content.ReadAsByteArrayAsync();
+            if(character)RaiseKoreanVoice(bytes);
+            return bytes;
+        }
+    }
+    // Start and stop on the UI thread so a superseded cue cannot start late.
+    static int WaveMilliseconds(byte[] wav){
+        if(wav.Length<44||Encoding.ASCII.GetString(wav,0,4)!="RIFF"||Encoding.ASCII.GetString(wav,8,4)!="WAVE")throw new InvalidDataException();
+        int rate=0;
+        for(int pos=12;pos<=wav.Length-8;){
+            string chunk=Encoding.ASCII.GetString(wav,pos,4);
+            int size=BitConverter.ToInt32(wav,pos+4);
+            if(size<0||size>wav.Length-pos-8)break;
+            if(chunk=="fmt "&&size>=16)rate=BitConverter.ToInt32(wav,pos+16);
+            if(chunk=="data"&&size>0&&rate>0)return (int)Math.Ceiling(size*1000.0/rate);
+            pos+=8+size+(size&1);
+        }
+        throw new InvalidDataException();
+    }
+    async Task PlayWave(byte[] bytes,CancellationToken token){
+        token.ThrowIfCancellationRequested();
+        int duration=WaveMilliseconds(bytes);
+        using(var stream=new MemoryStream(bytes,false))
+        using(var sound=new SoundPlayer(stream)){
+            sound.Load();player=sound;ignoreUtterance=true;narrating=true;
+            try{sound.Play();await Task.Delay(duration+60,token);}
+            finally{if(player==sound){sound.Stop();player=null;}}
+        }
+    }
+    async void SpeakLocal(string text,string clip){
         StopNarration();
         var request=new CancellationTokenSource();
         localSpeech=request;
         try{
-            bool character=FemaleVoice&&!english;
-            var payload=new JavaScriptSerializer().Serialize(new {
-                text=text,voice=character?"F2":FemaleVoice?"F1":"M1",
-                lang=english?"en":"ko",speed=character?1.07:FemaleVoice?1.08:0.97
-            });
-            using(var content=new StringContent(payload,Encoding.UTF8,"application/json"))
-            using(var response=await localTts.PostAsync("v1/tts",content,request.Token)){
-                response.EnsureSuccessStatusCode();
-                var bytes=await response.Content.ReadAsByteArrayAsync();
-                if(bytes.Length<44||Encoding.ASCII.GetString(bytes,0,4)!="RIFF"||Encoding.ASCII.GetString(bytes,8,4)!="WAVE")throw new InvalidDataException();
-                if(request.IsCancellationRequested)return;
-                if(character)RaiseKoreanVoice(bytes);
-                using(var stream=new MemoryStream(bytes,false))
-                using(var sound=new SoundPlayer(stream)){
-                    sound.Load();player=sound;ignoreUtterance=true;narrating=true;
-                    await Task.Run(()=>{if(!request.IsCancellationRequested)sound.PlaySync();});
-                }
-            }
+            // Render the live detail while the short partner introduction plays.
+            var intro=clip==null?Task.CompletedTask:PlayWave(File.ReadAllBytes(clip),request.Token);
+            if(text==null){await intro;return;}
+            var detail=LocalWave(text,FemaleVoice,request.Token);
+            await Task.WhenAll(intro,detail);
+            await PlayWave(await detail,request.Token);
         }catch(Exception){
-            if(!request.IsCancellationRequested)ReportTalk(T("Supertonic 연결을 확인하세요 · 로컬 서버 실행: supertonic serve","Start the local Supertonic server: supertonic serve"));
+            if(!request.IsCancellationRequested)ReportTalk(T("음성 재생을 확인하세요 · 실시간 안내: supertonic serve","Check audio playback. For live details, run supertonic serve."));
         }finally{
             if(localSpeech==request){localSpeech=null;player=null;narrating=false;}
             request.Dispose();
@@ -297,7 +350,8 @@ internal sealed partial class CompanionOverlay {
         if(task!=lastTask){
             bool firstTask=String.IsNullOrEmpty(lastTask);
             lastTask=task;answerUntil=DateTime.MinValue;
-            if(task.Length!=0)Say(task,firstTask);
+            if(task.Length!=0)Say(task,firstTask,mode=="flight"?stepKind:null);
+            else if(Narrator=="partner")StopNarration();
         }
         var answer=display.TryGetValue("answer",out raw)?raw as Dictionary<string,object>:null;
         if(answer!=null&&Convert.ToString(answer["id"])!=lastReply){

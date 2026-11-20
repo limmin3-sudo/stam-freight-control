@@ -113,6 +113,7 @@ internal sealed partial class CompanionOverlay : Form {
     internal void ToggleInput(){interactive=!interactive;RecreateHandle();RegisterKeys();status.Text=interactive?T("조작 모드 · 이동/버튼 사용","Input mode · move or click buttons"):T("클릭 통과 · 게임 입력 유지","Click-through mode");}
     void SetStep(string id,string kind){
         if(id==stepId&&kind==stepKind)return;
+        if(Narrator=="partner"){StopNarration();lastTask=null;}
         stepId=id;stepKind=kind;heardStep=null;lastSentStep=null;
         stepAudioStart=speech==null?TimeSpan.Zero:speech.AudioPosition;
     }
@@ -120,7 +121,9 @@ internal sealed partial class CompanionOverlay : Form {
     internal bool IsNavigator {get{return linkedPartner=="navigator"||(linkedPartner==null&&ValidNarrator(Narrator)&&!FemaleVoice);}}
     internal Color PartnerColor {get{return IsNavigator?DeckTheme.NavigatorInk:DeckTheme.OperatorInk;}}
     void ShowPartner(string partner){
-        linkedPartner=partner=="operator"||partner=="navigator"?partner:null;
+        string next=partner=="operator"||partner=="navigator"?partner:null;
+        if(Narrator=="partner"&&next!=linkedPartner){StopNarration();lastTask=null;}
+        linkedPartner=next;
         heading.Text=PartnerPortrait.Title(IsNavigator,english);heading.ForeColor=PartnerColor;portrait.SelectPartner(IsNavigator,english);
     }
     internal void UpdateDisplay(object raw){var d=raw as Dictionary<string,object>;

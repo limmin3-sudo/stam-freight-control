@@ -1,9 +1,6 @@
 name: Record Korean overlay partners
 on:
   workflow_dispatch:
-  push:
-    branches: [audio/overlay-partners]
-    paths: ['.github/workflows/overlay-record.yml']
 permissions:
   contents: read
 jobs:
@@ -27,25 +24,3 @@ jobs:
         with:
           name: overlay-ko
           path: desktop/voices/flight-ko/
-  collect:
-    if: always() && github.ref == 'refs/heads/audio/overlay-partners'
-    needs: record
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: audio/overlay-partners
-          sparse-checkout: desktop/voices
-      - uses: actions/download-artifact@v4
-        with:
-          name: overlay-ko
-          path: desktop/voices/flight-ko
-      - run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- desktop/voices/flight-ko
-          git diff --cached --quiet || git commit -m 'Include offline Korean overlay recordings'
-          git push origin HEAD:refs/heads/audio/overlay-partners
