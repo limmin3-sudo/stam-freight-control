@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {connectLive,type LiveConnection} from '../../../integration/log/live-client.mjs';
 import type {Job} from './mission-trial';
 import {correctReceipt,decodeReceiptCache,effectiveReceipts,receiptCacheKey,receiveReceipts} from './receipt-cache';
@@ -103,5 +103,6 @@ export function useLogReceipts(){
    setSource('browser');setPhase('reading');setCached(!!current.current);setWatching(true);watch.current=setInterval(()=>void poll(),2000);await poll();
   }catch(error){if(serial===generation.current&&(error as Error).name!=='AbortError'){stopWatching();failed();}}
  }
- return {phase,fileUnavailable,rawCards:cache?.cards||[],cards:effectiveReceipts(cache),cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
+ const cards=useMemo(()=>effectiveReceipts(cache),[cache]);
+ return {phase,fileUnavailable,rawCards:cache?.cards||[],cards,cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
 }

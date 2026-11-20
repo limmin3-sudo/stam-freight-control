@@ -3,13 +3,23 @@ import {navigator as createNavigator} from '../../../engine.mjs';
 import {tradeShip} from './trade-cargo.mjs';
 export const tradeAtlas=base;
 const normal=value=>String(value||'').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'');
+// The bundled atlas is immutable. Keep every match so ambiguous names remain unresolved.
+const locationsByName=new Map();
+for(const point of base.locations){
+ const key=point.system.toLowerCase()+':'+normal(point.name);
+ const matches=locationsByName.get(key);
+ if(matches)matches.push(point);
+ else locationsByName.set(key,[point]);
+}
 export function resolveTradeTerminal(terminal,atlas=base){
  if(!terminal?.system)return null;
  const system=terminal.system.toLowerCase();
  const facility=String(terminal.location||'').replace(/\s*\(([^)]+)\)$/, (all,name)=>name.toLowerCase()===system?'':all);
  const names=[facility,String(terminal.name||'').replace(/^Admin\s*-\s*/,'')].filter(Boolean);
  for(const name of names){
-  const matches=atlas.locations.filter(p=>p.system.toLowerCase()===system&&normal(p.name)===normal(name));
+  const normalized=normal(name);
+  const matches=atlas===base ? locationsByName.get(system+':'+normalized)??[]
+    : atlas.locations.filter(p=>p.system.toLowerCase()===system&&normal(p.name)===normalized);
   // Never resolve an ambiguous primary name by switching to a weaker alias.
   if(matches.length>1)return null;
   if(matches.length===1){const p=matches[0];if(p.position?.length!==3||p.position.some(n=>!Number.isFinite(n)))return null;return {point:p,match:name,terminalId:terminal.id};}

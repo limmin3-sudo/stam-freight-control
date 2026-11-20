@@ -79,7 +79,15 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
   const restorable=inbox.filter(j=>dismissed.has(j.id));
   const simple = d.partner==='operator';
   const allowUpperBounds=false;
-  const info=(job:Job)=>quantityPlan(missionFor(job),allowUpperBounds);
+  // A card, the selection summary and the launch button share the same evidence this render.
+  const quantities=new Map<Job,ReturnType<typeof quantityPlan>>();
+  function info(job:Job){
+    const existing=quantities.get(job);
+    if(existing)return existing;
+    const result=quantityPlan(missionFor(job),allowUpperBounds);
+    quantities.set(job,result);
+    return result;
+  }
   const eligible=(job:Job)=>routeReady(job);
   const [checked,setChecked]=useState<string[]>([]);
   const selectionKey=(j:Job)=>JSON.stringify([j.id,j.signature,j.reviewedReceipt]);
