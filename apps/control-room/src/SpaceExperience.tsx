@@ -11,6 +11,7 @@ import {partnerDialogue} from './partner-dialogue';
 import type {PartnerId} from './partner-dialogue';
 import {MapConsole} from './MapConsole';
 import {SpaceNavigation} from './SpaceNavigation';
+import {FleetCinema} from './FleetCinema';
 import {InterfaceGlyph} from './InterfaceGlyph';
 import {PartnerChoice} from './PartnerChoice';
 import {needsPartnerChoice} from './partner-policy';
@@ -487,7 +488,7 @@ export function SpaceExperience() {
             <a href={href('lounge')}>{en?'Return to lounge':'라운지로 돌아가기'}</a>
           </nav>
         </div>}
-        {route.screen==='cinema' && <p>{en?'No screenings are scheduled.':'현재 상영 중인 영상이 없습니다.'}</p>}
+        {route.screen==='cinema' && <FleetCinema english={en}/>}
       </section>}
       <aside id="facility-navigation" className="space-sidebar" aria-label={en?'Space navigation':'공간 메뉴'}>
         <PilotDesk flight={flight} locale={route.locale} onAction={(action,event)=>{openMissionTool(action);enter(event,'mission');}}/>
