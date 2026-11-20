@@ -4,7 +4,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 import {root,webFiles} from './web-files.mjs';
 export async function desktopFiles(){
- const files=new Set(['assets/stam-logo-transparent.png','data/log-location-index.json','data/log-vehicle-index.mjs','THIRD-PARTY-NOTICES.md'].map(n=>path.join(root,n)));
+ const files=new Set(['assets/stam-logo-transparent.png','data/log-location-index.json','data/companion-help.json','data/log-vehicle-index.mjs','THIRD-PARTY-NOTICES.md'].map(n=>path.join(root,n)));
  for(const n of ['desktop/voices/partner-female-ko.wav','desktop/voices/partner-male-ko.wav','desktop/fonts/README.md','desktop/fonts/Barlow-Medium.ttf','desktop/fonts/SUIT-Medium.ttf','desktop/fonts/BARLOW-LICENSE.txt','desktop/fonts/SUIT-LICENSE.txt','desktop/version.json','desktop/overlay-material.png','desktop/theme/black-gold-d-frame.png','desktop/theme/flight-console-a-frame.png','desktop/theme/hologram-button.png','desktop/theme/division-overview.png','desktop/bridge.mjs','scripts/log-link-server.mjs','integration/log/live-server.mjs','LICENSE'])files.add(path.join(root,n));
  const queue=[...files];for(let i=0;i<queue.length;i++){const full=queue[i];if(!full.endsWith('.mjs'))continue;const s=await readFile(full,'utf8');for(const m of s.matchAll(/(?:from\s*|import\s*\(?\s*)['"](\.{1,2}\/[^'"?#]+)['"]/g)){const file=path.resolve(path.dirname(full),m[1]);if(!file.startsWith(root))throw Error('dependency-outside-project');if(!files.has(file)){files.add(file);queue.push(file);}}}
  return [...files].sort();

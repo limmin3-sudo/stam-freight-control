@@ -48,6 +48,9 @@ internal sealed partial class CompanionOverlay {
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","운송"},{"lines",new[]{"8 SCU"}},{"guidance",new Dictionary<string,object>{{"load","금 8 SCU 적재해 주십시오."}}}});
                 Require(overlay.Query("얼마나 실어야 해",1)&&overlay.body.Text.Contains("8 SCU")&&commands.Count==2,"read-only-cargo-query");
                 Require(Friendly("다음 목적지는 로어빌입니다. 금 8 SCU 적재해 주십시오.")=="좋아! 함장님, 다음은 로어빌이에요. 금 8 SCU 실어 봐요!","korean-character-style");
+                Require(overlay.Query("함장인데 계약을 열 개나 받았거든요 이거 한꺼번에 담을 수 있어요",.85f)&&overlay.body.Text.Contains("카드"),"paraphrased-guide");
+                Require(overlay.Query("항로 어케 짜",.9f)&&overlay.body.Text.Contains("항로 지도"),"short-guide");
+                Require(overlay.Query("적재 완료는 어떻게 해",1)&&commands.Count==2,"guide-never-advances");
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","personal"},{"title","시세"},{"lines",new[]{"현재 시세"}}});
                 Require(overlay.Query("금 어디서 팔아",1)&&commands.Count==3&&commands[2].StartsWith("quote-sell:"),"named-commodity-query");
                 checks.Add("Read-only cargo and commodity questions preserve flight progress; female Korean phrasing retains destination and quantity");

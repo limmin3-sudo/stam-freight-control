@@ -1,0 +1,918 @@
+[
+  {
+    "id": "start",
+    "ko": {
+      "examples": [
+        "운송 어디서 시작해",
+        "첫 운송 의뢰는 어디서 준비해요"
+      ],
+      "groups": [
+        [
+          "운송",
+          "운항",
+          "미션"
+        ],
+        [
+          "시작",
+          "처음",
+          "준비"
+        ]
+      ],
+      "answer": "관제센터 미션 콘솔에서 함선, 출발지, 운항 파트너를 정하십시오. 다음을 누르면 계약을 불러올 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "how do I start a haul"
+      ],
+      "groups": [
+        [
+          "haul",
+          "flight",
+          "mission"
+        ],
+        [
+          "start",
+          "first",
+          "setup"
+        ]
+      ],
+      "answer": "Open the mission console in Control. Choose your ship, departure and flight partner, then continue to import contracts."
+    }
+  },
+  {
+    "id": "partner",
+    "ko": {
+      "examples": [
+        "항해사랑 오퍼레이터 차이가 뭐야",
+        "운항 파트너 고르는 법"
+      ],
+      "groups": [
+        [
+          "항해사",
+          "오퍼레이터",
+          "운항파트너"
+        ],
+        [
+          "차이",
+          "고르",
+          "선택",
+          "뭐",
+          "비교"
+        ]
+      ],
+      "answer": "항해사는 경로와 적재를 함께 계산합니다. 오퍼레이터는 경로를 안내하며 적재는 직접 관리합니다."
+    },
+    "en": {
+      "examples": [
+        "which flight partner should I choose"
+      ],
+      "groups": [
+        [
+          "navigator",
+          "operator",
+          "flightpartner"
+        ],
+        [
+          "difference",
+          "choose",
+          "compare"
+        ]
+      ],
+      "answer": "Choose the navigator for route and cargo planning, or the operator for routes with manual loading."
+    }
+  },
+  {
+    "id": "intake",
+    "ko": {
+      "examples": [
+        "미션 어떻게 불러와",
+        "미션카드가 안 떠"
+      ],
+      "groups": [
+        [
+          "미션",
+          "계약",
+          "카드"
+        ],
+        [
+          "불러",
+          "안떠",
+          "안뜨",
+          "안보",
+          "안나",
+          "가져",
+          "수신",
+          "등록"
+        ]
+      ],
+      "answer": "미션 콘솔의 계약 불러오기에서 로그 앱 연결 상태를 확인하십시오. 수신한 계약이 없으면 Game.log 선택, 스크린샷 인식, 직접 입력도 사용할 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "how do I import a contract",
+        "why are my mission cards missing"
+      ],
+      "groups": [
+        [
+          "contract",
+          "missioncard"
+        ],
+        [
+          "import",
+          "missing",
+          "load",
+          "add"
+        ]
+      ],
+      "answer": "Check the log companion connection in Import contracts. You can also select Game.log, import screenshots or enter a contract manually."
+    }
+  },
+  {
+    "id": "combine",
+    "ko": {
+      "examples": [
+        "계약 여러 개 묶을 수 있어",
+        "계약 열 개 한꺼번에 어케 해"
+      ],
+      "groups": [
+        [
+          "계약",
+          "미션",
+          "카드"
+        ],
+        [
+          "묶",
+          "여러",
+          "동시",
+          "한번에",
+          "한꺼번",
+          "한눈",
+          "10개",
+          "열개",
+          "모아서"
+        ]
+      ],
+      "answer": "계약 불러오기에서 이번 운송에 포함할 카드를 선택하십시오. 선택한 계약의 경유지를 함께 계산하며, 이번 운송에서 합계를 확인할 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "can I combine ten contracts"
+      ],
+      "groups": [
+        [
+          "contract",
+          "mission"
+        ],
+        [
+          "combine",
+          "multiple",
+          "several",
+          "together",
+          "ten"
+        ]
+      ],
+      "answer": "Select the contract cards for this haul. This haul shows the totals and route calculation groups their stops."
+    }
+  },
+  {
+    "id": "route",
+    "ko": {
+      "examples": [
+        "경로 계산은 어떻게 해",
+        "항로 어케 짜"
+      ],
+      "groups": [
+        [
+          "경로",
+          "항로",
+          "루트"
+        ],
+        [
+          "계산",
+          "짜",
+          "만드",
+          "계획",
+          "구하",
+          "확인"
+        ]
+      ],
+      "answer": "미션 콘솔에서 계약을 선택하고 경로 계산을 누르십시오. 항로 지도에서 방문 순서를 검토한 뒤 운송 시작을 누르면 관제 콘솔로 이동합니다."
+    },
+    "en": {
+      "examples": [
+        "how do I calculate a route"
+      ],
+      "groups": [
+        [
+          "route"
+        ],
+        [
+          "calculate",
+          "plan",
+          "build",
+          "check"
+        ]
+      ],
+      "answer": "Select contracts and calculate the route. Review the stops on the map, then choose Start haul to enter Control."
+    }
+  },
+  {
+    "id": "completion",
+    "ko": {
+      "examples": [
+        "적재 완료는 어떻게 해",
+        "배송 끝나면 어디 눌러"
+      ],
+      "groups": [
+        [
+          "적재",
+          "배송",
+          "픽업",
+          "단계"
+        ],
+        [
+          "완료",
+          "끝",
+          "넘기"
+        ],
+        [
+          "어떻",
+          "어케",
+          "어디",
+          "방법",
+          "어찌",
+          "누르",
+          "눌러"
+        ]
+      ],
+      "answer": "게임에서 작업을 마친 다음 관제 콘솔의 완료 버튼이나 스페이스를 누르십시오. 로그 앱이 연결되어 있으면 해당 단계에서 적재 완료 또는 배송 완료라고 말할 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "how do I confirm a delivery"
+      ],
+      "groups": [
+        [
+          "load",
+          "delivery",
+          "pickup",
+          "step"
+        ],
+        [
+          "how",
+          "confirmbutton"
+        ]
+      ],
+      "answer": "Finish the task in game, then use the completion button or Space in Control. With the companion connected, you can say loading complete or delivery complete."
+    }
+  },
+  {
+    "id": "undo",
+    "ko": {
+      "examples": [
+        "방금 잘못 눌렀어",
+        "완료 취소 어떻게 해"
+      ],
+      "groups": [
+        [
+          "잘못눌",
+          "잘못완료",
+          "되돌",
+          "완료취소",
+          "실수로눌"
+        ]
+      ],
+      "answer": "관제 콘솔에서 직전 작업 되돌리기를 사용하십시오. 현재 단계와 선내 화물 상태를 확인한 뒤 계속 진행하십시오."
+    },
+    "en": {
+      "examples": [
+        "can I undo the last stop"
+      ],
+      "groups": [
+        [
+          "undo",
+          "revert",
+          "accidentallyconfirmed"
+        ]
+      ],
+      "answer": "Use Undo in Control, then check the current step and cargo before continuing."
+    }
+  },
+  {
+    "id": "unknown",
+    "ko": {
+      "examples": [
+        "수량 모르면 어떻게 해",
+        "물량 미확인인데"
+      ],
+      "groups": [
+        [
+          "수량",
+          "적재량",
+          "물량"
+        ],
+        [
+          "모르",
+          "몰라",
+          "모를",
+          "미확인",
+          "안나",
+          "없으"
+        ]
+      ],
+      "answer": "계약 상세에서 확인한 수량을 보완할 수 있습니다. 수량을 모르면 오퍼레이터로 경로를 계산하고 적재는 직접 관리하십시오."
+    },
+    "en": {
+      "examples": [
+        "what if the quantity is unknown"
+      ],
+      "groups": [
+        [
+          "quantity",
+          "amount"
+        ],
+        [
+          "unknown",
+          "missing"
+        ]
+      ],
+      "answer": "Enter known quantities in contract details, or use the operator for route-only planning when quantities are unknown."
+    }
+  },
+  {
+    "id": "screen",
+    "ko": {
+      "examples": [
+        "스크린샷 여러 장 읽을 수 있어",
+        "계약 사진 어떻게 넣어"
+      ],
+      "groups": [
+        [
+          "스크린샷",
+          "스샷",
+          "계약사진",
+          "스크린숏"
+        ]
+      ],
+      "answer": "계약 불러오기에서 스크린샷 여러 장 선택을 누르십시오. 인식한 뒤 계약별 픽업지, 배송지, 수량을 검토하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I import screenshots"
+      ],
+      "groups": [
+        [
+          "screenshot",
+          "contractphoto"
+        ]
+      ],
+      "answer": "In Import contracts choose the screenshot selector, then verify the pickup, delivery and quantity for each result."
+    }
+  },
+  {
+    "id": "manual",
+    "ko": {
+      "examples": [
+        "계약 직접 입력하는 법",
+        "수동으로 미션 추가"
+      ],
+      "groups": [
+        [
+          "계약",
+          "미션"
+        ],
+        [
+          "직접입력",
+          "수기",
+          "수동"
+        ]
+      ],
+      "answer": "계약 불러오기에서 직접 입력을 선택하십시오. 계약 내용이 텍스트로 있으면 텍스트 가져오기도 사용할 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "how do I enter a mission manually"
+      ],
+      "groups": [
+        [
+          "contract",
+          "mission"
+        ],
+        [
+          "manually",
+          "manualentry"
+        ]
+      ],
+      "answer": "Choose Manual entry in Import contracts. Use Import text if you already have the contract text."
+    }
+  },
+  {
+    "id": "log",
+    "ko": {
+      "examples": [
+        "로그앱 어떻게 연결해",
+        "게임로그 연결 방법"
+      ],
+      "groups": [
+        [
+          "로그앱",
+          "로그연결",
+          "게임로그",
+          "게임로그앱",
+          "컴패니언",
+          "로그파일"
+        ],
+        [
+          "연결",
+          "찾",
+          "켜",
+          "선택",
+          "어디",
+          "인식",
+          "못읽"
+        ]
+      ],
+      "answer": "로그 앱에서 현재 플레이 중인 Game.log를 선택하십시오. 웹 미션 콘솔의 계약 불러오기에서 로그 앱 연결을 누른 뒤 새 계약 수신을 확인하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I connect the log app"
+      ],
+      "groups": [
+        [
+          "logapp",
+          "gamelog",
+          "companion"
+        ],
+        [
+          "connect",
+          "find",
+          "select"
+        ]
+      ],
+      "answer": "Select the active Game.log in the companion, then connect the log app in the mission console and check for incoming contracts."
+    }
+  },
+  {
+    "id": "overlay",
+    "ko": {
+      "examples": [
+        "오버레이 어디서 켜",
+        "게임 위에 어떻게 띄워"
+      ],
+      "groups": [
+        [
+          "오버레이",
+          "게임위에"
+        ],
+        [
+          "켜",
+          "띄",
+          "보",
+          "열",
+          "설정",
+          "어떻",
+          "연결",
+          "표시"
+        ]
+      ],
+      "answer": "운송이나 무역 화면의 로그 앱 오버레이에서 이 화면을 로그 앱에 표시를 켜십시오. 로그 앱에서 오버레이 표시를 누르십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I show the overlay"
+      ],
+      "groups": [
+        [
+          "overlay"
+        ],
+        [
+          "open",
+          "show",
+          "enable",
+          "connect"
+        ]
+      ],
+      "answer": "Enable Show this view in companion in freight or trade, then select Show overlay in the log app."
+    }
+  },
+  {
+    "id": "mic",
+    "ko": {
+      "examples": [
+        "마이크 계속 켜 놓을 수 있어",
+        "눌러서 말하기 어떻게 써"
+      ],
+      "groups": [
+        [
+          "마이크",
+          "연속듣기",
+          "눌러서말하기",
+          "음성인식"
+        ],
+        [
+          "켜",
+          "키",
+          "계속",
+          "상시",
+          "사용",
+          "어떻",
+          "어케",
+          "설정",
+          "방법",
+          "끄"
+        ]
+      ],
+      "answer": "로그 앱과 오버레이에서 눌러서 말하기는 한 번만 듣습니다. 연속 듣기 켜기를 누르면 끌 때까지 명령과 질문을 듣습니다."
+    },
+    "en": {
+      "examples": [
+        "can I leave the microphone on"
+      ],
+      "groups": [
+        [
+          "microphone",
+          "pushtotalk",
+          "continuouslistening"
+        ],
+        [
+          "use",
+          "on",
+          "enable",
+          "how",
+          "off"
+        ]
+      ],
+      "answer": "Speak once listens for one utterance. Turn on continuous listening in the companion or overlay to keep listening until you turn it off."
+    }
+  },
+  {
+    "id": "voice",
+    "ko": {
+      "examples": [
+        "캐릭터 목소리 바꾸는 법",
+        "여성 목소리 어떻게 골라"
+      ],
+      "groups": [
+        [
+          "목소리",
+          "음성안내",
+          "보이스"
+        ],
+        [
+          "선택",
+          "바꾸",
+          "변경",
+          "고르",
+          "골라",
+          "듣",
+          "설정"
+        ]
+      ],
+      "answer": "로그 앱의 안내 목소리에서 여성 또는 남성을 고르십시오. Supertonic 한국어 샘플은 바로 들을 수 있으며, 실시간 합성은 로컬 음성 서버를 사용합니다."
+    },
+    "en": {
+      "examples": [
+        "how do I change the voice"
+      ],
+      "groups": [
+        [
+          "voice",
+          "narrator"
+        ],
+        [
+          "choose",
+          "change",
+          "preview",
+          "select"
+        ]
+      ],
+      "answer": "Choose a narrator in Guidance voice. The Korean Supertonic previews are bundled. Live synthesis uses the local voice server."
+    }
+  },
+  {
+    "id": "shortcuts",
+    "ko": {
+      "examples": [
+        "단축키 바꾸려면",
+        "오버레이 단축키 뭐야"
+      ],
+      "groups": [
+        [
+          "단축키",
+          "핫키"
+        ]
+      ],
+      "answer": "로그 앱의 단축키 설정에서 오버레이, 가격 보기, 내 작업, 눌러서 말하기 키를 확인하거나 변경하십시오."
+    },
+    "en": {
+      "examples": [
+        "where are the shortcuts"
+      ],
+      "groups": [
+        [
+          "shortcut",
+          "hotkey"
+        ]
+      ],
+      "answer": "Open Shortcut settings in the companion to check or change the overlay, prices, work and talk shortcuts."
+    }
+  },
+  {
+    "id": "prices",
+    "ko": {
+      "examples": [
+        "시세 어떻게 봐",
+        "품목 가격 비교하는 법"
+      ],
+      "groups": [
+        [
+          "시세",
+          "가격",
+          "매입가",
+          "판매가"
+        ],
+        [
+          "비교",
+          "보려",
+          "보나",
+          "보지",
+          "보는",
+          "어떻게봐",
+          "어케봐",
+          "확인방법"
+        ]
+      ],
+      "answer": "무역센터 시세에서 품목을 선택하면 거래소별 매입가와 판매가를 볼 수 있습니다. 수요, 재고, 보고 시각도 함께 확인하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I compare prices"
+      ],
+      "groups": [
+        [
+          "price",
+          "quote"
+        ],
+        [
+          "compare",
+          "checkprices",
+          "viewprices"
+        ]
+      ],
+      "answer": "Select a commodity in Market prices to compare terminal buy and sell quotes. Check stock, demand and report time."
+    }
+  },
+  {
+    "id": "fresh",
+    "ko": {
+      "examples": [
+        "시세가 안 나와",
+        "판매가가 왜 없어"
+      ],
+      "groups": [
+        [
+          "시세",
+          "판매가",
+          "가격",
+          "매입가"
+        ],
+        [
+          "안나",
+          "없",
+          "언제",
+          "오래",
+          "최신",
+          "갱신"
+        ]
+      ],
+      "answer": "음성 시세는 현재 패치의 최근 24시간 보고 중 매입 재고나 판매 수요가 확인된 곳을 사용합니다. 조건에 맞는 보고가 없으면 가격 미확인으로 안내합니다."
+    },
+    "en": {
+      "examples": [
+        "why is there no quote"
+      ],
+      "groups": [
+        [
+          "price",
+          "quote"
+        ],
+        [
+          "missing",
+          "stale",
+          "nodata",
+          "howrecent"
+        ]
+      ],
+      "answer": "Spoken quotes use current-patch reports from the last 24 hours with stock to buy or demand to sell. Missing reports are marked unavailable."
+    }
+  },
+  {
+    "id": "trade",
+    "ko": {
+      "examples": [
+        "무역 처음인데 어디서 시작해",
+        "무역 계획 세우는 법"
+      ],
+      "groups": [
+        [
+          "무역",
+          "교역"
+        ],
+        [
+          "처음",
+          "시작",
+          "계획",
+          "준비"
+        ]
+      ],
+      "answer": "무역센터에서 자본, 함선 적재량과 출발지를 설정한 뒤 계획을 계산하십시오. 경로와 예상 손익을 검토하고 실제 매입과 판매를 기록하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I start trading"
+      ],
+      "groups": [
+        [
+          "trade",
+          "trading"
+        ],
+        [
+          "start",
+          "plan",
+          "begin"
+        ]
+      ],
+      "answer": "Set your funds, cargo capacity and origin in Trade. Calculate a plan, review the expected result, then record actual purchases and sales."
+    }
+  },
+  {
+    "id": "profit",
+    "ko": {
+      "examples": [
+        "예상 수익이랑 실현 손익 차이가 뭐야"
+      ],
+      "groups": [
+        [
+          "수익",
+          "손익",
+          "이익"
+        ],
+        [
+          "차이",
+          "계산법",
+          "무슨뜻",
+          "뭐야"
+        ]
+      ],
+      "answer": "예상 수익은 계획 시세로 계산합니다. 실현 손익은 기록한 실제 판매와 비용을 바탕으로 확인하십시오."
+    },
+    "en": {
+      "examples": [
+        "what is realized profit"
+      ],
+      "groups": [
+        [
+          "profit"
+        ],
+        [
+          "difference",
+          "whatis",
+          "meaning"
+        ]
+      ],
+      "answer": "Projected profit uses planning quotes. Check realized results against your recorded trades and expenses."
+    }
+  },
+  {
+    "id": "fleet",
+    "ko": {
+      "examples": [
+        "친구랑 같이 무역하려면",
+        "함대 무역 어떻게 해"
+      ],
+      "groups": [
+        [
+          "함대",
+          "공동",
+          "친구랑",
+          "여럿"
+        ],
+        [
+          "무역",
+          "교역"
+        ]
+      ],
+      "answer": "무역센터에서 함대 공동 교역을 열고 초대 코드로 참여하십시오. 내 담당 화물과 수량을 확인하고 실제 거래를 보고하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I trade with my fleet"
+      ],
+      "groups": [
+        [
+          "crew",
+          "fleet",
+          "together"
+        ],
+        [
+          "trade",
+          "trading"
+        ]
+      ],
+      "answer": "Open Fleet trading and join with an invite code. Check your assignment and report the trades you actually complete."
+    }
+  },
+  {
+    "id": "academy",
+    "ko": {
+      "examples": [
+        "튜토리얼 어디 있어",
+        "운송 연습 어디서 해"
+      ],
+      "groups": [
+        [
+          "튜토리얼",
+          "운송연습",
+          "무역연습",
+          "아카데미"
+        ]
+      ],
+      "answer": "아카데미 교수에게 운송 또는 무역 튜토리얼을 선택하십시오. 라운지 가이드에게서도 교수의 연습으로 이동할 수 있습니다."
+    },
+    "en": {
+      "examples": [
+        "where is the tutorial"
+      ],
+      "groups": [
+        [
+          "tutorial",
+          "academy",
+          "practicehaul"
+        ]
+      ],
+      "answer": "Choose a hauling or trading tutorial with the professor in the Academy. The lounge guide can also take you to the practice."
+    }
+  },
+  {
+    "id": "backup",
+    "ko": {
+      "examples": [
+        "운항 백업 어떻게 해",
+        "저장한 운항 복원"
+      ],
+      "groups": [
+        [
+          "백업",
+          "복원"
+        ]
+      ],
+      "answer": "운송 화면에서 운항 백업·복원을 펼치십시오. 수신한 계약만 옮기려면 미션 콘솔의 계약 백업·불러오기를 사용하십시오."
+    },
+    "en": {
+      "examples": [
+        "how do I restore my flight backup"
+      ],
+      "groups": [
+        [
+          "backup",
+          "restore"
+        ]
+      ],
+      "answer": "Open Flight backup and restore on the freight screen. For the contract inbox alone use contract backup and import in the mission console."
+    }
+  },
+  {
+    "id": "help",
+    "ko": {
+      "examples": [
+        "뭘 물어볼 수 있어",
+        "도움말 알려줘"
+      ],
+      "groups": [
+        [
+          "뭘물어",
+          "뭐물어",
+          "뭐할수",
+          "도움말",
+          "질문예시",
+          "사용법목록"
+        ]
+      ],
+      "answer": "다음 목적지, 적재 수량, 자본이나 품목 시세를 물어보십시오. 계약 불러오기, 항로 계산, 무역, 로그 연결, 마이크와 단축키 사용법도 안내합니다."
+    },
+    "en": {
+      "examples": [
+        "what can I ask"
+      ],
+      "groups": [
+        [
+          "whatcaniask",
+          "helpme",
+          "questionexamples"
+        ]
+      ],
+      "answer": "Ask about destination, load, cash or commodity prices, or ask how to import, plan a route, trade, connect logs or use the microphone and shortcuts."
+    }
+  }
+]

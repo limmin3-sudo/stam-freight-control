@@ -1,6 +1,22 @@
 import {useEffect,useRef,useState} from 'react';
 import {serviceControls} from './service-account.mjs';
 import type {FormEvent} from 'react';
+import help from '../../../data/companion-help.json';
+
+function localHelp(question:string,en:boolean){
+ const normalize=(text:string)=>text.toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+ const query=normalize(question);
+ let score=0,answer='';
+ for(const topic of help){
+  const text=en?topic.en:topic.ko;
+  if(text.examples.some(example=>normalize(example)===query))return text.answer;
+  const lengths=text.groups.map(group=>Math.max(0,...group.filter(word=>query.includes(word)).map(word=>word.length)));
+  if(lengths.includes(0))continue;
+  const weight=lengths.reduce((a,b)=>a+100+b,0);
+  if(weight>score){score=weight;answer=text.answer;}
+ }
+ return answer;
+}
 
 export type GuideDestination={id:string;label:string;open:()=>void};
 type Props={endpoint:string;partner:string;en:boolean;destinations:GuideDestination[];disabled:boolean};
@@ -30,6 +46,10 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Prop
  async function ask(event:FormEvent){
   event.preventDefault();
   if(!question.trim()||controller.current||disabled)return;
+  const local=localHelp(question,en);
+  if(local){
+   setAnswer(local);setRoom('');setQuestion('');previous.current=undefined;return;
+  }
   const request=new AbortController();
   controller.current=request;setBusy(true);setAnswer('');setRoom('');
   const signIn=en?'Sign in to ask a partner.':'파트너에게 질문하려면 먼저 로그인해 주세요.';

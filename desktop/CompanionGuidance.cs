@@ -32,6 +32,36 @@ internal sealed partial class CompanionOverlay {
     Dictionary<string,object> facts;
     readonly Dictionary<string,string> queries=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
 
+    sealed class HelpCopy {
+        public string[] examples {get;set;}
+        public string[][] groups {get;set;}
+        public string answer {get;set;}
+    }
+    sealed class HelpTopic {
+        public string id {get;set;}
+        public HelpCopy ko {get;set;}
+        public HelpCopy en {get;set;}
+    }
+    readonly Dictionary<string,HelpCopy> help=new Dictionary<string,HelpCopy>();
+    readonly Dictionary<string,string> goodNames=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+    static string Normal(string s){return Regex.Replace(s.ToLowerInvariant(),@"[^\p{L}\p{N}]+","");}
+    static bool ContainsAny(string phrase,params string[] words){
+        return Array.Exists(words,word=>phrase.Contains(word));
+    }
+    string MatchHelp(string phrase){
+        string best=null;int highest=0;
+        foreach(var entry in help){
+            int score=0;
+            foreach(var group in entry.Value.groups){
+                int longest=0;
+                foreach(string word in group)if(phrase.Contains(word))longest=Math.Max(longest,word.Length);
+                if(longest==0){score=0;break;}
+                score+=100+longest;
+            }
+            if(score>highest){highest=score;best=entry.Key;}
+        }
+        return best;
+    }
     void AddQuestion(string name,string command){
         foreach(var suffix in english?new[]{""," please"}:new[]{" 알려줘"," 띄워줘"," 알려 주세요"}){
             AddPhrase(name+suffix,command);
@@ -50,6 +80,16 @@ internal sealed partial class CompanionOverlay {
         queries[T("다음 목적지는 어디야","where are we going")]="destination";
         queries[T("얼마나 실어야 해","how much should I load")]="load";
         queries[T("얼마나 실어야 돼","how much cargo")]="load";
+        var helpFile=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","data","companion-help.json");
+        if(File.Exists(helpFile)){
+            var topics=new JavaScriptSerializer().Deserialize<List<HelpTopic>>(File.ReadAllText(helpFile));
+            foreach(var topic in topics){
+                string key="help-"+topic.id;
+                var copy=english?topic.en:topic.ko;
+                help.Add(key,copy);
+                foreach(string example in copy.examples)AddPhrase(example,key);
+            }
+        }
         var file=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","data","voice-goods.json");
         if(!File.Exists(file))return;
         var goods=new JavaScriptSerializer().Deserialize<List<Dictionary<string,object>>>(File.ReadAllText(file));
@@ -57,6 +97,8 @@ internal sealed partial class CompanionOverlay {
             string name=Regex.Replace(Convert.ToString(good[english?"en":"ko"]),@"[^\p{L}\p{N}]+"," ").Trim();
             if(name.Length==0)continue;
             string id=Convert.ToString(good["id"],CultureInfo.InvariantCulture);
+            string alias=Normal(name),prior;
+            goodNames[alias]=goodNames.TryGetValue(alias,out prior)&&prior!=id?"":id;
             AddQuestion(english?name+" buy price":name+" 매입가","quote-buy:"+id);
             AddQuestion(english?name+" sell price":name+" 판매가","quote-sell:"+id);
             AddPhrase(english?"where can I buy "+name:name+" 어디서 사","quote-buy:"+id);
@@ -107,7 +149,7 @@ internal sealed partial class CompanionOverlay {
             bool consonant=c>='가'&&c<='힣'&&(c-'가')%28!=0;
             return c+(consonant?"이에요.":"예요.");
         }).Replace("적재해 주십시오.","실어 봐요!").Replace("배송해 주십시오.","배송해 봐요!")
-          .Replace("해 주십시오.","해 주세요!").Replace("없습니다.","없어요.").Replace("살 수 있습니다.","살 수 있어요!").Replace("팔 수 있습니다.","팔 수 있어요!").Replace("도착했습니다.","도착했어요.").Replace("끝났습니다.","끝났어요.");
+          .Replace("하십시오.","해 주세요.").Replace("누르십시오.","눌러 주세요.").Replace("펼치십시오.","펼쳐 주세요.").Replace("물어보십시오.","물어봐 주세요.").Replace("고르십시오.","골라 주세요.").Replace("주십시오.","주세요.").Replace("합니다.","해요.").Replace("됩니다.","돼요.").Replace("있습니다.","있어요.").Replace("없습니다.","없어요.").Replace("살 수 있습니다.","살 수 있어요!").Replace("팔 수 있습니다.","팔 수 있어요!").Replace("도착했습니다.","도착했어요.").Replace("끝났습니다.","끝났어요.");
     }
     void Say(string text){
         if(Narrator=="off"||Listening||String.IsNullOrEmpty(text))return;
@@ -189,9 +231,49 @@ internal sealed partial class CompanionOverlay {
         }
         if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
     }
+    string LookupQuestion(string phrase){
+        string key;
+        if(queries.TryGetValue(phrase,out key))return key;
+        string q=Normal(phrase);
+        key=MatchHelp(q);
+        if(key!=null)return key;
+        bool buy=ContainsAny(q,"매입","구매","살수","사려","살만","사면","살까","파는곳","어디서사","buy","purchase");
+        bool sell=ContainsAny(q,"판매","팔수","팔아","팔면","팔까","팔만","팔려","팔고","sell");
+        if(buy||sell||ContainsAny(q,"시세","가격","얼마에","quote","price")){
+            string id=null;int length=0;
+            foreach(var entry in goodNames){
+                if(!q.Contains(entry.Key)||entry.Key.Length<length)continue;
+                if(entry.Key.Length==length&&entry.Value!=id)id="";
+                else id=entry.Value;
+                length=entry.Key.Length;
+            }
+            if(length>0){
+                if(String.IsNullOrEmpty(id))return "ambiguous";
+                if(buy==sell)return "quote-side";
+                return (buy?"quote-buy:":"quote-sell:")+id;
+            }
+        }
+        bool destination=ContainsAny(q,"목적지","어디로","어디가","어디야","어디에가","다음거점","다음배송지","destination","nextstop");
+        bool load=ContainsAny(q,"얼마나실","얼마실","몇개실","몇개를실","몇에스씨유","적재량","적재수량","배송수량","몇scu","화물수량","howmuchcargo","howmuchshouldiload");
+        if(destination&&load)return "task";
+        if(load)return "load";
+        if(destination)return "destination";
+        if(ContainsAny(q,"다음작업","다음단계뭐","뭐해야","뭘해야","nexttask"))return "task";
+        if(ContainsAny(q,"자본","잔액","잔고","cashbalance"))return "cash";
+        if(ContainsAny(q,"손익","실현수익","실제수익","realizedprofit"))return "profit";
+        return null;
+    }
     bool Query(string phrase,float confidence){
-        string key;if(confidence<.8f||!queries.TryGetValue(phrase,out key))return false;
+        if(confidence<.62f)return false;
+        string key=LookupQuestion(phrase);
+        if(key==null)return false;
         bool aloud=!phrase.EndsWith("띄워줘",StringComparison.Ordinal);
+        HelpCopy copy;
+        if(help.TryGetValue(key,out copy)){Answer(copy.answer,aloud);return true;}
+        if(key=="quote-side"||key=="ambiguous"){
+            Answer(T("품목과 매입 또는 판매를 함께 말해 주십시오. 예를 들어 금 어디서 팔아라고 물어보십시오.","Include an item and whether you are buying or selling, for example where can I sell gold."),aloud);
+            return true;
+        }
         if((DateTime.UtcNow-received).TotalSeconds>10){Answer(T("연결된 화면의 최신 정보가 없습니다.","No current connected view."),aloud);return true;}
         if(key.StartsWith("quote-")&&(displayedMode=="personal"||displayedMode=="fleet")){
             if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)return true;

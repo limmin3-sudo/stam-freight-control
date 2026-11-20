@@ -59,7 +59,7 @@ internal sealed partial class CompanionOverlay : Form {
             }
             keyOverlay=Key(saved,"overlay",keyOverlay);keyPrices=Key(saved,"prices",keyPrices);keyWork=Key(saved,"work",keyWork);keyTalk=Key(saved,"talk",keyTalk);}catch{Location=new Point(Screen.PrimaryScreen.WorkingArea.Right-Width-24,Screen.PrimaryScreen.WorkingArea.Top+40);}
         while(keyTalk==keyOverlay||keyTalk==keyPrices||keyTalk==keyWork)keyTalk=keyTalk==(int)Keys.Z?(int)Keys.A:keyTalk+1;
-        Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if((DateTime.UtcNow-received).TotalSeconds>12){ClearGuidance();SetStep(null,null);body.Text=T("웹 화면 연결 대기","Waiting for the web view");heading.Text="STAM / FREIGHT DIVISION";}};expiry.Start();
+        Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if((DateTime.UtcNow-received).TotalSeconds>12&&(displayedMode!=null||DateTime.UtcNow>=answerUntil)){ClearGuidance();SetStep(null,null);body.Text=T("웹 화면 연결 대기","Waiting for the web view");heading.Text="STAM / FREIGHT DIVISION";}};expiry.Start();
         FormClosing+=(s,e)=>{if(!disposing&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();}};
         Move+=(s,e)=>Save();ResizeEnd+=(s,e)=>{Clamp();Save();};
         // Create the message window even while the overlay is hidden.
@@ -80,7 +80,7 @@ internal sealed partial class CompanionOverlay : Form {
     internal void UpdateDisplay(object raw){var d=raw as Dictionary<string,object>;
         SetStep(d!=null&&d.ContainsKey("stepId")?Convert.ToString(d["stepId"]):null,
                 d!=null&&d.ContainsKey("step")?Convert.ToString(d["step"]):null);
-        if(d==null){ClearGuidance();received=DateTime.MinValue;heading.Text="STAM / FREIGHT DIVISION";body.Text=T("웹 화면 연결 대기","Waiting for the web view");return;}received=DateTime.UtcNow;heading.Text=Convert.ToString(d["title"]);var lines=new List<string>();var list=d["lines"] as IEnumerable;if(list!=null)foreach(var line in list)lines.Add(Convert.ToString(line));summaryLines=String.Join("\n",lines.ToArray());UpdateGuidance(d);}
+        if(d==null){if(displayedMode==null&&DateTime.UtcNow<answerUntil)return;ClearGuidance();received=DateTime.MinValue;heading.Text="STAM / FREIGHT DIVISION";body.Text=T("웹 화면 연결 대기","Waiting for the web view");return;}received=DateTime.UtcNow;heading.Text=Convert.ToString(d["title"]);var lines=new List<string>();var list=d["lines"] as IEnumerable;if(list!=null)foreach(var line in list)lines.Add(Convert.ToString(line));summaryLines=String.Join("\n",lines.ToArray());UpdateGuidance(d);}
     void RegisterKeys(){foreach(int id in registered)UnregisterHotKey(Handle,id);registered.Clear();int[] keys={keyOverlay,keyPrices,keyWork,keyTalk};for(int i=0;i<keys.Length;i++){if(RegisterHotKey(Handle,5100+i,0x4000|0x2|0x1,(uint)keys[i]))registered.Add(5100+i);}status.Text=registered.Count==4?T("Ctrl+Alt 단축키 · 트레이에서 설정","Ctrl+Alt shortcuts · configure in tray"):T("단축키 충돌 · 트레이 설정에서 변경","Shortcut conflict · change keys in tray");}
     protected override void OnHandleDestroyed(EventArgs e){foreach(int id in registered)UnregisterHotKey(Handle,id);registered.Clear();base.OnHandleDestroyed(e);}
     protected override void WndProc(ref Message m){if(m.Msg==0x312){int id=m.WParam.ToInt32();if(id==5100)Toggle();else if(id==5101)send("show-prices");else if(id==5102)send("show-my-work");else if(id==5103)SpeakOnce();return;}base.WndProc(ref m);}
@@ -109,13 +109,14 @@ internal sealed partial class CompanionOverlay : Form {
         var engine=oneShot;oneShot=null;
         if(engine!=null){try{engine.RecognizeAsyncCancel();}catch(InvalidOperationException){}engine.Dispose();}
     }
+    static void AddDictation(SpeechRecognitionEngine engine){
+        try{var dictation=new DictationGrammar();dictation.Weight=.35f;engine.LoadGrammar(dictation);}
+        catch(NotSupportedException){}catch(InvalidOperationException){}catch(ArgumentException){}
+    }
     internal void SpeakOnce(){
         if(Listening){EndTalk();ReportTalk(T("듣기를 취소했습니다.","Listening cancelled."));return;}
         if(VoiceEnabled)StopVoice();
         string captured=stepId;
-        if((DateTime.UtcNow-received).TotalSeconds>10){
-            ReportTalk(T("운송 또는 무역 화면에서 로그 앱 표시를 연결하세요.","Connect the companion display in the freight or trade console."));return;
-        }
         StopNarration();
         try{
             RecognizerInfo selected=SelectRecognizer();
@@ -124,7 +125,7 @@ internal sealed partial class CompanionOverlay : Form {
             foreach(var word in FlightPhrases.Keys)if((word[0]<128)==english)phrases.Add(word);
             AddQueries(phrases);
             var grammar=new GrammarBuilder{Culture=selected.Culture};grammar.Append(phrases);
-            engine.LoadGrammar(new Grammar(grammar));
+            engine.LoadGrammar(new Grammar(grammar));AddDictation(engine);
             engine.SetInputToDefaultAudioDevice();engine.InitialSilenceTimeout=TimeSpan.FromSeconds(6);
             engine.RecognizeCompleted+=(sender,e)=>{
                 if(disposing||IsDisposed||!IsHandleCreated)return;
@@ -133,7 +134,7 @@ internal sealed partial class CompanionOverlay : Form {
                     var result=!e.Cancelled&&e.Error==null?e.Result:null;
                     string phrase=result==null?"":result.Text;
                     float confidence=result==null?0:result.Confidence;
-                    string command=(DateTime.UtcNow-received).TotalSeconds<=10?FlightCommand(phrase,confidence,captured,stepId,stepKind):null;
+                    string command=result!=null&&!(result.Grammar is DictationGrammar)&&(DateTime.UtcNow-received).TotalSeconds<=10?FlightCommand(phrase,confidence,captured,stepId,stepKind):null;
                     oneShot=null;engine.Dispose();
                     if(Query(phrase,confidence)){ReportTalk(T("조회 요청","Information request"));return;}
                     if(command!=null)send(command);
@@ -177,11 +178,11 @@ internal sealed partial class CompanionOverlay : Form {
             RecognizerInfo selected=SelectRecognizer();
             var engine=new SpeechRecognitionEngine(selected);speech=engine;
             heardStep=null;stepAudioStart=TimeSpan.Zero;
-            engine.LoadGrammar(CommandGrammar(selected));
+            engine.LoadGrammar(CommandGrammar(selected));AddDictation(engine);
             engine.SetInputToDefaultAudioDevice();
             engine.SpeechDetected+=(s,e)=>OnVoiceEvent(engine,()=>DetectPhrase(e.AudioPosition));
             engine.SpeechRecognitionRejected+=(s,e)=>OnVoiceEvent(engine,()=>{heardStep=null;});
-            engine.SpeechRecognized+=(s,e)=>OnVoiceEvent(engine,()=>HandlePhrase(e.Result.Text,e.Result.Confidence));
+            engine.SpeechRecognized+=(s,e)=>OnVoiceEvent(engine,()=>{if(e.Result.Grammar is DictationGrammar){if(!ignoreUtterance&&!narrating)Query(e.Result.Text,e.Result.Confidence);heardStep=null;}else HandlePhrase(e.Result.Text,e.Result.Confidence);});
             engine.RecognizeCompleted+=(s,e)=>OnVoiceEvent(engine,()=>{
                 StopVoice();ReportTalk(e.Error!=null?e.Error.Message:T("연속 듣기가 종료되었습니다.","Continuous listening ended."));
             });
