@@ -1,6 +1,7 @@
 import {lazy,Suspense,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import type {Locale} from './navigation';
 import type {SpaceScreen,ServiceView,ArchiveView,TradeScope} from './space-navigation';
+import {useKoreanDialogue} from './korean-dialogue';
 import {guidePages,type GuideTopic} from './guide-journey-content';
 import {practiceDraft,practiceJobs} from './guide-practice';
 import {blankRun,startRun,completeStep,undoStep,type Run} from './flight-session';
@@ -18,9 +19,9 @@ import './tour-readability.css';
 import {useTourCaptionSpace} from './use-tour-caption-space';
 const NavigationChart=lazy(()=>import('./NavigationChart').then(m=>({default:m.NavigationChart})));
 const CargoViewport=lazy(()=>import('./CargoWorkspace').then(m=>({default:m.CargoViewport})));
-type Props={topic:GuideTopic;locale:Locale;motion:boolean;onClose():void;onTopic(topic:GuideTopic):void;onTour():void;onNavigate(screen:SpaceScreen,section?:ServiceView,view?:ArchiveView):void};
+type Props={topic:GuideTopic;locale:Locale;motion:boolean;sound:boolean;volume:number;onClose():void;onTopic(topic:GuideTopic):void;onTour():void;onNavigate(screen:SpaceScreen,section?:ServiceView,view?:ArchiveView):void};
 function Action({children,onClick,disabled=false,gold=false}:{children:ReactNode;onClick():void;disabled?:boolean;gold?:boolean}){return <button type="button" disabled={disabled} onClick={onClick}><ApprovedGlass kind={gold?'gold':'normal'}/><span>{children}</span></button>;}
-export function GuideJourney({topic,locale,motion,onClose,onTopic,onTour,onNavigate}:Props){
+export function GuideJourney({topic,locale,motion,sound,volume,onClose,onTopic,onTour,onNavigate}:Props){
  const en=locale==='en',t=(ko:string,eng:string)=>en?eng:ko,word=(copy:readonly[string,string])=>copy[en?1:0],where=(id:string)=>placeName(id,en?1:0);
  const [step,setStep]=useState(0),[draft,setDraft]=useState<Draft>(practiceDraft),[loaded,setLoaded]=useState(false),[plan,setPlan]=useState<FlightPlan|null>(null),[run,setRun]=useState<Run|null>(null);
  const [tradeScope,setTradeScope]=useState<TradeScope>('intrasystem'),[quoteChecked,setQuoteChecked]=useState(false),[planChecked,setPlanChecked]=useState(false),[tradePractice,setTradePractice]=useState(blankTradePractice);
@@ -29,6 +30,7 @@ export function GuideJourney({topic,locale,motion,onClose,onTopic,onTour,onNavig
  const caption=useRef<HTMLDivElement>(null);
  useTourCaptionSpace(dialog,caption);
  const examples=useMemo(practiceJobs,[]),pages=guidePages[topic],page=pages[step]!,last=step===pages.length-1,practice=topic==='practice',trade=topic==='trade';
+ useKoreanDialogue(practice||trade?'professor':'guide',word(page.body),sound && !en,volume);
  useEffect(()=>{dialog.current?.showModal();return()=>{worker.current?.terminate();dialog.current?.close();};},[]);
  useEffect(()=>{heading.current?.focus({preventScroll:true});dialog.current?.querySelector('.guide-journey-work')?.scrollTo({top:0});},[step]);
  const stopWorker=()=>{worker.current?.terminate();worker.current=null;setBusy(false);};
