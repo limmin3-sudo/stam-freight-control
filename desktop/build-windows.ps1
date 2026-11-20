@@ -31,16 +31,27 @@ if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is 
 
 & $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
-$languageTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-language' -Wait -PassThru
+# The test executable owns its bridge lifecycle. Waiting for its entire process tree
+# can hang a CI runner after the executable itself has already returned a result.
+function Invoke-CompanionCheck([string[]]$Arguments) {
+    Write-Host "Checking STAM.exe $($Arguments -join ' ')"
+    $process = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList $Arguments -PassThru
+    if (!$process.WaitForExit(90000)) {
+        Stop-Process -Id $process.Id -Force
+        throw "Companion check timed out: $($Arguments -join ' ')"
+    }
+    return $process
+}
+$languageTest = Invoke-CompanionCheck -Arguments '--self-test-language'
 if ($languageTest.ExitCode -ne 0) { throw 'Launcher language switching failed' }
 # Run the compiled app against its bundled runtime, not the runner's node on PATH.
-$smoke = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test' -Wait -PassThru
+$smoke = Invoke-CompanionCheck -Arguments '--self-test'
 if ($smoke.ExitCode -ne 0) { throw 'Packaged launcher self-test failed' }
-$windowTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList '--self-test-window' -Wait -PassThru
+$windowTest = Invoke-CompanionCheck -Arguments '--self-test-window'
 if ($windowTest.ExitCode -ne 0) { throw 'Launcher close, reopen and settings preservation failed' }
 New-Item -ItemType Directory -Force dist | Out-Null
 $overlayEvidence = Join-Path (Resolve-Path dist) 'overlay-native-check.json'
-$overlayTest = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--self-test-overlay', ('"' + $overlayEvidence + '"')) -Wait -PassThru
+$overlayTest = Invoke-CompanionCheck -Arguments @('--self-test-overlay', ('"' + $overlayEvidence + '"'))
 if ($overlayTest.ExitCode -ne 0 -or !(Test-Path $overlayEvidence)) { throw 'Native overlay verification failed' }
 $manifest = @{ version=$version; runtime="Node.js $runtimeVersion win-x64"; runtimeArchiveSHA256=$expected; gameValidated=$false; signed=$false; files=@() }
 Get-ChildItem $out -File -Recurse | ForEach-Object { $manifest.files += @{path=$_.FullName.Substring($out.Length+1).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} }
@@ -48,12 +59,12 @@ $manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'PACKAGE.json'
 New-Item -ItemType Directory -Force dist | Out-Null
 # Capture the real Windows form, including disabled button text and the bundled logo.
 $previewPath = Join-Path (Resolve-Path dist) 'launcher-preview.png'
-$capture = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui', ('"' + $previewPath + '"')) -Wait -PassThru
+$capture = Invoke-CompanionCheck -Arguments @('--capture-ui', ('"' + $previewPath + '"'))
 if ($capture.ExitCode -ne 0 -or !(Test-Path $previewPath)) { throw 'Launcher UI capture failed' }
 $englishPreview = Join-Path (Resolve-Path dist) 'launcher-preview-en.png'
-$captureEnglish = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-ui-en', ('"' + $englishPreview + '"')) -Wait -PassThru
+$captureEnglish = Invoke-CompanionCheck -Arguments @('--capture-ui-en', ('"' + $englishPreview + '"'))
 if ($captureEnglish.ExitCode -ne 0 -or !(Test-Path $englishPreview)) { throw 'English launcher UI capture failed' }
-$designCapture = Start-Process -FilePath (Join-Path $out 'STAM.exe') -ArgumentList @('--capture-design', ('"' + (Resolve-Path dist).Path + '"')) -Wait -PassThru
+$designCapture = Invoke-CompanionCheck -Arguments @('--capture-design', ('"' + (Resolve-Path dist).Path + '"'))
 if ($designCapture.ExitCode -ne 0) { throw 'Companion design capture failed' }
 $destination = Join-Path (Resolve-Path dist) "STAM-$version-win-x64.zip"
 Compress-Archive -Path $out -DestinationPath $destination
