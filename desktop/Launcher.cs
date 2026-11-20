@@ -139,7 +139,7 @@ internal sealed class BridgeWindow : Form {
         foreach(bool en in new[]{false,true})using(var window=new BridgeWindow(en)){
             window.Show();Application.DoEvents();
             foreach(bool compact in new[]{false,true}){
-                window.ClientSize=compact?new Size(820,680):new Size(920,730);Application.DoEvents();
+                if(compact)window.ClientSize=new Size(820,680);Application.DoEvents();
                 using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(Path.Combine(directory,"companion-"+(en?"en":"ko")+(compact?"-compact":"-full")+".png"),System.Drawing.Imaging.ImageFormat.Png);}
             }
             var scroll=window.Controls[0].Controls[0] as ScrollableControl;if(scroll!=null){scroll.ScrollControlIntoView(window.footer);Application.DoEvents();}
@@ -151,40 +151,42 @@ internal sealed class BridgeWindow : Form {
         string directory=testSettingsDirectory??Path.GetDirectoryName(languageFile);settings=Path.Combine(directory,"log-path.txt");languageSettings=Path.Combine(directory,"ui-language.txt");
         preview=languageOverride.HasValue&&testSettingsDirectory==null;english=languageOverride??ReadEnglish(languageSettings);
         HoloFonts.Load();AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;Font=HoloFonts.At(11);
-        ClientSize=new Size(920,730);MinimumSize=new Size(820,680);StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
+        var workArea=Screen.FromPoint(Cursor.Position).WorkingArea.Size;
+        MinimumSize=new Size(Math.Min(820,workArea.Width),Math.Min(600,workArea.Height));
+        Size=new Size(Math.Min(1200,workArea.Width),Math.Min(880,workArea.Height));StartPosition=FormStartPosition.CenterScreen;BackColor=Color.FromArgb(7,17,25);ForeColor=Ink;DoubleBuffered=true;
         try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
         var shell=new Panel{Dock=DockStyle.Fill,BackColor=Color.FromArgb(12,20,27),Padding=new Padding(10)};Controls.Add(shell);
         var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=shell.BackColor,Margin=Padding.Empty};shell.Controls.Add(scroll);
-        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=708,Margin=Padding.Empty,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=8,BackColor=shell.BackColor};
-        foreach(int height in new[]{72,64,152,118,64,102,46})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));scroll.Controls.Add(layout);
+        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=810,Margin=Padding.Empty,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=8,BackColor=shell.BackColor};
+        foreach(int height in new[]{82,76,166,126,72,112,50})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));scroll.Controls.Add(layout);
         var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=shell.BackColor};mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170));layout.Controls.Add(mast);
         var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=2,Margin=Padding.Empty,BackColor=shell.BackColor};brand.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));brand.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,0,12,8),BackColor=shell.BackColor};
         try{using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))brandLogo=new Bitmap(source);logo.Image=brandLogo;}catch{}
-        brand.Controls.Add(logo,0,0);brand.SetRowSpan(logo,2);brand.Controls.Add(Label("S T A M",29,Ink),1,0);brand.Controls.Add(Label("FREIGHT DIVISION / LOG COMPANION",9,Cyan),1,1);mast.Controls.Add(brand);
+        brand.Controls.Add(logo,0,0);brand.SetRowSpan(logo,2);brand.Controls.Add(Label("S T A M",32,Ink),1,0);brand.Controls.Add(Label("FREIGHT DIVISION / LOG COMPANION",11,Cyan),1,1);mast.Controls.Add(brand);
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=shell.BackColor};korean.Text="한국어";englishButton.Text="English";
         foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}mast.Controls.Add(languages);
         var intro=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=1,Margin=Padding.Empty,BackColor=shell.BackColor};intro.RowStyles.Add(new RowStyle(SizeType.Absolute,36));intro.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        Setup(title,22,Ink);Setup(subtitle,11,Muted);intro.Controls.Add(title);intro.Controls.Add(subtitle);layout.Controls.Add(intro);
+        Setup(title,25,Ink);Setup(subtitle,13,Muted);intro.Controls.Add(title);intro.Controls.Add(subtitle);layout.Controls.Add(intro);
         var connection=new LinkCard{Instrument=true,Dock=DockStyle.Fill,Padding=new Padding(24,18,24,18),ColumnCount=2,RowCount=3,Margin=new Padding(0,0,0,14)};
         connection.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,63));connection.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,37));
         connection.RowStyles.Add(new RowStyle(SizeType.Absolute,24));connection.RowStyles.Add(new RowStyle(SizeType.Absolute,43));connection.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        connection.Controls.Add(Label("LIVE CONNECTION",9,Cyan),0,0);connection.SetColumnSpan(connection.GetControlFromPosition(0,0),2);
-        Setup(state,24,Gold);Setup(detail,11,Muted);Setup(bytes,19,Ink);Setup(updated,10,Muted);
+        connection.Controls.Add(Label("LIVE CONNECTION",11,Cyan),0,0);connection.SetColumnSpan(connection.GetControlFromPosition(0,0),2);
+        Setup(state,27,Gold);Setup(detail,14,Muted);Setup(bytes,23,Cyan);Setup(updated,12,Muted);
         connection.Controls.Add(state,0,1);connection.Controls.Add(detail,0,2);connection.Controls.Add(bytes,1,1);connection.Controls.Add(updated,1,2);layout.Controls.Add(connection);
         var file=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,16,24,15),ColumnCount=1,RowCount=3,Margin=new Padding(0,0,0,14)};file.RowStyles.Add(new RowStyle(SizeType.Absolute,22));file.RowStyles.Add(new RowStyle(SizeType.Absolute,31));file.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        file.Controls.Add(Label("GAME LOG",9,Cyan));Setup(fileLabel,17,Ink);Setup(filePath,10,Muted);file.Controls.Add(fileLabel);file.Controls.Add(filePath);layout.Controls.Add(file);
+        file.Controls.Add(Label("GAME LOG",11,Cyan));Setup(fileLabel,19,Ink);Setup(filePath,12,Muted);file.Controls.Add(fileLabel);file.Controls.Add(filePath);layout.Controls.Add(file);
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty,BackColor=shell.BackColor};foreach(float width in new[]{50f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
-        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,overlayButton,shortcutsButton,voiceButton,continuousButton})button.FlatFace=true;
+        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,overlayButton,shortcutsButton,voiceButton,continuousButton}){button.FlatFace=true;button.Font=HoloFonts.At(13);}
         open.Warm=true;foreach(var b in new[]{open,search,choose}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,10,14);actions.Controls.Add(b);}choose.Margin=new Padding(0,0,0,14);layout.Controls.Add(actions);
         var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(20,13,20,13),ColumnCount=4,RowCount=2,Margin=new Padding(0,0,0,12)};
         tools.RowStyles.Add(new RowStyle(SizeType.Absolute,24));tools.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        tools.Controls.Add(Label("OVERLAY & VOICE",9,Gold),0,0);Setup(voiceFeedback,9,Cyan);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,3);
+        tools.Controls.Add(Label("OVERLAY & VOICE",11,Gold),0,0);Setup(voiceFeedback,11,Cyan);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,3);
         int toolIndex=0;foreach(var b in new[]{overlayButton,shortcutsButton,voiceButton,continuousButton}){tools.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,0);tools.Controls.Add(b,toolIndex++,1);}layout.Controls.Add(tools);
         overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().SpeakOnce();continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();
         var utility=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=shell.BackColor};utility.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));utility.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));
         utility.Controls.Add(Label("COMPANION  1.5  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
-        Setup(footer,10,Muted);layout.Controls.Add(footer);
+        Setup(footer,12,Muted);layout.Controls.Add(footer);
         korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
         retry.Tick+=(s,e)=>{retry.Stop();if(!manualStop&&!quitting)Start(selected,false);};
         tray.Icon=Icon;tray.DoubleClick+=(s,e)=>Reveal();ApplyLanguage();
@@ -362,5 +364,6 @@ internal sealed class LinkCard : TableLayoutPanel {
     protected override void OnPaintBackground(PaintEventArgs e){base.OnPaintBackground(e);
         if(Width<2||Height<2)return;
         using(var edge=new Pen(Color.FromArgb(56,72,84)))e.Graphics.DrawRectangle(edge,0,0,Width-1,Height-1);
+        if(Instrument)DeckTheme.Emblem(e.Graphics,ClientRectangle);
         if(Instrument)using(var accent=new SolidBrush(Color.FromArgb(202,177,130)))e.Graphics.FillRectangle(accent,0,0,3,Height);}
 }

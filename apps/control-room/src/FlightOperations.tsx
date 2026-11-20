@@ -68,7 +68,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     return ()=>window.removeEventListener('keydown',key);
   },[controlMode,run,flight]);
   const cargoLines=<>
-      {visit && run && plan && !jump && <ol className="ops-tasks"><li><b>{t('거점','Stop')} {run.index+1} / {plan.visits.length}</b>{visit.events.filter(e=>(e.type==='pickup'||e.type==='delivery')&&!e.reservationContinuation).map((e,i)=><span key={i} className="trial-task">{e.type==='pickup'?t('픽업','Pickup'):t('배송','Delivery')} · {cargoName(e.commodity)} · {e.pickupQuantityUnknown || simple && !e.scu && !e.reservationContinuation?t('수량 미확인','Quantity unknown'):e.scu+' SCU'}{e.type==='pickup'&&e.deliveryId&&' → '+where(e.deliveryId)}
+      {visit && run && plan && !jump && <ol className="ops-tasks"><li><b>{t('거점','Stop')} {run.index+1} / {plan.visits.length}</b>{visit.events.filter(e=>(e.type==='pickup'||e.type==='delivery')&&!e.reservationContinuation).map((e,i)=><span key={i} className="trial-task">{e.type==='pickup'?t('픽업','Pickup'):t('배송','Delivery')} · <span data-value="goods">{cargoName(e.commodity)}</span> · <span data-value="quantity">{e.pickupQuantityUnknown || simple && !e.scu && !e.reservationContinuation?t('수량 미확인','Quantity unknown'):e.scu+' SCU'}</span>{e.type==='pickup'&&e.deliveryId&&<span data-value="place"> → {where(e.deliveryId)}</span>}
         <small>{draft.jobs.find(job=>job.id===e.missionId)?.title[locale==='ko'?0:1]||e.missionId} · {quantityBasis(draft.jobs.find(job=>job.id===e.missionId),locale)}</small>
         {e.pickupQuantityUnknown&&e.reservationScu&&<small>{t('배송 총량','Delivery total')} · {e.reservationScu} SCU · {t('픽업별 분배 미확인','Pickup shares unknown')}</small>}
         {e.containers&&<small>{e.estimatedBoxes?t('예상 상자','Estimated crates'):t('상자','Crates')} · {e.containers}</small>}</span>)}</li></ol>}
@@ -89,7 +89,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     </> : <a className="return-link" href={'#/operations?lang='+locale}>{t('관제 콘솔 열기','Open control console')}</a>}
     {simple && plan && run && !controlMode && <details className="flight-route-editor" open><summary>{t('픽업·배송 순서','Pickup and delivery order')}</summary>
       <ol>{plan.visits.map((stop,i)=><li key={i} aria-current={i===run.index?'step':undefined}>
-        <b>{where(stop.locationId)}</b> <span>{i<run.index?t('완료','Done'):i===run.index?t('현재 거점','Current stop'):''}</span>
+        <b data-value="place">{where(stop.locationId)}</b> <span>{i<run.index?t('완료','Done'):i===run.index?t('현재 거점','Current stop'):''}</span>
       </li>)}</ol></details>}
     <div className={controlMode?'ops-progress':undefined}>
     <CompanionDisplay locale={locale} summary={{mode:'flight',stepId,step:stepId?step:undefined,title:t('운송 관제','Freight control'),lines:[instruction,...(stepId?[actionLabel]:[]),t('완료','Done')+': '+completedSteps+' / '+totalSteps,...(!simple?[t('선내 화물','Aboard')+': '+used+' SCU']:[])]}} onCommand={command=>{if(stepId&&command==='complete-flight:'+stepId){flight.progress('complete',flight.session);return;}if(command==='open-trade'||command==='show-prices')window.location.hash='#/division?lang='+locale+'&facility=trade&room='+(command==='show-prices'?'market':'trade-operations');else heading.current?.focus();}}/>
@@ -101,7 +101,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     {controlMode&&flight.busy&&<p className="ops-notice" role="status">{t('항로 계산 중…','Calculating route…')}</p>}
     {(!plan||!run)?<div className="trial-brief ops-empty"><h2>{t('계약을 선택해 주세요','Choose a contract')}</h2><a href={'#/mission?lang='+locale}>{t('미션 콘솔에서 계약 선택','Select contracts in the mission console')} →</a></div>:
     <div className="trial-brief"><small>{simple?t('오퍼레이터 · 경로 안내','Operator · Route guidance'):<>{t('상세 적재','Cargo planning')} · {used} SCU{boxes.some(b=>b._reservation) && t(' 예약 포함',' incl. reservations')}</>}</small>
-      <p className="ops-position">{t('현재 위치','Current position')} · {where(run.positionId)}</p>
+      <p className="ops-position">{t('현재 위치','Current position')} · <span data-value="place">{where(run.positionId)}</span></p>
       <h2>{held.length&&!visit?t('남은 배송 없음 · 보류 화물 있음','No remaining deliveries · Cargo on hold'):run.finished?(flight.session.receiptReview?.excluded.length?t('운항 경로 종료','Flight route ended'):t('운송 완료','Haul complete')):jump?jump.entryName+' → '+jump.exitName:visit?where(visit.locationId):''}</h2>
       {held.length>0&&<p className="ops-notice">{t(`선내 보류 ${heldScu} SCU · ${held.length}상자. 경로에서 제외했으며 적재 공간은 계속 차지합니다.`,`On hold: ${heldScu} SCU · ${held.length} crates. Excluded from the route; still occupies cargo space.`)}</p>}
       {!simple&&<HeldCargoReview flight={flight} locale={locale}/>}
@@ -131,7 +131,7 @@ export function FlightOperations({flight, locale, controlMode}:{
     </div>}
     {controlMode&&simple&&plan&&run&&<details className="ops-itinerary" open><summary>{t('방문 순서','Visit order')} · {plan.visits.length}</summary><ol>
       {plan.visits.map((stop,i)=><li key={i} aria-current={i===run.index?'step':undefined} data-done={i<run.index}>
-        <span className="ops-stop-number">{i<run.index?'✓':i+1}</span><div><b>{where(stop.locationId)}</b><small>{i<run.index?t('완료','Done'):i===run.index?t('현재 작업','Current task'):t('예정','Upcoming')} · {[...new Set(stop.events.map(e=>e.type==='departure'?t('출발','Departure'):e.type==='pickup'?t('픽업','Pickup'):e.type==='delivery'?t('배송','Delivery'):t('경유','Waypoint')))].join(' · ')}</small></div>
+        <span className="ops-stop-number">{i<run.index?'✓':i+1}</span><div><b data-value="place">{where(stop.locationId)}</b><small>{i<run.index?t('완료','Done'):i===run.index?t('현재 작업','Current task'):t('예정','Upcoming')} · {[...new Set(stop.events.map(e=>e.type==='departure'?t('출발','Departure'):e.type==='pickup'?t('픽업','Pickup'):e.type==='delivery'?t('배송','Delivery'):t('경유','Waypoint')))].join(' · ')}</small></div>
       </li>)}</ol></details>}
     {plan&&run&&(controlMode?<details className="ops-record"><summary>{t('운항 기록 · 보상','Flight record · Rewards')}</summary><RunDetails session={flight.session} locale={locale}/></details>:<RunDetails session={flight.session} locale={locale}/>)}
     {plan && plan.visits.length>0 && <FlightRouteEditor key={plan.startId+String(run?.index)} flight={flight} locale={locale}/>}

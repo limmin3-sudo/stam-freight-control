@@ -37,19 +37,27 @@ internal sealed partial class CompanionOverlay : Form {
     internal CompanionOverlay(Action<string> command,bool en,string directory){
         send=command;english=en;settings=Path.Combine(directory,"overlay.json");
         Text="STAM";ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.SizableToolWindow;TopMost=true;
-        StartPosition=FormStartPosition.Manual;Size=new Size(420,350);MinimumSize=new Size(330,280);MaximumSize=new Size(700,600);
+        StartPosition=FormStartPosition.Manual;
+        MinimumSize=new Size(390,310);
+        Size=new Size(600,460);
         BackColor=Color.FromArgb(8,23,33);ForeColor=Color.FromArgb(224,241,245);Opacity=.96;
-        var layout=new DeckSurface{Dock=DockStyle.Fill,Padding=new Padding(22),ColumnCount=1,RowCount=4};
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,34));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,78));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,32));Controls.Add(layout);
-        heading.Dock=body.Dock=status.Dock=DockStyle.Fill;heading.Font=HoloFonts.At(15);body.Font=HoloFonts.At(12);status.Font=HoloFonts.At(9);heading.ForeColor=Color.FromArgb(240,205,142);
+        var layout=new DeckSurface{ShowEmblem=true,Dock=DockStyle.Fill,Padding=new Padding(18),ColumnCount=1,RowCount=4};
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,42));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,94));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,44));Controls.Add(layout);
+        heading.Dock=body.Dock=status.Dock=DockStyle.Fill;heading.Font=HoloFonts.At(19);body.Font=HoloFonts.At(16);status.Font=HoloFonts.At(12);heading.ForeColor=Color.FromArgb(240,205,142);
         heading.Text="STAM / FREIGHT DIVISION";body.Text=T("웹 관제실에서 ‘로그 앱에 표시’를 켜세요.","Enable companion display in the web console.");
         layout.Controls.Add(heading);layout.Controls.Add(body);
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,RowCount=2,BackColor=Color.Transparent};
         for(int i=0;i<2;i++){actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));actions.RowStyles.Add(new RowStyle(SizeType.Percent,50));}
         foreach(string action in new[]{"show-prices","show-my-work"}){string a=action;var b=new DeckButton{Text=a=="show-prices"?T("가격 보기","Prices"):T("내 작업","My work"),Dock=DockStyle.Fill,Margin=new Padding(0,0,6,0)};b.Click+=(s,e)=>send(a);actions.Controls.Add(b);}talkButton.Dock=DockStyle.Fill;talkButton.Text=T("눌러서 말하기","Speak once");talkButton.Click+=(s,e)=>SpeakOnce();actions.Controls.Add(talkButton);
         continuousButton.Dock=DockStyle.Fill;continuousButton.Text=ContinuousLabel;continuousButton.Click+=(s,e)=>ToggleVoice();actions.Controls.Add(continuousButton);
+        foreach(Control button in actions.Controls){button.Font=HoloFonts.At(13);((DeckButton)button).FlatFace=true;}
         layout.Controls.Add(actions);layout.Controls.Add(status);
-        try{var saved=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(File.ReadAllText(settings));Location=new Point(Convert.ToInt32(saved["x"]),Convert.ToInt32(saved["y"]));keyOverlay=Key(saved,"overlay",keyOverlay);keyPrices=Key(saved,"prices",keyPrices);keyWork=Key(saved,"work",keyWork);keyTalk=Key(saved,"talk",keyTalk);}catch{Location=new Point(Screen.PrimaryScreen.WorkingArea.Right-450,70);}
+        try{var saved=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(File.ReadAllText(settings));Location=new Point(Convert.ToInt32(saved["x"]),Convert.ToInt32(saved["y"]));int w,h;
+            if(saved.ContainsKey("width")&&saved.ContainsKey("height")&&int.TryParse(Convert.ToString(saved["width"]),out w)&&int.TryParse(Convert.ToString(saved["height"]),out h)&&w>0&&h>0){
+                var area=Screen.FromPoint(Location).WorkingArea;
+                Size=new Size(Math.Min(w,area.Width),Math.Min(h,area.Height));
+            }
+            keyOverlay=Key(saved,"overlay",keyOverlay);keyPrices=Key(saved,"prices",keyPrices);keyWork=Key(saved,"work",keyWork);keyTalk=Key(saved,"talk",keyTalk);}catch{Location=new Point(Screen.PrimaryScreen.WorkingArea.Right-Width-24,Screen.PrimaryScreen.WorkingArea.Top+40);}
         while(keyTalk==keyOverlay||keyTalk==keyPrices||keyTalk==keyWork)keyTalk=keyTalk==(int)Keys.Z?(int)Keys.A:keyTalk+1;
         Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if((DateTime.UtcNow-received).TotalSeconds>12){SetStep(null,null);body.Text=T("웹 화면 연결 대기","Waiting for the web view");heading.Text="STAM / FREIGHT DIVISION";}};expiry.Start();
         FormClosing+=(s,e)=>{if(!disposing&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();}};
@@ -58,8 +66,8 @@ internal sealed partial class CompanionOverlay : Form {
         var ignored=Handle;RegisterKeys();
     }
     static int Key(Dictionary<string,object> s,string name,int fallback){int key=s.ContainsKey(name)?Convert.ToInt32(s[name]):fallback;return key>=(int)Keys.A&&key<=(int)Keys.Z?key:fallback;}
-    void Save(){try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,new JavaScriptSerializer().Serialize(new{x=Left,y=Top,overlay=keyOverlay,prices=keyPrices,work=keyWork,talk=keyTalk}));}catch{}}
-    void Clamp(){var area=Screen.FromPoint(Location).WorkingArea;Location=new Point(Math.Max(area.Left,Math.Min(Left,area.Right-Width)),Math.Max(area.Top,Math.Min(Top,area.Bottom-Height)));}
+    void Save(){try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,new JavaScriptSerializer().Serialize(new{x=Left,y=Top,width=Width,height=Height,overlay=keyOverlay,prices=keyPrices,work=keyWork,talk=keyTalk}));}catch{}}
+    void Clamp(){var area=Screen.FromPoint(Location).WorkingArea;Size=new Size(Math.Min(Width,area.Width),Math.Min(Height,area.Height));Location=new Point(Math.Max(area.Left,Math.Min(Left,area.Right-Width)),Math.Max(area.Top,Math.Min(Top,area.Bottom-Height)));}
     protected override CreateParams CreateParams {get{var p=base.CreateParams;p.ExStyle|=0x80;if(!interactive)p.ExStyle|=0x20|0x80000|0x8000000;return p;}}
     protected override bool ShowWithoutActivation {get{return !interactive;}}
     internal void Toggle(){if(Visible)Hide();else{Clamp();Show();}}

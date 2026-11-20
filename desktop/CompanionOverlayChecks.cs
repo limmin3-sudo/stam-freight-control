@@ -20,7 +20,7 @@ internal sealed partial class CompanionOverlay {
         string directory=Path.Combine(Path.GetTempPath(),"stam-overlay-qa-"+Guid.NewGuid());Directory.CreateDirectory(directory);
         var checks=new List<string>();var recognizers=new List<string>();var voiceChecks=new List<string>();string failure=null;
         try{
-            var commands=new List<string>();
+            var commands=new List<string>();Size savedSize=Size.Empty;
             using(var overlay=new CompanionOverlay(c=>commands.Add(c),false,directory)){
                 overlay.Show();Pump(200);Require(!overlay.VoiceEnabled,"microphone-default");Require(overlay.registered.Count==4,"default-hotkeys-register");
                 int style=GetWindowLong(overlay.Handle,-20);Require((style&0x20)!=0&&(style&0x8000000)!=0,"click-through-default");checks.Add("Native overlay starts click-through with microphone off and four registered shortcuts");
@@ -45,10 +45,10 @@ internal sealed partial class CompanionOverlay {
                 overlay.DetectPhrase(TimeSpan.FromSeconds(4));overlay.HandlePhrase("배송 완료",1);
                 Require(commands.Count==2&&commands[1]=="complete-flight:b","hands-free-next-step");
                 checks.Add("Continuous listening accepts a fresh utterance per step and rejects stale, repeated or mismatched speech");
-                overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.Save();
+                overlay.Size=new Size(660,480);overlay.Clamp();savedSize=overlay.Size;overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.Save();
             }
             using(var reopened=new CompanionOverlay(c=>commands.Add(c),true,directory)){
-                Require(reopened.keyOverlay==(int)Keys.K&&reopened.keyPrices==(int)Keys.J&&reopened.keyWork==(int)Keys.L,"persist-shortcuts");Require(reopened.registered.Count==4,"reopen-releases-hotkeys");reopened.Show();reopened.UpdateDisplay(new Dictionary<string,object>{{"title","STAM / Synthetic operation"},{"lines",new[]{"My cargo: 8 SCU","Destination: Orison","Confirm transactions on the web"}}});Pump(150);CaptureEvidence(reopened,Path.Combine(Path.GetDirectoryName(evidence),"overlay-en-windows.png"));checks.Add("Restart restores configured shortcuts and releases previous registrations; Korean and English captures saved");
+                Require(reopened.Size==savedSize,"persist-window-size");Require(reopened.keyOverlay==(int)Keys.K&&reopened.keyPrices==(int)Keys.J&&reopened.keyWork==(int)Keys.L,"persist-shortcuts");Require(reopened.registered.Count==4,"reopen-releases-hotkeys");reopened.Show();reopened.UpdateDisplay(new Dictionary<string,object>{{"title","STAM / Synthetic operation"},{"lines",new[]{"My cargo: 8 SCU","Destination: Orison","Confirm transactions on the web"}}});Pump(150);CaptureEvidence(reopened,Path.Combine(Path.GetDirectoryName(evidence),"overlay-en-windows.png"));checks.Add("Restart restores configured shortcuts and releases previous registrations; Korean and English captures saved");
             }
             Require(VoiceCommand("STAM prices",.9f)=="show-prices"&&VoiceCommand("스탐 내 작업",.9f)=="show-my-work","voice-route");Require(VoiceCommand("STAM prices",.7f)==null&&VoiceCommand("confirm trade",1f)==null&&VoiceCommand("send game key",1f)==null,"voice-whitelist");
             Require(FlightCommand("적재 완료",.9f,"a","a","pickup")=="complete-flight:a"&&FlightCommand("delivery complete",.9f,"a","a","delivery")=="complete-flight:a","native-flight-complete");

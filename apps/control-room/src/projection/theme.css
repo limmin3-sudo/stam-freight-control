@@ -2,8 +2,12 @@
 :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) {
   --projection-panel: url('./panel.webp') 91 90 96 90 fill / 13px 15px / 8px 0 stretch;
   --projection-key: url('./button.webp') 78 62 76 62 fill / 10px 11px / 6px 2px stretch;
-  --projection-bridge: url('./bridge.webp');
+  --projection-emblem: url('../../../../assets/stam-logo-transparent.png');
   --projection-type: Barlow, SUIT, system-ui, sans-serif;
+  --data-goods: #dfbdff;
+  --data-place: #8edfff;
+  --data-quantity: #a3e6bb;
+  --data-price: #ffda91;
   --projection-text: #eef8ff;
   --projection-muted: #adcde0;
   --projection-gold: #ffda91;
@@ -22,7 +26,7 @@
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .approved-glass img {display:none}
 
 #root :is(.persistent-console-content,.facility-lobby[data-monitor=true]) {
-  background: linear-gradient(110deg, #06151eee 20%, #071923bd 70%, #071720d6), var(--projection-bridge) center / cover no-repeat, #071322;
+  background: linear-gradient(110deg, #081821f5, #081821d9), var(--projection-emblem) 90% 52% / min(48%, 540px) auto no-repeat, #081821;
 }
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.control-room,.control-room #main-content,.control-room .console-workspace,.console-display-content,.workspace-layout,.mission-screen,.trade-workspace-shell) {
   background: transparent;
@@ -49,8 +53,13 @@
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue h2,.market-eyebrow,.space-location-heading>p) {color:var(--projection-gold)}
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.market-meta,.suite-note,.crew-dialogue label) {color:var(--projection-muted)}
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .crew-dialogue {
-  width:min(790px,calc(100% - 24px));
-  padding:20px 24px;
+  inset: auto 0 0;
+  transform: none;
+  width: 100%;
+  padding: 16px clamp(18px, 3cqw, 52px) max(18px, env(safe-area-inset-bottom));
+  border-radius: 0;
+  border-image-outset: 0;
+  background-color: rgb(8 23 34 / 89%);
 }
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.crew-dialogue button,.market-action,.market-tabs button,.market-entry-nav button,.ticker-modes button,.ticker-expand,.suite-actions button,.mission-preflight button,.source-actions button,.dispatch-launch,.mission-toolbar button,.manifest-primary,.ops-run-menu button,.academy-fields button,.trade-unified-tabs button) {
   border:1px solid transparent;
@@ -87,7 +96,7 @@
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .console-dial::after {background:conic-gradient(from -90deg,var(--plot-highlight) var(--dial-fill),var(--plot-track) var(--dial-fill))}
 #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) :is(.ticker-value,.board-quote,.suite-metrics,.console-dial) {font-variant-numeric:tabular-nums}
 @container (max-width:600px) {
-  #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .crew-dialogue {width:calc(100% - 16px);padding:12px 16px}
+  #root :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) .crew-dialogue {padding:12px 16px max(12px,env(safe-area-inset-bottom))}
 }
 
 /* Flight preparation and the contract inbox occupy separate steps. */
@@ -242,3 +251,23 @@
   .shell-brand-tools {grid-row:1 / span 2;gap:5px}
   #root .space-experience:is([data-sidebar-collapsed=true],:has(.crew-encounter)) .space-main {grid-template-rows:0 minmax(0,1fr);row-gap:0}
 }
+
+@container (min-width: 850px) {
+  #root .crew-encounter[data-actions=true] .crew-dialogue {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 33%);
+    column-gap: clamp(22px, 4cqw, 70px);
+  }
+  #root .crew-encounter[data-actions=true] #partner-conversation-line {grid-area: 2 / 1}
+  #root .crew-encounter[data-actions=true] .partner-question {grid-area: 3 / 1}
+  #root .crew-encounter[data-actions=true] .crew-encounter-actions {
+    grid-area: 2 / 2 / span 2;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-content:end;
+  }
+  #root .crew-encounter .crew-encounter-close {justify-self:end}
+}
+#root [data-value=goods] {color:var(--data-goods)}
+#root [data-value=place], #root .persistent-console-content .receipt-card .receipt-route {color:var(--data-place)}
+#root [data-value=quantity] {color:var(--data-quantity); font-variant-numeric:tabular-nums}
+#root [data-value=price] {color:var(--data-price); font-variant-numeric:tabular-nums}
