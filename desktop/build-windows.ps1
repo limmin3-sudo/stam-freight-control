@@ -52,7 +52,11 @@ if ($windowTest.ExitCode -ne 0) { throw 'Launcher close, reopen and settings pre
 New-Item -ItemType Directory -Force dist | Out-Null
 $overlayEvidence = Join-Path (Resolve-Path dist) 'overlay-native-check.json'
 $overlayTest = Invoke-CompanionCheck -Arguments @('--self-test-overlay', ('"' + $overlayEvidence + '"'))
-if ($overlayTest.ExitCode -ne 0 -or !(Test-Path $overlayEvidence)) { throw 'Native overlay verification failed' }
+if (!(Test-Path $overlayEvidence)) { throw 'Missing native overlay verification result' }
+if ($overlayTest.ExitCode -ne 0) {
+    $failure = (Get-Content -Raw -Encoding UTF8 $overlayEvidence | ConvertFrom-Json).failure
+    throw "Native overlay verification failed: $failure"
+}
 $manifest = @{ version=$version; runtime="Node.js $runtimeVersion win-x64"; runtimeArchiveSHA256=$expected; gameValidated=$false; signed=$false; files=@() }
 Get-ChildItem $out -File -Recurse | ForEach-Object { $manifest.files += @{path=$_.FullName.Substring($out.Length+1).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} }
 $manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'PACKAGE.json') -Encoding UTF8

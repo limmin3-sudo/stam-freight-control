@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Speech.Recognition;
 using System.Threading;
@@ -21,6 +23,14 @@ internal sealed partial class CompanionOverlay {
         public void Drain(){}
         public MemoryStream Finish(){finished++;Dispose();return new MemoryStream();}
         public void Dispose(){disposed=true;}
+    }
+    sealed class TestLocalVoice : HttpMessageHandler {
+        internal byte[] wave;
+        internal string payload;
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage message,CancellationToken token){
+            payload=await message.Content.ReadAsStringAsync();
+            return new HttpResponseMessage(System.Net.HttpStatusCode.OK){Content=new ByteArrayContent(wave)};
+        }
     }
     internal static int CheckNative(string evidence){
         string directory=Path.Combine(Path.GetTempPath(),"stam-overlay-qa-"+Guid.NewGuid());Directory.CreateDirectory(directory);
@@ -66,6 +76,31 @@ internal sealed partial class CompanionOverlay {
                 Require(overlay.Query("얼마나 실어야 해",1)&&overlay.body.Text.Contains("8 SCU")&&commands.Count==2,"read-only-cargo-query");
                 Require(Friendly("다음 목적지는 로어빌입니다. 금 8 SCU 적재해 주십시오.",true)=="앗, 찾았다! 다음은 로어빌이에요. 금 8 SCU, 싣고 가요!","korean-character-opening");
                 Require(Friendly("다음 목적지는 로어빌입니다.")=="다음은 로어빌이에요."&&Friendly("금 8 SCU 배송해 주십시오.")=="금 8 SCU, 여기서 내려요.","korean-short-replies");
+                overlay.SetNarrator("partner");overlay.ShowPartner("navigator");
+                var malePickup=overlay.PartnerRecording("pickup");
+                overlay.ShowPartner("operator");var femalePickup=overlay.PartnerRecording("pickup");
+                Require(malePickup!=null&&femalePickup!=null&&malePickup!=femalePickup,"linked-partner-recordings");
+                Require(WaveMilliseconds(File.ReadAllBytes(malePickup))>300&&WaveMilliseconds(File.ReadAllBytes(femalePickup))>300,"partner-audio-packaged");
+                Require(overlay.PartnerRecording("운송이 끝났습니다.")!=null&&overlay.PartnerRecording("로어빌, 티타늄 17 SCU")==null,"static-vs-live-detail");
+                overlay.Say("운송이 끝났습니다.");
+                Require(overlay.localSpeech!=null&&overlay.narrating,"fixed-line-plays-without-local-service");
+                overlay.SetStep("new","departure");Pump(100);
+                Require(overlay.localSpeech==null&&overlay.player==null&&!overlay.narrating,"new-step-cancels-partner-line");
+                // Drive the real sequence with a local TTS response fixture, without needing a model or game.
+                var detail=new TestLocalVoice{wave=File.ReadAllBytes(femalePickup)};
+                using(var fake=new HttpClient(detail){BaseAddress=new Uri("http://127.0.0.1/")}){
+                    overlay.localTts=fake;
+                    overlay.ShowPartner("navigator");
+                    overlay.Say("다음 목적지는 로어빌입니다. 티타늄 8 SCU 적재해 주십시오.",false,"pickup");
+                    var introPlayer=overlay.player;
+                    Require(introPlayer!=null&&detail.payload.Contains("티타늄 8 에스씨유")&&detail.payload.Contains("M1"),"live-cargo-in-local-request");
+                    var deadline=DateTime.UtcNow.AddMilliseconds(WaveMilliseconds(File.ReadAllBytes(malePickup))+2000);
+                    while(overlay.player==introPlayer&&DateTime.UtcNow<deadline)Pump(25);
+                    Require(overlay.player!=null&&overlay.player!=introPlayer&&overlay.narrating,"detail-follows-partner-recording");
+                    overlay.StopNarration();Pump(100);overlay.localTts=defaultLocalTts;
+                }
+                overlay.SetNarrator("off");overlay.ShowPartner(null);
+                checks.Add("Both selected Korean partner recordings are packaged, static replies play offline, and new steps cancel stale audio");
                 byte[] demo=File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","voices","partner-female-ko.wav"));
                 Require(demo.Length>44,"female-preview-packaged");
                 // A standard mono PCM header, with an empty optional chunk preceding fmt.
