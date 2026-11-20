@@ -1,0 +1,154 @@
+{
+  "pickup": {
+    "operator": "0c6ceeb9ca6a676e.wav",
+    "navigator": "2b686b2c3ccdd2c3.wav"
+  },
+  "delivery": {
+    "operator": "3a7cc303398eca03.wav",
+    "navigator": "4b181698e4fb4921.wav"
+  },
+  "departure": {
+    "operator": "8ad640da92b0efed.wav",
+    "navigator": "59bfab37f8a78ab6.wav"
+  },
+  "jump": {
+    "operator": "b225f23715ef92f3.wav",
+    "navigator": "4f99ccde382c1043.wav"
+  },
+  "stop": {
+    "operator": "2377aefe0f16d4db.wav",
+    "navigator": "cde9f02f6a98764e.wav"
+  },
+  "확인할 변경안을 먼저 요청하세요.": {
+    "operator": "b11b775783806b7f.wav",
+    "navigator": "476cb0fca1cc8e5b.wav"
+  },
+  "몇 SCU인지 숫자로 다시 말씀해 주십시오.": {
+    "operator": "95a88a36579f3795.wav",
+    "navigator": "75a3537e9db7d566.wav"
+  },
+  "어떤 품목입니까? 예를 들어 티타늄이라고 말씀해 주십시오.": {
+    "operator": "f0fa0424b4d9bea9.wav",
+    "navigator": "66ae4838580f9bc5.wav"
+  },
+  "매입처와 판매처 중 어느 쪽을 찾으십니까?": {
+    "operator": "706a575059165bb4.wav",
+    "navigator": "349d15cefcea65d8.wav"
+  },
+  "거래할 수량은 몇 SCU입니까?": {
+    "operator": "61ca2fed5fdc5c18.wav",
+    "navigator": "175a6f4411b28a4e.wav"
+  },
+  "질문을 취소했습니다.": {
+    "operator": "e57f3002e71bc79c.wav",
+    "navigator": "a553121834947838.wav"
+  },
+  "품목과 매입 또는 판매를 함께 말해 주십시오. 예를 들어 금 어디서 팔아라고 물어보십시오.": {
+    "operator": "243611100e88eb17.wav",
+    "navigator": "54eb71ff5adc6226.wav"
+  },
+  "연결된 화면의 최신 정보가 없습니다.": {
+    "operator": "9d9e0305c7630f87.wav",
+    "navigator": "7acf60f8f76f8d2a.wav"
+  },
+  "현재 화면에서 확인할 수 있는 정보가 없습니다.": {
+    "operator": "467a2939357c465d.wav",
+    "navigator": "7cc30c8ef475b81c.wav"
+  },
+  "운송이 끝났습니다.": {
+    "operator": "f9d1ccfdbb6e97de.wav",
+    "navigator": "464a46cfa35b7722.wav"
+  },
+  "관제센터 미션 콘솔에서 함선, 출발지, 운항 파트너를 정하십시오. 다음을 누르면 계약을 불러올 수 있습니다.": {
+    "operator": "581c7244ae4aef99.wav",
+    "navigator": "981c399c6c3c1e27.wav"
+  },
+  "항해사는 경로와 적재를 함께 계산합니다. 오퍼레이터는 경로를 안내하며 적재는 직접 관리합니다.": {
+    "operator": "f7f93c0b378a8417.wav",
+    "navigator": "fc675e7dfa747203.wav"
+  },
+  "미션 콘솔의 계약 불러오기에서 로그 앱 연결 상태를 확인하십시오. 수신한 계약이 없으면 Game.log 선택, 스크린샷 인식, 직접 입력도 사용할 수 있습니다.": {
+    "operator": "e868b368889a14e2.wav",
+    "navigator": "b4203780a1f07b10.wav"
+  },
+  "계약 불러오기에서 이번 운송에 포함할 카드를 선택하십시오. 선택한 계약의 경유지를 함께 계산하며, 이번 운송에서 합계를 확인할 수 있습니다.": {
+    "operator": "a6a597902d67fb1d.wav",
+    "navigator": "28891d460ef06093.wav"
+  },
+  "미션 콘솔에서 계약을 선택하고 경로 계산을 누르십시오. 항로 지도에서 방문 순서를 검토한 뒤 운송 시작을 누르면 관제 콘솔로 이동합니다.": {
+    "operator": "262ed56f19382d19.wav",
+    "navigator": "3d2d7c048ff6733e.wav"
+  },
+  "게임에서 작업을 마친 다음 관제 콘솔의 완료 버튼이나 스페이스를 누르십시오. 로그 앱이 연결되어 있으면 해당 단계에서 적재 완료 또는 배송 완료라고 말할 수 있습니다.": {
+    "operator": "0c13d521bb675061.wav",
+    "navigator": "bdccfd670363653d.wav"
+  },
+  "관제 콘솔에서 직전 작업 되돌리기를 사용하십시오. 현재 단계와 선내 화물 상태를 확인한 뒤 계속 진행하십시오.": {
+    "operator": "09ceae7b8eb0d5d8.wav",
+    "navigator": "b2689f4c9d4b3dbf.wav"
+  },
+  "계약 상세에서 확인한 수량을 보완할 수 있습니다. 수량을 모르면 오퍼레이터로 경로를 계산하고 적재는 직접 관리하십시오.": {
+    "operator": "70ce0921e1e029ac.wav",
+    "navigator": "0fdc1c2960427f70.wav"
+  },
+  "계약 불러오기에서 스크린샷 여러 장 선택을 누르십시오. 인식한 뒤 계약별 픽업지, 배송지, 수량을 검토하십시오.": {
+    "operator": "aa9ab6341b791993.wav",
+    "navigator": "b93bc77a6cfa4199.wav"
+  },
+  "계약 불러오기에서 직접 입력을 선택하십시오. 계약 내용이 텍스트로 있으면 텍스트 가져오기도 사용할 수 있습니다.": {
+    "operator": "5735eeca5314ca81.wav",
+    "navigator": "fefc2c6961cb387e.wav"
+  },
+  "로그 앱에서 현재 플레이 중인 Game.log를 선택하십시오. 웹 미션 콘솔의 계약 불러오기에서 로그 앱 연결을 누른 뒤 새 계약 수신을 확인하십시오.": {
+    "operator": "ac445515d6dcba8e.wav",
+    "navigator": "a5fc734ddd4c1c7a.wav"
+  },
+  "운송이나 무역 화면의 로그 앱 오버레이에서 이 화면을 로그 앱에 표시를 켜십시오. 로그 앱에서 오버레이 표시를 누르십시오.": {
+    "operator": "ba9f50048d8d6345.wav",
+    "navigator": "252b12983e2e216d.wav"
+  },
+  "말하기 키를 누른 채 말하고 손을 떼면 요청을 보냅니다. 기본키는 Esc 아래 백틱 키이며, 네비게이터 단축키 설정에서 바꿀 수 있습니다. 계속 들으려면 연속 듣기를 켜세요.": {
+    "operator": "c2e6637125840ee3.wav",
+    "navigator": "80e3fab488f2d59f.wav"
+  },
+  "로그 앱의 안내 목소리에서 여성 또는 남성을 고르십시오. Supertonic 한국어 샘플은 바로 들을 수 있으며, 실시간 합성은 로컬 음성 서버를 사용합니다.": {
+    "operator": "e7bd066395371c0b.wav",
+    "navigator": "b711cc6b1bf7359e.wav"
+  },
+  "로그 앱의 단축키 설정에서 오버레이, 가격 보기, 내 작업, 눌러서 말하기 키를 확인하거나 변경하십시오.": {
+    "operator": "d5c23988b56f3610.wav",
+    "navigator": "ff28cbd867ba1b5e.wav"
+  },
+  "무역센터 시세에서 품목을 선택하면 거래소별 매입가와 판매가를 볼 수 있습니다. 수요, 재고, 보고 시각도 함께 확인하십시오.": {
+    "operator": "4b4022a33a34fbd4.wav",
+    "navigator": "a2be7d98118800a6.wav"
+  },
+  "음성 시세는 현재 패치의 최근 24시간 보고 중 매입 재고나 판매 수요가 확인된 곳을 사용합니다. 조건에 맞는 보고가 없으면 가격 미확인으로 안내합니다.": {
+    "operator": "4bf5731bd84d50c0.wav",
+    "navigator": "099efd96e8199c39.wav"
+  },
+  "무역센터에서 자본, 함선 적재량과 출발지를 설정한 뒤 계획을 계산하십시오. 경로와 예상 손익을 검토하고 실제 매입과 판매를 기록하십시오.": {
+    "operator": "f5e92d5951c15d92.wav",
+    "navigator": "9948b159d147ced8.wav"
+  },
+  "예상 수익은 계획 시세로 계산합니다. 실현 손익은 기록한 실제 판매와 비용을 바탕으로 확인하십시오.": {
+    "operator": "acbd727371434af8.wav",
+    "navigator": "7f0277b03b25cb7e.wav"
+  },
+  "무역센터에서 함대 공동 교역을 열고 초대 코드로 참여하십시오. 내 담당 화물과 수량을 확인하고 실제 거래를 보고하십시오.": {
+    "operator": "19a34fdbf47c6848.wav",
+    "navigator": "068b9fa24abd6ebd.wav"
+  },
+  "아카데미 교수에게 운송 또는 무역 튜토리얼을 선택하십시오. 라운지 가이드에게서도 교수의 연습으로 이동할 수 있습니다.": {
+    "operator": "88409fb5a25dc71f.wav",
+    "navigator": "46d8d968d151006c.wav"
+  },
+  "운송 화면에서 운항 백업·복원을 펼치십시오. 수신한 계약만 옮기려면 미션 콘솔의 계약 백업·불러오기를 사용하십시오.": {
+    "operator": "c65d69b2a4ef4a66.wav",
+    "navigator": "920fb763150f018b.wav"
+  },
+  "다음 목적지, 적재 수량, 자본이나 품목 시세를 물어보십시오. 계약 불러오기, 항로 계산, 무역, 로그 연결, 마이크와 단축키 사용법도 안내합니다.": {
+    "operator": "c55b27f435254a5a.wav",
+    "navigator": "cb117ba52fe4ce1f.wav"
+  }
+}
