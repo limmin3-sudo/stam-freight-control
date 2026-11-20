@@ -36,7 +36,7 @@ internal sealed partial class CompanionOverlay : Form {
     internal bool VoiceEnabled {get{return speech!=null;}}
     internal CompanionOverlay(Action<string> command,bool en,string directory){
         send=command;english=en;Narrator="off";LoadQuestions();settings=Path.Combine(directory,"overlay.json");
-        Text="STAM";ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.SizableToolWindow;TopMost=true;
+        Text=T("STAM · 운항 오버레이","STAM · Flight overlay");ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.SizableToolWindow;TopMost=true;
         StartPosition=FormStartPosition.Manual;
         MinimumSize=new Size(390,310);
         Size=new Size(600,460);

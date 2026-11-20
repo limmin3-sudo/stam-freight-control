@@ -60,5 +60,13 @@ internal sealed class DeckSurface : TableLayoutPanel {
     public bool ShowDivision {get;set;}
     public bool ShowEmblem {get;set;}
     public DeckSurface(){BackColor=Color.FromArgb(8,18,24);SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);}
-    protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(BackColor);if(ShowEmblem){DeckTheme.Emblem(e.Graphics,ClientRectangle);return;}DeckTheme.Draw(e.Graphics,"gold",ClientRectangle,1f);if(ShowDivision){int edge=(int)(14*e.Graphics.DpiX/96);DeckTheme.Panorama(e.Graphics,Rectangle.Inflate(ClientRectangle,-edge,-edge));}}
+    protected override void OnPaintBackground(PaintEventArgs e){e.Graphics.Clear(BackColor);if(ShowEmblem){
+        if(Width<2||Height<2)return;
+        using(var glass=new System.Drawing.Drawing2D.LinearGradientBrush(ClientRectangle,Color.FromArgb(22,42,58),BackColor,70f))
+            e.Graphics.FillRectangle(glass,ClientRectangle);
+        DeckTheme.Emblem(e.Graphics,ClientRectangle);
+        using(var edge=new Pen(Color.FromArgb(65,110,127)))e.Graphics.DrawRectangle(edge,0,0,Width-1,Height-1);
+        using(var accent=new SolidBrush(Color.FromArgb(214,184,123)))e.Graphics.FillRectangle(accent,18,0,Math.Min(76,Width-1),2);
+        return;
+    }DeckTheme.Draw(e.Graphics,"gold",ClientRectangle,1f);if(ShowDivision){int edge=(int)(14*e.Graphics.DpiX/96);DeckTheme.Panorama(e.Graphics,Rectangle.Inflate(ClientRectangle,-edge,-edge));}}
 }

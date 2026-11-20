@@ -73,7 +73,23 @@ internal sealed partial class CompanionOverlay {
     }
     internal void PreviewNarrator(){
         if(Narrator=="off"){ReportTalk(T("먼저 음성 안내 목소리를 선택하세요.","Choose a guidance voice first."));return;}
+        if(!english&&Narrator.StartsWith("supertonic-")){
+            PreviewSample();return;
+        }
         Say(T("다음 목적지는 로어빌입니다. 금 8 SCU를 적재해 주십시오.","Your next destination is Lorville. Load eight SCU of gold."));
+    }
+    async void PreviewSample(){
+        StopNarration();
+        var request=new CancellationTokenSource();
+        localSpeech=request;
+        try{
+            var filename=FemaleVoice?"partner-female-ko.wav":"partner-male-ko.wav";
+            using(var sound=new SoundPlayer(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","desktop","voices",filename))){
+                player=sound;ignoreUtterance=true;narrating=true;
+                await Task.Run(()=>{if(!request.IsCancellationRequested)sound.PlaySync();});
+            }
+        }catch(Exception e){if(!request.IsCancellationRequested)ReportTalk(e.Message);}
+        finally{if(localSpeech==request){localSpeech=null;player=null;narrating=false;}request.Dispose();}
     }
     void StopNarration(){
         if(localSpeech!=null){localSpeech.Cancel();localSpeech=null;}
@@ -168,7 +184,7 @@ internal sealed partial class CompanionOverlay {
         var answer=display.TryGetValue("answer",out raw)?raw as Dictionary<string,object>:null;
         if(answer!=null&&Convert.ToString(answer["id"])!=lastReply){
             lastReply=Convert.ToString(answer["id"]);
-            if((DateTime.UtcNow-quoteRequested).TotalSeconds<10)Answer(Convert.ToString(answer["text"]),readQuote);
+            if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)Answer(Convert.ToString(answer["text"]),readQuote);
             quoteRequested=DateTime.MinValue;
         }
         if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
@@ -178,7 +194,7 @@ internal sealed partial class CompanionOverlay {
         bool aloud=!phrase.EndsWith("띄워줘",StringComparison.Ordinal);
         if((DateTime.UtcNow-received).TotalSeconds>10){Answer(T("연결된 화면의 최신 정보가 없습니다.","No current connected view."),aloud);return true;}
         if(key.StartsWith("quote-")&&(displayedMode=="personal"||displayedMode=="fleet")){
-            if((DateTime.UtcNow-quoteRequested).TotalSeconds<10)return true;
+            if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)return true;
             quoteRequested=DateTime.UtcNow;readQuote=aloud;send(key);return true;
         }
         object value;

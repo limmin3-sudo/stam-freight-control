@@ -105,7 +105,7 @@ internal sealed class BridgeWindow : Form {
     readonly NotifyIcon tray=new NotifyIcon();
     readonly ToolTip hints=new ToolTip();
     readonly HoloLabel title=new HoloLabel(),subtitle=new HoloLabel(),state=new HoloLabel(),detail=new HoloLabel(),fileLabel=new HoloLabel(),filePath=new HoloLabel(),bytes=new HoloLabel(),updated=new HoloLabel(),footer=new HoloLabel();
-    readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton(),continuousButton=new DeckButton();
+    readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),narratorButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton(),continuousButton=new DeckButton();
     readonly string settings,languageSettings;
     CompanionOverlay overlay;
     readonly HoloLabel voiceFeedback=new HoloLabel();
@@ -129,6 +129,7 @@ internal sealed class BridgeWindow : Form {
         korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();updated.Text="";RenderStatus(null);UpdateTools();BuildTray();
     }
     void UpdateTools(){
+        narratorButton.Text=T("안내 목소리","Guidance voice");
         continuousButton.Text=overlay==null?T("연속 듣기 켜기","Listen continuously"):overlay.ContinuousLabel;
         continuousButton.Primary=overlay!=null&&overlay.VoiceEnabled;continuousButton.Invalidate();
         overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay!=null&&overlay.Listening?T("듣기 취소","Cancel listening"):T("눌러서 말하기","Speak once");voiceButton.Primary=overlay!=null&&overlay.Listening;voiceButton.Invalidate();}
@@ -177,12 +178,13 @@ internal sealed class BridgeWindow : Form {
         var file=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(24,16,24,15),ColumnCount=1,RowCount=3,Margin=new Padding(0,0,0,14)};file.RowStyles.Add(new RowStyle(SizeType.Absolute,22));file.RowStyles.Add(new RowStyle(SizeType.Absolute,31));file.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         file.Controls.Add(Label("GAME LOG",11,Cyan));Setup(fileLabel,19,Ink);Setup(filePath,12,Muted);file.Controls.Add(fileLabel);file.Controls.Add(filePath);layout.Controls.Add(file);
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty,BackColor=shell.BackColor};foreach(float width in new[]{50f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
-        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,overlayButton,shortcutsButton,voiceButton,continuousButton}){button.FlatFace=true;button.Font=HoloFonts.At(13);}
+        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,narratorButton,overlayButton,shortcutsButton,voiceButton,continuousButton}){button.FlatFace=true;button.Font=HoloFonts.At(13);}
         open.Warm=true;foreach(var b in new[]{open,search,choose}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,10,14);actions.Controls.Add(b);}choose.Margin=new Padding(0,0,0,14);layout.Controls.Add(actions);
-        var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(20,13,20,13),ColumnCount=4,RowCount=2,Margin=new Padding(0,0,0,12)};
+        var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(20,13,20,13),ColumnCount=5,RowCount=2,Margin=new Padding(0,0,0,12)};
         tools.RowStyles.Add(new RowStyle(SizeType.Absolute,24));tools.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        tools.Controls.Add(Label("OVERLAY & VOICE",11,Gold),0,0);Setup(voiceFeedback,11,Cyan);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,3);
-        int toolIndex=0;foreach(var b in new[]{overlayButton,shortcutsButton,voiceButton,continuousButton}){tools.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,0);tools.Controls.Add(b,toolIndex++,1);}layout.Controls.Add(tools);
+        tools.Controls.Add(Label("OVERLAY & VOICE",11,Gold),0,0);Setup(voiceFeedback,11,Cyan);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,4);
+        int toolIndex=0;foreach(var b in new[]{overlayButton,shortcutsButton,narratorButton,voiceButton,continuousButton}){tools.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,20));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,0);tools.Controls.Add(b,toolIndex++,1);}layout.Controls.Add(tools);
+        narratorButton.Click+=(s,e)=>guidanceMenu.DropDown.Show(narratorButton,new Point(0,narratorButton.Height));
         overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().SpeakOnce();continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();
         var utility=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=shell.BackColor};utility.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));utility.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));
         utility.Controls.Add(Label("COMPANION  1.5  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
@@ -194,11 +196,12 @@ internal sealed class BridgeWindow : Form {
         FormClosing+=(s,e)=>{if(Environment.GetEnvironmentVariable("STAM_WINDOW_QA")=="1")Console.Error.WriteLine("Closing: reason="+e.CloseReason+" preview="+preview+" quitting="+quitting);if(!preview&&!quitting&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();return;}quitting=true;StopChild();tray.Visible=false;};
     }
     static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
-    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
+    ToolStripMenuItem guidanceMenu;
+    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=guidanceMenu=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
         foreach(var style in new[]{"off","supertonic-female","supertonic-male","female","male"}){
             string choice=style;
             var item=new ToolStripMenuItem(style=="off"?T("끄기","Off"):style=="supertonic-female"?T("Supertonic 여성 · 애니풍","Supertonic female · upbeat"):style=="supertonic-male"?T("Supertonic 남성 · 정중한 다나까체","Supertonic male · formal"):style=="female"?T("Windows 여성 · 애니풍","Windows female · upbeat"):T("Windows 남성 · 다나까체","Windows male · formal"));
-            item.Click+=(s,e)=>Overlay().SetNarrator(choice);
+            item.Click+=(s,e)=>{var target=Overlay();target.SetNarrator(choice);if(choice!="off")target.PreviewNarrator();};
             guidance.DropDownItems.Add(item);
             guidance.DropDownOpening+=(s,e)=>item.Checked=(Overlay().Narrator==choice);
         }
@@ -207,7 +210,7 @@ internal sealed class BridgeWindow : Form {
         guidance.DropDownItems.Add(T("Supertonic 사용 안내","Supertonic setup"),null,(s,e)=>MessageBox.Show(T(
             "Supertonic은 PC에서 실행하는 선택형 한국어 음성입니다. Python이 설치된 PC에서 다음 명령으로 준비한 뒤 미리 듣기를 누르세요.",
             "Supertonic is an optional local voice engine. With Python installed, run these commands and then choose Preview.")+
-            "\n\npy -m pip install supertonic[serve]\nsupertonic serve","STAM · Supertonic"));
+            "\n\npy -m pip install supertonic[serve]==1.3.1\nsupertonic serve","STAM · Supertonic"));
         var voiceItem=new ToolStripMenuItem(T("연속 듣기","Continuous listening"));menu.Opening+=(s,e)=>{voiceItem.Checked=overlay!=null&&overlay.VoiceEnabled;};voiceItem.Click+=(s,e)=>{Overlay().ToggleVoice();voiceItem.Checked=Overlay().VoiceEnabled;UpdateTools();};menu.Items.Add(voiceItem);menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
     internal void ShowFromLauncher(){UI(Reveal);}
     void Quit(){if(IsDisposed)return;quitting=true;Close();}
