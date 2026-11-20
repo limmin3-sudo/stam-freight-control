@@ -1,14 +1,14 @@
-.service-center{width:min(1280px,100%);margin:auto;color:#e2f5fa;font-family:var(--content-font,BarlowAirReview),SUIT,sans-serif;font-weight:500}
+.service-center{width:min(1280px,100%);margin:auto;color:#e2f5fa;font-family:var(--stam-body);font-weight:500}
 .service-center [hidden]{display:none!important}
 .space-experience .space-room .service-center .service-catalogue{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;width:100%;margin:0}
 .space-experience .service-catalogue>a{min-height:230px}
 .service-breadcrumb{display:flex;align-items:center;gap:14px;margin:0 0 22px;font-size:14px;color:#7697a6}
 .service-breadcrumb a{color:#adccd8;text-decoration:none;border-bottom:1px solid #8cb6c34d;padding:8px 0}
 .service-breadcrumb a:hover{color:#ffe0a5;border-color:#d8b873}
-.service-breadcrumb h2{margin:0;font:500 18px var(--content-font,BarlowAirReview),SUIT,sans-serif;color:#f1daaa}
-.service-content{min-width:0;padding:clamp(18px,3vw,30px);border:10px solid transparent;border-image:var(--content-frame) 28 fill / 16px stretch;background:none;box-shadow:0 8px 24px #0005}
+.service-breadcrumb h2{margin:0;font:500 18px var(--stam-body);color:#f1daaa}
+.service-content{min-width:0;padding:clamp(18px,3vw,30px);border:2px solid transparent;border-image:var(--monitor-edge);background:none;box-shadow:0 8px 24px #0005}
 .service-center p{line-height:1.8;color:#b7d0d8}
-.service-center button{font:inherit;border:7px solid transparent;border-image:var(--content-frame) 28 fill / 11px stretch;background:none;padding:7px 14px;color:#dff6fd;min-height:42px;cursor:pointer}
+.service-center button{font:inherit;border:1px solid transparent;border-image:var(--stam-glass-key);background:none;padding:7px 14px;color:#dff6fd;min-height:42px;cursor:pointer}
 .service-center button[aria-current=true]{color:#ffe2a7;background:#ba934c18}
 .service-center button:disabled{opacity:.5;cursor:default}
 .service-inline-host dialog[data-inline]{position:static;display:block;margin:0;padding:0;width:100%;max-width:none;max-height:none;border:0;border-image:none;border-radius:0;background:none;box-shadow:none;overflow:visible;font:inherit;color:inherit}

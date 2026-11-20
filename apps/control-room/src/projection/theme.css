@@ -2,7 +2,7 @@
 :is(.persistent-console-content, .facility-lobby, .crew-encounter, .space-room, .space-overview) {
   --projection-panel: var(--stam-glass-panel);
   --projection-key: var(--stam-glass-key);
-  --projection-type: Barlow, SUIT, system-ui, sans-serif;
+  --projection-type: var(--stam-body);
   --data-goods: #dfbdff;
   --data-place: #8edfff;
   --data-quantity: #a3e6bb;
@@ -298,6 +298,7 @@
   --stam-face: url('../../../../desktop/theme/optics/glass-face.jpg');
   --stam-glass-panel: var(--stam-rim) 35 / 13px stretch;
   --stam-glass-key: var(--stam-rim) 25 / 5px stretch;
+  --stam-body: Barlow, SUIT, system-ui, sans-serif;
   --stam-display: Michroma, SUIT, system-ui, sans-serif;
   --stam-glass: #101f2b var(--stam-face) center / cover no-repeat;
   --stam-ink: #e8f4f8;

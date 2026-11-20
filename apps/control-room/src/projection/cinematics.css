@@ -1,0 +1,119 @@
+/* Scene photography and character silhouettes stay visible around the instruments. */
+#root :is(.division-hub, .guided-visit, .guide-journey, .lounge-tour, .shuttle-boarding),
+#root .space-experience .space-location-heading,
+.crew-encounter .crew-dialogue {
+  font-family: var(--stam-body);
+  color: var(--stam-ink);
+}
+#root :is(.division-brand h1, .division-details h2, .space-location-heading h1,
+  .space-room-heading h1, .partner-options h2,
+  .guide-journey-header h2, .guide-journey-work h3, .shuttle-boarding h2),
+.crew-encounter #partner-conversation-title {
+  font-family: var(--stam-display);
+  letter-spacing: .015em;
+}
+#root :is(.division-facility, .space-location-heading > span, .visit-marker span,
+  .visit-speech strong, .visit-speech p, .guide-journey-speech p, .guide-journey-speech small,
+  .lounge-tour-caption p, .lounge-tour-caption header, .lounge-tour-caption header small) {
+  font-family: var(--stam-body);
+}
+#root .space-experience .space-location-heading,
+#root :is(.visit-marker, .shuttle-boarding header) {
+  background: linear-gradient(100deg, #081824ed, #0b20318c 75%, transparent);
+  border: 0;
+  border-inline-start: 2px solid var(--stam-gold);
+  border-radius: 0;
+  box-shadow: none;
+}
+#root .space-experience .space-location-heading > p,
+#root :is(.visit-marker span, .guide-journey-header small, .shuttle-boarding header span) {
+  font-family: var(--stam-body);
+  color: var(--stam-gold);
+  letter-spacing: .14em;
+}
+#root .shuttle-boarding header { padding: 6px 16px; }
+#root .division-details,
+#root .guided-visit .visit-panel,
+#root .space-experience .crew-encounter .crew-dialogue,
+#root .guide-journey :is(.guide-journey-speech, .guide-journey-explainer, .guide-practice-setup, .trade-guide-stage),
+#root .lounge-tour .lounge-tour-caption,
+#root .shuttle-boarding :is(nav, .shuttle-playback-message) {
+  background: var(--monitor-surface);
+  border: 2px solid transparent;
+  border-image: var(--monitor-edge);
+  clip-path: none;
+  box-shadow: none;
+  color: var(--stam-ink);
+}
+#root :is(.division-details, .guide-journey-speech, .lounge-tour-caption)::before,
+#root :is(.guide-journey-speech, .lounge-tour-caption)::after { content: none; }
+#root :is(.division-details, .division-action) > .division-glass,
+#root .guide-journey-explainer > .approved-glass,
+#root .trade-guide-stage > .trade-guide-material { display: none; }
+
+#root :is(.guide-journey .guide-journey-speech, .lounge-tour .lounge-tour-caption, .guided-visit .visit-panel) {
+  inset-inline: 0;
+  bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(14px, 2vw, 26px) clamp(18px, 3vw, 50px) max(18px, env(safe-area-inset-bottom));
+}
+#root :is(.visit-speech p, .guide-journey-speech p, .lounge-tour-caption p) {
+  max-width: 78ch;
+  color: var(--stam-ink);
+  line-height: 1.6;
+}
+#root :is(.visit-speech strong, .guide-journey-speech small, .lounge-tour-caption header) {
+  color: var(--stam-gold);
+}
+@media (min-width: 761px) {
+  #root :is(.guide-journey-portrait, .lounge-tour-portrait) {
+    bottom: var(--tour-caption-height, 210px);
+    max-height: calc(100% - var(--tour-caption-height, 210px) - 54px);
+  }
+}
+#root .guide-journey[data-scene=false]:not([data-topic=trade]) { background: var(--stam-monitor); }
+#root .guide-journey select { color-scheme: dark; font-family: var(--stam-body); }
+#root .guide-journey :is(.trade-guide-metrics dd, .trade-guide-quotes strong, .guide-practice-toolbar strong) {
+  font-variant-numeric: tabular-nums;
+  color: var(--stam-gold);
+}
+
+#root :is(.division-action, .visit-panel button, .lounge-tour-controls button, .lounge-tour-caption button, .trade-guide-open,
+  .guide-journey button:has(> .approved-glass), .shuttle-boarding button, .crew-loading button) {
+  border: 1px solid transparent;
+  border-image: var(--stam-glass-key);
+  border-radius: 3px;
+  background: #102937;
+  color: var(--stam-ink);
+  font-family: var(--stam-body);
+  box-shadow: none;
+}
+#root :is(.guide-journey button, .trade-guide-open) > .approved-glass {
+  display: none;
+}
+#root .guide-journey .guide-practice-contract {
+  background: #102633ce;
+  border-color: #577b90;
+  border-radius: 4px;
+}
+#root .guide-journey .guide-practice-contract:has(input:checked) {
+  border-color: var(--stam-gold);
+  box-shadow: inset 3px 0 var(--stam-gold);
+}
+#root .guide-journey :is(.guide-practice-contract b, .guide-practice-setup h3 span, [data-trade-cargo]) {
+  color: #a3e6bb;
+}
+#root :is(.visit-next, .guide-journey button:has(> [data-material=gold]), .shuttle-boarding button[aria-pressed=true]) {
+  color: var(--stam-gold);
+  background-color: #243237;
+}
+#root :is(.division-action, .visit-panel button, .lounge-tour button, .guide-journey button,
+  .shuttle-boarding button, .crew-encounter button):enabled:hover {
+  color: var(--stam-gold);
+  background-color: #1a3d51;
+}
+#root :is(.division-action, .guided-visit button, .guide-journey button, .shuttle-boarding button):focus-visible {
+  outline: 2px solid var(--stam-gold);
+  outline-offset: 2px;
+}

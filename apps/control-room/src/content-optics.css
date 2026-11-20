@@ -1,7 +1,6 @@
 /* Interior rooms share mission typography/materials. Approved global navigation is excluded. */
 .space-experience .space-room{
- --content-font:BarlowAirReview,SUIT,sans-serif;
- --content-frame:url('./assets/material-review/projection-even-frame.svg');
+ --content-font:var(--stam-body);
  font-family:var(--content-font);font-weight:500;font-synthesis:none;
  padding:30px clamp(22px,3vw,62px) 40px;
  background:radial-gradient(ellipse at 20% 0,#2d6d7826,transparent 65%),#050e18;
@@ -13,8 +12,8 @@
 .space-experience .space-room-heading p{font-size:10px;letter-spacing:.24em;color:#94c5d5}
 .space-experience .space-room-heading h1{font-size:30px;letter-spacing:.06em;margin:8px 0 0;color:#dff6fd;text-shadow:0 0 22px #8acfe927}
 .space-experience .space-room button:not(.space-play){
- border:7px solid transparent;border-image:var(--content-frame) 28 fill / 11px stretch;
- border-radius:0;background:none;min-height:44px;padding:5px 13px;color:#d7f2fc;
+ border:1px solid transparent;border-image:var(--stam-glass-key);
+ border-radius:3px;background:#102937;min-height:44px;padding:5px 13px;color:#d7f2fc;
  font-size:13px;letter-spacing:.025em;text-decoration:none;
  box-shadow:0 5px 10px #0005;cursor:pointer;transition:filter .18s,transform .18s;
 }
@@ -24,8 +23,8 @@
 .space-experience .space-information>p{font-size:15px;line-height:1.8;max-width:78ch;color:#a8c7d5;margin:0 0 10px}
 .space-experience .space-information>a,
 .space-experience .space-service .service-record{
- position:relative;isolation:isolate;border:13px solid transparent;
- border-image:var(--content-frame) 28 fill / 20px stretch;background:none;border-radius:0;
+ position:relative;isolation:isolate;border:2px solid transparent;
+ border-image:var(--monitor-edge);background:var(--monitor-surface);border-radius:0;
  padding:25px 24px 20px;min-height:285px;gap:14px;box-shadow:0 12px 25px #0005;
  color:#e0f5fb;text-decoration:none;transition:filter .2s,transform .2s;
 }
@@ -43,18 +42,18 @@
 .space-experience .service-latest strong{font-size:17px;color:#dbf4fa}
 .space-experience .service-latest p{font-size:13px;line-height:1.7;color:#a6c4d3}
 .space-experience .space-cinema{max-width:1280px;width:100%;margin:0 auto}
-.space-experience .space-screen{border:10px solid transparent;border-image:var(--content-frame) 28 fill / 16px stretch;box-shadow:0 15px 40px #0008;max-height:calc(100svh - 265px);width:auto;max-width:100%;aspect-ratio:16/9;background:#01060c}
+.space-experience .space-screen{border:2px solid transparent;border-image:var(--monitor-edge);box-shadow:0 15px 40px #0008;max-height:calc(100svh - 265px);width:auto;max-width:100%;aspect-ratio:16/9;background:#01060c}
 .space-experience .space-play{font-family:var(--content-font);overflow:hidden}
 .space-experience .space-play>img{opacity:.76}
 .space-experience .space-play>span{font-size:18px;letter-spacing:.07em;background:linear-gradient(transparent,#03121b66)}
-.space-experience .space-play b{width:90px;height:76px;border:10px solid transparent;border-image:var(--content-frame) 28 fill / 16px stretch;border-radius:0;background:none;box-shadow:0 12px 24px #0008;color:#e6faff;font-size:36px;backdrop-filter:none}
+.space-experience .space-play b{width:90px;height:76px;border:2px solid transparent;border-image:var(--monitor-edge);border-radius:0;background:none;box-shadow:0 12px 24px #0008;color:#e6faff;font-size:36px;backdrop-filter:none}
 .space-experience .space-cinema-caption{align-items:center;margin-top:22px;padding:14px 18px;border-top:1px solid #9ed5e52b;border-bottom:1px solid #9ed5e515}
 .space-experience .space-cinema-caption>span{font-size:10px;letter-spacing:.22em;color:#9bcedd}
 .space-experience .space-cinema-caption p{font-size:14px;color:#a6c4d3;margin:0}
 /* These legacy controls open native dialogs under body, outside the room subtree. */
-body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog):not([data-inline]){font-family:BarlowAirReview,SUIT,sans-serif;font-weight:500;font-synthesis:none;border:12px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 19px stretch;background:#071520;box-shadow:0 20px 80px #000b}
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog):not([data-inline]){font-family:var(--stam-body);font-weight:500;font-synthesis:none;border:2px solid transparent;border-image:var(--monitor-edge);background:#071520;box-shadow:0 20px 80px #000b}
 body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) :is(button,input,select,h2,h3,summary){font-family:inherit;font-weight:500}
-body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) button{border:7px solid transparent;border-image:url('./assets/material-review/projection-even-frame.svg') 28 fill / 11px stretch;background:none;padding:5px 10px;color:#dff6fd;min-height:40px}
+body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-dialog) button{border:1px solid transparent;border-image:var(--stam-glass-key);background:#102937;padding:5px 10px;color:#dff6fd;min-height:40px}
 @media(max-width:1150px){
  .space-experience .space-room .space-information,.space-experience .space-room .space-information.space-service{grid-template-columns:repeat(2,minmax(0,1fr))}
  .space-experience .space-service .service-record,.space-experience .space-service>a{grid-column:auto}
@@ -75,7 +74,7 @@ body:has(.space-experience[data-screen=service]) :is(.account-dialog,.history-di
 @media(prefers-reduced-motion:reduce){.space-experience .space-information>a,.space-experience .space-room button{transition:none}}
 .partner-choice-intro,.partner-choice-note{max-width:920px;margin:0 auto 20px;color:#aac8d5;line-height:1.8}
 .partner-options{max-width:920px;margin:0 auto 20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.space-experience .space-room .partner-options>button{padding:0;text-align:left;overflow:hidden;border-width:12px;border-image-width:18px;display:flex;flex-direction:column}
+.space-experience .space-room .partner-options>button{padding:0;text-align:left;overflow:hidden;border:2px solid transparent;border-image:var(--monitor-edge);background:var(--monitor-surface);display:flex;flex-direction:column}
 .partner-options>button>img{width:100%;height:auto;aspect-ratio:3/4;object-fit:contain;object-position:center top;display:block;flex-shrink:0;background:#06131c}
 .partner-options>button>div{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1}
 .partner-options small{font-size:10px;letter-spacing:.18em;color:#8dd2df}
