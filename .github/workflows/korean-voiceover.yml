@@ -1,9 +1,6 @@
 name: Korean dialogue recordings
 on:
   workflow_dispatch:
-  push:
-    branches: [audio/elevenlabs-ko]
-    paths: ['tools/voiceover/generate.py', 'apps/control-room/src/voiceover-ko.json', '.github/workflows/korean-voiceover.yml']
 permissions:
   contents: read
 concurrency:
