@@ -72,7 +72,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, capabilities:{display:2,commands:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+    return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
       lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
@@ -113,7 +113,17 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         }
         if(req.method==='GET'&&url.pathname==='/api/commands'){
           if(req.headers['transfer-encoding']||Number(req.headers['content-length']||0)){send(413,'{"error":"body-not-allowed"}');return;}
-          try{send(200,JSON.stringify(companion.poll({session:url.searchParams.get('session'),after:url.searchParams.get('after')})));}catch{send(409,'{"error":"display-session"}');}return;
+          try{
+            const cursor={session:url.searchParams.get('session'),after:url.searchParams.get('after')};
+            let result=companion.poll(cursor);
+            // Pace linked flights on the companion so a background browser timer cannot drop the lease.
+            if(url.searchParams.get('wait')==='1'&&!result.commands.length){
+              await new Promise(resolve=>setTimeout(resolve,1500));
+              if(res.destroyed)return;
+              result=companion.poll(cursor);
+            }
+            send(200,JSON.stringify(result));
+          }catch{send(409,'{"error":"display-session"}');}return;
         }
         if (req.headers['transfer-encoding'] || Number(req.headers['content-length'] || 0) !== 0) { req.resume(); send(413, '{"error":"body-not-allowed"}'); return; }
         if (req.method === 'GET' && url.pathname === '/api/status') { send(200, JSON.stringify(status())); return; }

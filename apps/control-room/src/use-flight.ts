@@ -114,8 +114,9 @@ export function useFlight(){
    next.postMessage(source==='saved'?{saved:savedFlight()}:{draft:prior.draft,context:{...context,...(from?{startId:from}:{}),manualStops}});
   }catch{worker.current?.terminate();worker.current=null;setBusy(false);setError('항로 계산기를 시작하지 못했습니다.');}
  }
- function progress(action:'start'|'complete'|'undo'|'pause'){
+ function progress(action:'start'|'complete'|'undo'|'pause',expected?:Session){
   const s=current.current;if(busy||!writable()||!s.plan||!s.run)return;
+  if(expected&&(expected.plan!==s.plan||expected.run!==s.run))return;
   if((action==='complete'||action==='start')&&pendingReceiptChanges(s).length){setError('계약 변경 내용을 먼저 확인하세요. 기존 운항은 유지됩니다.');return;}
   const run=action==='start'?startRun(s.run):action==='complete'?completeStep(s.plan,s.run):action==='undo'?undoStep(s.run):pauseRun(s.run);
   const next={...s,run};commit(next);

@@ -27,11 +27,12 @@ export function missionsFor(draft, simple = false, data=locationDataFor(draft.lo
  const byId=new Map(data.locations.map(p=>[p.id,p]));
  return draft.jobs.map(job=>{
   if(job.state==='ended'||job.state==='conflict')throw Error('종료되었거나 기록이 충돌한 계약입니다. 수신함에서 확인해 주세요.');
-  const quantity=quantityPlan(missionFor(job),draft.allowUpperBounds!==false);
-  const mission=simple?missionFor(job):quantity.mission;
+  const source=missionFor(job);
+  const quantity=simple?null:quantityPlan(source,draft.allowUpperBounds!==false);
+  const mission=quantity?.mission??source;
   if(simple)for(const row of mission.cargo){if(!actualQuantity(row))row.scu=null;}
   if(!mission.cargo.length || mission.cargo.some(row=>!byId.has(row.pickupId)||!byId.has(row.dropoffId)))throw Error('계약의 픽업지와 배송지를 확인하세요.');
-  if(!simple && !quantity.ready)throw Error('실제 수량·배송 총량 또는 확인된 최대 수량이 필요합니다.');
+  if(quantity && !quantity.ready)throw Error('실제 수량·배송 총량 또는 확인된 최대 수량이 필요합니다.');
   return mission;
  });
 }

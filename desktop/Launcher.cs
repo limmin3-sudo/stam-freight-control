@@ -108,8 +108,12 @@ internal sealed class BridgeWindow : Form {
     readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton();
     readonly string settings,languageSettings;
     CompanionOverlay overlay;
+    readonly HoloLabel voiceFeedback=new HoloLabel();
     Image brandLogo;
-    CompanionOverlay Overlay(){if(overlay==null||overlay.IsDisposed)overlay=new CompanionOverlay(SendCommand,english,Path.GetDirectoryName(settings));return overlay;}
+    CompanionOverlay Overlay(){if(overlay==null||overlay.IsDisposed){
+        overlay=new CompanionOverlay(SendCommand,english,Path.GetDirectoryName(settings));
+        overlay.TalkChanged+=()=>{UpdateTools();voiceFeedback.Text=overlay.TalkStatus;};
+    }return overlay;}
     void SendCommand(string command){try{if(child!=null&&!child.HasExited){child.StandardInput.WriteLine(new JavaScriptSerializer().Serialize(new{type="command",command=command}));child.StandardInput.Flush();}}catch{}}
     static readonly string languageFile=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"STAM","ui-language.txt");
     static readonly Color Ink=Color.FromArgb(223,240,244),Muted=Color.FromArgb(144,177,188),Cyan=Color.FromArgb(129,224,234),Gold=Color.FromArgb(240,205,142);
@@ -118,15 +122,15 @@ internal sealed class BridgeWindow : Form {
     static HoloLabel Label(string text,float size,Color colour){return new HoloLabel{Text=text,Font=HoloFonts.At(size),ForeColor=colour,Dock=DockStyle.Fill,Margin=Padding.Empty};}
     void ApplyLanguage(){
         if(overlay!=null){overlay.Dispose();overlay=null;}
-        Text="STAM · "+T("로그 연결","Log companion");
+        voiceFeedback.Text="";Text="STAM · "+T("로그 연결","Log companion");
         title.Text=T("게임 로그 연결","Game log connection");subtitle.Text=T("게임에서 수주한 계약을 미션콘솔로 연결합니다.","Bring accepted game contracts into your mission console.");
         choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
-        footer.Text=T("창을 닫아도 트레이에서 수신합니다. 종료는 트레이 메뉴를 이용하세요.\n게임 로그는 읽기만 하며, 원본 파일과 진행 중 운항은 변경하지 않습니다.","Closing this window keeps the app in your system tray. Quit from its menu.\nRead-only game log access. Your game files and current flight stay intact.");
+        footer.Text=T("창을 닫아도 트레이에서 수신합니다. 종료는 트레이 메뉴를 이용하세요.\n게임 로그는 읽기만 하며, 음성 완료는 연결한 STAM 운항에 반영됩니다.","Closing this window keeps the app in your system tray. Quit from its menu.\nRead-only game log access. Spoken confirmations update your linked STAM flight.");
         korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();updated.Text="";RenderStatus(null);UpdateTools();BuildTray();
     }
-    void UpdateTools(){overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay!=null&&overlay.VoiceEnabled?T("마이크 끄기","Microphone off"):T("마이크 켜기","Microphone on");voiceButton.Primary=overlay!=null&&overlay.VoiceEnabled;voiceButton.Invalidate();}
+    void UpdateTools(){overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay!=null&&overlay.Listening?T("듣기 취소","Cancel listening"):T("눌러서 말하기","Speak once");voiceButton.Primary=overlay!=null&&overlay.Listening;voiceButton.Invalidate();}
     void SetLanguage(bool value){english=value;ApplyLanguage();if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(languageSettings));File.WriteAllText(languageSettings,english?"en":"ko");}catch{}}
-    internal bool CheckLanguages(){SetLanguage(true);bool ok=open.Text=="Open mission console  ↗"&&choose.Text=="Choose Game.log";SetLanguage(false);return ok&&open.Text=="미션콘솔 열기  ↗"&&choose.Text=="파일 직접 선택"&&shortcutsButton.Text=="단축키 설정"&&voiceButton.Text=="마이크 켜기";}
+    internal bool CheckLanguages(){SetLanguage(true);bool ok=open.Text=="Open mission console  ↗"&&choose.Text=="Choose Game.log";SetLanguage(false);return ok&&open.Text=="미션콘솔 열기  ↗"&&choose.Text=="파일 직접 선택"&&shortcutsButton.Text=="단축키 설정"&&voiceButton.Text=="눌러서 말하기";}
     internal static void CaptureDesign(string directory){
         Directory.CreateDirectory(directory);HoloFonts.CheckSelection(Path.Combine(directory,"font-selection.json"));
         foreach(bool en in new[]{false,true})using(var window=new BridgeWindow(en)){
@@ -172,9 +176,9 @@ internal sealed class BridgeWindow : Form {
         open.Warm=true;foreach(var b in new[]{open,search,choose}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,10,14);actions.Controls.Add(b);}choose.Margin=new Padding(0,0,0,14);layout.Controls.Add(actions);
         var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(20,13,20,13),ColumnCount=3,RowCount=2,Margin=new Padding(0,0,0,12)};
         tools.RowStyles.Add(new RowStyle(SizeType.Absolute,24));tools.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        tools.Controls.Add(Label("OVERLAY & VOICE",9,Gold),0,0);tools.SetColumnSpan(tools.GetControlFromPosition(0,0),3);
+        tools.Controls.Add(Label("OVERLAY & VOICE",9,Gold),0,0);Setup(voiceFeedback,9,Cyan);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,2);
         int toolIndex=0;foreach(var b in new[]{overlayButton,shortcutsButton,voiceButton}){tools.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,33.333f));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,0);tools.Controls.Add(b,toolIndex++,1);}layout.Controls.Add(tools);
-        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>{Overlay().ToggleVoice();UpdateTools();BuildTray();};
+        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().SpeakOnce();
         var utility=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Margin=Padding.Empty,BackColor=shell.BackColor};utility.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));utility.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));
         utility.Controls.Add(Label("COMPANION  1.5  /  READ ONLY",9,Muted));disconnect.Dock=DockStyle.Fill;disconnect.Margin=new Padding(0,0,0,12);utility.Controls.Add(disconnect);layout.Controls.Add(utility);
         Setup(footer,10,Muted);layout.Controls.Add(footer);
@@ -194,7 +198,7 @@ internal sealed class BridgeWindow : Form {
         StopChild();selected=file;manualStop=false;if(reset)failures=0;phase="starting";ApplyLanguage();
         if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,file=="--auto"?"":file);}catch{}
         try{
-            child=Launcher.StartBridge(file,false);var active=child;
+            child=Launcher.StartBridge(file,false);var active=child;Overlay();
             child.OutputDataReceived+=(s,e)=>{if(e.Data!=null)UI(()=>{if(child==active)Receive(e.Data);});};child.ErrorDataReceived+=(s,e)=>{};
             child.EnableRaisingEvents=true;child.Exited+=(s,e)=>UI(()=>{if(child!=active||quitting)return;child=null;active.Dispose();if(phase=="port-busy")return;ScheduleRetry();});
             child.BeginOutputReadLine();child.BeginErrorReadLine();
@@ -204,7 +208,7 @@ internal sealed class BridgeWindow : Form {
     void Receive(string line){
         try{
             var data=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(line);string type=Convert.ToString(data["type"]);
-            if(type=="display"){if(overlay!=null)overlay.UpdateDisplay(data["display"]);return;}
+            if(type=="display"){if(overlay!=null||data["display"]!=null)Overlay().UpdateDisplay(data["display"]);return;}
             if(type=="ready"){
                 Launcher.ReadUrl(line);failures=0;selected=Convert.ToString(data["file"]);phase="starting";
                 try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,selected);}catch{}

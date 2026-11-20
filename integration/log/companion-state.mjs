@@ -12,10 +12,19 @@ export function createCompanionState({clock=Date.now}={}){
   if(value.clear){session='';sequence=-1;display=null;queue=[];return {accepted:true};}
   const d=value.display;if(!d||!['personal','fleet','flight'].includes(d.mode)||!Array.isArray(d.lines)||d.lines.length>6)fail('invalid-display');
   const next={mode:d.mode,title:text(d.title,100),lines:d.lines.map(v=>text(v,180)),at:clock()};
+  if(d.mode==='flight'&&typeof d.stepId==='string'&&/^[0-9a-f-]{36}$/.test(d.stepId)&&['departure','pickup','delivery','jump','stop'].includes(d.step)){
+   next.stepId=d.stepId;next.step=d.step;
+  }
   session=value.session;sequence=value.sequence;receivedAt=clock();display=next;return {accepted:true};
  }
  return {publish,snapshot:()=>current(),
-  enqueue(command){if(!commands.has(command))fail('unsupported-command');if(!current())return false;queue.push({id:++commandSequence,command,at:clock()});queue=queue.slice(-20);return true;},
+  enqueue(command){
+   const d=current(),flight=typeof command==='string'&&command.startsWith('complete-flight:');
+   if(!flight&&!commands.has(command))fail('unsupported-command');
+   if(!d)return false;
+   if(flight&&(!d.stepId||command!=='complete-flight:'+d.stepId||queue.some(x=>x.command===command)))return false;
+   queue.push({id:++commandSequence,command,at:clock()});queue=queue.slice(-20);return true;
+  },
   poll(value){current();if(!session||value.session!==session)fail('display-session');const after=Number(value.after);if(!Number.isSafeInteger(after)||after<0)fail('invalid-cursor');return {commands:queue.filter(x=>x.id>after)};}
  };
 }

@@ -52,6 +52,7 @@ const normalize=(text:string)=>text.normalize('NFKC').toLocaleLowerCase().replac
 // Search both canonical and display names in every language, without changing IDs.
 export function tradeMatches(query:string,goods:string[]=[],places:string[]=[]){
  const terms=query.trim().split(/[\s·]+/).filter(Boolean).map(normalize);
+ if(!terms.length)return true;
  const names=[...goods.flatMap(n=>[n,dictionaries.goods[n]??'']),...places.flatMap(n=>[n,dictionaries.places[n]??''])].map(normalize).join(' ');
  return terms.every(term=>names.includes(term));
 }

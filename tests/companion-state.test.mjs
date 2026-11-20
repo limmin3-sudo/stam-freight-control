@@ -40,3 +40,23 @@ test('paired HTTP display preserves protocol 1, blocks foreign writes and only e
   assert.equal(await readFile(file,'utf8'),'synthetic log\n');
  }finally{await service.close();await rm(dir,{recursive:true,force:true});}
 });
+
+test('native completion is bound to a single live flight step and cannot cross into trade',()=>{
+ let now=0;
+ const s=createCompanionState({clock:()=>now}),session='flight_session_1234';
+ const stepId='58f8e479-073c-44e8-a820-329d77d1239c',other='1065ae85-556f-4e0d-abb7-8daa1d1e31db';
+ const display={mode:'flight',title:'Flight',lines:[],step:'pickup',stepId};
+ const cmd='complete-flight:'+stepId;
+ s.publish({session,sequence:0,display});
+ assert.equal(s.snapshot().stepId,stepId);
+ assert.equal(s.enqueue('complete-flight:'+other),false);
+ assert.equal(s.enqueue(cmd),true);
+ assert.equal(s.enqueue(cmd),false);
+ assert.equal(s.poll({session,after:0}).commands.length,1);
+ s.publish({session,sequence:1,display:{...display,stepId:other,step:'delivery'}});
+ assert.equal(s.enqueue(cmd),false);
+ now=11000;
+ assert.equal(s.enqueue('complete-flight:'+other),false);
+ s.publish({session,sequence:2,display:{...display,mode:'personal'}});
+ assert.equal(s.enqueue(cmd),false);
+});

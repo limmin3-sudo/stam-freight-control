@@ -51,8 +51,12 @@ export function FlightOperations({flight, locale, controlMode}:{
   const packing=useMemo(()=>projected?{...projected,capacity:plan?.capacity??0}:{boxes,used,capacity:plan?.capacity||0,bins:ship.grids.map((_,i)=>({used:boxes.reduce((n,b)=>n+(b.bin===i?b.size:0),0)}))},[projected,plan?.capacity,boxes,used,ship]);
   const where=(id:string)=>placeName(id,locale==='ko'?0:1);
   const cargoName=(name:string)=>locale==='ko'?(korean.goods as Record<string,string>)[name]||draft.jobs.flatMap(job=>job.shipments).find(row=>row.cargo[1]===name)?.cargo[0]||name:name;
-  const actionLabel=jump?t('점프 완료','Complete jump'):visit?.events.some(e=>e.type==='departure')?t('출발 완료','Departed'):
-    visit?.events.every(e=>e.type==='pickup')?t('픽업 완료','Confirm pickup'):visit?.events.every(e=>e.type==='delivery')?t('배송 완료','Confirm delivery'):t('거점 작업 완료','Complete stop');
+  const step=jump?'jump':visit?.events.some(e=>e.type==='departure')?'departure':
+    visit?.events.every(e=>e.type==='pickup')?'pickup':visit?.events.every(e=>e.type==='delivery')?'delivery':'stop';
+  const actionLabel={jump:t('점프 완료','Complete jump'),departure:t('출발 완료','Departed'),pickup:t('픽업 완료','Confirm pickup'),delivery:t('배송 완료','Confirm delivery'),stop:t('거점 작업 완료','Complete stop')}[step];
+  const canSpeak=!!(controlMode&&visit&&run?.started&&!run.finished&&!flight.busy&&!flight.blocked&&!flight.receiptChanges.length);
+  // A manual completion, undo, replan or lock invalidates commands already in transit.
+  const stepId=useMemo(()=>canSpeak?crypto.randomUUID():undefined,[canSpeak,plan,run]);
   useEffect(()=>{
     if(!controlMode||!run?.started||run.finished||flight.busy||flight.blocked||flight.receiptChanges.length||!visit)return;
     const key=(e:KeyboardEvent)=>{
@@ -88,7 +92,7 @@ export function FlightOperations({flight, locale, controlMode}:{
         <b>{where(stop.locationId)}</b> <span>{i<run.index?t('완료','Done'):i===run.index?t('현재 거점','Current stop'):''}</span>
       </li>)}</ol></details>}
     <div className={controlMode?'ops-progress':undefined}>
-    <CompanionDisplay locale={locale} summary={{mode:'flight',title:t('운송 관제','Freight control'),lines:[instruction,t('완료','Done')+': '+completedSteps+' / '+totalSteps,...(!simple?[t('선내 화물','Aboard')+': '+used+' SCU']:[])]}} onCommand={command=>{if(command==='open-trade'||command==='show-prices')window.location.hash='#/division?lang='+locale+'&facility=trade&room='+(command==='show-prices'?'market':'trade-operations');else heading.current?.focus();}}/>
+    <CompanionDisplay locale={locale} summary={{mode:'flight',stepId,step:stepId?step:undefined,title:t('운송 관제','Freight control'),lines:[instruction,...(stepId?[actionLabel]:[]),t('완료','Done')+': '+completedSteps+' / '+totalSteps,...(!simple?[t('선내 화물','Aboard')+': '+used+' SCU']:[])]}} onCommand={command=>{if(stepId&&command==='complete-flight:'+stepId){flight.progress('complete',flight.session);return;}if(command==='open-trade'||command==='show-prices')window.location.hash='#/division?lang='+locale+'&facility=trade&room='+(command==='show-prices'?'market':'trade-operations');else heading.current?.focus();}}/>
     {controlMode && <header className="ops-panel-head"><InterfaceGlyph kind="bridge"/><h2>{t('운항 진행','Flight progress')}</h2>
       <span className="ops-status" data-active={flight.active}>{held.length&&!visit?t('선내 보류 화물','Cargo on hold'):run?.finished?(flight.session.receiptReview?.excluded.length?t('운항 경로 종료','Flight route ended'):t('운송 완료','Haul complete')):flight.active?(run?.since===null?t('타이머 일시정지','Timer paused'):t('운항 중','In flight')):plan?t('출항 준비','Ready for departure'):t('계약 대기','Awaiting contract')}</span>
       {totalSteps>0 && <ConsoleDial value={Math.min(completedSteps,totalSteps)} maximum={totalSteps} label={t('완료','Done')+' / '+totalSteps}/>}</header>}
