@@ -31,6 +31,20 @@ internal sealed partial class CompanionOverlay {
                 overlay.Location=new Point(-30000,-30000);overlay.Clamp();var area=Screen.FromPoint(overlay.Location).WorkingArea;Require(area.Contains(overlay.Bounds),"monitor-clamp");overlay.ToggleInput();Require((GetWindowLong(overlay.Handle,-20)&0x20)!=0,"return-click-through");checks.Add("Input/click-through switching recreates the handle without losing hotkeys; off-screen placement is clamped");
                 overlay.Close();Pump(100);Require(!overlay.IsDisposed&&!overlay.Visible,"close-to-hide");overlay.Toggle();Require(overlay.Visible,"restore-after-close");
                 overlay.received=DateTime.UtcNow.AddSeconds(-14);Pump(1300);Require(!overlay.body.Text.Contains("8 SCU")&&overlay.heading.Text=="STAM / FREIGHT DIVISION","private-summary-expiry");overlay.UpdateDisplay(null);checks.Add("Close hides instead of exiting; stale/disconnected private summaries are cleared");
+                commands.Clear();
+                overlay.SetStep("a","pickup");overlay.received=DateTime.UtcNow;
+                overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("배송 완료",1);
+                Require(commands.Count==0,"wrong-stage");
+                overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("적재 완료",1);
+                overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("다음 단계",1);
+                Require(commands.Count==1&&commands[0]=="complete-flight:a","send-once-per-step");
+                overlay.DetectPhrase(TimeSpan.Zero);overlay.SetStep("b","delivery");overlay.HandlePhrase("다음 단계",1);
+                overlay.stepAudioStart=TimeSpan.FromSeconds(3);
+                overlay.DetectPhrase(TimeSpan.FromSeconds(2));overlay.HandlePhrase("다음 단계",1);
+                Require(commands.Count==1,"ignore-previous-utterance");
+                overlay.DetectPhrase(TimeSpan.FromSeconds(4));overlay.HandlePhrase("배송 완료",1);
+                Require(commands.Count==2&&commands[1]=="complete-flight:b","hands-free-next-step");
+                checks.Add("Continuous listening accepts a fresh utterance per step and rejects stale, repeated or mismatched speech");
                 overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.Save();
             }
             using(var reopened=new CompanionOverlay(c=>commands.Add(c),true,directory)){
@@ -41,7 +55,7 @@ internal sealed partial class CompanionOverlay {
             Require(FlightCommand("다음 단계",.9f,"a","b","pickup")==null&&FlightCommand("배송 완료",.9f,"a","a","pickup")==null&&FlightCommand("적재 완료",.6f,"a","a","pickup")==null,"reject-stale-mismatch-confidence");
             foreach(var engine in SpeechRecognitionEngine.InstalledRecognizers()){
                 recognizers.Add(engine.Culture.Name);if(engine.Culture.TwoLetterISOLanguageName!="en"&&engine.Culture.TwoLetterISOLanguageName!="ko")continue;
-                using(var speechTest=new SpeechRecognitionEngine(engine)){speechTest.LoadGrammar(CommandGrammar(engine));string phrase=engine.Culture.TwoLetterISOLanguageName=="en"?"STAM prices":"스탐 가격";var recognized=speechTest.EmulateRecognize(phrase);Require(recognized!=null&&recognized.Text==phrase,"installed-speech-grammar");voiceChecks.Add(engine.Culture.Name+": grammar emulation passed, microphone not used");}
+                using(var speechTest=new SpeechRecognitionEngine(engine)){speechTest.LoadGrammar(CommandGrammar(engine));string phrase=engine.Culture.TwoLetterISOLanguageName=="en"?"STAM prices":"스탐 가격";var recognized=speechTest.EmulateRecognize(phrase);Require(recognized!=null&&recognized.Text==phrase,"installed-speech-grammar");string flightPhrase=engine.Culture.TwoLetterISOLanguageName=="en"?"loading complete":"적재 완료";Require(speechTest.EmulateRecognize(flightPhrase)!=null,"continuous-flight-grammar");voiceChecks.Add(engine.Culture.Name+": grammar emulation passed, microphone not used");}
             }
             checks.Add("Voice commands are allowlisted and low-confidence input is ignored; installed engines checked without microphone capture");
         }catch(Exception e){failure=e.GetType().Name+": "+e.Message;}
