@@ -194,7 +194,21 @@ internal sealed class BridgeWindow : Form {
         FormClosing+=(s,e)=>{if(Environment.GetEnvironmentVariable("STAM_WINDOW_QA")=="1")Console.Error.WriteLine("Closing: reason="+e.CloseReason+" preview="+preview+" quitting="+quitting);if(!preview&&!quitting&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();return;}quitting=true;StopChild();tray.Visible=false;};
     }
     static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
-    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var voiceItem=new ToolStripMenuItem(T("연속 듣기","Continuous listening"));menu.Opening+=(s,e)=>{voiceItem.Checked=overlay!=null&&overlay.VoiceEnabled;};voiceItem.Click+=(s,e)=>{Overlay().ToggleVoice();voiceItem.Checked=Overlay().VoiceEnabled;UpdateTools();};menu.Items.Add(voiceItem);menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
+    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("연결 창 열기","Open companion"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
+        foreach(var style in new[]{"off","supertonic-female","supertonic-male","female","male"}){
+            string choice=style;
+            var item=new ToolStripMenuItem(style=="off"?T("끄기","Off"):style=="supertonic-female"?T("Supertonic 여성 · 애니풍","Supertonic female · upbeat"):style=="supertonic-male"?T("Supertonic 남성 · 정중한 다나까체","Supertonic male · formal"):style=="female"?T("Windows 여성 · 애니풍","Windows female · upbeat"):T("Windows 남성 · 다나까체","Windows male · formal"));
+            item.Click+=(s,e)=>Overlay().SetNarrator(choice);
+            guidance.DropDownItems.Add(item);
+            guidance.DropDownOpening+=(s,e)=>item.Checked=(Overlay().Narrator==choice);
+        }
+        guidance.DropDownItems.Add(new ToolStripSeparator());
+        guidance.DropDownItems.Add(T("예시 항로 미리 듣기","Preview a route announcement"),null,(s,e)=>Overlay().PreviewNarrator());
+        guidance.DropDownItems.Add(T("Supertonic 사용 안내","Supertonic setup"),null,(s,e)=>MessageBox.Show(T(
+            "Supertonic은 PC에서 실행하는 선택형 한국어 음성입니다. Python이 설치된 PC에서 다음 명령으로 준비한 뒤 미리 듣기를 누르세요.",
+            "Supertonic is an optional local voice engine. With Python installed, run these commands and then choose Preview.")+
+            "\n\npy -m pip install supertonic[serve]\nsupertonic serve","STAM · Supertonic"));
+        var voiceItem=new ToolStripMenuItem(T("연속 듣기","Continuous listening"));menu.Opening+=(s,e)=>{voiceItem.Checked=overlay!=null&&overlay.VoiceEnabled;};voiceItem.Click+=(s,e)=>{Overlay().ToggleVoice();voiceItem.Checked=Overlay().VoiceEnabled;UpdateTools();};menu.Items.Add(voiceItem);menu.Items.Add(new ToolStripSeparator());menu.Items.Add(T("앱 종료 · 로그 연결 종료","Quit app · Disconnect"),null,(s,e)=>Quit());tray.ContextMenuStrip=menu;if(previous!=null)previous.Dispose();}
     internal void ShowFromLauncher(){UI(Reveal);}
     void Quit(){if(IsDisposed)return;quitting=true;Close();}
     void Reveal(){Show();WindowState=FormWindowState.Normal;Activate();}

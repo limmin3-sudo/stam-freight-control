@@ -271,3 +271,16 @@
 #root [data-value=place], #root .persistent-console-content .receipt-card .receipt-route {color:var(--data-place)}
 #root [data-value=quantity] {color:var(--data-quantity); font-variant-numeric:tabular-nums}
 #root [data-value=price] {color:var(--data-price); font-variant-numeric:tabular-nums}
+
+#root .receipt-select strong {min-width:0}
+.receipt-goods {display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;line-height:1.25}
+
+/* Carry the circular division insignia into the navigation. */
+#root .space-experience .shell-nameplate {
+  clip-path:none;
+  background:linear-gradient(90deg,#16303b,transparent);
+  box-shadow:none;
+}
+#root .space-experience .shell-nameplate .shell-cut,
+#root .space-experience .shell-nameplate::after {display:none}
+#root .space-topbar .brand-emblem {filter:drop-shadow(0 0 5px #89c5d233)}

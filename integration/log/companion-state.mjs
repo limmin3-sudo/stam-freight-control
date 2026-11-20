@@ -15,12 +15,21 @@ export function createCompanionState({clock=Date.now}={}){
   if(d.mode==='flight'&&typeof d.stepId==='string'&&/^[0-9a-f-]{36}$/.test(d.stepId)&&['departure','pickup','delivery','jump','stop'].includes(d.step)){
    next.stepId=d.stepId;next.step=d.step;
   }
+  if(d.guidance){
+   next.guidance={};
+   for(const key of ['task','destination','load','cash','profit']){
+    if(typeof d.guidance[key]==='string')next.guidance[key]=text(d.guidance[key],220);
+   }
+  }
+  if(d.answer&&Number.isSafeInteger(d.answer.id)&&d.answer.id>0)next.answer={id:d.answer.id,text:text(d.answer.text,240)};
   session=value.session;sequence=value.sequence;receivedAt=clock();display=next;return {accepted:true};
  }
  return {publish,snapshot:()=>current(),
   enqueue(command){
    const d=current(),flight=typeof command==='string'&&command.startsWith('complete-flight:');
-   if(!flight&&!commands.has(command))fail('unsupported-command');
+   const quote=typeof command==='string'&&/^quote-(buy|sell):[1-9][0-9]{0,8}$/.test(command);
+   if(quote&&(!d||d.mode==='flight'))return false;
+   if(!flight&&!quote&&!commands.has(command))fail('unsupported-command');
    if(!d)return false;
    if(flight&&(!d.stepId||command!=='complete-flight:'+d.stepId||queue.some(x=>x.command===command)))return false;
    queue.push({id:++commandSequence,command,at:clock()});queue=queue.slice(-20);return true;

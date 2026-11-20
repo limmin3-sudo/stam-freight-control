@@ -60,3 +60,17 @@ test('native completion is bound to a single live flight step and cannot cross i
  s.publish({session,sequence:2,display:{...display,mode:'personal'}});
  assert.equal(s.enqueue(cmd),false);
 });
+
+test('read-only commodity questions and bounded spoken guidance respect the current display lease',()=>{
+ const session='guidance_session_42',state=createCompanionState();
+ const display={mode:'personal',title:'거래',lines:[],guidance:{task:'보고',secret:'private'},answer:{id:1,text:'시세'}};
+ state.publish({session,sequence:0,display});
+ assert.deepEqual(state.snapshot().guidance,{task:'보고'});
+ assert.deepEqual(state.snapshot().answer,{id:1,text:'시세'});
+ assert.equal(state.enqueue('quote-sell:14'),true);
+ assert.throws(()=>state.enqueue('quote-buy:bad'),/unsupported-command/);
+ assert.throws(()=>state.publish({session,sequence:1,display:{...display,answer:{id:1,text:'a'.repeat(241)}}}),/invalid-display/);
+ state.publish({session,sequence:1,display:{mode:'flight',title:'운송',lines:[]}});
+ assert.equal(state.enqueue('quote-buy:14'),false);
+ assert.equal(state.snapshot().answer,undefined);
+});

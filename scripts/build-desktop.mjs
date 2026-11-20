@@ -12,6 +12,11 @@ export async function desktopFiles(){
 export async function buildDesktop(out){const directory=path.resolve(out);if(directory===path.resolve(root)||root.startsWith(directory+path.sep))throw Error('unsafe-output');try{await stat(directory);throw Error('output-exists');}catch(e){if(e.code!=='ENOENT')throw e;}
  const manifest=[];const version=JSON.parse(await readFile(path.join(root,'desktop/version.json'),'utf8')).version;
  for(const file of await desktopFiles()){const name=path.relative(root,file).split(path.sep).join('/');if(/(^|\/)(\.env|\.git)(\/|$)|\.log$/i.test(name))throw Error('private-data');const to=path.join(directory,'app',name);await mkdir(path.dirname(to),{recursive:true});const bytes=await readFile(file);await writeFile(to,bytes);manifest.push({path:'app/'+name,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')});}
+ const readData=async name=>JSON.parse(await readFile(path.join(root,'data',name),'utf8'));
+ const market=await readData('trade-market.json'),official=await readData('stam-korean.json'),supplement=await readData('ai-korean.json');
+ const vocabulary=Buffer.from(JSON.stringify(market.commodities.map(c=>({id:c.id,en:c.name,ko:official.goods[c.name]||supplement.goods[c.name]||c.name}))));
+ const voiceFile='app/data/voice-goods.json';await writeFile(path.join(directory,voiceFile),vocabulary);
+ manifest.push({path:voiceFile,bytes:vocabulary.length,sha256:createHash('sha256').update(vocabulary).digest('hex')});
  await writeFile(path.join(directory,'APP-FILES.json'),JSON.stringify({version,files:manifest},null,2)+'\n');
  await writeFile(path.join(directory,'START-HERE.txt'),'STAM / FREIGHT DIVISION\r\nExtract the whole ZIP and run STAM.exe, or use the installer. The app finds a unique LIVE installation automatically, or reconnects your last selected Game.log. Use Choose Game.log for a custom installation or PTU/EPTU. Closing the window keeps receiving in the system tray; use Quit app to exit. Click Open mission console. Contracts, login and all website updates stay on the original public website. Connecting does not automatically open a browser.\r\n');return {version,files:manifest.length};}
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)console.log(await buildDesktop(process.argv[2]));
