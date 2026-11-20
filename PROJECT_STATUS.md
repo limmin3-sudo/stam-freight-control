@@ -2,7 +2,7 @@
 
 연출 담당 브랜치 `audio/overlay-partners`. Windows 트레이의 **음성 안내 → 파트너 음성 · 실시간 정보는 Supertonic**에서 켠다. 연결된 운항 파트너의 한국어 안내 38개씩, 총 76개를 앱에 동봉한다. 고정 답변은 녹음 한 개로 끝나고 운항 작업은 녹음한 첫마디 뒤에 현재 작업의 실제 목적지·품목·수량을 이어 읽는다. 실시간 합성에는 사용자의 PC에서 실행 중인 `supertonic serve`가 필요하다. 앱의 같은 메뉴에 설치 안내와 예시 항로 미리 듣기가 있다.
 
-한국어 고정 대본 3,954자를 한 번 생성했다. 녹음 목록은 `desktop/voices/flight-ko/index.json`에 있고 런타임에서 ElevenLabs에 접속하지 않는다. 새 대본 제작은 GitHub Actions의 Record Korean overlay partners에서 수동으로 실행한다. 실시간 합성 확인에 쓴 오디오 예시는 [항해사](docs/cinematics/overlay-voice/navigator.mp3), [오퍼레이터](docs/cinematics/overlay-voice/operator.mp3)에 있다. 실게임 검증 및 정식 앱 배포는 별도다.
+한국어 고정 대본 3,954자를 한 번 생성했다. 녹음 목록은 `desktop/voices/flight-ko/index.json`에 있고 런타임에서 ElevenLabs에 접속하지 않는다. 새 대본 제작은 GitHub Actions의 Record Korean overlay partners에서 수동으로 실행한다. 실시간 합성 확인에 쓴 오디오 예시는 [항해사](docs/cinematics/overlay-voice/navigator.mp3), [오퍼레이터](docs/cinematics/overlay-voice/operator.mp3)에 있다. [Windows 검증 실행](https://github.com/limmin3-sudo/stam-freight-control/actions/runs/44772288720)에서 앱·설치 프로그램 빌드와 오버레이 재생 순서·중단 검사를 통과했다. Windows 자동 검사의 실시간 음성 응답은 테스트 데이터를 사용했고, 실제 Supertonic 모델 합성은 별도로 확인했다. 실게임 검증 및 정식 앱 배포는 별도다.
 
 ## 한국어 캐릭터 음성 인계
 
