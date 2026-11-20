@@ -1,29 +1,40 @@
-name: Verify Windows companion (no publication)
-on:
-  push:
-    branches: ['verify/log-companion-windows-20261114']
-  workflow_dispatch:
+name: Diagnose Windows companion checks
+on: workflow_dispatch
 permissions:
   contents: read
 jobs:
   windows:
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify companion and artifact checks
-        run: node --test tests/companion.test.mjs tests/desktop-artifacts.test.mjs tests/companion-state.test.mjs
-      - name: Compile and verify native app and installer
+      - name: Prepare data
+        run: |
+          node -e "require('node:fs').copyFileSync('.github/pages-baseline/locations.json','data/locations.json')"
+          node scripts/ensure-three.mjs
+          node scripts/build-ai-korean.mjs
+      - name: Trace bounded Windows self tests
         shell: powershell
-        run: ./desktop/build-windows.ps1
-      - name: Preserve Windows evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: STAM-Windows-verification
-          path: dist/*
-          if-no-files-found: warn
-          retention-days: 14
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $original = Get-Content desktop/build-windows.ps1 -Raw
+          $original = $original -replace 'Start-Process -FilePath \(Join-Path \$out ''STAM.exe''\)', 'Start-StamTest -FilePath (Join-Path $out ''STAM.exe'')'
+          $prefix = @'
+          function Start-StamTest($FilePath,$ArgumentList,[switch]$Wait,[switch]$PassThru) {
+            Write-Host "Start native test $ArgumentList"
+            $proc=Start-Process -FilePath $FilePath -ArgumentList $ArgumentList -PassThru
+            if (!$proc.WaitForExit(55000)) {
+              Get-Process STAM,node,WerFault -ErrorAction SilentlyContinue | Select-Object ProcessName,MainWindowTitle,Id | Out-Host
+              Get-WinEvent -FilterHashtable @{LogName='Application';StartTime=(Get-Date).AddMinutes(-3)} -ErrorAction SilentlyContinue | Where-Object ProviderName -in '.NET Runtime','Application Error' | Select-Object -First 4 Message | Format-List | Out-Host
+              Stop-Process -Id $proc.Id -Force
+              throw "Timed out: $ArgumentList"
+            }
+            Write-Host "Native test $ArgumentList exited $($proc.ExitCode)"
+            return $proc
+          }
+          '@
+          [IO.File]::WriteAllText((Join-Path (Get-Location) 'desktop/diag.ps1'), "$prefix`r`n$original", [Text.UTF8Encoding]::new($true))
+          ./desktop/diag.ps1
