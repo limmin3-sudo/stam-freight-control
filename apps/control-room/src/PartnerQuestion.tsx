@@ -43,12 +43,12 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Prop
   'senior-trade-officer':['어디서 얼마에 사고팔 수 있는지 어떻게 봐요?','Where do I compare buy and sell prices?'],
  };
  const example=examples[partner]?.[en?1:0];
+ const localAnswer=question.trim()?localHelp(question,en):'';
  async function ask(event:FormEvent){
   event.preventDefault();
   if(!question.trim()||controller.current||disabled)return;
-  const local=localHelp(question,en);
-  if(local){
-   setAnswer(local);setRoom('');setQuestion('');previous.current=undefined;return;
+  if(localAnswer){
+   setAnswer(localAnswer);setRoom('');setQuestion('');previous.current=undefined;return;
   }
   const request=new AbortController();
   controller.current=request;setBusy(true);setAnswer('');setRoom('');
@@ -76,7 +76,7 @@ export function PartnerQuestion({endpoint,partner,en,destinations,disabled}:Prop
  }
  return <form className="partner-question" onSubmit={ask}>
   <label>{en?'Ask the partner':'파트너에게 질문'}<input value={question} maxLength={600} disabled={disabled||busy} placeholder={example} onChange={e=>setQuestion(e.target.value)}/></label>
-  <button type="submit" disabled={disabled||busy||!question.trim()}>{busy?(en?'Answering…':'답변 중…'):(en?'Ask':'질문하기')}</button>
+  <button type="submit" disabled={disabled||busy||!question.trim()}>{busy?(en?'Answering…':'답변 중…'):(question.trim()?(localAnswer?(en?'Ask · local guide':'질문하기 · 기본 안내'):(en?'Ask AI partner':'AI 파트너에게 질문')):(en?'Ask':'질문하기'))}</button>
   <p role="status">{answer.split(/(\*\*[^*\n]+\*\*)/g).map((part,index)=>
    index%2===1 ? <strong key={index}>{part.slice(2,-2)}</strong> : part
   )}</p>

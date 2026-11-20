@@ -77,6 +77,7 @@ internal sealed partial class CompanionOverlay {
         AddQuestion(T("적재 수량","cargo quantity"),"load");
         AddQuestion(T("자본","cash balance"),"cash");
         AddQuestion(T("실현 손익","realized profit"),"profit");
+        queries[T("다 실었는데 어디로 가","where do I go after loading")]="afterLoad";
         queries[T("다음 목적지는 어디야","where are we going")]="destination";
         queries[T("얼마나 실어야 해","how much should I load")]="load";
         queries[T("얼마나 실어야 돼","how much cargo")]="load";
@@ -103,6 +104,7 @@ internal sealed partial class CompanionOverlay {
             AddQuestion(english?name+" sell price":name+" 판매가","quote-sell:"+id);
             AddPhrase(english?"where can I buy "+name:name+" 어디서 사","quote-buy:"+id);
             AddPhrase(english?"where can I sell "+name:name+" 어디서 팔아","quote-sell:"+id);
+
         }
     }
     void AddQueries(Choices choices){foreach(var phrase in queries.Keys)choices.Add(phrase);}
@@ -149,7 +151,7 @@ internal sealed partial class CompanionOverlay {
             bool consonant=c>='가'&&c<='힣'&&(c-'가')%28!=0;
             return c+(consonant?"이에요.":"예요.");
         }).Replace("적재해 주십시오.","실어 봐요!").Replace("배송해 주십시오.","배송해 봐요!")
-          .Replace("하십시오.","해 주세요.").Replace("누르십시오.","눌러 주세요.").Replace("펼치십시오.","펼쳐 주세요.").Replace("물어보십시오.","물어봐 주세요.").Replace("고르십시오.","골라 주세요.").Replace("주십시오.","주세요.").Replace("합니다.","해요.").Replace("됩니다.","돼요.").Replace("있습니다.","있어요.").Replace("없습니다.","없어요.").Replace("살 수 있습니다.","살 수 있어요!").Replace("팔 수 있습니다.","팔 수 있어요!").Replace("도착했습니다.","도착했어요.").Replace("끝났습니다.","끝났어요.");
+          .Replace("하십시오.","해 주세요.").Replace("누르십시오.","눌러 주세요.").Replace("펼치십시오.","펼쳐 주세요.").Replace("물어보십시오.","물어봐 주세요.").Replace("고르십시오.","골라 주세요.").Replace("주십시오.","주세요.").Replace("합니다.","해요.").Replace("됩니다.","돼요.").Replace("있습니다.","있어요.").Replace("없습니다.","없어요.").Replace("입니까?","인가요?").Replace("찾으십니까?","찾아요?").Replace("말씀해 주세요.","말해 주세요!").Replace("살 수 있습니다.","살 수 있어요!").Replace("팔 수 있습니다.","팔 수 있어요!").Replace("도착했습니다.","도착했어요.").Replace("끝났습니다.","끝났어요.");
     }
     void Say(string text){
         if(Narrator=="off"||Listening||String.IsNullOrEmpty(text))return;
@@ -207,7 +209,13 @@ internal sealed partial class CompanionOverlay {
         body.Text=text;answerUntil=DateTime.UtcNow.AddSeconds(10);
         if(aloud)Say(text);
     }
+    string pendingGood,pendingSide,pendingAmount;
+    DateTime clarifyUntil=DateTime.MinValue;
+    void EndClarification(){
+        pendingGood=pendingSide=pendingAmount=null;clarifyUntil=DateTime.MinValue;
+    }
     void ClearGuidance(){
+        EndClarification();
         if(displayedMode!=null)StopNarration();
         displayedMode=null;facts=null;lastTask=null;lastReply=null;
         quoteRequested=answerUntil=DateTime.MinValue;
@@ -231,27 +239,77 @@ internal sealed partial class CompanionOverlay {
         }
         if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
     }
+    static string SpokenAmount(string phrase,bool followup,out bool invalid){
+        invalid=false;
+        string unit=@"(?:scu|에스\s*씨\s*유|에스\s*시\s*유)";
+        var m=Regex.Match(phrase,@"(?<![0-9.,-])([0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\s*"+unit,RegexOptions.IgnoreCase);
+        if(followup&&!m.Success)m=Regex.Match(phrase,@"^\s*([0-9]+)\s*(?:이요|요|이야)?\s*[.!?]?\s*$");
+        if(m.Success){
+            int value;
+            if(Int32.TryParse(m.Groups[1].Value.Replace(",",""),out value)&&value>0&&value<1000000)return value.ToString(CultureInfo.InvariantCulture);
+            invalid=true;return null;
+        }
+        var spelled=Regex.Match(phrase,@"([일이삼사오육칠팔구십백천만]+)\s*"+unit,RegexOptions.IgnoreCase);
+        if(!spelled.Success&&followup)spelled=Regex.Match(phrase,@"^\s*([일이삼사오육칠팔구십백천만]+)\s*(?:이요|요)?[.!?]?\s*$");
+        if(spelled.Success){
+            int total=0,part=0,digit=0;
+            foreach(char ch in spelled.Groups[1].Value){
+                int n="일이삼사오육칠팔구".IndexOf(ch)+1;
+                if(n>0){digit=n;continue;}
+                if(ch=='만'){total+=Math.Max(1,part+digit)*10000;part=0;}
+                else part+=Math.Max(1,digit)*(ch=='천'?1000:ch=='백'?100:10);
+                digit=0;
+            }
+            int amount=total+part+digit;
+            if(amount>0&&amount<1000000)return amount.ToString(CultureInfo.InvariantCulture);
+        }
+        invalid=Regex.IsMatch(phrase,unit,RegexOptions.IgnoreCase);
+        return null;
+    }
+    string MarketQuestion(string phrase,string q){
+        bool waiting=DateTime.UtcNow<clarifyUntil;
+        bool buy=ContainsAny(q,"매입","구매","살수","사려","살만","사면","살까","어디서사","buy","purchase");
+        bool sell=ContainsAny(q,"판매","팔수","팔아","팔면","팔까","팔지","팔만","팔려","팔고","팔곳","팔거","sell");
+        if(!buy&&!sell&&!waiting&&!ContainsAny(q,"시세","가격","얼마에","quote","price"))return null;
+        bool badAmount;string amount=SpokenAmount(phrase,waiting,out badAmount);
+        string id=null;int length=0;
+        foreach(var entry in goodNames){
+            string name=entry.Key;
+            if(!q.Contains(name)||name.Length<length)continue;
+            // A one-character commodity such as 금 must not match 지금 or 자금.
+            if(name.Length==1&&!Regex.IsMatch(phrase,@"(?<![가-힣])"+Regex.Escape(name)+@"(?=$|[\s0-9.,!?]|을|를|은|는|이|가|의|좀|어디|매입|판매|가격|시세)"))continue;
+            if(name.Length==length&&entry.Value!=id)id="";
+            else id=entry.Value;
+            length=name.Length;
+        }
+        if(!waiting)EndClarification();
+        if(id!=null)pendingGood=id;
+        if(buy!=sell)pendingSide=buy?"buy":"sell";
+        else if(buy)pendingSide=null;
+        if(amount!=null)pendingAmount=amount;
+        string prompt=null;
+        if(badAmount){pendingAmount="?";prompt=T("몇 SCU인지 숫자로 다시 말씀해 주십시오.","How many SCU? Please repeat the number.");}
+        else if(String.IsNullOrEmpty(pendingGood))prompt=T("어떤 품목입니까? 예를 들어 티타늄이라고 말씀해 주십시오.","Which commodity? For example, titanium.");
+        else if(pendingSide==null)prompt=T("매입처와 판매처 중 어느 쪽을 찾으십니까?","Are you looking to buy or to sell?");
+        else if(pendingAmount=="?")prompt=T("거래할 수량은 몇 SCU입니까?","How many SCU are you trading?");
+        if(prompt!=null){clarifyUntil=DateTime.UtcNow.AddSeconds(60);return "ask:"+prompt;}
+        string command="quote-"+pendingSide+":"+pendingGood+(pendingAmount==null?"":":"+pendingAmount);
+        EndClarification();return command;
+    }
     string LookupQuestion(string phrase){
-        string key;
-        if(queries.TryGetValue(phrase,out key))return key;
-        string q=Normal(phrase);
+        string key;string q=Normal(phrase);
+        if(DateTime.UtcNow<clarifyUntil&&ContainsAny(q,"질문취소","취소","됐어","그만","cancel","nevermind")){
+            EndClarification();return "ask:"+T("질문을 취소했습니다.","Question cancelled.");
+        }
+        if(queries.TryGetValue(phrase,out key)){
+            if(!key.StartsWith("quote-")||DateTime.UtcNow>=clarifyUntil){EndClarification();return key;}
+        }
         key=MatchHelp(q);
-        if(key!=null)return key;
-        bool buy=ContainsAny(q,"매입","구매","살수","사려","살만","사면","살까","파는곳","어디서사","buy","purchase");
-        bool sell=ContainsAny(q,"판매","팔수","팔아","팔면","팔까","팔만","팔려","팔고","sell");
-        if(buy||sell||ContainsAny(q,"시세","가격","얼마에","quote","price")){
-            string id=null;int length=0;
-            foreach(var entry in goodNames){
-                if(!q.Contains(entry.Key)||entry.Key.Length<length)continue;
-                if(entry.Key.Length==length&&entry.Value!=id)id="";
-                else id=entry.Value;
-                length=entry.Key.Length;
-            }
-            if(length>0){
-                if(String.IsNullOrEmpty(id))return "ambiguous";
-                if(buy==sell)return "quote-side";
-                return (buy?"quote-buy:":"quote-sell:")+id;
-            }
+        if(key!=null){EndClarification();return key;}
+        if(ContainsAny(q,"다실었","다싣고","적재후","적재끝","픽업끝","afterloading","finishedloading")&&ContainsAny(q,"어디","다음","where","next"))return "afterLoad";
+        if(displayedMode=="personal"||displayedMode=="fleet"){
+            key=MarketQuestion(phrase,q);
+            if(key!=null)return key;
         }
         bool destination=ContainsAny(q,"목적지","어디로","어디가","어디야","어디에가","다음거점","다음배송지","destination","nextstop");
         bool load=ContainsAny(q,"얼마나실","얼마실","몇개실","몇개를실","몇에스씨유","적재량","적재수량","배송수량","몇scu","화물수량","howmuchcargo","howmuchshouldiload");
@@ -268,6 +326,7 @@ internal sealed partial class CompanionOverlay {
         string key=LookupQuestion(phrase);
         if(key==null)return false;
         bool aloud=!phrase.EndsWith("띄워줘",StringComparison.Ordinal);
+        if(key.StartsWith("ask:")){Answer(key.Substring(4),aloud);return true;}
         HelpCopy copy;
         if(help.TryGetValue(key,out copy)){Answer(copy.answer,aloud);return true;}
         if(key=="quote-side"||key=="ambiguous"){

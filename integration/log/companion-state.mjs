@@ -17,7 +17,7 @@ export function createCompanionState({clock=Date.now}={}){
   }
   if(d.guidance){
    next.guidance={};
-   for(const key of ['task','destination','load','cash','profit']){
+   for(const key of ['task','destination','afterLoad','load','cash','profit']){
     if(typeof d.guidance[key]==='string')next.guidance[key]=text(d.guidance[key],220);
    }
   }
@@ -27,7 +27,7 @@ export function createCompanionState({clock=Date.now}={}){
  return {publish,snapshot:()=>current(),
   enqueue(command){
    const d=current(),flight=typeof command==='string'&&command.startsWith('complete-flight:');
-   const quote=typeof command==='string'&&/^quote-(buy|sell):[1-9][0-9]{0,8}$/.test(command);
+   const quote=typeof command==='string'&&/^quote-(buy|sell):[1-9][0-9]{0,8}(:[1-9][0-9]{0,5})?$/.test(command);
    if(quote&&(!d||d.mode==='flight'))return false;
    if(!flight&&!quote&&!commands.has(command))fail('unsupported-command');
    if(!d)return false;

@@ -68,6 +68,8 @@ test('read-only commodity questions and bounded spoken guidance respect the curr
  assert.deepEqual(state.snapshot().guidance,{task:'보고'});
  assert.deepEqual(state.snapshot().answer,{id:1,text:'시세'});
  assert.equal(state.enqueue('quote-sell:14'),true);
+ assert.equal(state.enqueue('quote-sell:75:500'),true);
+ assert.throws(()=>state.enqueue('quote-sell:75:-4'),/unsupported-command/);
  assert.throws(()=>state.enqueue('quote-buy:bad'),/unsupported-command/);
  assert.throws(()=>state.publish({session,sequence:1,display:{...display,answer:{id:1,text:'a'.repeat(241)}}}),/invalid-display/);
  state.publish({session,sequence:1,display:{mode:'flight',title:'운송',lines:[]}});

@@ -53,6 +53,11 @@ internal sealed partial class CompanionOverlay {
                 Require(overlay.Query("적재 완료는 어떻게 해",1)&&commands.Count==2,"guide-never-advances");
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","personal"},{"title","시세"},{"lines",new[]{"현재 시세"}}});
                 Require(overlay.Query("금 어디서 팔아",1)&&commands.Count==3&&commands[2].StartsWith("quote-sell:"),"named-commodity-query");
+                Require(overlay.LookupQuestion("티타늄 500scu 샀는데 어디서 팔지?")=="quote-sell:75:500","natural-quantity-sale");
+                Require(overlay.LookupQuestion("다 실었는데 어디로가?")=="afterLoad","read-only-after-loading");
+                Require(overlay.LookupQuestion("500 SCU 어디서 팔지?").StartsWith("ask:")&&overlay.LookupQuestion("티타늄이요")=="quote-sell:75:500","preserve-side-and-lot");
+                Require(overlay.LookupQuestion("티타늄 오백 에스씨유 시세 알려줘").StartsWith("ask:")&&overlay.LookupQuestion("판매")=="quote-sell:75:500","preserve-commodity-and-lot");
+                Require(overlay.LookupQuestion("지금 어디서 팔지?").StartsWith("ask:")&&overlay.LookupQuestion("질문 취소").StartsWith("ask:")&&overlay.clarifyUntil==DateTime.MinValue,"no-gold-substring-cancel");
                 checks.Add("Read-only cargo and commodity questions preserve flight progress; female Korean phrasing retains destination and quantity");
                 overlay.Size=new Size(660,480);overlay.Clamp();savedSize=overlay.Size;overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.Save();
             }

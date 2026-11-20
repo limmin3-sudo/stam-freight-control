@@ -5,7 +5,7 @@ import {useTradeView} from './use-trade-view';
 import type {MarketSnapshot} from './trade-data';
 import {priceAnswer} from './companion-guidance';
 import {refreshCommodity,marketWithRecentQuotes} from './market-reference';
-export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'load'|'cash'|'profit',string>>};
+export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
 export default function CompanionDisplay({summary,locale,onCommand,market}:{market?:MarketSnapshot|null;summary:CompanionSummary;locale:Locale;onCommand:(command:string)=>void}){
  const t=(k:string,e:string)=>locale==='en'?e:k,[enabled,setEnabled]=useTradeView('companion-enabled',false),[status,setStatus]=useState(''),current=useRef(summary),command=useRef(onCommand);
  const lookup=useRef({market,locale});lookup.current={market,locale};
@@ -15,12 +15,12 @@ export default function CompanionDisplay({summary,locale,onCommand,market}:{mark
   const poll=async()=>{let repeat=false;try{if(!token){const p=await request('/api/pair',undefined,true);if(stopped)return;if(!/^[a-f0-9]{64}$/.test(p.token))throw Error('offline');token=p.token;const s=await request('/api/status');if(s.capabilities?.display!==2)throw Error('upgrade');flightVoice=s.capabilities?.flightVoice===1;}
    if(stopped)return;await request('/api/display',{session,sequence:++sequence,display:{...current.current,answer}});if(stopped)return;
    const result=await request('/api/commands?session='+encodeURIComponent(session)+'&after='+after+(flightVoice&&current.current.mode==='flight'?'&wait=1':''));if(stopped)return;
-   for(const row of result.commands??[]){if(Number.isSafeInteger(row.id)&&row.id>after){after=row.id;const quote=/^quote-(buy|sell):([1-9][0-9]{0,8})$/.exec(row.command);
+   for(const row of result.commands??[]){if(Number.isSafeInteger(row.id)&&row.id>after){after=row.id;const quote=/^quote-(buy|sell):([1-9][0-9]{0,8})(?::([1-9][0-9]{0,5}))?$/.exec(row.command);
      if(quote&&current.current.mode!=='flight'){
        const {market,locale:language}=lookup.current;
        const mode=current.current.mode,id=Number(quote[2]),side=quote[1] as 'buy'|'sell';
        latestQuote=row.id;
-       const reply=()=>{if(!stopped&&latestQuote===row.id&&current.current.mode===mode)answer={id:row.id,text:priceAnswer(market?marketWithRecentQuotes(market):null,side,id,language==='en').slice(0,240)};};
+       const reply=()=>{if(!stopped&&latestQuote===row.id&&current.current.mode===mode)answer={id:row.id,text:priceAnswer(market?marketWithRecentQuotes(market):null,side,id,language==='en',quote[3]?Number(quote[3]):undefined).slice(0,240)};};
        if(market?.commodities.some(item=>item.id===id))void refreshCommodity(market,id).then(reply,reply);
        else reply();
        continue;}
