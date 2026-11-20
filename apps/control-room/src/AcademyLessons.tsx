@@ -32,7 +32,7 @@ export default function AcademyLessons({locale,target}:{locale:Locale;target?:Ta
   const tokens=search.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   const rows=academyLessons.filter(l=>{
     if(topic!=='all'&&l.topic[0]!==topic)return false;
-    const text=[...l.topic,...l.title,...l.summary,...l.steps.flat(),...l.check].join(' ').toLocaleLowerCase();
+    const text=[...l.topic,...l.title,...l.summary,...l.steps.flat(),...l.check,...(l.fieldNote?.title??[]),...(l.fieldNote?.body??[])].join(' ').toLocaleLowerCase();
     return tokens.every(token=>text.includes(token));
   });
   if(target?.lesson)rows.sort((a,b)=>Number(b.id===target.lesson)-Number(a.id===target.lesson));
@@ -76,6 +76,7 @@ export default function AcademyLessons({locale,target}:{locale:Locale;target?:Ta
           </table>}
           <ol>{l.steps.map((step,i)=><li key={i}>{step[language]}</li>)}</ol>
           <p className="academy-check">{l.check[language]}</p>
+          {l.fieldNote&&<section className="academy-note"><h4>{l.fieldNote.title[language]}</h4><p>{l.fieldNote.body[language]}</p></section>}
           {l.basis&&<p className="academy-note">{l.basis[language]}</p>}
           {l.tool&&<a className="market-action" href={l.tool==='guide'||l.tool==='mission'?'#/'+l.tool+'?lang='+locale:'#/division?lang='+locale+'&facility=trade&room='+l.tool}>
             <ApprovedGlass/><span>{l.tool==='guide'?t('안내데스크에서 운송 연습','Practice hauling at the welcome desk'):l.tool==='market'?t('무역 시세 열기','Open trade prices'):l.tool==='trade-operations'?t('거래기록 열기','Open trade records'):t('관련 도구 열기','Open related tool')}</span>

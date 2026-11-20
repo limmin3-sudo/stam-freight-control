@@ -16,7 +16,7 @@ const featured:Entry[] = [
   {title:['Hull B로 6계약을 함께 운송한 경로', 'How a Hull B hauled six contracts together'], terms:'헐비 헐 B 363 SCU 오리슨 스탠턴 파이로 실제 사례 orison stanton pyro interstellar study', destination:{room:'operations-study'}},
 ];
 const lessons:Entry[] = academyLessons.map(lesson=>({
-    title:lesson.title, terms:[...lesson.topic,...lesson.summary,...lesson.steps.flat()].join(' '),
+    title:lesson.title, terms:[...lesson.topic,...lesson.summary,...lesson.steps.flat(),...(lesson.fieldNote?.title??[])].join(' '),
     destination:{room:'education' as const, section:'lessons' as const, lesson:lesson.id},
   }));
 const starters=lessons.filter(e=>e.destination.room==='education'&&['accept-first-haul','read-first-quote'].includes(e.destination.lesson??''));

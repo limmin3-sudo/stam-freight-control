@@ -41,6 +41,10 @@ export const fieldLessons:AcademyLesson[] = [
       ],
     },
     check:['왕복 88 SCU · 25상자. 최대 적재는 복귀편 46 SCU로 골렘 Ox에 18 SCU가 남습니다. 실측 21분은 시간당 약 149만 aUEC입니다. 익숙해져 한 바퀴를 20분에 돌면 시간당 3바퀴, 계약 15건, 1,567,500 aUEC입니다.', '88 SCU in 25 boxes per lap. The return leg peaks at 46 SCU, leaving 18 SCU free. The measured 21-minute lap works out to about 1.49 million aUEC/h. At an estimated 20 minutes per lap, three laps complete 15 contracts and earn 1,567,500 aUEC/h.'],
+    fieldNote:{
+      title:['다른 후보지 · 모녹스, 패치 시티, 체크메이트','Alternative area · Monox, Patch City and Checkmate'],
+      body:['이 일대에서도 픽업지나 배송지가 겹치는 의뢰를 묶으면 가스라이트 코스보다 더 벌 수 있습니다. 다만 운항 경험상 모녹스에서는 다른 플레이어가 운송을 방해하는 일이 잦고, 지상 기지에 대형함이 장시간 주차돼 상하차가 밀리기도 합니다. 적대 NPC까지 나타나면 한 바퀴 걸리는 시간이 크게 달라집니다. 수습생 평판을 꾸준히 올리고 싶다면 가스라이트 코스부터 돌고, 이쪽은 현장 상황이 좋을 때 시도하세요.', 'Stacking contracts with shared pickups or destinations in this area can pay more than the Gaslight loop. Pilots report frequent player disruption around Monox and long-parked large ships at surface bases that delay loading. Hostile NPCs can make lap times even less predictable. Start with Gaslight for steady trainee reputation and try this area when local conditions are favourable.'],
+    },
     basis:['플레이어가 제공한 게임 내 계약 화면 5건과 한 바퀴 실측 기준. 수주할 때 주요 목표에서 픽업지·배송지·수량을 확인하세요.', 'Based on five player-supplied in-game contracts and one timed lap. Check the pickup, delivery and quantities in each offer.'],
     sources:[],tool:'mission',
   },

@@ -1,6 +1,6 @@
 import {fieldLessons} from './academy-field-lessons.ts';
 export type AcademyText=readonly[string,string];
-export type AcademyLesson={id:string;topic:AcademyText;title:AcademyText;summary:AcademyText;steps:AcademyText[];check:AcademyText;basis?:AcademyText;example?:{caption:AcademyText;columns:AcademyText[];rows:[AcademyText,...AcademyText[]][]};sources:{name:string;url:string}[];tool?:'planning'|'trade-operations'|'market'|'mission'|'guide'};
+export type AcademyLesson={id:string;topic:AcademyText;title:AcademyText;summary:AcademyText;steps:AcademyText[];check:AcademyText;basis?:AcademyText;fieldNote?:{title:AcademyText;body:AcademyText};example?:{caption:AcademyText;columns:AcademyText[];rows:[AcademyText,...AcademyText[]][]};sources:{name:string;url:string}[];tool?:'planning'|'trade-operations'|'market'|'mission'|'guide'};
 const mission={name:'SCMDB · 미션 정의',url:'https://scmdb.dev/'},wiki={name:'Star Citizen Wiki · Missions',url:'https://api.star-citizen.wiki/missions'};
 export const academyLessons:AcademyLesson[]=[
  ...fieldLessons,
