@@ -36,8 +36,8 @@ function showPanels(value) {
     panel.setAttribute('aria-hidden', String(!value));
   });
   toggle.setAttribute('aria-expanded', String(value));
-  toggle.textContent = word(value ? '홀로그램 접기' : '홀로그램 펼치기');
-  if (stage.dataset.state === 'arrived') status.textContent = word(value ? '안내 데스크' : '홀로그램 수납');
+  toggle.textContent = word(value ? '대화 패널 접기' : '대화 패널 열기');
+  if (stage.dataset.state === 'arrived') status.textContent = word(value ? '안내 데스크' : '대화 패널 닫힘');
 }
 function stopIdle() {
   idle.pause();
@@ -148,7 +148,7 @@ async function returnToLounge() {
   stage.dataset.state = 'closing-return';
   toggle.disabled = true;
   showPanels(false);
-  status.textContent = word('홀로그램 수납 중');
+  status.textContent = word('대화 패널 닫는 중');
   // Keep the live desk view visible while the entire panel slides offstage.
   try {
     await Promise.all([waitForPanelExit(), waitForVideoData(returnVideo)]);

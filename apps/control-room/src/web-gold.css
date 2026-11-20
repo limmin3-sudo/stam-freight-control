@@ -1,0 +1,193 @@
+@import '../../../web-gold.css';
+
+@font-face {
+  font-family: 'Pretendard Desk';
+  src: url('./assets/fonts/PretendardVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Lazy-loaded rooms predate the current material system. Keep paint independent
+   of their load order and leave the photographic stages and navigation intact. */
+@layer web-material {
+ @scope (:is(.space-main, .crew-encounter, dialog, .account-dialog, .history-dialog, .guide-desk)) to (.space-sidebar, .space-topbar) {
+  :scope:not(.space-main), .space-main > :not(.space-sidebar), :is(.facility-lobby,.space-room,.control-room,.mission-screen,.market-room,.guide-journey,.service-center) {
+    --stam-body:var(--web-font)!important; --stam-display:var(--web-font)!important;
+    --stam-gold:var(--web-gold)!important; --stam-ink:var(--web-ink)!important;
+    --stam-monitor:var(--web-bg)!important; --stam-glass:var(--web-panel)!important;
+    --monitor-surface:var(--web-panel)!important; --monitor-edge:none!important;
+    --stam-glass-panel:none!important; --stam-glass-key:none!important;
+    --projection-text:var(--web-ink)!important; --projection-type:var(--web-font)!important;
+    --projection-gold:var(--web-gold)!important; --projection-muted:var(--web-muted)!important;
+    --plot-axis:var(--web-muted)!important; --plot-highlight:var(--web-gold)!important;
+    --plot-track:var(--web-line)!important; --plot-data:var(--web-green)!important;
+    font-family:var(--web-font)!important;
+  }
+  :is(.persistent-console-content,.room-service,.room-information,.partner-choice,.facility-lobby[data-monitor=true],
+      .workspace-layout,.console-display-content,.guide-journey[data-scene=false],.trade-workspace-shell) {
+    background:var(--web-bg)!important;color:var(--web-ink)!important;
+  }
+  :scope:is(.account-dialog,.history-dialog,dialog:not(.shuttle-boarding,.crew-encounter,.guide-journey)), :is(.mission-preflight,.mission-intake,.mission-contract-editor,.manifest-summary,.receipt-card,.mission-empty,
+    .dispatch-ship,.ops-mast,.ops-progress,.ops-partner,.ops-hold,.ops-map,.ops-run-menu,.chart-space,.chart-itinerary,.chart-detail,
+    .room-guide .space-room-heading,.chart-loading,.trade-map-panel,.trade-cargo-panel,.suite-card,.ops-live-cargo,.trade-plan-inputs,.freight-reference-cards article,.academy-finder,.trade-plan-controls,.trade-plan-candidates,.trade-price-console,
+    .market-filters,.market-results,.trade-review,.trade-transaction,.trade-market-board,.ticker-detail,
+    .market-terminal-grid article,.market-source-list,.flight-cloud-panel,.trade-cloud-panel,.flight-route-editor,.receipt-update-notice,.pilot-details,.cargo-layout-editor,.trade-run-history,.trade-inventory-details,.trade-partner-detail,.trade-history,.service-content:not(.service-manual),.academy-study-setup,.academy-check,.archive-filters,.archive-card,.freight-reference-detail,.academy-learning-filters,
+    .academy-lesson,.academy-selection,.space-information>a,.space-location-heading,.lobby-heading,.division-details,
+    .web-theme-picker,.manual-feature,.manual-step,.manual-issue,.manual-movement,.manual-ready,.manual-topics>a,
+    .service-record,.service-updates article,.visit-panel,.visit-marker,.crew-dialogue,.lounge-tour-caption,
+    .guide-journey-speech,.guide-journey-explainer,.guide-practice-setup,.guide-practice-contract,
+    .guide-practice-source,.trade-guide-stage,.shuttle-boarding nav,.shuttle-playback-message,.guide-desk .unified,
+    .crew-loading,.flight-backup,.receipt-review,.screen-notice,dialog:not(.crew-encounter,.shuttle-boarding,.guide-journey)) {
+    background:var(--web-panel)!important;color:var(--web-ink)!important;
+    border:1px solid var(--web-line)!important;border-image:none!important;border-radius:5px!important;
+    box-shadow:none!important;backdrop-filter:none!important;text-shadow:none!important;clip-path:none!important;
+  }
+  :is(.crew-dialogue,.visit-panel,.guide-journey-speech,.lounge-tour-caption,.guide-desk .unified) {
+    border-radius:0!important;border-top:2px solid var(--web-rim)!important;
+  }
+  :is(.room-service,.room-information,.partner-choice)::after {content:none!important}
+  .facility-lobby[data-monitor=true]>.lobby-stage {background:var(--web-bg)!important;border:0!important;border-image:none!important;box-shadow:none!important}
+  .space-screen {border:1px solid var(--web-rim)!important;border-image:none!important;box-shadow:none!important}
+  .midnight-primary::before {content:none!important}
+  :is(.approved-glass,.division-glass,.trade-guide-material,.guide-desk .frame,.guide-desk .floor-light,.guide-desk .action-shape) {display:none!important}
+  :is(.crew-dialogue,.visit-panel,.lounge-tour-caption,.guide-journey-speech,.guide-desk .unified,.guide-desk .holo-action,
+      .dispatch-ship,.mission-preflight,.mission-intake,.receipt-card,.manifest-summary,.manual-feature,.manual-step)::before,
+  :is(.crew-dialogue,.visit-panel,.lounge-tour-caption,.guide-journey-speech,.guide-desk .unified,.guide-desk .holo-action,
+      .dispatch-ship,.mission-preflight,.mission-intake,.receipt-card,.manifest-summary,.manual-feature,.manual-step)::after {content:none!important}
+  :scope:is(dialog,.account-dialog,.history-dialog), :is(.persistent-console-content,.space-room-heading,.partner-choice,.guide-practice-setup,.trade-guide-stage,.market-room,.service-center,.room-information,.visit-marker,.academy-learning,.guide-journey-work,
+    .lobby-detail,.visit-panel,.crew-dialogue,.guide-journey-speech,.lounge-tour-caption,.guide-desk .unified,
+    .division-details,.space-location-heading,.lobby-heading,dialog) {
+    font-family:var(--web-font)!important;color:var(--web-ink)!important;color-scheme:var(--web-scheme);
+    :is(h1,h2,h3,h4,h5,p,span,small,b,strong,em,dt,dd,label,summary,th,td,li,a,button,input,textarea,select) {
+      font-family:var(--web-font)!important;text-shadow:none!important;color:var(--web-ink)!important;
+    }
+    :is(small,dt,figcaption,.quantity-guide,.certainty,.mission-summary-note,.market-meta,.manual-note) {color:var(--web-muted)!important}
+    :is(a,summary,.market-eyebrow,.visit-speech strong,.crew-dialogue h2,[data-value=price]) {color:var(--web-gold)!important}
+    [data-value=quantity] {color:var(--web-green)!important;font-variant-numeric:tabular-nums}
+    [data-value=goods] {color:var(--web-goods)!important}
+    [data-value=place] {color:var(--web-place)!important}
+    [role=alert] {color:var(--web-error)!important}
+    :is(button,a.manual-action,.manual-page-controls a,select,textarea,input:not([type=checkbox],[type=radio],[type=range],[type=file]),option) {
+      color-scheme:var(--web-scheme)!important;background:var(--web-raised)!important;border:1px solid var(--web-line)!important;
+      border-image:none!important;border-radius:4px!important;box-shadow:none!important;clip-path:none!important;backdrop-filter:none!important;
+    }
+    :is(button[aria-pressed=true],button[aria-selected=true],a[aria-current=page],button:enabled:hover) {
+      background:var(--web-selected)!important;border-color:var(--web-rim)!important;color:var(--web-gold)!important;
+    }
+    :is(.dispatch-next,.dispatch-launch,.chart-primary,.visit-next,button[type=submit]):enabled {
+      background:var(--web-action)!important;border-color:var(--web-rim)!important;color:var(--web-action-ink)!important;
+      :is(span,b) {color:inherit!important}
+    }
+    .interface-glyph {color:var(--web-gold)!important;filter:none!important}
+    .selection-count {color:var(--web-ink)!important}
+    button:disabled {opacity:.6!important}
+    ::placeholder {color:var(--web-muted)!important}
+    :is(button,input,textarea,summary,select,a):focus-visible {outline:2px solid var(--web-gold)!important;outline-offset:2px}
+    :is(input[type=checkbox],input[type=radio]) {accent-color:var(--web-rim)}
+  }
+  :is(.manual-role-notes>div,.manual-install-steps li,.manual-note,.manual-movement dl>div,.manual-step-index,
+      .archive-metrics>div,.chart-stops>li,.ops-itinerary>li,.trade-guide-metrics>div,
+      .manual-auth-info,.manual-issue-content,.trade-guide-events li,.suite-metrics>div,.academy-cards article,.trade-guide-quotes>*,.guide-practice-contract,.manual-start-order,.board-table,.service-latest,
+      .manifest-editor,.receipt-reference,.quick-totals,.manual-step-copy code) {
+    background:var(--web-raised)!important;border-color:var(--web-line)!important;color:var(--web-ink)!important;
+  }
+  :is(.service-center,.trade-market-board,.receipt-card,.manual-step) :is(th,td,thead,tbody,tr) {
+    background:var(--web-panel)!important;border-color:var(--web-line)!important;
+  }
+  :is(.ticker-legend,.trade-market-board caption,.board-side time,.selection-count,.chart-loading,.visit-marker span) {color:var(--web-muted)!important}
+  :is(.ops-chart>span,.chart-primary) {background:var(--web-raised)!important;color:var(--web-ink)!important}
+  .receipt-top input[type=checkbox] {appearance:auto!important;background:none!important;box-shadow:none!important}
+  .guide-desk .unified .icon {filter:none!important;stroke:var(--web-gold)!important}
+  .web-theme-picker {display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 18px;padding:14px 18px}
+  .service-center .web-theme-picker label {display:inline-flex;flex-direction:row;width:auto}
+  .web-theme-picker legend {padding:0 6px;font-weight:700}
+  .web-theme-picker label {display:inline-flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--web-line);border-radius:4px;cursor:pointer}
+  .web-theme-picker label:has(:checked) {border-color:var(--web-rim);background:var(--web-selected)}
+  .theme-swatch {width:19px;height:19px;background:#25272a;border:1px solid #ae9154;border-bottom:4px solid #ae9154;border-radius:3px}
+  [data-palette=white-gold] .theme-swatch {background:#fff}
+ }
+}
+html[data-web-theme] {--web-goods:#e7c7a3;--web-place:#b5d1dd}
+html[data-web-theme=white-gold] {--web-goods:#754c2e;--web-place:#345d71}
+
+/* Let the manifest measure the space actually available beside the navigation. */
+#root .space-experience .persistent-console-content :is(.workspace-layout,.mission-screen) {
+  width:100%;max-width:none;min-width:0;box-sizing:border-box;
+}
+#root .space-experience .persistent-console-content .workspace-layout:has(.mission-screen) {display:block}
+#root .space-experience .dispatch-contracts .manifest-cols {display:flex;flex-direction:column;align-items:stretch;gap:18px}
+#root .space-experience .dispatch-contracts .manifest-inbox {
+  background:none;border:0;border-image:none;box-shadow:none;padding:0;
+}
+#root .space-experience .dispatch-contracts .receipt-grid {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,max(185px,calc((100% - 48px)/5))),1fr));gap:12px;align-items:start;
+}
+#root .space-experience .dispatch-contracts .receipt-card {
+  display:flex;flex-direction:column;align-items:stretch;position:relative;min-width:0;gap:6px;padding:13px 14px 0;
+  font-size:13px;line-height:1.45;
+}
+#root .space-experience .dispatch-contracts .receipt-select {display:flex;flex-direction:column;align-items:stretch;gap:6px}
+#root .space-experience .dispatch-contracts .receipt-select strong {font-size:19px;letter-spacing:-.035em}
+#root .space-experience .dispatch-contracts .receipt-top {display:flex;justify-content:space-between;align-items:center;width:100%}
+#root .space-experience .receipt-top > span {position:static;width:auto;height:auto;clip-path:none;font-size:11px;letter-spacing:.035em}
+#root .space-experience .receipt-top input {width:17px;height:17px;min-height:0;margin:0;accent-color:var(--web-rim)}
+.receipt-stops {display:grid;gap:7px;margin:2px 0;padding:9px 0;border-block:1px solid var(--web-line)}
+.receipt-stops>div {display:grid;grid-template-columns:auto 1fr;gap:3px 9px}
+.receipt-stops dt {grid-column:1;font-size:11px}
+.receipt-stops dd {grid-column:2;display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin:0}
+.receipt-stops dd:first-of-type {grid-row:1}
+.receipt-stops dd span {overflow-wrap:anywhere}
+.receipt-stops dd b {font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#root .space-experience .dispatch-contracts .receipt-bottom {
+  display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:5px;margin:3px -14px 0;padding:7px 11px;
+  border-top:1px solid var(--web-line);background:var(--web-raised);border-radius:0 0 4px 4px;
+}
+#root .space-experience .dispatch-contracts .receipt-bottom b {font-size:13px}
+#root .space-experience .dispatch-contracts .manifest-summary {
+  position:static;align-self:stretch;display:flex;align-items:center;flex-wrap:wrap;gap:9px 20px;padding:15px 20px;
+}
+#root .space-experience .dispatch-contracts .manifest-summary dl {display:flex;align-items:baseline;gap:5px 10px;flex-wrap:wrap}
+#root .space-experience .dispatch-contracts .manifest-summary :is(dd,dt,p,.selection-count) {margin:0}
+#root .space-experience .dispatch-contracts .manifest-summary .selected-contracts {width:100%;display:flex;flex-wrap:wrap;gap:6px}
+#root .space-experience .dispatch-contracts .selected-contracts:empty {display:none}
+#root .space-experience .dispatch-contracts .selected-contracts .manifest-row {display:flex;align-items:center;gap:5px;border:0}
+html[data-web-theme=white-gold] .dispatch-contracts .manifest-summary {order:-1}
+@layer web-material {
+  #root .receipt-card[data-state=checked] {background:var(--web-selected)!important;border-color:var(--web-rim)!important;box-shadow:inset 0 2px var(--web-rim)!important}
+}
+
+#root .dispatch-contracts .manifest-summary > .selection-count {font-size:26px}
+#root .space-experience .dispatch-contracts .manifest-summary .dispatch-launch,
+#root .space-experience .dispatch-contracts .manifest-summary .cargo-review-toggle {width:auto;margin:0}
+#root .space-experience .dispatch-contracts .manifest-summary dl {flex:1 1 auto;min-width:0;padding:0;border:0}
+#root .space-experience .dispatch-contracts .manifest-summary .selected-contracts {order:2;width:auto}
+#root .space-experience .dispatch-contracts .manifest-summary>p {order:3;font-size:12px}
+@layer web-material {
+  #root .dispatch-contracts .manifest-inbox {background:none!important;border:0!important;box-shadow:none!important}
+  #root .web-theme-picker label {display:inline-flex!important;flex-direction:row!important;align-items:center!important}
+}
+@layer web-material {
+  #root :is(.mission-screen,.map-monitor) .interface-glyph {color:var(--web-gold)!important}
+  #root .visit-marker span {color:var(--web-ink)!important}
+  #root .guide-journey button:not(:has(img)), #root .lounge-tour-controls button, #root .lounge-tour-entry, #root .division-action, #root .guide-media-controls button {
+    font-family:var(--web-font)!important;color:var(--web-ink)!important;background:var(--web-raised)!important;
+    border:1px solid var(--web-line)!important;border-image:none!important;box-shadow:none!important;
+  }
+}
+
+.manifest-selection summary {cursor:pointer;color:var(--web-gold);font-weight:650}
+.manifest-selection[open] {flex-basis:100%}
+#root .dispatch-contracts .manifest-selection[open] .selected-contracts {gap:8px 18px;margin-top:8px}
+@layer web-material {
+  #root .ops-chart :is(.chart-loading, [role=status], .chart-loading span) {
+    background:var(--web-panel)!important;color:var(--web-ink)!important
+  }
+}
+@layer web-material {
+  .guide-journey[data-scene=true] .guide-journey-header>div,
+  .guide-journey[data-topic=trade] .guide-journey-header>div {
+    background:var(--web-panel)!important;border-inline-start:2px solid var(--web-rim);
+    border-radius:3px;padding:7px 12px;color:var(--web-ink)!important;
+  }
+  .guide-journey .guide-journey-header :is(h2,small) {color:var(--web-ink)!important;text-shadow:none!important}
+}

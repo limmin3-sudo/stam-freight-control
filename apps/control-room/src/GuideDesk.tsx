@@ -13,7 +13,6 @@ import returnEnd from './assets/guide/lounge-return.png';
 import './guide-desk.css';
 import './hologram-glass.css';
 import type {GuideTopic} from './guide-journey-content';
-import {mountGuideRasterSkin} from './guide-raster-skin';
 import {mountGuideDeskMenu} from './guide-desk-menu';
 const GuideJourney=lazy(()=>import('./GuideJourney').then(m=>({default:m.GuideJourney})));
 export type GuideDeskHandle={navigate(screen:SpaceScreen):void};
@@ -21,10 +20,10 @@ const english:Record<string,string>={
  '플라이트 가이드':'Flight Guide','STAM · 안내 데스크':'STAM · Welcome desk','무엇을 도와드릴까요?':'How can I help?',
  '첫 운송 시작':'Start first haul','운송 절차 안내':'Hauling guide','함선·화물 정보':'Ships & cargo','라운지로 돌아가기':'Return to lounge',
  '처음이에요. 안내해 주세요.':'Please show me how.','운송 준비부터 시작할게요.':'Let’s prepare a haul.',
- '소리 켜기':'Sound on','소리 끄기':'Sound off','이동 건너뛰기':'Skip travel','홀로그램 펼치기':'Open hologram','홀로그램 접기':'Close hologram',
+ '소리 켜기':'Sound on','소리 끄기':'Sound off','이동 건너뛰기':'Skip travel','대화 패널 열기':'Open dialogue','대화 패널 접기':'Close dialogue',
  '미션 콘솔에서 함선과 출발지를 고른 뒤 계약을 담아 주세요. 항로와 적재를 확인하면 출항할 수 있어요.':'Choose your ship and departure in the mission console, then add contracts. Review your route and cargo before departure.',
  '먼저 미션 콘솔에서 이번 운송에 담을 계약을 선택해 주세요. 확인한 계약으로 항로를 계산할 수 있어요.':'Select contracts in the mission console. You can calculate a route from the reviewed contracts.',
- '데스크로 이동 중':'Approaching the desk','데스크 도착':'At the desk','안내 데스크':'Welcome desk','홀로그램 수납':'Hologram closed','홀로그램 수납 중':'Closing hologram','라운지로 이동 중':'Returning to lounge','라운지':'Lounge',
+ '데스크로 이동 중':'Approaching the desk','데스크 도착':'At the desk','안내 데스크':'Welcome desk','대화 패널 닫힘':'Dialogue closed','대화 패널 닫는 중':'Closing dialogue','라운지로 이동 중':'Returning to lounge','라운지':'Lounge',
 };
 type Props={locale:Locale;startWithApproach:boolean;motion:boolean;sound:boolean;onNavigate(screen:SpaceScreen,serviceView?:ServiceView,view?:ArchiveView):void;onTour():void;onGuidedChange(open:boolean):void;onLounge():void};
 // The approved SVG/HTML scene is an isolated DOM island. The controller is shared
@@ -60,9 +59,8 @@ export const GuideDesk=forwardRef<GuideDeskHandle,Props>(function GuideDesk(prop
   }
   const showGuide=(topic:GuideTopic)=>{trigger.current=document.activeElement as HTMLElement;setTopic(topic);};
   const removeMenu=mountGuideDeskMenu(root,{locale:props.locale,onGuide:showGuide,onTour:()=>callbacks.current.onTour()});
-  const removeSkin=mountGuideRasterSkin(root,props.locale!=='en');
   api.current=mountGuideDesk(root,{...props,menuManaged:true,translate,onGuide:showGuide,onNavigate:(screen,serviceView)=>callbacks.current.onNavigate(screen,serviceView),onLounge:()=>callbacks.current.onLounge()});
-  return()=>{removeMenu();removeSkin();api.current?.destroy();api.current=null;root.replaceChildren();};
+  return()=>{removeMenu();api.current?.destroy();api.current=null;root.replaceChildren();};
  },[props.locale,props.startWithApproach,props.motion]);
  return <><div className="guide-desk" data-material="generated-glass" data-guided={!!topic} ref={host} data-motion={props.motion} aria-label={props.locale==='en'?'Flight Guide reception':'플라이트 가이드 안내데스크'}/>{topic&&<Suspense fallback={<div className="guide-journey-loading" role="status">{props.locale==='en'?'Preparing your guide…':'안내를 준비하고 있어요…'}<button onClick={close}>{props.locale==='en'?'Cancel':'취소'}</button></div>}><GuideJourney key={topic} topic={topic} locale={props.locale} motion={props.motion} onClose={close} onTopic={setTopic} onTour={props.onTour} onNavigate={(screen,serviceView,view)=>{setTopic(null);props.onNavigate(screen,serviceView,view);}}/></Suspense>}</>;
 });

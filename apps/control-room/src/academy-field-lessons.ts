@@ -19,6 +19,32 @@ const sample:AcademyText = ['STAM 계산 예시 · 2026-11-16 수집 티타늄 �
 
 export const fieldLessons:AcademyLesson[] = [
   {
+    id:'red-wind-pyro-loop',topic:firstHaul,
+    title:['파이로 레드 윈드 평판작 · 골렘 Ox로 한 바퀴 522,500 aUEC','Pyro Red Wind reputation loop · 522,500 aUEC in a Golem OX'],
+    summary:['가스라이트를 기점으로 레드 윈드 물류의 수습생 직송 소량 운송 5건을 묶습니다. 차울라행 3건과 복귀편 2건이 각각 건당 104,500 aUEC입니다. 골렘 Ox(64 SCU)로 한 바퀴를 직접 재니 21분이 걸렸습니다.', 'Run five Red Wind trainee small direct hauls from Gaslight in a 64 SCU Golem OX. Three outbound and two return contracts pay 104,500 aUEC each. One lap was timed at 21 minutes.'],
+    steps:[
+      ['가스라이트(파이로 V L2)를 부활 지점으로 설정하고 의뢰 목록을 엽니다. 레드 윈드 물류의 「직송 · 수습생 등급 · 소량 운송 화물」을 찾으세요. 같은 이름의 계약이 여럿이므로 주요 목표의 픽업지와 배송지를 확인합니다.', 'Set your respawn at Gaslight (Pyro V L2). Open contracts and look for Red Wind’s trainee small direct hauls. Several offers have the same title, so read both the pickup and the destination.'],
+      ['가스라이트에서 「지역 화물 운송」을 펼쳐 세이크런스 플롯 → 차울라 해변 2건을 수락합니다. 이어서 「행성 내 화물 운송」에서 가스라이트 → 차울라 해변 1건을 받습니다. 이제 3건의 배송지가 모두 차울라 해변입니다. 이 운항에서는 가스라이트 출발분인 폐기물 22 SCU만 여기서 싣습니다.', 'At Gaslight, open the local hauling category and accept two Sacren’s Plot → Chawla’s Beach offers. Open the planetary hauling category and accept one Gaslight → Chawla’s Beach offer. All three now share a destination. Load only the Gaslight pickup here: 22 SCU of waste on this run.'],
+      ['약 3.9 Gm를 퀀텀 1회로 이동해 파이로 IV의 세이크런스 플롯에 착륙합니다. 수소 11 SCU와 가공 식품 9 SCU를 실으면 차울라행 적재량은 42 SCU입니다.', 'Make one quantum jump of about 3.9 Gm and land at Sacren’s Plot on Pyro IV. Load 11 SCU of hydrogen and 9 SCU of processed food for 42 SCU aboard.'],
+      ['차울라 해변까지 약 20 km는 NAV 부스트로 이동합니다. 3건을 납품해 313,500 aUEC를 받습니다. 납품한 뒤 「행성 내 화물 운송」을 다시 엽니다. 이번에는 세이크런스 플롯 → 가스라이트 2건을 받으세요. 쿨타임 때문에 복귀편은 이 시점에 나눠 받습니다.', 'Fly about 20 km to Chawla’s Beach using NAV boost. Deliver all three contracts for 313,500 aUEC. After delivery, reopen planetary hauling. This time accept two Sacren’s Plot → Gaslight offers. Taking the return contracts here accounts for the cooldown.'],
+      ['세이크런스 플롯으로 돌아가 탄소 26 SCU와 알루미늄 20 SCU를 싣습니다. 가스라이트에서 2건을 납품하면 209,000 aUEC를 더 받고 다음 바퀴를 시작할 수 있습니다.', 'Return to Sacren’s Plot for 26 SCU of carbon and 20 SCU of aluminium. Deliver both at Gaslight for another 209,000 aUEC and check the board for the next lap.'],
+    ],
+    example:{
+      caption:['실제 계약 5건 · 최대 4 SCU 상자 조합','Five in-game contracts · box combinations up to 4 SCU'],
+      columns:[['이번 화물 · 수량','Cargo on this run'],['계약 분류','Category'],['픽업 → 배송','Pickup → delivery'],['상자 크기 × 개수','Box size × count']],
+      rows:[
+        [['폐기물 22 SCU','Waste 22 SCU'],['행성 내 화물 운송','Planetary hauling'],['가스라이트 → 차울라','Gaslight → Chawla'],['4×5 + 2×1 (6개)','4×5 + 2×1 (6 boxes)']],
+        [['수소 11 SCU','Hydrogen 11 SCU'],['지역 화물 운송','Local hauling'],['세이크런스 → 차울라','Sacren’s → Chawla'],['4×2 + 2×1 + 1×1 (4개)','4×2 + 2×1 + 1×1 (4 boxes)']],
+        [['가공 식품 9 SCU','Processed food 9 SCU'],['지역 화물 운송','Local hauling'],['세이크런스 → 차울라','Sacren’s → Chawla'],['4×2 + 1×1 (3개)','4×2 + 1×1 (3 boxes)']],
+        [['탄소 26 SCU','Carbon 26 SCU'],['행성 내 화물 운송','Planetary hauling'],['세이크런스 → 가스라이트','Sacren’s → Gaslight'],['4×6 + 2×1 (7개)','4×6 + 2×1 (7 boxes)']],
+        [['알루미늄 20 SCU','Aluminium 20 SCU'],['행성 내 화물 운송','Planetary hauling'],['세이크런스 → 가스라이트','Sacren’s → Gaslight'],['4×5 (5개)','4×5 (5 boxes)']],
+      ],
+    },
+    check:['왕복 88 SCU · 25상자. 최대 적재는 복귀편 46 SCU로 골렘 Ox에 18 SCU가 남습니다. 실측 21분은 시간당 약 149만 aUEC입니다. 익숙해져 한 바퀴를 20분에 돌면 시간당 3바퀴, 계약 15건, 1,567,500 aUEC입니다.', '88 SCU in 25 boxes per lap. The return leg peaks at 46 SCU, leaving 18 SCU free. The measured 21-minute lap works out to about 1.49 million aUEC/h. At an estimated 20 minutes per lap, three laps complete 15 contracts and earn 1,567,500 aUEC/h.'],
+    basis:['플레이어가 제공한 게임 내 계약 화면 5건과 한 바퀴 실측 기준. 수주할 때 주요 목표에서 픽업지·배송지·수량을 확인하세요.', 'Based on five player-supplied in-game contracts and one timed lap. Check the pickup, delivery and quantities in each offer.'],
+    sources:[],tool:'mission',
+  },
+  {
     id:'accept-first-haul',topic:firstHaul,title:['운송 계약, 어디서 받고 무엇부터 읽을까?', 'Where do I accept my first haul?'],
     summary:['의뢰인이 맡긴 상자를 목적지까지 가져가는 일입니다. 화물을 살 자본 없이도 시작할 수 있습니다.', 'Deliver the client’s boxes to the requested destination. You do not need to buy those goods.'],
     steps:[

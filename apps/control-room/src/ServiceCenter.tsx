@@ -1,3 +1,4 @@
+import {WebThemePicker} from './WebThemePicker';
 import {FlightCloudPanel} from './FlightCloudPanel';
 import type {useFlightCloud} from './use-flight-cloud';
 import type {useFlight} from './use-flight';
@@ -70,6 +71,7 @@ export function ServiceCenter({locale,view,flight,cloud}:{locale:Locale;view?:Se
  useEffect(()=>{if(view==='feedback')setFeedbackVisited(true);if(lastView.current!==view){lastView.current=view;const room=container.current?.closest('.space-room');room?.scrollTo({top:0});(title.current||room?.querySelector<HTMLElement>('#space-title'))?.focus({preventScroll:true});}},[view]);
  useEffect(()=>{const announce=(e:Event)=>setMessage((e as CustomEvent<string>).detail);window.addEventListener('stam-account-message',announce);return()=>window.removeEventListener('stam-account-message',announce);},[]);
  return <div ref={container} className="service-center">
+  {!view&&<WebThemePicker english={en}/>}
   {!view&&<div className="space-information room-reference-library service-catalogue">
    <p>{en?'Choose the service you need. Your account and flight records stay connected.':'필요한 서비스를 선택하세요. 계정과 운송기록을 확인하거나 의견을 보낼 수 있습니다.'}</p>
    {serviceViews.map(section=><a key={section} href={`#/service?lang=${locale}&section=${section}`}>

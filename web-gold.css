@@ -1,0 +1,56 @@
+html[data-web-theme] {
+  --web-bg: #121315;
+  --web-panel: #202225;
+  --web-raised: #2b2d30;
+  --web-selected: #302f28;
+  --web-ink: #f5f3ee;
+  --web-muted: #b8b9b7;
+  --web-line: #494b4a;
+  --web-rim: #ad9156;
+  --web-gold: #e6c781;
+  --web-action: #e6c781;
+  --web-action-ink: #211d15;
+  --web-error: #ffb1a2;
+  --web-green: #adcfb6;
+  --web-scheme: dark;
+  --web-font: 'Pretendard Desk', Pretendard, 'Malgun Gothic', system-ui, sans-serif;
+}
+html[data-web-theme=white-gold] {
+  --web-bg: #f3f4f3;
+  --web-panel: #fff;
+  --web-raised: #f1f1ed;
+  --web-selected: #fff9e9;
+  --web-ink: #1c2428;
+  --web-muted: #575e60;
+  --web-line: #c9ccc9;
+  --web-rim: #aa853d;
+  --web-gold: #765511;
+  --web-action: #e0c38a;
+  --web-action-ink: #302313;
+  --web-error: #982e28;
+  --web-green: #335d47;
+  --web-scheme: light;
+}
+/* Preserve mastheads, navigation and the astronomical map on the classic pages. */
+body[data-classic-web] {background:var(--web-bg);color:var(--web-ink)}
+@scope (body[data-classic-web] main) to (.guide-sidebar,.release-sidebar,canvas,svg) {
+  :scope {background:var(--web-bg);color:var(--web-ink);font-family:var(--web-font);color-scheme:var(--web-scheme)}
+  :is(article,details,fieldset,.mission-pane,.route-pane,.release-content,.slide,.guide-partner,.tutorial-card,.map-stop-card,.map-route-panel) {
+    background:var(--web-panel)!important;color:var(--web-ink)!important;border:1px solid var(--web-line)!important;box-shadow:none!important;
+  }
+  :is(button,select,textarea,input:not([type=checkbox],[type=radio],[type=range])) {
+    background:var(--web-raised)!important;color:var(--web-ink)!important;border-color:var(--web-line)!important;border-image:none!important;
+  }
+  :is(button[aria-pressed=true],button[aria-selected=true]) {background:var(--web-selected)!important;color:var(--web-gold)!important}
+}
+@scope (body[data-classic-web] main) to (.guide-sidebar,.release-sidebar,canvas,svg,.map-viewport) {
+  :is(.guide-frame,.slide-body,.slide-heading,.slide-footer,.release-detail,.ship-panel,.flight-setup,
+    .cargo-section,.route-pane,.execution-section,.intel-card,.tutorial-introduction,.upload-zone) {
+    background:var(--web-panel)!important;color:var(--web-ink)!important;border-color:var(--web-line)!important;
+    border-image:none!important;box-shadow:none!important;
+  }
+  :is(h1,h2,h3,h4,label,dt,dd,p,li,summary,th,td) {color:var(--web-ink)!important;font-family:var(--web-font)!important}
+  :is(a,.eyebrow,.reward-metric) {color:var(--web-gold)!important}
+  :is(.subtle,small,figcaption) {color:var(--web-muted)!important}
+  :focus-visible {outline:2px solid var(--web-gold);outline-offset:2px}
+}
