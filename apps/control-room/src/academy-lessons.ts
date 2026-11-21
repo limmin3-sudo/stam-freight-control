@@ -34,7 +34,7 @@ export const academyLessons:AcademyLesson[]=[
  {id:'trade',topic:['무역','Trading'],title:['운송 계약과 개인 무역을 구분하기','Distinguish hauling contracts from personal trade'],summary:['무역은 매입 자본·시세·판매 수요를 함께 확인합니다.','Personal trade requires capital, prices and buyer demand.'],steps:[
  ['운송 의뢰 화물과 내 자본으로 산 무역 화물은 별개입니다. 무역 계획의 매입·매출 예상값을 계약 보상이나 실제 거래로 기록하지 않습니다.','Contract cargo differs from goods bought with your own capital. Trade estimates are neither contract rewards nor completed transactions.'],
  ['보고 시세·재고·수요는 조회 시각과 게임 패치를 확인하세요. 주간 평균과 보충률 가정은 현재 구매·판매 가능한 양을 보장하지 않습니다.','Check timestamps and patch versions on reported prices, supply and demand. Weekly averages and assumed replenishment do not guarantee executable quantities.'],
- ['위험과 위법 여부는 따로 선택하고, 실제 상하역·연료 등 비용을 정산에 기록하세요.','Choose risk and legality independently, and record actual handling, fuel and other expenses.'],
+ ['실제 상하역·연료 등 비용을 정산에 기록하세요.','Record actual handling, fuel and other expenses.'],
  ],check:['미확인 비용과 판매 수요를 확인하고 자본 여유를 잡았나요?','Have you checked unknown costs, buyer demand and spare capital?'],sources:[{name:'UEX',url:'https://uexcorp.space/trade/routes'},{name:'SC Trade Tools',url:'https://sc-trade.tools/trade-routes'}]},
  {id:'access',topic:['이용 방법','Navigation'],title:['빠른 이동과 공간 이동','Quick navigation and scene navigation'],summary:['사이드바와 장소 직접 선택을 목적에 맞게 사용합니다.','Use the sidebar or the scene according to your needs.'],steps:[
  ['다른 시설로 빠르게 갈 때는 사이드바를 사용하세요. 사업부 전경이나 로비에서 장소를 직접 누르면 공간을 보며 이동할 수 있습니다.','Use the sidebar to move quickly between facilities. Select places in the division grounds or lobby to navigate through the scene.'],

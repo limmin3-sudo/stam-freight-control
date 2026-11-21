@@ -12,22 +12,18 @@ const data=():MarketSnapshot=>({schema:1,source:'UEX',retrievedAt:stamp,liveVers
 const input:SuiteOptions={...defaultSuiteOptions,shipId:'drake-cutlass-black',capacity:46,budget:100,originId:1,maxLegs:3,handlingMinutes:0,approachMinutes:0,jumpMinutes:0};
 const ctx:SuiteContext={route:(a,b)=>({meters:Math.abs(a.id-b.id)*1e9,seconds:Math.abs(a.id-b.id)*60,jumps:a.system===b.system?0:1,systems:a.system===b.system?[a.system]:[a.system,b.system]}),pack:items=>items.reduce((s,i)=>s+i.quantity,0)<=46};
 const calc=(patch:Partial<SuiteOptions>={},d=data(),c=ctx)=>calculateSuite(d,{...input,...patch},c,now);
-test('a selected buyer excluded by terminal policy explains the empty direct route',()=>{
+test('saved low-risk and legal-only settings no longer hide a viable buyer',()=>{
  const market=data();
- market.terminals[1]!.security=null;
- const result=calc({destinationId:2},market);
- assert.deepEqual(result.routes,[]);
- assert.equal(result.rejected.destinationPolicy,1);
- assert(calc({destinationId:2,risk:'all'},market).routes.length>0);
-});
-test('market quote policy gives the same security reason that blocks the planner',()=>{
- const market=data(),terminal=market.terminals[1]!;
- terminal.security={...base.security!,updatedAt:null};
- assert.equal(suiteTerminalIssue(terminal,input,now),'securityReport');
- assert.equal(calc({destinationId:terminal.id},market).routes.length,0);
- terminal.security={...base.security!,monitored:false};
- assert.equal(suiteTerminalIssue(terminal,input,now),'securityPolicy');
- assert.equal(suiteTerminalIssue(terminal,{...input,risk:'known'},now),null);
+ const buyer=market.terminals[1]!;
+ buyer.security=null;
+ const saved={...input,destinationId:buyer.id,risk:'low',legality:'legal'};
+ for(const illegal of [true,null]){
+  Object.assign(market.commodities[0]!,{illegal,riskKnown:false,hazards:['explosive']});
+  assert.equal(suiteTerminalIssue(buyer,saved),null);
+  assert(calculateSuite(market,saved,ctx,now).routes.length>0);
+ }
+ assert.equal(suiteTerminalIssue(buyer,{...saved,facilities:['monitored']}),'facilities');
+ assert.equal(calculateSuite(market,{...saved,excludeCommodityIds:[1]},ctx,now).routes.length,0);
 });
 test('single commodity plans explain the cargo quantity in the context of the chosen box',()=>{
  const options={destinationId:2,maxBoxSize:1};
@@ -72,7 +68,7 @@ test('recalculating saved reserve settings uses the full available budget',()=>{
 test('loop, chain and en-route preserve every leg and reinvest only when enabled',()=>{const loop=calc({mode:'loop'}).routes[0]!;assert.equal(loop.legs.at(-1)!.destinationId,1);assert(loop.legs.length>=2);const chain=calc({mode:'chain'}).routes[0]!,no=calc({mode:'chain',reinvest:false}).routes[0]!;assert(chain.profit>no.profit);let cash=100;for(const l of chain.legs){assert(l.purchase+l.costs+chain.reserve<=cash+.0001);cash+=l.revenue-l.purchase-l.costs;}assert.equal(cash,chain.cash);const enroute=calc({mode:'destination',destinationId:3}).routes[0]!;assert.equal(enroute.legs.at(-1)!.destinationId,3);assert(enroute.legs.reduce((s,l)=>s+l.meters,0)<=2.5e9);assert.equal(calc({mode:'destination',destinationId:999}).error,'connection');});
 test('multiple commodities and container sizes obey shared demand, capital and physical grids',()=>{const d=data();d.quotes=[quote(1,1,1,10,null,32),quote(2,2,1,null,30,0,32),quote(3,1,2,8,null,14),quote(4,2,2,null,20,0,14)];const options={...input,budget:10000};const result=calculateSuite(d,options,{...ctx,pack:items=>!!packSuite(options.shipId,items)},now);const top=result.routes[0]!;assert.equal(top.legs[0]!.lines.reduce((s,l)=>s+l.quantity,0),46);assert.equal(new Set(top.legs[0]!.lines.map(l=>l.commodityId)).size,2);for(const r of result.routes){const l=r.legs[0]!;assert(packSuite(options.shipId,l.lines));for(const line of l.lines){assert.equal(line.quantity%line.boxSize,0);assert(l.lines.filter(x=>x.commodityId===line.commodityId).reduce((s,x)=>s+x.quantity,0)<=line.demand);}}});
 test('owned cargo sells without purchase capital, partial buyers preserve remaining cost and separate lots',()=>{const d=data();d.quotes=[quote(1,2,1,null,20,0,3),quote(2,3,1,null,18,0,10)];const r=calc({mode:'buyers',budget:0,cargo:[{commodityId:1,quantity:4,boxSize:1,ownership:'owned',cost:40},{commodityId:1,quantity:2,boxSize:2,ownership:'owned',cost:30}]},d);assert.equal(r.error,null);assert(r.routes.some(r=>r.unsold.length===0));for(const route of r.routes){assert(route.legs.flatMap(l=>l.lines).reduce((s,l)=>s+l.quantity,0)<=6);assert.equal(route.purchase,0);assert.equal(route.legs.filter(l=>l.destinationId===2).flatMap(l=>l.lines).reduce((s,l)=>s+l.quantity,0)<=3,true);}assert(r.routes.some(r=>r.unsold.length>0));});
-test('illegal, unknown, stolen, stale, future, empty demand and unknown facilities never silently become safe',()=>{let d=data();d.commodities[0]!.illegal=true;assert.equal(calc({},d).routes.length,0);assert(calc({legality:'known'},d).routes.length);d=data();d.terminals[1]!.security=null;assert.equal(calc({},d).routes.length,0);assert(calc({risk:'all'},d).routes.length);d=data();d.terminals[1]!.nqa=false;assert.equal(calc({mode:'buyers',cargo:[{commodityId:1,quantity:2,boxSize:1,ownership:'stolen',cost:2}]},d).routes.length,0);for(const change of [{updatedAt:'2026-11-14T00:00:00Z'},{updatedAt:'2026-12-01T00:00:00Z'},{version:'4.10.2'},{stock:null},{stock:0}]){d=data();Object.assign(d.quotes[0]!,change);assert.equal(calc({},d).routes.length,0);}d=data();d.quotes[1]!.demand=0;assert.equal(calc({},d).routes.length,0);d=data();d.terminals[1]!.maxContainerScu=null;assert.equal(calc({},d).routes.length,0);});
+test('ownership, quote age, demand and container checks still exclude incompatible routes',()=>{let d=data();d.terminals[1]!.nqa=false;assert.equal(calc({mode:'buyers',cargo:[{commodityId:1,quantity:2,boxSize:1,ownership:'stolen',cost:2}]},d).routes.length,0);for(const change of [{updatedAt:'2026-11-14T00:00:00Z'},{updatedAt:'2026-12-01T00:00:00Z'},{version:'4.10.2'},{stock:null},{stock:0}]){d=data();Object.assign(d.quotes[0]!,change);assert.equal(calc({},d).routes.length,0);}d=data();d.quotes[1]!.demand=0;assert.equal(calc({},d).routes.length,0);d=data();d.terminals[1]!.maxContainerScu=null;assert.equal(calc({},d).routes.length,0);});
 test('fees apply at both ends, restock wait uses purchased deficit only, and unknown time is not zero',()=>{let r=calc({feePerScu:1,fixedCosts:3}).routes[0]!;const qty=r.legs[0]!.lines.reduce((s,l)=>s+l.quantity,0);assert.equal(r.costs,qty*2+3);const d=data();d.quotes[0]!.stock=2;r=calc({allowWait:true,restockScuPerMinute:1,maxWaitMinutes:10},d).routes[0]!;assert.equal(r.legs[0]!.waitMinutes,8);assert(r.warnings.includes('restockAssumption'));const unknown={...ctx,route:()=>({meters:1e9,seconds:null,jumps:0,systems:['Stanton']})};assert.equal(calc({},data(),unknown).routes[0]!.seconds,null);assert.equal(calc({goal:'time'},data(),unknown).routes.length,0);});
 test('weekly means require supplied fields, do not use missing values as a current observation',()=>{assert.equal(calc({priceBasis:'weekly'}).routes.length,0);const d=data();for(const q of d.quotes)q.averages={buy:q.buy,sell:q.sell,stock:5,demand:6};const r=calc({priceBasis:'weekly',stockBasis:'weekly'},d).routes[0]!;assert(r.warnings.includes('weeklyAverage'));assert.equal(r.legs[0]!.lines.reduce((s,l)=>s+l.quantity,0),5);});
 test('nearby origins include travel time, cash cost and the actual starting location',()=>{const d=data();d.quotes=[quote(1,2,1,10,null),quote(2,3,1,null,20)];assert.equal(calc({},d).routes.length,0);const r=calc({nearbyGm:1.1,fixedCosts:1},d).routes[0]!;assert.equal(r.legs[0]!.originId,1);assert.equal(r.legs[0]!.empty,true);assert.equal(r.legs.length,2);assert.equal(r.costs,2);});

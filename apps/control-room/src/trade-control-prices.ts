@@ -1,4 +1,4 @@
-import {commodityAllowed,type MarketSnapshot,type Quote,type Terminal} from './trade-data.ts';
+import type {MarketSnapshot,Quote,Terminal} from './trade-data.ts';
 import {suiteQuoteAllowed,suiteTerminalAllowed,type SuiteOptions,type RouteMetric} from './trade-suite.ts';
 import type {Holding} from './trade-expedition.ts';
 
@@ -13,7 +13,7 @@ export function controlPriceRows(market:MarketSnapshot,holdings:Holding[],option
  const metrics=new Map<number,RouteMetric|null>();
  return market.quotes.flatMap(quote=>{
   const terminal=terms.get(quote.terminalId),good=goods.get(quote.commodityId);
-  if(!terminal||!good||commodityId&&quote.commodityId!==commodityId||!commodityAllowed(good,options.legality,options.risk)||options.excludeCommodityIds.includes(good.id)||!suiteTerminalAllowed(terminal,options,now)||options.scope==='intrasystem'&&terminal.system!==origin.system)return [];
+  if(!terminal||!good||commodityId&&quote.commodityId!==commodityId||options.excludeCommodityIds.includes(good.id)||!suiteTerminalAllowed(terminal,options)||options.scope==='intrasystem'&&terminal.system!==origin.system)return [];
   const lots=aboard.filter(l=>l.commodityId===quote.commodityId);
   if(selling?(!lots.length||!quote.sell):(!quote.buy||terminal.id!==position))return [];
   const current=suiteQuoteAllowed(quote,market.liveVersion,options,now);
