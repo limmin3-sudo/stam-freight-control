@@ -1,8 +1,8 @@
-import {commodityAllowed,patch,type MarketSnapshot,type Terminal,type Quote} from './trade-data.ts';
+import {patch,type MarketSnapshot,type Terminal,type Quote} from './trade-data.ts';
 export type TradeMode='direct'|'buyers'|'destination'|'loop'|'chain';
 export type TradeGoal='profit'|'time'|'capital'|'roi';
 export type CargoLot={lotId?:string;commodityId:number;quantity:number;boxSize:number;ownership:'owned'|'stolen'|'unknown';cost:number|null};
-export type SuiteOptions={mode:TradeMode;goal:TradeGoal;shipId:string;originId:number;destinationId:number;budget:number;reservePercent:number;reserveEnabled:boolean;capacity:number;scope:'intrasystem'|'interstellar';maxLegs:number;detourPercent:number;reinvest:boolean;mixed:boolean;maxAgeHours:number;legality:'legal'|'known'|'all';risk:'low'|'known'|'all';commodityIds:number[];excludeCommodityIds:number[];excludeTerminalIds:number[];system:string;faction:string;facilities:string[];maxBoxSize:number;minStock:number;maxDistanceGm:number;allowWait:boolean;restockScuPerMinute:number;maxWaitMinutes:number;loading:'manual'|'auto';handlingMinutes:number;feePerScu:number;fixedCosts:number;fuelCostPerGm:number;approachMinutes:number;jumpMinutes:number;driveId:string;nearbyGm:number;priceBasis:'reported'|'weekly';stockBasis:'reported'|'weekly';excludeSystems:string[];excludeFactions:string[];excludePlanets:string[];cargo:CargoLot[];waypoints?:number[]};
+export type SuiteOptions={mode:TradeMode;goal:TradeGoal;shipId:string;originId:number;destinationId:number;budget:number;reservePercent:number;reserveEnabled:boolean;capacity:number;scope:'intrasystem'|'interstellar';maxLegs:number;detourPercent:number;reinvest:boolean;mixed:boolean;maxAgeHours:number;commodityIds:number[];excludeCommodityIds:number[];excludeTerminalIds:number[];system:string;faction:string;facilities:string[];maxBoxSize:number;minStock:number;maxDistanceGm:number;allowWait:boolean;restockScuPerMinute:number;maxWaitMinutes:number;loading:'manual'|'auto';handlingMinutes:number;feePerScu:number;fixedCosts:number;fuelCostPerGm:number;approachMinutes:number;jumpMinutes:number;driveId:string;nearbyGm:number;priceBasis:'reported'|'weekly';stockBasis:'reported'|'weekly';excludeSystems:string[];excludeFactions:string[];excludePlanets:string[];cargo:CargoLot[];waypoints?:number[]};
 export type RouteMetric={meters:number;seconds:number|null;jumps:number;systems:string[];drive?:{name:string;version:string|null}};
 export type PackedItem={commodityId:number;quantity:number;boxSize:number};
 export type SuiteContext={route:(from:Terminal,to:Terminal)=>RouteMetric|null;pack:(items:PackedItem[])=>boolean};
@@ -10,10 +10,10 @@ export type TradeLine=PackedItem&{quantityLimit?:'capital'|'capacity'|'stock'|'d
 export type SuiteLeg={originId:number;destinationId:number;lines:TradeLine[];purchase:number;revenue:number;costs:number;profit:number;seconds:number|null;meters:number;waitMinutes:number;systems:string[];drive?:{name:string;version:string|null};empty:boolean};
 export type SuiteRoute={id:string;legs:SuiteLeg[];profit:number;purchase:number;costs:number;cash:number;reserve:number;seconds:number|null;profitPerHour:number|null;roi?:number|null;unsold:CargoLot[];warnings:string[]};
 export type SuiteResult={routes:SuiteRoute[];rejected:Record<string,number>;examined:number;approximate:boolean;error:string|null};
-export const defaultSuiteOptions:SuiteOptions={mode:'direct',goal:'profit',shipId:'',originId:0,destinationId:0,budget:0,reservePercent:0,reserveEnabled:false,capacity:0,scope:'intrasystem',maxLegs:3,detourPercent:25,reinvest:true,mixed:true,maxAgeHours:24,legality:'legal',risk:'low',commodityIds:[],excludeCommodityIds:[],excludeTerminalIds:[],system:'',faction:'',facilities:[],maxBoxSize:32,minStock:0,maxDistanceGm:0,allowWait:false,restockScuPerMinute:0,maxWaitMinutes:0,loading:'manual',handlingMinutes:10,feePerScu:0,fixedCosts:0,fuelCostPerGm:0,approachMinutes:5,jumpMinutes:5,waypoints:[],driveId:'',nearbyGm:0,priceBasis:'reported',stockBasis:'reported',excludeSystems:[],excludeFactions:[],excludePlanets:[],cargo:[]};
+export const defaultSuiteOptions:SuiteOptions={mode:'direct',goal:'profit',shipId:'',originId:0,destinationId:0,budget:0,reservePercent:0,reserveEnabled:false,capacity:0,scope:'intrasystem',maxLegs:3,detourPercent:25,reinvest:true,mixed:true,maxAgeHours:24,commodityIds:[],excludeCommodityIds:[],excludeTerminalIds:[],system:'',faction:'',facilities:[],maxBoxSize:32,minStock:0,maxDistanceGm:0,allowWait:false,restockScuPerMinute:0,maxWaitMinutes:0,loading:'manual',handlingMinutes:10,feePerScu:0,fixedCosts:0,fuelCostPerGm:0,approachMinutes:5,jumpMinutes:5,waypoints:[],driveId:'',nearbyGm:0,priceBasis:'reported',stockBasis:'reported',excludeSystems:[],excludeFactions:[],excludePlanets:[],cargo:[]};
 const sizes=[32,24,16,8,4,2,1],cents=(n:number)=>Math.round(n*100),safe=(n:number,max=1e12)=>Number.isFinite(n)&&n>=0&&n<=max;
 export function validateSuiteOptions(o:SuiteOptions){
- if(!o||!['direct','buyers','destination','loop','chain'].includes(o.mode)||!['profit','time','capital','roi'].includes(o.goal)||!['intrasystem','interstellar'].includes(o.scope)||!['legal','known','all'].includes(o.legality)||!['low','known','all'].includes(o.risk)||!['manual','auto'].includes(o.loading)||typeof o.shipId!=='string'||!o.shipId||o.shipId.length>200||!Number.isSafeInteger(o.originId)||o.originId<1||!Number.isSafeInteger(o.destinationId)||o.destinationId<0||!Number.isInteger(o.capacity)||o.capacity<1||o.capacity>10000||!Number.isInteger(o.maxLegs)||o.maxLegs<1||o.maxLegs>5||!sizes.includes(o.maxBoxSize))throw Error('inputs');
+ if(!o||!['direct','buyers','destination','loop','chain'].includes(o.mode)||!['profit','time','capital','roi'].includes(o.goal)||!['intrasystem','interstellar'].includes(o.scope)||!['manual','auto'].includes(o.loading)||typeof o.shipId!=='string'||!o.shipId||o.shipId.length>200||!Number.isSafeInteger(o.originId)||o.originId<1||!Number.isSafeInteger(o.destinationId)||o.destinationId<0||!Number.isInteger(o.capacity)||o.capacity<1||o.capacity>10000||!Number.isInteger(o.maxLegs)||o.maxLegs<1||o.maxLegs>5||!sizes.includes(o.maxBoxSize))throw Error('inputs');
  for(const k of ['budget','reservePercent','maxAgeHours','detourPercent','minStock','maxDistanceGm','restockScuPerMinute','maxWaitMinutes','handlingMinutes','feePerScu','fixedCosts','fuelCostPerGm','approachMinutes','jumpMinutes','nearbyGm'] as const)if(!(k==='reservePercent'&&!o.reserveEnabled)&&!safe(o[k]))throw Error('inputs');
  if(o.reserveEnabled&&o.reservePercent>100||o.maxAgeHours>8760||o.maxAgeHours<=0||o.detourPercent>1000||o.maxWaitMinutes>1440||o.handlingMinutes>1440||o.approachMinutes>1440||o.jumpMinutes>1440||o.mode!=='buyers'&&o.budget<=0||o.mode==='destination'&&!o.destinationId)throw Error('inputs');
  for(const k of ['commodityIds','excludeCommodityIds','excludeTerminalIds'] as const)if(!Array.isArray(o[k])||o[k].length>1000||o[k].some(id=>!Number.isSafeInteger(id)||id<1))throw Error('inputs');
@@ -23,21 +23,17 @@ export function validateSuiteOptions(o:SuiteOptions){
  if(!Array.isArray(o.facilities)||o.facilities.some(x=>!['dock','loadingDock','elevator','auto','space','ground','refuel','monitored','nqa','hidden','player'].includes(x)))throw Error('inputs');
  if(!Array.isArray(o.cargo)||o.cargo.length>100||o.cargo.some(l=>!Number.isSafeInteger(l.commodityId)||l.commodityId<1||!Number.isInteger(l.quantity)||l.quantity<1||!sizes.includes(l.boxSize)||l.quantity%l.boxSize!==0||!['owned','stolen','unknown'].includes(l.ownership)||l.cost!==null&&!safe(l.cost))||o.cargo.reduce((s,l)=>s+l.quantity,0)>o.capacity||new Set(o.cargo.filter(l=>l.lotId).map(l=>l.lotId)).size!==o.cargo.filter(l=>l.lotId).length||o.cargo.some(l=>l.lotId!==undefined&&(typeof l.lotId!=='string'||!l.lotId||l.lotId.length>200))||o.mode==='buyers'&&!o.cargo.length)throw Error('cargo');
 }
-export function suiteTerminalIssue(t:Terminal,o:SuiteOptions,now=Date.now()){
+export function suiteTerminalIssue(t:Terminal,o:SuiteOptions){
  if(o.excludeSystems.includes(t.system)||o.excludeFactions.includes(t.faction??'')||o.excludePlanets.includes(t.planet)||o.excludeTerminalIds.includes(t.id)||o.system&&t.system!==o.system||o.faction&&t.faction!==o.faction)return 'location' as const;
- if(o.risk!=='all'&&(!t.security?.updatedAt||!Number.isFinite(Date.parse(t.security.updatedAt))||Date.parse(t.security.updatedAt)>now+300000||!t.security.source?.startsWith('https://api.uexcorp.uk/2.0/')))return 'securityReport' as const;
- if(o.risk==='low'&&(!t.security?.monitored||!t.security.armistice)||o.risk==='known'&&(t.security?.monitored==null||t.security?.armistice==null))return 'securityPolicy' as const;
  const flags:Record<string,boolean|null|undefined>={dock:t.docking,loadingDock:t.loadingDock,elevator:t.elevator,auto:t.autoLoad,space:t.space,ground:t.ground,refuel:t.refuel,monitored:t.security?.monitored,nqa:t.nqa,hidden:t.hidden,player:t.playerOwned};
  return o.facilities.every(k=>flags[k]===true)&&(!(o.shipId==='misc-hull-c')||t.loadingDock===true)&&(o.loading!=='auto'||t.autoLoad===true)?null:'facilities';
 }
-export function suiteTerminalAllowed(t:Terminal,o:SuiteOptions,now=Date.now()){
- return suiteTerminalIssue(t,o,now)===null;
+export function suiteTerminalAllowed(t:Terminal,o:SuiteOptions){
+ return suiteTerminalIssue(t,o)===null;
 }
 export function terminalIssueLabel(issue:NonNullable<ReturnType<typeof suiteTerminalIssue>>,en:boolean){
  const labels={
   location:['지역·거점 조건 제외','Excluded by location filters'],
-  securityReport:['검증 가능한 보안 보고 없음','No verified security report'],
-  securityPolicy:['보안 설정 불충족','Security policy mismatch'],
   facilities:['함선·시설 조건 불충족','Ship or facility mismatch'],
  };
  return labels[issue][en?1:0];
@@ -52,7 +48,7 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
  const initialCash=cents(o.budget);
  const goods=new Map(data.commodities.map(c=>[c.id,c])),terms=new Map(data.terminals.map(t=>[t.id,t]));
  const quotes=new Map<number,Quote[]>();for(const original of data.quotes){const q={...original,...(o.priceBasis==='weekly'?{buy:original.averages?.buy??null,sell:original.averages?.sell??null}:{}),...(o.stockBasis==='weekly'?{stock:original.averages?.stock??null,demand:original.averages?.demand??null}:{})};const list=quotes.get(q.terminalId)??[];list.push(q);quotes.set(q.terminalId,list);}
- const terminals=data.terminals.filter(t=>suiteTerminalAllowed(t,o,now));
+ const terminals=data.terminals.filter(t=>suiteTerminalAllowed(t,o));
  if(o.mode==='direct'&&o.destinationId&&!terminals.some(t=>t.id===o.destinationId)){
   reject('destinationPolicy');return out;
  }
@@ -61,14 +57,14 @@ export function calculateSuite(data:MarketSnapshot,o:SuiteOptions,ctx:SuiteConte
  const manual=o.mode==='chain'&&!!o.waypoints?.length;
  const direct=o.mode==='destination'?ctx.route(origin,terms.get(o.destinationId)!):null;
  if(o.mode==='destination'&&(!terms.has(o.destinationId)||!direct))return {...out,error:'connection'};
- const good=(id:number)=>{const c=goods.get(id);return !!c&&commodityAllowed(c,o.legality,o.risk)&&(!o.commodityIds.length||o.commodityIds.includes(id))&&!o.excludeCommodityIds.includes(id);};
+ const good=(id:number)=>{const c=goods.get(id);return !!c&&(!o.commodityIds.length||o.commodityIds.includes(id))&&!o.excludeCommodityIds.includes(id);};
  const transport=(a:Terminal,b:Terminal)=>{if(a.id===b.id)return null;const m=ctx.route(a,b);if(!m||!safe(m.meters)||m.seconds!==null&&!safe(m.seconds)||o.maxDistanceGm>0&&m.meters>o.maxDistanceGm*1e9)return null;if(o.scope==='intrasystem'&&a.system!==b.system)return null;return m;};
  const costs=(m:RouteMetric,qty:number)=>Math.max(0,Math.ceil((o.fixedCosts+o.fuelCostPerGm*m.meters/1e9+o.feePerScu*qty*(o.mode==='buyers'?1:2))*100-1e-6));
  const legTime=(m:RouteMetric,wait:number,empty=false)=>m.seconds===null?null:m.seconds+60*(o.approachMinutes*2+o.jumpMinutes*m.jumps+(empty?0:o.handlingMinutes*(o.mode==='buyers'?1:2))+wait);
  type State={at:Terminal;cash:number;profit:number;legs:SuiteLeg[];supply:Map<number,number>;demand:Map<number,number>;remaining:CargoLot[]};
  const offers=(state:State,to:Terminal):SuiteLeg[]=>{
   const metric=transport(state.at,to);if(!metric){reject('connection');return [];}
-  if(o.mode!=='buyers'&&!suiteTerminalAllowed(state.at,o,now)){reject('facilities');return [];}
+  if(o.mode!=='buyers'&&!suiteTerminalAllowed(state.at,o)){reject('facilities');return [];}
   const buyRows=quotes.get(state.at.id)??[],sellRows=quotes.get(to.id)??[];
   const lines:TradeLine[]=[];
   for(const sell of sellRows){if(!good(sell.commodityId)||!suiteQuoteAllowed(sell,data.liveVersion,o,now)){reject('policyAge');continue;}

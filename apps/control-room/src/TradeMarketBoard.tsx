@@ -1,13 +1,12 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import type {Locale} from './navigation';
-import {commodityAllowed, quoteFreshness, type Commodity, type MarketSnapshot, type Quote, type Terminal} from './trade-data';
+import {quoteFreshness, type Commodity, type MarketSnapshot, type Quote, type Terminal} from './trade-data';
 import {matchingCommodityCodes, commodityCodeVariants, commoditySearchTerms,tradeLabel, tradeMatches} from './trade-labels';
 import {useTradeView} from './use-trade-view';
 import {defaultSuiteOptions,suiteTerminalIssue,terminalIssueLabel,suiteQuoteAllowed,type SuiteOptions} from './trade-suite';
 import './trade-market-board.css';
 
-type Policy = Pick<SuiteOptions,'risk'|'legality'>;
-export type PlanFromQuote = (origin:number, commodity:number, destination?:number, scope?:SuiteOptions['scope'], policy?:Policy)=>void;
+export type PlanFromQuote = (origin:number, commodity:number, destination?:number, scope?:SuiteOptions['scope'])=>void;
 const metrics=['buy','sell','roi'] as const;
 type Metric=typeof metrics[number];
 const compactPrice=new Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1});
@@ -36,12 +35,11 @@ function TickerValue({entry,target,cycle,delay,names,locale}:{entry:TickerEntry;
 
 export default function TradeMarketBoard({data,locale,onPlan,onDetails}:{data:MarketSnapshot;locale:Locale;onPlan?:PlanFromQuote;onDetails:(id:number)=>void}) {
   const en=locale==='en', t=(ko:string,english:string)=>en?english:ko;
-  const [filters,setFilters]=useTradeView('market-search',{query:'',commodity:0,sort:'spread',risk:'low',legality:'legal',fresh:false,available:true});
+  const [filters,setFilters]=useTradeView('market-search',{query:'',commodity:0,sort:'spread',fresh:false,available:true});
   const [limit,setLimit]=useState(16), [showFilters,setShowFilters]=useState(false);
   const [expanded,setExpanded]=useState(true);
   const [savedPlan]=useTradeView('personal-options',defaultSuiteOptions);
-  const policy={risk:filters.risk as Policy['risk'],legality:filters.legality as Policy['legality']};
-  const planOptions={...defaultSuiteOptions,...savedPlan,...policy};
+  const planOptions={...defaultSuiteOptions,...savedPlan};
   const [includeUnreported,setIncludeUnreported]=useState(false);
   const [metric,setMetric]=useState<Metric>('sell');
   const [automatic,setAutomatic]=useState(()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -86,7 +84,6 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails}:{data:Ma
     const pairs:Pair[]=[], tickers:TickerEntry[]=[];
     for(const item of data.commodities) {
       if(codeMatches.size&&!codeMatches.has(item.id)) continue;
-      if(!commodityAllowed(item,filters.legality,filters.risk)) continue;
       const sides=byItem.get(item.id)??[];
       const buys=sides.filter(s=>s.quote.buy!==null);
       const sells=sides.filter(s=>s.quote.sell!==null);
@@ -153,12 +150,10 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails}:{data:Ma
   return <section className="trade-market-board">
     <div className="market-board-search">
       <input aria-label={t('품목·거점 검색','Search goods or terminals')} type="search" placeholder={t('품목명 · UEX 약자 · 거점 검색','Search by commodity, UEX code or terminal')} value={filters.query} onChange={e=>update({query:e.target.value,commodity:0})}/>
-      {onPlan&&<button onClick={()=>onPlan(0,0,0,planOptions.scope,policy)}>{t('내 함선·자금으로 거래 찾기','Find trades for my ship and budget')}</button>}
+      {onPlan&&<button onClick={()=>onPlan(0,0,0,planOptions.scope)}>{t('내 함선·자금으로 거래 찾기','Find trades for my ship and budget')}</button>}
       <button aria-expanded={showFilters} aria-controls="trade-board-filters" onClick={()=>setShowFilters(!showFilters)}>{t('조회 조건','Filters')}</button>
     </div>
     <div hidden={!showFilters} id="trade-board-filters"><div className="market-filters">
-      <label>{t('위법 분류','Legality')}<select value={filters.legality} onChange={e=>update({legality:e.target.value})}><option value="legal">{t('합법만','Legal only')}</option><option value="known">{t('불법 포함','Include illegal')}</option><option value="all">{t('미확인 포함','Include unknown')}</option></select></label>
-      <label>{t('화물 위험','Cargo risk')}<select value={filters.risk} onChange={e=>update({risk:e.target.value})}><option value="low">{t('낮은 위험','Low risk')}</option><option value="known">{t('확인된 위험 포함','Include known risks')}</option><option value="all">{t('미확인 포함','Include unknown')}</option></select></label>
       <label><input type="checkbox" checked={filters.available} onChange={e=>update({available:e.target.checked})}/>{t('재고와 예측 수요가 있는 거래만','Only pairs with stock and forecast demand')}</label>
       <label><input type="checkbox" checked={includeUnreported} onChange={e=>setIncludeUnreported(e.target.checked)}/>{t('보고 없는 품목 포함','Include goods without reports')}</label>
       <label><input type="checkbox" checked={filters.fresh} onChange={e=>update({fresh:e.target.checked})}/>{t('24시간 이내 보고만','Reports within 24 hours')}</label>
@@ -208,7 +203,7 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails}:{data:Ma
     </div>
     {pairs.length>0?<><div className="board-table" tabIndex={0} role="region" aria-label={t('매입·판매 시세표','Buy and sell price board')}><table><caption><span>UEX · {data.liveVersion}</span> · {t('수집','Collected')} {date.format(new Date(data.retrievedAt))} <span className="board-units">aUEC/SCU · {t('비용 차감 전','Before costs')}</span></caption><thead><tr>{[t('품목','Commodity'),t('매입가 · 매입처','Buy price · From'),t('판매가 · 판매처','Sell price · To'),t('단위 차익','Spread / SCU')].map(name=><th key={name}>{name}</th>)}</tr></thead>
     <tbody>{pairs.slice(0,limit).map(({item,buy,sell,spread})=><tr key={buy.quote.id+'-'+sell.quote.id}><th scope="row"><button data-value="goods" title={item.name} onClick={()=>onDetails(item.id)}>{caption(item)}</button></th>
-      {sideCell(buy,true)}{sideCell(sell,false)}<td className="board-spread" data-positive={spread>0}><strong>{spread>0?'+':''}{format(spread)}</strong><small>{buy.quote.buy?format(100*spread/buy.quote.buy)+'%':'—'}</small>{onPlan&&<button onClick={()=>onPlan(buy.terminal.id,item.id,sell.terminal.id,buy.terminal.system===sell.terminal.system?'intrasystem':'interstellar',{risk:filters.risk as Policy['risk'],legality:filters.legality as Policy['legality']})}>{t('경로 검토','Plan route')} ›</button>}</td></tr>)}</tbody></table></div>
+      {sideCell(buy,true)}{sideCell(sell,false)}<td className="board-spread" data-positive={spread>0}><strong>{spread>0?'+':''}{format(spread)}</strong><small>{buy.quote.buy?format(100*spread/buy.quote.buy)+'%':'—'}</small>{onPlan&&<button onClick={()=>onPlan(buy.terminal.id,item.id,sell.terminal.id,buy.terminal.system===sell.terminal.system?'intrasystem':'interstellar')}>{t('경로 검토','Plan route')} ›</button>}</td></tr>)}</tbody></table></div>
     {pairs.length>limit&&<button className="market-action" onClick={()=>setLimit(limit+16)}>{t('더 보기','Show more')} ({limit}/{pairs.length})</button>}</>:<p role="status">{t('조건에 맞는 매입·판매 쌍이 없습니다. 개별 가격은 거래소 시세에서 확인하세요.','No matching buy and sell pair. Check terminal prices for one-sided quotes.')}</p>}
   </section>;
 }
