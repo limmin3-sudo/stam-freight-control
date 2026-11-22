@@ -22,7 +22,7 @@ export function objectivePlaceLookup(places){
    if(query.startsWith(prefix))for(const id of names.get(query.slice(prefix.length))||[])ids.add(id);
   }
   // Korean mission objectives append orbital addresses in parentheses to the stop name.
-  const qualified=String(text||'').trim().match(/^(.+?)\s*\(\s*파이로\s+[IVX]+(?:의)?\s*(?:L[1-5]\s*라그랑주\s*지점|상공)\s*\)$/i);
+  const qualified=String(text||'').trim().match(/^(.+?)\s*\(\s*파이로\s+[IVX]+(?:의)?\s*(?:L[1-5]\s*라그랑주\s*지점|상공|궤도)\s*\)$/i);
   if(qualified)for(const id of names.get(norm(qualified[1]))||[])if(pyroStops.has(id))ids.add(id);
   return unique(ids)||'';
  };

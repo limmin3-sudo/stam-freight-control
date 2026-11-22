@@ -92,3 +92,13 @@ test('all twelve member routes can be calculated when their station markers arri
   assert.equal(plan.visits.flatMap(v=>v.events).filter(e=>e.type==='delivery').length,d.rules.orders.length,d.wikiTemplateName);
  }
 });
+test('Korean orbital address in the 13220821 HUD identifies Orbituary before the coordinate marker arrives',()=>{
+ const note='새로운 목표: 0/149 SCU의 폐기물를 오비추어리 (파이로 III 궤도)에 전달하세요: ';
+ const rows=card(null,{gameBuild:{status:'known',value:'13220821'},quantityObservations:[
+  {objectiveId:'dropoff_'+objective+'_0',at:'2026-11-22',total:149,notification:note},
+ ]}).rows;
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].dropoffId,place('Orbituary'));
+ assert.equal(rows[0].scu,149);
+ assert.equal(rows[0].pickupId,'');
+});
