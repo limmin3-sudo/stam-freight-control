@@ -15,12 +15,12 @@ export function BoxInputs({boxes=[],onChange}:{boxes?:BoxCounts;onChange:(boxes:
 }
 
 const boxTotal=(row:Shipment)=>(row.boxes||[]).reduce((sum,b)=>sum+b.size*b.count,0);
-export function invalidCargo(form:Job, n:0|1, quantityOptional:(row:Shipment)=>boolean){
+export function invalidCargo(form:Job, n:0|1, quantityOptional:(row:Shipment)=>boolean, requireCommodity=true){
   return !form.shipments.length || Object.entries(form.reservations||{}).some(([place,total])=>{
     const rows=form.shipments.filter(row=>row.to===place);
     const known=rows.reduce((sum,row)=>sum+row.scu,0),unknown=rows.filter(row=>!row.scu).length;
     return !rows.length || !Number.isSafeInteger(total) || total<1 || (unknown?total<known+unknown:total!==known);
-  }) || form.shipments.some(row=>!hasPlace(row.from) || !hasPlace(row.to) || row.from===row.to || !row.cargo[n].trim() || !Number.isSafeInteger(row.scu) || row.scu<0 || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
+  }) || form.shipments.some(row=>!hasPlace(row.from) || !hasPlace(row.to) || row.from===row.to || (requireCommodity && !row.cargo[n].trim()) || !Number.isSafeInteger(row.scu) || row.scu<0 || (row.scu<1 && !quantityOptional(row)) || !!row.boxes?.length && boxTotal(row)!==row.scu);
 }
 
 export function DeliveryTotalFields({form,setForm,locale}:Pick<Props,'form'|'setForm'|'locale'>){

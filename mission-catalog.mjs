@@ -7,18 +7,51 @@ export function routeFromTitle(title,places){const tail=String(title||'').split(
 const rankWords=['trainee','rookie','junior','member','experienced','senior','master'];
 export function rankOf(m){return Number.isInteger(m.rank)?m.rank:rankWords.findIndex(word=>new RegExp('\\b'+word+'\\b','i').test(m.title||''));}
 export function definitionOrders(definition){return definition?.rules?.orders||[];}
+// The unnumbered multi-stop templates repeat a cargo bundle at each stop.
+// The game marks the first order in each bundle. SCMDB can flatten their pools.
+function runtimeBundleOrders(definition,contract){
+ const orders=definitionOrders(definition),templates=new Set((contract.markerObservations||[]).map(m=>m.template));
+ if(!definition.rules.objectiveOrderIndicesVerified||templates.size!==1||!orders.length)return orders;
+ const [template]=templates;
+ if(!definition.templateNames?.includes(template))return orders;
+ const role=/_MultiToSingle_/i.test(template)?'pickup':/_SingleToMulti_/i.test(template)?'dropoff':null;
+ if(!role)return orders;
+ const field=role+'Pool';
+ if(new Set(orders.map(o=>o[field])).size!==1)return orders;
+ const width=orders.findIndex((o,i)=>i>0&&o.name===orders[0].name);
+ if(width<1||orders.length%width||orders.some((o,i)=>o.orderIndex!==i||o.name!==orders[i%width].name||o.fixedQuantity!==orders[i%width].fixedQuantity))return orders;
+ const groups=orders.length/width;
+ const observed=(contract.markerObservations||[]).filter(m=>m.role===role);
+ const byObjective=new Map();
+ for(const m of observed){
+  const match=m.objectiveId?.match(/^(?:pickup|dropoff)_([a-f\d-]{36})_(\d+)$/i);
+  if(!match)return orders;
+  if(!byObjective.has(match[1]))byObjective.set(match[1],new Set());
+  byObjective.get(match[1]).add(Number(match[2]));
+ }
+ const [anchors]=byObjective.values();
+ const verified=byObjective.size===1&&anchors.size===groups&&[...anchors].every(i=>i<orders.length&&i%width===0);
+ // Until all bundle anchors are observed, bind only individually identified rows.
+ return orders.map((o,i)=>({...o,[field]:role+(verified?Math.floor(i/width):i)}));
+}
 export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dropoffs=[],markers=[]}={}){
  const index=catalogIndex(catalog);if(!index)return null;
+ const matchesBuild=d=>contract.gameBuild?.status!=='conflict'&&(!contract.gameBuild?.value||String(d.quantityVersion).endsWith('.'+contract.gameBuild.value));
  const route=routeFromTitle(contract.title,places);let definition=index.get(contract.definitionId),basis='definition-id';
  if(!definition&&catalog.sourceName==='SCMDB'&&!contract.conflicts?.length){
   const names=[...new Set((contract.markerObservations||[]).map(m=>m.template).filter(Boolean))];
-  if(names.length===1){const all=[...index.values()].filter(d=>d.released&&!d.notForRelease&&d.templateNames?.includes(names[0])),primary=all.filter(d=>d.rulesSource==='scmdb'),matches=primary.length?primary:all;if(matches.length===1){definition=matches[0];basis='exact-template-name';}}
+  if(names.length===1){
+   const all=[...index.values()].filter(d=>d.released&&!d.notForRelease&&d.templateNames?.includes(names[0]));
+   const primary=all.filter(d=>d.rulesSource==='scmdb'),matches=primary.length?primary:all;
+   const verified=matches.length===1?matches:matches.filter(d=>matchesBuild(d)&&d.wikiTemplateName===names[0]);
+   if(verified.length===1){definition=verified[0];basis='exact-template-name';}
+  }
  }
  if(!definition&&catalog.sourceName!=='SCMDB'&&route.pickup&&route.dropoff){const title=String(contract.title||''),rank=rankWords.find(w=>new RegExp('\\b'+w+'\\b','i').test(title)),direct=/\bdirect\b/i.test(title),bulk=/\bbulk\b/i.test(title);
   if(rank&&direct&&bulk){const candidates=[...index.values()].filter(d=>d.released&&!d.notForRelease&&new RegExp('\\b'+rank+'\\b','i').test(d.title)&&/direct.*bulk/i.test(d.title)&&['pickup','dropoff'].every(role=>d.rules?.locations?.filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot)).some(s=>s.candidates.some(name=>catalogPlace(name,places)?.id===route[role].id))));if(candidates.length===1){definition=candidates[0];basis='unique-title-route';}}
  }
  if(!definition?.released||definition.notForRelease||definition.rules?.sourceConflict)return null;
- const rules=definition.rules.objectiveIdsFromMarkers?{...definition.rules,haulingObjectives:[...new Set(markers.map(m=>m.objectiveId?.match(/^(?:pickup|dropoff)_([a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12})_\d+$/i)?.[1]).filter(Boolean))]}:definition.rules,orders=definitionOrders(definition),db=missionDb?.missions||[],meta=db.find(m=>m.id===definition.id)||db.find(m=>definition.parents?.includes(m.id));
+ const rules=definition.rules.objectiveIdsFromMarkers?{...definition.rules,haulingObjectives:[...new Set([...markers,...(contract.markerObservations||[]),...(contract.quantityObservations||[])].map(m=>m.objectiveId?.match(/^(?:pickup|dropoff)_([a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12})_\d+$/i)?.[1]).filter(Boolean))]}:definition.rules,orders=basis==='definition-id'&&definition.rulesSource==='scmdb'?runtimeBundleOrders(definition,contract):definitionOrders(definition),db=missionDb?.missions||[],meta=db.find(m=>m.id===definition.id)||db.find(m=>definition.parents?.includes(m.id));
  const pools=rules.pools||[],poolNames=role=>[...new Set(orders.map(o=>o[role+'Pool']).filter(Boolean))];
  const idsOf=pool=>[...new Set((pool?.candidates||[]).map(p=>places.find(l=>l.uuid===p.id||l.id===p.id)||catalogPlace(p.name,places)).filter(Boolean).map(p=>p.id))];
  const resolve=(role,order)=>{
@@ -33,6 +66,12 @@ export function definitionDraft(contract,places,catalog,missionDb,{pickups=[],dr
   // An exact SCMDB template alias can describe another region of the same
   // contract. Its resource rules apply, but its candidate places do not.
   if(basis==='exact-template-name')return '';
+  const fixed=rules.wikiFixedStops?.[role];
+  if(!multi&&fixed&&matchesBuild(definition)){
+   const name=fixed.split(/ above | at the L[1-5] Lagrange of /i)[0].trim();
+   const hits=places.filter(p=>norm(p.name)===norm(name)&&!['Star','Planet','Moon'].includes(p.type));
+   if(hits.length===1)return hits[0].id;
+  }
   if(pool){const candidates=idsOf(pool);if(candidates.length===1&&pool.candidates.every(p=>places.some(l=>(l.uuid===p.id||l.id===p.id))||catalogPlace(p.name,places)))return candidates[0];return '';}
   const slots=(rules.locations||[]).filter(s=>new RegExp(role==='pickup'?'^Location':'^Destination').test(s.slot));if(slots.length!==1)return '';const candidates=slots[0].candidates.map(name=>catalogPlace(name,places));return candidates.length&&candidates.every(p=>p?.id&&p.id===candidates[0]?.id)?candidates[0].id:'';
  };

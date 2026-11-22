@@ -149,7 +149,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
   function toggleJob(job:Job){
     if(locked||form)return;
     if(d.jobs.some(j=>j.id===job.id)){edit({jobs:d.jobs.filter(j=>j.id!==job.id)});return;}
-    try{const next=withPendingTotals(job);if(!eligible(next))return;receipts.saveCorrection(next);clearPending(job);edit({jobs:[...d.jobs,next]});setQuickError('');}
+    try{const next=withPendingTotals(job);if(!eligible(next)){if(job.state!=='ended'&&job.state!=='conflict')openReceipt(job);return;}receipts.saveCorrection(next);clearPending(job);edit({jobs:[...d.jobs,next]});setQuickError('');}
     catch(error){setQuickError((error as Error).message);}
   }
   function calculate(){
@@ -159,11 +159,16 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
   }
   function routeOnly(job:Job){
     if(locked)return;
-    const source=job.signature?receipts.cards.find(card=>card.id===job.id)||job:job;
-    const jobs=[...d.jobs.filter(old=>old.id!==source.id),source];
-    if(jobs.some(item=>!routeReady(item))){setQuickError(t('경로 안내에는 픽업지와 배송지가 필요합니다.','Route guidance needs pickup and delivery locations.'));return;}
-    setForm(null);setPendingForms([]);setTotals({});setQuickError('');
-    onReview({...d,jobs,partner:'operator',partnerSelected:true,allowUpperBounds:false,reviewed:false});
+    try{
+      if(invalidCargo(job,n,()=>true,false))throw Error(t('픽업지와 배송지, 입력한 수량을 확인하세요.','Check the stops and any quantities entered.'));
+      const live=job.signature?receipts.cards.find(card=>card.id===job.id):undefined;
+      const source=job.signature?reviewReceipt(live||d.jobs.find(card=>card.id===job.id),job,true,groupBoxes):job;
+      const jobs=[...d.jobs.filter(old=>old.id!==source.id),source];
+      if(jobs.some(item=>!routeReady(item)))throw Error(t('경로 안내에는 각 항목의 픽업지와 배송지가 필요합니다.','Every shipment needs a pickup and delivery location.'));
+      if(source.signature)receipts.saveCorrection(source);
+      setForm(null);setPendingForms([]);setTotals({});setQuickError('');
+      onReview({...d,jobs,partner:'operator',partnerSelected:true,allowUpperBounds:false,reviewed:false});
+    }catch(error){setQuickError((error as Error).message);setFormError((error as Error).message);}
   }
   const newRow = ():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:'',scu:0});
   const editingReceipt=form?.state==='incomplete' || form?.state==='ready';
@@ -214,7 +219,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
             <BoxInputs boxes={groupBoxes[place]} onChange={boxes=>setGroupBoxes({...groupBoxes,[place]:boxes})}/>
           </fieldset>)}
         {editingReceipt&&formError&&<p role="alert">{formError}</p>}
-        <div>{!cargoOnly&&<button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('+ 운송 항목','+ Shipment')}</button>} <button type="submit" disabled={invalidRows}>{cargoOnly?t('화물 수정 저장','Save cargo changes'):editingReceipt?t('보완한 카드 저장','Save card details'):t('계약 저장','Save contract')}</button>{!simple&&routeReady(form)&&!info(form).ready&&<button type="button" onClick={()=>routeOnly(form)}>{t('총 SCU 입력 없이 경로만 계속','Continue route without total SCU')}</button>} <button type="button" onClick={()=>{setForm(null);setPendingForms([]);}}>{t('취소','Cancel')}</button></div>
+        <div>{!cargoOnly&&<button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('+ 운송 항목','+ Shipment')}</button>} <button type="submit" disabled={invalidRows}>{cargoOnly?t('화물 수정 저장','Save cargo changes'):editingReceipt?t('보완한 카드 저장','Save card details'):t('계약 저장','Save contract')}</button>{routeReady(form)&&(editingReceipt||!simple&&!info(form).ready)&&<button type="button" onClick={()=>routeOnly(form)}>{t('이 거점으로 경로 계산','Plan route with these stops')}</button>} <button type="button" onClick={()=>{setForm(null);setPendingForms([]);}}>{t('취소','Cancel')}</button></div>
       </form>;
   const stepTitle=useRef<HTMLHeadingElement>(null);
   const lastStep=useRef(contractsOpen);
@@ -308,7 +313,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
             const group=q.deliveries.find(g=>g.id===missionFor({...j,shipments:j.shipments.filter(r=>r.to===place),mission:undefined}).cargo[0]?.dropoffId);
             return <label key={place}>{where(place)}<span>{t('배송 총량','Delivery total')} · SCU{group&&!group.confirmed&&group.total>0?' / '+t('최대 ','max ')+group.total:''}</span><input type="number" min="1" step="1" aria-label={j.title[n]+' · '+where(place)+' · SCU'} placeholder={t('실제 총량 입력','Actual total')} value={totals[totalKey(j,place)]??j.reservations?.[place]??''} onChange={e=>{setQuickError('');setTotals(old=>({...old,[totalKey(j,place)]:e.target.value}));}} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();applyTotals(j);}}}/></label>;
           })}<button type="button" disabled={!!form||!j.shipments.some(r=>totals[totalKey(j,r.to)]!==undefined)} onClick={()=>applyTotals(j)}>{t('수량 반영','Apply totals')}</button><small>{t('픽업별 분배를 몰라도 배송 총량을 한 번만 예약합니다.','One reservation per delivery, even when pickup shares are unknown.')}</small></div></details>}
-          <footer className="receipt-bottom"><b data-value="quantity">{q.scu>0?`${q.scu} SCU${q.certainty==='upper-bound'?t(' 예상',' est.'):''}`:t('총량 미확인','Total unknown')}</b><span data-value="price">{j.rewardUnknown?t('보상 미확인','Reward unknown'):`${j.pay.toLocaleString()} aUEC`}</span><button type="button" className="receipt-correct" disabled={!!form||j.state==='ended'||j.state==='conflict'} onClick={()=>openReceipt(j)}>{t('상세 · 수정','Details · Edit')}</button>{managing&&<button type="button" onClick={()=>dismiss([j.id])}>{t('삭제','Delete')}</button>}</footer>
+          <footer className="receipt-bottom"><b data-value="quantity">{q.scu>0?`${q.scu} SCU${q.certainty==='upper-bound'?t(' 예상',' est.'):''}`:t('총량 미확인','Total unknown')}</b><span data-value="price">{j.rewardUnknown?t('보상 미확인','Reward unknown'):`${j.pay.toLocaleString()} aUEC`}</span><button type="button" className="receipt-correct" disabled={!!form||j.state==='ended'||j.state==='conflict'} onClick={()=>openReceipt(j)}>{blocked&&j.state!=='ended'&&j.state!=='conflict'?t('누락 거점 입력','Fill missing stops'):t('상세 · 수정','Details · Edit')}</button>{managing&&<button type="button" onClick={()=>dismiss([j.id])}>{t('삭제','Delete')}</button>}</footer>
         </article>;
       })}</div>}
       {!cards.length&&<div className="mission-empty"><InterfaceGlyph kind="mission"/><h3>{t('받은 계약을 이곳에 모읍니다','Your contracts arrive here')}</h3><button type="button" onClick={event=>{const intake=event.currentTarget.closest('.dispatch-contracts')?.querySelector<HTMLDetailsElement>('.dispatch-intake');if(intake){intake.open=true;intake.querySelector<HTMLElement>('summary')?.focus();}}}>{t('첫 계약 가져오기', 'Import your first contract')}</button></div>}

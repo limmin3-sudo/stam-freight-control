@@ -76,7 +76,7 @@ export function reviewReceipt(source,form,allowUnknown=false,groupBoxes=reservat
       }
     }
   }
-  const ready=quantitiesReady(mission);
+  const ready=quantitiesReady(mission)&&mission.cargo.every(row=>row.commodity?.trim()&&row.pickupId&&row.dropoffId);
   if(!mission.cargo.length||!allowUnknown&&!ready)throw Error('픽업 수량 또는 배송지별 총량을 입력하세요.');
   return {...form,mission,state:ready?'ready':'incomplete',reviewedReceipt:true,reservations,shipments:form.shipments.map((row,i)=>({
     ...row,scu:actualQuantity(mission.cargo[i])?mission.cargo[i].scu:0

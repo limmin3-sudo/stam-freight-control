@@ -1,7 +1,7 @@
 import {applyContractInfo} from '../contract-info.mjs';
 import {definitionDraft} from '../mission-catalog.mjs';
 import {deliveryGroups,quantitiesReady,actualQuantity} from '../delivery-totals.mjs';
-import {deliveryNotice,objectivePlaceLookup} from '../objective-text.mjs';
+import {deliveryNotice,objectivePlaceLookup,pickupPlaceText} from '../objective-text.mjs';
 // The inbox projects evidence into editable drafts. Receiving never changes planner missions.
 const key=s=>String(s||'').normalize('NFKC').trim().toLowerCase();
 const text=s=>String(s||'').slice(0,240);
@@ -14,7 +14,14 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
  for(const c of all){
   if(!idPattern.test(c.missionId||'')||unique.has(c.missionId)||!(c.acceptanceObservations?.some(e=>e.actor!=='other')||c.participation?.selfJoinObserved))continue;
   const markerPlaces=(c.markerObservations||[]).map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position,{gameBuild:c.gameBuild})})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
-  const pickupIds=[...new Set(markerPlaces.filter(m=>m.role==='pickup').map(m=>placeId(m.point)).filter(Boolean))];
+  const markerPickups=[...new Set(markerPlaces.filter(m=>m.role==='pickup').map(m=>placeId(m.point)).filter(Boolean))];
+  const objectivePlaces=markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)}));
+  for(const note of [...(c.objectiveNotices||[]),...(c.quantityObservations||[])]){
+   if(!note.objectiveId?.startsWith('pickup_'))continue;
+   const pointId=byName(pickupPlaceText(note.notification));
+   if(pointId&&places.some(p=>p.id===pointId&&!['Star','Planet','Moon'].includes(p.type)))objectivePlaces.push({role:'pickup',objectiveId:note.objectiveId,pointId});
+  }
+  const pickupIds=[...new Set(objectivePlaces.filter(m=>m.role==='pickup').map(m=>m.pointId).filter(Boolean))];
   const useOriginal=catalog?.sourceName==='Wiki'&&c.originalManifest?.status==='resolved-original-manifest';
   let rows=[],quantityHints=[];
   if(useOriginal)rows=c.originalManifest.shipments.map(s=>({commodity:text(s.commodity),scu:s.scu,pickupId:placeId({id:s.pickupId,system:c.originalManifest.pickup.system}),dropoffId:placeId({id:s.dropoffId,system:c.originalManifest.deliveries.find(d=>d.id===s.dropoffId)?.system}),boxes:s.boxes.map(b=>({...b}))}));
@@ -25,10 +32,10 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
     const q=[...group].sort((a,b)=>a.at.localeCompare(b.at)).at(-1);
     const notice=deliveryNotice(q.notification);if(!notice||notice.scu!==q.total||q.total<=0||q.total>10000)continue;
     const named=byName(notice.dropoffText),marked=[...new Set(markerPlaces.filter(m=>m.role==='dropoff'&&m.objectiveId===q.objectiveId).map(m=>placeId(m.point)).filter(Boolean))],conflict=marked.length>1||!!(named&&marked.length===1&&named!==marked[0]);
-    rows.push({commodity:text(notice.commodity),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:conflict?'':named||marked[0]||'',_dropoffText:text(notice.dropoffText),boxes:[],_objectiveId:q.objectiveId,...(conflict?{_locationConflict:true}:{})});
+    rows.push({commodity:text(notice.commodity),scu:q.total,pickupId:markerPickups.length===1?markerPickups[0]:'',dropoffId:conflict?'':named||marked[0]||'',_dropoffText:text(notice.dropoffText),boxes:[],_objectiveId:q.objectiveId,...(conflict?{_locationConflict:true}:{})});
    }
   }
-  const reference=definitionDraft(c,places,catalog,missionDb,{markers:markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)})),pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
+  const reference=definitionDraft(c,places,catalog,missionDb,{markers:objectivePlaces,pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
   // A single delivery counter can cover several fixed catalogue orders even
   // when all orders use one location pool. Keep their quantities exactly once.
   if(reference&&!useOriginal&&!reference.multipleDropoffs&&!reference.multiplePickups){
@@ -48,7 +55,17 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    rows=rows.filter(row=>{const base=reference.rows.find(b=>matchesOrder(row,b)),commodity=base?.commodity||row.commodity,siblings=reference.rows.filter(b=>key(b.commodity)===key(commodity)),complete=siblings.every(b=>rows.some(r=>matchesOrder(r,b)));if(siblings.length<2||complete)return true;quantityHints.push({commodity,scu:row.scu,dropoffId:row.dropoffId||reference.dropoffId,dropoffText:row._dropoffText});return false;});
   }
   if(reference){if(!rows.length)rows=reference.rows;else if(!useOriginal){
-   const observed=rows,used=new Set();rows=reference.rows.map(base=>{const available=observed.map((row,i)=>({row,i})).filter(({i})=>!used.has(i)),exact=available.filter(({row})=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`)),matches=exact.length?exact:available.filter(({row})=>key(row.commodity)===key(base.commodity)&&(!base.dropoffId||row.dropoffId===base.dropoffId));if(matches.length!==1)return base;const {row,i}=matches[0];used.add(i);return {...base,...row,commodity:base.commodity,pickupId:row.pickupId||base.pickupId,dropoffId:row.dropoffId||base.dropoffId};});for(const [i,row] of observed.entries())if(!used.has(i))rows.push({...row,pickupId:row.pickupId||reference.pickupId,dropoffId:row.dropoffId||reference.dropoffId});
+   const observed=rows,used=new Set();
+   const matchesOrder=(row,base)=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`);
+   const unbound=observed.filter(row=>!reference.rows.some(base=>matchesOrder(row,base)));
+   rows=reference.rows.map(base=>{
+    const exact=observed.filter(row=>!used.has(row)&&matchesOrder(row,base));
+    const matches=exact.length?exact:unbound.filter(row=>!used.has(row)&&key(row.commodity)===key(base.commodity)&&(!base.dropoffId||row.dropoffId===base.dropoffId));
+    if(matches.length!==1)return base;
+    const row=matches[0];used.add(row);
+    return {...base,...row,commodity:base.commodity,pickupId:reference.multiplePickups?base.pickupId:row.pickupId||base.pickupId,dropoffId:row._locationConflict?'':row.dropoffId||base.dropoffId};
+   });
+   for(const row of observed)if(!used.has(row))rows.push({...row,pickupId:reference.multiplePickups?'':row.pickupId||reference.pickupId,dropoffId:row._locationConflict?'':row.dropoffId||reference.dropoffId});
   }}
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';

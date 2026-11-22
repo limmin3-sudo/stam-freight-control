@@ -37,6 +37,8 @@ export function supplementMissions(primary,snapshot){
  const details=structuredClone(primary.details),catalog=structuredClone(primary.catalog),missions=structuredClone(primary.missions);
  const entries=new Map();for(const [id,index]of Object.entries(details.definitions||{})){const old=details.entries[index],entry=old&&primaryEntry(old,details.differences?.[old.differenceIndex]);if(entry)entries.set(id,entry);}
  const primaryDefinitions=catalog.definitions.filter(d=>d.rulesSource!=='wiki'),definitions=new Map(primaryDefinitions.map(d=>[d.id,d]));
+ // Rebuild same-version evidence on each refresh so a removed Wiki record cannot linger.
+ for(const d of primaryDefinitions){delete d.wikiTemplateName;if(d.rules)delete d.rules.wikiFixedStops;}
  let filled=0,added=0;for(const row of snapshot.records){
   if(!uuid.test(row.uuid||'')||row.released!==true||row.not_for_release)continue;
   const id=row.uuid.toLowerCase(),values=wikiFields(row);let entry=entries.get(id);
@@ -55,7 +57,24 @@ export function supplementMissions(primary,snapshot){
     entry.differences[key]=variants;if(entry.provenance[key].includes('scmdb'))entry.preferred={...entry.preferred,[key]:'scmdb'};
    }
   }
-  if(!definitions.has(id)){const definition=wikiDefinition(row);if(definition)definitions.set(id,definition);}
+  const primaryDefinition=definitions.get(id);
+  if(!primaryDefinition){const definition=wikiDefinition(row);if(definition)definitions.set(id,definition);}
+  else if(primaryDefinition.rulesSource==='scmdb'&&
+    primaryDefinition.quantityVersion&&primaryDefinition.quantityVersion.toLowerCase()===snapshot.source.version?.toLowerCase()&&
+    primaryDefinition.quantityVersion.toLowerCase()===(row.game_version||row.version)?.toLowerCase()&&
+    primaryDefinition.templateNames?.includes(row.debug_name)){
+   primaryDefinition.wikiTemplateName=row.debug_name;
+   for(const [role,pattern] of [['pickup',/^(?:Location|Pickup)\d*\|Address$/i],['dropoff',/^(?:Destination|DropOff)\d*\|Address$/i]]){
+    const pools=(primaryDefinition.rules?.pools||[]).filter(p=>p.purpose?.startsWith(role==='pickup'?'Location':'Destination'));
+    if(pools.length!==1||(pools[0].candidates||catalog.pools?.[pools[0].candidatesKey])?.length!==0)continue;
+    const slots=Object.entries(row.mission_tokens||{}).filter(([key])=>pattern.test(key));
+    if(slots.length!==1)continue;
+    const names=slots[0][1];
+    if(Array.isArray(names)&&names.length===1&&typeof names[0]==='string'&&names[0].trim()&&!/[\[\]~]/.test(names[0])){
+     (primaryDefinition.rules.wikiFixedStops??={})[role]=names[0].trim();
+    }
+   }
+  }
  }
  details.sources={...details.sources,wiki:snapshot.source};details.primarySource='scmdb';details.sourcePolicy='scmdb-first-wiki-missing';details.definitions={};details.entries=[];details.differences=[];
  for(const [id,entry]of [...entries].sort(([a],[b])=>a.localeCompare(b))){const {differences,...value}=entry;details.definitions[id]=details.entries.length;if(Object.keys(differences).length){value.differenceIndex=details.differences.length;details.differences.push(differences);}details.entries.push(value);}

@@ -54,3 +54,15 @@ test('partial delivery corrections retain other unknown destinations and reject 
  for(const value of [0,-1,1.5,NaN])assert.throws(()=>reviewReceipt(job,{...job,reservations:{[job.shipments[0]!.to]:value}},true));
  const ended={...job,state:'ended' as const};assert.throws(()=>calculateFlight({...emptyDraft(),jobs:[ended]}));
 });
+test('a corrected Ruin receipt produces a route with unknown goods and SCU',()=>{
+ const ruin='pyro:1c585a2e-73c4-4bc5-8922-e0b434b8c8ea',gaslight='pyro:beaadc7f-9f3c-4a2d-8dd6-f56d57de1c60';
+ const original:Job={id:'ruin',title:['루인','Ruin'],signature:'raw',state:'incomplete',pay:0,
+  shipments:[{id:'r0',from:ruin,to:'',cargo:['',''],scu:0}]};
+ const form={...original,shipments:original.shipments.map(row=>({...row,to:gaslight}))};
+ const corrected=reviewReceipt(original,form,true);
+ const plan=calculateFlight({...emptyDraft(),start:ruin,partner:'operator',jobs:[corrected]});
+ assert.equal(plan.mode,'simple');
+ assert.equal(plan.visits.at(-1)?.locationId,gaslight);
+ assert.equal(corrected.mission?.cargo[0]?.dropoffId,gaslight);
+ assert.equal(original.shipments[0]?.to,'');
+});
