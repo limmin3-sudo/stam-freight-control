@@ -1,0 +1,2 @@
+416970bbb9e2b8c000800a8b7dc99a253e4ce12830b2b7269257aba6761daa60  STAM-app.1.6.5-win-x64.zip
+7cdc3a19b585546eda842e6b87dea2466d966ab1ba7f9c25f1fbd4b3b6d019a2  STAM-app.1.6.5-setup-win-x64.exe
