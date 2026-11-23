@@ -22,6 +22,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check the service centre release notes
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            try {
+              const {data} = await github.rest.repos.compareCommitsWithBasehead({
+                owner, repo, basehead: context.payload.before + '...' + context.sha,
+              });
+              const paths = (data.files || []).map(file => file.filename);
+              const product = paths.some(path => /^(apps\/control-room\/(src|public)\/|desktop\/|integration\/|data\/desktop-release\.json$)/.test(path));
+              if (product && !paths.includes('data/releases.json')) {
+                core.warning('서비스센터 업데이트 기록을 확인하세요. 이번 푸시에는 제품 변경이 있지만 data/releases.json 변경은 없습니다.');
+              }
+            } catch (error) {
+              core.warning('업데이트 기록 변경 여부를 확인하지 못했습니다. ' + error.message);
+            }
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

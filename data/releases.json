@@ -1,5 +1,99 @@
 [
   {
+    "id": "2026-11-23-beta-3-9-0",
+    "channel": "beta",
+    "version": "3.9.0",
+    "date": "2026-11-23 23:56",
+    "title": "사업부 첫 화면 다시 보기와 함선별 무역 경로 추천",
+    "changes": [
+      "백금 상단바를 갖춘 첫 화면에서 사업부 전경, 영상 두 편, 파트너 6명과 시설 4곳을 둘러볼 수 있습니다. 영상은 재생을 누르면 소리와 함께 시작합니다.",
+      "서비스센터 → 첫 화면 다시 보기에서 전체 소개를 다시 열 수 있습니다. 다시 보지 않기를 선택했어도 열리며, 서비스센터로 돌아가면 기존 선택이 유지됩니다.",
+      "무역 시세표에 1 SCU당 단위 차익과 높은 순·낮은 순 정렬, 정렬 되돌리기를 추가했습니다. 함선과 자금만 입력하면 구매소·판매소·품목·거래량을 함께 비교할 수 있습니다.",
+      "무역 소문에서 선장들의 후기를 읽고, 실제 거래량과 대기 여부를 제보할 수 있습니다. 일부만 팔렸다면 선내에 남은 화물의 판매소를 다시 찾을 수 있습니다."
+    ],
+    "en": {
+      "title": "Revisit the welcome page and find trade routes for your ship",
+      "changes": [
+        "Explore the division panorama, two films, six partners and four facilities from the new platinum-header welcome page. Select play to start either film with sound.",
+        "Use Revisit the welcome page in the service centre to reopen the full introduction, even with Don’t show this again enabled. Returning keeps your preference.",
+        "Compare margin per SCU on the price board, sort either way or restore the original order. Enter your ship and budget to compare purchase terminals, sale terminals, goods and quantities.",
+        "Read pilot trade reports and share your actual fill and wait. After a partial sale, search for buyers for your remaining cargo."
+      ]
+    }
+  },
+  {
+    "id": "2026-11-23-beta-3-8-0",
+    "channel": "beta",
+    "version": "3.8.0",
+    "date": "2026-11-23 21:28",
+    "title": "STAM 네비게이터 1.6.5와 운항 오버레이",
+    "changes": [
+      "앱 다운로드에서 Windows 설치본과 무설치 ZIP을 받을 수 있습니다. 네비게이터와 오버레이의 기본 Windows 제목줄을 없애고 목적지, 화물별 수량, 이번 거점 작업을 표시합니다.",
+      "계약 수신과 한국어·영어 계약 화면 인식을 보완했습니다. 네비게이터와 오버레이에서 완료한 작업은 웹의 현재 운항 단계에 반영됩니다.",
+      "첫 출항 영상을 공개했습니다. 시네마에서 다시 볼 수 있습니다."
+    ],
+    "en": {
+      "title": "STAM Navigator 1.6.5 and the flight overlay",
+      "changes": [
+        "Get the Windows installer or portable ZIP from App download. The borderless Navigator and overlay show your destination, cargo quantities and current stop tasks.",
+        "Contract intake and Korean and English contract screen recognition were improved. Completing a task in Navigator or the overlay updates the current step on the web.",
+        "The First Departure film is available to watch again in the cinema."
+      ]
+    }
+  },
+  {
+    "id": "2026-11-21-beta-3-7-1",
+    "channel": "beta",
+    "version": "3.7.1",
+    "date": "2026-11-21 19:45",
+    "title": "무역 경로 조회 조건 간소화",
+    "changes": [
+      "위법 분류와 위험 허용 필터를 제거했습니다. 이전에 저장한 해당 조건 때문에 구매소나 판매소가 추천에서 빠지던 문제를 수정했습니다."
+    ],
+    "en": {
+      "title": "Simpler trade route filters",
+      "changes": [
+        "The legality and risk filters were removed. Previously saved values for these filters no longer exclude trade candidates."
+      ]
+    }
+  },
+  {
+    "id": "2026-11-21-beta-3-7-0",
+    "channel": "beta",
+    "version": "3.7.0",
+    "date": "2026-11-21 02:20",
+    "title": "파트너 한국어 대사와 네비게이터 1.6.1",
+    "changes": [
+      "시설 둘러보기, 아카데미 수업과 파트너 인계 장면에 한국어 음성 대사를 추가했습니다.",
+      "네비게이터 1.6.1 오버레이에서 브리지 오퍼레이터와 수석 항해사의 한국어 운항 안내를 들을 수 있습니다."
+    ],
+    "en": {
+      "title": "Korean partner dialogue and Navigator 1.6.1",
+      "changes": [
+        "Facility tours, academy lessons and partner handoffs now include recorded Korean dialogue.",
+        "Navigator 1.6.1 added Korean flight cues from the bridge operator and senior navigator in the overlay."
+      ]
+    }
+  },
+  {
+    "id": "2026-11-20-beta-3-6-1",
+    "channel": "beta",
+    "version": "3.6.1",
+    "date": "2026-11-20 23:23",
+    "title": "함대 소개영상 복구와 레드 윈드 운송 공략 보완",
+    "changes": [
+      "라운지 시네마에서 STAM 함대 소개영상을 다시 재생하거나 내려받을 수 있습니다.",
+      "레드 윈드 공략에 세이크런스 플롯과 차울라 해변 사이 약 15 km 구간의 과속 주의, 숙련도별 소요 시간, 골렘 Ox에 전량이 들어가지 않을 때의 부분 납품 요령을 추가했습니다."
+    ],
+    "en": {
+      "title": "Fleet film restored and Red Wind hauling guide updated",
+      "changes": [
+        "The STAM fleet introduction can be played and downloaded again in the lounge cinema.",
+        "The Red Wind guide covers the roughly 15 km surface leg, approach speed, lap times by experience and partial delivery when a load exceeds Golem OX capacity."
+      ]
+    }
+  },
+  {
     "id": "2026-11-20-beta-3-6-0",
     "channel": "beta",
     "version": "3.6.0",
