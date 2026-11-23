@@ -1,0 +1,10 @@
+/* Both the working console and the welcome page use the same metal finishes. */
+:is(.space-experience, .opening-film[data-look="mixed"]) {
+  --shell-grain: url('./graphite-face.webp');
+  --shell-platinum:
+    linear-gradient(178deg,#ffffff38,transparent 38%,#24323d12 80%,#ffffff22),
+    linear-gradient(106deg,#a8b0b6e0,#e5e8e9ec 18%,#f7f7f3eb 26%,#cbd0d2de 44%,#a9b1b7de 62%,#e2e6e7e8 83%,#bfc5c9df),
+    var(--shell-grain) center / cover no-repeat;
+  --shell-platinum-ink: #182128;
+  --shell-dark-face: linear-gradient(164deg,#434b50e8,#282e32ed 38%,#171d21ee 78%,#272e32ef);
+}

@@ -1,0 +1,168 @@
+.departure-crew {
+  --crew-copy-gutter: clamp(25px, 5.5vw, 96px);
+  padding: clamp(54px, 10svh, 135px) var(--departure-gutter);
+}
+.departure-crew > h2,
+.departure-crew-layout {
+  width: min(100%, 1450px);
+  margin-inline: auto;
+}
+.departure-crew > h2 {
+  font: 740 clamp(31px, 4.6vw, 68px) / 1.1 SUIT, system-ui, sans-serif;
+  letter-spacing: -.045em;
+  margin-block: 0 clamp(28px, 5vw, 64px);
+  opacity: var(--reveal-progress, 1);
+  transform: translateY(calc((1 - var(--reveal-progress, 1)) * 36px));
+}
+.departure-crew-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr);
+  gap: var(--crew-copy-gutter);
+  align-items: start;
+}
+.departure-crew-stage {
+  position: sticky;
+  top: calc(var(--departure-bar-height) + min(6svh, 70px));
+  overflow: hidden;
+  isolation: isolate;
+  height: min(calc(100svh - var(--departure-bar-height) - 13svh), 770px);
+}
+.departure-crew-stage figure {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.departure-crew-stage figure[data-active="true"] { opacity: 1; }
+.departure-crew-location {
+  position: absolute;
+  display: block;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.departure-crew-stage figure::after,
+.departure-crew-mobile-figure::after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  background: var(--crew-photo-wash, linear-gradient(0deg, #081b28a1, transparent 60%));
+  pointer-events: none;
+}
+.departure-crew-actor {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 6%;
+  margin-inline: auto;
+  width: min(73%, 520px);
+  height: 86%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 9px 12px #08182265);
+}
+.departure-crew-stage .departure-crew-actor {
+  transform: translateX(-12%) translateY(26px) scale(.96);
+  transition: transform .58s cubic-bezier(.2,.75,.22,1);
+}
+.departure-crew-stage figure[data-active="true"] .departure-crew-actor {
+  transform: translateX(0) translateY(0) scale(1);
+}
+.departure-crew-messages {
+  display: grid;
+  gap: clamp(13px, 3svh, 33px);
+}
+.departure-crew-messages article {
+  min-height: clamp(350px, 57svh, 580px);
+  display: grid;
+  align-items: center;
+  --crew-reveal: clamp(0, var(--reveal-progress, 1) * 1.53, 1);
+}
+.departure-crew-messages article:focus-within { --crew-reveal: 1; }
+.departure-crew-message {
+  max-width: 680px;
+  position: relative;
+  opacity: var(--crew-reveal);
+  transform: translateX(calc((1 - var(--crew-reveal)) * 42px));
+}
+.departure-crew-message::before {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 3px;
+  margin-bottom: 17px;
+  background: var(--departure-accent);
+}
+.departure-crew-message h3 {
+  margin: 0 0 9px;
+  font: 735 clamp(25px, 3.7vw, 56px) / 1.05 SUIT, system-ui, sans-serif;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+.departure-crew-specialty {
+  margin: 0;
+  color: var(--departure-accent);
+  font-size: clamp(12px, 1.25vw, 16px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.departure-crew-message blockquote {
+  margin: clamp(16px, 3.1vw, 34px) 0 0;
+  padding: 0;
+  color: var(--departure-muted);
+}
+.departure-crew-message blockquote p {
+  margin: 0;
+  font-size: clamp(15px, 1.6vw, 21px);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.departure-crew-message blockquote p:first-child {
+  color: var(--departure-text);
+  font-weight: 730;
+}
+.departure-crew-message blockquote p + p { margin-top: 9px; }
+.departure-crew-message a {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 44px;
+  margin-top: clamp(7px, 2svh, 20px);
+  color: var(--departure-accent);
+  border-bottom: 1px solid currentColor;
+  font-weight: 700;
+  text-decoration: none;
+}
+.departure-crew-message a:hover { color: var(--departure-text); }
+.departure-crew-mobile-figure { display: none; }
+@media (max-width: 760px), (prefers-reduced-motion: reduce) {
+  .departure-crew-layout { display: block; }
+  .departure-crew-stage { display: none; }
+  .departure-crew-messages { gap: clamp(42px, 6vw, 90px); }
+  .departure-crew-messages article {
+    min-height: 0;
+    grid-template-columns: minmax(114px, .85fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: clamp(12px, 4vw, 53px);
+  }
+  .departure-crew-mobile-figure {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    isolation: isolate;
+    margin: 0;
+    height: clamp(240px, 57vw, 480px);
+    opacity: var(--crew-reveal);
+    transform: translateY(calc((1 - var(--crew-reveal)) * 34px));
+  }
+  .departure-crew-actor { width: 85%; height: 86%; }
+}
+@media (max-width: 460px) {
+  .departure-crew-message h3 { font-size: 22px; }
+  .departure-crew-message blockquote p { font-size: 13px; }
+  .departure-crew-message a { font-size: 13px; }
+  .departure-crew-message::before { width: 36px; margin-bottom: 12px; }
+}
