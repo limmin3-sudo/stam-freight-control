@@ -38,6 +38,7 @@ if __name__ == "__main__":
         articles.update((r["url"], r) for r in previous if recent(r))
     except (ValueError, OSError, TypeError):
         pass
+    fresh_count = 0
     try:
         feed = ET.fromstring(fetch("https://www.reddit.com/r/starcitizen/search.rss?q=%28commodity+OR+trading%29+%28sold+OR+demand+OR+stock+OR+SCU%29&restrict_sr=1&sort=new&t=month"))
         for entry in feed.findall(atom+"entry"):
@@ -52,8 +53,29 @@ if __name__ == "__main__":
             row["goods"] = tags(title+" "+body, commodities)
             if recent(row) and re.search(r"trad|commodit|cargo|SCU|demand|stock", title, re.I):
                 articles[row["url"]] = row
+                fresh_count += 1
     except (ValueError, OSError, ET.ParseError):
         print("Community feed unavailable; retaining previously published and curated reports")
+    if not fresh_count:
+        # The public index returns links to the original discussions, never new price observations.
+        try:
+            since = (now - timedelta(days=45)).date().isoformat()
+            index = json.loads(fetch("https://arctic-shift.photon-reddit.com/api/posts/search?subreddit=starcitizen&title=trading&limit=5&sort=desc&after=" + since))
+            for post in index["data"]:
+                if post.get("removed_by_category") or post.get("selftext") in ("[deleted]", "[removed]"):
+                    continue
+                title = post.get("title", "")
+                body = post.get("selftext") or ""
+                if not re.search(r"commodit|SCU|trade route|cargo|supply|demand|hauling", title+" "+body, re.I):
+                    continue
+                date = datetime.fromtimestamp(post["created_utc"], timezone.utc).date().isoformat()
+                row = {"url": "https://www.reddit.com"+post["permalink"], "title": title,
+                       "en": title, "date": date, "places": tags(title+" "+body, terminals),
+                       "goods": tags(title+" "+body, commodities)}
+                if recent(row):
+                    articles[row["url"]] = row
+        except (ValueError, KeyError, OSError, TypeError):
+            print("Public discussion index unavailable; retaining earlier reports")
     for row in seed:
         articles[row["url"]] = row
     ordered = sorted(articles.values(), key=lambda row: row.get("date", ""), reverse=True)
