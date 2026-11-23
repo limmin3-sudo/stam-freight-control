@@ -2,7 +2,7 @@
 import hashlib, io, json, urllib.request, zipfile, sys
 meta=json.load(open(sys.argv[1] if len(sys.argv)>1 else 'data/desktop-release.json',encoding='utf-8-sig'))
 with urllib.request.urlopen(meta['url'],timeout=120) as response:
-    data=response.read(100*1024*1024+1)
+    data=response.read(meta['bytes']+1)
 assert len(data)==meta['bytes'], 'ZIP byte count'
 assert hashlib.sha256(data).hexdigest()==meta['sha256'], 'ZIP checksum'
 with zipfile.ZipFile(io.BytesIO(data)) as z:
@@ -26,7 +26,7 @@ if meta.get('installer'):
     expected=f"https://github.com/limmin3-sudo/stam-freight-control/releases/download/{meta['version']}/STAM-{meta['version']}-setup-win-x64.exe"
     assert installer['url']==expected, 'Installer URL'
     with urllib.request.urlopen(installer['url'],timeout=120) as response:
-        content=response.read(100*1024*1024+1)
+        content=response.read(installer['bytes']+1)
     assert len(content)==installer['bytes'], 'Installer byte count'
     assert hashlib.sha256(content).hexdigest()==installer['sha256'], 'Installer checksum'
     assert content[:2]==b'MZ', 'Installer executable'
