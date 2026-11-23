@@ -1,0 +1,69 @@
+[
+  {
+    "title": "금 판매 후기 · 에어리어18·로어빌에서 판매 성공, 닉스의 파이로 게이트웨이는 대량 판매가 어려웠다는 제보",
+    "en": "Gold seller reports successful sales at Area18 and Lorville, limited volume at Pyro Gateway in Nyx",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1xm2dai/i_see_your_idris_of_gold_and_raise_you_an_ica/",
+    "date": "2026-11-02",
+    "places": [
+      "Area18",
+      "Lorville",
+      "Pyro Gateway"
+    ],
+    "goods": [
+      "Gold"
+    ]
+  },
+  {
+    "title": "아이언클래드 폐기물 운송 · 닉스 게이트웨이 구매 → 에버러스 하버 판매 경험, 바이제니에서는 화물 이전 오류 제보",
+    "en": "Ironclad pilot reports buying waste at Nyx Gateway and selling at Everus Harbor, transfer issues at Baijini",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1xgaqm3/any_workarouns_for_tdd_terminals/",
+    "date": "2026-11-01",
+    "places": [
+      "Everus Harbor",
+      "Baijini Point"
+    ],
+    "goods": [
+      "Waste"
+    ]
+  },
+  {
+    "title": "에버러스에서 출발한 티타늄 약 600 SCU · 뉴 배비지 또는 L3로 운송해 회당 60만~80만 aUEC를 벌었다는 제보",
+    "en": "Pilot reports 600–800k aUEC per run on about 600 SCU of titanium from Everus to New Babbage or L3",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1xdgr9m/limited_playtime_weekends_only_best_commodity/",
+    "date": "2026-10-23",
+    "places": [
+      "New Babbage"
+    ],
+    "goods": [
+      "Titanium"
+    ],
+    "route": {
+      "buyAt": "Everus Harbor",
+      "sellAt": "New Babbage",
+      "commodity": "Titanium"
+    }
+  },
+  {
+    "title": "닉스 게이트웨이에서 아스타틴 640 SCU 중 176 SCU만 판매 선택 가능",
+    "en": "Nyx Gateway terminal offered to take 176 of 640 SCU of astatine",
+    "date": "2026-07-22",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1v3a4xs/commodity_trading_issue/",
+    "commodity": "Astatine",
+    "terminal": "Nyx Gateway",
+    "side": "sell"
+  },
+  {
+    "title": "UEX 수요를 보고 CRU-L1에 갔지만 화물을 일부만 팔았다는 M2 선장 후기",
+    "en": "M2 pilot reports a partial sale despite the demand shown for CRU-L1",
+    "date": "2026-03-15",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1rtzrwq/so_how_does_commodity_tradinghauling_work/",
+    "terminal": "CRU-L1",
+    "side": "sell"
+  },
+  {
+    "title": "아이언클래드 어설트로 레브스키에서 철을 모아 만재 후 파이로·스탠튼에 판매한 경험",
+    "en": "Ironclad Assault pilot accumulated iron in Levski before selling full loads in Pyro or Stanton",
+    "url": "https://www.reddit.com/r/starcitizen/comments/1u9750h/questions_for_those_who_have_commodity_traded_in/",
+    "commodity": "Iron"
+  }
+]

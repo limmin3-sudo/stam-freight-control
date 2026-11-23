@@ -11,6 +11,16 @@ const env=await initializeTestEnvironment({projectId:'demo-stam-sync',firestore:
 const checks=[];const pass=s=>checks.push(s);
 try{
  await env.clearFirestore();const db=env.authenticatedContext('a').firestore(),f={...F,db};
+ const observationPath='tradeObservations/a_1_2_sell';
+ const fill={ownerUid:'a',terminalId:1,commodityId:2,side:'sell',attempted:500,filled:320,waited:false,patch:'4.10.3',at:Date.now()};
+ const observer=env.authenticatedContext('observer').firestore();
+ await assertSucceeds(F.setDoc(F.doc(db,observationPath),fill));
+ await assertSucceeds(F.setDoc(F.doc(db,observationPath),{...fill,filled:500}));
+ await assertSucceeds(F.getDocs(F.query(F.collection(observer,'tradeObservations'),F.orderBy('at','desc'),F.limit(100))));
+ await assertFails(F.setDoc(F.doc(observer,observationPath),fill));
+ await assertFails(F.setDoc(F.doc(db,observationPath),{...fill,filled:501}));
+ await assertFails(F.getDoc(F.doc(env.unauthenticatedContext().firestore(),observationPath)));
+ pass('authenticated fill observations share actual volume and reject spoofed or excessive reports');
  await assertSucceeds(writeAccount(f,'a',{revision:0,updatedAt:0},['vh-missions'],{'vh-missions':'[]'},{now:100,items:['initial']}));pass('new account transaction creates head and state atomically');
  const batch=F.writeBatch(db);batch.set(F.doc(db,'users/a'),{updatedAt:200},{merge:true});batch.set(F.doc(db,'users/a/state/vh-missions'),{value:'legacy overwrite',updatedAt:200});await assertFails(batch.commit());pass('legacy batch without revision advancement denied');
  await assertFails(F.setDoc(F.doc(db,'users/a/state/vh-missions'),{value:'bypass',updatedAt:100}));await assertFails(F.deleteDoc(F.doc(db,'users/a/state/vh-missions')));await assertFails(F.deleteDoc(F.doc(db,'users/a')));pass('standalone state write/delete and head deletion denied');

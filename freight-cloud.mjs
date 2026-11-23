@@ -8,7 +8,7 @@ export function createFreightCloud(f,uid,assertCurrent=()=>{}){
  const text=(v,max,empty=false)=>typeof v==='string'&&v.trim().length<=max&&(empty||v.trim())?v.trim():fail('invalid-text');
  const integer=(v,max)=>Number.isSafeInteger(v)&&v>=0&&v<=max?v:fail('invalid-number');
  const rows=s=>s.docs.map(d=>({id:d.id,...d.data()}));
- const allowedPath=path=>path==='tradePosts'||/^crewTrades\/[a-zA-Z0-9_-]{1,128}\/chat$/.test(path);
+ const allowedPath=path=>path==='tradePosts'||path==='tradeObservations'||/^crewTrades\/[a-zA-Z0-9_-]{1,128}\/chat$/.test(path);
  async function list(path,filters=[],max=100){guard();if(!allowedPath(path))fail('feature-not-enabled');const r=await f.getDocs(f.query(f.collection(f.db,path),...filters.map(x=>f.where(...x)),f.limit(max)));guard();return rows(r);}
  async function page(path,filters=[],after='',order=''){
   guard();if(!allowedPath(path))fail('feature-not-enabled');const constraints=[...filters.map(x=>f.where(...x)),f.orderBy(order||'__name__',order?'desc':'asc')];
@@ -17,8 +17,16 @@ export function createFreightCloud(f,uid,assertCurrent=()=>{}){
  }
  async function command(c){
   guard();if(c.action==='capabilities')return {engine:'crew-v1',billing:'free-only',uexReports:false,backgroundPriceAlerts:false,pushVapidKey:''};
-  if(!['savePost','closePost','message'].includes(c.action))fail('feature-not-enabled');
+  if(!['savePost','closePost','message','observeTrade'].includes(c.action))fail('feature-not-enabled');
   const key=id(c.id||crypto.randomUUID());
+  if(c.action==='observeTrade'){
+   const terminalId=integer(c.terminalId,1e8),commodityId=integer(c.commodityId,1e8);
+   const attempted=integer(c.attempted,10000),filled=integer(c.filled,10000);
+   if(!terminalId||!commodityId||!attempted||filled>attempted||!['buy','sell'].includes(c.side)||typeof c.waited!=='boolean'||!/^\d+\.\d+\.\d+$/.test(c.patch))fail('invalid-observation');
+   const reportId=[uid,terminalId,commodityId,c.side].join('_');
+   await f.setDoc(f.doc(f.db,'tradeObservations',reportId),{ownerUid:uid,terminalId,commodityId,side:c.side,attempted,filled,waited:c.waited,patch:c.patch,at:Date.now()});
+   guard();return {id:reportId};
+  }
   if(c.action==='message'){
    const operationId=id(c.operationId),head=await f.getDoc(f.doc(f.db,'crewTrades',operationId));guard();if(!head.exists())fail('not-found');const op=JSON.parse(head.data().payload),member=op.members.find(m=>m.uid===uid&&m.active);if(!member||op.phase==='settled')fail('permission-denied');
    await f.setDoc(f.doc(f.db,'crewTrades',operationId,'chat',key),{uid,name:member.name,text:text(c.text,1500),announcement:c.announcement===true&&op.ownerUid===uid,at:Date.now()});guard();return {id:operationId};

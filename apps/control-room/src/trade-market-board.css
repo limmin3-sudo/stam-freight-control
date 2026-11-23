@@ -106,3 +106,13 @@
 .board-policy,.board-spread > small {display:block;font-size:.86rem;line-height:1.35}
 .board-policy {color:#f3cb8d}
 .ticker-detail summary {cursor:pointer;padding:.45rem}
+
+.quick-trade { display:grid; gap:.8rem; padding:clamp(.85rem,2vw,1.5rem); margin-block:1rem; border:1px solid var(--line,currentColor); border-radius:.5rem; }
+.quick-trade h3,.quick-trade h4,.quick-trade p { margin:0; }
+.quick-trade label { display:grid; gap:.3rem; }
+.quick-trade label:has([type=checkbox]) { display:flex; align-items:center; }
+.quick-trade > button { justify-self:start; }
+.quick-trade .suite-card { display:grid; gap:.55rem; }
+.quick-trade summary,.trade-fill-report summary { cursor:pointer; }
+.trade-news-list { display:grid; gap:.6rem; padding-inline-start:1.2rem; }
+.trade-news-list small { display:block; }
