@@ -99,28 +99,47 @@ internal sealed class BridgeWindow : Form {
     protected override CreateParams CreateParams {get{var p=base.CreateParams;p.ExStyle|=0x02000000;return p;}}
     readonly bool preview;
     bool english,quitting,manualStop;
-    Process child;string selected="--auto",phase="idle";
+    Process child;string pairedAddress;string selected="--auto",phase="idle";
     int failures;
     readonly System.Windows.Forms.Timer retry=new System.Windows.Forms.Timer();
     readonly NotifyIcon tray=new NotifyIcon();
     readonly ToolTip hints=new ToolTip();
     readonly HoloLabel title=new HoloLabel(),subtitle=new HoloLabel(),state=new HoloLabel(),detail=new HoloLabel(),fileLabel=new HoloLabel(),filePath=new HoloLabel(),bytes=new HoloLabel(),updated=new HoloLabel(),footer=new HoloLabel();
+    readonly DeckButton readContract=new DeckButton();
     readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),narratorButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton(),continuousButton=new DeckButton();
     readonly string settings,languageSettings;
     CompanionOverlay overlay;
     readonly HoloLabel voiceFeedback=new HoloLabel();
     Image brandLogo;
     readonly PartnerPortrait portrait=new PartnerPortrait(false);
-    ColumnStyle portraitColumn;
+    Panel flightHome,settingsPage;
+    readonly DeckButton homeRead=new DeckButton(),complete=new DeckButton(),settingsToggle=new DeckButton(),homeOpen=new DeckButton(),homeOverlay=new DeckButton();
+    readonly HoloLabel routeLabel=new HoloLabel(),shipLabel=new HoloLabel(),flightSection=new HoloLabel();
+    readonly ListBox manifest=new ListBox();
+    readonly PictureBox shipImage=new PictureBox();
+    string currentArt,lastRows;
     void UpdatePortrait(bool navigator){
-        title.Text=PartnerPortrait.Title(navigator,english);
-        title.ForeColor=navigator?DeckTheme.NavigatorInk:DeckTheme.OperatorInk;
-        portrait.SelectPartner(navigator,english);
-        portraitColumn.Width=portrait.Image==null?0:168f*AutoScaleDimensions.Width/96f;
+        bool speaking=overlay!=null&&overlay.PartnerSpeaking;
+        portrait.SelectPartner(navigator,english);portrait.Visible=speaking;
+        title.Text=speaking?PartnerPortrait.Title(navigator,english):T("다음 목적지","Next destination");
+        title.ForeColor=speaking?(navigator?DeckTheme.NavigatorInk:DeckTheme.OperatorInk):DeckTheme.Gilt;
+    }
+    void SelectShipArt(string file){
+        if(file==currentArt)return;currentArt=file;
+        var previous=shipImage.Image;shipImage.Image=null;if(previous!=null)previous.Dispose();
+        if(!System.Text.RegularExpressions.Regex.IsMatch(file??"","^[a-z0-9-]+\\.jpg$"))return;
+        string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","apps","control-room","src","assets","ships",file);
+        if(File.Exists(path))try{using(var im=Image.FromFile(path))shipImage.Image=new Bitmap(im);}catch(IOException){}catch(ArgumentException){}
+    }
+    void ChoosePage(bool tools){
+        settingsPage.Visible=tools;flightHome.Visible=!tools;
+        if(tools)settingsPage.BringToFront();else flightHome.BringToFront();
+        settingsToggle.Text=tools?T("운항으로","Back to flight"):T("설정","Settings");
     }
     CompanionOverlay Overlay(){if(overlay==null||overlay.IsDisposed){
         overlay=new CompanionOverlay(SendCommand,english,Path.GetDirectoryName(settings));
-        overlay.TalkChanged+=()=>{UpdateTools();voiceFeedback.Text=overlay.TalkStatus;};
+        overlay.TalkChanged+=()=>{UpdateTools();voiceFeedback.Text=overlay.TalkStatus;hints.SetToolTip(voiceFeedback,voiceFeedback.Text);RenderNavigation();};
+        overlay.DeckChanged+=RenderNavigation;voiceFeedback.Text=overlay.TalkStatus;
         UpdateTools();
     }return overlay;}
     void SendCommand(string command){try{if(child!=null&&!child.HasExited){child.StandardInput.WriteLine(new JavaScriptSerializer().Serialize(new{type="command",command=command}));child.StandardInput.Flush();}}catch{}}
@@ -132,30 +151,37 @@ internal sealed class BridgeWindow : Form {
     void ApplyLanguage(){
         if(overlay!=null){overlay.Dispose();overlay=null;}
         voiceFeedback.Text="";Text=T("STAM 네비게이터","STAM Navigator");
-        subtitle.Text="";
-        choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
+        subtitle.Text="";ChoosePage(settingsPage.Visible&&settingsToggle.Tag!=null);homeRead.Text=T("게임 계약 읽기","Read contracts");homeOpen.Text=T("미션콘솔 열기","Mission console");homeOverlay.Text=T("게임 오버레이","Game overlay");
+        readContract.Text=T("게임 계약 읽기","Read game contracts");choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
         footer.Text=T("창을 닫아도 트레이에서 수신합니다. 종료는 트레이 메뉴를 이용하세요.\n게임 로그는 읽기만 하며, 음성 완료는 연결한 STAM 운항에 반영됩니다.","Closing this window keeps the app in your system tray. Quit from its menu.\nRead-only game log access. Spoken confirmations update your linked STAM flight.");
         korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();updated.Text="";RenderStatus(null);UpdateTools();BuildTray();
     }
     void UpdateTools(){
-        UpdatePortrait(overlay!=null&&overlay.IsNavigator);narratorButton.Text=T("부조종사 선택","Choose copilot");
+        UpdatePortrait(overlay!=null&&overlay.IsNavigator);narratorButton.Text=overlay!=null&&overlay.Narrator=="off"?T("음성 답변 꺼짐","Replies muted"):T("답변 목소리","Reply voice");
         continuousButton.Text=overlay==null?T("연속 듣기 켜기","Listen continuously"):overlay.ContinuousLabel;
         continuousButton.Primary=overlay!=null&&overlay.VoiceEnabled;continuousButton.Invalidate();
-        overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay==null?T("` 길게 눌러 말하기","` · hold to talk"):overlay.TalkLabel;voiceButton.Primary=overlay!=null&&overlay.Listening;voiceButton.Invalidate();}
+        overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay==null?T("클릭해 말하기","Click to speak"):overlay.ButtonTalkLabel;voiceButton.Primary=overlay!=null&&overlay.Listening;voiceButton.Invalidate();}
     void SetLanguage(bool value){english=value;ApplyLanguage();if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(languageSettings));File.WriteAllText(languageSettings,english?"en":"ko");}catch{}}
-    internal bool CheckLanguages(){SetLanguage(true);bool ok=Text=="STAM Navigator"&&open.Text=="Open mission console  ↗"&&choose.Text=="Choose Game.log";SetLanguage(false);return ok&&Text=="STAM 네비게이터"&&open.Text=="미션콘솔 열기  ↗"&&choose.Text=="파일 직접 선택"&&shortcutsButton.Text=="단축키 설정"&&voiceButton.Text=="` 길게 눌러 말하기"&&continuousButton.Text=="연속 듣기 켜기";}
+    internal bool CheckLanguages(){SetLanguage(true);bool ok=Text=="STAM Navigator"&&open.Text=="Open mission console  ↗"&&choose.Text=="Choose Game.log";SetLanguage(false);return ok&&Text=="STAM 네비게이터"&&open.Text=="미션콘솔 열기  ↗"&&choose.Text=="파일 직접 선택"&&shortcutsButton.Text=="단축키 설정"&&voiceButton.Text=="클릭해 말하기"&&continuousButton.Text=="연속 듣기 켜기";}
     internal static void CaptureDesign(string directory){
         Directory.CreateDirectory(directory);HoloFonts.CheckSelection(Path.Combine(directory,"font-selection.json"));
         foreach(bool en in new[]{false,true})using(var window=new BridgeWindow(en)){
             window.Show();Application.DoEvents();
-            window.UpdatePortrait(en);
-            window.state.Text=en?"Orison":"오리슨";
-            window.detail.Text=en?"Deliver Titanium · 40 SCU":"티타늄 배송 · 40 SCU";
+            var previewOverlay=window.Overlay();
+            string place=en?"Chawla Beach":"차울라 해변",next=en?"Sacren's Plot":"세이크런스 플롯";
+            var cargo=new List<Dictionary<string,object>>();
+            string[] names=en?new[]{"Waste","Hydrogen","Processed food"}:new[]{"폐기물","수소","가공 식품"};int[] units={22,11,9};
+            for(int i=0;i<names.Length;i++)cargo.Add(new Dictionary<string,object>{{"item",names[i]},{"action","delivery"},{"scu",units[i]}});
+            var flight=new Dictionary<string,object>{{"mode","flight"},{"partner","operator"},{"lines",new[]{place}},{"stepId",Guid.NewGuid().ToString()},{"step","delivery"},
+                {"navigation",new Dictionary<string,object>{{"destination",place},{"ship","Drake Golem OX"},{"shipArt","drake-golem-ox.jpg"},{"route",new[]{place,next}},{"finished",false},{"extra",0},{"visitNumber",1},{"visitCount",3},{"cargo",cargo}}}};
+            previewOverlay.UpdateDisplay(flight);window.RenderNavigation();previewOverlay.Show();Application.DoEvents();
+            using(var picture=new Bitmap(previewOverlay.Width,previewOverlay.Height)){previewOverlay.DrawToBitmap(picture,new Rectangle(Point.Empty,previewOverlay.Size));picture.Save(Path.Combine(directory,"overlay-flight-"+(en?"en":"ko")+".png"));}
+            previewOverlay.Hide();
             foreach(bool compact in new[]{false,true}){
                 if(compact)window.ClientSize=new Size(820,680);Application.DoEvents();
                 using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(Path.Combine(directory,"companion-"+(en?"en":"ko")+(compact?"-compact":"-full")+".png"),System.Drawing.Imaging.ImageFormat.Png);}
             }
-            var scroll=window.Controls[0].Controls[0] as ScrollableControl;if(scroll!=null){scroll.ScrollControlIntoView(window.footer);Application.DoEvents();}
+            window.ChoosePage(true);Application.DoEvents();
             using(var bitmap=new Bitmap(window.Width,window.Height)){window.DrawToBitmap(bitmap,new Rectangle(Point.Empty,window.Size));bitmap.Save(Path.Combine(directory,"companion-"+(en?"en":"ko")+"-tools.png"),System.Drawing.Imaging.ImageFormat.Png);}
             window.Close();
         }
@@ -166,31 +192,54 @@ internal sealed class BridgeWindow : Form {
         HoloFonts.Load();AutoScaleDimensions=new SizeF(96,96);AutoScaleMode=AutoScaleMode.Dpi;Font=HoloFonts.At(11);
         var workArea=Screen.FromPoint(Cursor.Position).WorkingArea;
         MinimumSize=new Size(Math.Min(820,workArea.Width),Math.Min(600,workArea.Height));
-        Size=new Size(Math.Min(1440,workArea.Width),Math.Min(960,workArea.Height));StartPosition=FormStartPosition.Manual;
+        Size=new Size(Math.Min(1000,workArea.Width),Math.Min(780,workArea.Height));StartPosition=FormStartPosition.Manual;
         Location=new Point(workArea.Left+(workArea.Width-Width)/2,workArea.Top+(workArea.Height-Height)/2);BackColor=DeckTheme.Housing;ForeColor=Ink;DoubleBuffered=true;
         try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
-        var shell=new Panel{Dock=DockStyle.Fill,BackColor=DeckTheme.Housing,Padding=new Padding(10)};Controls.Add(shell);
-        var scroll=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=shell.BackColor,Margin=Padding.Empty};shell.Controls.Add(scroll);
-        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=785,Margin=Padding.Empty,Padding=new Padding(20,22,20,22),ColumnCount=1,RowCount=7,BackColor=shell.BackColor};
-        foreach(int height in new[]{82,228,68,108,107,56})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,height));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));scroll.Controls.Add(layout);
-        var mast=new TableLayoutPanel{BackColor=Color.Transparent,Dock=DockStyle.Fill,ColumnCount=2,Padding=new Padding(12,0,6,0),Margin=new Padding(0,0,0,8)};mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170));layout.Controls.Add(mast);
-        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};brand.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));brand.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,0,12,8),BackColor=Color.Transparent};
+        var shell=new Panel{Dock=DockStyle.Fill,BackColor=DeckTheme.Housing,Padding=new Padding(1)};Controls.Add(shell);
+        var frame=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2,Margin=Padding.Empty};
+        frame.RowStyles.Add(new RowStyle(SizeType.Absolute,64));frame.RowStyles.Add(new RowStyle(SizeType.Percent,100));shell.Controls.Add(frame);
+        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=6,RowCount=1,Padding=new Padding(12,1,6,1),Margin=Padding.Empty};
+        mast.RowStyles.Add(new RowStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,56));
+        mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));foreach(int width in new[]{34,34,34})mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,width));
+        frame.Controls.Add(mast,0,0);
+        var pages=new Panel{Dock=DockStyle.Fill};frame.Controls.Add(pages);
+        settingsPage=new Panel{Dock=DockStyle.Fill,AutoScroll=true};flightHome=new Panel{Dock=DockStyle.Fill};
+        pages.Controls.Add(settingsPage);pages.Controls.Add(flightHome);
+        var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=520,Margin=Padding.Empty,Padding=new Padding(10),ColumnCount=1,RowCount=6};
+        foreach(int h in new[]{48,64,100,96,52})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,h));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));settingsPage.Controls.Add(layout);
+        var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,6,8,6),BackColor=Color.Transparent};
         try{using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))brandLogo=new Bitmap(source);logo.Image=brandLogo;}catch{}
-        brand.Controls.Add(logo,0,0);brand.SetRowSpan(logo,2);brand.Controls.Add(Label("S T A M",32,Ink),1,0);brand.Controls.Add(Label("FREIGHT DIVISION / NAVIGATOR",11,Muted),1,1);mast.Controls.Add(brand);
+        mast.Controls.Add(logo,0,0);
+        var wordmark=new Label{Text="STAM Navigator",AutoSize=false,Dock=DockStyle.Fill,Margin=Padding.Empty,TextAlign=ContentAlignment.MiddleLeft,Font=HoloFonts.At(16,true),ForeColor=Ink};
+        mast.Controls.Add(wordmark,1,0);
+        var windowControls=new List<Button>();
+        foreach(string symbol in new[]{"−","□","×"}){
+            var b=new Button{Text=symbol,Font=new Font("Segoe UI",12),FlatStyle=FlatStyle.Flat,BackColor=DeckTheme.Housing,ForeColor=Muted,Dock=DockStyle.Fill,Margin=new Padding(0,10,0,10),TabStop=true};b.FlatAppearance.BorderSize=0;windowControls.Add(b);mast.Controls.Add(b,2+windowControls.Count,0);
+        }
+        windowControls[0].AccessibleName=T("최소화","Minimize");windowControls[0].Click+=(a,e)=>WindowState=FormWindowState.Minimized;
+        Action maximize=()=>{MaximizedBounds=Screen.FromControl(this).WorkingArea;WindowState=WindowState==FormWindowState.Maximized?FormWindowState.Normal:FormWindowState.Maximized;};
+        windowControls[1].AccessibleName=T("최대화 또는 복원","Maximize or restore");windowControls[1].Click+=(a,e)=>maximize();
+        windowControls[2].AccessibleName=T("트레이로 닫기","Close to tray");windowControls[2].Click+=(a,e)=>Close();
+        FlightChrome.Attach(this,null,mast,logo,wordmark);
+
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=Color.Transparent};korean.Text="한국어";englishButton.Text="English";
-        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}mast.Controls.Add(languages);
-        var flightDeck=new LinkCard{Instrument=true,Dock=DockStyle.Fill,Padding=new Padding(24),ColumnCount=2,RowCount=3,Margin=new Padding(0,0,0,14)};
-        portraitColumn=new ColumnStyle(SizeType.Absolute,0);flightDeck.ColumnStyles.Add(portraitColumn);flightDeck.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
-        flightDeck.RowStyles.Add(new RowStyle(SizeType.Absolute,30));flightDeck.RowStyles.Add(new RowStyle(SizeType.Absolute,58));flightDeck.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        portrait.Margin=new Padding(0,0,24,0);
-        flightDeck.Controls.Add(portrait,0,0);flightDeck.SetRowSpan(portrait,3);
-        Setup(title,13,Muted);Setup(state,32,DeckTheme.Platinum);Setup(detail,18,Ink);
-        flightDeck.Controls.Add(title,1,0);flightDeck.Controls.Add(state,1,1);flightDeck.Controls.Add(detail,1,2);layout.Controls.Add(flightDeck);
-        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty,BackColor=shell.BackColor};
-        foreach(float width in new[]{40f,30f,30f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
+        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}layout.Controls.Add(languages);settingsToggle.Dock=DockStyle.Fill;settingsToggle.Margin=new Padding(4,9,2,9);mast.Controls.Add(settingsToggle,2,0);settingsToggle.Click+=(a,e)=>{settingsToggle.Tag=true;ChoosePage(!settingsPage.Visible);};
+        var home=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,Padding=new Padding(12)};
+        foreach(int h in new[]{156,34})home.RowStyles.Add(new RowStyle(SizeType.Absolute,h));home.RowStyles.Add(new RowStyle(SizeType.Percent,100));home.RowStyles.Add(new RowStyle(SizeType.Absolute,54));home.RowStyles.Add(new RowStyle(SizeType.Absolute,58));flightHome.Controls.Add(home);
+        var hero=new LinkCard{Instrument=false,Dock=DockStyle.Fill,ColumnCount=3,RowCount=3,Padding=new Padding(18,10,10,10)};
+        hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,35));
+        hero.RowStyles.Add(new RowStyle(SizeType.Absolute,26));hero.RowStyles.Add(new RowStyle(SizeType.Absolute,52));hero.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        Setup(title,12,DeckTheme.Gilt);Setup(state,27,DeckTheme.Ink);Setup(detail,12,Muted);
+        hero.Controls.Add(title,0,0);hero.Controls.Add(state,0,1);hero.Controls.Add(detail,0,2);hero.Controls.Add(portrait,1,0);hero.SetRowSpan(portrait,3);
+        shipImage.Dock=DockStyle.Fill;shipImage.Margin=Padding.Empty;shipImage.SizeMode=PictureBoxSizeMode.Zoom;shipImage.BackColor=Color.Transparent;hero.Controls.Add(shipImage,2,0);hero.SetRowSpan(shipImage,3);home.Controls.Add(hero);
+        Setup(flightSection,14,Ink);home.Controls.Add(flightSection);
+        manifest.Dock=DockStyle.Fill;manifest.IntegralHeight=false;manifest.Font=HoloFonts.At(15);manifest.DrawMode=DrawMode.OwnerDrawFixed;manifest.ItemHeight=40;manifest.DrawItem+=DrawManifest;manifest.HorizontalScrollbar=true;manifest.BorderStyle=BorderStyle.None;manifest.BackColor=Color.FromArgb(40,43,39);manifest.ForeColor=Ink;home.Controls.Add(manifest);
+        var bottom=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,160));Setup(shipLabel,12,Muted);bottom.Controls.Add(shipLabel);complete.Primary=true;complete.Dock=DockStyle.Fill;complete.Click+=(a,e)=>{if(overlay!=null)overlay.CompleteCurrent();};bottom.Controls.Add(complete);home.Controls.Add(bottom);
+        var rail=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4};rail.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));Setup(routeLabel,12,Muted);rail.Controls.Add(routeLabel);rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));homeRead.Dock=homeOverlay.Dock=homeOpen.Dock=DockStyle.Fill;rail.Controls.Add(homeRead);homeRead.Click+=(a,e)=>Open(true);rail.Controls.Add(homeOverlay);rail.Controls.Add(homeOpen);homeOpen.Click+=(a,e)=>Open();homeOverlay.Click+=(a,e)=>Overlay().ToggleFromNavigator();home.Controls.Add(rail);
+        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,Margin=Padding.Empty,BackColor=shell.BackColor};
+        foreach(float width in new[]{26f,24f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
         foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,narratorButton,overlayButton,shortcutsButton,voiceButton,continuousButton}){button.Font=HoloFonts.At(13);}
-        foreach(var b in new[]{voiceButton,continuousButton,open}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,8,12);actions.Controls.Add(b);}open.Margin=new Padding(0,0,0,12);layout.Controls.Add(actions);
+        foreach(var b in new[]{voiceButton,continuousButton,readContract,open}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,8,12);actions.Controls.Add(b);}open.Margin=new Padding(0,0,0,12);layout.Controls.Add(actions);
         var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(16,10,16,12),ColumnCount=3,RowCount=2,Margin=new Padding(0,0,0,14)};
         tools.RowStyles.Add(new RowStyle(SizeType.Absolute,26));tools.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         tools.Controls.Add(Label("OVERLAY & VOICE",11,DeckTheme.Platinum),0,0);Setup(voiceFeedback,11,DeckTheme.Platinum);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,2);
@@ -204,9 +253,9 @@ internal sealed class BridgeWindow : Form {
         var fileActions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty,BackColor=shell.BackColor};
         foreach(var b in new[]{search,choose,disconnect}){fileActions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,1));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,12);fileActions.Controls.Add(b);}layout.Controls.Add(fileActions);
         narratorButton.Click+=(s,e)=>guidanceMenu.DropDown.Show(narratorButton,new Point(0,narratorButton.Height));
-        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().Configure();hints.SetToolTip(voiceButton,T("말하기 키를 누른 채 말하고 떼면 전송합니다. 클릭하면 키를 변경합니다.","Hold the talk key to speak, then release to send. Click to change the shortcut."));continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();
+        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().ToggleButtonTalk();hints.SetToolTip(voiceButton,T("한 번 눌러 녹음을 시작하고 다시 눌러 전송하세요. 게임에서는 설정한 말하기 버튼을 누른 채 바로 질문하세요.","Click to record and click again to send. In game, hold the talk shortcut and ask directly."));continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();
         Setup(footer,12,Muted);layout.Controls.Add(footer);
-        korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
+        korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();readContract.Click+=(s,e)=>Open(true);disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
         retry.Tick+=(s,e)=>{retry.Stop();if(!manualStop&&!quitting)Start(selected,false);};
         tray.Icon=Icon;tray.DoubleClick+=(s,e)=>Reveal();ApplyLanguage();
         Shown+=(s,e)=>{if(preview)return;Overlay();tray.Visible=true;try{string prior=File.ReadAllText(settings).Trim();if(Path.IsPathRooted(prior)&&prior.EndsWith(".log",StringComparison.OrdinalIgnoreCase))selected=prior;}catch{}Start(selected);};
@@ -214,7 +263,7 @@ internal sealed class BridgeWindow : Form {
     }
     static void Setup(HoloLabel label,float size,Color colour){label.Dock=DockStyle.Fill;label.Margin=Padding.Empty;label.Font=HoloFonts.At(size);label.ForeColor=colour;}
     ToolStripMenuItem guidanceMenu;
-    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("네비게이터 열기","Open STAM Navigator"),null,(s,e)=>Reveal());menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=guidanceMenu=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
+    void BuildTray(){var previous=tray.ContextMenuStrip;var menu=new ContextMenuStrip();menu.Items.Add(T("네비게이터 열기","Open STAM Navigator"),null,(s,e)=>Reveal());menu.Items.Add(T("게임 계약 읽기","Read game contracts"),null,(s,e)=>Open(true));menu.Items.Add(T("미션콘솔 열기","Open mission console"),null,(s,e)=>Open());menu.Items.Add(T("오버레이 표시/숨김","Show/hide overlay"),null,(s,e)=>Overlay().Toggle());menu.Items.Add(T("오버레이 클릭 통과/조작 전환","Toggle overlay click-through/input"),null,(s,e)=>Overlay().ToggleInput());menu.Items.Add(T("단축키 설정","Shortcut settings"),null,(s,e)=>Overlay().Configure());var guidance=guidanceMenu=new ToolStripMenuItem(T("음성 안내","Spoken guidance"));menu.Items.Add(guidance);
         foreach(var style in new[]{"off","partner","supertonic-female","supertonic-male","female","male"}){
             string choice=style;
             var item=new ToolStripMenuItem(style=="off"?T("끄기","Off"):style=="partner"?T("파트너 음성 · 실시간 정보는 Supertonic","Partner voice · live details via Supertonic"):style=="supertonic-female"?T("Supertonic 여성 · 애니풍","Supertonic female · upbeat"):style=="supertonic-male"?T("Supertonic 남성 · 정중한 다나까체","Supertonic male · formal"):style=="female"?T("Windows 여성 · 애니풍","Windows female · upbeat"):T("Windows 남성 · 다나까체","Windows male · formal"));
@@ -254,7 +303,7 @@ internal sealed class BridgeWindow : Form {
                 }return;
             }
             if(type=="ready"){
-                Launcher.ReadUrl(line);failures=0;selected=Convert.ToString(data["file"]);phase="starting";
+                pairedAddress=Launcher.ReadUrl(line);failures=0;selected=Convert.ToString(data["file"]);phase="starting";
                 try{Directory.CreateDirectory(Path.GetDirectoryName(settings));File.WriteAllText(settings,selected);}catch{}
             }else if(type=="status")phase=Convert.ToString(data["phase"]);
             else if(type=="discovery")phase=Convert.ToString(data["phase"]);
@@ -262,14 +311,37 @@ internal sealed class BridgeWindow : Form {
             RenderStatus(data);
         }catch{phase="error";RenderStatus(null);}
     }
+    void DrawManifest(object sender,DrawItemEventArgs e){
+        if(e.Index<0||e.Index>=manifest.Items.Count)return;
+        var g=e.Graphics;var row=e.Bounds;var text=Convert.ToString(manifest.Items[e.Index]);
+        using(var brush=new SolidBrush(manifest.Focused&&(e.State&DrawItemState.Selected)!=0?Color.FromArgb(56,59,51):manifest.BackColor))g.FillRectangle(brush,row);
+        var content=Rectangle.Inflate(row,-12,-1);
+        const TextFormatFlags flags=TextFormatFlags.NoPrefix|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.EndEllipsis;
+        string item,quantity;
+        if(overlay!=null&&overlay.ManifestLine(e.Index,out item,out quantity)){
+            int w=Math.Min(content.Width/2,150);
+            TextRenderer.DrawText(g,item,e.Font,new Rectangle(content.X,content.Y,content.Width-w,content.Height),Ink,flags);
+            TextRenderer.DrawText(g,quantity,e.Font,new Rectangle(content.Right-w,content.Y,w,content.Height),DeckTheme.Platinum,flags|TextFormatFlags.Right);
+        }else TextRenderer.DrawText(g,text,e.Font,content,Ink,flags);
+        using(var pen=new Pen(Color.FromArgb(62,66,57)))g.DrawLine(pen,row.Left+9,row.Bottom-1,row.Right-9,row.Bottom-1);
+        if((e.State&DrawItemState.Focus)!=0)e.DrawFocusRectangle();
+    }
     void RenderNavigation(){
         UpdatePortrait(overlay!=null&&overlay.IsNavigator);
-        string navigation=overlay==null?"":overlay.NavigationText;
-        string destination=overlay==null?"":overlay.NavigationDestination;
-        state.Text=!String.IsNullOrWhiteSpace(destination)?destination:!String.IsNullOrWhiteSpace(navigation)?T("운항 안내","Flight guidance"):T("운항 연결 대기","Waiting for flight");
-        string[] lines=(navigation??"").Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries);
-        detail.Text=lines.Length==0?T("웹 상단의 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot."):String.Join(Environment.NewLine,lines,0,Math.Min(3,lines.Length));
-        hints.SetToolTip(detail,lines.Length==0?detail.Text:navigation);
+        string destination=overlay==null?"":overlay.Destination;
+        bool live=overlay!=null&&overlay.HasDisplay;
+        state.Text=!String.IsNullOrWhiteSpace(destination)?destination:live?(overlay.InFlight?T("운송 안내","Flight guidance"):T("무역 안내","Trade guidance")):T("운항 대기","Waiting for flight");
+        detail.Text=!live?T("웹 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot."):overlay.PartnerSpeaking?overlay.NavigationText:"";
+        hints.SetToolTip(detail,detail.Text);
+        flightSection.Text=live&&overlay.InFlight?T("이번 거점 작업","Work at this stop")+overlay.LoadSummary:T("현재 작업","Current work");
+        var rows=live?overlay.CargoRows():new List<string>();
+        if(rows.Count==0&&live)rows.AddRange((overlay.NavigationText??"").Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries));
+        if(rows.Count==0)rows.Add(T("미션콘솔에서 계약을 선택하고 운송을 시작하세요.","Select your contracts and start a haul in Mission Console."));
+        string key=String.Join("\n",rows.ToArray());
+        if(key!=lastRows){lastRows=key;manifest.BeginUpdate();manifest.Items.Clear();manifest.Items.AddRange(rows.ToArray());manifest.EndUpdate();}
+        shipLabel.Text=live?overlay.DeckValue("ship"):"";if(shipLabel.Text.Length==0)shipLabel.Text=subtitle.Text;routeLabel.Text=live?overlay.Route:"";hints.SetToolTip(routeLabel,routeLabel.Text);
+        complete.Visible=live&&overlay.HasStep;complete.Enabled=live&&overlay.CanComplete;complete.Text=live?overlay.StepLabel:"";
+        SelectShipArt(live?overlay.DeckValue("shipArt"):"");
     }
     void RenderStatus(Dictionary<string,object> data){
         string name,description;
@@ -319,14 +391,21 @@ internal sealed class BridgeWindow : Form {
         }catch(Exception error){Console.Error.WriteLine("STAM window check: "+error.GetType().Name+" / "+error.Message);return false;}
         finally{if(first!=null){first.Quit();first.Dispose();}if(second!=null){second.Quit();second.Dispose();}try{Directory.Delete(directory,true);}catch{}}
     }
-    void StopChild(){retry.Stop();var old=child;child=null;Launcher.Stop(old);}
+    void StopChild(){pairedAddress=null;retry.Stop();var old=child;child=null;Launcher.Stop(old);}
     void UI(Action action){if(IsDisposed||!IsHandleCreated)return;try{BeginInvoke(action);}catch(InvalidOperationException){}}
     internal static string SiteAddress(string ignored,bool english){return "https://limmin3-sudo.github.io/stam-freight-control/#/mission?lang="+(english?"en":"ko");}
-    void Open(){try{Process.Start(new ProcessStartInfo(SiteAddress(null,english)){UseShellExecute=true});}catch{MessageBox.Show(T("Windows 기본 브라우저 설정을 확인하세요.","Check your Windows default browser settings."),"STAM");}}
+    void Open(bool capture=false){try{
+        string address=SiteAddress(null,english);
+        if(capture){
+            if(String.IsNullOrEmpty(pairedAddress)){MessageBox.Show(T("먼저 Game.log를 연결하세요.","Connect Game.log first."),"STAM");return;}
+            var paired=new Uri(pairedAddress);
+            address=new Uri(paired,"/contract-reader/?lang="+(english?"en":"ko")+paired.Fragment).AbsoluteUri;
+        }
+        Process.Start(new ProcessStartInfo(address){UseShellExecute=true});}catch{MessageBox.Show(T("Windows 기본 브라우저 설정을 확인하세요.","Check your Windows default browser settings."),"STAM");}}
     [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);
     [System.Runtime.InteropServices.DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
     protected override void OnHandleCreated(EventArgs e){base.OnHandleCreated(e);try{int dark=1;DwmSetWindowAttribute(Handle,20,ref dark,4);}catch{}}
-    protected override void Dispose(bool disposing){if(disposing){StopChild();if(overlay!=null)overlay.Dispose();retry.Dispose();tray.Dispose();hints.Dispose();if(brandLogo!=null)brandLogo.Dispose();}base.Dispose(disposing);}
+    protected override void Dispose(bool disposing){if(disposing){if(shipImage.Image!=null)shipImage.Image.Dispose();StopChild();if(overlay!=null)overlay.Dispose();retry.Dispose();tray.Dispose();hints.Dispose();if(brandLogo!=null)brandLogo.Dispose();}base.Dispose(disposing);}
 }
 
 internal static class HoloFonts {
@@ -390,7 +469,7 @@ internal sealed class DeckButton : Button {
     public bool Primary {get;set;}bool hover,pressed;
     public DeckButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.SupportsTransparentBackColor,true);FlatStyle=FlatStyle.Flat;BackColor=Color.Transparent;UseVisualStyleBackColor=false;FlatAppearance.BorderSize=0;Font=HoloFonts.At(11);Cursor=Cursors.Hand;AccessibleRole=AccessibleRole.PushButton;}
     protected override void OnMouseEnter(EventArgs e){hover=true;Invalidate();base.OnMouseEnter(e);}protected override void OnMouseLeave(EventArgs e){hover=false;pressed=false;Invalidate();base.OnMouseLeave(e);}protected override void OnMouseDown(MouseEventArgs e){pressed=true;Invalidate();base.OnMouseDown(e);}protected override void OnMouseUp(MouseEventArgs e){pressed=false;Invalidate();base.OnMouseUp(e);}
-    internal static GraphicsPath Shape(Rectangle r){var shape=new GraphicsPath();int cut=Math.Min(11,r.Height/4);shape.AddPolygon(new[]{new Point(r.Left+cut,r.Top),new Point(r.Right-cut,r.Top),new Point(r.Right,r.Top+cut),new Point(r.Right,r.Bottom-cut),new Point(r.Right-cut,r.Bottom),new Point(r.Left+cut,r.Bottom),new Point(r.Left,r.Bottom-cut),new Point(r.Left,r.Top+cut)});return shape;}
+    internal static GraphicsPath Shape(Rectangle r){var shape=new GraphicsPath();int cut=3;shape.AddPolygon(new[]{new Point(r.Left+cut,r.Top),new Point(r.Right-cut,r.Top),new Point(r.Right,r.Top+cut),new Point(r.Right,r.Bottom-cut),new Point(r.Right-cut,r.Bottom),new Point(r.Left+cut,r.Bottom),new Point(r.Left,r.Bottom-cut),new Point(r.Left,r.Top+cut)});return shape;}
     protected override void OnPaint(PaintEventArgs e){
         if(Width<10||Height<10)return;var g=e.Graphics;
         var r=new Rectangle(1,1,Width-2,Height-2);if(pressed)r.Offset(0,1);

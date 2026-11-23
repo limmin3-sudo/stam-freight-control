@@ -1,3 +1,4 @@
+import {createWikiLookup,lookupKey} from '../../../wiki-receipt-lookup.mjs';
 import { LogLines } from '../../../integration/log/lines.mjs';
 import { LogEvidence } from '../../../integration/log/state.mjs';
 import { locationIndex } from '../../../integration/log/locations.mjs';
@@ -34,15 +35,44 @@ function receipt(raw) {
   const shipments=draft.cargo.map((row,i)=>({
     id:raw.id+'-'+i, cargo:[korean.goods[row.commodity]||aiNames.goods?.[row.commodity]||row.commodity,row.commodity],
     from:chartIds.get(row.pickupId)||'',to:chartIds.get(row.dropoffId)||'',
+    ...(!row.pickupId&&row._pickupText?{pickupFacility:[row._pickupText,row._pickupText]}:{}),
+    ...(!row.dropoffId&&row._dropoffText?{deliveryFacility:[row._dropoffText,row._dropoffText]}:{}),
     scu:actualQuantity(row)?row.scu:0,
     cargoShape:row._cargoShape||row._special,maxBoxSize:row.maxBoxSize,boxes:row.boxes,
   }));
   const incomplete=!shipments.length||shipments.some(row=>!row.from||!row.to||!row.cargo[1]||!row.scu&&!reservations[row.to]);
-  const referenceInfo=contractInfo(details,raw.definition?.id||raw.observedDefinitionId);
+  const indexed=raw.lookupMetadata;
+  const base=contractInfo(details,raw.definition?.id||raw.observedDefinitionId);
+  const referenceInfo=indexed&&base&&indexed.sources.scmdb?.version?.toLowerCase()===catalog.version?.toLowerCase()
+    ?{...base,...indexed,values:{...base.values,...indexed.values},provenance:{...base.provenance,...indexed.provenance},sources:{...base.sources,...indexed.sources}}
+    :indexed||base;
   return {id:raw.id,title:[raw.koreanTitle || raw.title,raw.title],shipments,pay:raw.reward||0,rewardUnknown:!raw._rewardKnown,reservations,referenceInfo:referenceInfo||undefined,
+    ...(raw.observedStops?{observedStops:{pickup:raw.observedStops.pickup.map(id=>chartIds.get(id)),dropoff:raw.observedStops.dropoff.map(id=>chartIds.get(id))}}:{}),
     signature:raw.signature,mission:{...draft,id:raw.id,title:raw.title,reward:raw.reward||0,_rewardKnown:!!raw._rewardKnown,destinationBoxes:raw.destinationBoxes},
     state:raw.conflict?'conflict':raw.ended?'ended':incomplete?'incomplete':'ready',
     hints:(raw.quantityHints||[]).map(h=>({cargo:h.commodity,scu:h.scu,place:chartIds.get(h.dropoffId)||'',name:h.dropoffText}))};
+}
+const wiki=createWikiLookup();
+async function project(snapshot){
+ const cached=c=>wiki.get(lookupKey(c));
+ const projectCards=()=>inboxCards(snapshot,points,index,catalog,db,cached);
+ let result=projectCards();
+ if(!result.blocked){
+  const records=new Map([...(snapshot.contracts||[]),...(snapshot.pendingContracts||[])].map(c=>[c.missionId,c]));
+  const missing=new Set();
+  for(const card of result.cards){
+   const c=records.get(card.id),key=c&&lookupKey(c);
+   if(!key||card.conflict||card.ended||wiki.has(key))continue;
+   const ref=card.lookupMetadata;
+   const incomplete=!card.rows.length||card.rows.some(r=>!r.pickupId||!r.dropoffId||!r.scu);
+   if(!ref||incomplete&&!ref.sources.wiki)missing.add(key);
+  }
+  if(missing.size){
+   await wiki.fill(missing);
+   if([...missing].some(key=>wiki.get(key)))result=projectCards();
+  }
+ }
+ self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});
 }
 let stream=null,offset=0,tail='';
 function reset(){
@@ -56,8 +86,7 @@ self.onmessage=async ({data})=>{
     if(data.snapshot){
       const snapshot=data.snapshot;
       if(snapshot.schemaVersion!==1||!Array.isArray(snapshot.contracts)||!Array.isArray(snapshot.candidates))throw Error('invalid-snapshot');
-      const result=inboxCards(snapshot,points,index,catalog,db);
-      self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});return;
+      await project(snapshot);return;
     }
     const prior=offset<=file.size?await file.slice(Math.max(0,offset-128),offset).text():null;
     if(!live||!stream||prior!==tail)reset();
@@ -66,8 +95,7 @@ self.onmessage=async ({data})=>{
       stream.lines.write(bytes);offset+=bytes.length;
     }
     if(live)tail=await file.slice(Math.max(0,offset-128),offset).text();else stream.lines.finish();
-    const result=inboxCards(stream.evidence.snapshot(),points,index,catalog,db);
-    self.postMessage({phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)});
+    await project(stream.evidence.snapshot());
   }catch(error){
     stream=null;offset=0;tail='';
     const fileUnavailable=!data.snapshot&&['NotReadableError','NotFoundError','SecurityError','NotAllowedError'].includes(error?.name);

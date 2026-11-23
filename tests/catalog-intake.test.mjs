@@ -60,3 +60,21 @@ test('one delivery counter matching two fixed orders at the same stop is counted
  const [card]=inboxCards({contracts:[contract]},places,index,data,db).cards;
  assert.deepEqual(card.rows.map(row=>row.scu),[12,12]);
 });
+
+test('live order markers recover confirmed stops in flattened multi-stop contracts without filling unbound rows',()=>{
+ const current=JSON.parse(fs.readFileSync(new URL('../data/log-mission-index.json',import.meta.url)));
+ const data=JSON.parse(fs.readFileSync(new URL('../data/log-order-groups.json',import.meta.url)));
+ for(const [id,side,expected] of [
+  ['461d27cf-9431-4391-89e9-288b3a424385','dropoff',['a','a','a','b','b','b']],
+  ['6f207f9c-0575-4a88-82f8-ccc348eab9da','pickup',['a','a','a','b','','']]
+ ]){
+  const objective=data.definitions[id].objective;
+  const markers=[0,3].map((i,k)=>({role:side,objectiveId:side+'_'+objective+'_'+i,pointId:k?'b':'a'}));
+  const contract={definitionId:id,gameBuild:{status:'known',value:data.build}};
+  const stops=(c,observed)=>definitionDraft(c,[],current,null,{markers:observed}).rows.map(r=>r[side+'Id']);
+  assert.deepEqual(stops(contract,markers),expected);
+  assert.deepEqual(stops({...contract,gameBuild:{status:'unknown'}},markers),['a','','','b','','']);
+  assert.ok(stops(contract,[]).every(id=>id===''));
+  assert.deepEqual(stops(contract,markers.slice(0,1)),['a','a','a','','','']);
+ }
+});

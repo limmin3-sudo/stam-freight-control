@@ -28,6 +28,20 @@ export function missionsFor(draft, simple = false, data=locationDataFor(draft.lo
  return draft.jobs.map(job=>{
   if(job.state==='ended'||job.state==='conflict')throw Error('종료되었거나 기록이 충돌한 계약입니다. 수신함에서 확인해 주세요.');
   const source=missionFor(job);
+  const stops=job.observedStops;
+  if(simple&&stops&&(!source.cargo.length||source.cargo.some(r=>!byId.has(r.pickupId)||!byId.has(r.dropoffId)))){
+   const pickup=[...new Set(stops.pickup.map(canonicalPlace))],dropoff=[...new Set(stops.dropoff.map(canonicalPlace))];
+   if(pickup.length&&dropoff.length&&new Set([...pickup,...dropoff]).size>1&&[...pickup,...dropoff].every(id=>byId.has(id))){
+    // The route solver consumes two-ended constraints. Cover each stop and
+    // require all collections before any delivery. These temporary constraints
+    // never allocate goods or replace the received manifest.
+    const cargo=Array.from({length:Math.max(pickup.length,dropoff.length)},(_,i)=>({
+     pickupId:pickup[i%pickup.length],dropoffId:dropoff[i%dropoff.length],
+     commodity:'로그 거점 안내',scu:null,boxes:[],_stopGuidance:true
+    }));
+    return {...source,_deliveryTotals:[],destinationBoxes:[],cargo};
+   }
+  }
   const quantity=simple?null:quantityPlan(source,draft.allowUpperBounds!==false);
   const mission=quantity?.mission??source;
   if(simple)for(const row of mission.cargo){if(!actualQuantity(row))row.scu=null;}
@@ -79,7 +93,7 @@ export function calculateFlight(draft,context){
  }
  return {visits:plan.visits.map(v=>({...v,events:v.events.map(event=>{
     const shipment=plan.shipments[event.shipmentIndex];
-    return {...event,deliveryId:shipment?.dropoffId,containers:simple?'':containerText(eventContainers(event,shipment)),estimatedBoxes:!!shipment?.estimated};
+    return {...event,deliveryId:shipment?._stopGuidance?undefined:shipment?.dropoffId,containers:simple?'':containerText(eventContainers(event,shipment)),estimatedBoxes:!!shipment?.estimated};
   }),packing:slimPacking(v.packing),jumps:jumpSegments(v.leg,byId)})),
   mode,initialPacking:slimPacking(plan.initialPacking||{boxes:[],used:0}),ship:plan.ship||ship,seconds:plan.seconds,peak:plan.peak,capacity:plan.capacity,
   warnings:[...plan.warnings,...(base.updateStatus==='retained'?[`${draft.ship.name||base.name} · ${base.requestedVersion} 자료 미확인: ${base.version} 성능으로 예상합니다.`]:[]),...(!drive?['기본 퀀텀 드라이브 미확인 · 이동시간은 기본 속도 가정입니다.']:[])],

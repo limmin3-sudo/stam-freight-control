@@ -1,9 +1,9 @@
 import {ShipPlate} from './ShipPlate';
 import {ShipThumbnail} from './ShipThumbnail';
 import ShipSelect from './ShipSelect';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Locale } from './navigation';
-import { itinerary, placeName, samples, ships, shipName, routeReady } from './mission-trial';
+import { itinerary, placeName, samples, ships, shipName, needsStopGuidance, routeReady } from './mission-trial';
 import type { useLogReceipts } from './use-log-receipts';
 import type { Draft, Job, Place, Shipment } from './mission-trial';
 import { InterfaceGlyph } from './InterfaceGlyph';
@@ -22,8 +22,11 @@ import {useCargoPreferences} from './use-cargo-preferences';
 import type {Session} from './flight-session';
 import {MissionReference} from './MissionReference';
 
-import {BoxInputs,ContractFields,DeliveryTotalFields,invalidCargo} from './ContractFields';
+import {BoxInputs,ContractFields,DeliveryTotalFields,invalidCargo,ReceiptGaps} from './ContractFields';
 import type {BoxCounts} from './ContractFields';
+import {ContractScreenReader,ScreenOriginals} from './ContractScreenReader';
+import {useContractScreens} from './use-contract-screens';
+import {withScreens,type Frame} from './contract-screen';
 import {ScreenshotIntake} from './ScreenshotIntake';
 
 type Props = {contractsOpen:boolean;onContractsOpen:(open:boolean)=>void;session?:Session; draft:Draft; locale:Locale; change:(d:Draft)=>void; locked:boolean; onReview:(draft?:Draft)=>void; receipts:ReturnType<typeof useLogReceipts>};
@@ -89,7 +92,28 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
   const edit = (patch:Partial<Draft>)=>change({...d,...patch,reviewed:false});
   const [sampleMode,setSampleMode]=useState(receipts.phase==='idle');
   const showLog = !sampleMode || receipts.phase!=='idle' && !d.received;
-  const inbox=showLog?receipts.cards:(d.received?samples:[]);
+  const archive=useContractScreens(receipts.cards);
+  const scanned=useMemo(()=>receipts.cards.map(j=>withScreens(j,archive.frames[j.id]||[])),[receipts.cards,archive.frames]);
+  const appliedScreens=useRef(new Map<string,Frame[]>())
+  // Keep already selected contracts in sync before the flight is launched.
+  useEffect(()=>{
+    if(locked||form||!d.jobs.length)return;
+    let changed=false;
+    const jobs=d.jobs.map(j=>{
+      const frames=archive.frames[j.id];
+      if(!frames?.length)return j;
+      const previous=appliedScreens.current.get(j.id);
+      if(previous?.length===frames.length&&previous.every((f,i)=>f.key===frames[i]?.key))return j;
+      appliedScreens.current.set(j.id,frames);
+      const latest=scanned.find(x=>x.id===j.id);
+      if(!latest||latest.state==='ended'||latest.state==='conflict')return j;
+      const next=latest.signature===j.signature?withScreens(j,frames):latest;
+      if(JSON.stringify(next)===JSON.stringify(j))return j;
+      changed=true;return next;
+    });
+    if(changed)change({...d,jobs,reviewed:false});
+  },[scanned,archive.frames,locked,form,d,change]);
+  const inbox=showLog?scanned:(d.received?samples:[]);
   const {dismissed,update:updateDismissed,failed:dismissFailed}=useDismissedReceipts(!showLog);
   const [showEnded,setShowEnded]=useState(false);
   const retained=inbox.filter(j=>!dismissed.has(j.id));
@@ -152,18 +176,25 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
     try{const next=withPendingTotals(job);if(!eligible(next))return;receipts.saveCorrection(next);clearPending(job);edit({jobs:[...d.jobs,next]});setQuickError('');}
     catch(error){setQuickError((error as Error).message);}
   }
-  function calculate(){
+  function calculate(stopsOnly=false){
     try{const jobs=d.jobs.map(withPendingTotals);if(!jobs.length||jobs.some(j=>!eligible(j)))throw Error(t('선택한 계약의 픽업지와 배송지를 확인하세요.','Check the selected contracts’ pickup and delivery locations.'));
-      jobs.forEach(job=>receipts.saveCorrection(job));setTotals({});setQuickError('');onReview({...d,jobs,partner:planningPartner(jobs,d.partner),partnerSelected:true,allowUpperBounds:false,reviewed:false});
+      jobs.forEach(job=>receipts.saveCorrection(job));setTotals({});setQuickError('');onReview({...d,jobs,partner:stopsOnly?'operator':planningPartner(jobs,d.partner),partnerSelected:true,allowUpperBounds:false,reviewed:false});
     }catch(error){setQuickError((error as Error).message);}
   }
-  function routeOnly(job:Job){
+  function routeOnly(job:Job,preferSelectedPartner=false){
     if(locked)return;
-    const source=job.signature?receipts.cards.find(card=>card.id===job.id)||job:job;
-    const jobs=[...d.jobs.filter(old=>old.id!==source.id),source];
-    if(jobs.some(item=>!routeReady(item))){setQuickError(t('경로 안내에는 픽업지와 배송지가 필요합니다.','Route guidance needs pickup and delivery locations.'));return;}
-    setForm(null);setPendingForms([]);setTotals({});setQuickError('');
-    onReview({...d,jobs,partner:'operator',partnerSelected:true,allowUpperBounds:false,reviewed:false});
+    try{
+      const live=job.signature?receipts.cards.find(card=>card.id===job.id):undefined;
+      if(job.signature&&!live)throw Error(t('수신함에서 최신 계약을 다시 확인하세요.','Reopen the latest receipt.'));
+      const corrected=job.signature?reviewReceipt(live,job,true,groupBoxes):job;
+      const jobs=[...d.jobs.filter(old=>old.id!==job.id),corrected];
+      if(jobs.some(item=>!routeReady(item)||item.shipments.some(row=>row.from===row.to)))
+        throw Error(t('서로 다른 픽업지와 배송지를 선택하세요.','Choose distinct pickup and delivery locations.'));
+      if(job.signature)receipts.saveCorrection(corrected);
+      setForm(null);setPendingForms([]);setTotals({});setQuickError('');
+      onReview({...d,jobs,partner:preferSelectedPartner?planningPartner(jobs,d.partner):'operator',partnerSelected:true,allowUpperBounds:false,reviewed:false});
+    }catch(error){if(form)setFormError((error as Error).message);else setQuickError((error as Error).message);}
+
   }
   const newRow = ():Shipment=>({id:crypto.randomUUID(),cargo:['',''],from:d.start,to:'',scu:0});
   const editingReceipt=form?.state==='incomplete' || form?.state==='ready';
@@ -175,9 +206,11 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
     setChecked([]);
   }
   const [groupBoxes,setGroupBoxes]=useState<Record<string,BoxCounts>>({});
+  const [gapSource,setGapSource]=useState<Job|null>(null);
   const [formError,setFormError]=useState('');
   function openReceipt(job:Job){
     const shipments=job.shipments.length?job.shipments:[{id:crypto.randomUUID(),cargo:['',''] as [string,string],from:'',to:'',scu:0}];
+    setGapSource(job.signature&&job.state==='incomplete'?job:null);
     setGroupBoxes(reservationBoxes(job));
     setForm({...job,shipments});setFormError('');setPendingForms([]);
   }
@@ -185,6 +218,7 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
   const invalidRows=!!form && invalidCargo(form,n,quantityOptional);
   const [managing,setManaging]=useState(false);
   const manifestHeading=useRef<HTMLHeadingElement>(null);
+  const gaps=gapSource?.id===form?.id&&editingReceipt?gapSource:null;
   const editor=form && <form className="manifest-editor" onSubmit={e=>{e.preventDefault(); if(invalidRows || locked)return;
         let saved={...form,title:form.title[n].trim()?form.title:form.shipments[0]!.cargo};
         if(editingReceipt){
@@ -199,22 +233,23 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
         setFormError('');
         if(editingReceipt){
           if(saved.signature)receipts.saveCorrection(saved);
-          if(!d.jobs.some(j=>j.id===saved.id)){setForm(null);return;}
+          if(!gaps&&!d.jobs.some(j=>j.id===saved.id)){setForm(null);return;}
         }
         edit({jobs:d.jobs.some(j=>j.id===form.id)?d.jobs.map(j=>j.id===form.id?saved:j):[...d.jobs,saved]});setForm(pendingForms[0]||null);setPendingForms(pendingForms.slice(1))}}>
-        <ContractFields form={form} setForm={setForm} locale={locale} cargoOnly={cargoOnly} quantityOptional={quantityOptional}/>
+        {gaps?<><ReceiptGaps form={form} source={gaps} setForm={setForm} locale={locale}/>
+          <button type="button" onClick={()=>setGapSource(null)}>{t('전체 항목 수정','Edit all fields')}</button></>:<ContractFields form={form} setForm={setForm} locale={locale} cargoOnly={cargoOnly} quantityOptional={quantityOptional}/>}
         {!editingReceipt&&<DeliveryTotalFields form={form} setForm={setForm} locale={locale}/>}
-        {editingReceipt && (!cargoOnly || Object.keys(manifestJob?.reservations||{}).length>0) && [...new Set(form.shipments.map(r=>r.to).filter(Boolean))].map(id=><label key={id}>{where(id)} · {t('배송 총량 (선택)','Delivery total (optional)')} SCU
+        {editingReceipt && (!cargoOnly || Object.keys(manifestJob?.reservations||{}).length>0) && [...new Set(form.shipments.map(r=>r.to).filter(Boolean))].filter(id=>!gaps||gaps.shipments.some(row=>row.to===id&&!row.scu&&!gaps.reservations?.[id])||form.shipments.some(row=>row.to===id&&!row.scu&&!form.reservations?.[id])).map(id=><label key={id}>{where(id)} · {t('배송 총량 (선택)','Delivery total (optional)')} SCU
           <input type="number" min="1" value={form.reservations?.[id]??''} onChange={e=>{
             const totals={...form.reservations};if(e.target.value)totals[id]=Number(e.target.value);else delete totals[id];
             setForm({...form,reservations:totals});
           }}/></label>)}
-        {editingReceipt&&Object.entries(form.reservations||{}).filter(([place])=>form.shipments.filter(r=>r.to===place && !r.scu).length>1).map(([place,total])=>
+        {editingReceipt&&!gaps&&Object.entries(form.reservations||{}).filter(([place])=>form.shipments.filter(r=>r.to===place && !r.scu).length>1).map(([place,total])=>
           <fieldset key={place}><legend>{where(place)} · {t('배송 총량의 상자 규격','Containers for delivery total')} ({total} SCU)</legend>
             <BoxInputs boxes={groupBoxes[place]} onChange={boxes=>setGroupBoxes({...groupBoxes,[place]:boxes})}/>
           </fieldset>)}
         {editingReceipt&&formError&&<p role="alert">{formError}</p>}
-        <div>{!cargoOnly&&<button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('+ 운송 항목','+ Shipment')}</button>} <button type="submit" disabled={invalidRows}>{cargoOnly?t('화물 수정 저장','Save cargo changes'):editingReceipt?t('보완한 카드 저장','Save card details'):t('계약 저장','Save contract')}</button>{!simple&&routeReady(form)&&!info(form).ready&&<button type="button" onClick={()=>routeOnly(form)}>{t('총 SCU 입력 없이 경로만 계속','Continue route without total SCU')}</button>} <button type="button" onClick={()=>{setForm(null);setPendingForms([]);}}>{t('취소','Cancel')}</button></div>
+        <div>{!cargoOnly&&!gaps&&<button type="button" onClick={()=>setForm({...form,shipments:[...form.shipments,newRow()]})}>{t('+ 운송 항목','+ Shipment')}</button>} <button type="submit" disabled={invalidRows}>{cargoOnly?t('화물 수정 저장','Save cargo changes'):gaps&&!manifestJob?t('저장하고 이번 운송에 추가','Save and select'):editingReceipt?t('보완한 카드 저장','Save card details'):t('계약 저장','Save contract')}</button>{(editingReceipt||!simple)&&routeReady(form)&&(!info(form).ready||!!gaps)&&<button type="button" onClick={()=>routeOnly(form,!!gaps&&!invalidRows)}>{gaps&&!invalidRows?t('보완하고 경로 계산','Save and plan route'):t('총 SCU 입력 없이 경로만 계속','Continue route without total SCU')}</button>} <button type="button" onClick={()=>{setForm(null);setPendingForms([]);}}>{t('취소','Cancel')}</button></div>
       </form>;
   const stepTitle=useRef<HTMLHeadingElement>(null);
   const lastStep=useRef(contractsOpen);
@@ -254,6 +289,9 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       </div>
     </div>
     <div hidden={!contractsOpen} className="dispatch-contracts">
+    <ContractScreenReader jobs={scanned} en={locale==='en'} locked={locked||!!form} attach={archive.attach}/>
+    {archive.syncPending&&<p role="status">{t('원본 저장됨 · 네비게이터 동기화 재시도 중','Original saved · retrying Navigator sync')}</p>}
+    {archive.error&&<p role="status">{t('계약 원본 저장소를 열 수 없습니다. 브라우저 저장 공간을 확인하세요.','Contract originals are unavailable. Check browser storage.')}</p>}
     <details className="dispatch-intake" open={cards.length===0}>
       <summary>{t('계약 가져오기', 'Import contracts')}</summary>
       <section className="mission-intake" aria-label={t('계약 가져오기', 'Import contracts')}>
@@ -301,14 +339,14 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
         const titleIsGoods=goods.length===1&&goods[0]===j.title[n];
         const stateLabel={boxes:t('상자 구성 확인','Known containers'),quantity:t('총량 확인 · 배치 예상','Known total · Estimated boxes'),'upper-bound':t('최대치 기준 · 실제 수량 미확인','Upper bound · Actual unknown'),unavailable:t('수량 미확인','Quantity unknown')}[q.certainty];
         const blocked=j.state==='ended'||j.state==='conflict'||!routeReady(j);
-        return <article className="receipt-card" data-state={added?'checked':'new'} key={j.id} onClick={event=>{if(!(event.target as Element).closest('button,input,label,select,summary,details,a'))toggleJob(j);}}>
+        return <article className="receipt-card" data-state={added?'checked':'new'} key={j.id} onClick={event=>{if((event.target as Element).closest('button,input,label,select,summary,details,a')||locked||form)return;if(!managing&&!added&&!eligible(j)&&j.state==='incomplete')openReceipt(j);else toggleJob(j);}}>
           <label className="receipt-select"><span className="receipt-top"><span>{j.state==='ended'?t('종료된 계약','Ended'):j.state==='conflict'?t('기록 충돌','Conflicting records'):added?t('선택됨','Selected'):t('수신 계약','Received')}</span><input type="checkbox" disabled={!!form||(!managing&&!added&&!eligible(j))} checked={managing?checked.includes(key):added} aria-label={j.title[n]+' · '+t('계약 선택','Select contract')} onChange={e=>managing?setChecked(e.target.checked?[...checked,key]:checked.filter(id=>id!==key)):toggleJob(j)}/></span><strong data-value={titleIsGoods?'goods':undefined}>{j.title[n]}{!titleIsGoods&&goods.length>0&&<small className="receipt-goods" data-value="goods" title={goods.join(' · ')}>{goods.join(' · ')}</small>}</strong></label>
-          <span className="certainty" data-certainty={q.certainty}>{stateLabel}</span><JobDetails job={j} locale={locale}/><MissionReference job={j} locale={locale}/>
+          <span className="certainty" data-certainty={q.certainty}>{stateLabel}</span>{needsStopGuidance(j)&&<p>{t('로그에서 확인된 거점 경로','Route through observed stops')} · {j.observedStops!.pickup.map(p=>where(p)).join(' / ')} → {j.observedStops!.dropoff.map(p=>where(p)).join(' / ')}</p>}<JobDetails job={j} locale={locale}/><MissionReference job={j} locale={locale}/><ScreenOriginals frames={archive.frames[j.id]||[]} en={locale==='en'}/>
           {!simple&&!blocked&&q.deliveries.some(group=>group.unknown)&&<details className="receipt-quantities"><summary>{t('배송 수량 입력','Enter delivery quantity')}</summary><div className="quick-totals">{[...new Set(j.shipments.filter(r=>!r.scu||j.reservations?.[r.to]).map(r=>r.to))].map(place=>{
             const group=q.deliveries.find(g=>g.id===missionFor({...j,shipments:j.shipments.filter(r=>r.to===place),mission:undefined}).cargo[0]?.dropoffId);
             return <label key={place}>{where(place)}<span>{t('배송 총량','Delivery total')} · SCU{group&&!group.confirmed&&group.total>0?' / '+t('최대 ','max ')+group.total:''}</span><input type="number" min="1" step="1" aria-label={j.title[n]+' · '+where(place)+' · SCU'} placeholder={t('실제 총량 입력','Actual total')} value={totals[totalKey(j,place)]??j.reservations?.[place]??''} onChange={e=>{setQuickError('');setTotals(old=>({...old,[totalKey(j,place)]:e.target.value}));}} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();applyTotals(j);}}}/></label>;
           })}<button type="button" disabled={!!form||!j.shipments.some(r=>totals[totalKey(j,r.to)]!==undefined)} onClick={()=>applyTotals(j)}>{t('수량 반영','Apply totals')}</button><small>{t('픽업별 분배를 몰라도 배송 총량을 한 번만 예약합니다.','One reservation per delivery, even when pickup shares are unknown.')}</small></div></details>}
-          <footer className="receipt-bottom"><b data-value="quantity">{q.scu>0?`${q.scu} SCU${q.certainty==='upper-bound'?t(' 예상',' est.'):''}`:t('총량 미확인','Total unknown')}</b><span data-value="price">{j.rewardUnknown?t('보상 미확인','Reward unknown'):`${j.pay.toLocaleString()} aUEC`}</span><button type="button" className="receipt-correct" disabled={!!form||j.state==='ended'||j.state==='conflict'} onClick={()=>openReceipt(j)}>{t('상세 · 수정','Details · Edit')}</button>{managing&&<button type="button" onClick={()=>dismiss([j.id])}>{t('삭제','Delete')}</button>}</footer>
+          <footer className="receipt-bottom"><b data-value="quantity">{q.scu>0?`${q.scu} SCU${q.certainty==='upper-bound'?t(' 예상',' est.'):''}`:t('총량 미확인','Total unknown')}</b><span data-value="price">{j.rewardUnknown?t('보상 미확인','Reward unknown'):`${j.pay.toLocaleString()} aUEC`}</span><button type="button" className="receipt-correct" disabled={!!form||j.state==='ended'||j.state==='conflict'} onClick={()=>openReceipt(j)}>{j.signature&&j.state==='incomplete'?t('누락 항목 보완','Fill missing details'):t('상세 · 수정','Details · Edit')}</button>{managing&&<button type="button" onClick={()=>dismiss([j.id])}>{t('삭제','Delete')}</button>}</footer>
         </article>;
       })}</div>}
       {!cards.length&&<div className="mission-empty"><InterfaceGlyph kind="mission"/><h3>{t('받은 계약을 이곳에 모읍니다','Your contracts arrive here')}</h3><button type="button" onClick={event=>{const intake=event.currentTarget.closest('.dispatch-contracts')?.querySelector<HTMLDetailsElement>('.dispatch-intake');if(intake){intake.open=true;intake.querySelector<HTMLElement>('summary')?.focus();}}}>{t('첫 계약 가져오기', 'Import your first contract')}</button></div>}
@@ -323,7 +361,8 @@ export function MissionConsole({draft:d,locale,change,receipts,locked,onReview,s
       <dl><dt>{t('총 운송량','Total freight')}</dt><dd data-value="quantity">{total} SCU{estimated?t(' 예상',' est.'):unknownQuantity?t(' 확인분',' known'):''}</dd>{!simple&&<><dt>{t('사용 가능한 적재 용량','Available cargo capacity')}</dt><dd data-value="quantity">{hold} SCU</dd></>}<dt>{t('입력된 보상 합계','Entered rewards')}</dt><dd data-value="price">{pay.toLocaleString()} aUEC</dd></dl>
       {d.jobs.some(j=>j.rewardUnknown)&&<p>{t('보상 미확인 계약은 합계에서 제외됩니다.','Unknown rewards are excluded.')}</p>}
       <p className="mission-summary-note">{simple?t('적재는 직접 관리합니다. 거점 방문 순서만 계산합니다.','Manage cargo yourself. Only the visit order is calculated.'):unknownQuantity?t('총 SCU를 입력하지 않고 계산하면 오퍼레이터의 경로 안내로 전환합니다.','Continue without total SCU to use operator route guidance.'):t('총 운송량은 동시에 싣는 양과 다릅니다. 각 구간의 공간과 상자 배치를 함께 확인합니다.','Total freight differs from peak load. Every leg is checked for capacity and box fit.')}</p>
-      <button type="button" className="manifest-primary dispatch-launch" disabled={!d.jobs.length||!!form||d.jobs.some(j=>!eligible(j))} onClick={calculate}><InterfaceGlyph kind="map"/><span>{form?t('편집을 마쳐 주세요','Finish editing'):simple?t('선택한 계약으로 경로 계산','Plan selected route'):t('선택한 계약으로 경로·적재 계산','Plan route & cargo')}</span><b aria-hidden="true">↗</b></button>
+      {!simple&&d.jobs.length>0&&<button type="button" disabled={locked||!!form||d.jobs.some(j=>!eligible(j))} onClick={()=>calculate(true)}>{t('픽업·배송 경로만 계산','Plan stops only')}</button>}
+      <button type="button" className="manifest-primary dispatch-launch" disabled={!d.jobs.length||!!form||d.jobs.some(j=>!eligible(j))} onClick={()=>calculate()}><InterfaceGlyph kind="map"/><span>{form?t('편집을 마쳐 주세요','Finish editing'):simple?t('선택한 계약으로 경로 계산','Plan selected route'):t('선택한 계약으로 경로·적재 계산','Plan route & cargo')}</span><b aria-hidden="true">↗</b></button>
       {!simple&&<button type="button" className="cargo-review-toggle" aria-expanded={reviewCargo} onClick={()=>setReviewCargo(!reviewCargo)}>{t('적재 상세 열기','Open cargo details')}</button>}
     </aside></div>{!simple&&reviewCargo&&<div className="departure-cargo-review"><CargoPanel draft={d} locale={locale} session={session}/></div>}
     </div>

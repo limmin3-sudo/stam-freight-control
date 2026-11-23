@@ -19,7 +19,7 @@ export function planRoutesOnly(data,missions,startId,settings={}){
  function advance(state,i,id){if(i!==null&&!shipmentReady(shipments,state.status,i))return null;const s=i===null?null:shipments[i],type=i===null?'waypoint':state.status[i]===0?'pickup':'delivery',locationId=i===null?id:type==='pickup'?s.pickupId:s.dropoffId,leg=nav.path(state.at,locationId),status=[...state.status],event=i===null?{scu:0}:reservationEvent(shipments,state.status,i);if(i!==null)status[i]++;
   return {...state,...regionStep(nav,state,locationId),status,at:locationId,cost:state.cost+leg.seconds,meters:state.meters+(leg.meters||0),jumps:state.jumps+(leg.jumps||0),visited:new Set([...state.visited,locationId]),revisits:state.revisits+Number(locationId!==state.at&&state.visited.has(locationId)),actions:[...state.actions,{type,locationId,shipmentIndex:i,shipmentId:s?.id||'',missionId:s?.missionId||'',commodity:s?.reservation&&type==='delivery'?s.reservation.commodity:s?.commodity||'경유',...event,leg,seconds:leg.seconds}]};
  }
- const operatorRoute=operator?deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst:opt.avoidFirst}):null;
+ const operatorRoute=operator?deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst:opt.avoidFirst,stopsOnly:true}):null;
  const proposed=operatorRoute||(Array.isArray(opt.manualStops)?null:planActionRoute(shipments,startId,nav,{initialStatus})),estimate=remainingTravelEstimate(shipments,nav),estimateMeters=remainingTravelEstimate(shipments,nav,'meters');
  let best=null;
  if(Array.isArray(opt.manualStops))best=replayManualStops(opt.manualStops,shipments,nav,initial,advance,opt.deferPickup);

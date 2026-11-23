@@ -19,13 +19,19 @@ for(const [id,p]of referencePlaces)places[id]=[translations[p.name]||p.name,p.na
 for(const id of ['hurston','crusader','arccorp','microtech'])places[id]=[placeName(id,0),placeName(id,1)];
 export const navigablePlaces=currentLocationData().locations.filter(p=>p.type!=='Star').map(p=>p.id);
 export type Shipment = { id:string; cargo:Name; from:Place; to:Place; pickupFacility?:Name; deliveryFacility?:Name; scu:number; cargoShape?:string; maxBoxSize?:number; boxes?:{size:number;count:number}[] };
-export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; signature?:string; reviewedReceipt?:boolean; reservations?:Record<string,number>;
-  referenceInfo?:{values:Record<string,unknown>;provenance:Record<string,string[]>;sources:Record<string,{name:string;version:string;url?:string}>};
+export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; signature?:string; reviewedReceipt?:boolean; observedStops?:{pickup:string[];dropoff:string[]}; reservations?:Record<string,number>;
+  referenceInfo?:{freightDefinitionId?:string;values:Record<string,unknown>;provenance:Record<string,string[]>;sources:Record<string,{name:string;version:string;url?:string}>};
   mission?:Partial<import('./flight-types').Mission>&Pick<import('./flight-types').Mission,'cargo'>;
   state?:'ready'|'incomplete'|'ended'|'conflict'; hints?:{cargo:string;scu:number;place:string;name?:string}[] };
+export function needsStopGuidance(job:Job) {
+ const stops=job.observedStops;
+ if(!stops||job.shipments.length&&job.shipments.every(r=>navigablePlace(r.from)&&navigablePlace(r.to)))return false;
+ return stops.pickup.length>0&&stops.dropoff.length>0&&new Set([...stops.pickup,...stops.dropoff]).size>1&&
+  [...stops.pickup,...stops.dropoff].every(navigablePlace);
+}
 export function routeReady(job:Job) {
-  return job.state!=='ended' && job.state!=='conflict' && job.shipments.length>0 &&
-    job.shipments.every(row=>navigablePlace(row.from) && navigablePlace(row.to));
+ return job.state!=='ended' && job.state!=='conflict' && (needsStopGuidance(job)||
+  job.shipments.length>0 && job.shipments.every(row=>navigablePlace(row.from) && navigablePlace(row.to)));
 }
 type Single = Omit<Shipment,'id'> & { id:string; pay:number };
 function singleJob({id,pay,...row}:Single):Job {

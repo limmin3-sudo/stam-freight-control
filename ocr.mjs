@@ -1,3 +1,5 @@
+import {screenObjectives,screenLocation} from './screen-objectives.mjs';
+import translations from './data/stam-korean.json' with {type:'json'};
 import {matchLocation,translateKoTerms,norm,jamo} from './aliases.mjs';
 const normalize=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]/gu,'');
 const clean=s=>s.replace(/\bArea\s*[lI]8\b/gi,'Area18').replace(/\b5CU\b/gi,'SCU').replace(/(\d+\s*\/\s*\d+)\s*504\b/g,'$1 SCU').replace(/[“”]/g,'"').replace(/[’]/g,"'");
@@ -32,7 +34,7 @@ export function officialCommodity(name){if(MISREADS[String(name||'').trim()])ret
 export function parseMissionText(text,locations=[]){
  text=clean(normalizeMissionText(text));const lines=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),warnings=[];
  const company=(text.match(/Red Wind(?: Linehaul)?|Covalex(?: Shipping)?|Ling Family(?: Hauling)?|Dead Saints|Citizens for Prosperity|Quasi Vex|QV Logistics|레드\s*윈드|코발렉스|링\s*가문|데드\s*세인츠/i)||[])[0]||'';
- const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(l))||koTitle(lines)||'';
+ const title=(text.match(/(?:Title|Contract Name|미션명)\s*[:：]\s*([^\n]+)/i)||[])[1]||lines.find(l=>/\b(?:Junior|Rookie|Member|Senior|Master|Experienced|Direct|Planetary|Interstellar|Solar)\b.*\b(?:Haul|Transport|Delivery|Shipment|Run)\b/i.test(l))||lines.map(l=>l.split(/\s{3,}|\s+보상\s*[:：]?\s*\d/)[0].trim()).find(l=>/등급.*(?:운송|화물)/.test(l)&&l.length<=100)||koTitle(lines)||'';
  const missionId=(text.match(/(?:Mission|Contract)\s*(?:ID|#)\s*[:：]?\s*([\w-]{3,80})/i)||[])[1]||null;
  const rewardMatch=text.match(/(?:Reward|Payout|Payment|보상)\s*[:：]?\s*[¤$€]?\s*([\d,]+)/i)||text.match(/([\d,]+)\s*aUEC/i)||text.match(/^\s*[¤$€]\s*([\d,]+)\s*$/m),reward=rewardMatch?Number(rewardMatch[1].replaceAll(',','')):0;
  const maxBox=Number((text.match(/(?:max(?:imum)?\s*(?:container|box)(?:\s*size)?|containers?\s*(?:up to|of)|최대\s*(?:상자|컨테이너))\s*[:：]?\s*(1|2|4|8|16|24|32)\s*SCU/i)||[])[1])||null;
@@ -52,6 +54,19 @@ export function parseMissionText(text,locations=[]){
   const host=String(s).includes('의')?matchLocation(String(s).split(/의\s+/)[0],locations):null,words=[['연구','research'],['전초기지','outpost'],['채광','mining'],['정거장','station'],['스테이션','station'],['농장','farm'],['보안','security']].filter(([k])=>site.includes(k)).map(([,w])=>w);
   if(host&&body(host)&&words.length){const hits=locations.filter(l=>l.parentId===host.id&&!body(l)&&words.every(w=>norm(l.name).includes(w)));if(hits.length===1)return hits[0].id;}
   return fallback?.id||'';
+ }
+ const screen=screenObjectives(text);
+ if(screen.length){
+  const cargo=[],totals=new Map();
+  for(const goal of screen){
+   const dropoffId=screenLocation(goal.destination,locations,translations.places);
+   if(dropoffId)totals.set(dropoffId,(totals.get(dropoffId)||0)+goal.total);
+   for(const place of goal.pickups.length?goal.pickups:['']){
+    cargo.push({commodity:goal.item,scu:goal.pickups.length===1?goal.total:null,pickupId:screenLocation(place,locations,translations.places),
+     dropoffId,maxBoxSize:maxBox,boxes:[],_pickupText:place,_dropoffText:goal.destination});
+   }
+  }
+  return {missionId,title,company,reward,rewardKnown:!!rewardMatch,cargo,_deliveryTotals:[...totals].map(([dropoffId,scu])=>({dropoffId,scu})),returnId:'',warnings,rawText:text,screen};
  }
  const koreanCargo=[],koreanTotals=new Map(),fixedNames=new Set(),unknownNames=new Set();let returnId='';
  for(let i=0;i<lines.length;i++){const line=lines[i],block=lines.slice(i,i+3).join(' ');if(/복귀|return to/i.test(line)){returnId=locationIn(line)||returnId;continue;}if(!/SCU/i.test(line))continue;const d=block.match(/(.+?)\s*(?:\d+\s*\/\s*)?([\d,]+)\s*SCU\s+(.+?)\s*(?:에|으로)\s*배송/i);if(!d)continue;const rawCommodity=d[1].replace(/^[^\p{L}]+/u,'').replace(/(?:[을를]\s*\([을를]\)|\([을를]\)|[을를])\s*$/u,'').trim();const official=officialCommodity(rawCommodity),commodity=official.name;if(official.status==='fixed')fixedNames.add(`${rawCommodity}→${commodity}`);if(official.status==='unknown')unknownNames.add(rawCommodity);const pj=[i+1,i+2,i+3,i+4].find(j=>/에서/.test(lines[j]||'')&&/접수|수령|수집/.test((lines[j]||'')+' '+(lines[j+1]||''))&&!/SCU/i.test(lines[j]||'')),pickup=pj===undefined?'':lines[pj];const nextDrop=lines.findIndex((l,j)=>j>i&&/SCU/i.test(l)&&/배송/.test(l+' '+(lines[j+1]||''))),extra=lines.slice(i+1,nextDrop<0?lines.length:nextDrop).filter((l,k,a)=>/에서/.test(l)&&/접수|수령|수집/.test(l+' '+(a[k+1]||''))&&!/SCU/i.test(l)).slice(1);
@@ -84,7 +99,8 @@ function contractEvidence(text){
  return (parsed.title?2:0)+(parsed.missionId?1:0)+(parsed.rewardKnown?1:0)+
   parsed.cargo.reduce((score,row)=>score+(row.commodity?3:0)+(Number.isSafeInteger(row.scu)&&row.scu>0?2:0)+(row._pickupText?1:0),0);
 }
-function loadLibrary(){if(globalThis.Tesseract)return Promise.resolve(globalThis.Tesseract);if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=()=>resolve(globalThis.Tesseract);s.onerror=()=>{libraryPromise=null;reject(Error('글자 인식 기능을 불러오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력하세요.'));};document.head.append(s);});return libraryPromise;}
+const readerAssets=globalThis.location?.hostname==='127.0.0.1'&&globalThis.location?.pathname.startsWith('/contract-reader/')?new URL('/contract-reader/ocr/',globalThis.location.origin).href:null;
+function loadLibrary(){if(globalThis.Tesseract)return Promise.resolve(globalThis.Tesseract);if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=readerAssets?readerAssets+'tesseract.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';s.onload=()=>resolve(globalThis.Tesseract);s.onerror=()=>{libraryPromise=null;reject(Error('글자 인식 기능을 불러오지 못했습니다. 인터넷 연결을 확인하거나 직접 입력하세요.'));};document.head.append(s);});return libraryPromise;}
 // Each intake owns its worker so cancelling a batch cannot terminate another reader.
 export function createOCRReader(language) {
  let workerPromise,closed=false,progress;
@@ -92,8 +108,9 @@ export function createOCRReader(language) {
   const T=await loadLibrary();
   if(closed)throw Error('OCR stopped');
   const worker=await T.createWorker(language==='eng'?['eng']:['eng','kor'],1,{
-   workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
-   corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',
+   workerPath:readerAssets?readerAssets+'worker.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
+   ...(readerAssets?{langPath:readerAssets}:{}),
+   corePath:readerAssets?readerAssets+'tesseract-core-lstm.wasm.js':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',
    logger:event=>progress?.(event),errorHandler:()=>{}
   });
   try {

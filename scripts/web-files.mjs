@@ -2,7 +2,7 @@ import {readdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 export const root=fileURLToPath(new URL('../',import.meta.url));
-export const WEB_CLIENTS=['integration/log/live-client.mjs','integration/log/locations.mjs','integration/inbox-core.mjs','integration/inbox-view.mjs','integration/inbox.css'];
+export const WEB_CLIENTS=['integration/log/cargo-goals.mjs','integration/log/live-client.mjs','integration/log/locations.mjs','integration/inbox-core.mjs','integration/inbox-view.mjs','integration/inbox.css'];
 export const mime=name=>name==='LICENSE'?'text/plain':({'html':'text/html; charset=utf-8','mjs':'text/javascript','js':'text/javascript','css':'text/css','json':'application/json','png':'image/png','jpg':'image/jpeg','svg':'image/svg+xml','txt':'text/plain','md':'text/plain','webp':'image/webp','woff2':'font/woff2','mp4':'video/mp4','vtt':'text/vtt; charset=utf-8'})[name.split('.').pop()];
 export async function webFiles(){
  const files=['LICENSE','THIRD-PARTY-NOTICES.md',...(await readdir(root)).filter(n=>/\.(mjs|css|html|svg)$/.test(n)&&!n.startsWith('.')&&!['freight-free.mjs','uex-submit.mjs'].includes(n))];

@@ -6,10 +6,10 @@ using System.IO;
 using System.Windows.Forms;
 
 internal static class DeckTheme {
-    internal static readonly Color Housing=Color.FromArgb(46,53,59);
+    internal static readonly Color Housing=Color.FromArgb(32,35,32);
     internal static readonly Color Ink=Color.FromArgb(233,234,233);
     internal static readonly Color Muted=Color.FromArgb(173,177,180);
-    internal static readonly Color Platinum=Color.FromArgb(213,216,217);
+    internal static readonly Color Platinum=Color.FromArgb(231,201,143);
     internal static readonly Color Gilt=Color.FromArgb(176,148,92);
     internal static readonly Color OperatorInk=Color.FromArgb(244,207,133);
     internal static readonly Color NavigatorInk=Color.FromArgb(161,206,246);
@@ -18,13 +18,8 @@ internal static class DeckTheme {
     static DeckTheme(){AppDomain.CurrentDomain.ProcessExit+=(s,e)=>{if(emblem!=null)emblem.Dispose();};}
 
     internal static LinearGradientBrush Key(Rectangle bounds,bool active){
-        if(!active)return new LinearGradientBrush(bounds,Color.FromArgb(52,54,57),Color.FromArgb(26,27,29),76f);
-        var metal=new LinearGradientBrush(bounds,Platinum,Muted,16f);
-        metal.InterpolationColors=new ColorBlend {
-            Colors=new[]{Color.FromArgb(169,174,177),Color.FromArgb(235,236,234),Color.FromArgb(188,192,194),Color.FromArgb(215,218,219)},
-            Positions=new[]{0f,.3f,.69f,1f}
-        };
-        return metal;
+        return new LinearGradientBrush(bounds,active?Color.FromArgb(238,215,163):Color.FromArgb(53,57,50),
+            active?Color.FromArgb(218,184,119):Color.FromArgb(47,50,45),90f);
     }
     internal static void Emblem(Graphics g,Rectangle bounds){
         try{
@@ -43,21 +38,8 @@ internal static class DeckTheme {
     }
     internal static void Panel(Graphics g,Rectangle r){
         if(r.Width<2||r.Height<2)return;
-        using(var baseMetal=new LinearGradientBrush(r,Color.FromArgb(59,66,73),Color.FromArgb(42,48,54),25f)){
-            g.FillRectangle(baseMetal,r);
-        }
-        // Short, low-contrast strokes give the surface a fixed-scale brushed finish.
-        var state=g.Save();
-        g.SetClip(r,CombineMode.Intersect);
-        using(var grain=new Pen(Color.FromArgb(7,255,255,255))){
-            for(int row=1;row<r.Height;row+=3){
-                int offset=(row*47)%149;
-                for(int x=r.Left-offset;x<r.Right;x+=149)
-                    g.DrawLine(grain,x,r.Top+row,x+24+(row*11)%67,r.Top+row);
-            }
-        }
-        g.Restore(state);
-        using(var edge=new Pen(Gilt))g.DrawRectangle(edge,r.X,r.Y,r.Width-1,r.Height-1);
+        using(var fill=new SolidBrush(Color.FromArgb(40,43,39)))g.FillRectangle(fill,r);
+        using(var edge=new Pen(Color.FromArgb(76,78,67)))g.DrawRectangle(edge,r.X,r.Y,r.Width-1,r.Height-1);
     }
 }
 internal sealed class DeckSurface : TableLayoutPanel {
@@ -102,5 +84,42 @@ internal sealed class PartnerPortrait : PictureBox {
     protected override void Dispose(bool disposing){
         if(disposing){var old=Image;Image=null;if(old!=null)old.Dispose();}
         base.Dispose(disposing);
+    }
+}
+
+internal static class FlightChrome {
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool ReleaseCapture();
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr h,int message,IntPtr w,IntPtr l);
+    internal static GraphicsPath Rounded(Rectangle r,int radius){
+        var path=new GraphicsPath();int d=Math.Min(2*radius,Math.Min(r.Width,r.Height));
+        if(d<2){path.AddRectangle(r);return path;}
+        path.AddArc(r.X,r.Y,d,d,180,90);path.AddArc(r.Right-d,r.Y,d,d,270,90);
+        path.AddArc(r.Right-d,r.Bottom-d,d,d,0,90);path.AddArc(r.X,r.Bottom-d,d,d,90,90);path.CloseFigure();return path;
+    }
+    internal static void Attach(Form form,Action finished,params Control[] drag){
+        form.FormBorderStyle=FormBorderStyle.None;
+        foreach(var control in drag)control.MouseDown+=(s,e)=>{
+            if(e.Button!=MouseButtons.Left||form.WindowState==FormWindowState.Maximized)return;
+            ReleaseCapture();SendMessage(form.Handle,0x00a1,(IntPtr)2,IntPtr.Zero);
+        };
+        var grip=new FrameGrip{Anchor=AnchorStyles.Bottom|AnchorStyles.Right,Size=new Size(12,12),Cursor=Cursors.SizeNWSE,TabStop=false,AccessibleName="Resize"};
+        form.Controls.Add(grip);grip.BringToFront();
+        Point start=Point.Empty;Size original=Size.Empty;
+        grip.MouseDown+=(s,e)=>{if(e.Button==MouseButtons.Left){start=Cursor.Position;original=form.Size;grip.Capture=true;}};
+        grip.MouseMove+=(s,e)=>{if(grip.Capture&&!original.IsEmpty){var current=Cursor.Position;form.Size=new Size(Math.Max(form.MinimumSize.Width,original.Width+current.X-start.X),Math.Max(form.MinimumSize.Height,original.Height+current.Y-start.Y));}};
+        grip.MouseUp+=(s,e)=>{if(grip.Capture){grip.Capture=false;original=Size.Empty;if(finished!=null)finished();}};
+        Action fit=()=>{
+            if(form.Width<2||form.Height<2)return;
+            grip.Location=new Point(form.ClientSize.Width-15,form.ClientSize.Height-15);
+            grip.Visible=form.WindowState!=FormWindowState.Maximized;
+            var old=form.Region;
+            using(var path=Rounded(form.ClientRectangle,8))form.Region=form.WindowState==FormWindowState.Maximized?null:new Region(path);
+            if(old!=null)old.Dispose();
+        };
+        form.SizeChanged+=(s,e)=>fit();fit();
+    }
+    sealed class FrameGrip:Control {
+        public FrameGrip(){SetStyle(ControlStyles.SupportsTransparentBackColor|ControlStyles.UserPaint,true);BackColor=DeckTheme.Housing;}
+        protected override void OnPaint(PaintEventArgs e){using(var pen=new Pen(Color.FromArgb(108,100,82))){e.Graphics.DrawLine(pen,3,10,10,3);e.Graphics.DrawLine(pen,7,10,10,7);}}
     }
 }

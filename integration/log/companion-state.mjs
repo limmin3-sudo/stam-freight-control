@@ -12,6 +12,20 @@ export function createCompanionState({clock=Date.now}={}){
   if(value.clear){session='';sequence=-1;display=null;queue=[];return {accepted:true};}
   const d=value.display;if(!d||!['personal','fleet','flight'].includes(d.mode)||!Array.isArray(d.lines)||d.lines.length>6)fail('invalid-display');
   const next={mode:d.mode,title:text(d.title,100),lines:d.lines.map(v=>text(v,180)),at:clock()};
+  if(d.mode==='flight'&&d.navigation){
+   const n=d.navigation;
+   if(!Array.isArray(n.cargo)||n.cargo.length>128||!Array.isArray(n.route)||n.route.length>3||
+      !Number.isSafeInteger(n.extra)||n.extra<0||typeof n.finished!=='boolean')fail('invalid-navigation');
+   const cargo=n.cargo.map(row=>{
+    if(!row||!['pickup','delivery'].includes(row.action)||row.scu!==null&&(!Number.isFinite(row.scu)||row.scu<0))fail('invalid-navigation');
+    return {item:text(row.item,100),action:row.action,scu:row.scu};
+   });
+   next.navigation={destination:text(n.destination,100),ship:text(n.ship,100),shipArt:/^[a-z0-9-]+\.jpg$/.test(n.shipArt)?n.shipArt:'',
+    cargo,route:n.route.map(v=>text(v,100)),extra:n.extra,finished:n.finished};
+   if(Number.isSafeInteger(n.visitCount)&&Number.isSafeInteger(n.visitNumber)&&n.visitNumber>0&&n.visitNumber<=n.visitCount){
+    next.navigation.visitCount=n.visitCount;next.navigation.visitNumber=n.visitNumber;
+   }
+  }
   if(d.partner==='operator'||d.partner==='navigator')next.partner=d.partner;
   if(d.mode==='flight'&&typeof d.stepId==='string'&&/^[0-9a-f-]{36}$/.test(d.stepId)&&['departure','pickup','delivery','jump','stop'].includes(d.step)){
    next.stepId=d.stepId;next.step=d.step;

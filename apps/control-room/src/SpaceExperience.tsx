@@ -87,7 +87,7 @@ export function SpaceExperience() {
   const [route, setRoute] = useState(() => parseSpaceRoute(location.hash));
   const [archivePulse,setArchivePulse]=useState(0);
   const archivePulseTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
-  const [contractsOpen,setContractsOpen]=useState(!!flight.session.plan||flight.session.draft.jobs.length>0);
+  const [contractsOpen,setContractsOpen]=useState(!!flight.session.plan||flight.session.draft.jobs.length>0||new URLSearchParams(location.hash.split('?')[1]).get('capture')==='1');
   const [pilotAction,setPilotAction]=useState<PilotAction|null>(null);
   function openMissionTool(action:PilotAction){
     setContractsOpen(action==='missions'||action==='log');

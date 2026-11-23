@@ -1,5 +1,6 @@
 const uuid=/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
-export const plain=value=>String(value??'').replace(/\\r\\n|\\n|\\r/g,'\n').replace(/<[^>]*>/g,'').normalize('NFKC').split('\n').map(s=>s.replace(/[ \t]+/g,' ').trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim().slice(0,24000);
+import {plain} from '../wiki-freight-definition.mjs';
+export {plain};
 const resourceRules=(orders,resolve,wiki=false)=>Array.isArray(orders)&&orders.length&&orders.every(o=>wiki?o.kind==='Resource':typeof o.resource==='string')?orders.map(o=>({commodity:plain(wiki?o.name:resolve(o.resource)),minSCU:(wiki?o.min_scu:o.minSCU)??null,maxSCU:(wiki?o.max_scu:o.maxSCU)??null,maxContainerSCU:(wiki?o.max_container_size:o.maxContainerSize)??null})):undefined;
 const present=x=>x!==null&&x!==undefined&&x!==''&&(!Array.isArray(x)||x.length>0);
 const reward=(min,max=min)=>Number.isSafeInteger(min)&&min>=0&&Number.isSafeInteger(max)&&max>=min?{min,max,currency:'aUEC'}:undefined;

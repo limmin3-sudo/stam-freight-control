@@ -25,20 +25,25 @@ export function locationIndex(data) {
     byId.get(key).push(p);
   }
   let indexed = 0;
-  for (const p of data.locations) {
-    const parents = byId.get(`${p.system}:${p.parentId}`);
-    // Only this surface frame is supported by the observed logs. Missing or
-    // multiply instantiated parents cannot define a reliable reference frame.
-    if (parents?.length !== 1 || !['Planet', 'Moon'].includes(parents[0].type)) continue;
-    const parent = parents[0];
-    const position = p.position.map((n, i) => n - parent.position[i]);
-    if (Math.hypot(...position) <= POSITION_EPSILON_METERS) continue;
-    const key = cell(position).join(',');
-    if (!buckets.has(key)) buckets.set(key, []);
-    buckets.get(key).push({id: p.id, name: p.name, system: p.system,
-      parentId: parent.id, parentName: parent.name, position,
-      multipleInstances: p.id === null || byId.get(identity(p)).length !== 1});
+  function addFrame(p,parent,lagrange=false){
+    const position=p.position.map((v,i)=>v-parent.position[i]);
+    const length=Math.hypot(...position);
+    if(length<=POSITION_EPSILON_METERS || lagrange&&length>100_000_000)return;
+    const key=cell(position).join(',');
+    if(!buckets.has(key))buckets.set(key,[]);
+    buckets.get(key).push({id:p.id,name:p.name,system:p.system,parentId:parent.id,parentName:parent.name,position,
+      multipleInstances:p.id===null||byId.get(identity(p)).length!==1,...(lagrange?{basis:'lagrange-relative'}:{})});
     indexed++;
+  }
+  // Orbital freight markers use the local Lagrange frame. The position catalogue
+  // can list the same station under its star. Compare the full 3D vector at the
+  // same centimetre tolerance as surface markers, including in multi-system logs.
+  const frames=data.locations.filter(p=>p.id&&p.type==='Asteroid'&&/ L[1-5]$/i.test(p.name)&&byId.get(identity(p))?.length===1);
+  for(const p of data.locations){
+    const parents=byId.get(`${p.system}:${p.parentId}`);
+    if(parents?.length===1&&['Moon','Planet'].includes(parents[0].type))addFrame(p,parents[0]);
+    if(!p.id||!p.type.startsWith('Manmade'))continue;
+    for(const frame of frames)if(frame.system===p.system)addFrame(p,frame,true);
   }
   function match(position,{gameBuild=null}={}) {
     if (!vector(position)) return {status: 'invalid', candidates: []};

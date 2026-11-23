@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-// PCM is kept in memory. The recognizer only receives it after the microphone closes.
+// The held-key path consumes the recording on release. Continuous listening drains chunks in memory.
 internal interface IHoldCapture : IDisposable {
     void Drain();
     MemoryStream Finish();
@@ -40,6 +40,9 @@ internal sealed class HeldMicrophone : IHoldCapture {
             }
             Check(waveInStart(device));
         }catch{Dispose();throw;}
+    }
+    internal byte[] TakeChunk(){
+        Drain();var chunk=audio.ToArray();audio.SetLength(0);audio.Position=0;return chunk;
     }
     public void Drain(){ReadBuffers(true);}
     void ReadBuffers(bool requeue){

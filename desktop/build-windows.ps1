@@ -12,6 +12,13 @@ if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected)
 Expand-Archive $zip -DestinationPath $work
 $out = Join-Path $work "STAM-$version-win-x64"
 node scripts/build-desktop.mjs $out
+if ($LASTEXITCODE) { throw 'Companion staging failed' }
+if (!(Test-Path 'apps/control-room/node_modules/vite')) {
+    npm ci --prefix apps/control-room
+    if ($LASTEXITCODE) { throw 'Cannot install reader build dependencies' }
+}
+node scripts/build-contract-reader.mjs (Join-Path $out 'contract-reader')
+if ($LASTEXITCODE) { throw 'Contract reader bundle failed' }
 if ($LASTEXITCODE -ne 0) { throw 'App assembly failed' }
 foreach ($asset in @('assets/stam-logo-transparent.png', 'data/log-location-index.json', 'desktop/bridge.mjs')) {
     if (!(Test-Path (Join-Path $out ('app/' + $asset)))) { throw ('Missing companion guide asset: ' + $asset) }
@@ -20,6 +27,7 @@ if (Test-Path (Join-Path $out 'app/index.html')) { throw 'Website UI must not be
 New-Item -ItemType Directory (Join-Path $out 'runtime') | Out-Null
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/node.exe") (Join-Path $out 'runtime/node.exe')
 Copy-Item (Join-Path $work "node-v$runtimeVersion-win-x64/LICENSE") (Join-Path $out 'runtime/LICENSE')
+& (Join-Path $PSScriptRoot 'prepare-korean-recognition.ps1') -Work $work -OutputDirectory $out
 $csc = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 # System.Speech is a desktop reference assembly, not in csc.exe's framework folder.
 $speechReference = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8/System.Speech.dll'
@@ -29,7 +37,7 @@ if (!(Test-Path $speechReference)) {
 }
 if (!(Test-Path $speechReference)) { throw 'System.Speech reference assembly is required to compile the optional voice feature' }
 
-& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.Net.Http.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionGuidance.cs').Path (Resolve-Path 'desktop/HeldMicrophone.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
+& $csc /nologo /target:winexe /platform:x64 /codepage:65001 /win32icon:desktop/stam.ico /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.Net.Http.dll /reference:System.Runtime.Serialization.dll /reference:System.Xml.dll "/reference:$speechReference" "/out:$out/STAM.exe" (Resolve-Path 'desktop/Launcher.cs').Path (Resolve-Path 'desktop/DeckTheme.cs').Path (Resolve-Path 'desktop/CompanionGuidance.cs').Path (Resolve-Path 'desktop/HeldMicrophone.cs').Path (Resolve-Path 'desktop/KoreanRecognition.cs').Path (Resolve-Path 'desktop/CompanionOverlay.cs').Path (Resolve-Path 'desktop/CompanionOverlayChecks.cs').Path
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed' }
 # The test executable owns its bridge lifecycle. Waiting for its entire process tree
 # can hang a CI runner after the executable itself has already returned a result.
@@ -51,6 +59,7 @@ $windowTest = Invoke-CompanionCheck -Arguments '--self-test-window'
 if ($windowTest.ExitCode -ne 0) { throw 'Launcher close, reopen and settings preservation failed' }
 New-Item -ItemType Directory -Force dist | Out-Null
 $overlayEvidence = Join-Path (Resolve-Path dist) 'overlay-native-check.json'
+$env:STAM_VOICE_QA_FIXTURES = (Resolve-Path 'tests/fixtures/voice').Path
 $overlayTest = Invoke-CompanionCheck -Arguments @('--self-test-overlay', ('"' + $overlayEvidence + '"'))
 if (!(Test-Path $overlayEvidence)) { throw 'Missing native overlay verification result' }
 if ($overlayTest.ExitCode -ne 0) {

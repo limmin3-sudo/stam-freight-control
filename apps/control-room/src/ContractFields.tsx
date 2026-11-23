@@ -1,5 +1,5 @@
 import type {Locale} from './navigation';
-import {placeName,hasPlace} from './mission-trial';
+import {placeName,hasPlace,navigablePlace} from './mission-trial';
 import type {Job,Shipment} from './mission-trial';
 import {PortSearch} from './PortSearch';
 
@@ -33,6 +33,31 @@ export function DeliveryTotalFields({form,setForm,locale}:Pick<Props,'form'|'set
     }}/>
     <small>{en?'Pickup shares remain unknown. This total is reserved once.':'픽업별 수량은 미확인으로 두고, 이 총량을 한 번만 예약합니다.'}</small>
   </label>)}</>;
+}
+
+// Keep the original missing fields visible while the pilot fills them in.
+export function ReceiptGaps({form,source,setForm,locale}:{form:Job;source:Job;setForm:(j:Job)=>void;locale:Locale}){
+  const en=locale==='en',n=en?1:0;
+  return <>{form.shipments.map((row,i)=>{
+    const prior=source.shipments.find(s=>s.id===row.id);
+    const goods=!prior?.cargo[n]?.trim(),from=!navigablePlace(prior?.from||''),to=!navigablePlace(prior?.to||'');
+    const quantity=!prior?.scu&&!source.reservations?.[prior?.to||''];
+    if(!goods&&!from&&!to&&!quantity)return null;
+    const update=(patch:Partial<Shipment>)=>setForm({...form,shipments:form.shipments.map(s=>s.id===row.id?{...s,...patch}:s)});
+    const chooseStop=(side:'from'|'to',label:string)=>{
+      const choices=[...new Set(source.shipments.map(s=>s[side]).filter(id=>navigablePlace(id)&&id!==row[side==='from'?'to':'from']))];
+      const observed=(side==='from'?prior?.pickupFacility:prior?.deliveryFacility)?.[n];
+      return <div>{observed&&<small>{en?'Game log':'게임 로그'} · {observed}</small>}<PortSearch locale={locale} label={label} value={row[side]} onSelect={id=>update({[side]:id,[side==='from'?'pickupFacility':'deliveryFacility']:undefined})}/>
+        {choices.map(id=><button type="button" key={id} aria-pressed={row[side]===id} onClick={()=>update({[side]:id,[side==='from'?'pickupFacility':'deliveryFacility']:undefined})}>{placeName(id,n)}</button>)}</div>;
+    };
+    return <fieldset key={row.id}><legend>{i+1}. {prior?.cargo[n]||(en?'Cargo':'화물')} {prior?.scu?`· ${prior.scu} SCU`:''}</legend>
+      <small>{placeName(row.from,n)} → {placeName(row.to,n)}</small>
+      {from&&chooseStop('from',en?'Pickup':'픽업지')}
+      {to&&chooseStop('to',en?'Delivery':'배송지')}
+      {goods&&<label>{en?'Cargo':'화물 종류'}<input maxLength={70} value={row.cargo[n]} onChange={e=>update({cargo:[e.target.value,e.target.value]})}/></label>}
+      {quantity&&<label>{en?'Quantity (SCU)':'수량 (SCU)'}<input type="number" min="1" max="10000" value={row.scu||''} onChange={e=>update({scu:Number(e.target.value)})}/></label>}
+    </fieldset>;
+  })}</>;
 }
 
 type Props={form:Job;locale:Locale;setForm:(job:Job)=>void;quantityOptional:(row:Shipment)=>boolean;cargoOnly?:boolean;autoFocus?:boolean};

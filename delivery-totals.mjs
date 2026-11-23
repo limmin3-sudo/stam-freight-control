@@ -28,6 +28,8 @@ export const shipmentBoxes=shipment=>shipment.reservation?.boxes||shipment.boxes
 const members=(shipments,index)=>shipments.map((s,i)=>s.reservation?.id===shipments[index].reservation?.id?i:-1).filter(i=>i>=0);
 export function shipmentReady(shipments,status,index){
  if(status[index]===2)return false;
+ if(status[index]===1&&shipments[index]._stopGuidance)
+  return shipments.every((s,i)=>!s._stopGuidance||s.missionId!==shipments[index].missionId||status[i]>0);
  return status[index]!==1||!shipments[index].reservation||members(shipments,index).every(i=>status[i]>0);
 }
 export function transitionBoxes(shipments,status,index){
