@@ -1,7 +1,11 @@
 import {createContext,useContext,useEffect,useRef} from 'react';
 import type {Locale} from './navigation';
 import type {MarketSnapshot} from './trade-data';
-export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
+export type NavigatorStop={
+ destination:string;ship:string;shipArt:string;route:string[];finished:boolean;
+ cargo:{item:string;action:'pickup'|'delivery';scu:number|null}[];extra:number;
+};
+export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];navigation?:NavigatorStop;partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
 export type DisplayView={market?:MarketSnapshot|null;summary:CompanionSummary;locale:Locale;onCommand:(command:string)=>void};
 export function createCompanionDock(){
  const slots=new Set<()=>DisplayView>();

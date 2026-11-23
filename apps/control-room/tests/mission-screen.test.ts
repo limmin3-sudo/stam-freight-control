@@ -54,3 +54,15 @@ test('partial delivery corrections retain other unknown destinations and reject 
  for(const value of [0,-1,1.5,NaN])assert.throws(()=>reviewReceipt(job,{...job,reservations:{[job.shipments[0]!.to]:value}},true));
  const ended={...job,state:'ended' as const};assert.throws(()=>calculateFlight({...emptyDraft(),jobs:[ended]}));
 });
+
+test('observed stops alone produce a multi-pickup, multi-delivery flight without changing the freight manifest',()=>{
+ const job:Job={id:'logged',title:['수신 계약','Receipt'],pay:0,state:'incomplete',shipments:[],
+  observedStops:{pickup:['hurston','microtech'],dropoff:['arccorp','crusader']}};
+ const before=structuredClone(job);
+ const plan=calculateFlight({...emptyDraft(),partner:'operator',jobs:[job]});
+ const steps=plan.visits.flatMap(v=>v.events.map(e=>[e.type,v.locationId]));
+ assert.deepEqual(steps.filter(e=>e[0]==='pickup').map(e=>e[1]).sort(),job.observedStops!.pickup.map(canonicalPlace).sort());
+ assert.deepEqual(steps.filter(e=>e[0]==='delivery').map(e=>e[1]).sort(),job.observedStops!.dropoff.map(canonicalPlace).sort());
+ assert.ok(steps.map(e=>e[0]).lastIndexOf('pickup')<steps.findIndex(e=>e[0]==='delivery'));
+ assert.deepEqual(job,before);
+});

@@ -1,5 +1,7 @@
 // SCMDB stays primary. Wiki records supplement exact UUIDs, never title guesses.
 import {createHash} from 'node:crypto';
+import {wikiDefinition} from '../wiki-freight-definition.mjs';
+export {wikiDefinition} from '../wiki-freight-definition.mjs';
 import {plain} from './scmdb-fields.mjs';
 const uuid=/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const present=value=>value!==null&&value!==undefined&&value!==''&&(!Array.isArray(value)||value.length>0);
@@ -17,14 +19,6 @@ export function wikiFields(row){
  const reward=Number.isSafeInteger(min)&&min>=0&&Number.isSafeInteger(max)&&max>=min?{min,max,currency:'aUEC'}:undefined;
  return {title:plain(row.title),company:plain(row.mission_giver),type:plain(row.mission_type),description:plain(row.description),rank:row.rank_index,rankName:plain(row.min_standing?.name||row.min_standing_name),systems:row.star_systems,illegal:row.illegal,shareable:row.shareable,reward,referenceMinutes:row.time_to_complete_minutes,buyIn:row.cost,
   cargoRules:row.hauling_orders?.every(o=>o.kind==='Resource')?row.hauling_orders.map(o=>({commodity:plain(o.name),minSCU:o.min_scu,maxSCU:o.max_scu,maxContainerSCU:o.max_container_size})):undefined};
-}
-export function wikiDefinition(row){
- if(!row.released||row.not_for_release||!uuid.test(row.uuid||'')||!row.hauling_orders?.length)return null;
- const orders=row.hauling_orders.map((o,index)=>({kind:o.kind,name:plain(o.name),minScu:o.min_scu??null,maxScu:o.max_scu??null,minAmount:o.min_amount??null,maxAmount:o.max_amount??null,maxBoxScu:o.max_container_size??null,orderIndex:index,limitSource:'wiki'}));
- if(orders.some(o=>!o.name||!['Resource','Entity','MissionItem'].includes(o.kind)))return null;
- // Tokens are candidate pools, not the locations chosen by an accepted instance.
- const locations=Object.entries(row.mission_tokens||{}).filter(([key,v])=>/^(?:Location|Pickup|Destination|DropOff)\d*\|Address$/i.test(key)&&Array.isArray(v)).map(([slot,names])=>({slot,candidates:names.filter(n=>typeof n==='string')}));
- return {id:row.uuid.toLowerCase(),title:plain(row.title),giver:plain(row.mission_giver),rank:row.rank_index,parents:[row.uuid.toLowerCase()],templateNames:row.debug_name?[row.debug_name]:[],released:true,notForRelease:false,quantityVersion:row.game_version||row.version,rulesSource:'wiki',rules:{orders,locations,pools:[],haulingObjectives:[],objectiveOrderIndicesVerified:false,source:'wiki'}};
 }
 function primaryEntry(entry,differences){
  if(entry.origin==='wiki')return null;

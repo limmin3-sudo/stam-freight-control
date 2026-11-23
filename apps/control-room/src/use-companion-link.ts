@@ -7,7 +7,7 @@ export function useCompanionLink(enabled:boolean,feed:Feed){
  useEffect(()=>{
   if(!enabled)return;
   let stopped=false,token='',last=0,sequence=0,timer:ReturnType<typeof setTimeout>,active:AbortController|undefined;
-  let answer:{id:number;text:string}|undefined,newest=0,paired=false;
+  let answer:{id:number;text:string}|undefined,newest=0,paired=false,navSupported=false;
   let session=crypto.randomUUID();const base='http://127.0.0.1:23458';
   async function request(path:string,body?:unknown){
    active=new AbortController();const timeout=setTimeout(()=>active?.abort(),4500);
@@ -19,13 +19,14 @@ export function useCompanionLink(enabled:boolean,feed:Feed){
    let delay=1000;
    try{
     if(!token){const p=await request('/api/pair');if(stopped)return;if(!/^[a-f0-9]{64}$/.test(p.token))throw Error('offline');token=p.token;
-     const v=await request('/api/status');if(v.capabilities?.display!==2)throw Error('upgrade');paired=v.capabilities?.copilot===1;
+     const v=await request('/api/status');if(v.capabilities?.display!==2)throw Error('upgrade');paired=v.capabilities?.copilot===1;navSupported=v.capabilities?.navigator===1;
     }
     if(stopped)return;const {proposal}=ref.current;const display=ref.current.display();
-    const packet={session,sequence:++sequence,display:{...display,lines:display.lines.slice(0,6).map(l=>l.slice(0,180)),title:display.title.slice(0,100),guidance:{...display.guidance},copilot:paired,awaitingDetails:paired&&ref.current.awaitingDetails(),proposal,proposalText:ref.current.proposalText?.slice(0,210),answer}};
+    const packet={session,sequence:++sequence,display:{...display,navigation:navSupported?display.navigation:undefined,lines:display.lines.slice(0,6).map(l=>l.slice(0,180)),title:display.title.slice(0,100),guidance:{...display.guidance},copilot:paired,awaitingDetails:paired&&ref.current.awaitingDetails(),proposal,proposalText:ref.current.proposalText?.slice(0,210),answer}};
     const bytes=()=>new TextEncoder().encode(JSON.stringify(packet)).length;
-    while(packet.display.lines.length>1&&bytes()>4096)packet.display.lines.pop();
-    for(const key of ['profit','cash','afterLoad','load','destination'] as const){if(bytes()<=4096)break;delete packet.display.guidance[key];}
+    const limit=packet.display.navigation?98304:4096;
+    while(packet.display.lines.length>1&&bytes()>limit)packet.display.lines.pop();
+    for(const key of ['profit','cash','afterLoad','load','destination'] as const){if(bytes()<=limit)break;delete packet.display.guidance[key];}
     await request('/api/display',packet);
     if(stopped)return;const result=await request('/api/commands?session='+session+'&after='+last+'&wait=1');if(stopped)return;
     for(const row of result.commands??[]){

@@ -91,3 +91,21 @@ test('copilot confirmations belong to the live proposal and cannot be replayed a
  s.publish({session,sequence:3,display});
  assert.equal(s.enqueue('copilot-cancel:'+id),false);
 });
+
+test('navigation preserves separate pickup and delivery rows and unknown shares; stale completion cannot advance a new stop',()=>{
+ const state=createCompanionState(),session='navigation-pair-01';
+ const first='58f8e479-073c-44e8-a820-329d77d1239c',second='1065ae85-556f-4e0d-abb7-8daa1d1e31db';
+ const navigation={destination:'차울라 해변',ship:'Golem OX',shipArt:'drake-golem-ox.jpg',finished:false,route:['차울라 해변','가스라이트'],extra:0,
+  cargo:[{item:'폐기물',action:'delivery',scu:22},{item:'수소',action:'pickup',scu:null}]};
+ const display={mode:'flight',stepId:first,step:'stop',title:'운송',lines:['거점 도착'],navigation};
+ state.publish({session,sequence:1,display});
+ assert.deepEqual(state.snapshot().navigation,navigation);
+ assert.equal(state.enqueue('complete-flight:'+first),true);
+ assert.equal(state.enqueue('complete-flight:'+first),false);
+ state.publish({session,sequence:2,display:{...display,stepId:second}});
+ assert.equal(state.enqueue('complete-flight:'+first),false);
+ assert.equal(state.enqueue('complete-flight:'+second),true);
+ assert.throws(()=>state.publish({session,sequence:3,display:{...display,navigation:{...navigation,cargo:[{item:'수소',scu:-1,action:'pickup'}]}}}),/invalid-navigation/);
+ state.publish({session,sequence:3,display:{mode:'fleet',title:'무역',lines:[]}});
+ assert.equal(state.snapshot().navigation,undefined);
+});

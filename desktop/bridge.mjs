@@ -3,6 +3,15 @@ import {startLogService} from '../integration/log/live-server.mjs';
 import {DEFAULT_LOG_PORT} from '../scripts/log-link-server.mjs';
 import {createInterface} from 'node:readline';
 import {discoverLogs,automaticLog} from './discover-log.mjs';
+import {readFile} from 'node:fs/promises';
+const screenRoot=new URL('../../contract-reader/',import.meta.url);
+async function screenBundle(name){
+ const file=name||'contract-reader.html';
+ const ocr=/^ocr\/(?:worker\.min\.js|tesseract\.min\.js|tesseract-core-lstm\.wasm\.js|(?:kor|eng)\.traineddata\.gz)$/.test(file);
+ if(!ocr&&file!=='contract-reader.html'&&!/^assets\/[\w.-]+\.(js|css)$/.test(file))return null;
+ const type=file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.gz')?'application/octet-stream':'text/html';
+ try{return {type,body:await readFile(new URL(file,screenRoot))};}catch{return null;}
+}
 let service,closing=false,timer;
 const send=value=>{if(!closing)process.stdout.write(JSON.stringify(value)+'\n');};
 async function stop(){if(closing)return;closing=true;clearTimeout(timer);if(service)await service.close();process.exit(0);}
@@ -19,10 +28,10 @@ async function start(){
    file=automaticLog(candidates);
    if(!file){send({type:'discovery',phase:candidates.length?'choose-file':'searching',candidates});timer=setTimeout(start,10000);return;}
   }
-  service=await startLogService({file,port:selfTest?0:DEFAULT_LOG_PORT,apiOnly:true});
+  service=await startLogService({file,port:selfTest?0:DEFAULT_LOG_PORT,apiOnly:true,screenBundle});
   if(closing){await service.close();process.exit(0);}
   send({type:'ready',url:service.url,file});
-  const report=()=>{if(closing)return;send({type:'status',...service.status()});send({type:'display',display:service.companion.snapshot()});timer=setTimeout(report,1000);};report();
+  const report=()=>{if(closing)return;send({type:'status',...service.status()});send({type:'display',display:service.companion.snapshot()||service.screenPreview()});timer=setTimeout(report,1000);};report();
  }catch(e){send({type:'error',code:e.code==='EADDRINUSE'?'port-busy':'startup-failed'});process.exitCode=1;process.stdin.destroy();clearTimeout(timer);}
 }
 void start();

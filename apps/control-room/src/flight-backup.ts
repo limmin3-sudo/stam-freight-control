@@ -49,6 +49,7 @@ export function validateFlight(value:unknown):asserts value is Session {
  list(d.jobs);const owners=new Set<string>();
  d.jobs.forEach(j=>{object(j);string(j.id);requireValue(!owners.has(j.id));owners.add(j.id);pair(j.title);number(j.pay);list(j.shipments);
   optionalBooleans(j,['rewardUnknown','reviewedReceipt']);
+  if(j.observedStops!==undefined){object(j.observedStops);strings(j.observedStops.pickup);strings(j.observedStops.dropoff);}
   if(j.state!==undefined)requireValue(['ready','incomplete','ended','conflict'].includes(String(j.state)));
   if(j.hints!==undefined){list(j.hints);j.hints.forEach(h=>{object(h);requireValue(typeof h.cargo==='string'&&typeof h.place==='string');number(h.scu);if(h.name!==undefined)requireValue(typeof h.name==='string');});}
   if(j.referenceInfo!==undefined){object(j.referenceInfo);object(j.referenceInfo.values);object(j.referenceInfo.provenance);Object.values(j.referenceInfo.provenance).forEach(strings);object(j.referenceInfo.sources);Object.values(j.referenceInfo.sources).forEach(src=>{object(src);string(src.name);requireValue(typeof src.version==='string');if(src.url!==undefined)requireValue(typeof src.url==='string');});}

@@ -4,9 +4,9 @@ import {parseNavigationLine} from './navigation.mjs';
 const UUID = /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const OBJECTIVE = /^[\w-]{1,200}$/;
 const TAGS = ['SHUDEvent_OnNotification', 'CLocalMissionPhaseMarker::CreateMarker', 'EndMission', 'MissionEnded', 'ObjectiveUpserted',
-  'AccountLoginCharacterStatus_Character', 'MissionShared', 'PlayerJoined', 'PlayerLeft'];
+  'CObjectiveMarkerComponent::AddToPlayerDataBank','AccountLoginCharacterStatus_Character', 'MissionShared', 'PlayerJoined', 'PlayerLeft'];
 const PLAYER_ID = /^[1-9]\d{0,19}$/;
-const field = (line, name) => line.match(new RegExp(`${name}\\s*:?\\s*\\[([^\\]]*)\\]`))?.[1];
+const field = (line, name) => line.match(new RegExp(`\\b${name}\\s*:?\\s*\\[([^\\]]*)\\]`, 'i'))?.[1];
 const clean = text => text.replace(/<[^>]*>/g, '').trim();
 
 export function parseLogLine(line, provenance) {
@@ -54,7 +54,7 @@ export function parseLogLine(line, provenance) {
     if (!missionId) return {};
     const text = line.match(/Added notification "(.*)" \[\d+\] to queue\./)?.[1];
     if (text === undefined) return fail();
-    const plain=clean(text);
+    const plain=clean(text).replace(/^([^:：]{1,32}?)\s*[:：]\s*/, '$1: ');
     const award=plain.match(/^(?:Awarded\s+((?:\d{1,3}(?:,\d{3})+|\d+))\s+aUEC|((?:\d{1,3}(?:,\d{3})+|\d+))(?:\s+aUEC\s+지급|에게\s+aUEC\s+수여됨))\s*:?\s*$/i);
     if(award){
       const amount=Number((award[1]||award[2]).replaceAll(',',''));
@@ -72,36 +72,48 @@ export function parseLogLine(line, provenance) {
     const accepted = plain.match(/^(?:계약 수락|의뢰 수락|Contract Accepted):\s*(.+)$/i);
     if (accepted) {
       const title = clean(accepted[1]).replace(/:\s*$/, '').trim();
-      return title ? emit('accepted', missionId, { title }) : fail();
+      return title && !/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(missionId) ? emit('accepted', missionId, { title }) : fail();
     }
-    const amounts = [...text.matchAll(/(?<![\w.,+−-])([\d]+(?:\.\d+)?)\s*\/\s*([\d]+(?:\.\d+)?)\s*SCU\b/gi)];
+    const amounts = [...plain.matchAll(/(?<![\w.,+−-])([\d]+(?:\.\d+)?)\s*\/\s*([\d]+(?:\.\d+)?)\s*SCU\b/gi)];
     if (!/SCU/i.test(text)) {
       const pod=plain.match(/^(?:New Objective|Objective Complete|새 목표|새로운 목표|목표 달성|목표 완료):.*?(?<![\w.,+−-])(\d+)\s*\/\s*(\d+)\s*(?:개(?:의)?\s*)?(?:CryoPods?\b|냉동 포드(?=[을를\s:.,]|$))/i);
       if(pod){const objectiveId=field(line,'ObjectiveId'),current=Number(pod[1]),total=Number(pod[2]);if(!OBJECTIVE.test(objectiveId||'')||!Number.isSafeInteger(current)||!Number.isSafeInteger(total)||total<1||total>2048||current>total)return fail();return emit('quantity-observed',missionId,{objectiveId,current,total,unit:'count',notification:plain.replace(/CryoPods\b/gi,'CryoPod')});}
       // Return/visit instructions can coexist with a later successful delivery.
       // Preserve the notice; its wording does not prove a mandatory route leg.
-      if (!/^(?:새로운 목표|New Objective):\s*\S/i.test(clean(text))) return {};
+      if (!/^(?:새로운 목표|새 목표|목표 완료|목표 달성|New Objective|Objective Complete):\s*\S/i.test(plain)) return {};
       const objectiveId = field(line, 'ObjectiveId');
       if (!OBJECTIVE.test(objectiveId || '')) return fail();
-      return emit('objective-notice-observed', missionId, {objectiveId, notification: clean(text)});
+      return emit('objective-notice-observed', missionId, {objectiveId, notification: plain});
     }
     const objectiveId = field(line, 'ObjectiveId');
     if (amounts.length !== 1 || !OBJECTIVE.test(objectiveId || '')) return fail();
     const current = Number(amounts[0][1]), total = Number(amounts[0][2]);
     if (![current, total].every(n => Number.isFinite(n) && n >= 0 && n <= Number.MAX_SAFE_INTEGER) || current > total) return fail();
     return emit('quantity-observed', missionId, {
-      objectiveId, current, total, unit: 'SCU', notification: clean(text),
+      objectiveId, current, total, unit: 'SCU', notification: plain,
       // Text is retained as evidence. It is not split into canonical commodity/terminal IDs.
     });
+  }
+  if(tag==='CObjectiveMarkerComponent::AddToPlayerDataBank'){
+    const objectiveId=field(line,'objectiveId'),role=objectiveId?.match(/^(pickup|dropoff)_/i)?.[1].toLowerCase();
+    if(!role)return {};
+    const coords=line.match(/\bZonePos:\s*x:\s*([^,]+),\s*y:\s*([^,]+),\s*z:\s*([^,]+),/i);
+    const position=coords?.slice(1).map(n=>n.trim()?Number(n):NaN);
+    const playerId=line.match(/Added to DataBank of Player: [^\[]*\[(\d+)\]/)?.[1];
+    if(!position?.every(Number.isFinite)||!PLAYER_ID.test(playerId||'')||!OBJECTIVE.test(objectiveId))return fail();
+    return emit('databank-marker',field(line,'missionId'),{objectiveId,role,position,playerId});
   }
   if (tag === 'CLocalMissionPhaseMarker::CreateMarker') {
     const missionId = field(line, 'missionId'), definitionId = field(line, 'contractDefinitionId');
     const objectiveId = field(line, 'objectiveId'), template = field(line, 'contract');
     const zoneHostId = field(line, 'zoneHostId');
-    const coords = line.match(/position\s*\[x:\s*([^,]+), y:\s*([^,]+), z:\s*([^\]]+)\]/);
-    if (!UUID.test(definitionId || '') || !OBJECTIVE.test(objectiveId || '') || !template || !zoneHostId || !coords) return fail();
-    const position = coords.slice(1).map(Number);
-    if (!position.every(Number.isFinite)) return fail();
+    if(!UUID.test(definitionId||'')||!template)return fail();
+    const coords=line.match(/\bposition\s*\[\s*x:\s*([^,]+),\s*y:\s*([^,]+),\s*z:\s*([^\]]+)\]/i);
+    const position=coords?.slice(1).map(value=>value.trim()?Number(value):NaN);
+    if(!OBJECTIVE.test(objectiveId||'')||!zoneHostId||!position?.every(Number.isFinite)){
+      const observed=emit('definition-observed',missionId,{definitionId:definitionId.toLowerCase(),template});
+      return {...observed,diagnostic:'unrecognized-mission-format'};
+    }
     return emit('marker-observed', missionId, {
       definitionId: definitionId.toLowerCase(), template, objectiveId, zoneHostId, position,
       hauling: /(?:^|_)(?:HaulCargo|CargoHauling)(?:_|$)/.test(template),

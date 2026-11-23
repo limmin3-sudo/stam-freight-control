@@ -22,6 +22,7 @@ import {applyWord,cancelWord,cargoRoom,changeStops,contractMatches,normalized} f
 import {contractFields,readContractFields,spokenJob,spokenScu,startsSpokenContract,type ContractFields} from './spoken-contract';
 import {currentLocationData,currentLocationPoint} from './personal-locations.mjs';
 import './flight-copilot.css';
+import {shipImageRecord} from './ship-image';
 
 type ManualEntry={stamp:string;until:number;fields:ContractFields;expected?:keyof ContractFields;ids:Partial<Record<'from'|'to',string>>;scope?:{field:'from'|'to';id:string};airport?:'from'|'to';airportQuestion?:'from'|'to'};
 type Proposal={id:string;label:string;stamp:string;expires:number;apply:()=>void|Promise<unknown>;undo?:()=>void|Promise<unknown>};
@@ -338,7 +339,16 @@ export function CopilotStation({flight,locale,dock}:Props){
   if(view?.mode==='fleet')return {...view,partner};
   const fallback:CompanionSummary={mode:flight.active?'flight':'personal',title:t('운항 부조종사','Flight copilot'),lines:[task,sale].filter(Boolean),guidance:{task:(task||sale||tradeBrief).slice(0,220),destination:destination?name(destination.locationId):tradeBrief,load:task.slice(0,220)},step,stepId};
   const main=view??fallback,notes=[...(view?view.lines:[]),...(!view||view.mode!=='flight'?[task]:[]),sale||tradeBrief,suggestion].filter(Boolean);
-  return {...main,partner,lines:[...new Set(notes.length?notes:[recommendation])].slice(0,6),guidance:{...main.guidance,task:[main.guidance?.task,sale,suggestion].filter(Boolean).join(' / ').slice(0,220)||recommendation.slice(0,220)}};
+  const jump=visit?.jumps[run?.jump??0];
+  const events=jump||run?.finished?[]:(visit?.events??[]).filter(e=>(e.type==='pickup'||e.type==='delivery')&&!e.reservationContinuation);
+  const navigation=main.mode==='flight'&&run&&plan?{
+   destination:(run.finished?'':jump?jump.exitName:destination?name(destination.locationId):'').slice(0,100),
+   ship:plan.ship.name.slice(0,100),shipArt:shipImageRecord(plan.ship.id)?.file??'',
+   finished:!!run.finished,route:run.finished?[]:visits.slice(0,3).map(v=>name(v.locationId).slice(0,100)),
+   cargo:events.slice(0,128).map(e=>({action:e.type as 'pickup'|'delivery',item:tradeLabel(e.commodity,'goods',locale).slice(0,100),scu:e.pickupQuantityUnknown||!e.scu?null:e.scu})),
+   extra:Math.max(0,events.length-128)
+  }:undefined;
+  return {...main,navigation,partner,lines:[...new Set(notes.length?notes:[recommendation])].slice(0,6),guidance:{...main.guidance,task:[main.guidance?.task,sale,suggestion].filter(Boolean).join(' / ').slice(0,220)||recommendation.slice(0,220)}};
  }
  const status=useCompanionLink(enabled,{display,awaitingDetails:()=>manual.current?.stamp===live.current&&manual.current.until>Date.now(),proposal:pending?.id,proposalText:pending?.label,execute,clear});
  const linkLabel:Record<string,string>={connected:t('앱 연결됨','App connected'),older:t('음성 편집은 앱 업데이트 필요','Update app for voice editing'),offline:t('네비게이터 연결 대기','Waiting for companion'),busy:t('다른 탭 연결 중','Connected in another tab'),upgrade:t('앱 업데이트 필요','App update required'),connecting:t('연결 중','Connecting')};

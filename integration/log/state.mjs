@@ -79,7 +79,7 @@ export class LogEvidence {
       const ended = [...allEndings.filter(e => identity.actor(e) !== 'other'),...terminal].sort(compare);
       const membership = participation(events, identity.actor);
       const quantities = events.filter(e => e.type === 'quantity-observed');
-      const definitions = [...new Set(markers.map(e => e.definitionId))].sort();
+      const definitions = [...new Set(events.filter(e=>e.type==='marker-observed'||e.type==='definition-observed').map(e=>e.definitionId))].sort();
       const completions = [...new Set(ended.map(e => e.completion))].sort();
       const titles = [...new Set(accepted.map(e => e.title))].sort();
       const conflicts = [];
@@ -99,6 +99,7 @@ export class LogEvidence {
         definitionId: definitions.length === 1 ? definitions[0] : null,
         definitionObservations: definitions, completionObservations: completions,
         quantityObservations: quantities, markerObservations: markers,
+        routeMarkerObservations:events.filter(e=>e.type==='databank-marker'&&identity.actor(e)!=='other').map(publicEvent),
         terminalObservations:terminal.map(publicEvent),missionStateObservations:service.map(publicEvent),
         objectiveNotices: events.filter(e => e.type === 'objective-notice-observed'),
         objectiveStateObservations: events.filter(e => e.type === 'objective-state-observed'),

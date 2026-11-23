@@ -71,3 +71,11 @@ test('STAM 2.6.8 distinguishes acceptance, goal completion, contract endings and
  assert.equal(pods.unit,'count');
  assert.equal(pods.total,4);
 });
+
+test('formatting tags and spaced quantities preserve a Korean cargo goal and qualified terminal name',()=>{
+ const evidence=new LogEvidence();evidence.ingest(accepted);
+ const goal='새 목표: Pyro III의 L3 Lagrange에 위치한 Patch City에 <b>0</b> / <b>18</b> SCU의 Hydrogen을(를) 배달하세요';
+ evidence.ingest(accepted.replace('Contract Accepted: Junior small haul | from Ashland',goal).replace('pickup_test_0','dropoff_test_1'));
+ const [card]=inboxCards(evidence.snapshot(),[{id:'planet',type:'Planet',name:'Pyro III'},{id:'patch',name:'Patch City'}]).cards;
+ assert.deepEqual(card.rows.map(r=>[r.commodity,r.dropoffId,r.scu]),[['Hydrogen','patch',18]]);
+});

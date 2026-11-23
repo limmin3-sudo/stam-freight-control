@@ -13,6 +13,7 @@ const optional=(v:unknown,check:(v:unknown)=>boolean)=>v===undefined||check(v);
 function cardValid(v:unknown):v is Job{
  if(!record(v)||typeof v.id!=='string'||!v.id||typeof v.signature!=='string'||!v.signature||!pair(v.title)||!amount(v.pay)||
   !['ready','incomplete','ended','conflict'].includes(String(v.state))||!Array.isArray(v.shipments))return false;
+ if(!optional(v.observedStops,s=>record(s)&&strings(s.pickup)&&strings(s.dropoff)))return false;
  if(!v.shipments.every(r=>record(r)&&typeof r.id==='string'&&pair(r.cargo)&&typeof r.from==='string'&&typeof r.to==='string'&&amount(r.scu)&&
   optional(r.boxes,b=>Array.isArray(b)&&b.every(x=>record(x)&&amount(x.size)&&amount(x.count)))))return false;
  if(!optional(v.reservations,r=>record(r)&&Object.values(r).every(amount))||

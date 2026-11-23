@@ -22,3 +22,9 @@ Policies checked 2026-11-06:
 The final scene artwork is created for this fan tool; source generation files and discarded concepts are not part of the public website bundle.
 
 - SCMDB_DATA by KrovaxCode: public mission catalogue reference fields and base reward values, pinned to commit `937f66810a392aa5682b9615a1afbff20fe96e3f`, build `4.10.2-live.12913470`. https://github.com/KrovaxCode/SCMDB_DATA . Source/version and any unresolved SCMDB ambiguities are retained in `data/mission-details.json`; see `docs/MISSION-DATA-RECONCILIATION.md`. Game content belongs to its respective owners.
+
+## Offline Korean speech recognition
+
+The Windows Navigator package includes Alpha Cephei's Vosk runtime 0.3.38 and the small Korean 0.22 acoustic model (Apache License 2.0). Third-party runtime notices and license texts are in the package's `recognition-licenses` directory. The model and recognizer process microphone audio on the device. [Vosk](https://github.com/alphacep/vosk-api) · [Korean model](https://alphacephei.com/vosk/models)
+
+The Vosk Windows runtime distribution includes GNU libstdc++ and libgcc (GPLv3 with GCC Runtime Library Exception) and mingw-w64 winpthreads. [GNU toolchain sources](https://gcc.gnu.org/git.html) · [winpthreads sources](https://github.com/mingw-w64/mingw-w64/tree/master/mingw-w64-libraries/winpthreads)

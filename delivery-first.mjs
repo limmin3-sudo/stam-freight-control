@@ -4,10 +4,10 @@ import {regionKey} from './route-regions.mjs';
 // Each contract is a focus until complete; nearby pickups may fit along its next leg, with delivery later.
 // advance() is the same real grid/resume validator used by the navigator.
 const cmp=(a,b)=>{for(let i=0;i<a.length;i++)if(a[i]!==b[i])return a[i]-b[i];return 0;};
-export function deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst=null}={}){
+export function deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst=null,stopsOnly=false}={}){
  let state=initial,focus=null,detourLeft=0;
  let collectionRegion=null,departed=false;
- const seenReservations=new Set();for(const s of shipments)if(s.reservation&&!seenReservations.has(s.reservation.id)){seenReservations.add(s.reservation.id);const group=shipments.map((x,i)=>({x,i})).filter(({x})=>x.reservation?.id===s.reservation.id);if(group.some(({i})=>initial.status[i]===0)&&new Set(s.reservation.pickupIds.map(id=>regionKey(nav,id))).size>1)throw Error('오퍼레이터는 한 행성권에서 픽업한 뒤 배송합니다. 여러 행성권의 픽업 수량이 미확인인 계약은 수석 항해사를 선택하거나 픽업별 실제 수량을 입력하세요.');}
+ const seenReservations=new Set();for(const s of shipments)if(s.reservation&&!seenReservations.has(s.reservation.id)){seenReservations.add(s.reservation.id);const group=shipments.map((x,i)=>({x,i})).filter(({x})=>x.reservation?.id===s.reservation.id);if(!stopsOnly&&group.some(({i})=>initial.status[i]===0)&&new Set(s.reservation.pickupIds.map(id=>regionKey(nav,id))).size>1)throw Error('오퍼레이터는 한 행성권에서 픽업한 뒤 배송합니다. 여러 행성권의 픽업 수량이 미확인인 계약은 수석 항해사를 선택하거나 픽업별 실제 수량을 입력하세요.');}
  const initialCargo=shipments.filter((s,i)=>initial.status[i]===1);if(initialCargo.length){collectionRegion=regionKey(nav,initialCargo[0].pickupId);departed=regionKey(nav,initial.at)!==collectionRegion||initialCargo.some(s=>regionKey(nav,s.pickupId)!==collectionRegion);}
  const remaining=initial.status.reduce((n,s)=>n+2-s,0),missionOf=i=>shipments[i].missionId||shipments[i].id||String(i);
  const unfinished=(st,id)=>shipments.map((s,i)=>i).filter(i=>st.status[i]<2&&missionOf(i)===id);
@@ -27,7 +27,16 @@ export function deliveryFirstRoute(shipments,nav,initial,advance,{avoidFirst=nul
    choices.sort((a,b)=>Number(probe.status[b.i]===1)-Number(probe.status[a.i]===1)||(a.next.cost-probe.cost)-(b.next.cost-probe.cost));probe=choices[0].next;}return true;}
  for(let step=0;step<remaining;step++){
   if(!state.status.some(s=>s===1)){collectionRegion=null;departed=false;}
-  const options=[];for(let i=0;i<shipments.length;i++){if(state.status[i]===2||state.status[i]===0&&collectionRegion&&(departed||regionKey(nav,shipments[i].pickupId)!==collectionRegion))continue;const next=advance(state,i);if(next)options.push({i,next,s:shipments[i],delivery:state.status[i]===1});}
+  const options=[],otherRegions=[];
+  for(let i=0;i<shipments.length;i++){
+   if(state.status[i]===2)continue;
+   const outside=state.status[i]===0&&collectionRegion&&(departed||regionKey(nav,shipments[i].pickupId)!==collectionRegion);
+   if(outside&&!stopsOnly)continue;
+   const next=advance(state,i);
+   if(next)(outside?otherRegions:options).push({i,next,s:shipments[i],delivery:state.status[i]===1});
+  }
+  // Visit another pickup region when all remaining deliveries depend on it.
+  if(!options.length&&stopsOnly)options.push(...otherRegions);
   if(!options.length)throw Error('현재 함선에 실을 수 있는 화물을 찾지 못했습니다. 상자 구성을 확인해 주세요.');
   if(!focus||!unfinished(state,focus).length){
    let ids=[...new Set(options.map(o=>missionOf(o.i)))];const aboard=ids.filter(id=>unfinished(state,id).some(i=>state.status[i]===1));if(aboard.length)ids=aboard;

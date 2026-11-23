@@ -1,3 +1,4 @@
+import {cargoGoals,mergeCargoGoals} from './log/cargo-goals.mjs';
 import {applyContractInfo} from '../contract-info.mjs';
 import {definitionDraft} from '../mission-catalog.mjs';
 import {deliveryGroups,quantitiesReady,actualQuantity} from '../delivery-totals.mjs';
@@ -6,14 +7,16 @@ import {deliveryNotice,objectivePlaceLookup} from '../objective-text.mjs';
 const key=s=>String(s||'').normalize('NFKC').trim().toLowerCase();
 const text=s=>String(s||'').slice(0,240);
 const idPattern=/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
-export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=null){
+export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=null,wikiFor=null){
  if(snapshot?.identity?.mixedPlayers)return {blocked:true,cards:[]};
  const all=[...(snapshot?.contracts||[]),...(snapshot?.pendingContracts||[])],unique=new Map();
  const placeId=point=>{const found=places.filter(p=>p.id===point?.id||(p.uuid===point?.id&&p.system===point?.system));return found.length===1?found[0].id:'';};
  const byName=objectivePlaceLookup(places);
  for(const c of all){
   if(!idPattern.test(c.missionId||'')||unique.has(c.missionId)||!(c.acceptanceObservations?.some(e=>e.actor!=='other')||c.participation?.selfJoinObserved))continue;
-  const markerPlaces=(c.markerObservations||[]).map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position,{gameBuild:c.gameBuild})})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
+  const markerPlaces=[...(c.markerObservations||[]),...(c.routeMarkerObservations||[])].map(m=>({role:m.role,objectiveId:m.objectiveId,...index?.match(m.position,{gameBuild:c.gameBuild})})).filter(m=>m.status==='coordinate-match'&&m.candidates.length===1).map(m=>({role:m.role,objectiveId:m.objectiveId,point:m.candidates[0]}));
+  const markers=markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)}));
+  const namedGoals=cargoGoals([...(c.objectiveNotices||[]),...(c.quantityObservations||[]).filter(q=>q.unit==='SCU'&&q.objectiveId?.startsWith('pickup_'))]);
   const pickupIds=[...new Set(markerPlaces.filter(m=>m.role==='pickup').map(m=>placeId(m.point)).filter(Boolean))];
   const useOriginal=catalog?.sourceName==='Wiki'&&c.originalManifest?.status==='resolved-original-manifest';
   let rows=[],quantityHints=[];
@@ -22,13 +25,25 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    const goals=new Map();for(const q of c.quantityObservations||[]){if(!goals.has(q.objectiveId))goals.set(q.objectiveId,[]);goals.get(q.objectiveId).push(q);}
    for(const group of goals.values()){
     if(new Set(group.map(q=>q.total)).size!==1)continue;
-    const q=[...group].sort((a,b)=>a.at.localeCompare(b.at)).at(-1);
-    const notice=deliveryNotice(q.notification);if(!notice||notice.scu!==q.total||q.total<=0||q.total>10000)continue;
-    const named=byName(notice.dropoffText),marked=[...new Set(markerPlaces.filter(m=>m.role==='dropoff'&&m.objectiveId===q.objectiveId).map(m=>placeId(m.point)).filter(Boolean))],conflict=marked.length>1||!!(named&&marked.length===1&&named!==marked[0]);
+    const q=group[0];
+    const notices=group.map(entry=>deliveryNotice(entry.notification)).filter(n=>n&&n.scu===q.total);
+    if(new Set(notices.map(n=>key(n.commodity))).size!==1)continue;
+    const namedStops=new Set(notices.map(n=>byName(n.dropoffText)).filter(Boolean));
+    const notice=notices.find(n=>byName(n.dropoffText))||notices[0];
+    if(!notice||notice.scu!==q.total||q.total<=0||q.total>10000)continue;
+    const named=byName(notice.dropoffText),marked=[...new Set(markerPlaces.filter(m=>m.role==='dropoff'&&m.objectiveId===q.objectiveId).map(m=>placeId(m.point)).filter(Boolean))],conflict=namedStops.size>1||marked.length>1||!!(named&&marked.length===1&&named!==marked[0]);
     rows.push({commodity:text(notice.commodity),scu:q.total,pickupId:pickupIds.length===1?pickupIds[0]:'',dropoffId:conflict?'':named||marked[0]||'',_dropoffText:text(notice.dropoffText),boxes:[],_objectiveId:q.objectiveId,...(conflict?{_locationConflict:true}:{})});
    }
   }
-  const reference=definitionDraft(c,places,catalog,missionDb,{markers:markerPlaces.map(m=>({role:m.role,objectiveId:m.objectiveId,pointId:placeId(m.point)})),pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
+  // The HUD and spatial marker can reveal different ends of the same order.
+  // Bind a named site only to its explicit role and objective in this instance.
+  for(const group of namedGoals)for(const role of ['pickup','dropoff']){
+   const ids=new Set([...group[role]].map(byName).filter(Boolean));
+   if(ids.size===1)markers.push({role,objectiveId:role+'_'+group.suffix,pointId:[...ids][0]});
+  }
+  for(const r of rows)if(!r._locationConflict&&r.dropoffId&&r._objectiveId?.startsWith('dropoff_'))
+   markers.push({role:'dropoff',objectiveId:r._objectiveId,pointId:r.dropoffId});
+  const reference=definitionDraft(c,places,catalog,missionDb,{wiki:wikiFor?.(c),markers,pickups:pickupIds,dropoffs:[...new Set(markerPlaces.filter(m=>m.role==='dropoff').map(m=>placeId(m.point)).filter(Boolean))]});
   // A single delivery counter can cover several fixed catalogue orders even
   // when all orders use one location pool. Keep their quantities exactly once.
   if(reference&&!useOriginal&&!reference.multipleDropoffs&&!reference.multiplePickups){
@@ -48,14 +63,46 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
    rows=rows.filter(row=>{const base=reference.rows.find(b=>matchesOrder(row,b)),commodity=base?.commodity||row.commodity,siblings=reference.rows.filter(b=>key(b.commodity)===key(commodity)),complete=siblings.every(b=>rows.some(r=>matchesOrder(r,b)));if(siblings.length<2||complete)return true;quantityHints.push({commodity,scu:row.scu,dropoffId:row.dropoffId||reference.dropoffId,dropoffText:row._dropoffText});return false;});
   }
   if(reference){if(!rows.length)rows=reference.rows;else if(!useOriginal){
-   const observed=rows,used=new Set();rows=reference.rows.map(base=>{const available=observed.map((row,i)=>({row,i})).filter(({i})=>!used.has(i)),exact=available.filter(({row})=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`)),matches=exact.length?exact:available.filter(({row})=>key(row.commodity)===key(base.commodity)&&(!base.dropoffId||row.dropoffId===base.dropoffId));if(matches.length!==1)return base;const {row,i}=matches[0];used.add(i);return {...base,...row,commodity:base.commodity,pickupId:row.pickupId||base.pickupId,dropoffId:row.dropoffId||base.dropoffId};});for(const [i,row] of observed.entries())if(!used.has(i))rows.push({...row,pickupId:row.pickupId||reference.pickupId,dropoffId:row.dropoffId||reference.dropoffId});
+   const observed=rows,used=new Set();rows=reference.rows.map(base=>{const available=observed.map((row,i)=>({row,i})).filter(({i})=>!used.has(i)),exact=available.filter(({row})=>(base._catalog?.objectives||[]).some(id=>row._objectiveId===`dropoff_${id}_${base._catalog.orderIndex}`)),matches=exact.length?exact:available.filter(({row})=>key(row.commodity)===key(base.commodity)&&(!base.dropoffId||row.dropoffId===base.dropoffId));if(matches.length!==1)return base;const {row,i}=matches[0];used.add(i);return {...base,...row,commodity:base.commodity,pickupId:reference.multiplePickups?base.pickupId:row.pickupId||base.pickupId,dropoffId:row._locationConflict?'':row.dropoffId||base.dropoffId};});for(const [i,row] of observed.entries())if(!used.has(i))rows.push({...row,pickupId:reference.multiplePickups?'':row.pickupId||reference.pickupId,dropoffId:row.dropoffId||reference.dropoffId});
   }}
+  if(!useOriginal)mergeCargoGoals(rows,namedGoals,byName,markers);
+  // A route can be known before the game assigns each cargo row to a stop.
+  // Retain actual marker roles independently of the freight manifest.
+  const routeStops={pickup:new Set(),dropoff:new Set()};
+  const byObjective=new Map();
+  for(const m of markers){
+   if(!m.pointId||!['pickup','dropoff'].includes(m.role))continue;
+   if(!byObjective.has(m.objectiveId))byObjective.set(m.objectiveId,new Set());
+   byObjective.get(m.objectiveId).add(m.pointId);
+   routeStops[m.role].add(m.pointId);
+  }
+  for(const role of ['pickup','dropoff'])for(const id of reference?.catalogStops?.[role]||[])routeStops[role].add(id);
+  for(const r of rows)for(const role of ['pickup','dropoff'])if(r[role+'Id'])routeStops[role].add(r[role+'Id']);
+  // Some clients put a complete direct itinerary in the acceptance title,
+  // before any objective marker has spawned.
+  if(/haul|cargo|freight|delivery|운송|배송|배달|수송/i.test(c.title||'')){
+   const tail=(c.title||'').split('|').at(-1).replace(/\s*\[[^\]]*\]\s*$/,'').trim();
+   const route=tail.match(/^(?:from\s+)?(.+?)\s*(?:→|>)\s*(.+)$/i)||tail.match(/\bfrom\s+(.+?)\s+to\s+(.+)$/i);
+   if(route){
+    const a=byName(route[1]),b=byName(route[2]);
+    if(a&&b&&a!==b&&(!routeStops.pickup.size||routeStops.pickup.has(a))&&(!routeStops.dropoff.size||routeStops.dropoff.has(b))){
+     routeStops.pickup.add(a);routeStops.dropoff.add(b);
+    }
+   }
+  }
+  const pickup=[...routeStops.pickup].sort(),dropoff=[...routeStops.dropoff].sort();
+  const ambiguous=[...byObjective.values()].some(ids=>ids.size>1);
+  const observedStops=!ambiguous&&pickup.length&&dropoff.length&&
+   new Set([...pickup,...dropoff]).size>1&&
+   (!rows.length||rows.some(r=>!r.pickupId||!r.dropoffId))?{pickup,dropoff}:null;
   rows=rows.map(({_objectiveId,...row})=>row);
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
   const card={id:c.missionId,title:text((reference?.basis==='exact-template-name'?c.title:null)||reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length||rows.some(r=>r._locationConflict),rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
   if (/[가-힣]/.test(c.title || '')) card.koreanTitle = text(c.title);
+  if(reference?.lookupMetadata)card.lookupMetadata=reference.lookupMetadata;
+  if(observedStops)card.observedStops=observedStops;
   if(quantityHints.length)card.quantityHints=quantityHints;
-  card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints]);unique.set(card.id,card);
+  card.signature=JSON.stringify([card.ended,card.conflict,card.rows,card.quantityHints,...(observedStops?[observedStops]:[])]);unique.set(card.id,card);
  }
  return {blocked:false,cards:[...unique.values()].sort((a,b)=>(b.acceptedAt||'').localeCompare(a.acceptedAt||'')||a.id.localeCompare(b.id))};
 }

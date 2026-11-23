@@ -36,7 +36,7 @@ internal sealed partial class CompanionOverlay {
         workButton.Text=confirming?T("취소","Cancel"):T("내 작업","My work");
     }
     internal string NavigationDestination {get{object value;return displayedMode!=null&&facts!=null&&facts.TryGetValue("destination",out value)?Convert.ToString(value):"";}}
-    internal string NavigationText {get{return displayedMode==null?"":body.Text;}}
+    internal string NavigationText {get{return displayedMode!=null||DateTime.UtcNow<answerUntil?body.Text:"";}}
     bool CopilotRequest(string phrase,float confidence,string captured){
         if(!copilot||confidence<.76f||String.IsNullOrWhiteSpace(phrase)||phrase.Length>160||(DateTime.UtcNow-received).TotalSeconds>10)return false;
         string q=Normal(phrase);
@@ -223,10 +223,13 @@ internal sealed partial class CompanionOverlay {
         if(FemaleVoice&&!english)text=Friendly(text,Narrator!="partner"&&opening);
         if(!english)text=text.Replace("? SCU","수량 미확인").Replace("SCU","에스씨유").Replace("aUEC","에이유이씨");
         if(Narrator=="partner"||Narrator.StartsWith("supertonic-")){SpeakLocal(text,clip);return;}
+        SpeakWindows(text);
+    }
+    void SpeakWindows(string text){
         try{
             if(narrator==null){
                 narrator=new SpeechSynthesizer();
-                var gender=Narrator=="female"?VoiceGender.Female:VoiceGender.Male;
+                var gender=FemaleVoice?VoiceGender.Female:VoiceGender.Male;
                 VoiceInfo voice=null;
                 foreach(var v in narrator.GetInstalledVoices()){
                     if(!v.Enabled||v.VoiceInfo.Culture.TwoLetterISOLanguageName!=(english?"en":"ko"))continue;
@@ -236,14 +239,14 @@ internal sealed partial class CompanionOverlay {
                 if(voice==null)throw new InvalidOperationException(T("Windows 한국어 읽기 음성을 설치하세요.","Install an English Windows text-to-speech voice."));
                 narrator.SelectVoice(voice.Name);
                 narrator.SetOutputToDefaultAudioDevice();
-                narrator.Rate=Narrator=="female"?1:-1;
+                narrator.Rate=FemaleVoice?1:-1;
                 var owner=narrator;
                 narrator.StateChanged+=(sender,e)=>{if(narrator==owner)narrating=e.State!=SynthesizerState.Ready;};
             }
             narrator.SpeakAsyncCancelAll();
             ignoreUtterance=true;narrating=true;
             narrator.SpeakAsync(text);
-        }catch(Exception e){StopNarration();status.Text=e.Message;}
+        }catch(Exception e){StopNarration();ReportTalk(e.Message);}
     }
     // Keep the one-semitone lift identical to the bundled Korean preview. Adjust
     // both PCM rates; the sample data and its block alignment stay unchanged.
@@ -306,6 +309,7 @@ internal sealed partial class CompanionOverlay {
         StopNarration();
         var request=new CancellationTokenSource();
         localSpeech=request;
+        bool windowsFallback=false;
         try{
             // Render the live detail while the short partner introduction plays.
             var intro=clip==null?Task.CompletedTask:PlayWave(File.ReadAllBytes(clip),request.Token);
@@ -314,14 +318,19 @@ internal sealed partial class CompanionOverlay {
             await Task.WhenAll(intro,detail);
             await PlayWave(await detail,request.Token);
         }catch(Exception){
-            if(!request.IsCancellationRequested)ReportTalk(T("음성 재생을 확인하세요 · 실시간 안내: supertonic serve","Check audio playback. For live details, run supertonic serve."));
+            if(!request.IsCancellationRequested){
+                windowsFallback=!String.IsNullOrEmpty(text);
+                if(!windowsFallback)ReportTalk(T("녹음 음성을 재생할 수 없습니다.","Could not play the recorded reply."));
+            }
         }finally{
             if(localSpeech==request){localSpeech=null;player=null;narrating=false;}
             request.Dispose();
         }
+        if(windowsFallback&&!disposing)SpeakWindows(text);
     }
     void Answer(string text,bool aloud){
         body.Text=text;answerUntil=DateTime.UtcNow.AddSeconds(10);
+        if(TalkChanged!=null)TalkChanged();
         if(aloud)Say(text);
     }
     string pendingGood,pendingSide,pendingAmount;
@@ -343,7 +352,7 @@ internal sealed partial class CompanionOverlay {
         copilot=display.TryGetValue("copilot",out raw)&&raw is bool&&(bool)raw;
         awaitingDetails=copilot&&display.TryGetValue("awaitingDetails",out raw)&&raw is bool&&(bool)raw;
         string nextProposal=copilot&&display.TryGetValue("proposal",out raw)?raw as string:null;
-        if(proposalId!=nextProposal)ShowProposalActions(nextProposal!=null);
+        if(proposalId!=nextProposal){Interlocked.Increment(ref contextVersion);ShowProposalActions(nextProposal!=null);}
         proposalId=nextProposal;
         facts=display.TryGetValue("guidance",out raw)?raw as Dictionary<string,object>:null;
         string task=facts!=null&&facts.TryGetValue("task",out raw)?Convert.ToString(raw):"";
