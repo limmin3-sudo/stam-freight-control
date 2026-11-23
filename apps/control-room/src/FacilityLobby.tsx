@@ -64,7 +64,7 @@ export function FacilityLobby({facility,guideLesson,locale,room,tradeScope,initi
   const place=data.places.find(p=>p.id===(next==='planning'?'market':next));if(!place)return;
   setHovered(null);travel.enter(next,scope,point??place.point,person??next);
  };
- const planFromQuote:PlanFromQuote=(origin,commodity,destination=0,scope)=>{
+ const planFromQuote:PlanFromQuote=(origin,commodity,destination=0,scope,quick)=>{
   let nextScope=scope??'intrasystem';
   try {
    const owner=readyTradeOwner(),key=tradeViewKey(owner,'personal-options');
@@ -72,8 +72,8 @@ export function FacilityLobby({facility,guideLesson,locale,room,tradeScope,initi
    const capacity=tradeShips.find(ship=>ship.id===shipId)?.grids.reduce((sum,g)=>sum+g.w*g.h*g.l,0)??0;
    const old=JSON.parse(sessionStorage.getItem(key)||'null');
    if(!scope&&old?.scope==='interstellar')nextScope='interstellar';
-   sessionStorage.setItem(key,JSON.stringify({...defaultSuiteOptions,shipId,capacity,...old,mode:'direct',
-    originId:commodity?origin:(old?.originId??0),commodityIds:commodity?[commodity]:[],destinationId:destination,scope:nextScope,waypoints:[],
+   sessionStorage.setItem(key,JSON.stringify({...defaultSuiteOptions,shipId,capacity,...old,...quick,mode:'direct',
+    originId:origin||old?.originId||0,commodityIds:quick?.commodityIds??(commodity?[commodity]:[]),destinationId:destination,scope:nextScope,waypoints:[],
     priceBasis:'reported',stockBasis:'reported',nearbyGm:0,cargo:[],reserveEnabled:false,reservePercent:0}));
    sessionStorage.setItem(tradeViewKey(owner,'mode'),JSON.stringify('personal'));
   } catch {setHandoffError(true);return;}

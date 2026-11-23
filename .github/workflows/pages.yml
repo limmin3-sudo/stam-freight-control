@@ -40,6 +40,8 @@ jobs:
       - name: Build Korean display labels
         run: node scripts/build-ai-korean.mjs
       - run: npm test
+      - name: Refresh public trade discussions
+        run: python3 scripts/refresh-trade-news.py
       - name: Build STAM lounge
         env:
           VITE_PARTNER_API_ORIGIN: ${{ vars.STAM_PARTNER_API_ORIGIN }}

@@ -108,3 +108,24 @@ test('a copilot sale goal only decreases for actual sales of its lot at its term
  assert.equal(remaining(),2);assert.equal(state().holdings[0]?.quantity,4);assert.equal(state().sales,65);
  book=changeSuiteBook(book,{kind:'undo',runId:'run'});assert.equal(remaining(),8);
 });
+
+test('quick search chooses an origin, respects pinned endpoints and both systems',async()=>{
+ const {quickRoutes}=await import('../src/trade-field.ts');
+ const m=data();m.terminals[2]!.system='Pyro';
+ const options={...input,originId:0,maxBoxSize:1};
+ const routes=quickRoutes(m,options,ctx,now);
+ assert.equal(routes[0]?.legs[0]?.originId,3);
+ assert.equal(routes[0]?.profit,200);
+ assert(routes.some(r=>r.legs[0]?.originId===1));
+ assert(quickRoutes(m,{...options,originId:1,destinationId:3,commodityIds:[1]},ctx,now).length===0);
+});
+test('report scenario keeps UEX intact, respects a newer partial fill, age and patch',async()=>{
+ const {fieldScenario}=await import('../src/trade-field.ts');
+ const m=data(),q=m.quotes[1]!,row={ownerUid:'a',terminalId:2,commodityId:1,side:'sell' as const,attempted:500,filled:500,waited:false,at:now-1000,patch:m.liveVersion};
+ assert.equal(fieldScenario(m,[row],now).quotes[1]?.demand,500);
+ assert.equal(q.demand,100);
+ for(const edit of [{waited:true},{patch:'4.0.0'},{at:now-72*3600000}]){
+   assert.equal(fieldScenario(m,[{...row,...edit}],now).quotes[1]?.demand,100);
+ }
+ assert.equal(fieldScenario(m,[row,{...row,at:now,filled:0}],now).quotes[1]?.demand,0);
+});
