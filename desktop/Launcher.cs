@@ -173,7 +173,7 @@ internal sealed class BridgeWindow : Form {
             string[] names=en?new[]{"Waste","Hydrogen","Processed food"}:new[]{"폐기물","수소","가공 식품"};int[] units={22,11,9};
             for(int i=0;i<names.Length;i++)cargo.Add(new Dictionary<string,object>{{"item",names[i]},{"action","delivery"},{"scu",units[i]}});
             var flight=new Dictionary<string,object>{{"mode","flight"},{"partner","operator"},{"lines",new[]{place}},{"stepId",Guid.NewGuid().ToString()},{"step","delivery"},
-                {"navigation",new Dictionary<string,object>{{"destination",place},{"ship","Drake Golem OX"},{"shipArt","drake-golem-ox.jpg"},{"route",new[]{place,next}},{"finished",false},{"extra",0},{"cargo",cargo}}}};
+                {"navigation",new Dictionary<string,object>{{"destination",place},{"ship","Drake Golem OX"},{"shipArt","drake-golem-ox.jpg"},{"route",new[]{place,next}},{"finished",false},{"extra",0},{"visitNumber",1},{"visitCount",3},{"cargo",cargo}}}};
             previewOverlay.UpdateDisplay(flight);window.RenderNavigation();previewOverlay.Show();Application.DoEvents();
             using(var picture=new Bitmap(previewOverlay.Width,previewOverlay.Height)){previewOverlay.DrawToBitmap(picture,new Rectangle(Point.Empty,previewOverlay.Size));picture.Save(Path.Combine(directory,"overlay-flight-"+(en?"en":"ko")+".png"));}
             previewOverlay.Hide();
@@ -195,12 +195,13 @@ internal sealed class BridgeWindow : Form {
         Size=new Size(Math.Min(1000,workArea.Width),Math.Min(780,workArea.Height));StartPosition=FormStartPosition.Manual;
         Location=new Point(workArea.Left+(workArea.Width-Width)/2,workArea.Top+(workArea.Height-Height)/2);BackColor=DeckTheme.Housing;ForeColor=Ink;DoubleBuffered=true;
         try{Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);}catch{Icon=SystemIcons.Application;}
-        var shell=new Panel{Dock=DockStyle.Fill,BackColor=DeckTheme.Housing,Padding=new Padding(10)};Controls.Add(shell);
+        var shell=new Panel{Dock=DockStyle.Fill,BackColor=DeckTheme.Housing,Padding=new Padding(1)};Controls.Add(shell);
         var frame=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2,Margin=Padding.Empty};
         frame.RowStyles.Add(new RowStyle(SizeType.Absolute,64));frame.RowStyles.Add(new RowStyle(SizeType.Percent,100));shell.Controls.Add(frame);
-        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Padding=new Padding(12,1,6,1),Margin=Padding.Empty};
+        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=6,RowCount=1,Padding=new Padding(12,1,6,1),Margin=Padding.Empty};
         mast.RowStyles.Add(new RowStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,56));
-        mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));frame.Controls.Add(mast,0,0);
+        mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));foreach(int width in new[]{34,34,34})mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,width));
+        frame.Controls.Add(mast,0,0);
         var pages=new Panel{Dock=DockStyle.Fill};frame.Controls.Add(pages);
         settingsPage=new Panel{Dock=DockStyle.Fill,AutoScroll=true};flightHome=new Panel{Dock=DockStyle.Fill};
         pages.Controls.Add(settingsPage);pages.Controls.Add(flightHome);
@@ -208,7 +209,19 @@ internal sealed class BridgeWindow : Form {
         foreach(int h in new[]{48,64,100,96,52})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,h));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));settingsPage.Controls.Add(layout);
         var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,6,8,6),BackColor=Color.Transparent};
         try{using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))brandLogo=new Bitmap(source);logo.Image=brandLogo;}catch{}
-        mast.Controls.Add(logo,0,0);mast.Controls.Add(Label("STAM Navigator",19,Ink),1,0);
+        mast.Controls.Add(logo,0,0);
+        var wordmark=new Label{Text="STAM Navigator",AutoSize=false,Dock=DockStyle.Fill,Margin=Padding.Empty,TextAlign=ContentAlignment.MiddleLeft,Font=HoloFonts.At(16,true),ForeColor=Ink};
+        mast.Controls.Add(wordmark,1,0);
+        var windowControls=new List<Button>();
+        foreach(string symbol in new[]{"−","□","×"}){
+            var b=new Button{Text=symbol,Font=new Font("Segoe UI",12),FlatStyle=FlatStyle.Flat,BackColor=DeckTheme.Housing,ForeColor=Muted,Dock=DockStyle.Fill,Margin=new Padding(0,10,0,10),TabStop=true};b.FlatAppearance.BorderSize=0;windowControls.Add(b);mast.Controls.Add(b,2+windowControls.Count,0);
+        }
+        windowControls[0].AccessibleName=T("최소화","Minimize");windowControls[0].Click+=(a,e)=>WindowState=FormWindowState.Minimized;
+        Action maximize=()=>{MaximizedBounds=Screen.FromControl(this).WorkingArea;WindowState=WindowState==FormWindowState.Maximized?FormWindowState.Normal:FormWindowState.Maximized;};
+        windowControls[1].AccessibleName=T("최대화 또는 복원","Maximize or restore");windowControls[1].Click+=(a,e)=>maximize();
+        windowControls[2].AccessibleName=T("트레이로 닫기","Close to tray");windowControls[2].Click+=(a,e)=>Close();
+        FlightChrome.Attach(this,null,mast,logo,wordmark);
+
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=Color.Transparent};korean.Text="한국어";englishButton.Text="English";
         foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}layout.Controls.Add(languages);settingsToggle.Dock=DockStyle.Fill;settingsToggle.Margin=new Padding(4,9,2,9);mast.Controls.Add(settingsToggle,2,0);settingsToggle.Click+=(a,e)=>{settingsToggle.Tag=true;ChoosePage(!settingsPage.Visible);};
         var home=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,Padding=new Padding(12)};
@@ -218,9 +231,9 @@ internal sealed class BridgeWindow : Form {
         hero.RowStyles.Add(new RowStyle(SizeType.Absolute,26));hero.RowStyles.Add(new RowStyle(SizeType.Absolute,52));hero.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         Setup(title,12,DeckTheme.Gilt);Setup(state,27,DeckTheme.Ink);Setup(detail,12,Muted);
         hero.Controls.Add(title,0,0);hero.Controls.Add(state,0,1);hero.Controls.Add(detail,0,2);hero.Controls.Add(portrait,1,0);hero.SetRowSpan(portrait,3);
-        shipImage.Dock=DockStyle.Fill;shipImage.SizeMode=PictureBoxSizeMode.Zoom;shipImage.BackColor=Color.Transparent;hero.Controls.Add(shipImage,2,0);hero.SetRowSpan(shipImage,3);home.Controls.Add(hero);
+        shipImage.Dock=DockStyle.Fill;shipImage.Margin=Padding.Empty;shipImage.SizeMode=PictureBoxSizeMode.Zoom;shipImage.BackColor=Color.Transparent;hero.Controls.Add(shipImage,2,0);hero.SetRowSpan(shipImage,3);home.Controls.Add(hero);
         Setup(flightSection,14,Ink);home.Controls.Add(flightSection);
-        manifest.Dock=DockStyle.Fill;manifest.IntegralHeight=false;manifest.Font=HoloFonts.At(15);manifest.ItemHeight=32;manifest.HorizontalScrollbar=true;manifest.BorderStyle=BorderStyle.None;manifest.BackColor=Color.FromArgb(40,43,39);manifest.ForeColor=Ink;home.Controls.Add(manifest);
+        manifest.Dock=DockStyle.Fill;manifest.IntegralHeight=false;manifest.Font=HoloFonts.At(15);manifest.DrawMode=DrawMode.OwnerDrawFixed;manifest.ItemHeight=40;manifest.DrawItem+=DrawManifest;manifest.HorizontalScrollbar=true;manifest.BorderStyle=BorderStyle.None;manifest.BackColor=Color.FromArgb(40,43,39);manifest.ForeColor=Ink;home.Controls.Add(manifest);
         var bottom=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,160));Setup(shipLabel,12,Muted);bottom.Controls.Add(shipLabel);complete.Primary=true;complete.Dock=DockStyle.Fill;complete.Click+=(a,e)=>{if(overlay!=null)overlay.CompleteCurrent();};bottom.Controls.Add(complete);home.Controls.Add(bottom);
         var rail=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4};rail.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));Setup(routeLabel,12,Muted);rail.Controls.Add(routeLabel);rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));homeRead.Dock=homeOverlay.Dock=homeOpen.Dock=DockStyle.Fill;rail.Controls.Add(homeRead);homeRead.Click+=(a,e)=>Open(true);rail.Controls.Add(homeOverlay);rail.Controls.Add(homeOpen);homeOpen.Click+=(a,e)=>Open();homeOverlay.Click+=(a,e)=>Overlay().ToggleFromNavigator();home.Controls.Add(rail);
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,Margin=Padding.Empty,BackColor=shell.BackColor};
@@ -297,6 +310,21 @@ internal sealed class BridgeWindow : Form {
             else if(type=="error"){phase=Convert.ToString(data["code"]);if(phase=="port-busy"){manualStop=true;retry.Stop();}}
             RenderStatus(data);
         }catch{phase="error";RenderStatus(null);}
+    }
+    void DrawManifest(object sender,DrawItemEventArgs e){
+        if(e.Index<0||e.Index>=manifest.Items.Count)return;
+        var g=e.Graphics;var row=e.Bounds;var text=Convert.ToString(manifest.Items[e.Index]);
+        using(var brush=new SolidBrush(manifest.Focused&&(e.State&DrawItemState.Selected)!=0?Color.FromArgb(56,59,51):manifest.BackColor))g.FillRectangle(brush,row);
+        var content=Rectangle.Inflate(row,-12,-1);
+        const TextFormatFlags flags=TextFormatFlags.NoPrefix|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.EndEllipsis;
+        string item,quantity;
+        if(overlay!=null&&overlay.ManifestLine(e.Index,out item,out quantity)){
+            int w=Math.Min(content.Width/2,150);
+            TextRenderer.DrawText(g,item,e.Font,new Rectangle(content.X,content.Y,content.Width-w,content.Height),Ink,flags);
+            TextRenderer.DrawText(g,quantity,e.Font,new Rectangle(content.Right-w,content.Y,w,content.Height),DeckTheme.Platinum,flags|TextFormatFlags.Right);
+        }else TextRenderer.DrawText(g,text,e.Font,content,Ink,flags);
+        using(var pen=new Pen(Color.FromArgb(62,66,57)))g.DrawLine(pen,row.Left+9,row.Bottom-1,row.Right-9,row.Bottom-1);
+        if((e.State&DrawItemState.Focus)!=0)e.DrawFocusRectangle();
     }
     void RenderNavigation(){
         UpdatePortrait(overlay!=null&&overlay.IsNavigator);

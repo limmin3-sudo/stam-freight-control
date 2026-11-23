@@ -95,7 +95,7 @@ test('copilot confirmations belong to the live proposal and cannot be replayed a
 test('navigation preserves separate pickup and delivery rows and unknown shares; stale completion cannot advance a new stop',()=>{
  const state=createCompanionState(),session='navigation-pair-01';
  const first='58f8e479-073c-44e8-a820-329d77d1239c',second='1065ae85-556f-4e0d-abb7-8daa1d1e31db';
- const navigation={destination:'차울라 해변',ship:'Golem OX',shipArt:'drake-golem-ox.jpg',finished:false,route:['차울라 해변','가스라이트'],extra:0,
+ const navigation={destination:'차울라 해변',ship:'Golem OX',shipArt:'drake-golem-ox.jpg',finished:false,route:['차울라 해변','가스라이트'],extra:0,visitNumber:1,visitCount:3,
   cargo:[{item:'폐기물',action:'delivery',scu:22},{item:'수소',action:'pickup',scu:null}]};
  const display={mode:'flight',stepId:first,step:'stop',title:'운송',lines:['거점 도착'],navigation};
  state.publish({session,sequence:1,display});

@@ -86,3 +86,40 @@ internal sealed class PartnerPortrait : PictureBox {
         base.Dispose(disposing);
     }
 }
+
+internal static class FlightChrome {
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool ReleaseCapture();
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr h,int message,IntPtr w,IntPtr l);
+    internal static GraphicsPath Rounded(Rectangle r,int radius){
+        var path=new GraphicsPath();int d=Math.Min(2*radius,Math.Min(r.Width,r.Height));
+        if(d<2){path.AddRectangle(r);return path;}
+        path.AddArc(r.X,r.Y,d,d,180,90);path.AddArc(r.Right-d,r.Y,d,d,270,90);
+        path.AddArc(r.Right-d,r.Bottom-d,d,d,0,90);path.AddArc(r.X,r.Bottom-d,d,d,90,90);path.CloseFigure();return path;
+    }
+    internal static void Attach(Form form,Action finished,params Control[] drag){
+        form.FormBorderStyle=FormBorderStyle.None;
+        foreach(var control in drag)control.MouseDown+=(s,e)=>{
+            if(e.Button!=MouseButtons.Left||form.WindowState==FormWindowState.Maximized)return;
+            ReleaseCapture();SendMessage(form.Handle,0x00a1,(IntPtr)2,IntPtr.Zero);
+        };
+        var grip=new FrameGrip{Anchor=AnchorStyles.Bottom|AnchorStyles.Right,Size=new Size(12,12),Cursor=Cursors.SizeNWSE,TabStop=false,AccessibleName="Resize"};
+        form.Controls.Add(grip);grip.BringToFront();
+        Point start=Point.Empty;Size original=Size.Empty;
+        grip.MouseDown+=(s,e)=>{if(e.Button==MouseButtons.Left){start=Cursor.Position;original=form.Size;grip.Capture=true;}};
+        grip.MouseMove+=(s,e)=>{if(grip.Capture&&!original.IsEmpty){var current=Cursor.Position;form.Size=new Size(Math.Max(form.MinimumSize.Width,original.Width+current.X-start.X),Math.Max(form.MinimumSize.Height,original.Height+current.Y-start.Y));}};
+        grip.MouseUp+=(s,e)=>{if(grip.Capture){grip.Capture=false;original=Size.Empty;if(finished!=null)finished();}};
+        Action fit=()=>{
+            if(form.Width<2||form.Height<2)return;
+            grip.Location=new Point(form.ClientSize.Width-15,form.ClientSize.Height-15);
+            grip.Visible=form.WindowState!=FormWindowState.Maximized;
+            var old=form.Region;
+            using(var path=Rounded(form.ClientRectangle,8))form.Region=form.WindowState==FormWindowState.Maximized?null:new Region(path);
+            if(old!=null)old.Dispose();
+        };
+        form.SizeChanged+=(s,e)=>fit();fit();
+    }
+    sealed class FrameGrip:Control {
+        public FrameGrip(){SetStyle(ControlStyles.SupportsTransparentBackColor|ControlStyles.UserPaint,true);BackColor=DeckTheme.Housing;}
+        protected override void OnPaint(PaintEventArgs e){using(var pen=new Pen(Color.FromArgb(108,100,82))){e.Graphics.DrawLine(pen,3,10,10,3);e.Graphics.DrawLine(pen,7,10,10,7);}}
+    }
+}

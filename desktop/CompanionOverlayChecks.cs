@@ -66,6 +66,7 @@ internal sealed partial class CompanionOverlay {
                 Require(!overlay.Listening&&recorder.finished==1,"button-record-send");
                 starts=0;
                 overlay.Show();Pump(200);Require(!overlay.VoiceEnabled,"microphone-default");Require(overlay.KeysReady,"default-hotkeys-register");
+                Require(overlay.FormBorderStyle==FormBorderStyle.None&&(GetWindowLong(overlay.Handle,-16)&0x00C00000)==0,"no-windows-caption");
                 int style=GetWindowLong(overlay.Handle,-20);Require((style&0x20)!=0&&(style&0x8000000)!=0,"click-through-default");checks.Add("Native overlay starts click-through with microphone off, three keyboard shortcuts and a mouse talk binding");
                 Require(overlay.keyTalk==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",GraveKey}})==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",GraveKey},{"holdBindingVersion",2}})==GraveKey&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",Mouse5}})==Mouse5&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.M}})==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.J}})==(int)Keys.J,"hold-default-and-legacy-bindings");
                 overlay.Hide();

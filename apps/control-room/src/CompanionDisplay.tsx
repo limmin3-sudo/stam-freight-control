@@ -2,7 +2,7 @@ import {createContext,useContext,useEffect,useRef} from 'react';
 import type {Locale} from './navigation';
 import type {MarketSnapshot} from './trade-data';
 export type NavigatorStop={
- destination:string;ship:string;shipArt:string;route:string[];finished:boolean;
+ destination:string;ship:string;shipArt:string;route:string[];finished:boolean;visitNumber?:number;visitCount?:number;
  cargo:{item:string;action:'pickup'|'delivery';scu:number|null}[];extra:number;
 };
 export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];navigation?:NavigatorStop;partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};

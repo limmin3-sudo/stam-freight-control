@@ -75,31 +75,42 @@ internal sealed partial class CompanionOverlay : Form {
     internal CompanionOverlay(Action<string> command,bool en,string directory,Func<IHoldCapture> captureFactory=null){
         openCapture=captureFactory??(()=>new HeldMicrophone());
         send=command;english=en;Narrator="partner";LoadQuestions();settings=Path.Combine(directory,"overlay.json");
-        Text=T("STAM 네비게이터 · 오버레이","STAM Navigator · Overlay");ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.SizableToolWindow;TopMost=true;
+        Text=T("STAM 네비게이터 · 오버레이","STAM Navigator · Overlay");ShowInTaskbar=false;FormBorderStyle=FormBorderStyle.None;TopMost=true;
         StartPosition=FormStartPosition.Manual;
-        MinimumSize=new Size(354,240);Size=new Size(446,300);
+        MinimumSize=new Size(345,200);Size=new Size(380,212);
         BackColor=DeckTheme.Gilt;ForeColor=DeckTheme.Ink;Padding=new Padding(1);
-        var layout=new TableLayoutPanel{BackColor=DeckTheme.Housing,Dock=DockStyle.Fill,Padding=new Padding(12,6,12,8),ColumnCount=1,RowCount=5};
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,32));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,42));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,36));
+        var layout=new TableLayoutPanel{BackColor=DeckTheme.Housing,Dock=DockStyle.Fill,Margin=Padding.Empty,Padding=new Padding(0),ColumnCount=1,RowCount=4};
+        layout.SizeChanged+=(a,e)=>{if(layout.Width>1&&layout.Height>1){var old=layout.Region;using(var round=FlightChrome.Rounded(layout.ClientRectangle,7))layout.Region=new Region(round);if(old!=null)old.Dispose();}};
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,41));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));layout.RowStyles.Add(new RowStyle(SizeType.Absolute,49));
         toolRow=new RowStyle(SizeType.Absolute,0);layout.RowStyles.Add(toolRow);Controls.Add(layout);
-        heading.Dock=body.Dock=status.Dock=DockStyle.Fill;heading.Font=HoloFonts.At(13);body.Font=HoloFonts.At(15);status.Font=HoloFonts.At(10);
-        heading.ForeColor=DeckTheme.Platinum;status.ForeColor=DeckTheme.Muted;
-        var top=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};
-        faceColumn=new ColumnStyle(SizeType.Absolute,0);top.ColumnStyles.Add(faceColumn);top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));top.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,96));
-        top.Controls.Add(portrait,0,0);top.Controls.Add(heading,1,0);
-        var more=new DeckButton{Dock=DockStyle.Fill,Text=T("도구","Tools")};top.Controls.Add(more,2,0);layout.Controls.Add(top);
-        destinationLabel.Dock=DockStyle.Fill;destinationLabel.Font=HoloFonts.At(23);layout.Controls.Add(destinationLabel);
-        body.Text=T("웹 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot.");layout.Controls.Add(body);
-        var footer=new TableLayoutPanel{Dock=DockStyle.Fill,Margin=Padding.Empty,ColumnCount=2};footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,134));
-        footer.Controls.Add(status);advance.Dock=DockStyle.Fill;advance.Primary=true;advance.Click+=(a,e)=>CompleteCurrent();footer.Controls.Add(advance);layout.Controls.Add(footer);
-        toolActions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,Visible=false,Margin=Padding.Empty};
+        var top=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,RowCount=1,Padding=new Padding(15,8,14,6),Margin=Padding.Empty};
+        top.RowStyles.Add(new RowStyle(SizeType.Percent,100));faceColumn=new ColumnStyle(SizeType.Absolute,26);
+        top.ColumnStyles.Add(faceColumn);top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));top.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,66));top.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,28));
+        var mark=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};logo.Dock=DockStyle.Fill;logo.SizeMode=PictureBoxSizeMode.Zoom;
+        try{using(var original=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))logo.Image=new Bitmap(original);}catch(IOException){}catch(ArgumentException){}
+        mark.Controls.Add(logo);portrait.Margin=Padding.Empty;mark.Controls.Add(portrait);portrait.BringToFront();top.Controls.Add(mark,0,0);
+        heading.Dock=DockStyle.Fill;heading.Font=HoloFonts.At(11);heading.Margin=new Padding(7,4,0,0);top.Controls.Add(heading,1,0);
+        progressLabel.Dock=DockStyle.Fill;progressLabel.ForeColor=DeckTheme.Ink;progressLabel.Font=HoloFonts.At(10);progressLabel.Margin=new Padding(4,4,0,0);top.Controls.Add(progressLabel,2,0);
+        var more=new Button{Text="⋯",AccessibleName=T("오버레이 도구","Overlay tools"),FlatStyle=FlatStyle.Flat,Dock=DockStyle.Fill,Margin=Padding.Empty,TabStop=true,ForeColor=DeckTheme.Muted,BackColor=DeckTheme.Housing};more.FlatAppearance.BorderSize=0;top.Controls.Add(more,3,0);layout.Controls.Add(top,0,0);
+        var middle=new TableLayoutPanel{Dock=DockStyle.Fill,Margin=Padding.Empty,Padding=new Padding(16,9,14,4),BackColor=Color.FromArgb(42,46,41),ColumnCount=1,RowCount=3};
+        middle.RowStyles.Add(new RowStyle(SizeType.Absolute,20));middle.RowStyles.Add(new RowStyle(SizeType.Absolute,37));middle.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        kindLabel.Dock=DockStyle.Fill;kindLabel.ForeColor=Color.FromArgb(217,189,128);kindLabel.Font=HoloFonts.At(10);kindLabel.Margin=Padding.Empty;
+        destinationLabel.Dock=DockStyle.Fill;destinationLabel.Font=HoloFonts.At(21);destinationLabel.Margin=body.Margin=Padding.Empty;
+        body.Dock=DockStyle.Fill;body.Font=HoloFonts.At(12);body.Text=T("웹 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot.");
+        middle.Controls.Add(kindLabel,0,0);middle.Controls.Add(destinationLabel,0,1);middle.Controls.Add(body,0,2);layout.Controls.Add(middle,0,1);
+        var footer=new TableLayoutPanel{Dock=DockStyle.Fill,Margin=Padding.Empty,Padding=new Padding(16,8,18,7),ColumnCount=2,RowCount=1};
+        footer.RowStyles.Add(new RowStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,104));
+        footerLabel.Dock=DockStyle.Fill;footerLabel.Margin=new Padding(0,6,0,0);footerLabel.Font=HoloFonts.At(11);footerLabel.ForeColor=DeckTheme.Muted;footer.Controls.Add(footerLabel,0,0);
+        advance.Dock=DockStyle.Fill;advance.Margin=new Padding(0,0,0,0);advance.Primary=true;advance.Click+=(a,e)=>CompleteCurrent();footer.Controls.Add(advance,1,0);layout.Controls.Add(footer,0,2);
+        toolActions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,RowCount=2,Visible=false,Margin=Padding.Empty,Padding=new Padding(6,0,12,0)};
+        toolActions.RowStyles.Add(new RowStyle(SizeType.Percent,100));toolActions.RowStyles.Add(new RowStyle(SizeType.Absolute,21));
         foreach(var button in new[]{pricesButton,workButton,talkButton,continuousButton}){toolActions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));button.Dock=DockStyle.Fill;button.Font=HoloFonts.At(10);toolActions.Controls.Add(button);}
         pricesButton.Click+=(a,e)=>{if(proposalId==null)send("show-prices");else CopilotRequest("apply",1,proposalId);};
         workButton.Click+=(a,e)=>{if(proposalId==null)send("show-my-work");else CopilotRequest("cancel",1,proposalId);};
         ShowProposalActions(false);talkButton.Text=ButtonTalkLabel;talkButton.AccessibleDescription=TalkLabel;talkButton.Click+=(a,e)=>ToggleButtonTalk();
-        continuousButton.Text=ContinuousLabel;continuousButton.Click+=(a,e)=>ToggleVoice();layout.Controls.Add(toolActions);
-        more.Click+=(a,e)=>{toolsOpen=!toolsOpen;RenderDeck();};
+        continuousButton.Text=ContinuousLabel;continuousButton.Click+=(a,e)=>ToggleVoice();layout.Controls.Add(toolActions,0,3);status.Font=HoloFonts.At(9);status.ForeColor=DeckTheme.Muted;status.Dock=DockStyle.Fill;toolActions.Controls.Add(status,0,1);toolActions.SetColumnSpan(status,4);
+        var menu=new ContextMenuStrip();menu.Items.Add(T("음성·무역 도구","Voice and trade tools"),null,(a,e)=>{toolsOpen=!toolsOpen;RenderDeck();});menu.Items.Add(T("클릭 통과","Click through"),null,(a,e)=>ToggleInput());menu.Items.Add(T("오버레이 숨기기","Hide overlay"),null,(a,e)=>Hide());more.Click+=(a,e)=>menu.Show(more,new Point(0,more.Height));top.ContextMenuStrip=menu;Disposed+=(a,e)=>menu.Dispose();
+        FlightChrome.Attach(this,()=>{Clamp();Save();},top,mark,logo,portrait,heading,progressLabel);
         try{var saved=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(File.ReadAllText(settings));object voice;if(saved.TryGetValue("narrator",out voice)&&(ValidNarrator(voice as string)||voice as string=="off"))Narrator=(string)voice;Location=new Point(Convert.ToInt32(saved["x"]),Convert.ToInt32(saved["y"]));int w,h;
             if(saved.ContainsKey("width")&&saved.ContainsKey("height")&&int.TryParse(Convert.ToString(saved["width"]),out w)&&int.TryParse(Convert.ToString(saved["height"]),out h)&&w>0&&h>0){
                 var area=Screen.FromPoint(Location).WorkingArea;
@@ -155,6 +166,8 @@ internal sealed partial class CompanionOverlay : Form {
         linkedPartner=next;
         portrait.SelectPartner(IsNavigator,english);
     }
+    readonly PictureBox logo=new PictureBox();
+    readonly HoloLabel kindLabel=new HoloLabel(),progressLabel=new HoloLabel(),footerLabel=new HoloLabel();
     readonly HoloLabel destinationLabel=new HoloLabel();
     readonly DeckButton advance=new DeckButton();
     readonly ColumnStyle faceColumn;readonly RowStyle toolRow;readonly TableLayoutPanel toolActions;
@@ -185,6 +198,14 @@ internal sealed partial class CompanionOverlay : Form {
         if(nav==null&&InFlight&&facts!=null&&facts.TryGetValue("load",out cargo)&&!String.IsNullOrWhiteSpace(Convert.ToString(cargo)))rows.Add(Convert.ToString(cargo));
         return rows;
     }
+    internal bool ManifestLine(int index,out string item,out string quantity){
+        item=quantity="";object data;
+        if(nav==null||!nav.TryGetValue("cargo",out data))return false;
+        var list=data as IList;if(list==null||index<0||index>=list.Count)return false;
+        var row=(Dictionary<string,object>)list[index];
+        item=Convert.ToString(row["item"]);if(stepKind=="stop")item=(Convert.ToString(row["action"])=="pickup"?T("적재 · ","Load · "):T("하역 · ","Unload · "))+item;
+        quantity=row["scu"]==null?T("수량 미확인","Quantity unknown"):Convert.ToString(row["scu"])+" SCU";return true;
+    }
     internal string LoadSummary{get{
         object raw;
         if(nav==null||!nav.TryGetValue("cargo",out raw)||Convert.ToInt32(nav["extra"])!=0)return "";
@@ -204,16 +225,29 @@ internal sealed partial class CompanionOverlay : Form {
     }
     void RenderDeck(){
         bool replying=narrating||DateTime.UtcNow<answerUntil||proposalId!=null;
-        faceColumn.Width=replying?32:0;portrait.Visible=replying&&portrait.Image!=null;
-        heading.Text=replying?PartnerPortrait.Title(IsNavigator,english):"STAM NAV";heading.ForeColor=replying?PartnerColor:DeckTheme.Platinum;
+        faceColumn.Width=26;portrait.Visible=replying&&portrait.Image!=null;logo.Visible=!portrait.Visible;
+        heading.Text=replying?PartnerPortrait.Title(IsNavigator,english):"STAM NAV";heading.ForeColor=replying?PartnerColor:DeckTheme.Ink;
         destinationLabel.Text=Destination!=""?Destination:displayedMode==null?T("운항 대기","Waiting for flight"):InFlight?T("운송 안내","Flight guidance"):T("무역 안내","Trade guidance");
         advance.Visible=stepId!=null;advance.Enabled=CanComplete;advance.Text=lastSentStep!=null&&lastSentStep==stepId&&!CanComplete?T("반영 중","Updating"):StepLabel;
-        if(InFlight&&!replying){var rows=CargoRows();if(rows.Count>0){
-            int visible=Math.Min(rows.Count,Math.Max(1,Math.Min(3,(body.ClientSize.Height-5)/Math.Max(1,body.Font.Height+3))));
-            body.Text=String.Join(Environment.NewLine,rows.GetRange(0,visible).ToArray());
-            if(rows.Count>visible)body.Text+=english?"  +"+(rows.Count-visible):"  외 "+(rows.Count-visible)+"건";
-        }else body.Text=summaryLines;}
-        bool showTools=toolsOpen||proposalId!=null;toolRow.Height=showTools?38:0;toolActions.Visible=showTools;
+        string action=stepKind=="delivery"?T("하역","Unload"):stepKind=="pickup"?T("적재","Load"):stepKind=="jump"?T("점프","Jump"):stepKind=="departure"?T("출발","Departure"):T("거점 작업","Stop");
+        kindLabel.Text=Finished?T("운항 결과","Flight result"):stepKind=="delivery"?T("다음 하역지","Next delivery"):stepKind=="pickup"?T("다음 적재지","Next pickup"):T("다음 목적지","Next destination");
+        progressLabel.Text=DeckValue("visitCount")!=""?DeckValue("visitNumber")+" / "+DeckValue("visitCount"):InFlight?T("운항 중","In flight"):"";
+        footerLabel.Text=Listening||VoiceEnabled&&DateTime.UtcNow<listeningUntil?TalkStatus:Finished?T("운항 완료","Haul complete"):InFlight?action+LoadSummary:displayedMode==null?T("연결 대기","Waiting for link"):T("무역 안내","Trade desk");
+        if(InFlight&&!replying){object value;var items=new List<string>();
+            if(nav!=null&&nav.TryGetValue("cargo",out value))foreach(Dictionary<string,object> row in (IEnumerable)value){
+                string prefix=stepKind=="stop"?(Convert.ToString(row["action"])=="pickup"?T("적재 ","Load "):T("하역 ","Unload ")):"";
+                items.Add(prefix+Convert.ToString(row["item"])+" "+(row["scu"]==null?T("수량 미확인","Qty unknown"):Convert.ToString(row["scu"])+" SCU"));
+            }
+            if(items.Count>0){int count=Math.Min(3,items.Count),other=items.Count-count+Convert.ToInt32(nav["extra"]);
+                body.Text=String.Join(" · ",items.GetRange(0,count).ToArray())+(other>0?"  +"+other:"");}
+            else {var rows=CargoRows();body.Text=rows.Count>0?rows[0]:summaryLines;}
+        }
+        bool showTools=toolsOpen||proposalId!=null;
+        if(showTools!=toolActions.Visible&&Visible){
+            int height=showTools?Height+64:Math.Max(MinimumSize.Height,Height-64);
+            Size=new Size(Width,Math.Min(height,Screen.FromControl(this).WorkingArea.Height));Clamp();
+        }
+        toolRow.Height=showTools?64:0;toolActions.Visible=showTools;
     }
     internal void UpdateDisplay(object raw){var d=raw as Dictionary<string,object>;
         SetStep(d!=null&&d.ContainsKey("stepId")?Convert.ToString(d["stepId"]):null,
@@ -497,5 +531,5 @@ internal sealed partial class CompanionOverlay : Form {
         try{engine.RecognizeAsyncCancel();}catch(InvalidOperationException){}
         engine.Dispose();
     }
-    protected override void Dispose(bool value){if(value){disposing=true;StopNarration();EndTalk();StopVoice();expiry.Dispose();foreach(int id in registered)if(IsHandleCreated)UnregisterHotKey(Handle,id);registered.Clear();}base.Dispose(value);if(value){holdPoll.Dispose();mousePoll.Dispose();}}
+    protected override void Dispose(bool value){if(value){disposing=true;StopNarration();EndTalk();StopVoice();expiry.Dispose();foreach(int id in registered)if(IsHandleCreated)UnregisterHotKey(Handle,id);registered.Clear();}base.Dispose(value);if(value){if(logo.Image!=null)logo.Image.Dispose();holdPoll.Dispose();mousePoll.Dispose();}}
 }

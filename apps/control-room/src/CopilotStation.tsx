@@ -344,7 +344,7 @@ export function CopilotStation({flight,locale,dock}:Props){
   const navigation=main.mode==='flight'&&run&&plan?{
    destination:(run.finished?'':jump?jump.exitName:destination?name(destination.locationId):'').slice(0,100),
    ship:plan.ship.name.slice(0,100),shipArt:shipImageRecord(plan.ship.id)?.file??'',
-   finished:!!run.finished,route:run.finished?[]:visits.slice(0,3).map(v=>name(v.locationId).slice(0,100)),
+   visitNumber:Math.min(run.index+1,plan.visits.length),visitCount:plan.visits.length,finished:!!run.finished,route:run.finished?[]:visits.slice(0,3).map(v=>name(v.locationId).slice(0,100)),
    cargo:events.slice(0,128).map(e=>({action:e.type as 'pickup'|'delivery',item:tradeLabel(e.commodity,'goods',locale).slice(0,100),scu:e.pickupQuantityUnknown||!e.scu?null:e.scu})),
    extra:Math.max(0,events.length-128)
   }:undefined;

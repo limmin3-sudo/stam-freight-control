@@ -22,6 +22,9 @@ export function createCompanionState({clock=Date.now}={}){
    });
    next.navigation={destination:text(n.destination,100),ship:text(n.ship,100),shipArt:/^[a-z0-9-]+\.jpg$/.test(n.shipArt)?n.shipArt:'',
     cargo,route:n.route.map(v=>text(v,100)),extra:n.extra,finished:n.finished};
+   if(Number.isSafeInteger(n.visitCount)&&Number.isSafeInteger(n.visitNumber)&&n.visitNumber>0&&n.visitNumber<=n.visitCount){
+    next.navigation.visitCount=n.visitCount;next.navigation.visitNumber=n.visitNumber;
+   }
   }
   if(d.partner==='operator'||d.partner==='navigator')next.partner=d.partner;
   if(d.mode==='flight'&&typeof d.stepId==='string'&&/^[0-9a-f-]{36}$/.test(d.stepId)&&['departure','pickup','delivery','jump','stop'].includes(d.step)){
