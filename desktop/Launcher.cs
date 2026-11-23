@@ -198,22 +198,22 @@ internal sealed class BridgeWindow : Form {
         var shell=new Panel{Dock=DockStyle.Fill,BackColor=DeckTheme.Housing,Padding=new Padding(10)};Controls.Add(shell);
         var frame=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2,Margin=Padding.Empty};
         frame.RowStyles.Add(new RowStyle(SizeType.Absolute,64));frame.RowStyles.Add(new RowStyle(SizeType.Percent,100));shell.Controls.Add(frame);
-        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,Padding=new Padding(10,0,6,0)};
-        mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));frame.Controls.Add(mast);
+        var mast=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Padding=new Padding(12,1,6,1),Margin=Padding.Empty};
+        mast.RowStyles.Add(new RowStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,56));
+        mast.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));mast.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,108));frame.Controls.Add(mast,0,0);
         var pages=new Panel{Dock=DockStyle.Fill};frame.Controls.Add(pages);
         settingsPage=new Panel{Dock=DockStyle.Fill,AutoScroll=true};flightHome=new Panel{Dock=DockStyle.Fill};
         pages.Controls.Add(settingsPage);pages.Controls.Add(flightHome);
         var layout=new TableLayoutPanel{Dock=DockStyle.Top,Height=520,Margin=Padding.Empty,Padding=new Padding(10),ColumnCount=1,RowCount=6};
         foreach(int h in new[]{48,64,100,96,52})layout.RowStyles.Add(new RowStyle(SizeType.Absolute,h));layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));settingsPage.Controls.Add(layout);
-        var brand=new TableLayoutPanel{Dock=DockStyle.Fill,RowCount=2,ColumnCount=2,Margin=Padding.Empty,BackColor=Color.Transparent};brand.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,70));brand.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));brand.RowStyles.Add(new RowStyle(SizeType.Absolute,43));brand.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-        var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,0,12,8),BackColor=Color.Transparent};
+        var logo=new PictureBox{Dock=DockStyle.Fill,SizeMode=PictureBoxSizeMode.Zoom,Margin=new Padding(0,6,8,6),BackColor=Color.Transparent};
         try{using(var source=Image.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"app","assets","stam-logo-transparent.png")))brandLogo=new Bitmap(source);logo.Image=brandLogo;}catch{}
-        brand.Controls.Add(logo,0,0);brand.SetRowSpan(logo,2);brand.Controls.Add(Label("STAM Navigator",23,Ink),1,0);brand.Controls.Add(Label("FREIGHT DIVISION",9,Muted),1,1);mast.Controls.Add(brand);
+        mast.Controls.Add(logo,0,0);mast.Controls.Add(Label("STAM Navigator",19,Ink),1,0);
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=Color.Transparent};korean.Text="한국어";englishButton.Text="English";
-        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}layout.Controls.Add(languages);settingsToggle.Dock=DockStyle.Fill;settingsToggle.Margin=new Padding(4,9,2,9);mast.Controls.Add(settingsToggle);settingsToggle.Click+=(a,e)=>{settingsToggle.Tag=true;ChoosePage(!settingsPage.Visible);};
+        foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}layout.Controls.Add(languages);settingsToggle.Dock=DockStyle.Fill;settingsToggle.Margin=new Padding(4,9,2,9);mast.Controls.Add(settingsToggle,2,0);settingsToggle.Click+=(a,e)=>{settingsToggle.Tag=true;ChoosePage(!settingsPage.Visible);};
         var home=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,Padding=new Padding(12)};
         foreach(int h in new[]{156,34})home.RowStyles.Add(new RowStyle(SizeType.Absolute,h));home.RowStyles.Add(new RowStyle(SizeType.Percent,100));home.RowStyles.Add(new RowStyle(SizeType.Absolute,54));home.RowStyles.Add(new RowStyle(SizeType.Absolute,58));flightHome.Controls.Add(home);
-        var hero=new LinkCard{Instrument=true,Dock=DockStyle.Fill,ColumnCount=3,RowCount=3,Padding=new Padding(18,10,10,10)};
+        var hero=new LinkCard{Instrument=false,Dock=DockStyle.Fill,ColumnCount=3,RowCount=3,Padding=new Padding(18,10,10,10)};
         hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,35));
         hero.RowStyles.Add(new RowStyle(SizeType.Absolute,26));hero.RowStyles.Add(new RowStyle(SizeType.Absolute,52));hero.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         Setup(title,12,DeckTheme.Gilt);Setup(state,27,DeckTheme.Ink);Setup(detail,12,Muted);
@@ -305,7 +305,7 @@ internal sealed class BridgeWindow : Form {
         state.Text=!String.IsNullOrWhiteSpace(destination)?destination:live?(overlay.InFlight?T("운송 안내","Flight guidance"):T("무역 안내","Trade guidance")):T("운항 대기","Waiting for flight");
         detail.Text=!live?T("웹 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot."):overlay.PartnerSpeaking?overlay.NavigationText:"";
         hints.SetToolTip(detail,detail.Text);
-        flightSection.Text=live&&overlay.InFlight?T("이번 거점 작업","Work at this stop"):T("현재 작업","Current work");
+        flightSection.Text=live&&overlay.InFlight?T("이번 거점 작업","Work at this stop")+overlay.LoadSummary:T("현재 작업","Current work");
         var rows=live?overlay.CargoRows():new List<string>();
         if(rows.Count==0&&live)rows.AddRange((overlay.NavigationText??"").Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries));
         if(rows.Count==0)rows.Add(T("미션콘솔에서 계약을 선택하고 운송을 시작하세요.","Select your contracts and start a haul in Mission Console."));

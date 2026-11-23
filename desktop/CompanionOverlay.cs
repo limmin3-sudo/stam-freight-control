@@ -185,6 +185,15 @@ internal sealed partial class CompanionOverlay : Form {
         if(nav==null&&InFlight&&facts!=null&&facts.TryGetValue("load",out cargo)&&!String.IsNullOrWhiteSpace(Convert.ToString(cargo)))rows.Add(Convert.ToString(cargo));
         return rows;
     }
+    internal string LoadSummary{get{
+        object raw;
+        if(nav==null||!nav.TryGetValue("cargo",out raw)||Convert.ToInt32(nav["extra"])!=0)return "";
+        decimal total=0;int count=0;
+        foreach(Dictionary<string,object> row in (IEnumerable)raw){
+            if(row["scu"]==null)return "";total+=Convert.ToDecimal(row["scu"]);count++;
+        }
+        return count>0?"   ·   "+total.ToString("0.##")+" SCU":"";
+    }}
     internal bool CanComplete{get{return InFlight&&stepId!=null&&proposalId==null&&(DateTime.UtcNow-received).TotalSeconds<10&&
         (lastSentStep!=stepId||(requestedAt!=DateTime.MinValue&&(DateTime.UtcNow-requestedAt).TotalSeconds>=5));}}
     internal string StepLabel{get{switch(stepKind){case "pickup":return T("적재 완료","Loaded");case "delivery":return T("하역 완료","Unloaded");case "departure":return T("출발 완료","Departed");case "jump":return T("점프 완료","Jump complete");default:return T("거점 작업 완료","Complete stop");}}}
@@ -199,7 +208,11 @@ internal sealed partial class CompanionOverlay : Form {
         heading.Text=replying?PartnerPortrait.Title(IsNavigator,english):"STAM NAV";heading.ForeColor=replying?PartnerColor:DeckTheme.Platinum;
         destinationLabel.Text=Destination!=""?Destination:displayedMode==null?T("운항 대기","Waiting for flight"):InFlight?T("운송 안내","Flight guidance"):T("무역 안내","Trade guidance");
         advance.Visible=stepId!=null;advance.Enabled=CanComplete;advance.Text=lastSentStep!=null&&lastSentStep==stepId&&!CanComplete?T("반영 중","Updating"):StepLabel;
-        if(InFlight&&!replying){var rows=CargoRows();if(rows.Count>0)body.Text=rows[0]+(rows.Count>1?Environment.NewLine+rows[1]:"")+(rows.Count>2?T("  외 ","  +")+(rows.Count-2):"");else body.Text=summaryLines;}
+        if(InFlight&&!replying){var rows=CargoRows();if(rows.Count>0){
+            int visible=Math.Min(rows.Count,Math.Max(1,Math.Min(3,(body.ClientSize.Height-5)/Math.Max(1,body.Font.Height+3))));
+            body.Text=String.Join(Environment.NewLine,rows.GetRange(0,visible).ToArray());
+            if(rows.Count>visible)body.Text+=english?"  +"+(rows.Count-visible):"  외 "+(rows.Count-visible)+"건";
+        }else body.Text=summaryLines;}
         bool showTools=toolsOpen||proposalId!=null;toolRow.Height=showTools?38:0;toolActions.Visible=showTools;
     }
     internal void UpdateDisplay(object raw){var d=raw as Dictionary<string,object>;

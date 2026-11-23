@@ -1,6 +1,6 @@
 import type {Draft,Job} from './mission-trial';
 import type {Session} from './flight-session';
-import {needsStopGuidance} from './mission-trial';
+import {needsStopGuidance} from './mission-trial.ts';
 import {missionFor} from './flight-engine.mjs';
 import {quantityPlan} from './mission-quantities.mjs';
 
