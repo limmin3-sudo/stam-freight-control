@@ -6,6 +6,7 @@ import {lazy,Suspense,useEffect,useRef,useState} from 'react';
 const UserManual=lazy(()=>import('./UserManual').then(m=>({default:m.UserManual})));
 import type {Locale} from './navigation';
 import {serviceViews,type ServiceView} from './space-navigation';
+import {openingReplayHash} from './opening-policy';
 import {serviceControls} from './service-account.mjs';
 import {shrinkFeedbackImage,submitFeedback} from '../../../feedback.mjs';
 import releaseUrl from '../../../data/releases.json?url';
@@ -56,13 +57,14 @@ const descriptions:Record<ServiceView,readonly [string,string]>={
  updates:['새로 추가되거나 달라진 내용을 확인합니다.','See what is new and what has changed.'],
 };
 const codes:Record<ServiceView,string>={account:'PILOT ACCOUNT',history:'FLIGHT RECORDS',feedback:'FEEDBACK & SUPPORT',updates:'RELEASE NOTES',manual:'FLIGHT MANUAL'};
-function ServiceGlyph({kind}:{kind:ServiceView}){
+function ServiceGlyph({kind}:{kind:ServiceView|'opening'}){
  return <svg className="interface-glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
   {kind==='manual'&&<><path d="M20 9c-5-4-11-4-16-2v25c5-2 11-2 16 2 5-4 11-4 16-2V7c-5-2-11-2-16 2Z"/><path d="M20 9v25M9 14h6M9 20h6M25 14h6M25 20h6"/></>}
   {kind==='account'&&<><path d="m20 3 14 6v12c0 8-14 16-14 16S6 29 6 21V9Z" opacity=".45"/><circle cx="20" cy="15" r="5"/><path d="M11 29c0-9 18-9 18 0"/></>}
   {kind==='history'&&<><path d="M8 9a15 15 0 1 1-3 17M8 3v7H2"/><path d="M20 11v10l7 4"/><circle cx="20" cy="21" r="1"/></>}
   {kind==='feedback'&&<><path d="M5 8h30v20H19l-9 7v-7H5Z" opacity=".65"/><path d="M11 15h18M11 21h12"/></>}
   {kind==='updates'&&<><path d="M9 5h17l6 6v24H9Z" opacity=".55"/><path d="M26 5v7h6M14 22l4 4 9-10M14 31h12"/></>}
+  {kind==='opening'&&<><rect x="5" y="8" width="30" height="24" rx="2" opacity=".55"/><path d="m17 14 9 6-9 6Z"/></>}
  </svg>;
 }
 export function ServiceCenter({locale,view,flight,cloud}:{locale:Locale;view?:ServiceView;flight:ReturnType<typeof useFlight>;cloud:ReturnType<typeof useFlightCloud>}){
@@ -78,6 +80,12 @@ export function ServiceCenter({locale,view,flight,cloud}:{locale:Locale;view?:Se
     <div className="room-card-symbol"><ServiceGlyph kind={section}/><small>{codes[section]}</small></div>
     <h2>{names[section][index]}</h2><p>{descriptions[section][index]}</p><span>{en?'Open service':'열기'} →</span>
    </a>)}
+   <a href={openingReplayHash(locale)}>
+    <div className="room-card-symbol"><ServiceGlyph kind="opening"/><small>FIRST VISIT</small></div>
+    <h2>{en?'Revisit the welcome page':'첫 화면 다시 보기'}</h2>
+    <p>{en?'See the Freight Division panorama, films and partner introductions.':'사업부 전경과 영상, 파트너 소개를 다시 둘러보세요.'}</p>
+    <span>{en?'Open welcome page':'열기'} →</span>
+   </a>
   </div>}
   {view&&<nav className="service-breadcrumb" aria-label={en?'Service location':'서비스센터 내 위치'}><a href={`#/service?lang=${locale}`}>{en?'Service centre':'서비스센터'}</a><span aria-hidden="true">/</span><h2 ref={title} tabIndex={-1}>{names[view][index]}</h2></nav>}
   {message&&<p role="status">{message}</p>}

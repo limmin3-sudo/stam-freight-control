@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {openingEligible} from '../src/opening-policy.ts';
+import {isOpeningReplay, openingEligible, openingReplayHash} from '../src/opening-policy.ts';
 
 test('first departure opens only on a fresh site visit without a direct route', () => {
   for (const hash of ['', '#/', '#/?lang=en']) {
@@ -12,4 +12,15 @@ test('first departure opens only on a fresh site visit without a direct route', 
     '#/bridge', '#/division?lang=ko&facility=trade', '#/division?facility=guide-center&lesson=trade']) {
     assert.equal(openingEligible(hash, null), false);
   }
+});
+
+test('the service centre can request the welcome page explicitly', () => {
+  for (const locale of ['ko', 'en', 'mix'] as const) {
+    const hash = openingReplayHash(locale);
+    assert.equal(isOpeningReplay(hash), true);
+    assert.equal(openingEligible(hash, null), false);
+  }
+  assert.equal(isOpeningReplay('#/service?lang=ko'), false);
+  assert.equal(isOpeningReplay('#/service?lang=ko&opening=1'), false);
+  assert.equal(isOpeningReplay('#/division?lang=ko&opening=replay'), false);
 });

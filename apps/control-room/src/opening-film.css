@@ -1,3 +1,6 @@
+.opening-workspace:not([hidden]) { display: contents; }
+.opening-workspace[hidden] { display: none; }
+
 .opening-film {
   --departure-bar-height: 66px;
   --departure-text: #fff5e6;
@@ -296,6 +299,14 @@
   height: 17px;
   margin: 0;
   accent-color: #f2c77d;
+}
+.departure-service-return {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--departure-accent);
+  text-underline-offset: 4px;
+  font: 650 14px SUIT, system-ui, sans-serif;
 }
 .opening-film :is(button, a, input):focus-visible {
   outline: 2px solid #ffe09e;

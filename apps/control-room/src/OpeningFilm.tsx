@@ -13,12 +13,13 @@ import {firstDeparture, fleetIntroduction} from './film-screenings';
 import type {Locale} from './navigation';
 import {OpeningCrew} from './OpeningCrew';
 import {useOpeningMotion} from './opening-motion';
-import {openingEligible, openingHiddenKey, openingSeenKey} from './opening-policy';
+import {isOpeningReplay, openingEligible, openingHiddenKey, openingSeenKey} from './opening-policy';
 import {parseSpaceRoute, spaceHash} from './space-navigation';
 import './opening-film.css';
 import './opening-looks.css';
 
 type StorageKind = 'sessionStorage' | 'localStorage';
+type OpeningMode = 'welcome' | 'replay' | null;
 
 function readPreference(kind: StorageKind, key: string) {
   try { return window[kind].getItem(key); }
@@ -58,12 +59,16 @@ function scrollToSection(id: string) {
 }
 
 export function OpeningFilm({children}: {children: ReactNode}) {
-  const [visible, setVisible] = useState(() => openingEligible(
-    location.hash, readPreference('sessionStorage', openingSeenKey), readPreference('localStorage', openingHiddenKey),
-  ));
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(() => readPreference('localStorage', openingHiddenKey) === '1');
+  const [mode, setMode] = useState<OpeningMode>(() => {
+    if (isOpeningReplay(location.hash)) return 'replay';
+    return openingEligible(location.hash, readPreference('sessionStorage', openingSeenKey), hidden ? '1' : null)
+      ? 'welcome' : null;
+  });
+  const [workspaceStarted, setWorkspaceStarted] = useState(mode === null);
   const [playingFilm, setPlayingFilm] = useState<string>();
   const root = useRef<HTMLElement>(null);
+  const visible = mode !== null;
   const {locale} = parseSpaceRoute(location.hash || ('#' + location.search));
   const english = locale === 'en';
   const lang = english ? 1 : 0;
@@ -71,26 +76,42 @@ export function OpeningFilm({children}: {children: ReactNode}) {
   useOpeningMotion(root, visible);
 
   useEffect(() => {
-    if (!visible) return;
-    const followDirectLink = () => {
-      if (openingEligible(location.hash, null)) return;
-      window.scrollTo({top: 0, behavior: 'instant'});
-      setVisible(false);
+    const followRoute = () => {
+      const hash = location.hash;
+      if (isOpeningReplay(hash)) {
+        setHidden(readPreference('localStorage', openingHiddenKey) === '1');
+        setMode('replay');
+        window.scrollTo({top: 0, behavior: 'instant'});
+      } else if (mode === 'replay' || (mode === 'welcome' && !openingEligible(hash, null))) {
+        setMode(null);
+        setWorkspaceStarted(true);
+        setPlayingFilm(undefined);
+        window.scrollTo({top: 0, behavior: 'instant'});
+      }
     };
-    window.addEventListener('hashchange', followDirectLink);
-    return () => window.removeEventListener('hashchange', followDirectLink);
-  }, [visible]);
+    window.addEventListener('hashchange', followRoute);
+    return () => window.removeEventListener('hashchange', followRoute);
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode === 'replay') root.current?.querySelector('h1')?.focus({preventScroll: true});
+  }, [mode]);
 
   function enter() {
     savePreference('sessionStorage', openingSeenKey, true);
-    history.replaceState(history.state, '', spaceHash({screen: 'division', locale}));
+    const destination = spaceHash({screen: 'division', locale});
+    if (mode === 'replay') {
+      location.replace(destination);
+      return;
+    }
+    history.replaceState(history.state, '', destination);
     window.scrollTo({top: 0, behavior: 'instant'});
-    setVisible(false);
+    setMode(null);
+    setWorkspaceStarted(true);
+    setPlayingFilm(undefined);
   }
 
-  if (!visible) return <>{children}</>;
-
-  return <main className="opening-film" data-look="mixed" ref={root} lang={english ? 'en' : 'ko'} aria-labelledby="departure-title">
+  const opening = visible && <main className="opening-film" data-look="mixed" ref={root} lang={english ? 'en' : 'ko'} aria-labelledby="departure-title">
     <header className="departure-bar">
       <div className="departure-bar-inner">
         <div className="departure-brand">
@@ -111,7 +132,7 @@ export function OpeningFilm({children}: {children: ReactNode}) {
     <section className="departure-hero" aria-labelledby="departure-title">
       <img className="departure-hero-panorama" src={divisionPanorama} alt="" width="1672" height="941" fetchPriority="high" />
       <div className="departure-hero-body">
-        <h1 id="departure-title">STAM <span>{english ? 'Freight Division' : '운송사업부'}</span></h1>
+        <h1 id="departure-title" tabIndex={-1}>STAM <span>{english ? 'Freight Division' : '운송사업부'}</span></h1>
         <p>{english
           ? 'Plan freight routes and cargo loads, compare trade prices, and train for your first haul.'
           : '계약을 정리하고 항로와 화물 적재를 계획하세요. 무역 시세부터 첫 운송 실습까지 한곳에서 시작할 수 있습니다.'}</p>
@@ -126,6 +147,9 @@ export function OpeningFilm({children}: {children: ReactNode}) {
             }} />
             {english ? 'Don’t show this again' : '다시 보지 않기'}
           </label>
+          {mode === 'replay' && <a className="departure-service-return" href={spaceHash({screen: 'service', locale})}>
+            {english ? 'Return to service centre' : '서비스센터로 돌아가기'}
+          </a>}
         </div>
       </div>
       <button className="departure-hero-scroll" type="button" onClick={() => scrollToSection('departure-premiere')}>
@@ -196,4 +220,9 @@ export function OpeningFilm({children}: {children: ReactNode}) {
       </div>
     </section>
   </main>;
+
+  return <>
+    {workspaceStarted && <div className="opening-workspace" hidden={visible}>{children}</div>}
+    {opening}
+  </>;
 }
