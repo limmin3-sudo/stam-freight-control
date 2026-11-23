@@ -1,0 +1,28 @@
+.space-experience .cinema-library {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
+  width: min(100%, 1160px);
+  gap: clamp(17px, 2.4vw, 32px);
+  margin: 0 auto;
+}
+.space-experience .cinema-library > .space-cinema {
+  margin: 0;
+  min-width: 0;
+}
+.space-experience .cinema-library .space-screen {
+  width: 100%;
+  max-height: none;
+}
+.cinema-library h2 {
+  font: 700 clamp(16px, 1.5vw, 22px) SUIT, system-ui, sans-serif;
+  margin: 0 0 11px;
+}
+.space-experience .cinema-library .space-cinema-caption {
+  margin-top: 12px;
+  padding: 10px 0;
+}
+@media (max-width: 1050px) {
+  .space-experience .cinema-library { grid-template-columns: minmax(0, 1fr); }
+  .cinema-library > article + article { max-width: 480px; }
+}
