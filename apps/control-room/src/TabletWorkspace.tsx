@@ -1,5 +1,6 @@
 import { lazy, Suspense, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { parseRoute } from './navigation';
+import { isOpeningReplay } from './opening-policy';
 import './tablet-workspace.css';
 
 const SpaceExperience = lazy(() => import('./SpaceExperience').then(module => ({ default: module.SpaceExperience })));
@@ -37,11 +38,12 @@ function ScreenNotice() {
 
 export function TabletWorkspace() {
   const supported = useSyncExternalStore(subscribe, supportsWorkspace);
+  const replayingOpening = useSyncExternalStore(subscribe, () => isOpeningReplay(location.hash));
   const [started, setStarted] = useState(supported);
   // Keep an open workspace and any unsaved form when a tablet enters split view.
   useLayoutEffect(() => { if (supported) setStarted(true); }, [supported]);
   return <>
     {started && <Suspense fallback={null}><SpaceExperience /></Suspense>}
-    {!supported && <ScreenNotice />}
+    {!supported && !replayingOpening && <ScreenNotice />}
   </>;
 }
