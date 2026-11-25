@@ -28,7 +28,7 @@ export function createCompanionState({clock=Date.now,onCommand}={}){
      return {label:text(r.label,100),qty:r.qty,box:r.box,...(Number.isSafeInteger(r.suggested)&&r.suggested>0&&r.suggested<=r.qty&&r.suggested%r.box===0?{suggested:r.suggested}:{})};
     });
    };
-   next.tradeAction={id:a.id,prev:a.prev===true,next:a.next===true,action:a.action,buy:list(a.buy),sell:list(a.sell),buyers:a.buyers.map(s=>text(s,160))};
+   next.tradeAction={...(a.remaining>0&&Number.isSafeInteger(a.remaining)&&a.remaining===a.sell?.[0]?.qty?{remaining:a.remaining}:{}),id:a.id,prev:a.prev===true,next:a.next===true,action:a.action,buy:list(a.buy),sell:list(a.sell),buyers:a.buyers.map(s=>text(s,160))};
   }
   if(d.mode==='flight'&&d.navigation){
    const n=d.navigation;

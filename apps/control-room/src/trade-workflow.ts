@@ -29,6 +29,13 @@ export function tradeNextStep(run:Expedition,summary:ExpeditionSummary=expeditio
  return {index,leg,aligned,complete:aligned&&index>=run.route.legs.length,purchases};
 }
 
+export function lastPartialSale(run:Expedition,state:ExpeditionSummary){
+ const sale=run.events.filter(e=>!e.voidedAt).at(-1);
+ if(state.status!=='active'||state.target!==null||sale?.kind!=='sell'||!sale.quantity)return null;
+ const lot=state.holdings.find(l=>l.id===sale.lotId&&l.terminalId===null&&l.quantity>0);
+ return lot?{eventId:sale.id,lot,before:sale.quantity+lot.quantity,sold:sale.quantity}:null;
+}
+
 export function tradeSettlement(summary:ExpeditionSummary){
  const remainingCost=summary.holdings.reduce((sum,l)=>sum+(l.cost===null?0:Math.round(l.cost*100)),0)/100;
  return {remainingCost,remainingCostUnknown:summary.holdings.some(l=>l.cost===null),cashFlow:Math.round((summary.sales-summary.purchase-summary.expenses)*100)/100};

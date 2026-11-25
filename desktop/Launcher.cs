@@ -114,7 +114,10 @@ internal sealed class BridgeWindow : Form {
     readonly PartnerPortrait portrait=new PartnerPortrait(false);
     Panel flightHome,settingsPage;
     readonly DeckButton haulTab=new DeckButton(),tradeTab=new DeckButton();
-    readonly DeckButton homeRead=new DeckButton(),complete=new DeckButton(),settingsToggle=new DeckButton(),homeOpen=new DeckButton(),homeOverlay=new DeckButton();
+    readonly DeckButton homeLog=new DeckButton(),homeShare=new DeckButton(),homeMic=new DeckButton();
+    readonly HoloLabel micResult=new HoloLabel();
+    bool screenArmed;
+    readonly DeckButton complete=new DeckButton(),settingsToggle=new DeckButton(),homeOpen=new DeckButton(),homeOverlay=new DeckButton();
     readonly HoloLabel routeLabel=new HoloLabel(),shipLabel=new HoloLabel(),flightSection=new HoloLabel();
     readonly ListBox manifest=new ListBox();
     readonly PictureBox shipImage=new PictureBox();
@@ -152,12 +155,15 @@ internal sealed class BridgeWindow : Form {
     void ApplyLanguage(){
         if(overlay!=null){overlay.Dispose();overlay=null;}
         voiceFeedback.Text="";Text=T("STAM 네비게이터","STAM Navigator");
-        subtitle.Text="";ChoosePage(settingsPage.Visible&&settingsToggle.Tag!=null);homeRead.Text=T("게임 계약 읽기","Read contracts");homeOpen.Text=T("미션콘솔 열기","Mission console");homeOverlay.Text=T("게임 오버레이","Game overlay");
+        subtitle.Text="";ChoosePage(settingsPage.Visible&&settingsToggle.Tag!=null);homeOpen.Text=T("미션콘솔 열기","Mission console");homeOverlay.Text=T("게임 오버레이","Game overlay");
         readContract.Text=T("게임 계약 읽기","Read game contracts");choose.Text=T("파일 직접 선택","Choose Game.log");search.Text=T("자동으로 찾기","Find automatically");open.Text=T("미션콘솔 열기  ↗","Open mission console  ↗");disconnect.Text=manualStop?T("다시 연결","Reconnect"):T("연결 중지","Disconnect");
         footer.Text=T("창을 닫아도 트레이에서 수신합니다. 종료는 트레이 메뉴를 이용하세요.\n게임 로그는 읽기만 하며, 음성 완료는 연결한 STAM 운항에 반영됩니다.","Closing this window keeps the app in your system tray. Quit from its menu.\nRead-only game log access. Spoken confirmations update your linked STAM flight.");
         korean.Primary=!english;englishButton.Primary=english;korean.Invalidate();englishButton.Invalidate();updated.Text="";RenderStatus(null);UpdateTools();BuildTray();
     }
     void UpdateTools(){
+        homeMic.Text=T("마이크 · ","Mic · ")+(overlay!=null&&overlay.TestingMic?T("점검 취소","Cancel check"):overlay!=null&&overlay.Listening?T("녹음 중","Recording"):overlay!=null&&overlay.VoiceEnabled?T("연속 듣기","Listening"):T("입력 점검","Test input"));
+        micResult.Text=overlay!=null?(overlay.TestingMic?overlay.TalkStatus:overlay.MicCheckStatus)??"":"";
+        hints.SetToolTip(micResult,micResult.Text);
         UpdatePortrait(overlay!=null&&overlay.IsNavigator);narratorButton.Text=overlay!=null&&overlay.Narrator=="off"?T("음성 답변 꺼짐","Replies muted"):T("답변 목소리","Reply voice");
         continuousButton.Text=overlay==null?T("연속 듣기 켜기","Listen continuously"):overlay.ContinuousLabel;
         rideButton.Text=T("동승 모드","Ride along");rideButton.Primary=overlay!=null&&overlay.RideAlong;rideButton.Invalidate();
@@ -226,20 +232,25 @@ internal sealed class BridgeWindow : Form {
 
         var languages=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.LeftToRight,Margin=new Padding(0,5,0,0),BackColor=Color.Transparent};korean.Text="한국어";englishButton.Text="English";
         foreach(var b in new[]{korean,englishButton}){b.Size=new Size(78,35);b.Margin=new Padding(3);languages.Controls.Add(b);}layout.Controls.Add(languages);settingsToggle.Dock=DockStyle.Fill;settingsToggle.Margin=new Padding(4,9,2,9);mast.Controls.Add(settingsToggle,2,0);settingsToggle.Click+=(a,e)=>{settingsToggle.Tag=true;ChoosePage(!settingsPage.Visible);};
-        var home=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,Padding=new Padding(12)};
-        foreach(int h in new[]{156,34})home.RowStyles.Add(new RowStyle(SizeType.Absolute,h));home.RowStyles.Add(new RowStyle(SizeType.Percent,100));home.RowStyles.Add(new RowStyle(SizeType.Absolute,54));home.RowStyles.Add(new RowStyle(SizeType.Absolute,58));flightHome.Controls.Add(home);
+        var home=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=7,Padding=new Padding(12)};
+        foreach(int h in new[]{132,42,40,34})home.RowStyles.Add(new RowStyle(SizeType.Absolute,h));home.RowStyles.Add(new RowStyle(SizeType.Percent,100));home.RowStyles.Add(new RowStyle(SizeType.Absolute,54));home.RowStyles.Add(new RowStyle(SizeType.Absolute,58));flightHome.Controls.Add(home);
         var hero=new LinkCard{Instrument=false,Dock=DockStyle.Fill,ColumnCount=3,RowCount=3,Padding=new Padding(18,10,10,10)};
         hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,65));hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,35));
         hero.RowStyles.Add(new RowStyle(SizeType.Absolute,26));hero.RowStyles.Add(new RowStyle(SizeType.Absolute,52));hero.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         Setup(title,12,DeckTheme.Gilt);Setup(state,27,DeckTheme.Ink);Setup(detail,12,Muted);
         hero.Controls.Add(title,0,0);hero.Controls.Add(state,0,1);hero.Controls.Add(detail,0,2);hero.Controls.Add(portrait,1,0);hero.SetRowSpan(portrait,3);
         shipImage.Dock=DockStyle.Fill;shipImage.Margin=Padding.Empty;shipImage.SizeMode=PictureBoxSizeMode.Zoom;shipImage.BackColor=Color.Transparent;hero.Controls.Add(shipImage,2,0);hero.SetRowSpan(shipImage,3);home.Controls.Add(hero);
+        var checks=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};
+        foreach(var button in new[]{homeLog,homeShare,homeMic}){checks.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,1));button.Dock=DockStyle.Fill;checks.Controls.Add(button);}
+        homeLog.Click+=(s,e)=>{settingsToggle.Tag=true;ChoosePage(true);};
+        homeShare.Click+=(s,e)=>{if(screenArmed)SendCommand("read-contract");else Open(true);};homeMic.Click+=(s,e)=>Overlay().ToggleMicCheck();
+        home.Controls.Add(checks);Setup(micResult,11,Ink);home.Controls.Add(micResult);
         var modes=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};modes.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));modes.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,74));modes.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,74));
         Setup(flightSection,14,Ink);modes.Controls.Add(flightSection);foreach(var tabButton in new[]{haulTab,tradeTab}){tabButton.Dock=DockStyle.Fill;modes.Controls.Add(tabButton);}home.Controls.Add(modes);
         haulTab.Click+=(a,e)=>{if(overlay!=null)overlay.SelectMode(false);};tradeTab.Click+=(a,e)=>{if(overlay!=null)overlay.SelectMode(true);};
         manifest.Dock=DockStyle.Fill;manifest.IntegralHeight=false;manifest.Font=HoloFonts.At(15);manifest.DrawMode=DrawMode.OwnerDrawFixed;manifest.ItemHeight=40;manifest.DrawItem+=DrawManifest;manifest.HorizontalScrollbar=true;manifest.BorderStyle=BorderStyle.None;manifest.BackColor=Color.FromArgb(40,43,39);manifest.ForeColor=Ink;home.Controls.Add(manifest);
         var bottom=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,160));Setup(shipLabel,12,Muted);bottom.Controls.Add(shipLabel);complete.Primary=true;complete.Dock=DockStyle.Fill;complete.Click+=(a,e)=>{if(overlay!=null)overlay.CompleteCurrent();};bottom.Controls.Add(complete);home.Controls.Add(bottom);
-        var rail=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4};rail.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));Setup(routeLabel,12,Muted);rail.Controls.Add(routeLabel);rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));homeRead.Dock=homeOverlay.Dock=homeOpen.Dock=DockStyle.Fill;rail.Controls.Add(homeRead);homeRead.Click+=(a,e)=>Open(true);rail.Controls.Add(homeOverlay);rail.Controls.Add(homeOpen);homeOpen.Click+=(a,e)=>Open();homeOverlay.Click+=(a,e)=>Overlay().ToggleFromNavigator();home.Controls.Add(rail);
+        var rail=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3};rail.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));Setup(routeLabel,12,Muted);rail.Controls.Add(routeLabel);homeOverlay.Dock=homeOpen.Dock=DockStyle.Fill;rail.Controls.Add(homeOverlay);rail.Controls.Add(homeOpen);homeOpen.Click+=(a,e)=>Open();homeOverlay.Click+=(a,e)=>Overlay().ToggleFromNavigator();home.Controls.Add(rail);
         var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=5,Margin=Padding.Empty,BackColor=shell.BackColor};
         foreach(float width in new[]{20f,20f,17f,20f,23f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
         foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,narratorButton,overlayButton,shortcutsButton,voiceButton,continuousButton,rideButton}){button.Font=HoloFonts.At(13);}
@@ -370,6 +381,10 @@ internal sealed class BridgeWindow : Form {
             if(data.ContainsKey("lastSnapshotReadAt")&&data["lastSnapshotReadAt"]!=null){DateTime sent;if(DateTime.TryParse(Convert.ToString(data["lastSnapshotReadAt"]),out sent))description+=T(" · 웹 조회 "," · Web read ")+sent.ToLocalTime().ToString("HH:mm:ss");}
         }
         RenderNavigation();
+        if(data!=null&&data.ContainsKey("screenArmed"))screenArmed=Object.Equals(data["screenArmed"],true);
+        if(String.IsNullOrEmpty(pairedAddress))screenArmed=false;
+        homeLog.Text=T("로그 · ","Log · ")+name;
+        homeShare.Text=screenArmed?T("게임 창 공유 중 · 계약 읽기","Sharing game · read contract"):T("게임 창 · 공유 설정","Game window · set up");
         subtitle.Text=name+" · "+description;
         if(data!=null&&data.ContainsKey("bytesRead"))bytes.Text=(Convert.ToDouble(data["bytesRead"])/1048576d).ToString("0.0",System.Globalization.CultureInfo.InvariantCulture)+" MB";
         else if(bytes.Text=="")bytes.Text="— MB";

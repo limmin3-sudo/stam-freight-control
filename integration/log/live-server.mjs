@@ -79,7 +79,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   }
   function status() {
     return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1,copilot:1,navigator:1,tradeActions:1,tradeStart:1,inbox:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
-      contractCount,lastSnapshotReadAt,lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
+      screenArmed:assist.armed(),contractCount,lastSnapshotReadAt,lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
   let origin;

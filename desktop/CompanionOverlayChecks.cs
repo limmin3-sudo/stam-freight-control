@@ -99,6 +99,11 @@ internal sealed partial class CompanionOverlay {
                     Require(starts==1&&recorder.finished==0,"repeat-does-not-start-or-send");
                 }finally{mouse_event(0x0100,0,0,1,UIntPtr.Zero);Pump(180);}
                 Require(!overlay.Listening&&recorder.disposed&&recorder.finished==1&&commands.Count==0,"release-once-empty-hold-sends-nothing");overlay.Show();
+                overlay.ToggleMicCheck();
+                mouse_event(0x0080,0,0,1,UIntPtr.Zero);Pump(90);mouse_event(0x0100,0,0,1,UIntPtr.Zero);Pump(90);
+                Require(overlay.TestingMic&&starts==1&&commands.Count==0,"test-tap-does-not-trigger-ocr");
+                Require(overlay.TestTranscript("하역 완료")&&!overlay.TestingMic&&overlay.MicCheckStatus.Contains("하역 완료")&&overlay.MicCheckStatus.Contains("잘 들려요")&&commands.Count==0,"test-transcript-never-executes-command");
+                overlay.answerUntil=DateTime.MinValue;overlay.StopNarration();
                 checks.Add("Holding Mouse 4 in the background captures once until release; a silent hold sends no commands");
                 PressShortcut(overlay.keyPrices);Require(commands.Count==1&&commands[0]=="show-prices","global-prices-key");PressShortcut(overlay.keyWork);Require(commands.Count==2&&commands[1]=="show-my-work","global-work-key");
                 PressShortcut(overlay.keyOverlay);Require(!overlay.Visible,"global-hide-key");PressShortcut(overlay.keyOverlay);Require(overlay.Visible,"global-show-key");checks.Add("Windows global Ctrl+Alt shortcuts query prices/my work and toggle visibility");

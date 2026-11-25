@@ -1,3 +1,4 @@
+import {remainingBuyers,remainingBuyerLabel} from '../src/copilot-market.ts';
 import {bestSplitSale} from "../src/trade-split.ts";
 import {tradeNextStep} from "../src/trade-workflow.ts";
 import {tradeCompanion} from "../src/trade-companion.ts";
@@ -155,6 +156,13 @@ test('two buyers share one purchase, limited by packing, cash and actual current
  add('sell',{lotId:'lot',quantity:180,amount:3600,terminalId:2});
  const deck=tradeCompanion(run,expeditionSummary(run),String,String,true);
  assert.equal(deck.control.holdings[0]!.qty,320);assert.equal(deck.control.buyer,3);assert.equal(deck.control.action,'depart');
+ assert.equal(deck.control.partial?.before,500);assert.equal(deck.control.partial.sold,180);
+ assert.match(deck.lines[0]!,/Before 500 → Sold 180 → Left 320 SCU/);
+ const comparison={...market,quotes:[quote(5,1,1,null,20,0,421),quote(6,2,1,null,20,0,185),quote(7,3,1,null,20,0,500)]};
+ const pilot={ownerUid:'pilot',terminalId:2,commodityId:1,side:'sell' as const,attempted:500,filled:180,waited:false,patch:market.liveVersion,at:now};
+ const offers=remainingBuyers(comparison,run,expeditionSummary(run),deck.control.holdings[0]!,[pilot],now);
+ assert.deepEqual(offers.map(o=>[o.terminalId,o.fill,o.demand,o.extra]),[[2,184,185,0],[3,320,500,0],[1,320,421,1]]);
+ assert.match(remainingBuyerLabel(offers[0]!, 'B',true),/UEX demand 185 SCU · Pilot fill 180\/500 SCU/);
  const restricted=bestSplitSale(market,{...options,budget:975},physical,now)!;
  assert.equal(restricted.purchase,960);
  market.quotes[2]!.updatedAt='2020-01-01T00:00:00Z';

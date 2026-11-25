@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {placeName,type Job} from './mission-trial';
+import {placeName,routeReady,type Job} from './mission-trial';
 import type {Frame} from './contract-screen';
 import {missingFields} from '../../../integration/log/read-assist.mjs';
 import {pollScreenChoice,waitForReadButton} from './screen-relay';
@@ -32,12 +32,13 @@ export function ContractScreenReader(props:Props){
  async function save(job:Job,frame:Frame):Promise<ReadOutcome>{
   const next=withScreens(job,[...(latest.current.frames[job.id]||[]),frame]);
   await latest.current.attach(job.id,frame);
-  const complete=next!==job&&!missingFields(next).length;
-  const destinations=[...new Set(frame.goals.map(g=>g.destination))];
-  const destination=destinations.length===1&&new Set(next.shipments.map(r=>r.to)).size===1?destinations[0]:'';
-  if(alive.current)setNotice(complete?(en?'Contract ready':'계약 확인 완료')+(destination?' · '+destination:''):
-   en?'More details needed. Scroll to the remaining objectives and read again.':'남은 목표가 보이도록 스크롤한 뒤 한 번 더 읽어주세요.');
-  const details=frame.goals.slice(0,2).map(g=>g.item+' '+g.total+' SCU → '+g.destination).join(' / ').slice(0,160);
+  const ready=routeReady(next),complete=ready&&!missingFields(next).length;
+  const targets=[...new Set(next.shipments.map(r=>r.to))];
+  const destination=targets.length===1&&targets[0]?placeName(targets[0]!,en?1:0):'';
+  const fields:Record<string,string>=en?{pickup:'pickup',destination:'destination',cargo:'commodity',quantity:'quantity'}:{pickup:'픽업지',destination:'배송지',cargo:'품목',quantity:'수량'};
+  const remaining=missingFields(next).filter(f=>!ready||(f!=='pickup'&&f!=='destination')).map(f=>fields[f]);
+  const details=[destination?(en?'Delivery to ':'배송지 ')+destination:'',ready?(en?'Route ready':'경로 계산 가능'):'',remaining.length?(en?'Still needed: ':'확인 필요 · ')+remaining.join(', '):''].filter(Boolean).join(' · ');
+  if(alive.current)setNotice(details);
   return {code:complete?'complete':'partial',destination,details};
  }
  async function start(){

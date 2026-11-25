@@ -13,9 +13,9 @@ import type {MarketSnapshot} from './trade-data';
 import {tradeLabel} from './trade-labels';
 import {tradeCompanion} from './trade-companion';
 import {resolveTradeTerminal} from './trade-navigation.mjs';
-import {saleOffers} from './copilot-market';
+import {receiptCategory,missingFields,cardDescription} from '../../../integration/log/read-assist.mjs';
+import {saleOffers,remainingBuyers,remainingBuyerLabel} from './copilot-market';
 import {useObservations} from './TradeFieldReports';
-import {freshReports} from './trade-field';
 import {priceAnswer} from './companion-guidance';
 import {jobVolume,placeName,routeReady,shipIdFor} from './mission-trial';
 import {planningPartner} from './partner-policy';
@@ -111,20 +111,19 @@ export function CopilotStation({flight,locale,dock}:Props){
  const revision=useMemo(()=>crypto.randomUUID(),[session,store.raw,store.owner,flight.receipts.cards,flight.blocked]);
  const availableCards=flight.voiceCards;
  const readyCards=availableCards.filter(routeReady);
- const pendingCards=availableCards.filter(j=>!routeReady(j));
- const gaps=[...new Set(pendingCards.flatMap(j=>{
-  const missing:string[]=[];
-  if(!j.shipments.length||j.shipments.some(s=>!s.from))missing.push(t('픽업지','pickup'));
-  if(!j.shipments.length||j.shipments.some(s=>!s.to))missing.push(t('배송지','delivery'));
-  return missing;
- }))];
+ const pendingCards=availableCards.filter(j=>!routeReady(j)&&receiptCategory(j)==='freight');
+ const unclassified=availableCards.filter(j=>!routeReady(j)&&receiptCategory(j)==='unknown').length;
+ const firstPending=pendingCards[0];
+ const fieldLabels:Record<string,string>={pickup:t('픽업지','pickup'),destination:t('배송지','destination'),cargo:t('품목','commodity'),quantity:t('수량','quantity')};
  const liveInbox=flight.receipts.phase==='loaded'&&!flight.receipts.cached&&!flight.blocked&&!flight.busy&&!flight.receiptChanges.length;
  const additions=suggested.filter(j=>plan?.mode==='simple'||planningPartner([j],'navigator')==='navigator');
  const inboxAction=!liveInbox?'':flight.active?(additions.length?'add':''):run?.finished?'':plan&&run?'start':readyCards.length?'plan':'';
  const inboxFingerprint=JSON.stringify([availableCards.map(j=>[j.id,j.signature,j.shipments,j.reservations]),inboxAction]);
  const inboxId=useMemo(()=>crypto.randomUUID(),[session,inboxFingerprint,selectedMode]);
  const changingInbox=useRef(false);
- const intakeLabel=t(`수신 ${availableCards.length} · 경로 준비 ${readyCards.length}`,`Received ${availableCards.length} · Ready ${readyCards.length}`)+(pendingCards.length?' · '+(gaps.join('/')||t('거점','Stops'))+' '+pendingCards.length+t('건 확인',' to check'):'');
+ const intakeLabel=[t(`수신 ${availableCards.length} · 경로 준비 ${readyCards.length}`,`Received ${availableCards.length} · Ready ${readyCards.length}`),
+  unclassified?t('분류 확인 ','Unclassified ')+unclassified:'',
+  firstPending?cardDescription(firstPending,en)+' · '+t('확인 필요 ','Check ')+missingFields(firstPending).map(f=>fieldLabels[f]).join(', '):''].filter(Boolean).join(' · ');
  const inboxLabel=[intakeLabel,liveInbox&&flight.active&&suggested.length>additions.length?t('적재 계산에 수량 필요 '+(suggested.length-additions.length)+'건','Quantity needed for '+(suggested.length-additions.length)+' cargo plans'):'',flight.error].filter(Boolean).join(' · ').slice(0,180);
  const inbox=liveInbox&&availableCards.length?{id:inboxId,label:inboxLabel,action:inboxAction,options:inboxAction==='add'?additions.slice(0,100).map(j=>{
   const r=j.shipments[0];return [j.title[en?1:0],r&&[r.from&&name(r.from),r.to&&name(r.to)].filter(Boolean).join(' → '),jobVolume(j)?jobVolume(j)+' SCU':'',j.id.slice(-6)].filter(Boolean).join(' · ').slice(0,160);
@@ -579,15 +578,9 @@ export function CopilotStation({flight,locale,dock}:Props){
       if(!market)return t('시세 준비 중','Loading prices');
       await refreshCommodity(market,row.commodityId).catch(()=>{});
       const data=marketWithRecentQuotes(market);
-      // Compare staying here with travelling to another buyer using whole boxes.
-      const eligible={...data,quotes:data.quotes.map(q=>q.commodityId===row.commodityId?{...q,demand:Math.floor((q.demand??0)/row.box)*row.box}:q)};
-      const offers=[true,false].flatMap(here=>saleOffers({...eligible,quotes:eligible.quotes.filter(q=>(q.terminalId===trade.position)===here)},row.commodityId,row.qty,new Set()).slice(0,2));
-      const reports=freshReports(fieldReports,data.liveVersion,Date.now()).filter(r=>r.side==='sell'&&r.commodityId===row.commodityId);
-      const rows=offers.map(o=>{
-       const report=reports.find(r=>r.terminalId===o.terminal.id);
-       const label=(o.terminal.id===trade.position?t('현재','Here'):t('이동','Travel'))+' · '+terminal(o.terminal.id)+' · UEX '+o.fill+' SCU × '+o.price.toLocaleString()+' aUEC';
-       return {terminalId:o.terminal.id,quantity:o.fill,lotId:row.lotId,label:label+(report?' · '+t('제보','Pilot report')+' '+report.filled+'/'+report.attempted+' SCU':'')};
-      });
+      const rows=remainingBuyers(data,activeTrade,trade,row,fieldReports).map(o=>({
+       terminalId:o.terminalId,quantity:o.fill,lotId:row.lotId,label:remainingBuyerLabel(o,terminal(o.terminalId),en)
+      }));
       if(!rows.length)return t('현재 패치의 최근 24시간 내 수요 보고가 없어요.','No reported demand in the past 24 hours for this patch.');
       setBuyerMenu({id:actionId,token:crypto.randomUUID(),rows});return t('판매처 선택에서 비교하세요.','Choose a buyer to compare offers.');
      }
@@ -664,7 +657,7 @@ export function CopilotStation({flight,locale,dock}:Props){
    if(!tradeDeck)return {mode:'personal',title:t('무역','Trade'),lines:[t('무역 계획에서 관제로 인계하세요.','Start a route in trade control.')],switchable:true,partner};
    const {control,...summary}=tradeDeck;
    const rows=(items:typeof control.holdings)=>items.slice(pageIndex*perPage,(pageIndex+1)*perPage).map(row=>({label:row.label.slice(0,100),qty:row.qty,box:row.box,...('suggested' in row?{suggested:row.suggested}:{})}));
-   return {...summary,partner,switchable:true,tradeAction:{id:actionToken,prev:pageIndex>0,next:(pageIndex+1)*perPage<Math.max(control.purchases.length,control.holdings.length),action:menu?'buyer':control.action,buy:rows(control.purchases),sell:rows(control.holdings),buyers:menu?.rows.map(r=>r.label.slice(0,160))??[]}};
+   return {...summary,...(menu?{lines:menu.rows.map(r=>r.label).slice(0,6)}:{}),partner,switchable:true,tradeAction:{id:actionToken,...(control.partial&&!menu&&pageIndex===0?{remaining:control.partial.lot.quantity}:{}),prev:pageIndex>0,next:(pageIndex+1)*perPage<Math.max(control.purchases.length,control.holdings.length),action:menu?'buyer':control.action,buy:rows(control.purchases),sell:rows(control.holdings),buyers:menu?.rows.map(r=>r.label.slice(0,160))??[]}};
   }
   const fallback:CompanionSummary={mode:flight.active||inbox?'flight':'personal',title:t('운항 부조종사','Flight copilot'),lines:[task,sale].filter(Boolean),guidance:{task:(task||sale||tradeBrief).slice(0,220),destination:destination?name(destination.locationId):tradeBrief,load:task.slice(0,220)},step,stepId};
   const main=(selectedMode==='flight'||!selectedMode&&!!inbox)&&view?.mode!=='flight'?{...fallback,mode:'flight' as const,lines:task?[task]:[t('운송 시작 대기','Waiting for a haul')],guidance:{task,destination:destination?name(destination.locationId):''}}:view??fallback,notes=[...main.lines,...(!view||view.mode!=='flight'?[task]:[]),...(selectedMode==='flight'?[]:[sale||tradeBrief]),suggestion].filter(Boolean);

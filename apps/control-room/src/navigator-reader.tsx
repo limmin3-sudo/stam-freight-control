@@ -3,7 +3,8 @@ import {useLogReceipts} from './use-log-receipts';
 import {useContractScreens} from './use-contract-screens';
 import {ContractScreenReader,ScreenOriginals} from './ContractScreenReader';
 import {withScreens} from './contract-screen';
-import {placeName,receiptRouteLabel} from './mission-trial';
+import {receiptCategory} from '../../../integration/log/read-assist.mjs';
+import {placeName,receiptRouteLabel,routeReady} from './mission-trial';
 import './navigator-reader.css';
 
 function Reader(){
@@ -18,6 +19,7 @@ function Reader(){
     const frames=archive.frames[raw.id]||[],job=withScreens(raw,frames);
     return <article key={job.id}><small>{job.id.slice(-8)}</small><h2>{job.title[n]}</h2>
      {job.state!=='conflict'?<p>{receiptRouteLabel(job,en)}</p>:<p>{en?'Conflicting records':'기록 충돌'}</p>}
+     {job.state==='incomplete'&&!routeReady(job)&&receiptCategory(job)==='freight'&&<p>{en?'Open this contract’s objectives in game and tap the talk shortcut.':'게임에서 이 계약의 상세 목표를 열고 말하기 단축키를 짧게 누르세요.'}</p>}
      {!job.rewardUnknown&&<b>{job.pay.toLocaleString()} aUEC</b>}
      {job.shipments.map(r=><p key={r.id}>{r.cargo[n]} · {r.scu||'?'} SCU · {r.pickupFacility?.[n]||placeName(r.from,n)} → {r.deliveryFacility?.[n]||placeName(r.to,n)}</p>)}
      <ScreenOriginals frames={frames} en={en}/></article>;

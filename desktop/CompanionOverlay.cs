@@ -38,6 +38,34 @@ internal sealed partial class CompanionOverlay : Form {
     string cargoReadbackStep;
     DateTime cargoReadbackUntil;
     bool configuring,buttonRecording;
+    internal bool TestingMic {get;private set;}
+    internal string MicCheckStatus {get;private set;}
+    bool resumeVoice,resumeRide;
+    DateTime testDeadline;
+    internal void ToggleMicCheck(){
+        if(TestingMic){FinishMicCheck(T("점검을 취소했어요.","Check cancelled."),false);return;}
+        if(Listening||decoding!=null||koreanHold!=null){ReportTalk(T("진행 중인 녹음이 끝나면 점검할 수 있어요.","Finish the current recording first."));return;}
+        resumeVoice=VoiceEnabled;resumeRide=RideAlong;
+        if(resumeVoice)StopVoice();
+        TestingMic=true;testDeadline=DateTime.UtcNow.AddSeconds(45);
+        MicCheckStatus=KeyName(keyTalk)+T("을 길게 누르고 말한 뒤 떼세요."," · hold, speak, then release.");
+        ReportTalk(MicCheckStatus);
+    }
+    void FinishMicCheck(string result,bool reply){
+        TestingMic=false;gesturePending=false;EndTalk();
+        if(resumeVoice){resumeVoice=false;rideAlong=resumeRide;ToggleVoice();}
+        MicCheckStatus=result;ReportTalk(result);
+        if(reply)Answer(T("함장님, 잘 들려요.","Captain, I hear you clearly."),true);
+    }
+    bool TestTranscript(string text){
+        if(!TestingMic)return false;
+        FinishMicCheck(T("들은 말 · ","Heard · ")+text+T(" / 부조종사 · 함장님, 잘 들려요."," / Copilot · Captain, I hear you clearly."),true);
+        return true;
+    }
+    void RecordingError(string message){
+        if(TestingMic)FinishMicCheck(message,false);
+        else{EndTalk();ReportTalk(message);}
+    }
     DateTime buttonDeadline;
     CancellationTokenSource koreanLive,koreanHold;
     int contextVersion;
@@ -48,6 +76,7 @@ internal sealed partial class CompanionOverlay : Form {
     internal bool RideAlong {get{return rideAlong&&VoiceEnabled;}}
     string ListenHint {get{return rideAlong?T("동승 중 · 호출 없이 말하세요","Riding along · speak directly"):T("듣는 중 · “스탐”으로 부르세요","Listening · say STAM");}}
     internal void ToggleRideAlong(){
+        if(TestingMic)return;
         rideAlong=!rideAlong;
         listeningUntil=DateTime.MinValue;
         Interlocked.Increment(ref contextVersion);
@@ -85,7 +114,7 @@ internal sealed partial class CompanionOverlay : Form {
             if(gesturePending&&(!down||pressDuration.ElapsedMilliseconds>=HoldMilliseconds)){
                 gesturePending=false;
                 if(down){if(!VoiceEnabled)StartHeldTalk();}
-                else if(pressDuration.ElapsedMilliseconds<HoldMilliseconds&&readFocusAtPress&&canReadGame())send("read-contract");
+                else if(!TestingMic&&pressDuration.ElapsedMilliseconds<HoldMilliseconds&&readFocusAtPress&&canReadGame())send("read-contract");
             }
         }else gesturePending=false;
         sideWasDown=down;
@@ -105,8 +134,9 @@ internal sealed partial class CompanionOverlay : Form {
                     case "quantity":fields.Add(T("수량","quantity"));break;
                 }
             }
-            string count=Convert.ToString(notice["count"]),names=String.Join(", ",fields.ToArray());
-            message=T("함장님, 계약 "+count+"건의 "+names+" 확인이 필요해요. ","Captain, "+count+" contract(s) need "+names+". ");
+            string names=String.Join(", ",fields.ToArray());
+            object label;string card=notice.TryGetValue(english?"labelEn":"labelKo",out label)?Convert.ToString(label):"";
+            message=card+" · "+T(names+" 확인이 필요해요. ","Please check "+names+". ");
             if(!Convert.ToBoolean(notice["armed"]))message+=T("네비게이터의 게임 계약 읽기에서 게임 창을 먼저 선택해 주세요. ","First select the game window in Read contracts. ");
             message+=T("진행 중인 계약의 상세 목표를 열고 "+key+" 버튼을 짧게 눌러주세요.","Open the accepted contract objectives and tap "+key+".");
         }else if(code=="setup")message=T("네비게이터의 게임 계약 읽기에서 게임 창을 선택한 뒤 다시 눌러주세요.","Select the game window in Navigator’s Read contracts, then tap again.");
@@ -117,7 +147,7 @@ internal sealed partial class CompanionOverlay : Form {
             message=place.Length==0?T("확인했어요. 계약의 경로와 화물 정보가 준비됐어요.","Confirmed. The route and cargo details are ready."):T("확인했어요. 배송지는 "+place+"입니다. 경로를 계산할 수 있어요.","Confirmed delivery to "+place+". The route is ready.");
         }else if(code=="partial"||code=="unreadable")message=T("남은 목표 줄이 보이도록 계약 창을 스크롤하고 "+key+" 버튼을 한 번 더 눌러주세요.","Scroll to the remaining objectives and tap "+key+" again.");
         else message=T("계약 화면을 읽지 못했어요. 진행 중인 계약을 열고 다시 눌러주세요.","Could not read the contract. Open its objectives and try again.");
-        if((code=="partial"||code=="complete")&&notice.ContainsKey("details")&&Convert.ToString(notice["details"])!="")message=Convert.ToString(notice["details"])+(code=="partial"?T(" · 남은 목표를 읽어주세요."," · Read the remaining objectives."):"");
+        if((code=="partial"||code=="complete")&&notice.ContainsKey("details")&&Convert.ToString(notice["details"])!="")message=Convert.ToString(notice["details"]);
         ReportTalk(message);Answer(message,true);RenderDeck();
     }
     static bool SideButton(int key){return key==Mouse4||key==Mouse5;}
@@ -168,7 +198,7 @@ internal sealed partial class CompanionOverlay : Form {
         middle.Controls.Add(kindLabel,0,0);middle.Controls.Add(destinationLabel,0,1);middle.Controls.Add(body,0,2);layout.Controls.Add(middle,0,1);
         var footer=new TableLayoutPanel{Dock=DockStyle.Fill,Margin=Padding.Empty,Padding=new Padding(16,8,18,7),ColumnCount=2,RowCount=1};
         footer.RowStyles.Add(new RowStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,104));
-        footerLabel.Dock=DockStyle.Fill;footerLabel.Margin=new Padding(0,6,0,0);footerLabel.Font=HoloFonts.At(11);footerLabel.ForeColor=DeckTheme.Muted;var footerSlot=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};footerSlot.Controls.Add(footerLabel);compareBuyer.Dock=DockStyle.Fill;compareBuyer.Text=TradeLabel("compare");compareBuyer.Click+=(a,e)=>TradeInput("compare");footerSlot.Controls.Add(compareBuyer);footer.Controls.Add(footerSlot,0,0);
+        footerLabel.Dock=DockStyle.Fill;footerLabel.Margin=new Padding(0,6,0,0);footerLabel.Font=HoloFonts.At(11);footerLabel.ForeColor=DeckTheme.Muted;var footerSlot=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};footerSlot.Controls.Add(footerLabel);compareBuyer.Dock=DockStyle.Fill;compareBuyer.Text=TradeLabel("compare");compareBuyer.Click+=(a,e)=>{if(TradeReady&&tradeAction.ContainsKey("remaining"))TradeCommand(Convert.ToString(tradeAction["id"]),"compare:0");else TradeInput("compare");};footerSlot.Controls.Add(compareBuyer);footer.Controls.Add(footerSlot,0,0);
         advance.Dock=DockStyle.Fill;advance.Margin=new Padding(0,0,0,0);advance.Primary=true;advance.Click+=(a,e)=>CompleteCurrent();footer.Controls.Add(advance,1,0);layout.Controls.Add(footer,0,2);
         toolActions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,RowCount=2,Visible=false,Margin=Padding.Empty,Padding=new Padding(6,0,12,0)};
         toolActions.RowStyles.Add(new RowStyle(SizeType.Percent,100));toolActions.RowStyles.Add(new RowStyle(SizeType.Absolute,21));
@@ -196,7 +226,7 @@ internal sealed partial class CompanionOverlay : Form {
         if(keyTalk==keyOverlay||keyTalk==keyPrices||keyTalk==keyWork)keyTalk=Mouse4;
         mousePoll.Tick+=(s,e)=>PollGesture();
         holdPoll.Tick+=(s,e)=>CheckHeldKey();
-        Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if((DateTime.UtcNow-received).TotalSeconds>12&&(displayedMode!=null||DateTime.UtcNow>=answerUntil)){ClearGuidance();nav=null;SetStep(null,null);body.Text=T("웹 화면 연결 대기","Waiting for the web view");ShowPartner(null);}RenderDeck();if(DeckChanged!=null)DeckChanged();};expiry.Start();
+        Clamp();expiry.Interval=1000;expiry.Tick+=(s,e)=>{if(TestingMic&&DateTime.UtcNow>=testDeadline)FinishMicCheck(T("점검 시간이 끝났어요. 다시 시도하세요.","Microphone check timed out. Try again."),false);if((DateTime.UtcNow-received).TotalSeconds>12&&(displayedMode!=null||DateTime.UtcNow>=answerUntil)){ClearGuidance();nav=null;SetStep(null,null);body.Text=T("웹 화면 연결 대기","Waiting for the web view");ShowPartner(null);}RenderDeck();if(DeckChanged!=null)DeckChanged();};expiry.Start();
         FormClosing+=(s,e)=>{if(!disposing&&e.CloseReason==CloseReason.UserClosing){e.Cancel=true;Hide();}};
         Move+=(s,e)=>Save();ResizeEnd+=(s,e)=>{Clamp();Save();};
         // Create the message window even while the overlay is hidden.
@@ -303,7 +333,9 @@ internal sealed partial class CompanionOverlay : Form {
         freightMode.Enabled=tradeMode.Enabled=switchable&&displayedMode!=null;
         freightMode.Primary=InFlight;tradeMode.Primary=displayedMode=="personal";
         freightMode.Invalidate();tradeMode.Invalidate();
-        compareBuyer.Visible=TradeReady&&TradeVerb=="sell";if(compareBuyer.Visible)compareBuyer.BringToFront();
+        bool remainder=TradeReady&&tradeAction.ContainsKey("remaining");
+        compareBuyer.Text=remainder?T("남은 "+tradeAction["remaining"]+" SCU 판매처 비교","Compare buyers · "+tradeAction["remaining"]+" SCU"):TradeLabel("compare");
+        compareBuyer.Visible=TradeReady&&(TradeVerb=="sell"||remainder);if(compareBuyer.Visible)compareBuyer.BringToFront();
         advance.Visible=HasStep;advance.Enabled=CanComplete;advance.Text=lastSentStep!=null&&lastSentStep==stepId&&!CanComplete?T("반영 중","Updating"):StepLabel;
         string action=stepKind=="delivery"?T("하역","Unload"):stepKind=="pickup"?T("적재","Load"):stepKind=="jump"?T("점프","Jump"):stepKind=="departure"?T("출발","Departure"):T("거점 작업","Stop");
         kindLabel.Text=Finished?T("운항 결과","Flight result"):stepKind=="delivery"?T("다음 하역지","Next delivery"):stepKind=="pickup"?T("다음 적재지","Next pickup"):T("다음 목적지","Next destination");
@@ -446,6 +478,7 @@ internal sealed partial class CompanionOverlay : Form {
         BeginRecording(false);
     }
     internal void ToggleButtonTalk(){
+        if(TestingMic)return;
         if(buttonRecording){FinishRecording();return;}
         if(heldMic==null)BeginRecording(true);
     }
@@ -457,7 +490,7 @@ internal sealed partial class CompanionOverlay : Form {
             heldMic=openCapture();buttonRecording=fromButton;buttonDeadline=DateTime.UtcNow.AddSeconds(30);holdPoll.Start();
             CheckHeldKey();
             if(Listening)ReportTalk(fromButton?T("듣는 중 · 녹음 끝내기를 누르세요","Listening · click Finish recording"):T("듣는 중 · 키를 떼면 전송","Listening · release to send"));
-        }catch(Exception error){EndTalk();ReportTalk(error.Message);}
+        }catch(Exception error){RecordingError(error.Message);}
     }
     void CheckHeldKey(){
         if(heldMic==null)return;
@@ -465,16 +498,16 @@ internal sealed partial class CompanionOverlay : Form {
             if(buttonRecording&&DateTime.UtcNow>=buttonDeadline){FinishRecording();return;}
             if(buttonRecording||TalkKeyDown()){heldMic.Drain();return;}
             FinishRecording();
-        }catch(Exception error){EndTalk();ReportTalk(error.Message);}
+        }catch(Exception error){RecordingError(error.Message);}
     }
     void FinishRecording(){
         try{
             buttonRecording=false;
             holdPoll.Stop();
             heldAudio=heldMic.Finish();heldMic=null;
-            if(heldAudio.Length==0){EndTalk();ReportTalk(T("입력된 음성이 없습니다.","No speech captured."));return;}
+            if(heldAudio.Length==0){RecordingError(T("입력된 음성이 없습니다.","No speech captured."));return;}
             if(english)DecodeHeldTalk();else DecodeKoreanHold();
-        }catch(Exception error){EndTalk();ReportTalk(error.Message);}
+        }catch(Exception error){RecordingError(error.Message);}
     }
     void DecodeHeldTalk(){
         var selected=SelectRecognizer();
@@ -491,9 +524,9 @@ internal sealed partial class CompanionOverlay : Form {
             try{BeginInvoke((Action)(()=>{
                 if(decoding!=engine)return;
                 decoding=null;engine.Dispose();heldAudio.Dispose();heldAudio=null;
-                if(e.Error!=null||e.Cancelled||words.Count==0){ReportTalk(e.Error==null?T("인식한 말이 없습니다.","No speech recognized."):e.Error.Message);return;}
+                if(e.Error!=null||e.Cancelled||words.Count==0){RecordingError(e.Error==null?T("인식한 말이 없습니다.","No speech recognized."):e.Error.Message);return;}
                 string phrase=String.Join(" ",words.ToArray());
-                if(ReplyToPicker(heldPicker,phrase,confidence))return;
+                if(TestTranscript(phrase)||ReplyToPicker(heldPicker,phrase,confidence))return;
                 DispatchSpeech(phrase,confidence,heldStep,heldProposal,commandGrammar&&words.Count==1,true,heldReceiptView);
             }));}catch(InvalidOperationException){}
         };
@@ -745,12 +778,13 @@ internal sealed partial class CompanionOverlay : Form {
         string[] hints=screen==null&&capturedView==receiptView&&heldHints==receiptHints&&!receiptFollowup&&proposal==null&&!awaitingDetails?heldHints:null;
         ReportTalk("음성 인식 중");
         try{
-            var result=await Task.Run(()=>KoreanRecognition.FromRecording(pcm,session.Token,cargoStep,verifyingCargo,hints,question!=null,receiptConfirm,choices));
+            bool testing=TestingMic;
+            var result=await Task.Run(()=>testing?KoreanRecognition.FromRecording(pcm,session.Token):KoreanRecognition.FromRecording(pcm,session.Token,cargoStep,verifyingCargo,hints,question!=null,receiptConfirm,choices));
             if(koreanHold!=session||disposing)return;
-            if(String.IsNullOrWhiteSpace(result.text)){ReportTalk("인식한 말이 없습니다. 마이크 입력을 확인해 주세요.");return;}
-            if(ReplyToPicker(screen,result.text,result.Confidence)||HandlePlaceReply(result,place,capturedView)||HandleReceiptQuantity(result,question,proposal,capturedView)||HandleCargoReadback(result,captured)||HandleReceiptPair(result,capturedView,hints))return;
+            if(String.IsNullOrWhiteSpace(result.text)){RecordingError("인식한 말이 없습니다. 마이크 입력을 확인해 주세요.");return;}
+            if(TestTranscript(result.text)||ReplyToPicker(screen,result.text,result.Confidence)||HandlePlaceReply(result,place,capturedView)||HandleReceiptQuantity(result,question,proposal,capturedView)||HandleCargoReadback(result,captured)||HandleReceiptPair(result,capturedView,hints))return;
             DispatchSpeech(result.text,result.Confidence,captured,proposal,true,true,capturedView);
-        }catch(Exception error){if(koreanHold==session&&!disposing)ReportTalk(error.Message);}
+        }catch(Exception error){if(koreanHold==session&&!disposing)RecordingError(error.Message);}
         finally{if(koreanHold==session)koreanHold=null;session.Dispose();}
     }
     async void StartKoreanLive(){
@@ -791,6 +825,7 @@ internal sealed partial class CompanionOverlay : Form {
         finally{if(koreanLive==session)koreanLive=null;session.Dispose();}
     }
     internal void ToggleVoice(){
+        if(TestingMic)return;
         if(VoiceEnabled){StopVoice();ReportTalk(T("연속 듣기 꺼짐","Continuous listening off"));return;}
         EndTalk();
         if(!english){StartKoreanLive();return;}

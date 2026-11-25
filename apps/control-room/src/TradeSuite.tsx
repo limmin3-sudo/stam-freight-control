@@ -1,4 +1,5 @@
-import {ReportFill} from './TradeFieldReports';
+import {remainingBuyers,remainingBuyerLabel} from './copilot-market';
+import {ReportFill,useObservations} from './TradeFieldReports';
 import TradeConditionSummary from './TradeConditionSummary';
 import TradePriceScenario from './TradePriceScenario';
 import CompanionDisplay from './CompanionDisplay';
@@ -25,7 +26,7 @@ import './trade-planning.css';
 import './trade-operations.css';
 import './trade-suite.css';
 import TradeControlPrices from './TradeControlPrices';
-import {tradeNextStep} from './trade-workflow';
+import {tradeNextStep,lastPartialSale} from './trade-workflow';
 import TradeRunReview,{TradeSettlement} from './TradeRunReview';
 import {commoditySearchTerms,tradeLabel,tradeMatches} from './trade-labels';
 const Visuals=lazy(()=>import('./TradeSuiteVisuals'));
@@ -123,6 +124,12 @@ export default function TradeSuite({cloud,locale,scope,initialShip,room,onRoom,o
   setEventKind('sell');setTags('');setNote(total===null?'':t('시세 참고 입력 — 실제 수량·단가 확인 필요','Market prefill — verify actual quantity and price'));
   requestAnimationFrame(()=>{transactionHeading.current?.focus({preventScroll:true});transactionHeading.current?.scrollIntoView({block:'start'});});
  }
+ const partial=run&&summary?lastPartialSale(run,summary):null;
+ const [compareSale,setCompareSale]=useState('');
+ const comparisonKey=partial?JSON.stringify([store.owner,run?.id,partial.eventId]):'';
+ const comparing=!!partial&&compareSale===comparisonKey;
+ const {rows:buyerReports}=useObservations(comparing&&room==='trade-operations');
+ const offers=comparing&&data&&run&&summary&&partial?remainingBuyers(data,run,summary,{commodityId:partial.lot.commodityId,qty:partial.lot.quantity,box:partial.lot.boxSize},buyerReports):[];
  const saleGoal=run&&summary?remainingSaleGoal(run,summary):null;
  const target=summary?.target??(step?.aligned?step.leg?.destinationId:undefined);
  const tradeTarget=summary?.status==='active'&&target?t('다음 무역 목적지는 '+location(target)+'입니다.','Your next trade destination is '+location(target)+'.'):'';
@@ -208,6 +215,10 @@ export default function TradeSuite({cloud,locale,scope,initialShip,room,onRoom,o
  {step.leg&&<><p>{t('다음 예정 거점','Next planned terminal')}: {location(step.leg.destinationId)}</p>{button(t('다음 거점으로 출발 기록','Record departure to next terminal'),()=>ask(t('실제 출발을 확인합니다. 매입이나 판매를 자동으로 기록하지 않습니다.','Confirm actual departure. No purchase or sale is recorded automatically.')+' '+location(step.leg!.destinationId),()=>dispatch({kind:'event',runId:run.id,event:{id:crypto.randomUUID(),at:new Date().toISOString(),kind:'depart',terminalId:step.leg!.destinationId,note:''}})))}</>}
  {step.complete&&<p>{summary.holdings.length?t('남은 화물을 판매·보관·손실 등 실제 상태에 맞게 처리한 후 마감하세요. 보관 화물도 정리해야 마감할 수 있습니다.','Resolve remaining cargo according to its actual state before closing, including stored lots.'):t('남은 화물이 없습니다. 비용을 확인하고 아래에서 무역을 마감하세요.','No cargo remains. Check expenses, then finish the trade below.')}</p>}
  </>}
+ {partial&&<section className="trade-purchase-progress"><h4>{goods(partial.lot.commodityId)} · {t('부분 판매','Partial sale')}</h4>
+ <p>{t('판매 전','Before sale')} {partial.before} SCU → {t('판매','Sold')} {partial.sold} SCU → {t('남음','Remaining')} {partial.lot.quantity} SCU</p>
+ <button type="button" aria-expanded={comparing} onClick={()=>{setCompareSale(comparing?'':comparisonKey);if(!comparing)void refreshCommodity(data,partial.lot.commodityId).then(()=>{if(mounted.current)setData(marketWithRecentQuotes(data));}).catch(()=>{});}}>{t('남은 화물 판매처 비교','Compare buyers for remaining cargo')}</button>
+ {comparing&&(offers.length?<ul>{offers.map(o=><li key={o.terminalId}>{remainingBuyerLabel(o,location(o.terminalId),en)} <button type="button" onClick={()=>ask(t('이 판매처를 목표로 지정할까요?','Set this buyer as the sale target?'),()=>store.dispatch({kind:'saleGoal',runId:run.id,goal:{lotId:partial.lot.id,terminalId:o.terminalId,quantity:o.fill,sinceEvent:run.events.length}},store.raw))}>{t('판매 목표 지정','Set sale target')}</button></li>)}</ul>:<p>{t('최근 수요가 확인된 판매처가 없습니다.','No buyer has recent reported demand.')}</p>)}</section>}
  {run.route.splitSale&&<div className="trade-purchase-progress"><h4>{t('판매처별 예정 수량','Planned sales by terminal')}</h4>{run.route.legs.map(l=><p key={l.destinationId}>{location(l.destinationId)} · {goods(l.lines[0]!.commodityId)} {l.lines[0]!.quantity} SCU</p>)}</div>}
  {summary.target===null&&(step.complete||run.events.some(e=>e.kind==='arrive')||run.options.mode==='buyers')&&summary.holdings.filter(l=>l.terminalId===null).map(l=><div key={l.id}>
   <ReportFill key={store.owner+run.id+l.id+summary.position+l.quantity} locale={locale} patch={data.liveVersion} side="sell" terminalId={summary.position} commodityId={l.commodityId} attempted={l.quantity} name={goods(l.commodityId)+' · '+location(summary.position)}/>

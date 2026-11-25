@@ -1,6 +1,6 @@
 import type { Expedition, ExpeditionSummary } from './trade-expedition.ts';
 import { remainingSaleGoal } from './trade-expedition.ts';
-import { tradeNextStep } from './trade-workflow.ts';
+import { lastPartialSale, tradeNextStep } from './trade-workflow.ts';
 
 // The ledger owns quantities. Route prices are estimates saved when the plan was made.
 export function tradeCompanion(run: Expedition, state: ExpeditionSummary, place: (id:number)=>string, goods: (id:number)=>string, en: boolean) {
@@ -49,7 +49,9 @@ export function tradeCompanion(run: Expedition, state: ExpeditionSummary, place:
   const stage=buying?t('구매소','Buy at'):selling?t('판매소','Sell at'):stop?t('이동','Travel to'):
     step.complete?t('경로 도착','Route complete'):t('경로 재확인','Review route');
   const heading=destination?stage+' · '+destination:stage;
+  const partial=lastPartialSale(run,state);
   const rows=buying?[...purchaseRows,...aboardRows]:[...aboardRows,...saleRows,...purchaseRows];
+  if(partial)rows.unshift(goods(partial.lot.commodityId)+' · '+t('판매 전 ','Before ')+format(partial.before)+' → '+t('판매 ','Sold ')+format(partial.sold)+' → '+t('남음 ','Left ')+format(partial.lot.quantity)+' SCU');
   const lines=rows.length?[...rows]:[heading];
   if(lines.length>6)lines.splice(5,lines.length-5,t('추가 항목','More entries')+' '+(lines.length-5));
   const buyer=state.target??goal?.terminalId??(arrivedToSell?state.position:current?.destinationId);
@@ -64,7 +66,8 @@ export function tradeCompanion(run: Expedition, state: ExpeditionSummary, place:
     left-=suggested;return {...row,suggested};
   });
   const action=state.target?'arrive':buying?'buy':stop&&stop!==state.position?'depart':holdings.length?'sell':'';
-  return {control:{action,buyer,purchases,holdings:sales},mode:'personal' as const,title:t('개인 무역','Personal trade'),lines,
+  if(partial)sales.sort((a,b)=>Number(b.lotId===partial.lot.id)-Number(a.lotId===partial.lot.id));
+  return {control:{action,buyer,purchases,holdings:sales,partial},mode:'personal' as const,title:t('개인 무역','Personal trade'),lines,
     guidance:{destination:compact(destination?heading:''),task:compact([heading,rows[0]].filter(Boolean).join(' · ')),
       load:compact((buying?purchaseRows:aboardRows).join(' / ')||t('선내 화물 없음','No cargo aboard')),
       afterLoad:buyer?place(buyer):destination,cash:format(state.cash)+' aUEC',profit:t('실현 손익','Realized P/L')+' '+format(state.realized)+' aUEC'}};

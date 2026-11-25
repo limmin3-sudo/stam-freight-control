@@ -1,3 +1,4 @@
+import {receiptCategory} from '../../../integration/log/read-assist.mjs';
 import locationData from '../../../data/log-location-index.json' with {type:'json'};
 import {currentLocationData,currentLocationPoint,personalLocationPoint} from './personal-locations.mjs';
 import fleet from '../../../data/ships.json' with {type:'json'};
@@ -36,6 +37,11 @@ export function routeReady(job:Job) {
 export function receiptRouteLabel(job:Job,en:boolean){
  if(job.state==='ended'||job.state==='conflict')return '';
  const route=routeReady(job),rows=job.shipments;
+ if(!route&&job.signature){
+  const category=receiptCategory(job);
+  if(category==='other')return en?'Non-freight contract':'운송 외 계약';
+  if(category==='unknown')return en?'Unclassified · check the in-game objectives':'분류 확인 · 게임 계약에서 목표를 확인하세요';
+ }
  const missing:string[]=[];
  if(!route){
   if(!rows.length||rows.some(r=>!navigablePlace(r.from)))missing.push(en?'pickup':'픽업지');
