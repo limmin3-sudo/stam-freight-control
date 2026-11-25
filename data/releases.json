@@ -1,5 +1,23 @@
 [
   {
+    "id": "2026-11-25-beta-3-12-1",
+    "channel": "beta",
+    "version": "3.12.1",
+    "date": "2026-11-25 21:39",
+    "title": "초대형함 전경과 넓어진 소개영상",
+    "changes": [
+      "첫 화면에서 사업부 소개영상 보기를 누르면 확대된 플레이어로 이동합니다. 재생 버튼을 누르면 소리와 함께 시작합니다.",
+      "사업부 전경 아래에 구름바다를 항해하는 초대형함을 추가하고, 화면 크기에 맞춰 영상의 흑티타늄·금장 프레임을 조정했습니다."
+    ],
+    "en": {
+      "title": "Flagship panorama and a larger introduction player",
+      "changes": [
+        "Select Watch the introduction on the welcome screen to jump to the larger player. Press play to start the film with sound.",
+        "Scroll below the division panorama to see the flagship above the clouds. The black titanium and gold video frame scales to your screen."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-12-0",
     "channel": "beta",
     "version": "3.12.0",
