@@ -1,10 +1,51 @@
 /* Both the working console and the welcome page use the same metal finishes. */
 :is(.space-experience, .opening-film[data-look="mixed"]) {
   --shell-grain: url('./graphite-face.webp');
-  --shell-platinum:
-    linear-gradient(178deg,#ffffff38,transparent 38%,#24323d12 80%,#ffffff22),
-    linear-gradient(106deg,#a8b0b6e0,#e5e8e9ec 18%,#f7f7f3eb 26%,#cbd0d2de 44%,#a9b1b7de 62%,#e2e6e7e8 83%,#bfc5c9df),
+  --shell-titanium:
+    linear-gradient(178deg,#eef1ed22,transparent 30%,#06070944 80%,#ba9d7422),
+    linear-gradient(106deg,#101317ed,#34373bea 23%,#191c20ec 48%,#22252aea 82%,#131518ee),
     var(--shell-grain) center / cover no-repeat;
-  --shell-platinum-ink: #182128;
+  --shell-ink: #f3ece0;
+  --shell-gold-key: linear-gradient(165deg,#5d4c36,#383127 44%,#1d1b19 85%,#373027);
+  --shell-gold-rim: #bf9a5e;
   --shell-dark-face: linear-gradient(164deg,#434b50e8,#282e32ed 38%,#171d21ee 78%,#272e32ef);
+}
+
+:is(.opening-film .departure-brand img, #root .space-topbar .brand-emblem) {
+  box-sizing: border-box;
+  object-fit: contain;
+  border: 1px solid #b89459;
+  border-radius: 3px;
+  padding: 2px;
+  background: linear-gradient(132deg,#e6d6b6,#655039 29%,#242629 56%,#bda078);
+  box-shadow: 0 0 0 1px #151617, 0 2px 4px #05070a80;
+}
+
+/* The bronze plate runs to the edge of the header. Its bevel follows the
+   same diagonal on the opening page and above the facility navigation. */
+:is(.opening-film .departure-bar, #root .space-experience > .space-topbar) {
+  isolation: isolate;
+}
+:is(.opening-film .departure-bar, #root .space-experience > .space-topbar)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  inset: 1px auto 1px -100px;
+  width: calc(31% + 100px);
+  transform: skewX(-44deg);
+  transform-origin: left bottom;
+  background:
+    linear-gradient(178deg,#efdfa425,transparent 27%,#1c171824 85%),
+    linear-gradient(107deg,#574632ed,#796345f2 32%,#584a36ed 64%,#352e26f5),
+    var(--shell-grain) center / cover;
+  border-right: 1px solid #ebd2a0;
+  box-shadow: inset -2px 0 #786044, inset -3px 0 #b69c73,
+    inset 0 1px #d8be8b80, inset 0 -1px #806a4b, 2px 0 #17191b;
+}
+@media (max-width: 760px) {
+  :is(.opening-film .departure-bar, #root .space-experience > .space-topbar)::before {
+    width: calc(39% + 100px);
+    transform: skewX(-32deg);
+  }
 }

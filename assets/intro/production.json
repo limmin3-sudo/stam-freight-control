@@ -1,32 +1,52 @@
 {
-  "edition": "beta-1.1.0",
-  "durationSeconds": 52,
-  "typography": "Korean; locally composed",
+  "edition": "freight-division-20261125-A",
+  "durationSeconds": 171.5,
+  "typography": "Korean facility cards and matching guide narration",
   "film": {
     "width": 1920,
     "height": 1080,
     "fps": 24,
-    "sourceFootage": "1920x1080; atmospheric vista and 2-second tunnel insert originate at 1280x720",
+    "sourceFootage": "Approved HD edit with some 720p partner footage",
     "codec": "H.264",
     "audio": "AAC stereo",
-    "webEncoding": "H.264 CRF 21; 4.3 Mbps maximum video bitrate"
+    "webEncoding": "HD companion edition, 1320 kbps maximum video bitrate"
   },
-  "content": "Atmospheric flyby, medium STAM freighter vertical ascent, planetary vista, quantum arrival, feature typography without website screenshots, wormhole entry/transit/emergence; beta 1.0.0 original instrumental score and effects",
-  "masterSha256": "e0c563027408c5053cadcda3a45895b09b99edfe268278d8f03fe2b8aba7477b",
+  "uhd": {
+    "width": 3840,
+    "height": 2160,
+    "method": "Lanczos",
+    "path": "apps/control-room/src/assets/freight-intro-4k.mp4",
+    "bytes": 359528331,
+    "sha256": "96cc4ed215eee8493457eb58799bf1fc6113dbd022fc4f6a258d54039a485f15"
+  },
+  "content": "Lounge, mission control, trade center and academy; three ship classes, quantum travel and wormhole transit",
+  "masterSha256": "96cc4ed215eee8493457eb58799bf1fc6113dbd022fc4f6a258d54039a485f15",
   "files": {
     "intro.mp4": {
-      "bytes": 29846325,
-      "sha256": "faa8c073d63a3dbe492fbc4bdd492bdc36da196595a9e73a97be4bfcb5dbd417"
+      "bytes": 29632820,
+      "sha256": "d12c1c4515c56ab3c3221de692f11d6b1641686020d3edb9367b2fc74b8601f7"
     },
     "teaser.mp4": {
-      "bytes": 735597,
-      "sha256": "460b810af4379dbb4c1ef499775a40b2d069c07c70add004bcd69cf2bb630339"
+      "bytes": 1082312,
+      "sha256": "ca45d6f702c1b41f087ebcd816d44610b884b89912fadc80e4f2423b081f7bcf"
     },
     "poster.jpg": {
-      "bytes": 205045,
-      "sha256": "ee057cf0bdc47ea50c8e9b64e290a2cad120538a9d98193ef2579529c75da424"
+      "bytes": 125934,
+      "sha256": "871f009792e89111e1c082cbf4da861800a5f85ad6bd225afcfe68145ca61680"
     }
   },
-  "musicSource": "Beta 1.0.0 original score, unchanged tempo",
-  "musicSha256": "e9f295d728bac138e0d53d13d0d013e8a2c8056cd103019467ba3163908bbbc0"
+  "musicSource": "Trailer score A",
+  "logoReveal": {
+    "openingSeconds": 4,
+    "endingSeconds": 10.25,
+    "posterSourceSeconds": 8.8,
+    "source": "Official STAM ROKS FLEET reveal"
+  },
+  "mobileWeb": {
+    "width": 1920,
+    "height": 1080,
+    "path": "apps/control-room/src/assets/freight-intro-hd.mp4",
+    "bytes": 134886292,
+    "sha256": "7a7bc689a800bd12689eb36b55fdf5bb6e9a3f44b251f1f5c5595842fee4e442"
+  }
 }

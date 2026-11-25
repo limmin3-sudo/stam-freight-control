@@ -3,7 +3,7 @@ import {FilmScreen} from './FilmScreen';
 import {firstDeparture, fleetIntroduction} from './film-screenings';
 import './fleet-cinema.css';
 
-const programme = [firstDeparture, fleetIntroduction];
+const programme = [fleetIntroduction, firstDeparture];
 
 export function FleetCinema({english}: {english: boolean}) {
   const [playingFilm, setPlayingFilm] = useState<string>();

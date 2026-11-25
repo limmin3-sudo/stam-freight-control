@@ -38,6 +38,7 @@ const facilityArt = new Map([
 ]);
 const featuredFacilities = divisionFacilities.filter(facility => facilityArt.has(facility.id));
 const sections = [
+  ['division-intro', '사업부 소개', 'Introduction'],
   ['departure-premiere', '첫 출항', 'First Departure'],
   ['departure-crew', '파트너', 'Partners'],
   ['departure-directory', '시설', 'Facilities'],
@@ -132,29 +133,46 @@ export function OpeningFilm({children}: {children: ReactNode}) {
     <section className="departure-hero" aria-labelledby="departure-title">
       <img className="departure-hero-panorama" src={divisionPanorama} alt="" width="1672" height="941" fetchPriority="high" />
       <div className="departure-hero-body">
-        <h1 id="departure-title" tabIndex={-1}>STAM <span>{english ? 'Freight Division' : '운송사업부'}</span></h1>
-        <p>{english
-          ? 'Plan freight routes and cargo loads, compare trade prices, and train for your first haul.'
-          : '계약을 정리하고 항로와 화물 적재를 계획하세요. 무역 시세부터 첫 운송 실습까지 한곳에서 시작할 수 있습니다.'}</p>
-        <div className="departure-hero-actions">
-          <button type="button" className="departure-premiere-button" onClick={() => scrollToSection('departure-premiere')}>
-            <span aria-hidden="true">▷</span> {english ? 'First Departure film' : '첫 출항 영상 보기'}
-          </button>
-          <label className="departure-preference">
-            <input type="checkbox" checked={hidden} onChange={event => {
-              setHidden(event.currentTarget.checked);
-              savePreference('localStorage', openingHiddenKey, event.currentTarget.checked);
-            }} />
-            {english ? 'Don’t show this again' : '다시 보지 않기'}
-          </label>
-          {mode === 'replay' && <a className="departure-service-return" href={spaceHash({screen: 'service', locale})}>
-            {english ? 'Return to service centre' : '서비스센터로 돌아가기'}
-          </a>}
+        <div className="departure-hero-copy">
+          <h1 id="departure-title" tabIndex={-1}>STAM <span>{english ? 'Freight Division' : '운송사업부'}</span></h1>
+          <p>{english
+            ? 'Plan freight routes and cargo loads, compare trade prices, and train for your first haul.'
+            : '계약을 정리하고 항로와 화물 적재를 계획하세요. 무역 시세부터 첫 운송 실습까지 한곳에서 시작할 수 있습니다.'}</p>
+          <div className="departure-hero-actions">
+            <label className="departure-preference">
+              <input type="checkbox" checked={hidden} onChange={event => {
+                setHidden(event.currentTarget.checked);
+                savePreference('localStorage', openingHiddenKey, event.currentTarget.checked);
+              }} />
+              {english ? 'Don’t show this again' : '다시 보지 않기'}
+            </label>
+            {mode === 'replay' && <a className="departure-service-return" href={spaceHash({screen: 'service', locale})}>
+              {english ? 'Return to service centre' : '서비스센터로 돌아가기'}
+            </a>}
+          </div>
         </div>
       </div>
-      <button className="departure-hero-scroll" type="button" onClick={() => scrollToSection('departure-premiere')}>
-        {english ? 'Explore below' : '아래로 둘러보기'} <span aria-hidden="true">↓</span>
+      <button className="departure-hero-scroll" type="button" onClick={() => scrollToSection('division-intro')}>
+        {english ? 'Watch the introduction' : '사업부 소개영상 보기'} <span aria-hidden="true">↓</span>
       </button>
+    </section>
+
+    <section className="departure-feature" id="division-intro" aria-labelledby="division-intro-title" tabIndex={-1}>
+      <div className="departure-screening" data-departure-reveal>
+        <h2 id="division-intro-title" className="departure-reveal-heading">{fleetIntroduction.title[lang]}</h2>
+        <div className="departure-intro-player departure-reveal-player">
+          <FilmScreen screening={fleetIntroduction} english={english} active={playingFilm === fleetIntroduction.video}
+            onPlay={() => setPlayingFilm(fleetIntroduction.video)} />
+          <div className="departure-meta">
+            <span>{fleetIntroduction.length[lang]} · {english ? 'Up to 4K UHD' : '최대 4K UHD'}</span>
+            <a href={spaceHash({screen: 'cinema', locale})}>{english ? 'Watch in the cinema' : '시네마에서 보기'} <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+      <figure className="departure-celebration" data-departure-reveal>
+        <img src={celebration} alt="" width="1672" height="941" loading="lazy" />
+        <figcaption>{english ? 'First Departure celebration' : '첫 출항 기념 파티'}</figcaption>
+      </figure>
     </section>
 
     <section className="departure-premiere" id="departure-premiere" aria-labelledby="departure-premiere-title" tabIndex={-1}>
@@ -167,24 +185,6 @@ export function OpeningFilm({children}: {children: ReactNode}) {
           <div className="departure-meta">
             <span>{firstDeparture.length[lang]} <span aria-hidden="true">·</span> 720p</span>
             <span>{english ? 'Plays with sound' : '소리와 함께 재생'}</span>
-          </div>
-        </div>
-      </div>
-      <figure className="departure-celebration" data-departure-reveal>
-        <img src={celebration} alt="" width="1672" height="941" loading="lazy" />
-        <figcaption>{english ? 'First Departure celebration' : '첫 출항 기념 파티'}</figcaption>
-      </figure>
-    </section>
-
-    <section className="departure-feature" aria-labelledby="departure-feature-title">
-      <div className="departure-screening" data-departure-reveal>
-        <h2 id="departure-feature-title" className="departure-reveal-heading">{english ? 'Discover STAM' : 'STAM 소개영상'}</h2>
-        <div className="departure-reveal-player">
-          <FilmScreen screening={fleetIntroduction} english={english} active={playingFilm === fleetIntroduction.video}
-            onPlay={() => setPlayingFilm(fleetIntroduction.video)} />
-          <div className="departure-meta">
-            <span>{fleetIntroduction.title[lang]} <span aria-hidden="true">·</span> {fleetIntroduction.length[lang]}</span>
-            <a href={spaceHash({screen: 'cinema', locale})}>{english ? 'Watch in the cinema' : '시네마에서 보기'} <span aria-hidden="true">↗</span></a>
           </div>
         </div>
       </div>

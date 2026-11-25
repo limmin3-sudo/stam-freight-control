@@ -21,3 +21,9 @@ server/cloud/node_modules/
 server/cloud/.secret.local
 
 /.stam-private/
+
+# Reassembled byte-for-byte by the control-room Vite config.
+/apps/control-room/src/assets/freight-intro-4k.mp4
+/apps/control-room/src/assets/freight-intro-hd.mp4
+
+/apps/control-room/src/assets/freight-intro-*.mp4.*.tmp
