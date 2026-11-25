@@ -3,7 +3,6 @@ import departurePoster from './assets/first-departure/screening-poster.webp';
 import fleetFilm from './assets/freight-intro-4k.mp4';
 import fleetFilmHD from './assets/freight-intro-hd.mp4';
 import fleetPoster from '../../../assets/intro/poster.jpg';
-import legacyFilm from './assets/cinema/fleet-introduction-legacy.mp4';
 import legacyPoster from './assets/cinema/fleet-introduction-legacy.jpg';
 
 type Localized = readonly [korean: string, english: string];
@@ -41,7 +40,8 @@ export const legacyFleetIntroduction: Screening = {
   title: ['STAM 함대 소개영상 (구버전)', 'STAM Fleet Introduction (Original)'],
   length: ['52초', '52 seconds'],
   playLabel: ['구버전 함대 소개영상 재생', 'Play original fleet introduction'],
-  video: legacyFilm,
+  // Pin the original public MP4 without adding it to the Pages bundle a second time.
+  video: 'https://raw.githubusercontent.com/limmin3-sudo/stam-freight-control/8ec667355093afb4f353770a2054ca88ab0ed213/assets/intro/intro.mp4',
   poster: legacyPoster,
   downloadName: 'STAM-Fleet-Introduction-Original.mp4',
 };
