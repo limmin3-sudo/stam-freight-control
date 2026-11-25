@@ -72,24 +72,51 @@ jobs:
         run: node scripts/publish-lounge.mjs public apps/control-room/dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
+        id: upload
         with:
           path: public
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Wait for uploaded artifact metadata
+      # Use the uploader's ID directly. The artifact listing seen by
+      # deploy-pages can still be empty after a successful upload.
+      - name: Deploy uploaded site
+        id: deployment
         uses: actions/github-script@v7
+        env:
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
         with:
           script: |
-            const name = `github-pages-${context.runId}-${process.env.GITHUB_RUN_ATTEMPT}`;
-            for (let attempt = 0; attempt < 15; attempt++) {
-              const {data} = await github.rest.actions.listWorkflowRunArtifacts({
-                owner: context.repo.owner, repo: context.repo.repo, run_id: context.runId,
-              });
-              if (data.artifacts.some(artifact => artifact.name === name && !artifact.expired)) return;
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-            throw new Error('Uploaded Pages artifact metadata is not available yet.');
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+            const artifactId = Number(process.env.ARTIFACT_ID);
+            if (!Number.isSafeInteger(artifactId) || artifactId <= 0) throw Error('Missing Pages artifact ID');
+            const {data} = await github.request('POST /repos/{owner}/{repo}/pages/deployments', {
+              ...context.repo, artifact_id: artifactId, pages_build_version: context.sha,
+              oidc_token: await core.getIDToken(),
+            });
+            core.setOutput('page_url', data.page_url);
+            core.setOutput('deployment_id', data.id || context.sha);
+      - name: Verify Pages deployment
+        uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
-          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+          retries: 2
+          script: |
+            const params = {...context.repo, deploymentId: process.env.DEPLOYMENT_ID};
+            for (let attempt = 0; attempt < 120; attempt++) {
+              const {data} = await github.request('GET /repos/{owner}/{repo}/pages/deployments/{deploymentId}', params);
+              if (data.status === 'succeed') return;
+              if (['deployment_failed', 'deployment_perms_error', 'deployment_content_failed', 'deployment_cancelled',
+                   'deployment_lost', 'deployment_failed_retry'].includes(data.status)) throw Error(data.status);
+              await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+            await github.request('POST /repos/{owner}/{repo}/pages/deployments/{deploymentId}/cancel', params);
+            throw Error('Pages deployment timed out');
+      - name: Cancel interrupted Pages deployment
+        if: ${{ cancelled() && steps.deployment.outputs.deployment_id }}
+        uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
+        with:
+          script: |
+            await github.request('POST /repos/{owner}/{repo}/pages/deployments/{deploymentId}/cancel', {
+              ...context.repo, deploymentId: process.env.DEPLOYMENT_ID,
+            });
