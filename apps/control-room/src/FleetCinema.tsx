@@ -1,9 +1,9 @@
 import {useState} from 'react';
 import {FilmScreen} from './FilmScreen';
-import {firstDeparture, fleetIntroduction} from './film-screenings';
+import {firstDeparture, fleetIntroduction, legacyFleetIntroduction} from './film-screenings';
 import './fleet-cinema.css';
 
-const programme = [fleetIntroduction, firstDeparture];
+const programme = [fleetIntroduction, firstDeparture, legacyFleetIntroduction];
 
 export function FleetCinema({english}: {english: boolean}) {
   const [playingFilm, setPlayingFilm] = useState<string>();
