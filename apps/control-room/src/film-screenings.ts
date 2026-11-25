@@ -1,6 +1,7 @@
 import departureFilm from './assets/first-departure/stam-first-departure.mp4';
 import departurePoster from './assets/first-departure/screening-poster.webp';
-import fleetFilm from '../../../assets/intro/intro.mp4';
+import fleetFilm from './assets/freight-intro-4k.mp4';
+import fleetFilmHD from './assets/freight-intro-hd.mp4';
 import fleetPoster from '../../../assets/intro/poster.jpg';
 
 type Localized = readonly [korean: string, english: string];
@@ -10,6 +11,7 @@ export type Screening = Readonly<{
   length: Localized;
   playLabel: Localized;
   video: string;
+  mobileVideo?: string;
   poster: string;
   downloadName: string;
 }>;
@@ -24,10 +26,11 @@ export const firstDeparture: Screening = {
 };
 
 export const fleetIntroduction: Screening = {
-  title: ['STAM 함대 소개영상', 'STAM fleet introduction'],
-  length: ['52초', '52 seconds'],
+  title: ['STAM 운송사업부 소개', 'STAM Freight Division introduction'],
+  length: ['2분 52초', '2 min 52 sec'],
   playLabel: ['STAM 소개영상 재생', 'Play STAM introduction'],
   video: fleetFilm,
+  mobileVideo: fleetFilmHD,
   poster: fleetPoster,
-  downloadName: 'STAM-fleet-introduction.mp4',
+  downloadName: 'STAM-Freight-Division-4K.mp4',
 };

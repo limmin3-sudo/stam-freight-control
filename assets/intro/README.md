@@ -1,11 +1,7 @@
-# Introduction film — Beta 1.1.0
+# STAM Freight Division introduction
 
-The approved film is the 52-second edition: atmospheric side tracking, medium STAM freighter vertical ascent, a camera-only planetary vista leading directly to quantum arrival, feature typography over moving footage, wormhole entry/transit/emergence and a fleet end card. The falling-looking opening and quantum departure shot are excluded. There are no website screenshots or screenshot panels, so the film remains usable as the interface evolves.
+The 171.5-second film introduces the lounge, mission control, trade center and academy. The guide reads the four facility cards over score A. The fleet reveal opens and closes the film.
 
-- `intro.mp4`: 1920×1080, 24 fps, H.264 / AAC stereo, fast-start metadata. Web encoding uses CRF 21 with a 4.3 Mbps video ceiling. The atmospheric vista and 2-second tunnel insert originate at 720p; other source clips and editorial typography are 1080p. Every file remains below the companion cache limit of 32 MiB.
-- `poster.jpg`: a clean orbital frame of the featured fleet.
-- `teaser.mp4`: 3.5-second, 1280×720 silent fleet preview, excluding the rejected opening. Reduced-motion handling is preserved.
+The welcome page and lounge cinema share the same poster, an 8.8-second frame from the official fleet reveal. Playback starts with sound on user interaction. They use the 3840×2160 edition on larger screens and the 1920×1080 edition on smaller screens. Both run at 24 fps. The UHD edition is a Lanczos upscale of the approved HD edit, which includes some 720p footage.
 
-The music is the original score used for the beta 1.0.0 introduction, without a tempo change. Effects were mixed locally. Spacecraft footage is cinematic illustration, not in-game flight capture. Sources and earlier edits are preserved outside this repository; delivery hashes and provenance are in `production.json`.
-
-By user request the final film and previously published language changes are combined into one beta 1.1.0 release record; the separate beta 1.1.1 entry is removed. Historical alpha rendering scripts must not overwrite these assets. Future replacements should update film, preview and metadata together and stamp new website asset URLs. The companion executable does not need to change for this film update.
+This folder contains the smaller companion edition, its poster and a silent 3.5-second teaser. The browser plays the full 16.5 Mbps UHD master or the original 6.0 Mbps HD edit. The Vite config reconstructs the MP4 files from the verified parts under apps/control-room/media/freight-intro. The smaller companion file is independent. File hashes and encoding details are in production.json.

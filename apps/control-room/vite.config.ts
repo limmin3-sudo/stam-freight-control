@@ -1,6 +1,7 @@
 import { defineConfig,searchForWorkspaceRoot } from 'vite';
 import {fileURLToPath} from 'node:url';
 import react from '@vitejs/plugin-react';
+import {prepareIntroMedia} from './prepare-intro-media.mjs';
 import { readFileSync } from 'node:fs';
 
 // Relative assets and hash navigation also work under a GitHub Pages subpath.
@@ -8,6 +9,9 @@ import { readFileSync } from 'node:fs';
 export default defineConfig({
   server:{fs:{allow:[searchForWorkspaceRoot(fileURLToPath(new URL('.',import.meta.url))),fileURLToPath(new URL('../../data',import.meta.url)),fileURLToPath(new URL('../../desktop/theme/optics',import.meta.url))]}},
   plugins: [react(), {
+    name: 'stam-intro-media',
+    config: prepareIntroMedia,
+  }, {
     name: 'stam-font-licenses',
     generateBundle() {
       const source = ['SUIT', 'OXANIUM', 'Pretendard', 'BARLOW', 'BARLOWSEMI', 'ROBOTOCONDENSED'].map(name => `${name}\n\n${readFileSync(new URL(`./src/assets/fonts/${name}-LICENSE.txt`, import.meta.url), 'utf8')}`).join('\n\n');

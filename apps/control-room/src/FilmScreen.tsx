@@ -28,7 +28,10 @@ export function FilmScreen({screening, english, cinema = false, active = true, o
     onPlay?.();
 
     video.hidden = false;
-    if (!video.hasAttribute('src')) video.src = screening.video;
+    if (!video.hasAttribute('src')) {
+      video.src = screening.mobileVideo && matchMedia('(max-width: 760px)').matches
+        ? screening.mobileVideo : screening.video;
+    }
     else if (video.error) video.load();
     video.muted = false;
 
@@ -49,7 +52,7 @@ export function FilmScreen({screening, english, cinema = false, active = true, o
         <img src={screening.poster} alt="" />
         <span className="film-screen-call">
           <span className="film-screen-play-mark" aria-hidden="true">▶</span>
-          <span>{status === 'error' ? retryLabel : (english ? 'Play film' : '영상 재생')}</span>
+          <span>{status === 'error' ? retryLabel : screening.playLabel[lang]}</span>
         </span>
       </button>}
     </div>

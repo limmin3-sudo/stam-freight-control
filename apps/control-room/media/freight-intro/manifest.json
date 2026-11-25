@@ -1,0 +1,18 @@
+{
+  "uhd": {
+    "parts": [
+      "uhd.part00",
+      "uhd.part01",
+      "uhd.part02",
+      "uhd.part03"
+    ],
+    "sha256": "96cc4ed215eee8493457eb58799bf1fc6113dbd022fc4f6a258d54039a485f15"
+  },
+  "hd": {
+    "parts": [
+      "hd.part00",
+      "hd.part01"
+    ],
+    "sha256": "7a7bc689a800bd12689eb36b55fdf5bb6e9a3f44b251f1f5c5595842fee4e442"
+  }
+}

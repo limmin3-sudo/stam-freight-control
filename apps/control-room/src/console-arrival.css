@@ -22,6 +22,7 @@
 .console-arrival{position:absolute;grid-area:1/2;inset:0;z-index:9;overflow:hidden;pointer-events:none;visibility:hidden;opacity:0;background:#03080d}
 .console-arrival[data-state=depart]{visibility:visible;opacity:1;pointer-events:auto;transition:opacity calc(var(--departure-ms) * .35) cubic-bezier(.6,0,1,.6) calc(var(--departure-ms) * .65)}
 .console-arrival>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;opacity:0}
+.console-arrival>img.console-arrival-logo{object-fit:contain}
 .console-arrival[data-state=ignite]{visibility:visible;pointer-events:auto;animation:stam-live-reveal var(--ignition-ms) linear both}
 .console-arrival[data-state=return]{visibility:visible;pointer-events:auto;animation:stam-return-reveal 697ms linear both}
 .console-arrival[data-state=ignite] .console-arrival-logo{opacity:1;animation:stam-logo-contact var(--ignition-ms) linear both}
