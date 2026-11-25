@@ -1,5 +1,23 @@
 [
   {
+    "id": "2026-11-25-beta-3-12-2",
+    "channel": "beta",
+    "version": "3.12.2",
+    "date": "2026-11-25 21:59",
+    "title": "첫 화면 스크롤 안내와 소개영상 연출",
+    "changes": [
+      "첫 화면 아래의 ‘아래로 스크롤’ 버튼을 누르면 초대형함 전경으로 이동합니다.",
+      "아래로 내리면 초대형함이 나타나고 소개영상 표지가 양옆으로 펼쳐집니다. 재생 중에는 영상 프레임이 고정됩니다."
+    ],
+    "en": {
+      "title": "Scroll cue and introduction film reveal",
+      "changes": [
+        "Select Scroll down on the welcome screen to move to the flagship panorama.",
+        "As you scroll, the flagship comes into view and the film poster opens from the centre. The frame stays still during playback."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-12-1",
     "channel": "beta",
     "version": "3.12.1",
