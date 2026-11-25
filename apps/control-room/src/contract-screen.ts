@@ -32,6 +32,15 @@ function sameGoods(row:Shipment,item:string){return row.cargo.some(c=>norm(c)===
 // Never use a catalogue cargo range or the number of blank fields to break a tie.
 const itemIds=new Map(Object.entries(ko.goods).flatMap(([en,kr])=>[[norm(en),en],[norm(kr),en]] as [string,string][]));
 const untitled=(j:Job)=>!j.title.some(t=>t&&t!=='수신한 계약'&&t!=='—');
+// Korean OCR can render a short Hangul word as Latin glyphs. Both unchanged
+// sides must anchor the same full title. The match still needs log evidence.
+function damagedTitle(observed:string,expected:string){
+ const gap=/^([가-힣]{3,})[a-z]{1,4}([가-힣]{3,})$/.exec(norm(observed));
+ const name=norm(expected);
+ if(!gap || !/^[가-힣]+$/.test(name))return false;
+ const missing=name.length-gap[1]!.length-gap[2]!.length;
+ return missing>=1&&missing<=4&&name.startsWith(gap[1]!)&&name.endsWith(gap[2]!);
+}
 export function frameCandidates(frame:Frame,jobs:Job[]){
  if(frame.missionId)return jobs.filter(j=>j.id.toLowerCase()===frame.missionId?.toLowerCase());
  if(!frame.acceptedTab||!frame.title)return [];
@@ -41,7 +50,7 @@ export function frameCandidates(frame:Frame,jobs:Job[]){
  const to=goal?loc(goal.destination):'';
  const item=goal&&itemIds.get(norm(goal.item));
  return jobs.filter(job=>{
-  if(!untitled(job)&&!job.title.some(t=>norm(t)===norm(frame.title)))return false;
+  if(!untitled(job)&&!job.title.some(t=>norm(t)===norm(frame.title)||damagedTitle(frame.title,t)))return false;
   if(frame.pay!==null&&!job.rewardUnknown&&job.pay!==frame.pay)return false;
   if(goal?.total&&job.singleDeliveryScu&&job.singleDeliveryScu!==goal.total)return false;
   const e=job.directEvidence;
@@ -66,6 +75,8 @@ export function matchFrame(frame:Frame,jobs:Job[]){
  const loc=(name:string)=>screenLocation(name,currentLocationData().locations,ko.places);
  const matchesStop=!!observed&&frame.goals.some(g=>observed.to&&loc(g.destination)===canonicalLocationId(observed.to)||
   observed.from&&g.pickups.some(p=>loc(p)===canonicalLocationId(observed.from)));
+ const exactTitle=job.title.some(t=>norm(t)===norm(frame.title));
+ if(!exactTitle && !(quota && job.singleDeliveryScu===quota && (matchesCargo||matchesStop)))return [];
  const matchesReward=frame.pay!==null&&!job.rewardUnknown&&frame.pay===job.pay;
  if(known.length&&!matchesCargo||!matchesCargo&&!matchesStop&&!matchesReward&&!(quota&&job.singleDeliveryScu===quota))return [];
 

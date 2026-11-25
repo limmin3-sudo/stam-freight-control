@@ -119,3 +119,19 @@ test('spoken choice refers to the numbered crop candidates and respects pickup a
  assert.equal(pick('루인에서 싣는 거',[b,{...b,id:'c'}]),undefined);
  assert.equal(pick('2번'),'b');assert.equal(pick('두 번째'),'b');assert.equal(pick('8번'),undefined);
 });
+
+test('a damaged Korean title requires a unique shipment and its observed delivery quota',()=>{
+ const damaged={...frame(withPickup),title:'직송 ㆍ수습생 등급 aT 운송 화물'};
+ const expected={...job,singleDeliveryScu:22},other={...expected,id:'sibling',singleDeliveryScu:14};
+ assert.deepEqual(matchFrame(damaged,[other,expected]).map(j=>j.id),[expected.id]);
+ assert.equal(matchFrame(damaged,[{...expected,singleDeliveryScu:undefined}]).length,0);
+ assert.equal(matchFrame(damaged,[expected,{...other,singleDeliveryScu:undefined}]).length,0);
+ assert.equal(matchFrame({...damaged,acceptedTab:false},[expected]).length,0);
+});
+
+test('Korean station spellings lead to the same Ruin Station route',()=>{
+ const route=(name:string)=>withScreens(job,[frame(withPickup.replace('차울라 해변',name))]).shipments[0]!.to;
+ assert.ok(route('Ruin Station'));
+ assert.equal(route('루인 스테이션'),route('Ruin Station'));
+ assert.equal(route('루인 정거장'),route('Ruin Station'));
+});

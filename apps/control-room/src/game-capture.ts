@@ -1,6 +1,7 @@
 // A window picker is shown only in response to a click. A single running OCR
 // pass owns each frame; stopping the picker also stops the tracks and reader.
 import {createOCRReader} from './contract-intake.mjs';
+import {parseMissionText} from '../../../ocr.mjs';
 import {objectiveScore,readFrame,type Frame} from './contract-screen';
 
 function canvas(width:number,height:number){
@@ -75,9 +76,9 @@ export async function captureContracts(language:'eng'|'kor',signal:AbortSignal,
    const scale=Math.min(3,Math.max(1.4,2200/core));
    const header=crop(frozen,x+.32*core,.145*h,.67*core,.11*h,scale);
    const goals=crop(frozen,x+.615*core,.255*h,.375*core,.50*h,language==='eng'?1:scale);
-   async function decode(surface:HTMLCanvasElement,name:string){
+   async function decode(surface:HTMLCanvasElement,name:string,layout?:'line'){
     if(stopped)throw Error('cancelled');
-    return (await reader.read(new File([await encode(surface,'image/png')],name))).text;
+    return (await reader.read(new File([await encode(surface,'image/png')],name),undefined,layout)).text;
    }
    let body=await decode(goals,'goals.png');
    const retryContrast=language==='eng'?/objective|deliver|collect|SCU/i.test(body):objectiveScore(body)===0;
@@ -86,7 +87,14 @@ export async function captureContracts(language:'eng'|'kor',signal:AbortSignal,
     if(objectiveScore(alt)>objectiveScore(body))body=alt;
    }
    if(!/SCU|주요\s*목표|primary\s*objectives|에서\s*(?:수집|수령)|\bcollect\b/i.test(body))return {code:'unreadable'};
-   const top=await decode(header,'contract.png');
+   let top=await decode(header,'contract.png');
+   // The title and reward occupy separate columns. With Korean text the
+   // full-width pass sometimes returns just the amount from the right column.
+   if(!parseMissionText(top).title){
+    const title=crop(frozen,x+.32*core,.15*h,.42*core,.105*h,Math.max(1,1500/core));
+    const text=await decode(title,'title.png','line');
+    if(text.trim())top=text+'\n'+top;
+   }
    const description=await decode(crop(frozen,x+.32*core,.255*h,.285*core,.49*h,scale),'details.png');
    const image=await encode(crop(frozen,x+.30*core,.13*h,.69*core,.66*h,1),'image/jpeg');
    const frame=readFrame(top+'\n'+body,image,top+'\n'+description+'\n'+body);

@@ -120,12 +120,17 @@ export function createOCRReader(language) {
   } catch(error){await worker.terminate();throw error;}
  }
  return {
-  async read(image,onProgress){
+  async read(image,onProgress,layout){
    if(closed)throw Error('OCR stopped');
    progress=onProgress;
    workerPromise??=start().catch(error=>{workerPromise=null;throw error;});
    const worker=await workerPromise;
    if(closed)throw Error('OCR stopped');
+   if(layout==='line'){
+    await worker.setParameters({tessedit_pageseg_mode:globalThis.Tesseract.PSM.SINGLE_LINE});
+    try{return (await worker.recognize(image)).data;}
+    finally{if(!closed)await worker.setParameters({tessedit_pageseg_mode:globalThis.Tesseract.PSM.AUTO});}
+   }
    let result=await worker.recognize(image);
    if(language!=='eng'&&!closed){
     try{

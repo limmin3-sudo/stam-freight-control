@@ -37,6 +37,12 @@ export function screenLocation(text,places,translations={}){
  const matches=places.filter(p=>!['Star','Planet','Moon','Asteroid'].includes(p.type)&&
   [p.name,translations[p.name],...(p.aliases||[])].some(n=>screenKey(n)===name));
  if(matches.length)return matches.length===1?matches[0].id:'';
+ // The Korean patch and pilot terminology use both spellings for station.
+ if(name.endsWith('스테이션')||name.endsWith('정거장')){
+  const station=s=>screenKey(s).replace(/스테이션$/,'정거장');
+  const sites=places.filter(p=>/\bStation$/i.test(p.name)&&station(translations[p.name])===station(name));
+  if(sites.length===1)return sites[0].id;
+ }
  // Correct O/0 only within a depot code, and only if the known facility
  // catalogue yields one match (S4LDO1, or an extra O in S4LD0O1).
  const code=site.match(/^(.*\bS\dLD)([0-9O]+)$/i);
