@@ -2,6 +2,7 @@ import {useEffect, useRef, useState, type ReactNode} from 'react';
 import logo from '../../../assets/stam-logo-64.png';
 import terminal from './assets/first-departure/terminal-exterior.webp';
 import celebration from './assets/first-departure/lounge-celebration.webp';
+import flagship from './assets/first-departure/flagship-clouds.webp';
 import divisionPanorama from './assets/first-departure/division-panorama.webp';
 import lounge from './assets/guided-visit/lounge.webp';
 import bridge from './assets/guided-visit/bridge.webp';
@@ -139,6 +140,9 @@ export function OpeningFilm({children}: {children: ReactNode}) {
             ? 'Plan freight routes and cargo loads, compare trade prices, and train for your first haul.'
             : '계약을 정리하고 항로와 화물 적재를 계획하세요. 무역 시세부터 첫 운송 실습까지 한곳에서 시작할 수 있습니다.'}</p>
           <div className="departure-hero-actions">
+            <button className="departure-watch" type="button" onClick={() => scrollToSection('division-intro-player')}>
+              <span aria-hidden="true">▶</span> {english ? 'Watch the introduction' : '사업부 소개영상 보기'}
+            </button>
             <label className="departure-preference">
               <input type="checkbox" checked={hidden} onChange={event => {
                 setHidden(event.currentTarget.checked);
@@ -152,15 +156,16 @@ export function OpeningFilm({children}: {children: ReactNode}) {
           </div>
         </div>
       </div>
-      <button className="departure-hero-scroll" type="button" onClick={() => scrollToSection('division-intro')}>
-        {english ? 'Watch the introduction' : '사업부 소개영상 보기'} <span aria-hidden="true">↓</span>
-      </button>
     </section>
 
     <section className="departure-feature" id="division-intro" aria-labelledby="division-intro-title" tabIndex={-1}>
-      <div className="departure-screening" data-departure-reveal>
-        <h2 id="division-intro-title" className="departure-reveal-heading">{fleetIntroduction.title[lang]}</h2>
-        <div className="departure-intro-player departure-reveal-player">
+      <div className="departure-flagship" data-departure-reveal>
+        <img src={flagship} width="1672" height="941" loading="lazy"
+          alt={english ? 'The ultra-heavy freighter cruising above a sea of clouds' : '구름바다를 항해하는 운송사업부 초대형함'} />
+        <h2 id="division-intro-title">{fleetIntroduction.title[lang]}</h2>
+      </div>
+      <div className="departure-screening departure-theater" id="division-intro-player" tabIndex={-1}>
+        <div className="departure-intro-player">
           <FilmScreen screening={fleetIntroduction} english={english} active={playingFilm === fleetIntroduction.video}
             onPlay={() => setPlayingFilm(fleetIntroduction.video)} />
           <div className="departure-meta">
