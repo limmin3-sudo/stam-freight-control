@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-11-25-beta-3-12-3",
+    "channel": "beta",
+    "version": "3.12.3",
+    "date": "2026-11-25 22:27",
+    "title": "시네마에서 다시 보는 구버전 함대 소개영상",
+    "changes": [
+      "라운지 시네마에서 52초짜리 구버전 함대 소개영상을 다시 보거나 원본 MP4를 다운로드할 수 있습니다."
+    ],
+    "en": {
+      "title": "Original fleet introduction returns to the cinema",
+      "changes": [
+        "Watch the original 52-second fleet introduction in the lounge cinema or download the original MP4."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-12-2",
     "channel": "beta",
     "version": "3.12.2",

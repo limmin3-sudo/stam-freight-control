@@ -3,6 +3,8 @@ import departurePoster from './assets/first-departure/screening-poster.webp';
 import fleetFilm from './assets/freight-intro-4k.mp4';
 import fleetFilmHD from './assets/freight-intro-hd.mp4';
 import fleetPoster from '../../../assets/intro/poster.jpg';
+import legacyFilm from './assets/cinema/fleet-introduction-legacy.mp4';
+import legacyPoster from './assets/cinema/fleet-introduction-legacy.jpg';
 
 type Localized = readonly [korean: string, english: string];
 
@@ -33,4 +35,13 @@ export const fleetIntroduction: Screening = {
   mobileVideo: fleetFilmHD,
   poster: fleetPoster,
   downloadName: 'STAM-Freight-Division-4K.mp4',
+};
+
+export const legacyFleetIntroduction: Screening = {
+  title: ['STAM 함대 소개영상 (구버전)', 'STAM Fleet Introduction (Original)'],
+  length: ['52초', '52 seconds'],
+  playLabel: ['구버전 함대 소개영상 재생', 'Play original fleet introduction'],
+  video: legacyFilm,
+  poster: legacyPoster,
+  downloadName: 'STAM-Fleet-Introduction-Original.mp4',
 };
