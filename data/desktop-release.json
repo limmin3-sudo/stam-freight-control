@@ -1,14 +1,14 @@
 {
   "status": "published",
-  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.6.7/STAM-app.1.6.7-win-x64.zip",
-  "version": "app.1.6.7",
-  "bytes": 181311981,
-  "sha256": "376fa4010b5ed531f108618a31c8dad0f3b78ad9b3b4fd0e948e022b0e270849",
+  "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.6.8/STAM-app.1.6.8-win-x64.zip",
+  "version": "app.1.6.8",
+  "bytes": 180541720,
+  "sha256": "f6206f9d930fcfd72a95a96c813871f809fbd0c6ed3bd29e067054599f47bc85",
   "installer": {
-    "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.6.7/STAM-app.1.6.7-setup-win-x64.exe",
-    "sha256": "c69db6b7f4f3837b33e6caebea9ec3c735e9996ff622d19adef2541f509c0ab9",
-    "bytes": 139066019
+    "url": "https://github.com/limmin3-sudo/stam-freight-control/releases/download/app.1.6.8/STAM-app.1.6.8-setup-win-x64.exe",
+    "sha256": "7e18900ea436a2e8733dd5aec72be4f4063f5907b3c6d879b737560d8c6d5ad9",
+    "bytes": 138501230
   },
-  "launcherBlobSha": "d8d0377da9ff1c4b7506766429503f95ffde4bd5",
-  "launcherSha256": "3139b6dc38d468ccaa4b5fa3d5eb374a6d4e978697e1b9b1722dbf95e8047ecb"
+  "launcherBlobSha": "ecfdff62bcb5de64b2072f28bea65941cd49dfbb",
+  "launcherSha256": "a5ebbdd72cb4592078412278da49831e835045bfaa978a75f4461c2894030381"
 }
