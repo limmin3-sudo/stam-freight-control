@@ -1,0 +1,39 @@
+name: Refresh hourly UEX prices
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: hourly-uex-market
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Load the previous published snapshot
+        run: |
+          feed="$RUNNER_TEMP/uex-market"
+          ref=$(git ls-remote --heads origin refs/heads/uex-market)
+          if [ -n "$ref" ]; then
+            git fetch --depth=1 origin refs/heads/uex-market
+            git worktree add --detach "$feed" FETCH_HEAD
+            cp "$feed/trade-market.json" data/trade-market.json
+          else
+            git worktree add --orphan -b uex-market "$feed"
+          fi
+      - name: Collect and validate all LIVE terminal prices
+        run: node --experimental-strip-types scripts/refresh-trade.ts
+      - name: Publish the validated snapshot
+        run: |
+          feed="$RUNNER_TEMP/uex-market"
+          cp data/trade-market.json "$feed/trade-market.json"
+          git -C "$feed" add trade-market.json
+          git -C "$feed" -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Update UEX prices'
+          git -C "$feed" push origin HEAD:refs/heads/uex-market

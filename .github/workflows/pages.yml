@@ -52,9 +52,17 @@ jobs:
         run: node scripts/refresh-missions.mjs
       - name: Refresh complete LIVE fleet, factory drives and log vehicle identifiers
         run: node scripts/refresh-fleet.mjs
-      - name: Refresh UEX market references (retain bundled snapshot on failure)
+      - name: Bundle the latest hourly UEX prices
         continue-on-error: true
-        run: node --experimental-strip-types scripts/refresh-trade.ts
+        run: |
+          staging="$RUNNER_TEMP/uex-prices.json"
+          if git fetch --no-tags --depth=1 origin refs/heads/uex-market &&
+             git show FETCH_HEAD:trade-market.json > "$staging" &&
+             node --experimental-strip-types --input-type=module -e "import {validateSnapshot} from './apps/control-room/src/trade-data.ts'; import {readFileSync} from 'node:fs'; validateSnapshot(JSON.parse(readFileSync(process.argv[1],'utf8')))" "$staging"; then
+            cp "$staging" data/trade-market.json
+          else
+            node --experimental-strip-types scripts/refresh-trade.ts
+          fi
       - name: Build Korean display labels
         run: node scripts/build-ai-korean.mjs
       - run: npm test

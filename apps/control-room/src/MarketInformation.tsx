@@ -20,8 +20,16 @@ export default function MarketInformation({locale,onExit,closing,onPlan}:{locale
  const [live,setLive]=useState<{id:number;quotes:Quote[];checkedAt:string}|null>(null),[updating,setUpdating]=useState(false),[refreshFailed,setRefreshFailed]=useState(false),[refreshTick,setRefreshTick]=useState(0);
  const title=useRef<HTMLHeadingElement>(null);
  useEffect(()=>{title.current?.focus({preventScroll:true});},[]);
- useEffect(()=>{let active=true;setError(false);loadMarket().then(d=>{if(active)setData(d);}).catch(()=>{if(active)setError(true);});
-  return()=>{active=false;};
+ useEffect(()=>{
+  let active=true;
+  const read=()=>{
+   if(document.hidden)return;
+   void loadMarket().then(d=>{if(active){setData(d);setError(false);}}).catch(()=>{if(active)setError(true);});
+  };
+  setError(false);read();
+  const timer=window.setInterval(read,60000);
+  document.addEventListener('visibilitychange',read);
+  return()=>{active=false;window.clearInterval(timer);document.removeEventListener('visibilitychange',read);};
  },[retry]);
  const label=(name:string,kind:'goods'|'places'='places')=>tradeLabel(name,kind,locale);
  const variants=useMemo(()=>commodityCodeVariants(data?.commodities??[]),[data?.commodities]);

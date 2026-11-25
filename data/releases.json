@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-11-25-beta-3-11-1",
+    "channel": "beta",
+    "version": "3.11.1",
+    "date": "2026-11-25 14:34",
+    "title": "UEX 시세 한 시간마다 자동 갱신",
+    "changes": [
+      "전체 거래소 시세를 한 시간마다 수집합니다. 열어 둔 시세표에도 새 자료가 자동 반영되고, 수집에 실패하면 마지막 시세와 원래 수정 시각을 유지합니다."
+    ],
+    "en": {
+      "title": "Hourly UEX market updates",
+      "changes": [
+        "All terminal prices refresh hourly. The open price board picks up new snapshots automatically and keeps the last available prices and source timestamps if a refresh fails."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-11-0",
     "channel": "beta",
     "version": "3.11.0",
