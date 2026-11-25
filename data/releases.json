@@ -1,5 +1,23 @@
 [
   {
+    "id": "2026-11-25-beta-3-12-0",
+    "channel": "beta",
+    "version": "3.12.0",
+    "date": "2026-11-25 21:00",
+    "title": "사업부 소개영상과 첫 출항 파티",
+    "changes": [
+      "사업부 전경에서 아래로 내려가면 새 소개영상, 라운지 축하 사진, 첫 출항 파티영상을 차례로 볼 수 있습니다. 두 영상은 재생을 누르면 소리와 함께 시작합니다.",
+      "사선 금장 상단바와 흑티타늄 사이드바를 적용했습니다. 웹과 Windows 네비게이터 1.6.8에서 새 STAM ROKS FLEET 로고를 사용합니다."
+    ],
+    "en": {
+      "title": "Freight Division introduction and first-departure party",
+      "changes": [
+        "Scroll down from the division panorama to watch the new introduction, reveal the lounge celebration photo and play the first-departure party film. Select play to start either film with sound.",
+        "The top bar has a diagonal gold nameplate and the sidebar has a black titanium finish. The website and Windows Navigator 1.6.8 use the new STAM ROKS FLEET logo."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-11-1",
     "channel": "beta",
     "version": "3.11.1",
