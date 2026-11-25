@@ -106,13 +106,14 @@ internal sealed class BridgeWindow : Form {
     readonly ToolTip hints=new ToolTip();
     readonly HoloLabel title=new HoloLabel(),subtitle=new HoloLabel(),state=new HoloLabel(),detail=new HoloLabel(),fileLabel=new HoloLabel(),filePath=new HoloLabel(),bytes=new HoloLabel(),updated=new HoloLabel(),footer=new HoloLabel();
     readonly DeckButton readContract=new DeckButton();
-    readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),narratorButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton(),continuousButton=new DeckButton();
+    readonly DeckButton choose=new DeckButton(),search=new DeckButton(),open=new DeckButton(),disconnect=new DeckButton(),korean=new DeckButton(),englishButton=new DeckButton(),narratorButton=new DeckButton(),overlayButton=new DeckButton(),shortcutsButton=new DeckButton(),voiceButton=new DeckButton(),continuousButton=new DeckButton(),rideButton=new DeckButton();
     readonly string settings,languageSettings;
     CompanionOverlay overlay;
     readonly HoloLabel voiceFeedback=new HoloLabel();
     Image brandLogo;
     readonly PartnerPortrait portrait=new PartnerPortrait(false);
     Panel flightHome,settingsPage;
+    readonly DeckButton haulTab=new DeckButton(),tradeTab=new DeckButton();
     readonly DeckButton homeRead=new DeckButton(),complete=new DeckButton(),settingsToggle=new DeckButton(),homeOpen=new DeckButton(),homeOverlay=new DeckButton();
     readonly HoloLabel routeLabel=new HoloLabel(),shipLabel=new HoloLabel(),flightSection=new HoloLabel();
     readonly ListBox manifest=new ListBox();
@@ -159,6 +160,7 @@ internal sealed class BridgeWindow : Form {
     void UpdateTools(){
         UpdatePortrait(overlay!=null&&overlay.IsNavigator);narratorButton.Text=overlay!=null&&overlay.Narrator=="off"?T("음성 답변 꺼짐","Replies muted"):T("답변 목소리","Reply voice");
         continuousButton.Text=overlay==null?T("연속 듣기 켜기","Listen continuously"):overlay.ContinuousLabel;
+        rideButton.Text=T("동승 모드","Ride along");rideButton.Primary=overlay!=null&&overlay.RideAlong;rideButton.Invalidate();
         continuousButton.Primary=overlay!=null&&overlay.VoiceEnabled;continuousButton.Invalidate();
         overlayButton.Text=T("오버레이 표시/숨김","Show/hide overlay");shortcutsButton.Text=T("단축키 설정","Shortcut settings");voiceButton.Text=overlay==null?T("클릭해 말하기","Click to speak"):overlay.ButtonTalkLabel;voiceButton.Primary=overlay!=null&&overlay.Listening;voiceButton.Invalidate();}
     void SetLanguage(bool value){english=value;ApplyLanguage();if(!preview)try{Directory.CreateDirectory(Path.GetDirectoryName(languageSettings));File.WriteAllText(languageSettings,english?"en":"ko");}catch{}}
@@ -232,14 +234,16 @@ internal sealed class BridgeWindow : Form {
         Setup(title,12,DeckTheme.Gilt);Setup(state,27,DeckTheme.Ink);Setup(detail,12,Muted);
         hero.Controls.Add(title,0,0);hero.Controls.Add(state,0,1);hero.Controls.Add(detail,0,2);hero.Controls.Add(portrait,1,0);hero.SetRowSpan(portrait,3);
         shipImage.Dock=DockStyle.Fill;shipImage.Margin=Padding.Empty;shipImage.SizeMode=PictureBoxSizeMode.Zoom;shipImage.BackColor=Color.Transparent;hero.Controls.Add(shipImage,2,0);hero.SetRowSpan(shipImage,3);home.Controls.Add(hero);
-        Setup(flightSection,14,Ink);home.Controls.Add(flightSection);
+        var modes=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty};modes.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));modes.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,74));modes.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,74));
+        Setup(flightSection,14,Ink);modes.Controls.Add(flightSection);foreach(var tabButton in new[]{haulTab,tradeTab}){tabButton.Dock=DockStyle.Fill;modes.Controls.Add(tabButton);}home.Controls.Add(modes);
+        haulTab.Click+=(a,e)=>{if(overlay!=null)overlay.SelectMode(false);};tradeTab.Click+=(a,e)=>{if(overlay!=null)overlay.SelectMode(true);};
         manifest.Dock=DockStyle.Fill;manifest.IntegralHeight=false;manifest.Font=HoloFonts.At(15);manifest.DrawMode=DrawMode.OwnerDrawFixed;manifest.ItemHeight=40;manifest.DrawItem+=DrawManifest;manifest.HorizontalScrollbar=true;manifest.BorderStyle=BorderStyle.None;manifest.BackColor=Color.FromArgb(40,43,39);manifest.ForeColor=Ink;home.Controls.Add(manifest);
         var bottom=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2};bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));bottom.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,160));Setup(shipLabel,12,Muted);bottom.Controls.Add(shipLabel);complete.Primary=true;complete.Dock=DockStyle.Fill;complete.Click+=(a,e)=>{if(overlay!=null)overlay.CompleteCurrent();};bottom.Controls.Add(complete);home.Controls.Add(bottom);
         var rail=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4};rail.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));Setup(routeLabel,12,Muted);rail.Controls.Add(routeLabel);rail.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,140));homeRead.Dock=homeOverlay.Dock=homeOpen.Dock=DockStyle.Fill;rail.Controls.Add(homeRead);homeRead.Click+=(a,e)=>Open(true);rail.Controls.Add(homeOverlay);rail.Controls.Add(homeOpen);homeOpen.Click+=(a,e)=>Open();homeOverlay.Click+=(a,e)=>Overlay().ToggleFromNavigator();home.Controls.Add(rail);
-        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,Margin=Padding.Empty,BackColor=shell.BackColor};
-        foreach(float width in new[]{26f,24f,25f,25f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
-        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,narratorButton,overlayButton,shortcutsButton,voiceButton,continuousButton}){button.Font=HoloFonts.At(13);}
-        foreach(var b in new[]{voiceButton,continuousButton,readContract,open}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,8,12);actions.Controls.Add(b);}open.Margin=new Padding(0,0,0,12);layout.Controls.Add(actions);
+        var actions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=5,Margin=Padding.Empty,BackColor=shell.BackColor};
+        foreach(float width in new[]{20f,20f,17f,20f,23f})actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,width));
+        foreach(var button in new[]{open,choose,search,disconnect,korean,englishButton,narratorButton,overlayButton,shortcutsButton,voiceButton,continuousButton,rideButton}){button.Font=HoloFonts.At(13);}
+        foreach(var b in new[]{voiceButton,continuousButton,rideButton,readContract,open}){b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,8,12);actions.Controls.Add(b);}open.Margin=new Padding(0,0,0,12);layout.Controls.Add(actions);
         var tools=new LinkCard{Dock=DockStyle.Fill,Padding=new Padding(16,10,16,12),ColumnCount=3,RowCount=2,Margin=new Padding(0,0,0,14)};
         tools.RowStyles.Add(new RowStyle(SizeType.Absolute,26));tools.RowStyles.Add(new RowStyle(SizeType.Percent,100));
         tools.Controls.Add(Label("OVERLAY & VOICE",11,DeckTheme.Platinum),0,0);Setup(voiceFeedback,11,DeckTheme.Platinum);tools.Controls.Add(voiceFeedback,1,0);tools.SetColumnSpan(voiceFeedback,2);
@@ -253,7 +257,7 @@ internal sealed class BridgeWindow : Form {
         var fileActions=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,Margin=Padding.Empty,BackColor=shell.BackColor};
         foreach(var b in new[]{search,choose,disconnect}){fileActions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,1));b.Dock=DockStyle.Fill;b.Margin=new Padding(0,0,6,12);fileActions.Controls.Add(b);}layout.Controls.Add(fileActions);
         narratorButton.Click+=(s,e)=>guidanceMenu.DropDown.Show(narratorButton,new Point(0,narratorButton.Height));
-        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().ToggleButtonTalk();hints.SetToolTip(voiceButton,T("한 번 눌러 녹음을 시작하고 다시 눌러 전송하세요. 게임에서는 설정한 말하기 버튼을 누른 채 바로 질문하세요.","Click to record and click again to send. In game, hold the talk shortcut and ask directly."));continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();
+        overlayButton.Click+=(s,e)=>Overlay().Toggle();shortcutsButton.Click+=(s,e)=>Overlay().Configure();voiceButton.Click+=(s,e)=>Overlay().ToggleButtonTalk();hints.SetToolTip(voiceButton,T("한 번 눌러 녹음을 시작하고 다시 눌러 전송하세요. 게임에서는 설정한 말하기 버튼을 누른 채 바로 질문하세요.","Click to record and click again to send. In game, hold the talk shortcut and ask directly."));continuousButton.Click+=(s,e)=>Overlay().ToggleVoice();rideButton.Click+=(s,e)=>Overlay().ToggleRideAlong();hints.SetToolTip(rideButton,T("호출 없이 질문하고 가벼운 잡담을 나눕니다. 다시 누르면 호출어 듣기로 돌아갑니다.","Ask directly and chat. Click again to return to wake-word listening."));
         Setup(footer,12,Muted);layout.Controls.Add(footer);
         korean.Click+=(s,e)=>SetLanguage(false);englishButton.Click+=(s,e)=>SetLanguage(true);choose.Click+=(s,e)=>SelectLog();search.Click+=(s,e)=>Start("--auto");open.Click+=(s,e)=>Open();readContract.Click+=(s,e)=>Open(true);disconnect.Click+=(s,e)=>{if(manualStop)Start(selected);else{manualStop=true;StopChild();phase="stopped";ApplyLanguage();}};
         retry.Tick+=(s,e)=>{retry.Stop();if(!manualStop&&!quitting)Start(selected,false);};
@@ -296,6 +300,7 @@ internal sealed class BridgeWindow : Form {
     void Receive(string line){
         try{
             var data=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(line);string type=Convert.ToString(data["type"]);
+            if(type=="contract-read"){Overlay().ContractNotice(data);return;}
             if(type=="display"){
                 if(overlay!=null||data["display"]!=null){
                     Overlay().UpdateDisplay(data["display"]);
@@ -330,6 +335,7 @@ internal sealed class BridgeWindow : Form {
         UpdatePortrait(overlay!=null&&overlay.IsNavigator);
         string destination=overlay==null?"":overlay.Destination;
         bool live=overlay!=null&&overlay.HasDisplay;
+        haulTab.Text=T("운송","Haul");tradeTab.Text=T("무역","Trade");haulTab.Enabled=tradeTab.Enabled=live&&overlay.CanSwitchMode;haulTab.Primary=live&&overlay.InFlight;tradeTab.Primary=live&&!overlay.InFlight;haulTab.Invalidate();tradeTab.Invalidate();
         state.Text=!String.IsNullOrWhiteSpace(destination)?destination:live?(overlay.InFlight?T("운송 안내","Flight guidance"):T("무역 안내","Trade guidance")):T("운항 대기","Waiting for flight");
         detail.Text=!live?T("웹 부조종사에서 네비게이터를 연결하세요.","Connect STAM Navigator from the web copilot."):overlay.PartnerSpeaking?overlay.NavigationText:"";
         hints.SetToolTip(detail,detail.Text);
@@ -396,10 +402,12 @@ internal sealed class BridgeWindow : Form {
     internal static string SiteAddress(string ignored,bool english){return "https://limmin3-sudo.github.io/stam-freight-control/#/mission?lang="+(english?"en":"ko");}
     void Open(bool capture=false){try{
         string address=SiteAddress(null,english);
-        if(capture){
+        bool preview=File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"preview-console","index.html"));
+        if(capture || preview){
             if(String.IsNullOrEmpty(pairedAddress)){MessageBox.Show(T("먼저 Game.log를 연결하세요.","Connect Game.log first."),"STAM");return;}
             var paired=new Uri(pairedAddress);
-            address=new Uri(paired,"/contract-reader/?lang="+(english?"en":"ko")+paired.Fragment).AbsoluteUri;
+            address=capture ? new Uri(paired,"/contract-reader/?lang="+(english?"en":"ko")+paired.Fragment).AbsoluteUri
+                            : new Uri(paired,"/console/#/mission?lang="+(english?"en":"ko")).AbsoluteUri;
         }
         Process.Start(new ProcessStartInfo(address){UseShellExecute=true});}catch{MessageBox.Show(T("Windows 기본 브라우저 설정을 확인하세요.","Check your Windows default browser settings."),"STAM");}}
     [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr handle);

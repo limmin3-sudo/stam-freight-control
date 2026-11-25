@@ -1,0 +1,76 @@
+import {createWikiLookup,lookupKey} from '../../wiki-receipt-lookup.mjs';
+import { locationIndex } from './locations.mjs';
+import { inboxCards, withDeliveryTotal } from '../inbox-core.mjs';
+import { actualQuantity, deliveryGroups } from '../../delivery-totals.mjs';
+import { prepareMissionDb } from '../../mission-match.mjs';
+import locations from '../../data/log-location-index.json' with {type:'json'};
+import catalog from '../../data/log-mission-index.json' with {type:'json'};
+import hauling from '../../data/hauling-missions.json' with {type:'json'};
+import korean from '../../data/stam-korean.json' with {type:'json'};
+import aiNames from '../../data/ai-korean.json' with {type:'json'};
+import details from '../../data/mission-details.json' with {type:'json'};
+import {contractInfo} from '../../contract-info.mjs';
+
+export const index=locationIndex(locations);
+const points=locations.locations.filter(p=>p.id).map(p=>({...p,uuid:p.id,id:p.system+':'+p.id}));
+const db=prepareMissionDb(hauling,{commodities:Object.fromEntries(Object.entries(aiNames.goods||{}).map(([en,ko])=>[ko,en]))});
+const cities={Lorville:'hurston',Orison:'crusader',Area18:'arccorp','New Babbage':'microtech'};
+const chartIds=new Map(points.map(p=>[p.id,p.system==='stanton' && Object.hasOwn(cities,p.name)?cities[p.name]:p.id]));
+
+function receipt(raw) {
+  // A logged goal can cover several pickups. Only accept an unambiguous
+  // destination total; preserve unknown per-pickup shares as unknown.
+  let draft={cargo:raw.rows,_deliveryTotals:raw.deliveryTotals||[]};
+  for(const group of deliveryGroups(draft)) {
+    const hints=(raw.quantityHints||[]).filter(h=>h.dropoffId===group.dropoffId);
+    if(hints.length!==1 || !group.dropoffId || !group.rows.every(r=>r.commodity===hints[0].commodity)) continue;
+    try { draft=withDeliveryTotal(draft,group.dropoffId,hints[0].scu); } catch { /* Keep unresolved evidence visible. */ }
+  }
+  const reservations={};
+  for(const group of deliveryGroups(draft)) {
+    if(group.reservation) reservations[chartIds.get(group.dropoffId)]=group.total;
+  }
+  const shipments=draft.cargo.map((row,i)=>({
+    id:raw.id+'-'+i, cargo:[korean.goods[row.commodity]||aiNames.goods?.[row.commodity]||row.commodity,row.commodity],
+    from:chartIds.get(row.pickupId)||'',to:chartIds.get(row.dropoffId)||'',
+    ...(!row.pickupId&&row._pickupText?{pickupFacility:[row._pickupText,row._pickupText]}:{}),
+    ...(!row.dropoffId&&row._dropoffText?{deliveryFacility:[row._dropoffText,row._dropoffText]}:{}),
+    scu:actualQuantity(row)?row.scu:0,
+    cargoShape:row._cargoShape||row._special,maxBoxSize:row.maxBoxSize,boxes:row.boxes,
+  }));
+  const incomplete=!shipments.length||shipments.some(row=>!row.from||!row.to||!row.cargo[1]||!row.scu&&!reservations[row.to]);
+  const indexed=raw.lookupMetadata;
+  const base=contractInfo(details,raw.definition?.id||raw.observedDefinitionId);
+  const referenceInfo=indexed&&base&&indexed.sources.scmdb?.version?.toLowerCase()===catalog.version?.toLowerCase()
+    ?{...base,...indexed,values:{...base.values,...indexed.values},provenance:{...base.provenance,...indexed.provenance},sources:{...base.sources,...indexed.sources}}
+    :indexed||base;
+  return {id:raw.id,title:[raw.koreanTitle || raw.title,raw.title],shipments,pay:raw.reward||0,rewardUnknown:!raw._rewardKnown,reservations,referenceInfo:referenceInfo||undefined,
+    ...(raw.observedStops?{observedStops:{pickup:raw.observedStops.pickup.map(id=>chartIds.get(id)),dropoff:raw.observedStops.dropoff.map(id=>chartIds.get(id))}}:{}),
+    ...(raw.directEvidence?{directEvidence:{cargo:raw.directEvidence.cargo,from:chartIds.get(raw.directEvidence.from)||'',to:chartIds.get(raw.directEvidence.to)||''}}:{}),
+    ...(raw.singleDeliveryScu?{singleDeliveryScu:raw.singleDeliveryScu}:{}),
+    signature:raw.signature,mission:{...draft,id:raw.id,title:raw.title,reward:raw.reward||0,_rewardKnown:!!raw._rewardKnown,destinationBoxes:raw.destinationBoxes},
+    state:raw.conflict?'conflict':raw.ended?'ended':incomplete?'incomplete':'ready',
+    hints:(raw.quantityHints||[]).map(h=>({cargo:h.commodity,scu:h.scu,place:chartIds.get(h.dropoffId)||'',name:h.dropoffText}))};
+}
+const wiki=createWikiLookup();
+export async function projectReceipts(snapshot){
+ const cached=c=>wiki.get(lookupKey(c));
+ const projectCards=()=>inboxCards(snapshot,points,index,catalog,db,cached);
+ let result=projectCards();
+ if(!result.blocked){
+  const records=new Map([...(snapshot.contracts||[]),...(snapshot.pendingContracts||[])].map(c=>[c.missionId,c]));
+  const missing=new Set();
+  for(const card of result.cards){
+   const c=records.get(card.id),key=c&&lookupKey(c);
+   if(!key||card.conflict||card.ended||wiki.has(key))continue;
+   const ref=card.lookupMetadata;
+   const incomplete=!card.rows.length||card.rows.some(r=>!r.pickupId||!r.dropoffId||!r.scu);
+   if(!ref||incomplete&&!ref.sources.wiki)missing.add(key);
+  }
+  if(missing.size){
+   await wiki.fill(missing);
+   if([...missing].some(key=>wiki.get(key)))result=projectCards();
+  }
+ }
+ return {phase:result.blocked?'mixed':'loaded',cards:result.cards.map(receipt)};
+}

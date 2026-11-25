@@ -8,6 +8,7 @@ import { useTradeView } from './use-trade-view';
 import { tradeLabel } from './trade-labels';
 import { freshReports } from './trade-field';
 import { NewsList, useObservations, type FieldNews } from './TradeFieldReports';
+import CommodityRouteCard,{type MarketHandoff} from './CommodityRouteCard';
 import ShipSelect from './ShipSelect';
 
 const ships = tradeShips.map((s) => ({
@@ -21,7 +22,10 @@ export default function QuickTrade({
   onPlan,
   initial,
   articles,
+  selectedCommodity, onHandoff,
 }: {
+  onHandoff?:MarketHandoff;
+  selectedCommodity?: number;
   articles: FieldNews[];
   data: MarketSnapshot;
   locale: Locale;
@@ -40,7 +44,7 @@ export default function QuickTrade({
     older: false,
   });
   const { rows, failed: fieldFailed } = useObservations();
-  const [result, setResult] = useState<{ routes: SuiteRoute[]; reported: SuiteRoute[] } | null>(null);
+  const [result, setResult] = useState<{ routes: SuiteRoute[]; reported: SuiteRoute[]; split:SuiteRoute|null;fieldSplit:SuiteRoute|null } | null>(null);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(false),
     [scenario, setScenario] = useState(false);
@@ -54,12 +58,14 @@ export default function QuickTrade({
       worker.current?.terminate();
       worker.current = null;
     };
-  }, [input, data, rows]);
+  }, [input, data, rows, selectedCommodity]);
   const ship = ships.find((s) => s.id === input.shipId);
   const goods = (id: number) =>
     tradeLabel(data.commodities.find((c) => c.id === id)?.name || String(id), 'goods', locale);
   const place = (id: number) =>
     tradeLabel(data.terminals.find((c) => c.id === id)?.name || String(id), 'places', locale);
+  const commodity = selectedCommodity ?? input.commodity;
+  const valid = !!ship && input.budget > 0 && input.budget <= 1e12;
   const options = {
     ...defaultSuiteOptions,
     mode: 'direct' as const,
@@ -67,14 +73,14 @@ export default function QuickTrade({
     maxAgeHours: input.older ? 168 : 24,
     capacity: ship?.capacity ?? 0,
     budget: input.budget,
-    originId: input.from,
-    destinationId: input.to,
-    commodityIds: input.commodity ? [input.commodity] : [],
-    goal: input.hourly ? ('time' as const) : ('profit' as const),
+    originId: selectedCommodity ? 0 : input.from,
+    destinationId: selectedCommodity ? 0 : input.to,
+    commodityIds: commodity ? [commodity] : [],
+    goal: !selectedCommodity && input.hourly ? ('time' as const) : ('profit' as const),
   };
   const recent = freshReports(rows, data.liveVersion, Date.now());
   function search() {
-    if (!ship || !input.budget) return;
+    if (!valid) return;
     worker.current?.terminate();
     setResult(null);
     setBusy(true);
@@ -96,14 +102,18 @@ export default function QuickTrade({
       }
       w.terminate();
     };
-    w.postMessage({ quick: true, options, market: data, observations: recent });
+    w.postMessage({ quick: true, compare:!!selectedCommodity, options, market: data, observations: recent });
   }
   useEffect(() => {
+    if (selectedCommodity && valid) {
+      const timer = window.setTimeout(search, 350);
+      return () => window.clearTimeout(timer);
+    }
     if (returnRequested.current) {
       returnRequested.current = false;
       search();
     }
-  }, [input]);
+  }, [input, selectedCommodity, data, rows]);
   const terminals = (key: 'from' | 'to') => (
     <select value={input[key]} onChange={(e) => setInput({ ...input, [key]: Number(e.target.value) })}>
       <option value="0">{t('전체', 'All')}</option>
@@ -115,9 +125,12 @@ export default function QuickTrade({
     </select>
   );
   const list = result && (scenario ? result.reported : result.routes);
+  const selectedName=data.commodities.find(c=>c.id===selectedCommodity)?.name;
+  const relatedNews=selectedName?articles.filter(a=>a.goods?.includes(selectedName)||a.commodity===selectedName):[];
+  const split=result&&(scenario?result.fieldSplit:result.split);
   return (
     <section className="quick-trade">
-      <h3>{t('내 함선으로 거래 찾기', 'Find trades for my ship')}</h3>
+      <h3>{selectedCommodity ? goods(selectedCommodity) + ' · ' + t('한 곳 판매 · 분할 판매 비교', 'Compare single and split sales') : t('내 함선으로 거래 찾기', 'Find trades for my ship')}</h3>
       <ShipSelect
         locale={locale}
         allowEmpty
@@ -134,7 +147,7 @@ export default function QuickTrade({
           onChange={(e) => setInput({ ...input, budget: Number(e.target.value) })}
         />
       </label>
-      <details>
+      {!selectedCommodity && <details>
         <summary>{t('조건 더보기', 'More conditions')}</summary>
         <div className="suite-fields">
           <label>
@@ -176,10 +189,12 @@ export default function QuickTrade({
             {t('시간당 예상 수익순', 'Rank by estimated profit per hour')}
           </label>
         </div>
-      </details>
-      <button disabled={busy || !ship || !(input.budget > 0 && input.budget <= 1e12)} onClick={search}>
+      </details>}
+      {selectedCommodity && <label><input type="checkbox" checked={input.older} onChange={e=>setInput({...input, older:e.target.checked})}/>{t('최근 7일 가격까지 포함', 'Include prices up to 7 days old')}</label>}
+      {selectedCommodity && (!valid || busy) && <p role="status">{busy ? t('경로 계산 중…', 'Searching…') : t('함선과 투자할 자금을 입력하면 자동으로 계산합니다.', 'Choose a ship and enter your budget to calculate.')}</p>}
+      {(!selectedCommodity || error) && <button disabled={busy || !valid} onClick={search}>
         {busy ? t('경로 계산 중…', 'Searching…') : t('수익 경로 찾기', 'Find profitable routes')}
-      </button>
+      </button>}
       {error && (
         <p role="alert">
           {t(
@@ -215,7 +230,16 @@ export default function QuickTrade({
               )}
             </p>
           )}
-          {list?.map((r) => {
+          {selectedCommodity && <>
+            {[list?.[0],split].map(route=>route&&<CommodityRouteCard key={route.id+'/'+scenario} {...{route,options,data,en,goods,place,scenario,onHandoff}} reports={recent}/>)}
+            {!!list?.length && !split && <small>{t('같은 구매소에서 두 판매처로 나눠 팔 수 있는 물량이 없습니다.','No two-buyer allocation fits this purchase.')}</small>}
+            {relatedNews.length>0&&<NewsList articles={relatedNews} locale={locale}/>}
+            {list?.[0] && !scenario && onPlan && <button onClick={()=>{
+              const l=list[0]!.legs[0]!;
+              onPlan(l.originId,commodity,l.destinationId,l.systems.length>1?'interstellar':'intrasystem',options);
+            }}>{t('이 경로로 계획 열기','Open route in planner')}</button>}
+          </>}
+          {(!selectedCommodity ? list : [])?.map((r) => {
             const leg = r.legs[0]!,
               dest = data.terminals.find((x) => x.id === leg.destinationId)!;
             const items = new Set(leg.lines.map((l) => l.commodityId));
@@ -285,7 +309,7 @@ export default function QuickTrade({
                     onClick={() =>
                       onPlan(
                         leg.originId,
-                        input.commodity,
+                        commodity,
                         leg.destinationId,
                         leg.systems.length > 1 ? 'interstellar' : 'intrasystem',
                         { ...options, commodityIds: [...items] },
@@ -295,7 +319,7 @@ export default function QuickTrade({
                     {t('이 경로로 계획 열기', 'Open route in planner')}
                   </button>
                 )}
-                <button
+                {!selectedCommodity && <button
                   onClick={() => {
                     returnRequested.current = true;
                     setInput({
@@ -308,13 +332,13 @@ export default function QuickTrade({
                   }}
                 >
                   {t('돌아오는 길도 거래 찾기', 'Find a return trade')}
-                </button>
+                </button>}
               </article>
             );
           })}
         </>
       )}
-      {articles.some((a) => a.route) && (
+      {!selectedCommodity && articles.some((a) => a.route) && (
         <details>
           <summary>{t('후기에 나온 경로로 계산', 'Price a pilot-reported route')}</summary>
           {articles

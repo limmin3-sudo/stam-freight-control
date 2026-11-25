@@ -1,3 +1,4 @@
+import {contractReadAssist} from './read-assist.mjs';
 import {contractScreens} from './contract-screens.mjs';
 import {createCompanionState} from './companion-state.mjs';
 import http from 'node:http';
@@ -13,12 +14,13 @@ export const PUBLIC_SITE_ORIGIN='https://limmin3-sudo.github.io';
 const transient = new Set(['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'file-changed-during-read']);
 
 // Local test service. It never accepts file paths over HTTP and never writes game files.
-export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null, apiOnly = false, screenBundle = null } = {}) {
+export async function startLogService({ file, port = 0, intervalMs = 250, webBundle = null, webUpdateStatus = null, apiOnly = false, screenBundle = null, previewConsole = null, onReadNotice, onSnapshot } = {}) {
   if (typeof file !== 'string' || !file || !/\.log$/i.test(file)) throw new Error('select-log-file');
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('invalid-port');
   if (!Number.isInteger(intervalMs) || intervalMs < 20 || intervalMs > 10_000) throw new Error('invalid-interval');
   const token = randomBytes(32).toString('hex');
-  const companion=createCompanionState(),screens=contractScreens();
+  const commandWaiters=new Set();
+  const companion=createCompanionState({onCommand:()=>{for(const wake of commandWaiters)wake();}}),assist=contractReadAssist(onReadNotice),screens=contractScreens(assist.feedback,onReadNotice);
   const allowed=new Set(apiOnly?[]:await webFiles());
   // Load once locally; failure leaves allocation unresolved without stopping logs.
   let locations = null;
@@ -60,6 +62,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         if (Buffer.byteLength(candidate) > 8 * 1024 * 1024) throw new Error('snapshot-limit');
         published = candidate;contractCount=snapshot.contracts.length;
         revision++;
+        onSnapshot?.(snapshot,revision);
         dirty = false;
         lastChangeAt = new Date().toISOString();
       }
@@ -75,7 +78,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
     }
   }
   function status() {
-    return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1,copilot:1,navigator:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
+    return { protocol: 1, capabilities:{display:2,commands:1,flightVoice:1,copilot:1,navigator:1,tradeActions:1,tradeStart:1,inbox:1}, webUpdate:webUpdateStatus?.() || null, phase: paused && !fatal ? 'paused' : phase, revision, lastReadAt, lastChangeAt,
       contractCount,lastSnapshotReadAt,lastError, generation: reader.generation, bytesRead: reader.offset, linesRead: evidence.lines,
       gameIntegrationVerified: false, planningAllowed: false };
   }
@@ -88,7 +91,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
       const importPolicy=map?"'sha256-"+createHash('sha256').update(map[1]).digest('base64')+"'":'';
       res.writeHead(code, { ...(req.headers.origin===PUBLIC_SITE_ORIGIN&&/^\/api\/(?:status|snapshot|pair|display|screens|commands)(?:\?|$)/.test(req.url||'')?{'Access-Control-Allow-Origin':PUBLIC_SITE_ORIGIN,'Vary':'Origin','Access-Control-Allow-Methods':/^\/api\/screens(?:\?|$)/.test(req.url||'')?'GET, POST':/^\/api\/display(?:\?|$)/.test(req.url||'')?'POST':'GET','Access-Control-Allow-Headers':/^\/api\/pair(?:\?|$)/.test(req.url||'')?'X-STAM-Client':/^\/api\/(?:display|screens)(?:\?|$)/.test(req.url||'')?'Authorization, Content-Type':'Authorization','Access-Control-Allow-Private-Network':'true','Access-Control-Max-Age':'600'}:{}), 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'no-referrer', 'Cross-Origin-Resource-Policy': 'same-origin', 'X-Frame-Options': embeddedDocument?'SAMEORIGIN':'DENY',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors "+(embeddedDocument?"'self'":"'none'") });
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net "+importPolicy+" https://www.gstatic.com https://apis.google.com; worker-src 'self' blob: https://cdn.jsdelivr.net; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' "+(previewConsole&&req.url?.startsWith('/console/')?'https://api.uexcorp.uk ':'')+"https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://stam-freight-control.firebaseapp.com https://raw.githubusercontent.com; frame-src 'self' https://stam-freight-control.firebaseapp.com https://accounts.google.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors "+(embeddedDocument?"'self'":"'none'") });
       res.end(body);
     };
     try {
@@ -100,7 +103,8 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         send(204,'');return;
       }
       if(url.pathname==='/api/pair'){
-        if(!publicRead||req.method!=='GET'||req.headers['x-stam-client']!=='flight-deck'||req.headers['transfer-encoding']||Number(req.headers['content-length']||0)!==0){send(403,'{"error":"pairing-denied"}');return;}
+        const localPreview = previewConsole && req.headers['sec-fetch-site']==='same-origin';
+        if(!(publicRead||localPreview)||req.method!=='GET'||req.headers['x-stam-client']!=='flight-deck'||req.headers['transfer-encoding']||Number(req.headers['content-length']||0)!==0){send(403,'{"error":"pairing-denied"}');return;}
         send(200,JSON.stringify({protocol:1,token}));return;
       }
       if (url.pathname.startsWith('/api/')) {
@@ -109,9 +113,14 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
         const received = Buffer.from(typeof credential === 'string' ? credential : '');
         if (received.length !== expected.length || !timingSafeEqual(received, expected)) { send(401, '{"error":"pairing-required"}'); return; }
         if(url.pathname==='/api/screens'){
+          if(req.method==='GET'&&url.searchParams.get('wait')==='read'){
+            const remove=assist.wait(read=>{clearTimeout(timeout);send(200,JSON.stringify({read}));});
+            const timeout=setTimeout(()=>{remove();send(200,'{"read":0}');},12000);
+            res.once('close',()=>{remove();clearTimeout(timeout);});return;
+          }
           if(req.method==='GET'){send(200,JSON.stringify(screens.since(Math.max(0,Number(url.searchParams.get('after'))||0))));return;}
           if(req.method!=='POST'||![origin,PUBLIC_SITE_ORIGIN].includes(req.headers.origin)||!String(req.headers['content-type']).startsWith('application/json')){send(403,'{}');return;}
-          try{await screens.receive(req);send(200,'{}');}catch(e){send(e.message==='limit'?413:400,'{}');}return;
+          try{const result=await screens.receive(req);send(200,JSON.stringify(result||{}));}catch(e){send(e.message==='limit'?413:400,'{}');}return;
         }
         if(req.method==='POST'&&url.pathname==='/api/display'){
           if(![origin,PUBLIC_SITE_ORIGIN].includes(req.headers.origin)){send(403,'{"error":"origin-required"}');return;}
@@ -119,7 +128,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
           const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>98304){send(413,'{"error":"display-too-large"}');return;}chunks.push(chunk);}
           try{
             const packet=JSON.parse(Buffer.concat(chunks).toString('utf8'));
-            if(size>4096&&!packet.display?.navigation){send(413,'{"error":"display-too-large"}');return;}
+            if(size>4096&&!packet.display?.navigation&&!packet.display?.tradeAction&&!packet.display?.inbox){send(413,'{"error":"display-too-large"}');return;}
             send(200,JSON.stringify(companion.publish(packet)));
           }catch(e){send(409,JSON.stringify({error:e.message==='display-in-use'?'display-in-use':'invalid-display'}));}return;
         }
@@ -130,7 +139,11 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
             let result=companion.poll(cursor);
             // Pace linked flights on the companion so a background browser timer cannot drop the lease.
             if(url.searchParams.get('wait')==='1'&&!result.commands.length){
-              await new Promise(resolve=>setTimeout(resolve,1500));
+              await new Promise(resolve=>{
+                function wake(){clearTimeout(timer);commandWaiters.delete(wake);res.off('close',wake);resolve();}
+                const timer=setTimeout(wake,1500);
+                commandWaiters.add(wake);res.once('close',wake);
+              });
               if(res.destroyed)return;
               result=companion.poll(cursor);
             }
@@ -151,6 +164,10 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
       }
       if(screenBundle&&req.method==='GET'&&url.pathname.startsWith('/contract-reader/')){
         const resource=await screenBundle(url.pathname.slice('/contract-reader/'.length));
+        if(resource){send(200,resource.body,resource.type);return;}
+      }
+      if(previewConsole && req.method==='GET' && url.pathname.startsWith('/console/')){
+        const resource=await previewConsole(url.pathname.slice('/console/'.length));
         if(resource){send(200,resource.body,resource.type);return;}
       }
       if(apiOnly){send(404,'Not found','text/plain');return;}
@@ -174,7 +191,7 @@ export async function startLogService({ file, port = 0, intervalMs = 250, webBun
   origin = `http://127.0.0.1:${server.address().port}`;
   schedule(0);
   return {
-    origin, url: origin + '/index.html#token=' + token, token, status, companion, screenPreview:()=>screens.preview(),
+    origin, url: origin + '/index.html#token=' + token, token, status, companion, assist, screenReply:screens.reply, screenPreview:()=>screens.preview(),
     async close() {
       stopped = true;
       clearTimeout(timer);

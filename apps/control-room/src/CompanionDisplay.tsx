@@ -5,7 +5,8 @@ export type NavigatorStop={
  destination:string;ship:string;shipArt:string;route:string[];finished:boolean;visitNumber?:number;visitCount?:number;
  cargo:{item:string;action:'pickup'|'delivery';scu:number|null}[];extra:number;
 };
-export type CompanionSummary={mode:'personal'|'fleet'|'flight';title:string;lines:string[];navigation?:NavigatorStop;partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
+export type TradeAction={id:string;prev:boolean;next:boolean;action:string;buy:{label:string;qty:number;box:number}[];sell:{label:string;qty:number;box:number}[];buyers:string[]};
+export type CompanionSummary={inbox?:{id:string;label:string;action:string;options:string[]};switchable?:boolean;tradeAction?:TradeAction;mode:'personal'|'fleet'|'flight';title:string;lines:string[];navigation?:NavigatorStop;partner?:'operator'|'navigator';stepId?:string;step?:string;guidance?:Partial<Record<'task'|'destination'|'afterLoad'|'load'|'cash'|'profit',string>>};
 export type DisplayView={market?:MarketSnapshot|null;summary:CompanionSummary;locale:Locale;onCommand:(command:string)=>void};
 export function createCompanionDock(){
  const slots=new Set<()=>DisplayView>();

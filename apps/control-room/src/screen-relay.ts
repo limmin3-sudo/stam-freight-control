@@ -8,6 +8,14 @@ function endpoint(){
  return {url:(local()?location.origin:'http://127.0.0.1:23458')+'/api/screens',
   headers:{Authorization:'Bearer '+token},credentials:'omit' as const};
 }
+export async function pollScreenChoice(picker:string,labels:string[],signal?:AbortSignal,retry='',outcome?:import('./game-capture').ReadOutcome){
+ const ep=endpoint();if(!ep)return '';
+ const response=await fetch(ep.url,{method:'POST',headers:{...ep.headers,'Content-Type':'application/json'},
+  credentials:ep.credentials,signal:signal?AbortSignal.any([signal,AbortSignal.timeout(3000)]):AbortSignal.timeout(3000),
+  body:JSON.stringify({picker,labels,retry,outcome})});
+ if(!response.ok)return '';
+ const result=await response.json();return typeof result.reply==='string'?result.reply:'';
+}
 export async function relayFrame(id:string,frame:Frame,preview=false){
  const ep=endpoint();if(!ep)return;
  const image=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsDataURL(frame.image);});
@@ -36,4 +44,29 @@ export function followScreens(changed:()=>void){
   }catch{delay=10000;}finally{if(!stopped)timer=setTimeout(poll,delay);}
  }
  void poll();return ()=>{stopped=true;clearTimeout(timer);};
+}
+
+// Listen only while the user has selected a game window. Closing the reader
+// aborts the pending request, so reopening never replays a stale tap.
+export async function waitForReadButton(signal:AbortSignal,read:()=>Promise<import('./game-capture').ReadOutcome>){
+ while(!signal.aborted){
+  try{
+   const ep=endpoint();
+   if(ep){
+    const res=await fetch(ep.url+'?wait=read',{headers:ep.headers,credentials:ep.credentials,signal:AbortSignal.any([signal,AbortSignal.timeout(16000)])});
+    if(!res.ok)throw Error('offline');
+    const packet=await res.json();
+    if(Number.isSafeInteger(packet.read)){
+     if(packet.read>0&&!signal.aborted){
+      let result;
+      try{result=await read();}catch{result={code:'error'};}
+      await fetch(ep.url,{method:'POST',headers:{...ep.headers,'Content-Type':'application/json'},credentials:ep.credentials,
+       signal:AbortSignal.timeout(4000),body:JSON.stringify({read:packet.read,...result})});
+     }
+     continue;
+    }
+   }
+  }catch{if(signal.aborted)return;}
+  await new Promise(resolve=>setTimeout(resolve,2500));
+ }
 }

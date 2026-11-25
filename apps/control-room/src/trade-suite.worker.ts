@@ -1,3 +1,4 @@
+import { bestSplitSale } from './trade-split';
 import { quickRoutes, fieldScenario } from './trade-field';
 import { calculateSuite } from './trade-suite';
 import { suiteContext, packSuite, fittingTradeShips } from './trade-suite-runtime.mjs';
@@ -8,10 +9,11 @@ self.onmessage = (event) => {
       const context = suiteContext(options),
         now = Date.now();
       const routes = quickRoutes(market, options, context, now);
-      const reported = event.data.observations?.length
-        ? quickRoutes(fieldScenario(market, event.data.observations, now), options, context, now)
-        : [];
-      self.postMessage({ routes, reported });
+      const field = event.data.observations?.length ? fieldScenario(market,event.data.observations,now) : null;
+      const reported = field ? quickRoutes(field,options,context,now) : [];
+      const split=event.data.compare ? bestSplitSale(market,options,context,now) : null;
+      const fieldSplit=event.data.compare && field ? bestSplitSale(field,options,context,now) : null;
+      self.postMessage({ routes, reported, split, fieldSplit });
       return;
     }
     if (findFor) {

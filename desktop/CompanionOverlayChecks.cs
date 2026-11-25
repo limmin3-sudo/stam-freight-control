@@ -50,6 +50,24 @@ internal sealed partial class CompanionOverlay {
                         overlay.DispatchSpeech(voice.text,voice.Confidence,null,null,true,false);
                         Require(overlay.NavigationText=="말씀해 주십시오."&&commands.Count==0,"offline-recorded-wake");
                     }
+                    // 16 kHz mono: a clip of the packaged navigator saying "적재 완료",
+                    // followed by independent synthesized affirmative and quantity-question samples.
+                    var receipt=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"receipt-ruin-edit.pcm")),CancellationToken.None,null,false,
+                        new[]{"2|루인|티타늄","2|루인|수소","2|차울라|티타늄"});
+                    Require(receipt.PartialReceiptPlace=="루인"||receipt.ReceiptPairHint=="루인|티타늄","held-game-place-acoustic-hint");
+                    foreach(var sample in new[]{"fourteen","four"}){
+                        var spoken=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"quantity-"+sample+".pcm")),CancellationToken.None,null,false,null,true);
+                        int expected=sample=="fourteen"?14:4;
+                        Require(spoken.SuggestedQuantity==expected||spoken.Confidence>=.85f&&KoreanRecognition.RecognizedQuantity(spoken.text)==expected,"spoken-quantity-"+sample);
+                    }
+                    var stopReply=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"receipt-stop-ruin.pcm")),CancellationToken.None,null,false,null,false,false,new[]{"루인","차울라"});
+                    Require(stopReply.PlaceOption==1,"held-stop-reply-limited-to-current-menu");
+                    var pickup=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"cargo-load.pcm")),CancellationToken.None,"pickup");
+                    Require(pickup.CargoReadback=="적재 완료"||FlightCommand(pickup.text,pickup.Confidence,"a","a","pickup")=="complete-flight:a","held-pickup-audio");
+                    var answer=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"cargo-yes.pcm")),CancellationToken.None,"pickup",true);
+                    Require(KoreanRecognition.Affirmative(answer.text)&&(answer.ConfirmedAnswer||answer.Confidence>=.85f),"held-affirmative-audio");
+                    var question=KoreanRecognition.FromRecording(File.ReadAllBytes(Path.Combine(fixtures,"cargo-quantity.pcm")),CancellationToken.None,"pickup");
+                    Require(question.CargoReadback==null&&FlightCommand(question.text,question.Confidence,"a","a","pickup")==null,"quantity-question-does-not-advance");
                     Require(String.IsNullOrWhiteSpace(KoreanRecognition.FromRecording(new byte[32000],CancellationToken.None).text),"silent-input");
                 }
                 overlay.DispatchSpeech("항해사",1,null,null,true,false);
@@ -69,9 +87,13 @@ internal sealed partial class CompanionOverlay {
                 Require(overlay.FormBorderStyle==FormBorderStyle.None&&(GetWindowLong(overlay.Handle,-16)&0x00C00000)==0,"no-windows-caption");
                 int style=GetWindowLong(overlay.Handle,-20);Require((style&0x20)!=0&&(style&0x8000000)!=0,"click-through-default");checks.Add("Native overlay starts click-through with microphone off, three keyboard shortcuts and a mouse talk binding");
                 Require(overlay.keyTalk==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",GraveKey}})==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",GraveKey},{"holdBindingVersion",2}})==GraveKey&&ReadTalkKey(new Dictionary<string,object>{{"holdKey",Mouse5}})==Mouse5&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.M}})==Mouse4&&ReadTalkKey(new Dictionary<string,object>{{"talk",(int)Keys.J}})==(int)Keys.J,"hold-default-and-legacy-bindings");
-                overlay.Hide();
+                overlay.Hide();overlay.canReadGame=()=>true;
+                mouse_event(0x0080,0,0,1,UIntPtr.Zero);Pump(90);
+                mouse_event(0x0100,0,0,1,UIntPtr.Zero);Pump(90);
+                Require(starts==0&&commands.Count==1&&commands[0]=="read-contract","short-tap-reads-without-microphone");
+                commands.Clear();
                 try{
-                    mouse_event(0x0080,0,0,1,UIntPtr.Zero);Pump(180);
+                    mouse_event(0x0080,0,0,1,UIntPtr.Zero);Pump(500);
                     Require(starts==1&&overlay.Listening&&recorder.finished==0&&commands.Count==0,"hold-starts-hidden-without-sending");
                     Pump(180);
                     Require(starts==1&&recorder.finished==0,"repeat-does-not-start-or-send");
@@ -93,6 +115,27 @@ internal sealed partial class CompanionOverlay {
                 flight["stepId"]="second";flight["step"]="pickup";overlay.UpdateDisplay(flight);Require(overlay.CanComplete&&overlay.StepLabel=="적재 완료","advance-on-web-ack");
                 overlay.UpdateDisplay(null);Require(!overlay.CanComplete&&overlay.Destination=="","disconnect-clears-navigation");commands.Clear();
                 overlay.SetStep("a","pickup");overlay.received=DateTime.UtcNow;
+                overlay.listeningUntil=DateTime.MinValue;
+                overlay.DispatchSpeech("적재 완료",1,"a",null,true,false);
+                Require(commands.Count==0,"wake-mode-ignores-unaddressed-flight-command");
+                overlay.rideAlong=true;
+                overlay.DispatchSpeech("저 사람 주차 진짜 뭐같게 했네",1,null,null,true,false);
+                Require(overlay.body.Text.Contains("어떻게")&&commands.Count==0,"ride-along-parking-banter-only");
+                overlay.ShowPartner("navigator");
+                overlay.lastBanter=DateTime.MinValue;
+                overlay.DispatchSpeech("주차를 왜 저렇게 했냐",1,null,null,true,false);
+                Require(overlay.body.Text.Contains("만족")&&commands.Count==0,"navigator-banter-persona");
+                overlay.lastBanter=DateTime.MinValue;
+                overlay.DispatchSpeech("착륙 진짜 깔끔, 착륙 성공!",1,null,null,true,false);
+                Require(overlay.body.Text.Contains("승객")&&commands.Count==0,"landing-comment-does-not-advance");
+                overlay.DispatchSpeech("잡담, 오늘 뭐 했어",1,null,null,true,false);
+                Require(overlay.body.Text.Contains("온라인 자유 대화")&&commands.Count==0,"offline-ride-chat-stays-local");
+                overlay.rideChat=true;
+                overlay.DispatchSpeech("이어서, 그건 어땠어",1,null,null,true,false);
+                Require(commands.Count==1&&commands[0]=="copilot-say:이어서, 그건 어땠어","online-chat-explicit-prefix");
+                commands.Clear();overlay.rideChat=false;
+                overlay.DispatchSpeech("저거 버리고 싶네",1,null,null,true,false);
+                Require(commands.Count==0,"venting-does-not-change-flight");
                 overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("배송 완료",1);
                 Require(commands.Count==0,"wrong-stage");
                 overlay.DetectPhrase(TimeSpan.Zero);overlay.HandlePhrase("적재 완료",1);
@@ -158,6 +201,9 @@ internal sealed partial class CompanionOverlay {
                 string offerId=Guid.NewGuid().ToString();
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","부조종사"},{"lines",new[]{"로어빌"}},{"copilot",true},{"proposal",offerId},{"proposalText","오리슨 경유"}});
                 Require(overlay.body.Text.Contains("오리슨")&&overlay.CopilotRequest("적용해",1,offerId)&&commands[commands.Count-1]=="copilot-apply:"+offerId,"copilot-confirms-visible-proposal");
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","계약"},{"lines",new string[0]},{"copilot",true},{"receiptReadback",true},{"proposal",offerId},{"proposalText","2번 계약 40 SCU"}});
+                Require(overlay.body.Text.Contains("맞습니까")&&overlay.CopilotRequest("맞아",1,offerId)&&commands[commands.Count-1]=="copilot-apply:"+offerId,"receipt-affirms-visible-readback");
+                Require(overlay.CopilotRequest("아니 14야",1,offerId)&&commands[commands.Count-1]=="receipt-amend:"+offerId+":아니 14야","receipt-amend-scoped");
                 int sent=commands.Count;
                 Require(overlay.CopilotRequest("적용해",1,"expired")&&commands.Count==sent,"copilot-stale-voice-rejected");
                 Require(overlay.CopilotRequest("오리슨 먼저 들러",1,null)&&commands[commands.Count-1]=="copilot-say:오리슨 먼저 들러","copilot-voice-route-request");
@@ -165,6 +211,29 @@ internal sealed partial class CompanionOverlay {
                 overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","운항"},{"lines",new[]{"픽업지를 말해 주세요."}},{"copilot",true},{"awaitingDetails",true}});
                 foreach(string reply in new[]{"허스턴에서 티타늄 40SCU 실어서 오리슨 가는 거야","로어빌에서","응","취소"})
                     Require(overlay.CopilotRequest(reply,1,null)&&commands[commands.Count-1]=="copilot-say:"+reply,"manual-mission-voice-followup");
+                string receiptView=Guid.NewGuid().ToString();
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","수신 계약"},{"lines",new[]{"2번 계약"}},{"copilot",true},{"receiptView",receiptView}});
+                int beforeReceipt=commands.Count;
+                Require(overlay.CopilotRequest("두 번째 미션은 수량이 마흔이야",1,null,"expired")&&commands.Count==beforeReceipt,"reject-reordered-voice-receipt");
+                Require(overlay.CopilotRequest("두 번째 미션은 수량이 마흔이야",1,null,receiptView)&&commands[commands.Count-1]=="receipt-say:"+receiptView+":두 번째 미션은 수량이 마흔이야","numbered-receipt-dictation");
+                var rows=new[]{"1|루인|티타늄","2|루인|티타늄"};
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","계약"},{"lines",new string[0]},{"copilot",true},{"receiptView",receiptView},{"receiptHints",rows}});
+                int beforeHint=commands.Count;
+                var pair=new KoreanRecognition.Phrase{text="인식이 불분명",ReceiptPairHint="루인|티타늄"};
+                Require(overlay.HandleReceiptPair(pair,receiptView,overlay.receiptHints)&&commands.Count==beforeHint,"ambiguous-pair-asks-card");
+                var cardChoice=new KoreanRecognition.Phrase{text="두 번째 계약",result=new[]{new KoreanRecognition.Word{conf=1}}};
+                Require(overlay.HandleReceiptPair(cardChoice,receiptView,overlay.receiptHints)&&commands[beforeHint]=="receipt-say:"+receiptView+":2번 계약 루인에 내릴 티타늄 수량 바꿔줘","confirmed-card-asks-quantity");
+                Require(!overlay.HandleReceiptPair(cardChoice,receiptView,overlay.receiptHints)&&!overlay.HandleReceiptPair(pair,"stale",overlay.receiptHints),"expired-and-consumed-hints-no-edit");
+                string cargoId=Guid.NewGuid().ToString();
+                overlay.UpdateDisplay(new Dictionary<string,object>{{"mode","flight"},{"title","운항"},{"lines",new string[0]},{"step","pickup"},{"stepId",cargoId}});
+                var hint=new KoreanRecognition.Phrase{text="첫째 관료",CargoReadback="적재 완료"};
+                var yes=new KoreanRecognition.Phrase{text="예",ConfirmedAnswer=true};
+                int beforeCargo=commands.Count;
+                Require(overlay.HandleCargoReadback(hint,cargoId)&&commands.Count==beforeCargo,"cargo-hint-does-not-advance");
+                Require(overlay.HandleCargoReadback(yes,cargoId)&&commands.Count==beforeCargo+1&&commands[beforeCargo]=="complete-flight:"+cargoId,"asked-cargo-affirmative");
+                Require(!overlay.HandleCargoReadback(yes,cargoId)&&commands.Count==beforeCargo+1,"ignore-repeated-affirmative");
+                overlay.SetStep(Guid.NewGuid().ToString(),"delivery");
+                Require(overlay.HandleCargoReadback(hint,cargoId)&&!overlay.HandleCargoReadback(yes,cargoId)&&commands.Count==beforeCargo+1,"stale-cargo-readback");
                 overlay.Size=new Size(660,480);overlay.Clamp();savedSize=overlay.Size;overlay.keyOverlay=(int)Keys.K;overlay.keyPrices=(int)Keys.J;overlay.keyWork=(int)Keys.L;overlay.keyTalk=(int)Keys.F8;overlay.Save();
             }
             using(var reopened=new CompanionOverlay(c=>commands.Add(c),true,directory)){

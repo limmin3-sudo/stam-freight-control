@@ -28,7 +28,10 @@ internal sealed partial class CompanionOverlay {
     volatile bool narrating;
     volatile bool ignoreUtterance;
     DateTime answerUntil=DateTime.MinValue,quoteRequested=DateTime.MinValue;
-    bool readQuote,copilot,awaitingDetails;
+    bool canReviewQuantity,receiptReadback,rideChat,readQuote,copilot,awaitingDetails,receiptFollowup;
+    string placePrompt,heldPlacePrompt;
+    string[] placeOptions;
+    string receiptView,heldReceiptView,heardReceiptView,quantityPrompt,heldQuantityPrompt;
     string proposalId,heardProposal;
     void ShowProposalActions(bool confirming){
         pricesButton.Primary=confirming;pricesButton.Invalidate();
@@ -37,17 +40,31 @@ internal sealed partial class CompanionOverlay {
     }
     internal string NavigationDestination {get{object value;return displayedMode!=null&&facts!=null&&facts.TryGetValue("destination",out value)?Convert.ToString(value):"";}}
     internal string NavigationText {get{return displayedMode!=null||DateTime.UtcNow<answerUntil?body.Text:"";}}
-    bool CopilotRequest(string phrase,float confidence,string captured){
+    bool CopilotRequest(string phrase,float confidence,string captured,string capturedReceipt=null){
         if(!copilot||confidence<.76f||String.IsNullOrWhiteSpace(phrase)||phrase.Length>160||(DateTime.UtcNow-received).TotalSeconds>10)return false;
         string q=Normal(phrase);
         bool apply=Regex.IsMatch(q,"^(적용|적용해|적용해줘|확정|확정해|confirm|apply)$");
+        bool affirmed=receiptReadback&&Regex.IsMatch(q,"^(맞아|맞아요|맞습니다|정확해|correct|yes)$");
+        bool amend=receiptReadback&&Regex.IsMatch(phrase.Trim(),@"^(아니|정정|no\b|correction\b)",RegexOptions.IgnoreCase);
+        if((affirmed||amend)&&(captured==null||captured!=proposalId||confidence<.85f)){
+            Answer(T("현재 변경 내용을 확인하고 다시 말씀해 주세요.","Review the current readback and reply again."),true);return true;
+        }
+        apply=apply||affirmed;
         bool cancel=Regex.IsMatch(q,"^(취소|취소해|cancel)$");
         string request;
-        if(apply||(cancel&&!(awaitingDetails&&captured==null))){
+        bool numbered=Regex.IsMatch(q,@"(?:[0-9일이삼사오육칠팔구십]+|첫|두|세|네|다섯|여섯|일곱|여덟|아홉|열)(?:번째|번|째)(?:미션|계약)|(?:미션|계약)[0-9일이삼사오육칠팔구십]+번|(?:mission|contract)[0-9]+");
+        bool numberedRemoval=numbered&&ContainsAny(q,"삭제","제외","빼","remove","exclude");
+        bool undo=ContainsAny(q,"되돌","undo");
+        if(amend){if(phrase.Length>158)return false;request="receipt-amend:"+captured+":"+phrase;}
+        else if((numbered&&!ContainsAny(q,"삭제","제외","추가","빼줘","remove","exclude","add")||numberedRemoval||receiptFollowup)&&!apply&&!undo){
+            if(confidence<.85f){Answer(T("계약 내용을 다시 말씀해 주세요.","Please repeat the receipt details."),true);return true;}
+            if(receiptView==null||receiptView!=capturedReceipt){Answer(T("수신 목록을 확인하고 계약 번호를 다시 말씀해 주세요.","Check the receipt number and repeat your request."),true);return true;}
+            request="receipt-say:"+receiptView+":"+phrase;
+        }else if(apply||(cancel&&!(awaitingDetails&&captured==null))){
             if(confidence<.85f||captured==null||captured!=proposalId){Answer(T("확인할 변경안을 먼저 요청하세요.","Request a change to review first."),true);return true;}
             request="copilot-"+(apply?"apply:":"cancel:")+captured;
         }else{
-            bool edit=awaitingDetails||ContainsAny(q,"들러","경유","미션추가","계약추가","미션등록","계약등록","newmission","newcontract","createmission","createcontract","픽업지","배송지","넣어","빼줘","제외","팔자","만팔아","샀어","매입완료","매입했","bought","항로에도넣어","항로에추가","팔았","판매계획","판매완료","추천","매입여유","무역출발","무역도착","tradedepart","tradearrive","되돌","먼저가","경로다시","항로다시","경로재계산","항로재계산","reroute","recalculateroute","stopat","addcontract","removecontract","plansale","sold","recommend","undo")
+            bool edit=ContainsAny(q,"경로계산","운송시작","planroute","starthaul")||awaitingDetails||ContainsAny(q,"들러","경유","미션추가","계약추가","미션등록","계약등록","newmission","newcontract","createmission","createcontract","픽업지","배송지","넣어","빼줘","제외","팔자","만팔아","샀어","매입완료","매입했","bought","항로에도넣어","항로에추가","팔았","팔렸","판매계획","판매완료","추천","매입여유","무역출발","무역도착","tradedepart","tradearrive","되돌","먼저가","경로다시","항로다시","경로재계산","항로재계산","reroute","recalculateroute","stopat","addcontract","removecontract","plansale","sold","recommend","undo")
                 ||Regex.IsMatch(q,@"^(?:거기서?)?[0-9]+(?:scu|에스씨유)?만$|^[0-9]+(?:scu|에스씨유)(?:단가|개당|at)[0-9]+|^(?:[1-6]|일|이|삼|사|오|육)번$")
                 ||(ContainsAny(q,"미션","계약","mission","contract")&&ContainsAny(q,"추가","삭제","add","remove"));
             if(!edit)return false;
@@ -101,7 +118,7 @@ internal sealed partial class CompanionOverlay {
         queries[phrase]=queries.TryGetValue(phrase,out prior)&&prior!=command?"ambiguous":command;
     }
     void LoadQuestions(){
-        foreach(string phrase in english?new[]{"apply","cancel","recommend","undo","add contract","remove contract","new mission","yes","no","recalculate route"}:new[]{"적용해","취소","판매처를 항로에 추가","무역 출발","무역 도착","응","네","아니요","추천해줘","방금 변경 되돌려","받은 미션 추가","새 미션 등록","나 미션 추가 하고싶어","미션 추가해줘","미션 빼줘","미션 삭제해줘","경로 다시 짜줘","1번","2번","3번","4번","5번","6번"})AddPhrase(phrase,"copilot");
+        foreach(string phrase in english?new[]{"apply","cancel","recommend","undo","add contract","remove contract","new mission","yes","no","recalculate route"}:new[]{"적용해","맞아","맞아요","맞습니다","정정","취소","판매처를 항로에 추가","무역 출발","무역 도착","응","네","아니요","추천해줘","방금 변경 되돌려","받은 미션 추가","새 미션 등록","나 미션 추가 하고싶어","미션 추가해줘","미션 빼줘","미션 삭제해줘","경로 다시 짜줘","1번","2번","3번","4번","5번","6번"})AddPhrase(phrase,"copilot");
         AddQuestion(T("다음 목적지","next destination"),"destination");
         AddQuestion(T("다음 작업","next task"),"task");
         AddQuestion(T("적재 수량","cargo quantity"),"load");
@@ -339,9 +356,11 @@ internal sealed partial class CompanionOverlay {
         pendingGood=pendingSide=pendingAmount=null;clarifyUntil=DateTime.MinValue;
     }
     void ClearGuidance(){
+        pendingHintPair=pendingHintPlace=null;receiptHints=new string[0];
+        cargoReadbackStep=null;
         EndClarification();
         if(displayedMode!=null)StopNarration();
-        if(proposalId!=null)ShowProposalActions(false);copilot=awaitingDetails=false;proposalId=heardProposal=null;displayedMode=null;facts=null;lastTask=null;lastReply=null;
+        if(proposalId!=null)ShowProposalActions(false);receiptReadback=rideChat=copilot=awaitingDetails=receiptFollowup=false;canReviewQuantity=false;quantityPrompt=null;placePrompt=null;placeOptions=null;receiptView=null;proposalId=heardProposal=null;displayedMode=null;facts=null;lastTask=null;lastReply=null;
         quoteRequested=answerUntil=DateTime.MinValue;
     }
     void UpdateGuidance(Dictionary<string,object> display){
@@ -350,9 +369,35 @@ internal sealed partial class CompanionOverlay {
         if(displayedMode!=mode)ClearGuidance();
         displayedMode=mode;
         copilot=display.TryGetValue("copilot",out raw)&&raw is bool&&(bool)raw;
+        rideChat=copilot&&display.TryGetValue("rideChat",out raw)&&raw is bool&&(bool)raw;
+        string nextView=display.TryGetValue("receiptView",out raw)?raw as string:null;
+        if(receiptView!=nextView){pendingHintPair=pendingHintPlace=null;receiptView=nextView;Interlocked.Increment(ref contextVersion);}
+        var hints=new List<string>();
+        if(nextView!=null&&display.TryGetValue("receiptHints",out raw)&&raw is System.Collections.IEnumerable)
+            foreach(object v in (System.Collections.IEnumerable)raw){
+                string item=v as string;
+                if(item!=null&&Regex.IsMatch(item,@"^[1-9][0-9]{0,2}\|[가-힣 ]{2,28}\|[가-힣 ]{2,28}$"))hints.Add(item);
+                if(hints.Count==48)break;
+            }
+        if(!hints.TrueForAll(h=>Array.IndexOf(receiptHints,h)>=0)||hints.Count!=receiptHints.Length){
+            receiptHints=hints.ToArray();pendingHintPair=pendingHintPlace=null;
+        }
+        receiptFollowup=copilot&&display.TryGetValue("receiptFollowup",out raw)&&raw is bool&&(bool)raw;
+        var menu=receiptFollowup&&display.TryGetValue("placePrompt",out raw)?raw as Dictionary<string,object>:null;
+        string placeId=menu!=null&&menu.TryGetValue("id",out raw)?raw as string:null;
+        if(placePrompt!=placeId){
+            placePrompt=null;placeOptions=null;
+            var names=new List<string>();
+            if(placeId!=null&&menu.TryGetValue("names",out raw)&&raw is System.Collections.IEnumerable)
+                foreach(object n in (System.Collections.IEnumerable)raw)if(n is string)names.Add((string)n);
+            if(names.Count>=2&&names.Count<=12){placePrompt=placeId;placeOptions=names.ToArray();}
+        }
+        canReviewQuantity=copilot&&display.TryGetValue("receiptReview",out raw)&&raw is bool&&(bool)raw;
+        quantityPrompt=canReviewQuantity&&receiptFollowup&&display.TryGetValue("quantityPrompt",out raw)?raw as string:null;
         awaitingDetails=copilot&&display.TryGetValue("awaitingDetails",out raw)&&raw is bool&&(bool)raw;
         string nextProposal=copilot&&display.TryGetValue("proposal",out raw)?raw as string:null;
-        if(proposalId!=nextProposal){Interlocked.Increment(ref contextVersion);ShowProposalActions(nextProposal!=null);}
+        receiptReadback=nextProposal!=null&&display.TryGetValue("receiptReadback",out raw)&&raw is bool&&(bool)raw;
+        if(proposalId!=nextProposal){cargoReadbackStep=null;Interlocked.Increment(ref contextVersion);ShowProposalActions(nextProposal!=null);}
         proposalId=nextProposal;
         facts=display.TryGetValue("guidance",out raw)?raw as Dictionary<string,object>:null;
         string task=facts!=null&&facts.TryGetValue("task",out raw)?Convert.ToString(raw):"";
@@ -368,7 +413,7 @@ internal sealed partial class CompanionOverlay {
             if((DateTime.UtcNow-quoteRequested).TotalSeconds<40)Answer(Convert.ToString(answer["text"]),readQuote);
             quoteRequested=DateTime.MinValue;
         }
-        if(proposalId!=null&&display.TryGetValue("proposalText",out raw))body.Text=Convert.ToString(raw)+"\n"+T("적용할까요?","Apply this change?");
+        if(proposalId!=null&&display.TryGetValue("proposalText",out raw))body.Text=Convert.ToString(raw)+"\n"+(receiptReadback?T("맞습니까?","Is that correct?"):T("적용할까요?","Apply this change?"));
         else if(DateTime.UtcNow>=answerUntil)body.Text=summaryLines;
     }
     static string SpokenAmount(string phrase,bool followup,out bool invalid){

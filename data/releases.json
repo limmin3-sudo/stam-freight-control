@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026-11-25-beta-3-10-0",
+    "channel": "beta",
+    "version": "3.10.0",
+    "date": "2026-11-25 09:30",
+    "title": "계약별 화물 보완과 네비게이터 분할 판매",
+    "changes": [
+      "픽업·배송이 여러 곳인 운송 계약의 누락 정보를 계약 화면이나 음성으로 보완할 수 있습니다. 같은 제목의 계약을 구분하기 어려우면 적용할 카드를 확인합니다.",
+      "시세표에서 한 곳 판매와 두 곳 분할 판매의 물량·단위 차익·예상 수익을 비교하고 네비게이터로 인계할 수 있습니다.",
+      "운송·무역 오버레이에서 모드를 전환하고 실제 매입·판매 수량을 기록할 수 있습니다. 일부만 팔면 남은 화물의 판매처를 다시 비교할 수 있습니다."
+    ],
+    "en": {
+      "title": "Fill contract details and split trade sales with Navigator",
+      "changes": [
+        "Complete missing multi-stop freight details from the contract screen or by voice. Choose the receipt when similar titles cannot be distinguished.",
+        "Compare single-buyer and split sales by quantity, margin per SCU and expected profit, then send a route to Navigator.",
+        "Switch between freight and trade in the overlay, record actual fills and compare buyers for remaining cargo."
+      ]
+    }
+  },
+  {
     "id": "2026-11-23-beta-3-9-0",
     "channel": "beta",
     "version": "3.9.0",

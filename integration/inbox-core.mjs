@@ -99,6 +99,24 @@ export function inboxCards(snapshot,places=[],index=null,catalog=null,missionDb=
   const ended=c.status==='end-observed'||c.participation?.state==='left-observed';
   const card={id:c.missionId,title:text((reference?.basis==='exact-template-name'?c.title:null)||reference?.title||c.title||'수신한 계약'),company:reference?.company||'',definition:reference?{id:reference.id,basis:reference.basis,version:reference.version,rank:reference.rank,source:reference.source}:null,observedDefinitionId:idPattern.test(c.definitionId||'')?c.definitionId:null,acceptedAt:c.acceptedAt||null,ended,conflict:c.status==='conflict'||!!c.conflicts?.length||rows.some(r=>r._locationConflict),rows,pickupNames:[...new Set(markerPlaces.filter(p=>p.role==='pickup').map(p=>p.point.name))],pendingType:!reference&&(c.status==='classification-pending'||!(c.markerObservations||[]).some(m=>m.hauling))};
   if (/[가-힣]/.test(c.title || '')) card.koreanTitle = text(c.title);
+  // Only a known single-order definition and a delivery counter observed on
+  // this accepted instance can distinguish same-title receipts by quantity.
+  const observedDeliveries=(c.quantityObservations||[]).filter(q=>q.unit==='SCU'&&q.objectiveId?.startsWith('dropoff_'));
+  const direct=reference?.basis==='definition-id'&&c.gameBuild?.status==='known'&&reference.rows.length===1&&
+   !reference.multiplePickups&&!reference.multipleDropoffs;
+  if(direct&&!ambiguous&&!card.conflict){
+   const only=values=>{const distinct=[...new Set(values.filter(Boolean))];return distinct.length===1?distinct[0]:'';};
+   // Use observations from this instance. The definition establishes single-order scope only.
+   const cargo=only([...namedGoals.map(g=>g.commodity),...observedDeliveries.map(q=>deliveryNotice(q.notification)?.commodity)]);
+   const site=role=>only(markers.filter(m=>m.role===role).map(m=>m.pointId));
+   const from=site('pickup'),to=site('dropoff');
+   if(cargo||from||to)card.directEvidence={cargo,from,to};
+  }
+  if(direct&&observedDeliveries.length&&
+    new Set(observedDeliveries.map(q=>q.objectiveId)).size===1&&new Set(observedDeliveries.map(q=>q.total)).size===1){
+   const total=observedDeliveries[0].total;
+   if(Number.isSafeInteger(total)&&total>0)card.singleDeliveryScu=total;
+  }
   if(reference?.lookupMetadata)card.lookupMetadata=reference.lookupMetadata;
   if(observedStops)card.observedStops=observedStops;
   if(quantityHints.length)card.quantityHints=quantityHints;

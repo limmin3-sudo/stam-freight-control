@@ -42,67 +42,66 @@ function acceptedTab(source:CanvasImageSource,left:number,core:number,h:number){
  const offers=tint(.14,.45),accepted=tint(.58,.89);
  return accepted>.10&&accepted>offers*2;
 }
-function jpeg(image:HTMLCanvasElement){
- return new Promise<Blob>((resolve,reject)=>image.toBlob(b=>b?resolve(b):reject(Error('capture')),'image/jpeg',.89));
+function encode(image:HTMLCanvasElement,type:'image/png'|'image/jpeg'){
+ return new Promise<Blob>((resolve,reject)=>image.toBlob(b=>b?resolve(b):reject(Error('capture')),type,.89));
 }
+export type ReadOutcome={code:'complete'|'partial'|'choose'|'unreadable'|'error'|'cancel';destination?:string;details?:string};
+export type ReadOnce=()=>Promise<ReadOutcome>;
+
 export async function captureContracts(language:'eng'|'kor',signal:AbortSignal,
- onFrame:(frame:Frame)=>Promise<void>,onEnd:()=>void){
+ onFrame:(frame:Frame)=>Promise<ReadOutcome>,onReady:(read:ReadOnce)=>void){
  const stream=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'window'},audio:false});
  const video=document.createElement('video'),track=stream.getVideoTracks()[0]!;
  const reader=createOCRReader(language);
- let stopped=false,timer:ReturnType<typeof setTimeout>,previous='',lastText='';
+ let busy=false,stopped=false;
+ let finish:()=>void=()=>{};
+ const ended=new Promise<void>(resolve=>{finish=resolve;});
  function stop(){
-  if(stopped)return;stopped=true;clearTimeout(timer);signal.removeEventListener('abort',stop);
-  stream.getTracks().forEach(t=>t.stop());video.pause();video.srcObject=null;void reader.close();onEnd();
+  if(stopped)return;
+  stopped=true;signal.removeEventListener('abort',stop);track.removeEventListener('ended',stop);
+  stream.getTracks().forEach(t=>t.stop());video.pause();video.srcObject=null;void reader.close();finish();
  }
- if(signal.aborted){stop();return;}
- signal.addEventListener('abort',stop,{once:true});track.addEventListener('ended',stop,{once:true});
+ async function read():Promise<ReadOutcome>{
+  if(stopped||busy)return {code:'cancel'};
+  busy=true;
+  try{
+   const w=video.videoWidth,h=video.videoHeight;
+   if(!w||!h)return {code:'unreadable'};
+   const core=Math.min(w,h*16/9),x=(w-core)/2;
+   // Freeze before the first await so scrolling during OCR cannot mix contracts.
+   const frozen=canvas(w,h);
+   frozen.getContext('2d')!.drawImage(video,0,0);
+   const active=acceptedTab(frozen,x,core,h);
+   const scale=Math.min(3,Math.max(1.4,2200/core));
+   const header=crop(frozen,x+.32*core,.145*h,.67*core,.11*h,scale);
+   const goals=crop(frozen,x+.615*core,.255*h,.375*core,.50*h,language==='eng'?1:scale);
+   async function decode(surface:HTMLCanvasElement,name:string){
+    if(stopped)throw Error('cancelled');
+    return (await reader.read(new File([await encode(surface,'image/png')],name))).text;
+   }
+   let body=await decode(goals,'goals.png');
+   const retryContrast=language==='eng'?/objective|deliver|collect|SCU/i.test(body):objectiveScore(body)===0;
+   if(retryContrast){
+    const alt=await decode(contrasted(goals),'contrast.png');
+    if(objectiveScore(alt)>objectiveScore(body))body=alt;
+   }
+   if(!/SCU|주요\s*목표|primary\s*objectives|에서\s*(?:수집|수령)|\bcollect\b/i.test(body))return {code:'unreadable'};
+   const top=await decode(header,'contract.png');
+   const description=await decode(crop(frozen,x+.32*core,.255*h,.285*core,.49*h,scale),'details.png');
+   const image=await encode(crop(frozen,x+.30*core,.13*h,.69*core,.66*h,1),'image/jpeg');
+   const frame=readFrame(top+'\n'+body,image,top+'\n'+description+'\n'+body);
+   if(stopped)return {code:'cancel'};
+   if(!frame||!frame.goals.length&&!frame.continuations.length)return {code:'unreadable'};
+   frame.acceptedTab=active;
+   return await onFrame(frame);
+  }finally{busy=false;}
+ }
  try{
+  if(signal.aborted)return;
+  signal.addEventListener('abort',stop,{once:true});track.addEventListener('ended',stop,{once:true});
   if(track.getSettings().displaySurface!=='window')throw Error(language==='kor'?'공유 목록에서 Star Citizen 창을 선택하세요.':'Choose the Star Citizen application window.');
   video.muted=true;video.srcObject=stream;await video.play();
-  while(!stopped){
-   const w=video.videoWidth,h=video.videoHeight;
-   if(w&&h){
-    // mobiGlas stays centred on ultrawide monitors. Preserve the entire
-    // contract pane in the original; read the objective column separately.
-    const core=Math.min(w,h*16/9),left=(w-core)/2;
-    // Freeze the window once. A click during OCR must never mix a new
-    // contract's title/active tab with the previous contract's objective rows.
-    const frozen=canvas(w,h),x=left;
-    frozen.getContext('2d')!.drawImage(video,0,0);
-    const pane=crop(frozen,x+.30*core,.13*h,.69*core,.66*h,1);
-    const active=acceptedTab(frozen,left,core,h);
-    const sample=active+crop(pane,0,0,pane.width,pane.height,Math.min(1,220/pane.width)).toDataURL();
-    if(sample!==previous){
-     previous=sample;
-     const scale=Math.min(3,Math.max(1.4,2200/core));
-     const header=crop(frozen,x+.32*core,.145*h,.67*core,.11*h,scale);
-     const goals=crop(frozen,x+.615*core,.255*h,.375*core,.50*h,language==='eng'?1:scale);
-     let body=(await reader.read(new File([await jpeg(goals)],'goals.jpg'))).text;
-     if(language==='eng'&&/objective|deliver|collect|SCU/i.test(body)){
-      const alt=(await reader.read(new File([await jpeg(contrasted(goals))],'contrast.jpg'))).text;
-      if(objectiveScore(alt)>objectiveScore(body))body=alt;
-     }
-     if(!stopped&&/SCU|주요\s*목표|primary\s*objectives|에서\s*수집/i.test(body)){
-      const top=(await reader.read(new File([await jpeg(header)],'contract.jpg'))).text;
-      const fragment=top+'\n'+body;
-      if(!stopped){
-       const details=crop(frozen,x+.32*core,.255*h,.285*core,.49*h,scale);
-       const description=(await reader.read(new File([await jpeg(details)],'details.jpg'))).text;
-       const text=top+'\n'+description+'\n'+body;
-       if(String(active)+text!==lastText&&!stopped){
-        const frame=readFrame(fragment,await jpeg(pane),text);
-        if(frame&&!stopped){frame.acceptedTab=active;await onFrame(frame);lastText=String(active)+text;}
-       }
-      }
-     }
-    }
-   }
-   if(!stopped)await new Promise<void>(resolve=>{
-    const wake=()=>{signal.removeEventListener('abort',wake);track.removeEventListener('ended',wake);resolve();};
-    signal.addEventListener('abort',wake,{once:true});track.addEventListener('ended',wake,{once:true});
-    timer=setTimeout(wake,1200);
-   });
-  }
+  if(!stopped)onReady(read);
+  await ended;
  }finally{stop();}
 }

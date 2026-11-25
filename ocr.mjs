@@ -96,7 +96,8 @@ let libraryPromise,sharedReader,activeLanguage;
 // Compare parsed contract evidence, rather than accepting a longer noisy transcript.
 function contractEvidence(text){
  const parsed=parseMissionText(text||'');
- return (parsed.title?2:0)+(parsed.missionId?1:0)+(parsed.rewardKnown?1:0)+
+ const goals=screenObjectives(text||'');
+ return goals.reduce((score,goal)=>score+12+4*goal.pickups.length,0)+(parsed.title?2:0)+(parsed.missionId?1:0)+(parsed.rewardKnown?1:0)+
   parsed.cargo.reduce((score,row)=>score+(row.commodity?3:0)+(Number.isSafeInteger(row.scu)&&row.scu>0?2:0)+(row._pickupText?1:0),0);
 }
 const readerAssets=globalThis.location?.hostname==='127.0.0.1'&&globalThis.location?.pathname.startsWith('/contract-reader/')?new URL('/contract-reader/ocr/',globalThis.location.origin).href:null;
@@ -107,7 +108,7 @@ export function createOCRReader(language) {
  async function start() {
   const T=await loadLibrary();
   if(closed)throw Error('OCR stopped');
-  const worker=await T.createWorker(language==='eng'?['eng']:['eng','kor'],1,{
+  const worker=await T.createWorker(language==='eng'?['eng']:['kor','eng'],1,{
    workerPath:readerAssets?readerAssets+'worker.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
    ...(readerAssets?{langPath:readerAssets}:{}),
    corePath:readerAssets?readerAssets+'tesseract-core-lstm.wasm.js':'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',

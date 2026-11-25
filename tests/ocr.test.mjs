@@ -114,3 +114,17 @@ test('countdown-looking screenshot text never creates a hauling time limit',()=>
  const parsed=parseMissionText('Time Remaining: 1h 20m 30s',[]);
  assert.equal(Object.hasOwn(parsed,'remainingMinutes'),false);
 });
+
+test('Korean OCR keeps the block with a delivery counter, commodity and pickup together',async t=>{
+ const fragmented='ㆍ목적지: 가스라이트.\nㆍ화물: 수소\n납품: 0/11 504';
+ const complete='주요 목표\n납품: 0/11 504ㆍ화물: 수소ㆍ목적지: 가스라이트.\n수소를 루인 정거장에서 수집하세요.';
+ const {createOCRReader}=await import('../ocr.mjs');
+ let block=false;
+ const stub={PSM:{AUTO:'auto',SINGLE_BLOCK:'block'},async createWorker(languages){
+  assert.deepEqual(languages,['kor','eng']);
+  return {setParameters:async p=>{block=p.tessedit_pageseg_mode==='block';},recognize:async()=>({data:{text:block?complete:fragmented}}),terminate:async()=>{}};
+ }};
+ const prior=globalThis.Tesseract;globalThis.Tesseract=stub;
+ t.after(()=>{if(prior)globalThis.Tesseract=prior;else delete globalThis.Tesseract;});
+ const reader=createOCRReader('kor');try{assert.equal((await reader.read(new Blob())).text,complete);}finally{await reader.close();}
+});

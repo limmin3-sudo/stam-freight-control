@@ -7,41 +7,59 @@ import type {CompanionSummary,createCompanionDock} from './CompanionDisplay';
 import {useCompanionLink} from './use-companion-link';
 import {useTradeView} from './use-trade-view';
 import {useTradeSuite} from './use-trade-suite';
-import {expeditionSummary,remainingSaleGoal,type SuiteCommand} from './trade-expedition';
+import {navigatorPlanId,expeditionSummary,remainingSaleGoal,type SuiteCommand} from './trade-expedition';
 import {loadMarket,marketWithRecentQuotes,refreshCommodity} from './market-reference';
 import type {MarketSnapshot} from './trade-data';
 import {tradeLabel} from './trade-labels';
-import {tradeNextStep} from './trade-workflow';
+import {tradeCompanion} from './trade-companion';
 import {resolveTradeTerminal} from './trade-navigation.mjs';
 import {saleOffers} from './copilot-market';
+import {useObservations} from './TradeFieldReports';
+import {freshReports} from './trade-field';
 import {priceAnswer} from './companion-guidance';
 import {jobVolume,placeName,routeReady,shipIdFor} from './mission-trial';
+import {planningPartner} from './partner-policy';
 import {canonicalPlace} from './flight-engine.mjs';
 import {findPorts} from './port-search.mjs';
 import {applyWord,cancelWord,cargoRoom,changeStops,contractMatches,normalized} from './copilot-navigation';
+import {listedPlaceChoice,quantityPlaceNames,receiptVoiceHints,fillSpokenReceipt,isReceiptRemoval,receiptNumber,receiptQuantityEdit,receiptAddress,revisedReceiptQuantity,type ReceiptConversation} from './spoken-receipt';
+import {receiptEvidence} from './receipt-cache';
 import {contractFields,readContractFields,spokenJob,spokenScu,startsSpokenContract,type ContractFields} from './spoken-contract';
 import {currentLocationData,currentLocationPoint} from './personal-locations.mjs';
 import './flight-copilot.css';
+import {serviceControls} from './service-account.mjs';
+import {partnerEndpoint} from './partner-endpoint';
 import {shipImageRecord} from './ship-image';
 
 type ManualEntry={stamp:string;until:number;fields:ContractFields;expected?:keyof ContractFields;ids:Partial<Record<'from'|'to',string>>;scope?:{field:'from'|'to';id:string};airport?:'from'|'to';airportQuestion?:'from'|'to'};
-type Proposal={id:string;label:string;stamp:string;expires:number;apply:()=>void|Promise<unknown>;undo?:()=>void|Promise<unknown>};
+type ReceiptEntry={id:string;evidence:string;view:string;until:number;draft:ReceiptConversation;quantityPrompt?:string;placePrompt?:{id:string;names:string[]};reviewQuantity?:boolean;revising?:'row'|'manifest'};
+const confirmReadback=(s:string)=>/^(?:맞아|맞아요|맞습니다|정확해|correct|yes)[.!? ]*$/i.test(s.trim());
+const reviseReadback=/^(?:아니요|아니야|아니|정정|no\b|correction\b)[\s,，.!:]*/i;
+type Proposal={receipt?:ReceiptEntry;id:string;label:string;stamp:string;expires:number;apply:()=>void|Promise<unknown>;undo?:()=>void|Promise<unknown>};
 type Choice={label:string;choose:()=>string|Promise<string>};
 type Props={flight:ReturnType<typeof useFlight>;locale:Locale;dock:ReturnType<typeof createCompanionDock>};
 export function CopilotStation({flight,locale,dock}:Props){
  const en=locale==='en',t=(ko:string,eng:string)=>en?eng:ko,name=(id:string)=>placeName(id,en?1:0);
  const [enabled,setEnabled]=useTradeView('companion-enabled',false),store=useTradeSuite();
+ const [rideChat,setRideChat]=useState(false);
+ const chatEndpoint=partnerEndpoint(location,import.meta.env.VITE_PARTNER_API_ORIGIN);
+ const chatRequest=useRef<AbortController|null>(null);
+ const previousChat=useRef<{question:string;answer:string}|undefined>(undefined);
+ const chatPartner=flight.session.plan?.mode==='simple'?'operator':flight.session.draft.partner;
+ function resetChat(){chatRequest.current?.abort();chatRequest.current=null;previousChat.current=undefined;}
+ useEffect(()=>resetChat,[rideChat,chatPartner,locale,store.owner]);
  const [input,setInput]=useState(''),[answer,setAnswer]=useState(''),[market,setMarket]=useState<MarketSnapshot|null>(null);
  const [pending,setPending]=useState<Proposal|null>(null),pendingRef=useRef<Proposal|null>(null);
  const [choices,setChoices]=useState<Choice[]>([]),choiceRef=useRef<{rows:Choice[];stamp:string}|null>(null);
  const manual=useRef<ManualEntry|null>(null);
- const undoRef=useRef<Proposal|null>(null),generation=useRef(0),dialog=useRef<HTMLDialogElement>(null);
+ const undoRef=useRef<{undo?:Proposal['undo'];quick?:boolean}|null>(null),generation=useRef(0),dialog=useRef<HTMLDialogElement>(null);
  const [opened,show]=useState(false);
  useEffect(()=>{dock.open=()=>show(true);return()=>{dock.open=()=>{};};},[dock]);
  useEffect(()=>{if(opened&&!dialog.current?.open)dialog.current?.showModal();},[opened]);
  useEffect(()=>{if(!enabled&&!opened)return;let alive=true;loadMarket().then(m=>{if(alive)setMarket(m);}).catch(()=>{});return()=>{alive=false;};},[enabled,opened]);
  const {session}=flight,{run,plan}=session,visits=plan?.visits.slice(run?.index??0)??[],visit=visits[0],destination=visit&&visit.events.some(e=>e.type==='departure')?visits[1]:visit;
  const activeTrade=useMemo(()=>store.book?.runs.find(r=>expeditionSummary(r).status==='active'),[store.book]);
+ const {rows:fieldReports}=useObservations(enabled&&!!activeTrade);
  const trade=useMemo(()=>activeTrade?expeditionSummary(activeTrade):null,[activeTrade]);
  const lots=trade?.holdings.filter(l=>l.terminalId===null)??[],personal=lots.reduce((n,l)=>n+l.quantity,0);
  const goal=activeTrade&&trade?remainingSaleGoal(activeTrade,trade):null;
@@ -55,9 +73,24 @@ export function CopilotStation({flight,locale,dock}:Props){
  const saleIndex=goalPlace?visits.findIndex(v=>v.locationId===goalPlace):-1;
  const buyingLeg=saleIndex>=0?visits.slice(0,saleIndex+1):visits;
  const room=sameShip?cargoRoom(plan,buyingLeg,freightLoad,personal):null;
- const tradeStep=activeTrade&&trade?tradeNextStep(activeTrade,trade):null;
- const tradeTarget=trade?.target??goal?.terminalId??(tradeStep?.aligned?tradeStep.leg?.destinationId:null);
- const tradeBrief=tradeTarget?t('무역 목적지','Trade destination')+' · '+terminal(tradeTarget):'';
+ const tradeDeck=useMemo(()=>activeTrade&&trade?tradeCompanion(activeTrade,trade,terminal,goods,en):null,[activeTrade,trade,market,locale]);
+ const tradeBrief=tradeDeck?.guidance.task??'';
+ const flightStart=flight.active?(run?.startedAt??0):0,tradeId=activeTrade?.id??'';
+ const [manualMode,setManualMode]=useTradeView('navigator-mode',{mode:'',flightStart:0,tradeId:''});
+ const prefer=manualMode.flightStart===flightStart&&manualMode.tradeId===tradeId?manualMode.mode:'';
+ const automaticMode=tradeId&&Date.parse(activeTrade!.at)>=flightStart?'personal':flightStart?'flight':'';
+ const staged=store.book?.plans.find(p=>p.id===navigatorPlanId);
+ const selectedMode=prefer||automaticMode||(staged?'personal':'');
+ function usingTradeDeck(){return selectedMode==='personal';}
+ const [rowPage,setRowPage]=useState({raw:store.raw,index:0});
+ const pageIndex=rowPage.raw===store.raw?rowPage.index:0;
+ const perPage=48;
+ const actionId=useMemo(()=>crypto.randomUUID(),[store.raw,store.owner,selectedMode,pageIndex]);
+ type Buyer={label:string;terminalId:number;quantity:number;lotId:string};
+ const [buyerMenu,setBuyerMenu]=useState<{id:string;token:string;rows:Buyer[]}|null>(null);
+ const menu=buyerMenu?.id===actionId?buyerMenu:null;
+ const actionToken=menu?.token??actionId;
+ const tradeCommandBusy=useRef(false);
  const facilityFor=(event:Visit['events'][number])=>{
   if(!destination)return '';
   const job=session.draft.jobs.find(j=>j.id===event.missionId);
@@ -73,12 +106,38 @@ export function CopilotStation({flight,locale,dock}:Props){
   recommendation=room>=0?scope+' '+t('계약 화물 자리를 남기면 ','you can reserve the contract cargo and buy ')+room+' SCU'+t(' 더 살 수 있어요.','.'):t('계약과 개인 화물이 함선 용량을 ','Contract and trade cargo exceed capacity by ')+(-room)+' SCU'+t(' 초과해요. 먼저 배송하거나 판매하세요.','. Deliver or sell first.');
  }
  if(flight.receiptChanges.length)recommendation=t('수신 계약이 바뀌었어요. 계약 변경 검토를 먼저 열어 주세요.','Review the changed freight contract first.');
- const suggested=flight.active?flight.receipts.cards.filter(j=>routeReady(j)&&!session.draft.jobs.some(x=>x.id===j.id)):[];
+ const suggested=flight.active?flight.voiceCards.filter(j=>routeReady(j)&&!session.draft.jobs.some(x=>x.id===j.id)):[];
  const suggestion=suggested.length?t('추가 가능한 수신 계약 ','New contracts available: ')+suggested.length+t('건. 추가할까요?',' — add one?'):'';
  const revision=useMemo(()=>crypto.randomUUID(),[session,store.raw,store.owner,flight.receipts.cards,flight.blocked]);
+ const availableCards=flight.voiceCards;
+ const readyCards=availableCards.filter(routeReady);
+ const pendingCards=availableCards.filter(j=>!routeReady(j));
+ const gaps=[...new Set(pendingCards.flatMap(j=>{
+  const missing:string[]=[];
+  if(!j.shipments.length||j.shipments.some(s=>!s.from))missing.push(t('픽업지','pickup'));
+  if(!j.shipments.length||j.shipments.some(s=>!s.to))missing.push(t('배송지','delivery'));
+  return missing;
+ }))];
+ const liveInbox=flight.receipts.phase==='loaded'&&!flight.receipts.cached&&!flight.blocked&&!flight.busy&&!flight.receiptChanges.length;
+ const additions=suggested.filter(j=>plan?.mode==='simple'||planningPartner([j],'navigator')==='navigator');
+ const inboxAction=!liveInbox?'':flight.active?(additions.length?'add':''):run?.finished?'':plan&&run?'start':readyCards.length?'plan':'';
+ const inboxFingerprint=JSON.stringify([availableCards.map(j=>[j.id,j.signature,j.shipments,j.reservations]),inboxAction]);
+ const inboxId=useMemo(()=>crypto.randomUUID(),[session,inboxFingerprint,selectedMode]);
+ const changingInbox=useRef(false);
+ const intakeLabel=t(`수신 ${availableCards.length} · 경로 준비 ${readyCards.length}`,`Received ${availableCards.length} · Ready ${readyCards.length}`)+(pendingCards.length?' · '+(gaps.join('/')||t('거점','Stops'))+' '+pendingCards.length+t('건 확인',' to check'):'');
+ const inboxLabel=[intakeLabel,liveInbox&&flight.active&&suggested.length>additions.length?t('적재 계산에 수량 필요 '+(suggested.length-additions.length)+'건','Quantity needed for '+(suggested.length-additions.length)+' cargo plans'):'',flight.error].filter(Boolean).join(' · ').slice(0,180);
+ const inbox=liveInbox&&availableCards.length?{id:inboxId,label:inboxLabel,action:inboxAction,options:inboxAction==='add'?additions.slice(0,100).map(j=>{
+  const r=j.shipments[0];return [j.title[en?1:0],r&&[r.from&&name(r.from),r.to&&name(r.to)].filter(Boolean).join(' → '),jobVolume(j)?jobVolume(j)+' SCU':'',j.id.slice(-6)].filter(Boolean).join(' · ').slice(0,160);
+ }):[]}:undefined;
+ const receiptHints=useMemo(()=>receiptVoiceHints(flight.voiceCards),[flight.voiceCards]);
+ const receiptOrder=JSON.stringify(flight.voiceCards.map(j=>j.id));
+ const receiptView=useMemo(()=>crypto.randomUUID(),[receiptOrder]);
+ const latestFlight=useRef(flight);latestFlight.current=flight;
+ const filling=useRef<ReceiptEntry|null>(null);
  const live=useRef(revision);live.current=revision;
  const proposal=(p:Proposal|null)=>{pendingRef.current=p;setPending(p);};
- function clear(){manual.current=null;recordContext.current=null;generation.current++;proposal(null);choiceRef.current=null;setChoices([]);undoRef.current=null;setAnswer('');follow.current=null;}
+ function clear(){resetChat();setRideChat(false);filling.current=null;manual.current=null;unitFollowup.current=null;recordContext.current=null;generation.current++;proposal(null);choiceRef.current=null;setChoices([]);undoRef.current=null;setAnswer('');follow.current=null;}
+ const unitFollowup=useRef<{stamp:string;until:number;kind:'buy'|'sell';index:number;qty:number}|null>(null);
  const recordContext=useRef<{lot:string;revision:string}|null>(null);
  const follow=useRef<{lot:string;at:number;revision:string}|null>(null);
  useEffect(()=>{const boundary=()=>{clear();setEnabled(false);show(false);};window.addEventListener('stam-account-boundary',boundary);return()=>window.removeEventListener('stam-account-boundary',boundary);},[setEnabled]);
@@ -88,9 +147,11 @@ export function CopilotStation({flight,locale,dock}:Props){
   const timer=setTimeout(()=>{if(pendingRef.current?.id===pending.id){proposal(null);setAnswer(t('변경안이 만료됐어요. 다시 요청해 주세요.','Change expired. Please ask again.'));}},Math.max(0,pending.expires-Date.now()));
   return()=>clearTimeout(timer);
  },[pending]);
- function offer(label:string,apply:Proposal['apply'],undo?:Proposal['undo']){
+ function offer(label:string,apply:Proposal['apply'],undo?:Proposal['undo'],receipt?:ReceiptEntry){
   if(live.current!==revision)throw Error(t('운항 상태가 바뀌었어요. 다시 요청하세요.','The plan changed. Ask again.'));
-  proposal({id:crypto.randomUUID(),label,stamp:revision,expires:Date.now()+90000,apply,undo});return label+' '+t('적용할까요?','Apply this change?');
+  proposal({id:crypto.randomUUID(),label,stamp:revision,expires:Date.now()+90000,apply,undo,receipt});
+  if(receipt)return label+' '+t('맞습니까?','Is that correct?');
+  return label+' '+t('적용할까요?','Apply this change?');
  }
  function ask(label:string,rows:Choice[]){
   choiceRef.current={rows,stamp:revision};setChoices(rows);
@@ -99,9 +160,11 @@ export function CopilotStation({flight,locale,dock}:Props){
  async function decide(id:string,accept:boolean){
   const p=pendingRef.current;
   if(p&&p.id!==id)return stale();
-  if(!p||p.stamp!==live.current||Date.now()>p.expires){proposal(null);return t('계획이 바뀌었거나 확인 시간이 지났어요. 다시 요청하세요.','Plan changed or confirmation expired. Ask again.');}
+  if(!p||p.stamp!==live.current||p.receipt&&p.receipt.view!==receiptView||Date.now()>p.expires){proposal(null);return t('계획이 바뀌었거나 확인 시간이 지났어요. 다시 요청하세요.','Plan changed or confirmation expired. Ask again.');}
   proposal(null);if(!accept)return t('변경을 취소했어요.','Change cancelled.');
-  await p.apply();undoRef.current=p.undo?p:null;return t('반영했어요.','Applied.')+' '+p.label;
+  await p.apply();undoRef.current=p.undo?{undo:p.undo,quick:!!p.receipt?.reviewQuantity}:null;
+  if(p.receipt)return t('계약에 반영했어요.','Receipt updated.');
+  return t('반영했어요.','Applied.')+' '+p.label;
  }
  async function preview(edit:Parameters<typeof flight.previewCopilotEdit>[0],label:string):Promise<string>{
   const serial=generation.current,result=await flight.previewCopilotEdit(edit);
@@ -218,7 +281,118 @@ export function CopilotStation({flight,locale,dock}:Props){
   };
   return process();
  }
+ function receiptRequest(text:string,reviewQuantity=false):string|null{
+  const target=receiptAddress(text);
+  if(isReceiptRemoval(text)){filling.current=null;return null;}
+  if(!target&&!filling.current)return null;
+  if(!target&&cancelWord(text)){filling.current=null;return t('계약 보완을 취소했어요.','Receipt edit cancelled.');}
+  if(target){
+   manual.current=null;choiceRef.current=null;setChoices([]);proposal(null);
+   const card=target.number?flight.voiceCards[target.number-1]:undefined;
+   if(!card){filling.current=null;return t('STAM 수신 카드에 표시된 번호를 알려주세요.','Give the number shown on the STAM receipt.');}
+   filling.current={id:card.id,evidence:receiptEvidence(card),view:receiptView,until:Date.now()+90000,draft:{fields:{}}};
+  }
+  const entry=filling.current!,i=flight.voiceCards.findIndex(j=>j.id===entry.id),card=flight.voiceCards[i];
+  if(!card||entry.view!==receiptView||entry.evidence!==receiptEvidence(card)||Date.now()>entry.until||
+    flight.receipts.cached||flight.receipts.phase!=='loaded'||flight.busy||flight.blocked){
+   filling.current=null;return t('수신 목록을 다시 확인하고 현재 계약 번호를 말해 주세요.','Check the current receipt number and ask again.');
+  }
+  entry.until=Date.now()+90000;
+  let detail=target?target.body:text;
+  if(/(?:하지\s*마|바꾸지|말고|아니고|대신|맞아[?]|[?？]|어디|얼마|몇\s*SCU|how many|instead of)/i.test(detail))return t('변경할 최종 값만 말씀해 주세요.','Give the final value to change.');
+  if(entry.revising){
+   detail=detail.replace(reviseReadback,'').trim();
+   const units=revisedReceiptQuantity(detail);
+   if(entry.revising==='row'&&units)detail='수량은 '+units+' SCU';
+   else if(!detail||units||!/(?:에서|배송지|수거지|픽업지|출발지|도착지|목적지|품목|수량|화물|\bfrom\b|\bto\b|\brow\b)/i.test(detail)){
+    return entry.revising==='row'?t('정정할 수량 또는 항목을 말씀해 주세요.','Give the corrected quantity or name the field.'):t('어느 거점이나 화물 줄의 수량을 정정할까요? 거점과 수량을 함께 말씀해 주세요.','Which stop or shipment row needs a correction? Give its name and quantity.');
+   }
+   if(entry.revising==='row'){
+    const field=units||/수량|quantity/i.test(detail)?'scu':/배송지|도착지|목적지|^to\b/i.test(detail)?'to':/픽업지|수거지|출발지|에서|^from\b/i.test(detail)?'from':/품목|화물/i.test(detail)?'cargo':undefined;
+    if(field){delete entry.draft.fields[field];entry.draft.expected=field;}
+   }
+   delete entry.revising;
+  }
+  entry.quantityPrompt=undefined;entry.placePrompt=undefined;
+  if(reviewQuantity)entry.reviewQuantity=true;
+  const quantity=entry.draft.repaired?undefined:receiptQuantityEdit(card,detail,entry.draft,en);
+  if(reviewQuantity&&!quantity)return stale();
+  const result=quantity??fillSpokenReceipt(card,detail,entry.draft,en);
+  const prefix=en?'Receipt '+(i+1):(i+1)+'번 계약';
+  if(!result.job){
+   const names=quantity&&quantityPlaceNames(entry.draft);
+   if(names&&names.length<=12&&new Set(names).size===names.length&&names.every(n=>/^[가-힣 ]{2,32}$/.test(n)))entry.placePrompt={id:crypto.randomUUID(),names};
+   if(quantity?.unchanged)filling.current=null;
+   else if(entry.draft.quantitySelector!==undefined)entry.quantityPrompt=crypto.randomUUID();
+   return prefix+' · '+result.question;
+  }
+  if(quantity?.row!==undefined)entry.draft.row=quantity.row;
+  const corrected=result.job;
+  filling.current=null;
+  const selected=flight.session.draft.jobs.some(j=>j.id===card.id);
+  if(entry.draft.row!==undefined&&!('summary' in result&&result.summary)&&!entry.draft.repaired&&!(selected&&flight.session.plan)){
+   const row=corrected.shipments[entry.draft.row]!;
+   if(entry.reviewQuantity&&quantity){
+    let undo:Proposal['undo'];
+    const label=prefix+' · '+name(row.to)+' · '+row.cargo[en?1:0]+' '+row.scu+' SCU';
+    return offer(label,()=>{undo=latestFlight.current.applyQuickReceipt(card,corrected);},()=>undo?.(),entry);
+   }
+   const undo=flight.applyQuickReceipt(card,corrected);
+   undoRef.current={quick:true,undo};
+   return prefix+' · '+(quantity?(row.to?name(row.to)+' ':'')+(row.cargo[en?1:0]?row.cargo[en?1:0]+' ':'')+row.scu+' SCU':name(row.from)+' → '+name(row.to)+' · '+row.cargo[en?1:0]+' '+(row.scu||'?')+' SCU')+t(' 반영했어요.',' updated.');
+  }
+  if('summary' in result&&result.summary)return offer(prefix+' · '+result.summary,()=>{latestFlight.current.applySpokenReceipt(card,corrected);},undefined,entry);
+  const row=corrected.shipments[entry.draft.row!]!;
+  const amountLabel=row.scu?row.scu+' SCU':t('수량 미확인','quantity unconfirmed');
+  const label=en?prefix+'. Pick up at '+name(row.from)+', deliver to '+name(row.to)+', '+row.cargo[1]+', '+amountLabel+'.':
+   prefix+'. '+name(row.from)+'에서 수거, '+name(row.to)+'에 '+row.cargo[0]+' '+amountLabel+' 배송.';
+  return offer(label,()=>{latestFlight.current.applySpokenReceipt(card,corrected);},undefined,entry);
+ }
+ function amendReceipt(id:string,text:string){
+  const p=pendingRef.current;
+  if(!p?.receipt||p.id!==id||p.stamp!==live.current||p.receipt.view!==receiptView||Date.now()>p.expires)return stale();
+  proposal(null);
+  const entry=p.receipt;entry.until=Date.now()+90000;entry.revising=entry.draft.row===undefined?'manifest':'row';filling.current=entry;
+  return receiptRequest(text)??stale();
+ }
  async function interpret(text:string):Promise<string>{
+  const request=normalized(text);
+  if(inbox&&!usingTradeDeck()&&!pendingRef.current&&((inbox.action==='plan'&&/^(준비된계약으로|준비된계약|선택한계약으로)?경로계산(해줘|해|해주세요)?$|^planroute$/.test(request))||
+     (inbox.action==='start'&&/^(운송시작(해줘|해|해주세요)?|starthaul)$/.test(request)))){
+   return await execute('inbox:'+inbox.id+':'+inbox.action)||'';
+  }
+  const chat=/^(잡담|이어서|let[’']s chat|chat|follow up)(?:[ ,，:]+|$)(.*)$/i.exec(text.trim());
+  if(chat){
+   if(!rideChat||!chatEndpoint)return t('웹 부조종사에서 온라인 자유 대화를 켜 주세요.','Enable online conversation in the web copilot.');
+   const question=chat[2]!.trim();if(!question)return t('“잡담, 오늘 운항 어땠어?”처럼 말씀해 주세요.','Say “Chat, how was the flight?”');
+   if(chatRequest.current)return t('앞선 질문에 답하는 중이에요.','Still answering your last question.');
+   const request=new AbortController();chatRequest.current=request;
+   const timeout=setTimeout(()=>request.abort(),30000);
+   try{
+    const token=await serviceControls().partnerIdToken();
+    if(request.signal.aborted)return '';
+    if(!token)return t('온라인 대화에는 로그인이 필요해요.','Sign in for online conversation.');
+    const response=await fetch(chatEndpoint,{method:'POST',credentials:'omit',redirect:'error',signal:request.signal,
+     headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+     body:JSON.stringify({mode:'ride-chat',partner:chatPartner||'operator',question,language:en?'en':'ko',previous:previousChat.current})});
+    const data=await response.json();
+    if(request.signal.aborted)return '';
+    if(!response.ok||typeof data.answer!=='string')return t('온라인 답변을 받지 못했어요. 로그인과 대화 사용 한도를 확인해 주세요.','Online reply unavailable. Check sign-in and conversation quota.');
+    previousChat.current={question,answer:data.answer.slice(0,1000)};return data.answer;
+   }catch{return chatRequest.current===request?t('온라인 대화 연결을 확인해 주세요.','Check the online conversation connection.'):'';}
+   finally{clearTimeout(timeout);if(chatRequest.current===request)chatRequest.current=null;}
+  }
+  if(/^(?:(?:방금|직전|마지막)\s*(?:변경|거|것|작업)?\s*)?(?:되돌(?:려|리기)(?:\s*줘)?|undo(?: last (?:change|edit))?)[.! ]*$/i.test(text.trim())&&undoRef.current?.quick){
+   const undo=undoRef.current.undo!;
+   filling.current=null;proposal(null);await undo();undoRef.current=null;
+   return t('직전 계약 변경을 되돌렸어요.','Last receipt change undone.');
+  }
+  const currentOffer=pendingRef.current;
+  if(currentOffer?.receipt){
+   if(confirmReadback(text))return decide(currentOffer.id,true);
+   if(reviseReadback.test(text))return amendReceipt(currentOffer.id,text);
+  }
+  const receipt=receiptRequest(text);if(receipt!==null)return receipt;
   if(recordContext.current?.revision===revision&&/^[\d,]+\s*(?:scu|에스씨유).*?(?:단가|개당|at)\s*[\d,]+/i.test(text)){
    const lot=lots.find(l=>l.id===recordContext.current?.lot);if(lot){follow.current={lot:lot.id,at:trade!.position,revision};text+=' '+t('팔았어','sold');}
   }
@@ -226,6 +400,7 @@ export function CopilotStation({flight,locale,dock}:Props){
   if(/^(?:거기(?:서)?\s*)?[0-9,]+\s*(?:SCU|에스씨유)?\s*만[.! ]*$/i.test(text)&&(follow.current?.revision===revision||goal))text+=' 팔아';
   const draft=manual.current;
   if(draft&&(draft.stamp!==revision||Date.now()>draft.until)){manual.current=null;choiceRef.current=null;setChoices([]);}
+  if(unitFollowup.current&&cancelWord(text)){unitFollowup.current=null;return t('거래 입력을 취소했어요.','Trade entry cancelled.');}
   if(manual.current&&cancelWord(text)){manual.current=null;choiceRef.current=null;setChoices([]);return t('미션 입력을 취소했어요.','Mission entry cancelled.');}
   if(applyWord(text)||cancelWord(text)){const p=pendingRef.current;if(p)return decide(p.id,applyWord(text));choiceRef.current=null;setChoices([]);return t('대기 중인 변경안이 없어요.','No pending change.');}
   const menu=choiceRef.current;
@@ -243,15 +418,19 @@ export function CopilotStation({flight,locale,dock}:Props){
    }
    return manualContract(text);
   }
+
+  if(unitFollowup.current&&!/^(?:단가|개당|at|[0-9])/i.test(text.trim()))unitFollowup.current=null;
   if(/되돌|^undo/i.test(text)){const last=undoRef.current;if(!last?.undo)return t('되돌릴 변경이 없어요.','There is no copilot edit to undo.');return offer(t('직전 변경 되돌리기','Undo last route edit'),last.undo);}
   if(/여유|얼마나 더|free space/i.test(text)&&flight.active&&room===null)return sameShip?t('경로 전용 운항이거나 화물 수량이 미확인이라 매입 가능량을 계산할 수 없어요.','Route-only or unknown cargo quantities prevent a capacity estimate.'):t('운송과 개인 무역에 서로 다른 함선이 설정돼 있어요. 같은 함선으로 설정하면 합산할 수 있어요.','Freight and trade use different ships. Select the same ship for a combined estimate.');
   if(/추천|여유|얼마나 더|recommend|free space/i.test(text)&&!/판매|팔|sell|buyer/i.test(text))return recommendation;
-  if(/다음.*(뭐|어디)|뭘 해|next (task|stop)/i.test(text))return [task,sale||tradeBrief].filter(Boolean).join(' / ')||recommendation;
+  if(/다음.*(뭐|어디)|뭘 해|next (task|stop)/i.test(text))return tradeDeck&&usingTradeDeck()?tradeDeck.guidance.task:[task,sale||tradeBrief].filter(Boolean).join(' / ')||recommendation;
   proposal(null);choiceRef.current=null;setChoices([]);
   if(/미션|계약|contract|mission/i.test(text)&&/추가|넣어|빼|제외|삭제|add|remove/i.test(text)){
    const remove=/빼|제외|삭제|remove/i.test(text);
-   const candidates=remove?session.draft.jobs.filter(j=>!session.receiptReview?.excluded.includes(j.id)&&visits.some(v=>v.events.some(e=>e.missionId===j.id))):flight.receipts.cards.filter(j=>routeReady(j)&&!session.draft.jobs.some(old=>old.id===j.id));
-   return choose(contractMatches(candidates,text),j=>j.title[en?1:0]+' · '+jobVolume(j)+' SCU',j=>preview(remove?{exclude:j.id}:{add:j},j.title[en?1:0]+' '+(remove?t('운항에서 제외','remove from flight'):t('운항에 추가','add to flight'))),t('어느 계약인가요? 번호로 답해 주세요.','Which contract? Say its number.'));
+   const candidates=remove?session.draft.jobs.filter(j=>!session.receiptReview?.excluded.includes(j.id)&&visits.some(v=>v.events.some(e=>e.missionId===j.id))):flight.voiceCards.filter(j=>routeReady(j)&&!session.draft.jobs.some(old=>old.id===j.id));
+   const numbered=remove?receiptNumber(text):null;
+   const matched=numbered===null?contractMatches(candidates,text):candidates.filter(j=>j.id===flight.voiceCards[numbered-1]?.id);
+   return choose(matched,j=>j.title[en?1:0]+' · '+jobVolume(j)+' SCU',j=>preview(remove?{exclude:j.id}:{add:j},j.title[en?1:0]+' '+(remove?t('운항에서 제외','remove from flight'):t('운항에 추가','add to flight'))),t('어느 계약인가요? 번호로 답해 주세요.','Which contract? Say its number.'));
   }
   if(/^(?:(?:남은\s*)?(?:경로|항로)(?:를)?\s*(?:다시\s*(?:짜|계산)|재계산)(?:해)?(?:줘|주세요)?|recalculate (?:the )?route|reroute)[.!? ]*$/i.test(text.trim())){
    return preview({},t('현재 위치에서 남은 항로 재계산','Recalculate remaining route from current position'));
@@ -269,8 +448,31 @@ export function CopilotStation({flight,locale,dock}:Props){
    const modify=(id:string,anchor?:string)=>preview({stops:changeStops(visits.filter(v=>!v.events.some(e=>e.type==='departure')).map(v=>v.locationId),id,anchor,/빼|제외/.test(text))},t('남은 항로 변경','Edit remaining route'));
    return chunks.length===2?find(chunks[0]!,a=>find(chunks[1]!,id=>modify(id,a))):find(chunks[0]!,id=>modify(id));
   }
+  if(usingTradeDeck()&&tradeDeck&&trade&&activeTrade&&trade.target===null){
+   const form=unitFollowup.current;
+   const priceReply=/^(?:(?:단가|개당|at)\s*)?([\d,]+(?:\.\d{1,2})?)\s*(?:원|크레딧|auec)?[.! ]*$/i.exec(text);
+   const short=/^(?:나\s*)?([\d,]+|한|두|세|네|[일이삼사오육칠팔구십백천]+)\s*(?:SCU|에스씨유|개)?\s*(?:만|밖에)?\s*(샀어|매입했어|팔았어|팔렸어)(?:요)?[.! ]*$/i.exec(text.trim());
+   if(short){
+    const kind=/팔/.test(short[2]!)?'sell':'buy',n=short[1]!;
+    const qty=spokenScu(({한:'1',두:'2',세:'3',네:'4'} as Record<string,string>)[n]??n);
+    const rows=kind==='buy'?tradeDeck.control.purchases:tradeDeck.control.holdings;
+    if(!qty||!rows.length)return t('현재 품목과 수량을 확인하세요.','Check the current item and quantity.');
+    return choose(rows,r=>r.label+' · '+r.qty+' SCU',row=>{
+     if(qty>row.qty||qty%row.box)return t('현재 수량과 상자 크기를 확인하세요. 다른 규격은 매입 기록에서 선택하세요.','Check the quantity and box size. Use Record buy for another box size.');
+     unitFollowup.current={stamp:actionId,until:Date.now()+90000,kind,index:rows.indexOf(row),qty};
+     return row.label+' '+qty+' SCU · '+t('실제 단가는 얼마였나요?','What was the actual unit price?');
+    },t('어느 화물인가요?','Which cargo?'));
+   }
+   if(priceReply&&form&&form.stamp===actionId&&form.until>Date.now()){
+    const row=(form.kind==='buy'?tradeDeck.control.purchases:tradeDeck.control.holdings)[form.index];
+    const unit=Number(priceReply[1]!.replaceAll(',','')),amount=Math.round(unit*form.qty*100)/100;
+    if(!row||unit<=0||!Number.isFinite(amount))return t('실제 단가를 다시 말씀해 주세요.','Repeat the actual unit price.');
+    unitFollowup.current=null;
+    return tradeOffer({kind:'event',runId:activeTrade.id,event:{id:crypto.randomUUID(),at:new Date().toISOString(),kind:form.kind,lotId:form.kind==='buy'?crypto.randomUUID():row.lotId,commodityId:row.commodityId,boxSize:row.box,quantity:form.qty,amount,ownership:'owned',terminalId:trade.position,note:''}},row.label+' '+form.qty+' SCU × '+unit+' aUEC · '+t(form.kind==='buy'?'매입':'판매',form.kind));
+   }
+  }
   if(/무역.*(출발|도착)|trade (depart|arrive)/i.test(text)&&activeTrade&&trade){
-   const arriving=/도착|arrive/i.test(text),at=arriving?trade.target:goal?.terminalId;
+   const arriving=/도착|arrive/i.test(text),at=arriving?trade.target:tradeDeck?.control.buyer;
    if(!at||(!arriving&&(trade.target!==null||trade.position===at)))return t('현재 위치와 무역 목표를 확인하세요.','Check the current position and sale target.');
    return tradeOffer({kind:'event',runId:activeTrade.id,event:{id:crypto.randomUUID(),kind:arriving?'arrive':'depart',at:new Date().toISOString(),terminalId:at,note:''}},terminal(at)+(arriving?t(' 무역 도착 기록',' · record trade arrival'):t(' 방면 무역 출발 기록',' · record trade departure')));
   }
@@ -321,7 +523,123 @@ export function CopilotStation({flight,locale,dock}:Props){
  }
  async function execute(command:string):Promise<string|void>{
   try{
-   if(command.startsWith('copilot-say:')){const utterance=command.slice(12);++generation.current;const result=await interpret(utterance);setAnswer(result);return result;}
+   if(command.startsWith('inbox:')){
+    const [,stamp,op,index]=command.split(':');
+    if(!inbox||stamp!==inboxId||op!==inbox.action||changingInbox.current||pendingRef.current)return stale();
+    changingInbox.current=true;
+    try{
+     if(op==='start'){if(!flight.progress('start',session))return stale();location.hash='#/operations?lang='+locale;return t('운송을 시작합니다.','Haul started.');}
+     if(op==='plan'){
+      const manualJobs=session.draft.jobs.filter(j=>!j.signature&&routeReady(j));
+      const jobs=[...manualJobs,...readyCards];
+      flight.change({...session.draft,jobs,partner:planningPartner(jobs,session.draft.partner),partnerSelected:true,reviewed:false});
+      flight.calculate(()=>{location.hash='#/map?lang='+locale;});
+      return t('준비된 계약으로 경로를 계산합니다.','Planning the ready contracts.');
+     }
+     const job=additions[Number(index)];if(op!=='add'||!job)return stale();
+     const result=await flight.previewCopilotEdit({add:job});await result.apply();
+     undoRef.current={undo:result.undo};return t('계약을 추가하고 남은 경로를 계산했어요.','Contract added and remaining route updated.');
+    }finally{changingInbox.current=false;}
+   }
+   if(command==='mode-flight'||command==='mode-trade'){
+    unitFollowup.current=null;filling.current=null;manual.current=null;proposal(null);choiceRef.current=null;setChoices([]);setBuyerMenu(null);setManualMode({flightStart,tradeId,mode:command==='mode-flight'?'flight':'personal'});
+    return;
+   }
+   if(command.startsWith('trade-action:')){
+    const [,stamp,op,index,quantity,price,box]=command.split(':');
+    if(op==='start'&&usingTradeDeck()&&!activeTrade&&staged&&stamp===actionToken){
+     await store.dispatch({kind:'startNavigator',id:crypto.randomUUID()},store.raw);
+     return t('무역을 시작합니다.','Trade started.');
+    }
+    if(!usingTradeDeck()||!tradeDeck||!activeTrade||!trade||stamp!==actionToken||tradeCommandBusy.current)return stale();
+    tradeCommandBusy.current=true;
+    try{
+     const c=tradeDeck.control,idx=Number(index);
+     const save=(event:Extract<SuiteCommand,{kind:'event'}>['event'])=>store.dispatch({kind:'event',runId:activeTrade.id,event},store.raw);
+     const event={id:crypto.randomUUID(),at:new Date().toISOString(),note:''};
+     if(op==='depart'||op==='arrive'){
+      const at=op==='arrive'?trade.target:c.buyer;
+      if(c.action!==op||!at)return stale();
+      await save({...event,kind:op,terminalId:at});return terminal(at);
+     }
+     if(op==='buyer'){
+      const choice=menu?.rows[idx];if(!choice)return stale();
+      await store.dispatch({kind:'saleGoal',runId:activeTrade.id,goal:{lotId:choice.lotId,terminalId:choice.terminalId,quantity:choice.quantity,sinceEvent:activeTrade.events.length}},store.raw);
+      setBuyerMenu(null);return choice.label;
+     }
+     if(op==='dismiss'){setBuyerMenu(null);return;}
+     if(op==='prev'||op==='next'){
+      const lastPage=Math.ceil(Math.max(c.purchases.length,c.holdings.length)/perPage)-1;
+      setRowPage({raw:store.raw,index:Math.max(0,Math.min(lastPage,pageIndex+(op==='next'?1:-1)))});return;
+     }
+     if(trade.target!==null||!Number.isInteger(idx))return stale();
+     const row=(op==='buy'?c.purchases:c.holdings)[pageIndex*perPage+idx];
+     if(!row)return stale();
+     if(op==='compare'){
+      if(!market)return t('시세 준비 중','Loading prices');
+      await refreshCommodity(market,row.commodityId).catch(()=>{});
+      const data=marketWithRecentQuotes(market);
+      // Compare staying here with travelling to another buyer using whole boxes.
+      const eligible={...data,quotes:data.quotes.map(q=>q.commodityId===row.commodityId?{...q,demand:Math.floor((q.demand??0)/row.box)*row.box}:q)};
+      const offers=[true,false].flatMap(here=>saleOffers({...eligible,quotes:eligible.quotes.filter(q=>(q.terminalId===trade.position)===here)},row.commodityId,row.qty,new Set()).slice(0,2));
+      const reports=freshReports(fieldReports,data.liveVersion,Date.now()).filter(r=>r.side==='sell'&&r.commodityId===row.commodityId);
+      const rows=offers.map(o=>{
+       const report=reports.find(r=>r.terminalId===o.terminal.id);
+       const label=(o.terminal.id===trade.position?t('현재','Here'):t('이동','Travel'))+' · '+terminal(o.terminal.id)+' · UEX '+o.fill+' SCU × '+o.price.toLocaleString()+' aUEC';
+       return {terminalId:o.terminal.id,quantity:o.fill,lotId:row.lotId,label:label+(report?' · '+t('제보','Pilot report')+' '+report.filled+'/'+report.attempted+' SCU':'')};
+      });
+      if(!rows.length)return t('현재 패치의 최근 24시간 내 수요 보고가 없어요.','No reported demand in the past 24 hours for this patch.');
+      setBuyerMenu({id:actionId,token:crypto.randomUUID(),rows});return t('판매처 선택에서 비교하세요.','Choose a buyer to compare offers.');
+     }
+     const units=Number(quantity),unit=Number(price),size=Number(box),amount=Math.round(units*unit*100)/100;
+     if((op!=='buy'&&op!=='sell')||!Number.isSafeInteger(units)||units<1||units>row.qty||![1,2,4,8,16,24,32].includes(size)||units%size||!Number.isFinite(unit)||unit<=0||!Number.isSafeInteger(Math.round(amount*100)))return t('수량·상자·실제 단가를 확인하세요.','Check quantity, box size and actual unit price.');
+     if(op==='buy'){
+      if(units+personal>activeTrade.options.capacity||amount>trade.cash)return t('적재 한도와 자금을 확인하세요.','Check capacity and available funds.');
+      await save({...event,kind:'buy',terminalId:trade.position,lotId:crypto.randomUUID(),commodityId:row.commodityId,quantity:units,boxSize:size,amount,ownership:'owned'});
+     }else{
+      if(size!==row.box)return stale();
+      await save({...event,kind:'sell',terminalId:trade.position,lotId:row.lotId,quantity:units,amount});
+     }
+     return row.label+' '+units+' SCU · '+t('기록했습니다.','Recorded.');
+    }finally{tradeCommandBusy.current=false;}
+   }
+   const place=/^receipt-place:([a-f0-9-]{36}):(heard|review|reply):(.+)$/u.exec(command);
+   if(place){
+    const entry=filling.current,menu=entry?.placePrompt,scope=entry?.draft.quantityPlace;
+    if(!menu||!scope||place[1]!==menu.id||Date.now()>entry.until)return stale();
+    const option=place[2]==='reply'?1+listedPlaceChoice(place[3]!,scope):Number(place[3]);
+    let reply:string;
+    if(Number.isInteger(option)&&option>0&&option<=menu.names.length){
+     reply=receiptRequest(option+'번',place[2]==='review')??stale();
+    }else{
+     entry.placePrompt={id:crypto.randomUUID(),names:menu.names};
+     reply=t('목록에 있는 거점 이름이나 번호를 말씀해 주세요. ','Say a listed place or number. ')+menu.names.join(' / ');
+    }
+    setAnswer(reply);return reply;
+   }
+   const estimate=/^receipt-review:([a-f0-9-]{36}):(.+)$/u.exec(command);
+   if(estimate){
+    const [,stamp,body]=estimate;
+    const valid=receiptAddress(body!)?stamp===receiptView:stamp===filling.current?.quantityPrompt&&/^[1-9]\d?$/.test(body!);
+    const reply=valid?(receiptRequest(body!,true)??stale()):stale();setAnswer(reply);return reply;
+   }
+   const amendment=/^receipt-amend:([a-f0-9-]{36}):(.+)$/u.exec(command);
+   if(amendment){const reply=amendReceipt(amendment[1]!,amendment[2]!);setAnswer(reply);return reply;}
+   if(command.startsWith('receipt-say:')){
+    ++generation.current;
+    const view=command.slice(12,48);
+    if(view!==receiptView||command[48]!==':'){filling.current=null;const reply=stale();setAnswer(reply);return reply;}
+    const body=command.slice(49);
+    const reply=(isReceiptRemoval(body)?await interpret(body):receiptRequest(body))??t('어느 계약인가요?','Which receipt?');setAnswer(reply);
+    if(pendingRef.current&&pendingRef.current.label.length>210)return t('변경 내역이 길어요. 웹 부조종사에서 전체 화물과 수량을 확인하고 적용해 주세요.','Review the full manifest and apply it in the web copilot.');
+    return reply;
+   }
+   if(command.startsWith('copilot-say:')){
+    const serial=++generation.current;
+    const result=await interpret(command.slice(12));
+    if(serial!==generation.current||!result)return;
+    setAnswer(result);return result;
+   }
    const decision=/^copilot-(apply|cancel):(.+)$/.exec(command);
    if(decision){const result=await decide(decision[2]!,decision[1]==='apply');setAnswer(result);return result;}
    const quote=/^quote-(buy|sell):(\d+)(?::(\d+))?$/.exec(command);
@@ -336,9 +654,20 @@ export function CopilotStation({flight,locale,dock}:Props){
  function display():CompanionSummary{
   const view=dock.read()?.summary;
   const partner=plan||run||session.draft.partnerSelected||session.draft.partner==='navigator' ? (plan?.mode==='simple'?'operator':session.draft.partner) : undefined;
-  if(view?.mode==='fleet')return {...view,partner};
-  const fallback:CompanionSummary={mode:flight.active?'flight':'personal',title:t('운항 부조종사','Flight copilot'),lines:[task,sale].filter(Boolean),guidance:{task:(task||sale||tradeBrief).slice(0,220),destination:destination?name(destination.locationId):tradeBrief,load:task.slice(0,220)},step,stepId};
-  const main=view??fallback,notes=[...(view?view.lines:[]),...(!view||view.mode!=='flight'?[task]:[]),sale||tradeBrief,suggestion].filter(Boolean);
+  if(view?.mode==='fleet'&&!prefer)return {...view,partner,switchable:true};
+  if(usingTradeDeck()){
+   if(!tradeDeck&&staged){
+    const itinerary=[staged.options.originId,...staged.route.legs.map(l=>l.destinationId)].map(terminal).join(' → ');
+    return {mode:'personal',title:t('무역 시작 대기','Trade ready'),lines:[itinerary,staged.name],switchable:true,partner,
+     tradeAction:{action:'start',id:actionToken,prev:false,next:false,buy:[],sell:[],buyers:[]}};
+   }
+   if(!tradeDeck)return {mode:'personal',title:t('무역','Trade'),lines:[t('무역 계획에서 관제로 인계하세요.','Start a route in trade control.')],switchable:true,partner};
+   const {control,...summary}=tradeDeck;
+   const rows=(items:typeof control.holdings)=>items.slice(pageIndex*perPage,(pageIndex+1)*perPage).map(row=>({label:row.label.slice(0,100),qty:row.qty,box:row.box,...('suggested' in row?{suggested:row.suggested}:{})}));
+   return {...summary,partner,switchable:true,tradeAction:{id:actionToken,prev:pageIndex>0,next:(pageIndex+1)*perPage<Math.max(control.purchases.length,control.holdings.length),action:menu?'buyer':control.action,buy:rows(control.purchases),sell:rows(control.holdings),buyers:menu?.rows.map(r=>r.label.slice(0,160))??[]}};
+  }
+  const fallback:CompanionSummary={mode:flight.active||inbox?'flight':'personal',title:t('운항 부조종사','Flight copilot'),lines:[task,sale].filter(Boolean),guidance:{task:(task||sale||tradeBrief).slice(0,220),destination:destination?name(destination.locationId):tradeBrief,load:task.slice(0,220)},step,stepId};
+  const main=(selectedMode==='flight'||!selectedMode&&!!inbox)&&view?.mode!=='flight'?{...fallback,mode:'flight' as const,lines:task?[task]:[t('운송 시작 대기','Waiting for a haul')],guidance:{task,destination:destination?name(destination.locationId):''}}:view??fallback,notes=[...main.lines,...(!view||view.mode!=='flight'?[task]:[]),...(selectedMode==='flight'?[]:[sale||tradeBrief]),suggestion].filter(Boolean);
   const jump=visit?.jumps[run?.jump??0];
   const events=jump||run?.finished?[]:(visit?.events??[]).filter(e=>(e.type==='pickup'||e.type==='delivery')&&!e.reservationContinuation);
   const navigation=main.mode==='flight'&&run&&plan?{
@@ -348,13 +677,14 @@ export function CopilotStation({flight,locale,dock}:Props){
    cargo:events.slice(0,128).map(e=>({action:e.type as 'pickup'|'delivery',item:tradeLabel(e.commodity,'goods',locale).slice(0,100),scu:e.pickupQuantityUnknown||!e.scu?null:e.scu})),
    extra:Math.max(0,events.length-128)
   }:undefined;
-  return {...main,navigation,partner,lines:[...new Set(notes.length?notes:[recommendation])].slice(0,6),guidance:{...main.guidance,task:[main.guidance?.task,sale,suggestion].filter(Boolean).join(' / ').slice(0,220)||recommendation.slice(0,220)}};
+  return {...main,inbox:main.mode==='flight'?inbox:undefined,switchable:true,navigation,partner,lines:[...new Set(notes.length?notes:[recommendation])].slice(0,6),guidance:{...main.guidance,task:[main.guidance?.task,selectedMode==='flight'?'':sale,suggestion].filter(Boolean).join(' / ').slice(0,220)||recommendation.slice(0,220)}};
  }
- const status=useCompanionLink(enabled,{display,awaitingDetails:()=>manual.current?.stamp===live.current&&manual.current.until>Date.now(),proposal:pending?.id,proposalText:pending?.label,execute,clear});
+ const status=useCompanionLink(enabled,{receiptReadback:!!pending?.receipt,rideChat,display,receiptView,receiptHints,placePrompt:()=>filling.current&&filling.current.until>Date.now()?filling.current.placePrompt:undefined,quantityPrompt:()=>filling.current&&filling.current.until>Date.now()?filling.current.quantityPrompt:undefined,receiptFollowup:()=>!!filling.current&&filling.current.until>Date.now(),awaitingDetails:()=>manual.current?.stamp===live.current&&manual.current.until>Date.now()||unitFollowup.current?.stamp===actionId&&unitFollowup.current.until>Date.now(),proposal:pending&&pending.label.length<=210?pending.id:undefined,proposalText:pending?.label,execute,clear});
  const linkLabel:Record<string,string>={connected:t('앱 연결됨','App connected'),older:t('음성 편집은 앱 업데이트 필요','Update app for voice editing'),offline:t('네비게이터 연결 대기','Waiting for companion'),busy:t('다른 탭 연결 중','Connected in another tab'),upgrade:t('앱 업데이트 필요','App update required'),connecting:t('연결 중','Connecting')};
  return <><button type="button" className="copilot-open" onClick={()=>show(true)}>{t('부조종사','Copilot')}</button>{opened&&createPortal(<dialog className="copilot-dialog" ref={dialog} onClose={()=>show(false)} aria-labelledby="copilot-heading"><header><h2 id="copilot-heading">{t('운항 부조종사','Flight copilot')}</h2><button onClick={()=>dialog.current?.close()}>{t('닫기','Close')}</button></header>
  <p className="copilot-position">{task||sale||recommendation}</p>{task&&sale&&<p>{sale}</p>}
  <p>{t('수신 계약','Received contracts')} {flight.receipts.cards.length} · {enabled?linkLabel[status]:t('웹에서 사용 중','Web only')}</p><button aria-pressed={enabled} onClick={()=>{if(enabled)clear();setEnabled(!enabled);}}>{enabled?t('네비게이터 연결 해제','Disconnect STAM Navigator'):t('네비게이터 연결','Connect STAM Navigator')}</button>
+ {chatEndpoint&&<label><input type="checkbox" checked={rideChat} onChange={e=>setRideChat(e.target.checked)}/>{t('온라인 자유 대화 · “잡담” 또는 “이어서”로 시작한 문장과 직전 문답을 전송합니다.','Online conversation · send “Chat” or “Follow up” requests with the previous exchange.')}</label>}
  <form onSubmit={e=>{e.preventDefault();if(input.trim())void execute('copilot-say:'+input.trim());setInput('');}}><label htmlFor="copilot-request">{t('부조종사에게 요청','Ask the copilot')}</label><div><input id="copilot-request" maxLength={160} value={input} onChange={e=>setInput(e.target.value)} placeholder={t('로어빌 다음에 에어리어18 들러','Stop at Lorville')}/><button>{t('전달','Send')}</button></div></form>
  <div className="copilot-actions">{[t('다음에 뭐 해?','Next task'),t('매입 여유 추천','Recommend free space'),t('새 미션 등록','New mission'),t('받은 미션 추가','Add received contract'),...(flight.active?[t('미션 제외','Remove contract'),t('경로 다시 짜줘','Recalculate route')]:[]),...(goal&&flight.active?[t('판매처를 항로에 추가','Add sale stop')]:[])].map(s=><button key={s} onClick={()=>void execute('copilot-say:'+s)}>{s}</button>)}</div>
  <p role="status" className="copilot-answer">{answer}</p>{choices.map((c,i)=><button key={i} onClick={()=>void execute('copilot-say:'+String(i+1))}>{i+1}. {c.label}</button>)}{pending&&<div className="copilot-actions"><button onClick={()=>void execute('copilot-apply:'+pending.id)}>{t('적용','Apply')}</button><button onClick={()=>void execute('copilot-cancel:'+pending.id)}>{t('취소','Cancel')}</button></div>}</dialog>,document.body)}</>;

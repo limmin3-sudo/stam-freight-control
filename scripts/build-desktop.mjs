@@ -33,8 +33,8 @@ export async function buildDesktop(out){const directory=path.resolve(out);if(dir
  await writeFile(path.join(directory,'APP-FILES.json'),JSON.stringify({version,files:manifest},null,2)+'\n');
  const voiceGuide=[
   'STAM 네비게이터 · 계약 화면 읽기',
-  'Game.log 연결 후 게임 계약 읽기를 누르고 브라우저에서 Star Citizen 창을 공유하세요. 진행 중 계약의 상세를 열고 목표가 길면 스크롤하세요.',
-  '수신 카드가 여러 장이면 읽어 온 원본을 연결할 카드를 선택하세요. 원본과 인식 문구는 게임 계약 원본에서 다시 볼 수 있습니다.',
+  'Game.log 연결 후 게임 계약 읽기를 누르고 브라우저에서 Star Citizen 창을 공유하세요. 진행 중인 계약의 상세 목표에서 마우스 4를 짧게 누르면 그 화면만 읽습니다. 목표가 더 있으면 스크롤하고 다시 누르세요. 길게 누르면 말하기입니다.',
+  '구분이 어려운 계약 화면은 보관 후 새 로그와 다시 대조합니다. 원본과 인식 문구는 게임 계약 원본에서 다시 볼 수 있습니다.',
   'STAM 네비게이터 · 음성 시작하기',
   '기존 네비게이터는 작업 표시줄 트레이 메뉴에서 앱 종료를 선택하세요. 새 ZIP 전체를 한 폴더에 풀고 STAM.exe를 실행하세요.',
   '연속 듣기 켜기를 누른 뒤 듣는 중 표시가 뜨면 “항해사”라고 부르세요. 호출 답변이 끝난 뒤 질문하세요.',

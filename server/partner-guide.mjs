@@ -36,6 +36,8 @@ export async function answerPartner(body,env,send,actor,reservePartnerCall) {
  const question=typeof body?.question==='string'?body.question.trim():'';
  if(!partner||!question||question.length>600||!['ko','en'].includes(body.language))
   return {status:400};
+ const ride=body.mode==='ride-chat';
+ if(ride&&!['operator','navigator'].includes(body.partner))return {status:400};
  const previous=body.previous;
  if(previous!==undefined&&(!previous||typeof previous.question!=='string'||!previous.question.trim()||previous.question.length>600||
     typeof previous.answer!=='string'||!previous.answer.trim()||previous.answer.length>1000))return {status:400};
@@ -45,7 +47,7 @@ export async function answerPartner(body,env,send,actor,reservePartnerCall) {
   {role:'user',content:question},
  ]:question;
  if(!env.OPENAI_API_KEY) return {status:503,reason:'missing-key'};
- const destinations=['none',...Object.keys(partner.rooms)];
+ const destinations=ride?['none']:['none',...Object.keys(partner.rooms)];
  const format={type:'json_schema',name:'partner_guidance',strict:true,schema:{
   type:'object',additionalProperties:false,required:['answer','room'],
   properties:{answer:{type:'string'},room:{type:'string',enum:destinations}}
@@ -63,7 +65,11 @@ export async function answerPartner(body,env,send,actor,reservePartnerCall) {
    signal:AbortSignal.timeout(20000),
    body:JSON.stringify({model,service_tier:'default',store:false,max_output_tokens:maxOutput,
     reasoning:{effort:'low'},text:{format},input,
-    instructions:[
+    instructions:ride?[
+     'You are riding with the player as the STAM '+partner.role+'. Reply to casual conversation in one or two short sentences. Use previous turns for continuity.',
+     body.language==='ko'?(body.partner==='operator'?'Use lively friendly Korean 해요체.':'Use composed, middle-aged Korean 합쇼체.'):'Reply in conversational English.',
+     'You cannot see the game or take actions. Do not claim live facts, route changes, or access to accounts. Return room none.'
+    ].join(' '):[
      'You are the STAM '+partner.role+'. Answer the question in '+(body.language==='en'?'English':'polite Korean')+' in at most three concise sentences.',
      greetings[body.partner].voice,
      'Match the register and pacing of this partner greeting in your answer: '+greetings[body.partner][body.language],

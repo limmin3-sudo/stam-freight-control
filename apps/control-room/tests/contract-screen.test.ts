@@ -36,3 +36,86 @@ test('an English header keeps the title and reads only a complete screen reward'
  assert.equal(good.pay,65250);assert.equal(good.title,'Junior Rank - Small Cargo Haul');
  assert.equal(frame('Reward       a 123,50C\nExperienced Rank - Small Cargo Haul'+body).pay,null);
 });
+
+test('two incomplete receipts with the same title never compete on which card has an empty field',()=>{
+ const f=frame(withPickup),other:Job={...job,id:'other',shipments:[{...job.shipments[0]!,cargo:['',''],scu:0}]};
+ assert.deepEqual(matchFrame(f,[job,other]),[]);
+ assert.deepEqual(matchFrame({...f,missionId:job.id},[other,job]).map(j=>j.id),[job.id]);
+ assert.equal(withScreens(other,[{...f,missionId:job.id}]),other);
+ const priced={...job,pay:104500,rewardUnknown:false};
+ assert.deepEqual(matchFrame(f,[priced,{...other,pay:30000,rewardUnknown:false}]).map(j=>j.id),[job.id]);
+ assert.deepEqual(matchFrame(f,[priced,other]),[]);
+});
+test('a unique objective fills only missing fields; conflicting known values and ambiguous rows survive',()=>{
+ const f=frame(withPickup),r=job.shipments[0]!;
+ const blank:Job={...job,shipments:[{...r,cargo:['','']}]};
+ const updated=withScreens(blank,[f]);
+ assert.equal(updated.shipments.length,1);assert.equal(updated.shipments[0]!.id,r.id);
+ assert.equal(updated.shipments[0]!.cargo[0],'폐기물');assert.ok(updated.shipments[0]!.to);
+ const conflicting={...job,shipments:[{...r,scu:31}]};
+ assert.equal(withScreens(conflicting,[f]),conflicting);
+ const twins={...job,shipments:[r,{...r,id:'other'}]};
+ assert.equal(withScreens(twins,[f]),twins);
+ const priced={...job,pay:80000,rewardUnknown:false};
+ assert.equal(withScreens(priced,[f]).pay,80000);
+});
+
+test('a later observed single-delivery counter resolves a held screen only within its original cohort',async()=>{
+ const {retryFrame}=await import('../src/contract-screen.ts');
+ const first={...job,singleDeliveryScu:22},other={...job,id:'second'},ids=[first.id,other.id],f=frame(withPickup);
+ assert.equal(retryFrame(f,ids,[first,other]),undefined);
+ assert.equal(retryFrame(f,ids,[first]),undefined);
+ assert.equal(retryFrame(f,ids,[first,{...other,state:'ended'}]),undefined);
+ assert.equal(retryFrame(f,ids,[first,{...other,singleDeliveryScu:11},{...job,id:'new'}])?.id,job.id);
+ assert.equal(retryFrame(f,ids,[first,{...other,singleDeliveryScu:22}]),undefined);
+});
+
+test('five equal titles retain instance ownership when a sibling ends and a new contract is accepted',async()=>{
+ const {retryFrame,frameCandidates}=await import('../src/contract-screen.ts');
+ const f=frame(withPickup),row=withScreens(job,[f]).shipments[0]!;
+ const copy=(id:string,cargo:string,from:string,to:string):Job=>({...job,id,directEvidence:{cargo,from,to}});
+ const target=copy('four','Waste',row.from,row.to);
+ const cohort=[copy('one','Hydrogen',row.from,row.to),copy('two','Waste',row.to,row.from),
+  copy('three','Waste',row.to,row.to),target,copy('five','Waste',row.from,row.from)];
+ const ids=cohort.map(j=>j.id);
+ assert.deepEqual(frameCandidates(f,cohort).map(j=>j.id),['four']);
+ const next=[{...target,id:'six'},...cohort.map(j=>j.id==='two'?{...j,state:'ended' as const}:j)];
+ assert.equal(retryFrame(f,ids,next)?.id,'four');
+ assert.equal(retryFrame(f,ids,next.map(j=>j.id==='four'?{...j,state:'ended'}:j)),undefined);
+ const ambiguous=cohort.map(j=>j.id==='two'?{...target,id:'two'}:j);
+ assert.deepEqual(frameCandidates(f,ambiguous).map(j=>j.id),['two','four']);
+ assert.equal(retryFrame(f,ids,ambiguous.map(j=>j.id==='two'?{...j,state:'ended'}:j)),undefined);
+ assert.equal(retryFrame(f,ids,cohort.map(j=>j.id==='one'?{...j,directEvidence:undefined}:j)),undefined);
+});
+test('two known pickups and one delivery total stay one contract through route planning and first pickup',async()=>{
+ const {calculateFlight}=await import('../src/flight-engine.mjs');
+ const {blankRun,startRun,completeStep}=await import('../src/flight-session.ts');
+ const {emptyDraft,routeReady,receiptRouteLabel}=await import('../src/mission-trial.ts');
+ const {planningPartner}=await import('../src/partner-policy.ts');
+ const f=frame(withPickup+'\n폐기물을 세이크런스 플롯에서 수집하세요.');
+ const card=withScreens(job,[f]);
+ assert.deepEqual(card.shipments.map(r=>r.scu),[0,0]);
+ assert.deepEqual(Object.values(card.reservations||{}),[22]);
+ const routeOnly={...card,reservations:{},mission:undefined};
+ assert.ok(routeReady(routeOnly));assert.equal(receiptRouteLabel(routeOnly,false),'경로 준비됨 · 수량 확인 필요');
+ const partner=planningPartner([routeOnly],'navigator');assert.equal(partner,'operator');
+ const draft={...emptyDraft(),jobs:[routeOnly],start:card.shipments[0]!.from,partner};
+ const plan=calculateFlight(draft);
+ const pickupVisits=plan.visits.filter(v=>v.events.some(e=>e.type==='pickup'));
+ assert.equal(pickupVisits.length,2);assert.equal(plan.visits.at(-1)?.locationId,card.shipments[0]!.to);
+ let run=startRun(blankRun(plan));
+ for(let n=0;n<30&&run.index<=plan.visits.indexOf(pickupVisits[0]!);n++)run=completeStep(plan,run);
+ assert.equal(run.finished,false);assert.ok(plan.visits.slice(run.index).includes(pickupVisits[1]!));
+});
+
+test('spoken choice refers to the numbered crop candidates and respects pickup and delivery roles',async()=>{
+ const {spokenScreenChoice}=await import('../src/contract-screen.ts');
+ const make=(id:string,from:string,to:string)=>({...job,id,shipments:[{...job.shipments[0]!,from,to}]});
+ const a=make('a','가스라이트','루인'),b=make('b','루인','가스라이트'),pick=(text:string,cards=[a,b])=>spokenScreenChoice(text,cards,v=>v)?.id;
+ assert.equal(pick('가스라이트에서 싣는 거'),'a');
+ assert.equal(pick('가스라이트에서 내리는 거'),'b');
+ assert.equal(pick('가스라이트'),undefined);
+ assert.equal(pick('가스라이트 말고'),undefined);
+ assert.equal(pick('루인에서 싣는 거',[b,{...b,id:'c'}]),undefined);
+ assert.equal(pick('2번'),'b');assert.equal(pick('두 번째'),'b');assert.equal(pick('8번'),undefined);
+});

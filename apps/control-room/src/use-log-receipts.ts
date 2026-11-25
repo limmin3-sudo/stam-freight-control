@@ -34,6 +34,20 @@ export function useLogReceipts(){
   if(!card.signature||!current.current?.cards.some(c=>c.id===card.id))return;
   persist(correctReceipt(current.current,card));
  }
+ function saveReversibleCorrection(card:Job){
+  const cache=current.current;
+  if(!cache)throw Error('수신함 연결을 확인하세요.');
+  const before=cache.corrections[card.id];
+  const updated=correctReceipt(cache,card),written=updated.corrections[card.id];
+  persist(updated);
+  return ()=>{
+   const latest=current.current;
+   if(!latest||latest.corrections[card.id]!==written)throw Error('수신 카드가 바뀌어 되돌릴 수 없어요.');
+   const corrections={...latest.corrections};
+   if(before)corrections[card.id]=before;else delete corrections[card.id];
+   persist({...latest,corrections});
+  };
+ }
  function stopWatching(){
   generation.current++;companion.current?.disconnect();companion.current=null;setConnection('off');setSource(null);clearInterval(watch.current);watch.current=undefined;
   worker.current?.terminate();worker.current=null;readingLive.current=false;setWatching(false);
@@ -104,5 +118,5 @@ export function useLogReceipts(){
   }catch(error){if(serial===generation.current&&(error as Error).name!=='AbortError'){stopWatching();failed();}}
  }
  const cards=useMemo(()=>effectiveReceipts(cache),[cache]);
- return {phase,fileUnavailable,rawCards:cache?.cards||[],cards,cached,storageError,saveCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
+ return {phase,fileUnavailable,rawCards:cache?.cards||[],cards,cached,storageError,saveCorrection,saveReversibleCorrection,read,follow,watching,stopWatching,canWatch:!!picker,source,connection,connectCompanion};
 }

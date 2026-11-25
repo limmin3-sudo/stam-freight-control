@@ -11,7 +11,8 @@ export function connectLive({ onSnapshot, onStatus, onError, onDisconnect }) {
   try { token ||= sessionStorage.getItem(key); } catch {}
   if(!/^[a-f\d]{64}$/.test(token||''))token=null;
   if(fragment.has('token')){fragment.delete('token');const rest=fragment.toString();history.replaceState(null,'',location.pathname+location.search+(rest?'#'+rest:''));}
-  if(local&&!token)return null;
+  const preview=local&&location.port==='23458'&&location.pathname.startsWith('/console/');
+  if(local&&!token&&!preview)return null;
   const remember=()=>{try{if(token)sessionStorage.setItem(key,token);else sessionStorage.removeItem(key);}catch{}};
   remember();
   let timer,closed=false,polling=false,revision=-1,failures=0;

@@ -47,3 +47,23 @@ test('history requests deduplicate, cache 12h, separate query identities and all
  const [a,b]=await Promise.all([load(25,102,'4.10.3'),load(25,102,'4.10.3')]);assert.equal(a,b);assert.equal(calls,1);await load(25,102,'4.10.3');assert.equal(calls,1);await load(25,103,'4.10.3');assert.equal(calls,2);
  clock+=12*3600000;fail=true;await assert.rejects(load(25,102,'4.10.3'));fail=false;await load(25,102,'4.10.3');assert.equal(calls,4);
 });
+
+test('trade guidance follows actual cargo from a partial purchase through sale and undo',async()=>{
+ const {tradeCompanion}=await import('../src/trade-companion.ts');
+ const r=run(),places=(id:number)=>['','구매항','판매항','다음 항'][id]!;
+ const deck=()=>tradeCompanion(r,expeditionSummary(r),places,()=>'철',false);
+ assert.equal(deck().guidance.destination,'구매소 · 구매항');
+ assert.match(deck().guidance.load,/남은 매입 · 철 8 SCU · 10 aUEC\/SCU/);
+ const lot=buy(4);r.events.push(lot);
+ assert.equal(deck().guidance.destination,'판매소 · 판매항');assert.match(deck().guidance.load,/선내 · 철 4 SCU/);
+ assert.ok(deck().lines.some(l=>l.includes('20 aUEC/SCU')));
+ r.events.push(event('depart',{terminalId:2}),event('arrive',{terminalId:2}));
+ assert.equal(deck().guidance.destination,'판매소 · 판매항');
+ r.events.push(event('sell',{lotId:lot.lotId,quantity:2,amount:40,terminalId:2}));
+ assert.match(deck().guidance.load,/선내 · 철 2 SCU/);
+ r.events.push(event('sell',{lotId:lot.lotId,quantity:2,amount:40,terminalId:2}));
+ assert.match(deck().guidance.load,/남은 매입 · 철 8 SCU/);
+ r.events.at(-1)!.voidedAt='2026-11-17T03:00:00Z';assert.match(deck().guidance.load,/선내 · 철 2 SCU/);
+ r.events.push(event('depart',{terminalId:3}));assert.equal(deck().guidance.destination,'이동 · 다음 항');
+ assert.ok(!deck().lines.some(l=>l.includes('예상 판매가')));
+});

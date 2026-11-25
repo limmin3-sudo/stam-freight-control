@@ -21,7 +21,8 @@ export function tradeNextStep(run:Expedition,summary:ExpeditionSummary=expeditio
   for(const e of events.slice(visit))if(e.kind==='buy'){const key=`${e.commodityId}:${e.boxSize}`;bought.set(key,(bought.get(key)??0)+e.quantity!);}
   const groups=new Map<string,PlannedPurchase>();
   for(const line of leg.lines){if(line.buySource==='holding')continue;const key=`${line.commodityId}:${line.boxSize}`,previous=groups.get(key);
-   if(previous){previous.planned+=line.quantity;previous.amount+=line.purchase;}else groups.set(key,{commodityId:line.commodityId,name:line.name,boxSize:line.boxSize,planned:line.quantity,recorded:0,remaining:0,amount:line.purchase});
+   const quantity=run.route.splitSale && index===0 ? line.quantity+run.route.legs[1]!.lines[0]!.quantity : line.quantity;
+   if(previous){previous.planned+=quantity;previous.amount+=line.purchase;}else groups.set(key,{commodityId:line.commodityId,name:line.name,boxSize:line.boxSize,planned:quantity,recorded:0,remaining:0,amount:line.purchase});
   }
   for(const [key,p] of groups){p.recorded=bought.get(key)??0;p.remaining=Math.max(0,p.planned-p.recorded);p.amount=Math.round(p.amount/p.planned*p.remaining*100)/100;purchases.push(p);}
  }

@@ -13,7 +13,7 @@ const PriceDesk=lazy(()=>import('./TradePriceDesk'));
 import {matchingCommodityCodes,commodityCodeVariants,commoditySearchTerms,tradeMatches,tradeLabel} from './trade-labels';
 const statusNames:Record<Freshness,[string,string]>={current:['24시간 내 수정','Updated within 24h'],'old-patch':['이전 패치 자료','Older patch'],stale:['24시간 이상 경과','Over 24h old'],unknown:['버전·시점 미확인','Version/date unknown']};
 export default function MarketInformation({locale,onExit,closing,onPlan}:{locale:Locale;onExit:()=>void;closing:boolean;onPlan?:PlanFromQuote}){
- const [quickOpen,setQuickOpen]=useState(false);
+ const [quickOpen,setQuickOpen]=useState(false),[boardCommodity,setBoardCommodity]=useState(0);
  const suiteStore=useTradeSuite();const en=locale==='en',t=(ko:string,english:string)=>en?english:ko;
  const [data,setData]=useState<MarketSnapshot|null>(null),[error,setError]=useState(false),[retry,setRetry]=useState(0);
  const [tab,setTab]=useState<'search'|'prices'|'terminals'|'tools'|'sources'|'board'>('search'),[query,setQuery]=useState(''),[selected,setSelected]=useState<number|null>(null),[system,setSystem]=useState(''),[freshOnly,setFreshOnly]=useState(false);
@@ -32,9 +32,18 @@ export default function MarketInformation({locale,onExit,closing,onPlan}:{locale
  },[data,query,variants]);
  const pricedIds=useMemo(()=>new Set(data?.quotes.map(q=>q.commodityId)??[]),[data]);
  const item=commodities.find(c=>c.id===selected)??commodities.find(c=>pricedIds.has(c.id))??commodities[0];
- useEffect(()=>{let active=true;setRefreshFailed(false);setLive(previous=>previous?.id===item?.id?previous:null);if(tab!=='prices'||!data||!item){setUpdating(false);return;}
-  setUpdating(true);refreshCommodity(data,item.id,refreshTick>0).then(result=>{if(active)setLive({id:item.id,...result});}).catch(()=>{if(active)setRefreshFailed(true);}).finally(()=>{if(active)setUpdating(false);});return()=>{active=false;};
- },[data,item?.id,refreshTick,tab]);
+ const lookupId=tab==='prices'?item?.id:tab==='search'?boardCommodity:0;
+ useEffect(()=>{
+  let active=true;setRefreshFailed(false);setLive(previous=>previous?.id===lookupId?previous:null);
+  if(!data||!lookupId){setUpdating(false);return;}
+  setUpdating(true);
+  refreshCommodity(data,lookupId,tab==='prices'&&refreshTick>0)
+   .then(result=>{if(active)setLive({id:lookupId,...result});})
+   .catch(()=>{if(active)setRefreshFailed(true);})
+   .finally(()=>{if(active)setUpdating(false);});
+  return()=>{active=false;};
+ },[data,lookupId,refreshTick,tab]);
+ const boardStatus=updating?t('UEX 시세 확인 중…','Checking UEX quotes…'):refreshFailed?t('UEX 조회 실패 · 저장된 시세 기준','UEX unavailable · using saved quotes'):live?.id===boardCommodity?t('UEX 조회','UEX checked')+' · '+new Date(live.checkedAt).toLocaleTimeString(en?'en-GB':'ko-KR'):'';
  const boardData=useMemo(()=>data&&tab==='search'?marketWithRecentQuotes(data):data,[data,tab,live]);
  const termMap=useMemo(()=>new Map(data?.terminals.map(term=>[term.id,term])??[]),[data]);
  const quotes=(item?(live?.id===item.id?live.quotes:data?.quotes.filter(q=>q.commodityId===item.id)??[]):[]).filter(q=>(!system||termMap.get(q.terminalId)?.system===system)&&(!freshOnly||quoteFreshness(q,data!.liveVersion)==='current')).sort((a,b)=>(termMap.get(a.terminalId)?.name||'').localeCompare(termMap.get(b.terminalId)?.name||''));
@@ -57,7 +66,11 @@ export default function MarketInformation({locale,onExit,closing,onPlan}:{locale
   {error?<div role="alert"><p>{t('시장 자료를 불러오지 못했습니다.','Market reference could not be loaded.')}</p><button className="market-action" onClick={()=>setRetry(n=>n+1)}><ApprovedGlass/><span>{t('다시 불러오기','Retry')}</span></button></div>:!data?<p role="status">{t('시장 자료를 불러오고 있습니다…','Loading market reference…')}</p>:<>
    {tab!=='search'&&<div className="market-meta"><span>UEX · LIVE {data.liveVersion}</span><span>{t('전체 자료 수집','Snapshot collected')} {date(data.retrievedAt)}</span><span>{data.commodities.length} {t('품목','commodities')} · {data.terminals.length} {t('거래소','terminals')}</span></div>}
    <CompanionDisplay market={boardData} locale={locale} summary={{mode:'personal',title:t('무역 시세','Market prices'),lines:[t('품목 이름과 매입가 또는 판매가를 물어보세요.','Ask for the buy or sell price of a commodity.')]}} onCommand={command=>{if(command==='open-flight')window.location.hash='#/mission?lang='+locale;else if(command==='open-trade'||command==='show-my-work')window.location.hash='#/division?facility=trade&room=trade-operations&lang='+locale;else setTab('search');}}/>
-   {tab==='search'&&boardData&&<TradeMarketBoard quickOpen={quickOpen} onQuickToggle={()=>setQuickOpen(!quickOpen)} data={boardData} locale={locale} onPlan={onPlan} onDetails={id=>{setQuery('');setSelected(id);setSystem('');setTab('prices');}}/>}
+   {tab==='search'&&boardData&&<TradeMarketBoard onHandoff={async(route,options,start)=>{
+     const id=crypto.randomUUID();
+     if(start){await suiteStore.dispatch({kind:'start',id,options,route},suiteStore.raw);window.location.hash='#/division?facility=trade&room=trade-operations&lang='+locale;}
+     else await suiteStore.dispatch({kind:'stageNavigator',name:label(route.legs[0]!.lines[0]!.name,'goods')+' · '+route.profit.toLocaleString()+' aUEC',options,route},suiteStore.raw);
+   }} quoteStatus={boardStatus} onSelectCommodity={setBoardCommodity} quickOpen={quickOpen} onQuickToggle={()=>setQuickOpen(!quickOpen)} data={boardData} locale={locale} onPlan={onPlan} onDetails={id=>{setQuery('');setSelected(id);setSystem('');setTab('prices');}}/>}
    {(tab==='prices'||tab==='terminals')&&<div className="market-filters"><label>{t('검색','Search')}<input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={tab==='prices'?t('품목명 또는 UEX 약자','Commodity name or UEX code'):t('거점·행성 이름','Location or planet')}/></label><label>{t('행성계','Star system')}<select value={system} onChange={e=>setSystem(e.target.value)}><option value="">{t('전체','All')}</option>{[...new Set(data.terminals.map(r=>r.system))].filter(Boolean).sort().map(s=><option key={s} value={s}>{label(s)}</option>)}</select></label></div>}
    {tab==='board'&&<Suspense fallback={<p>…</p>}><TradeBoard market={data} locale={locale}/></Suspense>}{tab==='prices'&&<><p className="market-note">{t('합법성은 UEX 분류로, 관할·화물 소유권에 따라 달라질 수 있습니다.','Legality uses UEX classification; jurisdiction and cargo ownership may differ.')}</p><div className="market-layout"><nav className="market-commodities" aria-label={t('품목 선택','Select commodity')}><p>{commodities.length} {t('품목','commodities')}</p>{commodities.map(c=><button key={c.id} aria-pressed={item?.id===c.id} onClick={()=>setSelected(c.id)}>{en?(c.code||c.name):tradeLabel(c.name,'goods','ko')}{en&&variants.get(c.id)&&' · '+variants.get(c.id)} {locale!=='en'&&c.code&&<small className="board-code">{c.code}</small>}</button>)}</nav><section className="market-results">
     {!item?<p>{t('조건에 맞는 품목이 없습니다.','No commodities match your filters.')}</p>:<><div className="market-result-heading"><h3>{tradeLabel(item.name,'goods',en?'en':'ko')} {item.code&&<small className="board-code">{item.code}</small>}</h3><button className="market-action" disabled={updating} onClick={()=>setRefreshTick(n=>n+1)}><ApprovedGlass/><span>{updating?t('시세 확인 중…','Checking prices…'):t('시세 다시 확인','Refresh prices')}</span></button></div>

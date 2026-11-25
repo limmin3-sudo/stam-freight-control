@@ -1,13 +1,13 @@
 import {useEffect,useRef,useState} from 'react';
 import type {CompanionSummary} from './CompanionDisplay';
-type Feed={awaitingDetails:()=>boolean;display:()=>CompanionSummary;proposal?:string;proposalText?:string;execute:(s:string)=>Promise<string|void>;clear:()=>void};
+type Feed={receiptReadback:boolean;rideChat:boolean;receiptView:string;receiptHints:string[];placePrompt:()=>{id:string;names:string[]}|undefined;quantityPrompt:()=>string|undefined;receiptFollowup:()=>boolean;awaitingDetails:()=>boolean;display:()=>CompanionSummary;proposal?:string;proposalText?:string;execute:(s:string)=>Promise<string|void>;clear:()=>void};
 export function useCompanionLink(enabled:boolean,feed:Feed){
  const ref=useRef(feed);ref.current=feed;
  const [status,setStatus]=useState('connecting');
  useEffect(()=>{
   if(!enabled)return;
   let stopped=false,token='',last=0,sequence=0,timer:ReturnType<typeof setTimeout>,active:AbortController|undefined;
-  let answer:{id:number;text:string}|undefined,newest=0,paired=false,navSupported=false;
+  let answer:{id:number;text:string}|undefined,newest=0,paired=false,navSupported=false,tradeSupported=false,startSupported=false,inboxSupported=false,catchUp=false;
   let session=crypto.randomUUID();const base='http://127.0.0.1:23458';
   async function request(path:string,body?:unknown){
    active=new AbortController();const timeout=setTimeout(()=>active?.abort(),4500);
@@ -19,20 +19,24 @@ export function useCompanionLink(enabled:boolean,feed:Feed){
    let delay=1000;
    try{
     if(!token){const p=await request('/api/pair');if(stopped)return;if(!/^[a-f0-9]{64}$/.test(p.token))throw Error('offline');token=p.token;
-     const v=await request('/api/status');if(v.capabilities?.display!==2)throw Error('upgrade');paired=v.capabilities?.copilot===1;navSupported=v.capabilities?.navigator===1;
+     const v=await request('/api/status');if(v.capabilities?.display!==2)throw Error('upgrade');paired=v.capabilities?.copilot===1;navSupported=v.capabilities?.navigator===1;tradeSupported=v.capabilities?.tradeActions===1;startSupported=v.capabilities?.tradeStart===1;inboxSupported=v.capabilities?.inbox===1;
     }
     if(stopped)return;const {proposal}=ref.current;const display=ref.current.display();
-    const packet={session,sequence:++sequence,display:{...display,navigation:navSupported?display.navigation:undefined,lines:display.lines.slice(0,6).map(l=>l.slice(0,180)),title:display.title.slice(0,100),guidance:{...display.guidance},copilot:paired,awaitingDetails:paired&&ref.current.awaitingDetails(),proposal,proposalText:ref.current.proposalText?.slice(0,210),answer}};
+    const packet={session,sequence:++sequence,display:{...display,inbox:inboxSupported?display.inbox:undefined,tradeAction:tradeSupported&&(startSupported||display.tradeAction?.action!=='start')?display.tradeAction:undefined,switchable:tradeSupported&&display.switchable,navigation:navSupported?display.navigation:undefined,lines:display.lines.slice(0,6).map(l=>l.slice(0,180)),title:display.title.slice(0,100),guidance:{...display.guidance},copilot:paired,receiptReadback:!!proposal&&ref.current.receiptReadback,rideChat:paired&&ref.current.rideChat,receiptReview:paired,placePrompt:paired?ref.current.placePrompt():undefined,quantityPrompt:paired?ref.current.quantityPrompt():undefined,receiptHints:paired?[...ref.current.receiptHints]:undefined,receiptView:paired?ref.current.receiptView:undefined,receiptFollowup:paired&&ref.current.receiptFollowup(),awaitingDetails:paired&&ref.current.awaitingDetails(),proposal,proposalText:ref.current.proposalText?.slice(0,210),answer}};
     const bytes=()=>new TextEncoder().encode(JSON.stringify(packet)).length;
-    const limit=packet.display.navigation?98304:4096;
+    const limit=(packet.display.inbox||packet.display.navigation||packet.display.tradeAction)?98304:4096;
+    if(bytes()>limit)packet.display.receiptHints=undefined;
     while(packet.display.lines.length>1&&bytes()>limit)packet.display.lines.pop();
     for(const key of ['profit','cash','afterLoad','load','destination'] as const){if(bytes()<=limit)break;delete packet.display.guidance[key];}
+    if(bytes()>limit)packet.display.placePrompt=undefined;
     await request('/api/display',packet);
-    if(stopped)return;const result=await request('/api/commands?session='+session+'&after='+last+'&wait=1');if(stopped)return;
+    if(stopped)return;const result=await request('/api/commands?session='+session+'&after='+last+(catchUp?'':'&wait=1'));if(stopped)return;
+    catchUp=false;
     for(const row of result.commands??[]){
      if(!Number.isSafeInteger(row.id)||row.id<=last)continue;last=row.id;
      if(typeof row.command!=='string'||Date.now()-row.at>10000||row.at>Date.now())continue;
-     newest=row.id;
+     // Allow the React update from this command to reach the overlay before the next idle wait.
+     catchUp=true;newest=row.id;
      const reply=(text:string|void)=>{if(!stopped&&text&&newest===row.id)answer={id:row.id,text:text.slice(0,240)};};
      void ref.current.execute(row.command).then(reply,()=>reply('요청을 처리하지 못했습니다. 다시 확인하세요.'));
     }

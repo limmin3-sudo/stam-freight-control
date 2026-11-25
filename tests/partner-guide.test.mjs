@@ -186,3 +186,14 @@ test('follow-up keeps the last exchange as dialogue and uses the selected partne
   assert.equal((await answerPartner({...body,previous:invalid},env,()=>assert.fail('unexpected call'))).status,400);
  }
 });
+test('optional ride conversation accepts a follow-up without offering an action',async()=>{
+ const previous={question:'착륙 어땠어?',answer:'부드러웠습니다.'};
+ const body={partner:'navigator',mode:'ride-chat',language:'ko',question:'다음에도 그럴까?',previous};
+ const result=await answerPartner(body,env,async(url,options)=>{
+  const req=JSON.parse(options.body);assert.deepEqual(req.text.format.schema.properties.room.enum,['none']);
+  assert.deepEqual(req.input.map(turn=>turn.content),[previous.question,previous.answer,body.question]);assert.equal(req.tools,undefined);
+  return completed('연습한 만큼 자신 있게 하셔도 되겠습니다.','none');
+ });
+ assert.equal(result.status,200);
+ assert.equal((await answerPartner({...body,partner:'director'},env,()=>assert.fail())).status,400);
+});

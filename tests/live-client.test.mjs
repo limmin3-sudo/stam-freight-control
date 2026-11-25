@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 const source=readFileSync(new URL('../integration/log/live-client.mjs',import.meta.url),'utf8').replace('export function connectLive','function connectLive')+'\nglobalThis.createClient=connectLive;';
 const a='a'.repeat(64),b='b'.repeat(64);
 function harness({token=null,hash='',origin='https://limmin3-sudo.github.io',pathname='/stam-freight-control/'}={}){
- let running=false,current=a,revision=1,serial=0;const calls=[],statuses=[],snapshots=[],errors=[],timers=new Map(),stored=new Map(token?[['stam-local-log-pairing',token]]:[]),listeners=new Map(),location={origin,hostname:new URL(origin).hostname,protocol:new URL(origin).protocol,pathname,search:'',hash};
+ let running=false,current=a,revision=1,serial=0;const calls=[],statuses=[],snapshots=[],errors=[],timers=new Map(),stored=new Map(token?[['stam-local-log-pairing',token]]:[]),listeners=new Map(),location={origin,hostname:new URL(origin).hostname,protocol:new URL(origin).protocol,port:new URL(origin).port,pathname,search:'',hash};
  const sandbox={URL,URLSearchParams,AbortController,TypeError,location,history:{replaceState(_s,_title,url){location.hash=new URL(url,origin).hash;}},sessionStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v),removeItem:k=>stored.delete(k)},document:{hidden:false,addEventListener:(k,fn)=>listeners.set(k,fn),removeEventListener:k=>listeners.delete(k)},setTimeout:(fn,delay)=>{const id=++serial;timers.set(id,{fn,delay});return id;},clearTimeout:id=>timers.delete(id),fetch:async(url,options)=>{
   const path=url.pathname;calls.push({path,...options});if(!running)throw new TypeError('offline');
   if(path==='/api/pair')return {status:200,ok:true,json:async()=>({protocol:1,token:current})};
@@ -16,3 +16,14 @@ test('a public tab opened before the companion waits and later connects without 
 test('app restart rotates the token and refreshes a reused snapshot revision in the same tab',async()=>{const h=harness();h.start();await h.step();h.stop();await h.step();h.start(b);await h.step();assert.equal(h.stored.has('stam-local-log-pairing'),false);await h.step();assert.equal(h.snapshots.length,2);assert.equal(h.snapshots[1].contracts[0].id,b);assert.equal(h.statuses.at(-1).phase,'watching');h.client.disconnect();});
 test('expired tab storage is replaced and a manual URL token remains backward compatible',async()=>{const stale=harness({token:b});stale.start();await stale.step();await stale.step();assert.equal(stale.snapshots.length,1);assert.equal(stale.stored.get('stam-local-log-pairing'),a);stale.client.disconnect();const linked=harness({hash:'#token='+a});linked.start();await linked.step();assert.equal(linked.location.hash,'');assert.equal(linked.calls.some(c=>c.path==='/api/pair'),false);assert.equal(linked.snapshots.length,1);linked.client.disconnect();});
 test('unrelated origins/paths cannot discover the companion and explicit disconnect stops retries',async()=>{for(const opts of [{origin:'https://example.com'},{pathname:'/another-project/'}]){const h=harness(opts);assert.equal(h.client,null);assert.equal(h.calls.length,0);}const h=harness();await h.step();h.client.disconnect();assert.equal(h.timers.size,0);assert.equal(h.listeners.size,0);});
+
+test('portable console can receive contracts on first launch without a URL token',async()=>{
+ const origin='http://127.0.0.1:23458';
+ const h=harness({origin,pathname:'/console/'});
+ h.start();await h.step();
+ assert.deepEqual(h.calls.map(call=>call.path),['/api/pair','/api/status','/api/snapshot']);
+ assert.equal(h.snapshots.length,1);
+ h.client.disconnect();
+ assert.equal(harness({origin,pathname:'/'}).client,null);
+ assert.equal(harness({origin:'http://127.0.0.1:3000',pathname:'/console/'}).client,null);
+});

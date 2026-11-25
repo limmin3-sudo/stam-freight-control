@@ -5,6 +5,9 @@ import {validateFlight,exportFlight,importFlight,persistRestoredFlight,previousF
 import {observeReceipts,pendingReceiptChanges,prepareReceiptUpdate,receiptBaseline} from './flight-receipts';
 import {receiptEvidence} from './receipt-cache';
 import type {ReceiptAction} from './flight-receipts';
+import {useContractScreens} from './use-contract-screens';
+import {withScreens} from './contract-screen';
+import {useDismissedReceipts} from './use-dismissed-receipts';
 import {useLogReceipts} from './use-log-receipts';
 import {updateFlightHistory} from './flight-history.mjs';
 import {readCargoPreferences} from './cargo-plan.mjs';
@@ -33,7 +36,11 @@ function restore(){
  catch{return {session:{version:1 as const,draft:readDraft(),plan:null,run:null},error:'저장된 운항 또는 개인 장소를 읽지 못했습니다. 원본은 유지됩니다. 기존 장소 관리의 좌표·소속 천체 또는 운항 백업을 확인하세요.'};}
 }
 export function useFlight(){
- const receipts=useLogReceipts();
+ const inbox=useLogReceipts(),archive=useContractScreens(inbox.cards);
+ const scanned=useMemo(()=>inbox.cards.map(j=>withScreens(j,archive.frames[j.id]||[])),[inbox.cards,archive.frames]);
+ const hiddenReceipts=useDismissedReceipts(false);
+ const receipts={...inbox,archive,scanned,hiddenReceipts};
+
  const [initial]=useState(restore),[session,setSession]=useState<Session>(initial.session);
  const [error,setError]=useState(initial.error),[storageError,setStorageError]=useState(''),[busy,setBusy]=useState(false);
  const worker=useRef<Worker|null>(null),current=useRef(session);current.current=session;
@@ -82,6 +89,42 @@ export function useFlight(){
   catch{setStorageError('브라우저에 저장하지 못했습니다. 현재 화면에서는 유지되지만 닫기 전에 운항 백업을 내려받으세요.');}
  }
  function change(draft:Draft){if(active||busy||!writable())return;setError('');commit({version:1,draft,plan:null,run:null});}
+ const voiceCards=scanned.filter(j=>!hiddenReceipts.dismissed.has(j.id)&&(j.state==='ready'||j.state==='incomplete')).map(j=>{
+  const selected=session.draft.jobs.find(old=>old.id===j.id&&old.signature===j.signature);
+  return selected?withScreens(selected,archive.frames[j.id]||[]):j;
+ });
+ function applySpokenReceipt(before:Job,next:Job,reversible=false){
+  if(!writable()||worker.current||inbox.phase!=='loaded'||inbox.cached||before.id!==next.id||
+     !voiceCards.some(j=>j.id===before.id&&receiptEvidence(j)===receiptEvidence(before)))throw Error('수신 카드가 바뀌었습니다. 다시 확인하세요.');
+  const s=current.current,selected=s.draft.jobs.some(j=>j.id===next.id);
+  if(selected&&s.run?.started&&!s.run.finished)throw Error('이미 운항 중인 계약은 관제에서 변경 내용을 검토하세요.');
+  const restoreInbox=reversible?inbox.saveReversibleCorrection(next):undefined;
+  if(!reversible)inbox.saveCorrection(next);
+  if(selected)change({...s.draft,reviewed:false,jobs:s.draft.jobs.map(j=>j.id===next.id?next:j)});
+  return restoreInbox;
+ }
+ const latestQuickContext=useRef({voiceCards,receipts});
+ latestQuickContext.current={voiceCards,receipts};
+ function applyQuickReceipt(before:Job,next:Job){
+  const selected=current.current.draft.jobs.find(j=>j.id===before.id);
+  if(selected&&current.current.plan)throw Error('계산된 경로의 변경을 먼저 확인하세요.');
+  const rawEvidence=()=>latestQuickContext.current.receipts.rawCards.find(j=>j.id===before.id);
+  const raw=rawEvidence();
+  if(!raw)throw Error('수신 기록을 다시 확인하세요.');
+  const frames=archive.frames[before.id]||[];
+  const expected=receiptEvidence(withScreens(next,frames));
+  const restoreInbox=applySpokenReceipt(before,next,true)!;
+  return ()=>{
+   const live=latestQuickContext.current,rawNow=rawEvidence(),s=current.current;
+   const card=live.voiceCards.find(j=>j.id===before.id);
+   if(!writable()||worker.current||live.receipts.cached||live.receipts.phase!=='loaded'||!card||!rawNow||
+      receiptEvidence(rawNow)!==receiptEvidence(raw)||receiptEvidence(card)!==expected||
+      !!selected!==s.draft.jobs.some(j=>j.id===before.id)||selected&&s.plan)
+    throw Error('수신 카드 또는 운항 계획이 바뀌어 되돌릴 수 없어요.');
+   restoreInbox();
+   if(selected)change({...s.draft,reviewed:false,jobs:s.draft.jobs.map(j=>j.id===before.id?selected:j)});
+  };
+ }
  function appendContracts(parse:(jobs:Job[])=>{jobs:Job[];skipped:number}){
   const s=current.current;
   if(!writable()||worker.current||s.run?.started&&!s.run.finished)throw Error('운항 준비 중에 계약을 불러올 수 있습니다.');
@@ -120,11 +163,11 @@ export function useFlight(){
   if(!run?.started||run.finished||!oldPlan||worker.current||pendingReceiptChanges(prior).length||!writable())throw Error('운항 상태와 수신 계약 변경을 먼저 확인하세요.');
   const review=structuredClone(prior.receiptReview??receiptBaseline(prior.draft,receiptSource.current.rawCards));
   let draft=prior.draft;
-  const evidence=()=>edit.add?JSON.stringify(receiptSource.current.cards.find(j=>j.id===edit.add!.id)):null;
+  const evidence=()=>edit.add?JSON.stringify(receiptSource.current.scanned.find(j=>j.id===edit.add!.id)):null;
   const expected=evidence();
   const addition=edit.add??edit.manualJob;
   if(addition){
-   if(edit.add&&(!expected||JSON.stringify(edit.add)!==expected))throw Error('추가할 수신 계약을 다시 확인하세요.');
+   if(edit.add&&(receiptSource.current.cached||receiptSource.current.phase!=='loaded'||!expected||JSON.stringify(edit.add)!==expected))throw Error('추가할 수신 계약을 다시 확인하세요.');
    if(draft.jobs.some(j=>j.id===addition.id)||!routeReady(addition))throw Error('추가할 계약의 상태와 거점을 다시 확인하세요.');
    draft={...draft,jobs:[...draft.jobs,addition]};
    const raw=edit.add&&receiptSource.current.rawCards.find(j=>j.id===addition.id);
@@ -145,7 +188,7 @@ export function useFlight(){
   });
   const next={...prior,draft,receiptReview:review,plan,run:adoptReplan(run,plan)};
   const save=(from:Session,to:Session)=>{
-   if(current.current!==from||worker.current||!writable()||expected!==evidence())throw Error('운항이나 계약이 바뀌었습니다. 다시 요청하세요.');
+   if(current.current!==from||worker.current||!writable()||expected!==evidence()||edit.add&&(receiptSource.current.cached||receiptSource.current.phase!=='loaded'))throw Error('운항이나 계약이 바뀌었습니다. 다시 요청하세요.');
    validateFlight(to);persistRestoredFlight(localStorage,to,exportFlight(from));
    savedRaw.current=JSON.stringify(to);current.current=to;setSession(to);setStorageError('');setError('');
   };
@@ -239,5 +282,5 @@ export function useFlight(){
   catch{setError('개인 장소 또는 현재 위치의 좌표를 확인할 수 없습니다. 기존 운항을 유지합니다. 장소 관리에서 확인하세요.');}
  }
  function stop(){if(worker.current||!writable())return;const s=current.current;commit({...s,draft:{...s.draft,reviewed:false},plan:null,run:null});}
- return {session,receipts,locationUpdate,refreshLocations,receiptChanges,confirmReceiptChanges,dischargeHeld,change,appendContracts,calculate,previewCopilotEdit,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup,prepareRestore,previousBackup,loginBackup};
+ return {session,receipts,voiceCards,applySpokenReceipt,applyQuickReceipt,locationUpdate,refreshLocations,receiptChanges,confirmReceiptChanges,dischargeHeld,change,appendContracts,calculate,previewCopilotEdit,progress,stop,nextFlight,hasSaved,busy,active,blocked,error,storageError,backup,prepareRestore,previousBackup,loginBackup};
 }

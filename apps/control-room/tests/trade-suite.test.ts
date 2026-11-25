@@ -1,3 +1,6 @@
+import {bestSplitSale} from "../src/trade-split.ts";
+import {tradeNextStep} from "../src/trade-workflow.ts";
+import {tradeCompanion} from "../src/trade-companion.ts";
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -128,4 +131,32 @@ test('report scenario keeps UEX intact, respects a newer partial fill, age and p
    assert.equal(fieldScenario(m,[{...row,...edit}],now).quotes[1]?.demand,100);
  }
  assert.equal(fieldScenario(m,[row,{...row,at:now,filled:0}],now).quotes[1]?.demand,0);
+});
+
+test('two buyers share one purchase, limited by packing, cash and actual current demand',()=>{
+ const market=data(), options={...input,commodityIds:[1],capacity:512,budget:5000};
+ market.quotes=[quote(1,1,1,10,null,500),quote(2,2,1,null,20,0,240),quote(3,3,1,null,18,0,260)];
+ market.quotes[0]!.containers=[4];
+ const physical={...ctx,pack:(items:{quantity:number}[])=>items.reduce((n,i)=>n+i.quantity,0)<=500};
+ const route=bestSplitSale(market,options,physical,now)!;
+ assert.deepEqual(route.legs.map(l=>[l.destinationId,l.lines[0]!.quantity]),[[2,240],[3,260]]);
+ assert.equal(route.purchase,5000);assert.equal(route.profit,4480);
+ const staged=changeSuiteBook(blankSuiteBook('test'),{kind:'stageNavigator',name:'Split',options,route});
+ const started=changeSuiteBook(staged,{kind:'startNavigator',id:'run'});
+ assert.throws(()=>changeSuiteBook(started,{kind:'startNavigator',id:'duplicate'}));
+ const run=started.runs[0]!;
+ assert.deepEqual(tradeNextStep(run).purchases.map(p=>[p.remaining,p.amount]),[[500,5000]]);
+ function add(kind:TradeEvent['kind'],extra:Partial<TradeEvent>){
+  run.events.push({id:crypto.randomUUID(),at:stamp,note:'',kind,...extra});
+ }
+ add('buy',{commodityId:1,lotId:'lot',terminalId:1,ownership:'owned',quantity:500,boxSize:4,amount:5000});
+ add('depart',{terminalId:2});add('arrive',{terminalId:2});
+ assert.equal(tradeNextStep(run).purchases.length,0);
+ add('sell',{lotId:'lot',quantity:180,amount:3600,terminalId:2});
+ const deck=tradeCompanion(run,expeditionSummary(run),String,String,true);
+ assert.equal(deck.control.holdings[0]!.qty,320);assert.equal(deck.control.buyer,3);assert.equal(deck.control.action,'depart');
+ const restricted=bestSplitSale(market,{...options,budget:975},physical,now)!;
+ assert.equal(restricted.purchase,960);
+ market.quotes[2]!.updatedAt='2020-01-01T00:00:00Z';
+ assert.equal(bestSplitSale(market,options,physical,now),null);
 });

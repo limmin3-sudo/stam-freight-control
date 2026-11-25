@@ -48,7 +48,7 @@ export function NewsList({ articles, locale }: { articles: FieldNews[]; locale: 
     </ul>
   );
 }
-export function useObservations() {
+export function useObservations(enabled = true) {
   const { client } = useFreightCloud();
   const [rows, setRows] = useState<Observation[]>([]),
     [failed, setFailed] = useState(false);
@@ -56,6 +56,7 @@ export function useObservations() {
     let live = true;
     setRows([]);
     setFailed(false);
+    if (!enabled) return;
     const stop = client?.watch(
       'tradeObservations',
       (docs) => {
@@ -73,7 +74,7 @@ export function useObservations() {
       live = false;
       stop?.();
     };
-  }, [client]);
+  }, [client, enabled]);
   return { rows, failed };
 }
 type ReportProps = {

@@ -19,7 +19,7 @@ for(const [id,p]of referencePlaces)places[id]=[translations[p.name]||p.name,p.na
 for(const id of ['hurston','crusader','arccorp','microtech'])places[id]=[placeName(id,0),placeName(id,1)];
 export const navigablePlaces=currentLocationData().locations.filter(p=>p.type!=='Star').map(p=>p.id);
 export type Shipment = { id:string; cargo:Name; from:Place; to:Place; pickupFacility?:Name; deliveryFacility?:Name; scu:number; cargoShape?:string; maxBoxSize?:number; boxes?:{size:number;count:number}[] };
-export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; signature?:string; reviewedReceipt?:boolean; observedStops?:{pickup:string[];dropoff:string[]}; reservations?:Record<string,number>;
+export type Job = { id:string; title:Name; shipments:Shipment[]; pay:number; rewardUnknown?:boolean; singleDeliveryScu?:number; directEvidence?:{cargo:string;from:string;to:string}; signature?:string; reviewedReceipt?:boolean; observedStops?:{pickup:string[];dropoff:string[]}; reservations?:Record<string,number>;
   referenceInfo?:{freightDefinitionId?:string;values:Record<string,unknown>;provenance:Record<string,string[]>;sources:Record<string,{name:string;version:string;url?:string}>};
   mission?:Partial<import('./flight-types').Mission>&Pick<import('./flight-types').Mission,'cargo'>;
   state?:'ready'|'incomplete'|'ended'|'conflict'; hints?:{cargo:string;scu:number;place:string;name?:string}[] };
@@ -32,6 +32,20 @@ export function needsStopGuidance(job:Job) {
 export function routeReady(job:Job) {
  return job.state!=='ended' && job.state!=='conflict' && (needsStopGuidance(job)||
   job.shipments.length>0 && job.shipments.every(row=>navigablePlace(row.from) && navigablePlace(row.to)));
+}
+export function receiptRouteLabel(job:Job,en:boolean){
+ if(job.state==='ended'||job.state==='conflict')return '';
+ const route=routeReady(job),rows=job.shipments;
+ const missing:string[]=[];
+ if(!route){
+  if(!rows.length||rows.some(r=>!navigablePlace(r.from)))missing.push(en?'pickup':'픽업지');
+  if(!rows.length||rows.some(r=>!navigablePlace(r.to)))missing.push(en?'delivery':'배송지');
+ }
+ if(!rows.length||rows.some(r=>!r.cargo.some(Boolean)))missing.push(en?'goods':'품목');
+ if(!rows.length||rows.some(r=>!r.scu&&!job.reservations?.[r.to]))missing.push(en?'quantity':'수량');
+ const ready=route?(en?'Route ready':'경로 준비됨'):'';
+ const gaps=missing.length?(en?'Check '+missing.join(', '):missing.join('·')+' 확인 필요'):'';
+ return [ready,gaps].filter(Boolean).join(' · ');
 }
 type Single = Omit<Shipment,'id'> & { id:string; pay:number };
 function singleJob({id,pay,...row}:Single):Job {

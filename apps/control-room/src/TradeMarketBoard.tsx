@@ -6,6 +6,7 @@ import {useTradeView} from './use-trade-view';
 import {defaultSuiteOptions,suiteTerminalIssue,terminalIssueLabel,suiteQuoteAllowed,type SuiteOptions} from './trade-suite';
 import './trade-market-board.css';
 import {NewsList,useTradeNews} from './TradeFieldReports';
+import type {MarketHandoff} from './CommodityRouteCard';
 import QuickTrade from './QuickTrade';
 
 export type PlanFromQuote = (origin:number, commodity:number, destination?:number, scope?:SuiteOptions['scope'], quick?:SuiteOptions)=>void;
@@ -35,7 +36,7 @@ function TickerValue({entry,target,cycle,delay,names,locale}:{entry:TickerEntry;
     aria-label={names[displayed]+' '+full+(percent?'%':' aUEC/SCU')} title={names[displayed]+' · '+full+(percent?'%':' aUEC/SCU')}>{text}</b>;
 }
 
-export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen,onQuickToggle}:{data:MarketSnapshot;locale:Locale;quickOpen:boolean;onQuickToggle:()=>void;onPlan?:PlanFromQuote;onDetails:(id:number)=>void}) {
+export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen,onQuickToggle,onSelectCommodity,quoteStatus,onHandoff}:{onHandoff?:MarketHandoff;onSelectCommodity:(id:number)=>void;quoteStatus:string;data:MarketSnapshot;locale:Locale;quickOpen:boolean;onQuickToggle:()=>void;onPlan?:PlanFromQuote;onDetails:(id:number)=>void}) {
   const en=locale==='en', t=(ko:string,english:string)=>en?english:ko;
   const news=useTradeNews();
   const [filters,setFilters]=useTradeView('market-search',{query:'',commodity:0,sort:'spread',fresh:false,available:true});
@@ -67,6 +68,7 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen
     }
     focusDetail.current=false;
   },[filters.commodity]);
+  useEffect(()=>{onSelectCommodity(filters.commodity);},[filters.commodity,onSelectCommodity]);
   function update(next:Partial<typeof filters>) {
     setFilters(previous=>({...previous,...next}));
     setLimit(16);
@@ -169,7 +171,7 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen
       {onPlan&&<button aria-expanded={quickOpen} onClick={onQuickToggle}>{t('내 함선·자금으로 거래 찾기','Find trades for my ship and budget')}</button>}
       <button aria-expanded={showFilters} aria-controls="trade-board-filters" onClick={()=>setShowFilters(!showFilters)}>{t('조회 조건','Filters')}</button>
     </div>
-    {quickOpen&&<QuickTrade articles={news.articles} data={data} locale={locale} initial={planOptions} onPlan={onPlan}/>}
+    {quickOpen&&<QuickTrade onHandoff={onHandoff} articles={news.articles} data={data} locale={locale} initial={planOptions} onPlan={onPlan}/>}
     <details className="market-field-news"><summary>{t('무역 소문 · 선장들의 후기','Trade rumors · pilot reports')}</summary><p>{t('게시 당시의 경험담입니다. 패치와 실제 수량은 원문에서 확인하세요.','Pilot accounts at the time of posting. See the original for patch and quantities.')}</p><NewsList articles={news.articles} locale={locale}/>{news.failed&&<p>{t('후기를 불러오지 못했습니다.','News unavailable.')}</p>}</details>
     <div hidden={!showFilters} id="trade-board-filters"><div className="market-filters">
       <label><input type="checkbox" checked={filters.available} onChange={e=>update({available:e.target.checked})}/>{t('재고와 예측 수요가 있는 거래만','Only pairs with stock and forecast demand')}</label>
@@ -189,7 +191,7 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen
       {ordered.map((entry,index)=>{
         const {item}=entry;
         return <button key={item.id} type="button" title={item.name} aria-controls="trade-commodity-detail" aria-pressed={filters.commodity===item.id}
-          onClick={()=>{if(filters.commodity===item.id){closeDetail();return;}focusDetail.current=true;update({commodity:item.id});}}>
+          onClick={()=>{if(filters.commodity===item.id){closeDetail();return;}if(quickOpen)onQuickToggle();focusDetail.current=true;update({commodity:item.id});}}>
           <span className="ticker-name" data-value="goods" data-shared-code={variants.has(item.id)||undefined}>
             {title(item)}
             {en&&variants.get(item.id)&&<small>{variants.get(item.id)}</small>}
@@ -211,6 +213,8 @@ export default function TradeMarketBoard({data,locale,onPlan,onDetails,quickOpen
           <button onClick={()=>onDetails(selection.item.id)}>{t('최신 시세 확인','Check latest quotes')}</button>
           <button onClick={closeDetail}>{t('상세 닫기','Close detail')}</button>
         </header>
+        {quoteStatus&&<p role="status">{quoteStatus}</p>}
+        {!quickOpen&&onPlan&&<QuickTrade onHandoff={onHandoff} key={`route-${selection.item.id}`} selectedCommodity={selection.item.id} articles={news.articles} data={data} locale={locale} initial={planOptions} onPlan={onPlan}/>}
         {selection.sides.length?<details open={!pairs.length} key={selection.item.id}><summary>{t('거래소별 가격·재고·수요','Terminal prices, stock and demand')} ({selection.sides.length})</summary><div className="ticker-terminals"><table><thead><tr>{[t('거래소','Terminal'),t('매입가','Buy'),t('판매가','Sell'),t('재고 · SCU','Stock · SCU'),t('예측 수요 · SCU','Forecast demand · SCU'),t('수정 시각','Updated')].map(text=><th key={text}>{text}</th>)}</tr></thead>
           <tbody>{selection.sides.map(({quote,terminal})=><tr key={quote.id}><th data-value="place" scope="row">{tradeLabel(terminal.name,'places',locale)}</th><td data-value="price" className="price-buy">{format(quote.buy)}</td><td data-value="price" className="price-sell">{format(quote.sell)}</td><td data-value="quantity">{format(quote.stock)}</td><td data-value="quantity">{format(quote.demand)}</td><td>{quote.updatedAt&&date.format(new Date(quote.updatedAt))}</td></tr>)}</tbody></table></div></details>:<p>{t('조회 조건에 맞는 보고가 없습니다.','No reports match the current filters.')}</p>}
       </>}

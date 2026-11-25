@@ -109,3 +109,77 @@ test('navigation preserves separate pickup and delivery rows and unknown shares;
  state.publish({session,sequence:3,display:{mode:'fleet',title:'무역',lines:[]}});
  assert.equal(state.snapshot().navigation,undefined);
 });
+test('receipt amendments and affirmatives are bound to the live readback',()=>{
+ const s=createCompanionState(),session='abcdefgh12345678',proposal=crypto.randomUUID();
+ const display={mode:'flight',title:'Receipt',lines:[],copilot:true,proposal,proposalText:'40 SCU',receiptReadback:true};
+ s.publish({session,sequence:0,display});
+ assert.equal(s.enqueue('receipt-amend:'+proposal+':아니 14야'),true);
+ assert.equal(s.enqueue('receipt-amend:'+crypto.randomUUID()+':아니 14야'),false);
+ assert.equal(s.enqueue('copilot-say:맞아'),false);
+ assert.equal(s.enqueue('copilot-say:아니 14야'),false);
+ s.publish({session,sequence:1,display:{...display,receiptReadback:false}});
+ assert.equal(s.enqueue('receipt-amend:'+proposal+':아니 14야'),false);
+ assert.equal(s.enqueue('copilot-say:yes'),true);
+});
+
+test('acoustic hints follow the paired receipt view and omit malformed entries',()=>{
+ const state=createCompanionState(),session='abcdefgh12345678',receiptView='035ec337-5866-4ee7-b11e-50890062ec81';
+ const display={mode:'personal',title:'',lines:[],receiptHints:['2|루인|티타늄','2|루인|수소','2|루인','2|루인|티타늄:14'],receiptView};
+ state.publish({session,sequence:1,display});assert.equal(state.snapshot().receiptHints,undefined);
+ state.publish({session,sequence:2,display:{...display,copilot:true}});assert.deepEqual(state.snapshot().receiptHints,['2|루인|티타늄','2|루인|수소']);
+ state.publish({session,sequence:3,display:{...display,copilot:true,receiptView:undefined}});assert.equal(state.snapshot().receiptHints,undefined);
+});
+
+test('numeric readbacks belong to one pending question or an explicitly addressed view',()=>{
+ const state=createCompanionState(),session='abcdefgh12345678',view='6c3e9ccd-6d04-4158-9423-8c2bb7b4b4cd',q=crypto.randomUUID();
+ const display={mode:'personal',title:'',lines:[],copilot:true,receiptView:view,receiptReview:true,receiptFollowup:true,quantityPrompt:q};
+ state.publish({session,sequence:1,display});
+ assert.equal(state.enqueue('receipt-review:'+view+':14'),false);
+ assert.equal(state.enqueue('receipt-review:'+q+':14'),true);
+ assert.equal(state.enqueue('receipt-review:'+q+':14'),false);
+ state.publish({session,sequence:2,display:{...display,receiptFollowup:false}});
+ assert.equal(state.enqueue('receipt-review:'+q+':14'),false);
+ assert.equal(state.enqueue('receipt-review:'+view+':2번 계약 루인행 티타늄 수량 14로 바꿔'),true);
+});
+
+test('a spoken stop choice is bound to its menu and accepted once',()=>{
+ const state=createCompanionState(),session='abcdefgh12345678',view=crypto.randomUUID(),id=crypto.randomUUID();
+ const display={mode:'flight',title:'',lines:[],copilot:true,receiptView:view,receiptFollowup:true,placePrompt:{id,names:['루인','차울라']}};
+ state.publish({session,sequence:1,display});
+ assert.equal(state.enqueue('receipt-place:'+id+':heard:3'),false);
+ assert.equal(state.enqueue('receipt-place:'+id+':review:1'),true);
+ assert.equal(state.enqueue('receipt-place:'+id+':heard:2'),false);
+ state.publish({session,sequence:2,display:{...display,placePrompt:{id:crypto.randomUUID(),names:['세이크','가스라이트']}}});
+ assert.equal(state.enqueue('receipt-place:'+id+':heard:1'),false);
+});
+
+test('trade actions use the displayed quantities, whole boxes and current stop',()=>{
+ const state=createCompanionState(),session='trade_session_123456',id='db36b60e-c7e6-4a01-abdc-5a67dcaf2c23';
+ const lot={label:'티타늄',qty:8,box:2},tradeAction={id,action:'sell',buy:[],sell:[lot],buyers:[]};
+ const display={mode:'personal',switchable:true,title:'무역',lines:[],tradeAction};
+ const enqueue=op=>state.enqueue('trade-action:'+id+':'+op);
+ state.publish({session,sequence:1,display});
+ assert.equal(state.enqueue('mode-flight'),true);
+ for(const bad of ['sell:0:10:10:2','sell:0:3:10:2','sell:0:2:0:2','sell:0:2:10:1','sell:1:2:10:2','buy:0:2:10:2'])assert.equal(enqueue(bad),false,bad);
+ assert.equal(enqueue('sell:0:2:10:2'),true);
+ assert.equal(enqueue('sell:0:2:10:2'),false);
+ state.publish({session,sequence:2,display:{...display,tradeAction:{...tradeAction,action:'arrive'}}});
+ assert.equal(enqueue('sell:0:4:10:2'),false);
+ assert.equal(enqueue('compare:0'),false);
+ assert.equal(enqueue('arrive'),true);
+ state.publish({session,sequence:3,display:{...display,mode:'flight'}});
+ assert.equal(enqueue('sell:0:4:10:2'),false);
+});
+
+test('inbox planning, launch and add are limited to the command and options displayed on this revision',()=>{
+ const state=createCompanionState(),session='receipt_session_123';
+ const show=(sequence,action,options=[])=>{
+  const id=crypto.randomUUID();state.publish({sequence,session,display:{mode:'flight',title:'운송',lines:[],inbox:{id,label:'5 / 4',action,options}}});return 'inbox:'+id+':';
+ };
+ const first=show(1,'plan');assert.equal(state.enqueue(first+'start'),false);
+ assert.equal(state.enqueue(first+'plan'),true);assert.equal(state.enqueue(first+'plan'),false);
+ const second=show(2,'start');assert.equal(state.enqueue(first+'plan'),false);assert.equal(state.enqueue(second+'start'),true);
+ const third=show(3,'add',['A','B']);
+ assert.equal(state.enqueue(third+'add:2'),false);assert.equal(state.enqueue(third+'add'),false);
+ assert.equal(state.enqueue(third+'add:1'),true);assert.equal(state.enqueue(third+'add:0'),false);
+});
