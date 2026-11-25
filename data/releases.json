@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026-11-25-beta-3-11-0",
+    "channel": "beta",
+    "version": "3.11.0",
+    "date": "2026-11-25 13:46",
+    "title": "계약별 읽기 안내와 남은 화물 판매처 비교",
+    "changes": [
+      "운송 계약 카드에서 어떤 정보가 필요한지 확인할 수 있습니다. 전투·훈련 계약은 운송 알림에서 제외하고 분류가 불확실한 계약은 수신함에 남깁니다. 거점이 확인된 계약은 수량 없이도 경로를 계산할 수 있습니다.",
+      "네비게이터 1.6.7 첫 화면에서 로그 연결, 게임 창 공유, 마이크 입력을 각각 확인할 수 있습니다. 마이크 점검에서 말하기 버튼을 길게 눌러 인식한 문장과 부조종사의 답을 확인하세요.",
+      "부분 판매 후 판매 전 수량·판매량·잔량을 표시합니다. 웹과 오버레이에서 남은 화물의 판매처를 열고 상자 단위 판매량, UEX 수요, 실제 판매 제보와 추가 방문 수를 비교할 수 있습니다."
+    ],
+    "en": {
+      "title": "Contract reading guidance and buyer comparison after partial sales",
+      "changes": [
+        "Check the missing details on each freight card. Combat and training contracts are excluded from freight alerts. Unclassified receipts remain in the inbox, and known stops are enough to plan a route without a quantity.",
+        "Navigator 1.6.7 shows the log, game window and microphone separately. In the microphone check, hold the talk shortcut to see what Navigator heard and hear the copilot reply.",
+        "After a partial sale, see the starting quantity, amount sold and cargo left. Compare buyers on the web or overlay by whole-box quantity, UEX demand, pilot reports and extra stops."
+      ]
+    }
+  },
+  {
     "id": "2026-11-25-beta-3-10-0",
     "channel": "beta",
     "version": "3.10.0",
