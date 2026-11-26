@@ -17,6 +17,9 @@ const definition = (name:string,slug:string)=>({name,url:'https://api.star-citiz
 const build:AcademyText = ['4.10.3 게임 계약 정의 · 실제 배정은 계약 화면에서 확인', '4.10.3 game contract definition · check your assigned contract'];
 const sample:AcademyText = ['STAM 계산 예시 · 2026-11-16 수집 티타늄 시세(4.10.3), 비용·시간은 예시 조건', 'STAM worked example · 4.10.3 titanium quotes collected 2026-11-16, illustrative costs and times'];
 
+const redWindVideo = {name:'Loud Guns · The Redwind Cargo Hauling Guide (2026-10-26)',url:'https://www.youtube.com/watch?v=geHbvnBptXA'};
+const redWindVideoBasis:AcademyText = ['출처는 Loud Guns 영상의 알파 4.10.2 운항 사례입니다. 시간·평판·수익은 영상 조건 기준이며, 실제 배정과 보상은 수주 화면에서 확인하세요.', 'Source: Loud Guns’ Alpha 4.10.2 runs. Times, reputation and payouts reflect the filmed conditions. Check your assigned contract for current values.'];
+
 export const fieldLessons:AcademyLesson[] = [
   {
     id:'red-wind-pyro-loop',topic:firstHaul,
@@ -48,6 +51,50 @@ export const fieldLessons:AcademyLesson[] = [
     },
     basis:['플레이어가 제공한 게임 내 계약 화면 5건과 한 바퀴 실측 기준. 수주할 때 주요 목표에서 픽업지·배송지·수량을 확인하세요.', 'Based on five player-supplied in-game contracts and one timed lap. Check the pickup, delivery and quantities in each offer.'],
     sources:[],tool:'mission',
+  },
+  {
+    id:'red-wind-rank-routes',topic:firstHaul,
+    title:['레드 윈드 평판작 · 수습생부터 마스터까지 어떤 계약을 받을까?', 'Red Wind reputation · which contracts to take from Trainee to Master'],
+    summary:['레드윈드 라인홀 계약은 화물을 살 자본이 필요 없습니다. 승급이 목표라면 같은 등급에서 빨리 완납할 계약을, 수익이 목표라면 하역 뒤 복귀 화물까지 이어지는 계약을 고르세요. 아래는 Loud Guns가 파이로에서 운항한 4.10.2 사례입니다.', 'Red Wind Linehaul supplies the cargo. To rank up, pick contracts you can finish quickly at your current tier. To earn credits, look for a paying return load. These Pyro runs come from Loud Guns on Alpha 4.10.2.'],
+    example:{
+      caption:['등급별 추천 운항 · 금액은 영상의 계약 보상 예시', 'Routes by rank · example contract payouts from the video'],
+      columns:[['현재 등급','Current rank'],['받을 계약과 동선','Contract and route'],['승급·수익 기준','Progress or payout']],
+      rows:[
+        [['수습생 · Trainee','Trainee'],['CRU-L5 → 오리슨, 함선 탄약 6 SCU','CRU-L5 → Orison, 6 SCU of ship ammunition'],['입문 계약 1건','One introductory contract']],
+        [['신입 · Rookie','Rookie'],['바이니 포인트 → 루인 스테이션, 직항 424 SCU','Baijini Point → Ruin Station, 424 SCU direct'],['1건 · 36.3만 aUEC · 평판 200','1 contract · 363,000 aUEC · 200 rep']],
+        [['초급 · Junior','Junior'],['패치 시티·체크메이트에서 지상행 4건 묶기','Stack 4 planetary jobs from Patch City and Checkmate'],['약 40분에 120만 aUEC · 승급까지 20건','About 1.2M aUEC in 40 min · 20 contracts to advance']],
+        [['회원급 · Member','Member'],['루인 출고와 루인 복귀를 합쳐 4~5건','Combine 4–5 outbound and inbound Ruin contracts'],['약 1시간에 230만 aUEC · 승급까지 45건','About 2.3M aUEC in 1 hr · 45 contracts to advance']],
+        [['숙련 · Experienced','Experienced'],['다중 거점 5건 또는 헐 C로 가스라이트 ↔ 루인','5 multi-stop jobs or Gaslight ↔ Ruin in a Hull C'],['순환 90분에 500만 · 직항 왕복 6건 약 477만 aUEC','5M in 90 min on the loop · about 4.77M aUEC for 6 direct jobs']],
+        [['선임 · Senior','Senior'],['현재 정거장에서 싣고, 마지막 배송지에서 다음 건 수주','Pick up here, then take the next job at the last drop'],['건당 평판 2,000 · 승급까지 80건','2,000 rep each · 80 contracts to advance']],
+        [['마스터 · Master','Master'],['경유지가 둘 이상 겹치는 루인 출고 1건 + 입고 1건','Pair an outbound and an inbound Ruin job sharing at least 2 stops'],['건당 210만 · 두 건 약 1시간에 420만 aUEC','2.1M each · 4.2M aUEC for the pair in about 1 hr']],
+      ],
+    },
+    steps:[
+      ['파이로로 넘어갈 때는 루인 도착 후 부활 지점부터 옮기세요. 초급에서는 체크메이트 → 잭슨 스왑 입문편을 끝낸 뒤, 잭슨 스왑·골든 리비에라처럼 배송지가 겹치는 계약을 고릅니다. 영상의 4건은 총 456 SCU였습니다.', 'Set your respawn after arriving at Ruin. At Junior, finish the Checkmate → Jackson’s Swap introduction, then look for contracts sharing drops such as Jackson’s Swap or Golden Riviera. The four in the example totaled 456 SCU.'],
+      ['회원급 루인 순환은 의뢰 목록의 성계 내 운송(Hauling Stellar)에서 시작합니다. 루인 → 여러 정거장 계약 옆에 여러 정거장 → 루인 계약을 놓고 겹치는 곳을 고르세요. 먼저 많이 내릴 수 있는 정거장부터 돌면 복귀 화물을 실을 자리가 납니다. 같은 폐기물이라도 배송지가 다르면 선체 좌우로 나눠 싣습니다.', 'At Member, open Hauling Stellar at Ruin. Compare jobs leaving Ruin with jobs returning there and pick shared stops. Visit a large drop early to make room for the return pickups. Stow waste for different destinations on opposite sides of the ship.'],
+      ['숙련 헐 C 직항은 가스라이트 → 루인 4건을 먼저 보고 복귀 2건을 찾습니다. 건당 79.5만이면 편도 318만, 복귀까지 477만 aUEC입니다. 영상의 편도는 약 33분입니다. 복귀 계약이 뜨지 않았거나 외부 하역장이 밀렸다면 시간당 수익도 다시 계산하세요.', 'At Experienced, look for four Gaslight → Ruin jobs and two on the way back. At 795,000 each that pays 3.18M outbound or 4.77M aUEC both ways. The filmed outbound leg took about 33 minutes. Recalculate your hourly rate if return jobs are missing or the elevators are busy.'],
+      ['선임에서 평판이 목표라면 2곳 경유와 3곳 경유의 평판이 같은지 보고 짧은 쪽을 택하세요. 영상에서는 보상이 각각 130만·170만 aUEC였지만 평판은 둘 다 2,000이었습니다. 마지막 배송지에서 바로 싣는 계약을 받으면 빈 배로 픽업하러 가는 점프를 줄일 수 있습니다.', 'At Senior, compare the reputation on two-stop and three-stop jobs. In the video both gave 2,000 rep, while credits rose from 1.3M to 1.7M. Pick up your next contract at your final drop to save an empty jump.'],
+    ],
+    check:['출발 전에 각 거점에서 내릴 양과 다시 실을 양을 적어 보세요. 배를 고를 때 기준이 되는 수치는 운항 중 동시에 실리는 최대 SCU입니다.', 'List what you drop and pick up at each stop. Size your ship for the largest load aboard at any one time.'],
+    basis:redWindVideoBasis,sources:[redWindVideo],tool:'mission',
+  },
+  {
+    id:'red-wind-pyro-handling',topic:firstHaul,
+    title:['레드 윈드 실전 하역 · 헐 B·헐 C·아이언클래드와 함대 운송', 'Red Wind cargo handling · Hull B, Hull C, Ironclad and fleet runs'],
+    summary:['루인에서 계약을 더 받을지 결정하기 전에는 다음 거점의 외부 엘리베이터, 상자 규격, 혼자 하역할 시간을 먼저 봅니다. 아이언클래드 5건과 2건짜리 순환을 같은 시간 기준으로 비교해 보세요.', 'Before stacking another job at Ruin, check the next elevator, box size and solo handling time. Compare a five-job Ironclad run with a two-job loop over the same number of hours.'],
+    steps:[
+      ['합산 화물이 623 SCU였던 숙련 순환에서 레일런(640 SCU)은 5건을 실었고, 헐 B(512 SCU)는 4건을 골랐습니다. 헐 B는 중형 격납고 양쪽 엘리베이터에 목적지별로 나눠 올리세요. C2나 아이언클래드는 용량과 함께 안쪽 상자를 출구까지 꺼낼 통로도 확보하세요.', 'The Experienced stack totaled 623 SCU. The 640 SCU Railen took all five jobs while the 512 SCU Hull B selected four. Split Hull B loads by destination between the two medium hangar elevators. In a C2 or Ironclad, leave an aisle to get the inner boxes out.'],
+      ['화물을 실은 헐 C는 격납고 착륙이 어려워 양쪽에 외부 하역장이 있는 직항을 고릅니다. 영상에서 루인·체크메이트·오비추어리, 가스라이트·메구미, 닉스·스탠튼 게이트웨이는 외부 하역이 가능했습니다. 패치 시티·스타라이트·엔드게임 등은 내부 하역 사례입니다. 격납고에 들어가는 편에서 주유까지 마치면 다음 구간이 짧아집니다.', 'A laden Hull C needs external handling at both ends. The video used or identified external elevators at Ruin, Checkmate, Orbituary, Gaslight, Megumi and the Nyx and Stanton gateways. Patch City, Starlight and Endgame were hangar stops. Refuel on a leg that already takes you inside.'],
+      ['같은 품목을 여러 곳에 내릴 때는 엘리베이터에서 계약 한 건의 상자만 선택해 합계 SCU를 대조하고 한 묶음씩 올리세요. 소형 상자가 많으면 ATLS, 개별 상자 정렬에는 MaxLift가 편합니다. 외부 엘리베이터가 이미 올라와 있으면 빈 채로 한 번 내렸다 올리고, 완전히 멈춘 후 옮기세요. 창고가 비었으면 동기화 후 다시 확인하세요.', 'For identical commodities going to different stops, select one contract’s boxes, check their total SCU and raise one batch at a time. Use an ATLS for many small crates and a MaxLift for individual placement. Cycle a raised external elevator empty, wait for it to stop, then load. Allow the warehouse time to sync if cargo is missing.'],
+      ['마스터 아이언클래드 예시는 출고 2건과 입고 3건으로 총 1,050만 aUEC입니다. 솔로 약 3시간이면 시간당 약 350만입니다. 레일런 2건은 약 1시간에 420만이었습니다. 한 번에 받는 금액보다 마지막 하역까지 걸리는 시간을 기준으로 비교하세요.', 'The Master Ironclad example combined two outbound and three inbound jobs for 10.5M aUEC. At about three hours solo that is roughly 3.5M per hour. The two-job Railen loop paid 4.2M in about an hour. Time each option through the final unload.'],
+      ['함대 운송은 마스터 조율자가 루인 출고 2건·입고 4건과 선임 입고 4건을 공유합니다. 팀별로 정거장을 맡아 입고 화물을 루인에 내리고 출고분을 실어 복귀하세요. 근거리 팀과 원거리 팀의 다음 목적지를 맞바꾸면 하역장 도착이 분산됩니다. 영상의 한 주기 1,800만~1,950만 aUEC와 평판 32,000은 분배 전 함대 전체 합계입니다.', 'For a fleet run, the Master coordinator shares two Master outbound, four Master inbound and four Senior inbound jobs. Assign stations, deliver to Ruin and carry outbound loads back. Swap short and long destinations between teams to stagger elevator arrivals. The reported 18–19.5M aUEC and 32,000 rep per cycle are fleet totals before distribution.'],
+    ],
+    fieldNote:{
+      title:['화물이 빠졌을 때 · 부분납품', 'Missing cargo · partial submission'],
+      body:['영상의 4.10.2 사례에서는 일부만 제출하면 1 SCU가 모자라도 보수와 평판이 최대 75%로 제한됐습니다. 현재 패치에서 같은 비율이 적용되는지는 확인되지 않았습니다. 평판작 중이면 남은 상자가 창고나 다른 배송지 물량에 섞였는지부터 확인하고, 계약 화면의 납품 수량과 예상 보상을 보고 제출하세요.', 'In the 4.10.2 account, being even 1 SCU short capped payout and reputation at 75%. The current rate is unconfirmed. If ranking up, first check the warehouse and your other drops for missing boxes, then review the delivered quantity and displayed payout before submitting.'],
+    },
+    check:['외부 하역 가능 여부, 최대 동시 적재량, 첫 배송분을 꺼낼 통로까지 확인했나요?', 'Have you checked external elevator access, peak cargo aboard and a clear path to the first drop?'],
+    basis:redWindVideoBasis,sources:[redWindVideo],
   },
   {
     id:'accept-first-haul',topic:firstHaul,title:['운송 계약, 어디서 받고 무엇부터 읽을까?', 'Where do I accept my first haul?'],
